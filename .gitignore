@@ -1,0 +1,18 @@
+# PHP / SiteGround
+vendor/
+.env
+*.log
+*.sql
+*.bak
+*.tmp
+
+# OS / Editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Sensitive files
+includes/db_connect.php   # ← we'll commit a SAMPLE only, never real creds

@@ -15,7 +15,7 @@
   </main>
 
   <footer>
-    <p>&copy; 2026 NeighborhoodTools</p>
+    <p><small>&copy; 2026 NeighborhoodTools</small></p>
   </footer>
 </body>
 </html>

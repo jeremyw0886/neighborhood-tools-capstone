@@ -18,9 +18,9 @@
         <h2>Database ERD</h2>
         <p>View the Entity Relationship Diagram</p>
       </a>
-      <a href="/NeighborhoodTools.md" class="card">
+      <a href="/database-design.php" class="card">
         <h2>Project Documentation</h2>
-        <p>View the project overview</p>
+        <p>View the database design overview</p>
       </a>
     </section>
   </main>

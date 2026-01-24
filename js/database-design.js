@@ -17,6 +17,28 @@ const iframeStyles = `
     hr { border: none; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
 `;
 
+// Custom renderer to generate heading IDs that match markdown anchor links
+const renderer = new marked.Renderer();
+renderer.heading = function(text, level) {
+    // Handle both old and new marked.js API
+    const headingText = typeof text === 'object' ? text.text : text;
+    const headingLevel = typeof text === 'object' ? text.depth : level;
+
+    // Generate slug: lowercase, replace spaces with hyphens, remove special chars except hyphens
+    const slug = headingText
+        .toLowerCase()
+        .replace(/<[^>]*>/g, '')     // Remove HTML tags
+        .replace(/&amp;/g, '')        // Remove &amp;
+        .replace(/[^\w\s-]/g, '')     // Remove special chars except hyphens
+        .replace(/\s+/g, '-')         // Replace spaces with hyphens
+        .replace(/-+/g, '-')          // Replace multiple hyphens with single
+        .trim();
+
+    return `<h${headingLevel} id="${slug}">${headingText}</h${headingLevel}>`;
+};
+
+marked.setOptions({ renderer: renderer });
+
 fetch('/NeighborhoodTools.md')
     .then(response => response.text())
     .then(markdown => {

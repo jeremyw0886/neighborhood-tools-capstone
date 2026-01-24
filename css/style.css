@@ -23,6 +23,44 @@ main {
   max-width: 50ch;
 }
 
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: inherit;
+  padding: 1.5rem;
+  text-decoration: none;
+  transition: box-shadow 0.2s, transform 0.2s;
+  width: 100%;
+  max-width: 20rem;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  color: #065f46;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
 h1 {
   color: #065f46;
   font-size: clamp (2.5rem, 8vw +1rem, 4rem);

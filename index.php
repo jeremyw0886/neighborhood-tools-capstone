@@ -12,6 +12,17 @@
     <h1>Welcome to NeighborhoodTools</h1>
     <p>Your local tool sharing platform.</p>
     <p>WEB-289 Capstone Project - Jeremy Warren</p>
+
+    <section class="cards">
+      <a href="https://dbdiagram.io/d/neighborhoodtools-com-ERD-69711419bd82f5fce231c284" class="card" target="_blank" rel="noopener">
+        <h2>Database ERD</h2>
+        <p>View the Entity Relationship Diagram</p>
+      </a>
+      <a href="/NeighborhoodTools.md" class="card">
+        <h2>Project Documentation</h2>
+        <p>View the project overview</p>
+      </a>
+    </section>
   </main>
 
   <footer>

@@ -10,7 +10,7 @@
 <body>
     <header class="database-design-header">
         <a href="/" class="back-link">&larr; Back to Home</a>
-        <h1>Database Design</h1>
+        <h1>Database Design Documentation</h1>
     </header>
 
     <iframe id="markdown-frame" srcdoc="<p>Loading...</p>"></iframe>

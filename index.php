@@ -19,7 +19,7 @@
         <p>View the Entity Relationship Diagram</p>
       </a>
       <a href="/database-design.php" class="card">
-        <h2>Database Design</h2>
+        <h2>Database Design Documentation</h2>
         <p>View the database design overview</p>
       </a>
     </section>

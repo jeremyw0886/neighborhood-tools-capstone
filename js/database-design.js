@@ -45,8 +45,25 @@ fetch('/NeighborhoodTools.md')
         const html = `
             <!DOCTYPE html>
             <html>
-            <head><style>${iframeStyles}</style></head>
+            <head>
+                <base target="_self">
+                <style>${iframeStyles}</style>
+            </head>
             <body>${marked.parse(markdown)}</body>
+            <script>
+                // Handle anchor link clicks to scroll within the iframe
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.getAttribute('href').startsWith('#')) {
+                        e.preventDefault();
+                        const targetId = link.getAttribute('href').slice(1);
+                        const targetEl = document.getElementById(targetId);
+                        if (targetEl) {
+                            targetEl.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
+                });
+            </script>
             </html>
         `;
         document.getElementById('markdown-frame').srcdoc = html;

@@ -45,16 +45,16 @@ neighbors to share tools with each other. This database design supports:
 The database is organized into logical groups for easier management and
 visualization:
 
-| Group                  | Color   | Tables                                                                                                            |
-|------------------------|---------|-------------------------------------------------------------------------------------------------------------------|
-| **Accounts**           | #2980B9 | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `zip_code_zpc`, `account_acc`, `account_image_aim` |
-| **Tools**              | #16A085 | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`                                                |
-| **Borrowing**          | #E67E22 | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`                                     |
+| Group                  | Color   | Tables                                                                                                                                          |
+|------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Accounts**           | #2980B9 | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `zip_code_zpc`, `account_acc`, `account_image_aim`, `account_bio_abi` |
+| **Tools**              | #16A085 | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`                                                                              |
+| **Borrowing**          | #E67E22 | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`                                                                   |
 | **Ratings & Disputes** | #8E44AD | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm` |
-| **User Interactions**  | #19a9a4 | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                     |
-| **Shared Assets**      | #6d2ef4 | `vector_image_vec`                                                                                                |
-| **Future Expansion**   | #95A5A6 | `event_evt`, `phpbb_integration_php`                                                                              |
-| **Junction Tables**    | #ae5f5f | `tool_category_tct`, `bookmark_bmk`                                                                               |
+| **User Interactions**  | #19a9a4 | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                   |
+| **Shared Assets**      | #6d2ef4 | `vector_image_vec`                                                                                                                              |
+| **Future Expansion**   | #95A5A6 | `event_evt`, `phpbb_integration_php`                                                                                                            |
+| **Junction Tables**    | #ae5f5f | `tool_category_tct`, `bookmark_bmk`                                                                                                             |
 
 ---
 
@@ -242,7 +242,6 @@ Main user account table containing all user information.
 | `id_sta_acc`         | int          | -                  | Required if street_address provided; must match zip_code_zpc.id_sta_zpc |
 | `zip_code_acc`       | varchar(10)  | not null           | FK to zip_code_zpc                                        |
 | `password_hash_acc`  | varchar(255) | not null           | bcrypt or argon2 hash only                                |
-| `bio_text_acc`       | text         | -                  | -                                                         |
 | `id_rol_acc`         | int          | not null           | FK to role_rol                                            |
 | `id_ast_acc`         | int          | not null           | FK to account_status_ast                                  |
 | `id_cpr_acc`         | int          | not null           | FK to contact_preference_cpr                              |
@@ -292,6 +291,23 @@ Profile images for user accounts. One account can have multiple images.
 - `idx_account_primary_aim` on `(id_acc_aim, is_primary_aim)`
 
 > **Note:** Single-primary constraint enforced via BEFORE INSERT/UPDATE trigger.
+
+---
+
+#### account_bio_abi
+
+Optional bio text stored separately to save space. Only populated when user
+provides a bio - application displays placeholder text when no row exists.
+
+| Column           | Type      | Constraints           | Notes                                            |
+|------------------|-----------|-----------------------|--------------------------------------------------|
+| `id_abi`         | int       | PK, auto-increment    | -                                                |
+| `id_acc_abi`     | int       | unique, not null      | FK to account_acc; one bio per account           |
+| `bio_text_abi`   | text      | not null              | -                                                |
+| `created_at_abi` | timestamp | default: now()        | -                                                |
+| `updated_at_abi` | timestamp | default: now()        | -                                                |
+
+> **Note:** Row exists only when user provides a bio. Application should check for existence and display placeholder text if no row found.
 
 ---
 
@@ -685,6 +701,7 @@ Junction tables create the following M:M relationships:
 | `zip_code_zpc`           | `account_acc`       | `zip_code_acc`     | Location of accounts             |
 | `state_sta`              | `zip_code_zpc`      | `id_sta_zpc`       | State for ZIP codes              |
 | `account_acc`            | `account_image_aim` | `id_acc_aim`       | Account has profile images       |
+| `account_acc`            | `account_bio_abi`   | `id_acc_abi`       | Account has optional bio (0 or 1)|
 | `account_acc`            | `vector_image_vec`  | `id_acc_vec`       | Admin uploads vector images      |
 | `vector_image_vec`       | `category_cat`      | `id_vec_cat`       | Category has optional icon       |
 
@@ -779,10 +796,15 @@ Junction tables create the following M:M relationships:
 |  | state_sta |<-----+  account_acc   |<---------+                            |
 |  +-----+-----+      +-------+--------+          |                            |
 |        |                    |                   |                            |
-|        v                    |                   |                            |
-|  +-------------+            v                   |                            |
-|  | zip_code_zpc|     +------------------+       |                            |
-|  +-------------+     | account_image_aim|       |                            |
+|        v                    v                   |                            |
+|  +-------------+     +------------------+       |                            |
+|  | zip_code_zpc|     | account_image_aim|       |                            |
+|  +-------------+     +------------------+       |                            |
+|                             |                   |                            |
+|                             v                   |                            |
+|                      +----------------+         |                            |
+|                      | account_bio_abi|         |                            |
+|                      +----------------+         |                            |
 |                                                 |                            |
 +------------------------------------------------------------------------------+
                                                   |

@@ -53,7 +53,7 @@ visualization:
 | **Ratings & Disputes** | #8E44AD | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm` |
 | **User Interactions**  | #19a9a4 | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                   |
 | **Shared Assets**      | #6d2ef4 | `vector_image_vec`                                                                                                                              |
-| **Future Expansion**   | #95A5A6 | `event_evt`, `phpbb_integration_php`                                                                                                            |
+| **Future Expansion**   | #95A5A6 | `event_evt`, `phpbb_integration_php`, `audit_log_aud`                                                                                           |
 | **Junction Tables**    | #ae5f5f | `tool_category_tct`, `bookmark_bmk`                                                                                                             |
 
 ---
@@ -218,12 +218,14 @@ Geographic data for location-based features. Pre-populated with NC focus.
 | `id_sta_zpc`            | int          | not null     | FK to state_sta; default NC on insert    |
 | `latitude_zpc`          | decimal(9,6) | -            | -                                        |
 | `longitude_zpc`         | decimal(9,6) | -            | -                                        |
+| `location_point_zpc`    | point        | -            | MySQL 8 POINT with SRID 4326 (WGS84)     |
 
 **Indexes:**
 
 - `idx_state_city_zpc` on `(id_sta_zpc, city_name_zpc)`
+- `idx_location_spatial_zpc` (SPATIAL) on `location_point_zpc`
 
-> **Note:** Enables Haversine proximity queries for finding nearby tools.
+> **Note:** Supports both legacy Haversine and optimized MySQL 8 spatial queries. Trigger auto-populates `location_point_zpc` from lat/long on INSERT/UPDATE. Use `ST_Distance_Sphere()` for proximity queries. **Conversion:** 1 mile = 1609.344 meters. Example: `WHERE ST_Distance_Sphere(...) <= 10 * 1609.344` for 10-mile radius.
 
 ---
 
@@ -247,11 +249,15 @@ Main user account table containing all user information.
 | `id_cpr_acc`         | int          | not null           | FK to contact_preference_cpr                              |
 | `is_verified_acc`    | boolean      | default: false     | -                                                         |
 | `has_consent_acc`    | boolean      | default: false     | -                                                         |
-| `is_deleted_acc`     | boolean      | default: false     | Soft delete - must stay in sync with status via trigger   |
 | `last_login_at_acc`  | timestamp    | -                  | -                                                         |
 | `created_at_acc`     | timestamp    | default: now()     | -                                                         |
 | `updated_at_acc`     | timestamp    | default: now()     | -                                                         |
-| `metadata_json_acc`  | json         | -                  | Future: preferences, settings, etc.                       |
+| `metadata_json_acc`       | json         | -                  | Future: preferences, settings, etc.                       |
+| `avg_lender_rating_acc`   | decimal(3,2) | -                  | Cached average rating as lender (1.00-5.00); NULL if none |
+| `lender_rating_count_acc` | int          | default: 0         | Number of ratings received as lender                      |
+| `avg_borrower_rating_acc` | decimal(3,2) | -                  | Cached average rating as borrower; NULL if none           |
+| `borrower_rating_count_acc` | int        | default: 0         | Number of ratings received as borrower                    |
+| `tool_count_acc`          | int          | default: 0         | Number of active tools listed                             |
 
 **Indexes:**
 
@@ -261,15 +267,25 @@ Main user account table containing all user information.
 - `idx_status_verified_acc` on `(id_ast_acc, is_verified_acc)`
 - `idx_contact_preference_acc` on `id_cpr_acc`
 - `idx_state_acc` on `id_sta_acc`
+- `idx_last_login_acc` on `last_login_at_acc`
+- `idx_created_at_acc` on `created_at_acc`
 
 **SQL Constraints Required:**
 
 ```sql
+CHECK (email_address_acc REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
 CHECK (street_address_acc IS NULL OR id_sta_acc IS NOT NULL)
 CHECK (id_sta_acc IS NULL OR street_address_acc IS NOT NULL)
 ```
 
-> **Note:** SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input). Soft-delete trigger: Treat id_ast_acc as single source of truth; sync is_deleted_acc accordingly.
+> **Note:** SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input). Rating cache triggers: update avg/count on user_rating_urt changes. Tool count trigger: update on tool_tol changes.
+
+**Soft-Delete Strategy:**
+
+- `id_ast_acc = deleted` status is the single source of truth for soft-delete
+- View: `CREATE VIEW active_account_v AS SELECT * FROM account_acc WHERE id_ast_acc != <deleted_id>`
+- Use `active_account_v` for all application reads; use base table for admin/audit queries
+- Referencing tables enforce via BEFORE INSERT/UPDATE triggers (see tool_tol, borrow_bor, etc.)
 
 ---
 
@@ -345,21 +361,26 @@ Main tool listing table.
 | `id_tcd_tol`                   | int           | not null           | FK to tool_condition_tcd                                 |
 | `id_acc_tol`                   | int           | not null           | Owner account FK                                         |
 | `serial_number_tol`            | varchar(50)   | -                  | -                                                        |
-| `rental_fee_tol`               | decimal(10,2) | default: 0.00      | 0 = free sharing                                         |
+| `rental_fee_tol`               | decimal(6,2)  | default: 0.00      | 0 = free sharing                                         |
 | `default_loan_duration_hours_tol` | int        | default: 168       | Owner default in hours; UI converts days/weeks           |
 | `is_available_tol`             | boolean       | default: true      | Owner listing toggle - see Note for true availability logic |
 | `created_at_tol`               | timestamp     | default: now()     | -                                                        |
 | `updated_at_tol`               | timestamp     | default: now()     | -                                                        |
 | `metadata_json_tol`            | json          | -                  | Future: custom attributes, tags                          |
+| `avg_rating_tol`               | decimal(3,2)  | -                  | Cached average tool rating (1.00-5.00); NULL if none     |
+| `rating_count_tol`             | int           | default: 0         | Number of ratings received                               |
+| `borrow_count_tol`             | int           | default: 0         | Total completed borrows (status=returned)                |
 
 **Indexes:**
 
-- `idx_owner_tol` on `id_acc_tol`
+- `idx_owner_available_tol` on `(id_acc_tol, is_available_tol)`
 - `idx_condition_tol` on `id_tcd_tol`
-- `idx_availability_tol` on `is_available_tol`
+- `idx_available_created_tol` on `(is_available_tol, created_at_tol)`
+- `idx_created_at_tol` on `created_at_tol`
+- `idx_rental_fee_tol` on `rental_fee_tol`
 - `fulltext_tool_search_tol` (FULLTEXT) on `(tool_name_tol, tool_description_tol)`
 
-> **Note:** `is_available_tol` = owner intent only. True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`. Recommended: compute at query time (JOIN/NOT EXISTS) for accuracy.
+> **Note:** `is_available_tol` = owner intent only. True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`. Recommended: compute at query time (JOIN/NOT EXISTS) for accuracy. Rating cache triggers update on tool_rating_trt changes. Borrow count increments when status changes to returned.
 
 ---
 
@@ -415,8 +436,10 @@ Tracks tool borrow requests and their lifecycle.
 - `idx_tool_status_bor` on `(id_tol_bor, id_bst_bor)`
 - `idx_tool_borrower_bor` on `(id_tol_bor, id_acc_bor)`
 - `idx_borrower_bor` on `id_acc_bor`
+- `idx_returned_bor` on `returned_at_bor`
+- `idx_requested_at_bor` on `requested_at_bor`
 
-> **Note:** CHECK constraints required for timestamp order & mutual exclusivity (returned vs cancelled). Triggers: validate status-timestamp consistency + set `due_at_bor` when status changes to borrowed. Prevent `due_at_bor` modification once set.
+> **Note:** CHECK constraints required for timestamp order & mutual exclusivity (returned vs cancelled). Triggers: validate status-timestamp consistency + set `due_at_bor` when status changes to borrowed. Prevent `due_at_bor` modification once set. Trigger: prevent borrowing own tool (tool_tol.id_acc_tol != borrow_bor.id_acc_bor).
 
 ---
 
@@ -435,6 +458,7 @@ borrow unavailability.
 | `id_bor_avb`     | int       | -                  | Required for borrow blocks; null for admin blocks |
 | `notes_text_avb` | text      | -                  | -                                                 |
 | `created_at_avb` | timestamp | default: now()     | -                                                 |
+| `updated_at_avb` | timestamp | default: now()     | ON UPDATE CURRENT_TIMESTAMP                       |
 
 **Indexes:**
 
@@ -442,7 +466,7 @@ borrow unavailability.
 - `uq_borrow_avb` (UNIQUE) on `id_bor_avb`
 - `idx_block_type_avb` on `id_btp_avb`
 
-> **Note:** `CHECK (end_at_avb > start_at_avb)`. Trigger: validate id_bor_avb presence based on block type (borrow -> required, admin -> NULL). 1-to-1 with borrow for borrow-type blocks; UPDATE existing block on extensions.
+> **Note:** `CHECK (end_at_avb > start_at_avb)`. Trigger: validate id_bor_avb presence based on block type (borrow -> required, admin -> NULL). 1-to-1 with borrow for borrow-type blocks; UPDATE existing block on extensions. **Overlap Prevention Trigger:** BEFORE INSERT/UPDATE prevents overlapping blocks for the same tool using `NEW.start_at_avb < end_at_avb AND NEW.end_at_avb > start_at_avb` check. MySQL lacks PostgreSQL EXCLUDE constraints; trigger-based enforcement required.
 
 ---
 
@@ -469,7 +493,7 @@ Ratings between users (lender rating borrower or vice versa).
 - `uq_one_user_rating_per_borrow_urt` (UNIQUE) on `(id_bor_urt, id_acc_urt, id_rtr_urt)`
 - `idx_rater_urt` on `id_acc_urt`
 
-> **Note:** `CHECK (score_urt BETWEEN 1 AND 5)`.
+> **Note:** `CHECK (score_urt BETWEEN 1 AND 5)`. `CHECK (id_acc_urt != id_acc_target_urt)` - prevents self-rating.
 
 ---
 
@@ -489,11 +513,11 @@ Ratings for tools after borrowing.
 
 **Indexes:**
 
-- `idx_tool_trt` on `id_tol_trt`
+- `idx_tool_score_trt` on `(id_tol_trt, score_trt)` - covering index for AVG aggregation
 - `uq_one_tool_rating_per_borrow_trt` (UNIQUE) on `(id_bor_trt, id_tol_trt)`
 - `idx_rater_trt` on `id_acc_trt`
 
-> **Note:** `CHECK (score_trt BETWEEN 1 AND 5)`; UNIQUE per borrow/tool.
+> **Note:** `CHECK (score_trt BETWEEN 1 AND 5)`; UNIQUE per borrow/tool. Covering index on (id_tol_trt, score_trt) enables AVG aggregation without table lookup.
 
 ---
 
@@ -501,16 +525,18 @@ Ratings for tools after borrowing.
 
 Handles conflicts and issues related to borrow transactions. Dispute header; messages in dispute_message_dsm.
 
-| Column                | Type         | Constraints        | Notes                     |
-|-----------------------|--------------|--------------------|---------------------------|
-| `id_dsp`              | int          | PK, auto-increment | -                         |
-| `id_bor_dsp`          | int          | not null           | FK to borrow_bor          |
-| `id_acc_dsp`          | int          | not null           | Reporter account FK       |
-| `subject_text_dsp`    | varchar(255) | not null           | -                         |
-| `id_dst_dsp`          | int          | not null           | FK to dispute_status_dst  |
-| `id_acc_resolver_dsp` | int          | -                  | Admin who resolved FK     |
-| `resolved_at_dsp`     | timestamp    | -                  | -                         |
-| `created_at_dsp`      | timestamp    | default: now()     | -                         |
+| Column                  | Type         | Constraints        | Notes                                   |
+|-------------------------|--------------|--------------------|-----------------------------------------|
+| `id_dsp`                | int          | PK, auto-increment | -                                       |
+| `id_bor_dsp`            | int          | not null           | FK to borrow_bor                        |
+| `id_acc_dsp`            | int          | not null           | Reporter account FK                     |
+| `subject_text_dsp`      | varchar(255) | not null           | -                                       |
+| `id_dst_dsp`            | int          | not null           | FK to dispute_status_dst                |
+| `id_acc_resolver_dsp`   | int          | -                  | Admin who resolved FK                   |
+| `resolved_at_dsp`       | timestamp    | -                  | -                                       |
+| `created_at_dsp`        | timestamp    | default: now()     | -                                       |
+| `updated_at_dsp`        | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP             |
+| `id_acc_updated_by_dsp` | int          | -                  | Admin who last modified; NULL if system |
 
 **Indexes:**
 
@@ -518,6 +544,7 @@ Handles conflicts and issues related to borrow transactions. Dispute header; mes
 - `idx_borrow_dsp` on `id_bor_dsp`
 - `idx_reporter_dsp` on `id_acc_dsp`
 - `idx_resolver_dsp` on `id_acc_resolver_dsp`
+- `idx_updated_by_dsp` on `id_acc_updated_by_dsp`
 
 ---
 
@@ -561,10 +588,11 @@ System notifications sent to users.
 
 **Indexes:**
 
-- `idx_unread_ntf` on `(id_acc_ntf, is_read_ntf)`
-- `idx_account_created_ntf` on `(id_acc_ntf, created_at_ntf)`
+- `idx_unread_timeline_ntf` on `(id_acc_ntf, is_read_ntf, created_at_ntf)` - covering index for notification feed
 - `idx_borrow_ntf` on `id_bor_ntf`
 - `idx_type_ntf` on `id_ntt_ntf`
+
+> **Note:** Archival: Delete or move records older than 12 months via scheduled job. At small scale (< 100K rows/year), no partitioning needed.
 
 ---
 
@@ -589,7 +617,7 @@ Analytics table for tracking user searches.
 - `idx_account_slg` on `id_acc_slg`
 - `idx_tool_slg` on `id_tol_slg`
 
-> **Note:** Search logs for analytics.
+> **Note:** Search logs for analytics. Archival: Delete or move records older than 12 months via scheduled job. At small scale (< 500K rows/year), no partitioning needed.
 
 ---
 
@@ -639,22 +667,25 @@ Junction table for user-saved/favorited tools.
 
 Community events table for future functionality.
 
-| Column                 | Type         | Constraints        | Notes                          |
-|------------------------|--------------|--------------------|--------------------------------|
-| `id_evt`               | int          | PK, auto-increment | -                              |
-| `event_name_evt`       | varchar(255) | not null           | -                              |
-| `event_description_evt`| text         | -                  | -                              |
-| `start_at_evt`         | timestamp    | not null           | -                              |
-| `end_at_evt`           | timestamp    | -                  | -                              |
-| `zip_code_zpc_evt`     | varchar(10)  | -                  | FK to zip_code_zpc             |
-| `id_acc_evt`           | int          | not null           | Created by account (admin) FK  |
-| `created_at_evt`       | timestamp    | default: now()     | -                              |
-| `metadata_json_evt`    | json         | -                  | Future: tags, RSVPs, etc.      |
+| Column                  | Type         | Constraints        | Notes                                      |
+|-------------------------|--------------|--------------------|--------------------------------------------|
+| `id_evt`                | int          | PK, auto-increment | -                                          |
+| `event_name_evt`        | varchar(255) | not null           | -                                          |
+| `event_description_evt` | text         | -                  | -                                          |
+| `start_at_evt`          | timestamp    | not null           | -                                          |
+| `end_at_evt`            | timestamp    | -                  | -                                          |
+| `zip_code_zpc_evt`      | varchar(10)  | -                  | FK to zip_code_zpc                         |
+| `id_acc_evt`            | int          | not null           | Created by account (admin) FK              |
+| `created_at_evt`        | timestamp    | default: now()     | -                                          |
+| `updated_at_evt`        | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                |
+| `id_acc_updated_by_evt` | int          | -                  | Admin who last modified; NULL if unchanged |
+| `metadata_json_evt`     | json         | -                  | Future: tags, RSVPs, etc.                  |
 
 **Indexes:**
 
 - `idx_date_zip_evt` on `(start_at_evt, zip_code_zpc_evt)`
 - `idx_creator_evt` on `id_acc_evt`
+- `idx_updated_by_evt` on `id_acc_updated_by_evt`
 
 ---
 
@@ -674,6 +705,31 @@ Placeholder for phpBB forum SSO integration.
 - `uq_account_php` (UNIQUE) on `id_acc_php`
 
 > **Note:** Placeholder for phpBB forum SSO integration.
+
+---
+
+#### audit_log_aud
+
+Generic audit log for tracking changes across all tables. Implement when detailed change history is needed.
+
+| Column                | Type        | Constraints        | Notes                                         |
+|-----------------------|-------------|--------------------|-----------------------------------------------|
+| `id_aud`              | int         | PK, auto-increment | -                                             |
+| `table_name_aud`      | varchar(64) | not null           | Name of the table that was modified           |
+| `row_id_aud`          | int         | not null           | PK of the modified row                        |
+| `action_aud`          | varchar(10) | not null           | INSERT, UPDATE, DELETE                        |
+| `id_acc_aud`          | int         | -                  | Account who made the change; NULL if system   |
+| `old_values_json_aud` | json        | -                  | Previous row state (UPDATE/DELETE only)       |
+| `new_values_json_aud` | json        | -                  | New row state (INSERT/UPDATE only)            |
+| `created_at_aud`      | timestamp   | default: now()     | -                                             |
+
+**Indexes:**
+
+- `idx_table_row_aud` on `(table_name_aud, row_id_aud)`
+- `idx_account_aud` on `id_acc_aud`
+- `idx_created_at_aud` on `created_at_aud`
+
+> **Note:** Future: Implement via AFTER INSERT/UPDATE/DELETE triggers on tables requiring audit trails. Archival: Delete or move records older than 24 months via scheduled job.
 
 ---
 
@@ -738,15 +794,16 @@ Junction tables create the following M:M relationships:
 
 #### Dispute Domain
 
-| Parent (One)              | Child (Many)         | Foreign Key          | Description                  |
-|---------------------------|----------------------|----------------------|------------------------------|
-| `borrow_bor`              | `dispute_dsp`        | `id_bor_dsp`         | Borrow has disputes          |
-| `account_acc`             | `dispute_dsp`        | `id_acc_dsp`         | Account reports disputes     |
-| `account_acc`             | `dispute_dsp`        | `id_acc_resolver_dsp`| Admin resolves disputes      |
-| `dispute_status_dst`      | `dispute_dsp`        | `id_dst_dsp`         | Status of disputes           |
-| `dispute_dsp`             | `dispute_message_dsm`| `id_dsp_dsm`         | Dispute has messages         |
-| `account_acc`             | `dispute_message_dsm`| `id_acc_dsm`         | Account authors messages     |
-| `dispute_message_type_dmt`| `dispute_message_dsm`| `id_dmt_dsm`         | Type of dispute message      |
+| Parent (One)              | Child (Many)         | Foreign Key            | Description                  |
+|---------------------------|----------------------|------------------------|------------------------------|
+| `borrow_bor`              | `dispute_dsp`        | `id_bor_dsp`           | Borrow has disputes          |
+| `account_acc`             | `dispute_dsp`        | `id_acc_dsp`           | Account reports disputes     |
+| `account_acc`             | `dispute_dsp`        | `id_acc_resolver_dsp`  | Admin resolves disputes      |
+| `account_acc`             | `dispute_dsp`        | `id_acc_updated_by_dsp`| Admin last modified dispute  |
+| `dispute_status_dst`      | `dispute_dsp`        | `id_dst_dsp`           | Status of disputes           |
+| `dispute_dsp`             | `dispute_message_dsm`| `id_dsp_dsm`           | Dispute has messages         |
+| `account_acc`             | `dispute_message_dsm`| `id_acc_dsm`           | Account authors messages     |
+| `dispute_message_type_dmt`| `dispute_message_dsm`| `id_dmt_dsm`           | Type of dispute message      |
 
 #### Notification Domain
 
@@ -765,16 +822,23 @@ Junction tables create the following M:M relationships:
 
 #### Event Domain
 
-| Parent (One)   | Child (Many) | Foreign Key        | Description          |
-|----------------|--------------|--------------------| ---------------------|
-| `zip_code_zpc` | `event_evt`  | `zip_code_zpc_evt` | Location of events   |
-| `account_acc`  | `event_evt`  | `id_acc_evt`       | Admin creates events |
+| Parent (One)   | Child (Many) | Foreign Key             | Description               |
+|----------------|--------------|-------------------------|---------------------------|
+| `zip_code_zpc` | `event_evt`  | `zip_code_zpc_evt`      | Location of events        |
+| `account_acc`  | `event_evt`  | `id_acc_evt`            | Admin creates events      |
+| `account_acc`  | `event_evt`  | `id_acc_updated_by_evt` | Admin last modified event |
 
 #### phpBB Integration Domain
 
 | Parent (One)  | Child (Many)           | Foreign Key  | Description              |
 |---------------|------------------------|--------------|--------------------------|
 | `account_acc` | `phpbb_integration_php`| `id_acc_php` | Account links to phpBB   |
+
+#### Audit Log Domain
+
+| Parent (One)  | Child (Many)    | Foreign Key  | Description                  |
+|---------------|-----------------|--------------|------------------------------|
+| `account_acc` | `audit_log_aud` | `id_acc_aud` | Account makes audited change |
 
 ---
 
@@ -917,9 +981,9 @@ Junction tables create the following M:M relationships:
 |                          FUTURE EXPANSION GROUP                              |
 +------------------------------------------------------------------------------+
 |                                                                              |
-|          +-----------------+        +----------------------+                 |
-|          |    event_evt    |        | phpbb_integration_php|                 |
-|          +-----------------+        +----------------------+                 |
+|    +-----------------+  +----------------------+  +-----------------+        |
+|    |    event_evt    |  | phpbb_integration_php|  |  audit_log_aud  |        |
+|    +-----------------+  +----------------------+  +-----------------+        |
 |                                                                              |
 +------------------------------------------------------------------------------+
 ```

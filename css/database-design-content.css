@@ -1,0 +1,88 @@
+body {
+    font-family: system-ui, sans-serif;
+    line-height: 1.7;
+    padding: 1.5rem;
+    margin: 0;
+    color: #334155;
+}
+
+h1 {
+    color: #065f46;
+    border-bottom: 2px solid #065f46;
+    padding-bottom: 0.5rem;
+}
+
+h2 {
+    color: #065f46;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.3rem;
+    margin-top: 2rem;
+}
+
+h3 {
+    color: #1e3a5f;
+}
+
+h4 {
+    color: #334155;
+}
+
+a {
+    color: #065f46;
+}
+
+code {
+    background: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+}
+
+pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+blockquote {
+    border-left: 4px solid #065f46;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background: #f0fdf4;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+th, td {
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+
+th {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 2rem 0;
+}

@@ -13,13 +13,10 @@
         <h1>Database Design Documentation</h1>
     </header>
 
-    <iframe id="markdown-frame" srcdoc="<p>Loading...</p>"></iframe>
+    <iframe id="markdown-frame" src="/database-design-content.php"></iframe>
 
     <footer>
         <p><small>&copy; 2026 NeighborhoodTools</small></p>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="/js/database-design.js"></script>
 </body>
 </html>

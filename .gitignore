@@ -1,18 +1,36 @@
-# PHP / SiteGround
-vendor/
-.env
-*.log
-*.sql
-*.bak
-*.tmp
-
-# OS / Editors
+# OS files
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
 
-# Sensitive files
-includes/db_connect.php   # ← we'll commit a SAMPLE only, never real creds
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# PHP dependencies
+vendor/
+
+# Environment and credentials
+.env
+.env.local
+.env.*.local
+includes/db_connect.php
+config.local.php
+credentials.json
+*.pem
+
+# Database
+*.sql
+*.sql.gz
+
+# Logs
+*.log
+error_log
+
+# Backups and temp files
+*.bak
+*.tmp
+*.swp
+
+# User uploads (if not tracked)
+assets/uploads/

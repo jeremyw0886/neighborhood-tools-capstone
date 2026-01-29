@@ -17,7 +17,6 @@
             .replace(/&amp;/g, '')         // Remove &amp; entities
             .replace(/[^\w\s-]/g, '')      // Remove special chars except hyphens
             .replace(/\s+/g, '-')          // Replace spaces with hyphens
-            .replace(/-+/g, '-')           // Collapse multiple hyphens
             .trim();
     }
 

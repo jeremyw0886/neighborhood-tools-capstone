@@ -15,7 +15,7 @@
    - [Accounts](#accounts)
    - [Tools](#tools)
    - [Borrowing](#borrowing)
-   - [Ratings & Disputes](#ratings--disputes)
+   - [Ratings and Disputes](#ratings-and-disputes)
    - [User Interactions](#user-interactions)
    - [Shared Assets](#shared-assets)
    - [Future Expansion](#future-expansion)
@@ -470,7 +470,7 @@ borrow unavailability.
 
 ---
 
-### Ratings & Disputes
+### Ratings and Disputes
 
 #### user_rating_urt
 

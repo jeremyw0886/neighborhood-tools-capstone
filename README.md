@@ -64,4 +64,4 @@ neighborhoodtools/
 ## Documentation
 
 - [Database Design](NeighborhoodTools.md) - Complete schema documentation
-- [ERD Diagram](https://dbdiagram.io) - Visual database diagram (link on home page)
+- [ERD Diagram](https://dbdiagram.io/d/neighborhoodtools-com-ERD-69711419bd82f5fce231c284) - Visual database diagram (link on home page)

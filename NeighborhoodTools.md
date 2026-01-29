@@ -144,7 +144,8 @@ Tracks borrow request lifecycle.
 | `status_name_bst` | varchar(30) | unique, not null   | Values: requested, approved, borrowed, returned, denied, cancelled |
 
 > **Note:**
-> -Avoid hard-coded status IDs - use name lookups or views at runtime.
+>
+> - Avoid hard-coded status IDs - use name lookups or views at runtime.
 
 ---
 
@@ -227,10 +228,11 @@ Geographic data for location-based features. Pre-populated with NC focus.
 - `idx_location_spatial_zpc` (SPATIAL) on `location_point_zpc`
 
 > **Note:**
-> -Supports both legacy Haversine and optimized MySQL 8 spatial queries.
-> -Trigger auto-populates `location_point_zpc` from lat/long on INSERT/UPDATE.
-> -Use `ST_Distance_Sphere()` for proximity queries. 
-> -**Conversion:** 1 mile = 1609.344 meters. 10-mile radius: `WHERE ST_Distance_Sphere(...) <= 10 * 1609.344`.
+>
+> - Supports both legacy Haversine and optimized MySQL 8 spatial queries.
+> - Trigger auto-populates `location_point_zpc` from lat/long on INSERT/UPDATE.
+> - Use `ST_Distance_Sphere()` for proximity queries.
+> - **Conversion:** 1 mile = 1609.344 meters. 10-mile radius: `WHERE ST_Distance_Sphere(...) <= 10 * 1609.344`.
 
 ---
 
@@ -284,9 +286,10 @@ CHECK (id_sta_acc IS NULL OR street_address_acc IS NOT NULL)
 ```
 
 > **Note:**
-> -SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input).
-> -Rating cache triggers: update avg/count on user_rating_urt changes.
-> -Tool count trigger: update on tool_tol changes.
+>
+> - SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input).
+> - Rating cache triggers: update avg/count on user_rating_urt changes.
+> - Tool count trigger: update on tool_tol changes.
 
 **Soft-Delete Strategy:**
 
@@ -315,7 +318,8 @@ Profile images for user accounts. One account can have multiple images.
 - `idx_account_primary_aim` on `(id_acc_aim, is_primary_aim)`
 
 > **Note:**
-> -Single-primary constraint enforced via BEFORE INSERT/UPDATE trigger.
+>
+> - Single-primary constraint enforced via BEFORE INSERT/UPDATE trigger.
 
 ---
 
@@ -333,8 +337,9 @@ provides a bio - application displays placeholder text when no row exists.
 | `updated_at_abi` | timestamp | default: now()        | -                                                |
 
 > **Note:**
-> -Row exists only when user provides a bio.
-> -Check for existence and display placeholder text if no row found.
+>
+> - Row exists only when user provides a bio.
+> - Check for existence and display placeholder text if no row found.
 
 ---
 
@@ -392,11 +397,12 @@ Main tool listing table.
 - `fulltext_tool_search_tol` (FULLTEXT) on `(tool_name_tol, tool_description_tol)`
 
 > **Note:**
-> -`is_available_tol` = owner intent only.
-> -True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`.
-> -Compute at query time (JOIN/NOT EXISTS) for accuracy.
-> -Rating cache triggers update on tool_rating_trt changes.
-> -Borrow count increments when status changes to returned.
+>
+> - `is_available_tol` = owner intent only.
+> - True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`.
+> - Compute at query time (JOIN/NOT EXISTS) for accuracy.
+> - Rating cache triggers update on tool_rating_trt changes.
+> - Borrow count increments when status changes to returned.
 
 ---
 
@@ -420,7 +426,8 @@ Images for tools. One tool can have multiple images with display ordering.
 - `idx_tool_sort_tim` on `(id_tol_tim, sort_order_tim)`
 
 > **Note:**
-> -Single-primary constraint via BEFORE INSERT/UPDATE trigger.
+>
+> - Single-primary constraint via BEFORE INSERT/UPDATE trigger.
 
 ---
 
@@ -457,10 +464,11 @@ Tracks tool borrow requests and their lifecycle.
 - `idx_requested_at_bor` on `requested_at_bor`
 
 > **Note:**
-> -CHECK constraints required for timestamp order & mutual exclusivity (returned vs cancelled).
-> -Trigger: validate status-timestamp consistency + set `due_at_bor` when status changes to borrowed.
-> -Prevent `due_at_bor` modification once set.
-> -Trigger: prevent borrowing own tool (tool_tol.id_acc_tol != borrow_bor.id_acc_bor).
+>
+> - CHECK constraints required for timestamp order & mutual exclusivity (returned vs cancelled).
+> - Trigger: validate status-timestamp consistency + set `due_at_bor` when status changes to borrowed.
+> - Prevent `due_at_bor` modification once set.
+> - Trigger: prevent borrowing own tool (tool_tol.id_acc_tol != borrow_bor.id_acc_bor).
 
 ---
 
@@ -487,12 +495,13 @@ borrow unavailability.
 - `uq_borrow_avb` (UNIQUE) on `id_bor_avb`
 - `idx_block_type_avb` on `id_btp_avb`
 
-> **Note:** 
-> -`CHECK (end_at_avb > start_at_avb)`. 
-> -Trigger: validate id_bor_avb presence based on block type (borrow -> required, admin -> NULL).
-> -1-to-1 with borrow for borrow-type blocks; UPDATE existing block on extensions.
-> -**Overlap Prevention Trigger:** BEFORE INSERT/UPDATE prevents overlapping blocks for the same tool using `NEW.start_at_avb < end_at_avb AND NEW.end_at_avb > start_at_avb` check.
-> -MySQL lacks PostgreSQL EXCLUDE constraints; trigger-based enforcement required.
+> **Note:**
+>
+> - `CHECK (end_at_avb > start_at_avb)`.
+> - Trigger: validate id_bor_avb presence based on block type (borrow -> required, admin -> NULL).
+> - 1-to-1 with borrow for borrow-type blocks; UPDATE existing block on extensions.
+> - **Overlap Prevention Trigger:** BEFORE INSERT/UPDATE prevents overlapping blocks for the same tool using `NEW.start_at_avb < end_at_avb AND NEW.end_at_avb > start_at_avb` check.
+> - MySQL lacks PostgreSQL EXCLUDE constraints; trigger-based enforcement required.
 
 ---
 
@@ -520,8 +529,9 @@ Ratings between users (lender rating borrower or vice versa).
 - `idx_rater_urt` on `id_acc_urt`
 
 > **Note:**
-> -`CHECK (score_urt BETWEEN 1 AND 5)`.
-> -`CHECK (id_acc_urt != id_acc_target_urt)` - prevents self-rating.
+>
+> - `CHECK (score_urt BETWEEN 1 AND 5)`.
+> - `CHECK (id_acc_urt != id_acc_target_urt)` - prevents self-rating.
 
 ---
 
@@ -546,8 +556,9 @@ Ratings for tools after borrowing.
 - `idx_rater_trt` on `id_acc_trt`
 
 > **Note:**
-> -`CHECK (score_trt BETWEEN 1 AND 5)`; UNIQUE per borrow/tool.
-> -Covering index on (id_tol_trt, score_trt) enables AVG aggregation without table lookup.
+>
+> - `CHECK (score_trt BETWEEN 1 AND 5)`; UNIQUE per borrow/tool.
+> - Covering index on (id_tol_trt, score_trt) enables AVG aggregation without table lookup.
 
 ---
 
@@ -623,8 +634,9 @@ System notifications sent to users.
 - `idx_type_ntf` on `id_ntt_ntf`
 
 > **Note:**
-> -Archival: Delete or move records older than 12 months via scheduled job.
-> -At small scale (< 100K rows/year), no partitioning needed.
+>
+> - Archival: Delete or move records older than 12 months via scheduled job.
+> - At small scale (< 100K rows/year), no partitioning needed.
 
 ---
 
@@ -650,9 +662,10 @@ Analytics table for tracking user searches.
 - `idx_tool_slg` on `id_tol_slg`
 
 > **Note:**
-> -Search logs for analytics.
-> -Archival: Delete or move records older than 12 months via scheduled job.
-> -At small scale (< 500K rows/year), no partitioning needed.
+>
+> - Search logs for analytics.
+> - Archival: Delete or move records older than 12 months via scheduled job.
+> - At small scale (< 500K rows/year), no partitioning needed.
 
 ---
 
@@ -675,7 +688,8 @@ Junction table enabling many-to-many relationship between tools and categories.
 - `idx_category_tct` on `id_cat_tct`
 
 > **Note:**
-> -Junction table: tools can belong to multiple categories.
+>
+> - Junction table: tools can belong to multiple categories.
 
 ---
 
@@ -741,7 +755,8 @@ Placeholder for phpBB forum SSO integration.
 - `uq_account_php` (UNIQUE) on `id_acc_php`
 
 > **Note:**
-> -Placeholder for phpBB forum SSO integration.
+>
+> - Placeholder for phpBB forum SSO integration.
 
 ---
 
@@ -767,8 +782,9 @@ Generic audit log for tracking changes across all tables. Implement when detaile
 - `idx_created_at_aud` on `created_at_aud`
 
 > **Note:**
-> -Future: Implement via AFTER INSERT/UPDATE/DELETE triggers on tables requiring audit trails.
-> -Archival: Delete or move records older than 24 months via scheduled job.
+>
+> - Future: Implement via AFTER INSERT/UPDATE/DELETE triggers on tables requiring audit trails.
+> - Archival: Delete or move records older than 24 months via scheduled job.
 
 ---
 

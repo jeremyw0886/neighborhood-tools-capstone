@@ -15,7 +15,7 @@
    - [Accounts](#accounts)
    - [Tools](#tools)
    - [Borrowing](#borrowing)
-   - [Ratings and Disputes](#ratings-and-disputes)
+   - [Ratings & Disputes](#ratings--disputes)
    - [User Interactions](#user-interactions)
    - [Shared Assets](#shared-assets)
    - [Future Expansion](#future-expansion)
@@ -45,16 +45,16 @@ neighbors to share tools with each other. This database design supports:
 The database is organized into logical groups for easier management and
 visualization:
 
-| Group                  | Color   | Tables                                                                                                                                          |
-|------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Accounts**           | #2980B9 | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `zip_code_zpc`, `account_acc`, `account_image_aim`, `account_bio_abi` |
-| **Tools**              | #16A085 | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`                                                                              |
-| **Borrowing**          | #E67E22 | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`                                                                   |
-| **Ratings & Disputes** | #8E44AD | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm` |
-| **User Interactions**  | #19a9a4 | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                   |
-| **Shared Assets**      | #6d2ef4 | `vector_image_vec`                                                                                                                              |
-| **Future Expansion**   | #95A5A6 | `event_evt`, `phpbb_integration_php`, `audit_log_aud`                                                                                           |
-| **Junction Tables**    | #ae5f5f | `tool_category_tct`, `bookmark_bmk`                                                                                                             |
+| Group                  | Tables                                                                                                                                          |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Accounts**           | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `zip_code_zpc`, `account_acc`, `account_image_aim`, `account_bio_abi`  |
+| **Tools**              | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`                                                                              |
+| **Borrowing**          | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`                                                                   |
+| **Ratings & Disputes** | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm` |
+| **User Interactions**  | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                   |
+| **Shared Assets**      | `vector_image_vec`                                                                                                                              |
+| **Future Expansion**   | `event_evt`, `phpbb_integration_php`, `audit_log_aud`                                                                                           |
+| **Junction Tables**    | `tool_category_tct`, `bookmark_bmk`                                                                                                             |
 
 ---
 
@@ -102,8 +102,8 @@ US state lookup table for address normalization.
 | Column          | Type        | Constraints        | Notes                          |
 |-----------------|-------------|--------------------|--------------------------------|
 | `id_sta`        | int         | PK, auto-increment | -                              |
-| `state_code_sta`| varchar(2)  | unique, not null   | e.g., NC, SC, VA               |
-| `state_name_sta`| varchar(50) | unique, not null   | e.g., North Carolina           |
+| `state_code_sta`| varchar(2)  | unique, not null   | Two-letter US state code       |
+| `state_name_sta`| varchar(50) | unique, not null   | Full US state name             |
 
 ---
 
@@ -111,10 +111,10 @@ US state lookup table for address normalization.
 
 Tool categories for classification.
 
-| Column              | Type         | Constraints        | Notes                                     |
-|---------------------|--------------|--------------------|-------------------------------------------|
-| `id_cat`            | int          | PK, auto-increment | -                                         |
-| `category_name_cat` | varchar(100) | unique, not null   | -                                         |
+| Column              | Type         | Constraints        | Notes                                        |
+|---------------------|--------------|--------------------|----------------------------------------------|
+| `id_cat`            | int          | PK, auto-increment | -                                            |
+| `category_name_cat` | varchar(100) | unique, not null   | -                                            |
 | `id_vec_cat`        | int          | -                  | Optional category icon from vector_image_vec |
 
 **Indexes:**
@@ -143,7 +143,8 @@ Tracks borrow request lifecycle.
 | `id_bst`          | int         | PK, auto-increment | -                                                                  |
 | `status_name_bst` | varchar(30) | unique, not null   | Values: requested, approved, borrowed, returned, denied, cancelled |
 
-> **Note:** Avoid hard-coded status IDs - use name lookups or views at runtime.
+> **Note:**
+> -Avoid hard-coded status IDs - use name lookups or views at runtime.
 
 ---
 
@@ -184,9 +185,9 @@ Tracks dispute resolution status.
 
 Types of messages in dispute threads.
 
-| Column          | Type        | Constraints        | Notes                                              |
-|-----------------|-------------|--------------------|---------------------------------------------------|
-| `id_dmt`        | int         | PK, auto-increment | -                                                 |
+| Column          | Type        | Constraints        | Notes                                                    |
+|-----------------|-------------|--------------------|----------------------------------------------------------|
+| `id_dmt`        | int         | PK, auto-increment | -                                                        |
 | `type_name_dmt` | varchar(30) | unique, not null   | Values: initial_report, response, admin_note, resolution |
 
 ---
@@ -225,7 +226,11 @@ Geographic data for location-based features. Pre-populated with NC focus.
 - `idx_state_city_zpc` on `(id_sta_zpc, city_name_zpc)`
 - `idx_location_spatial_zpc` (SPATIAL) on `location_point_zpc`
 
-> **Note:** Supports both legacy Haversine and optimized MySQL 8 spatial queries. Trigger auto-populates `location_point_zpc` from lat/long on INSERT/UPDATE. Use `ST_Distance_Sphere()` for proximity queries. **Conversion:** 1 mile = 1609.344 meters. Example: `WHERE ST_Distance_Sphere(...) <= 10 * 1609.344` for 10-mile radius.
+> **Note:**
+> -Supports both legacy Haversine and optimized MySQL 8 spatial queries.
+> -Trigger auto-populates `location_point_zpc` from lat/long on INSERT/UPDATE.
+> -Use `ST_Distance_Sphere()` for proximity queries. 
+> -**Conversion:** 1 mile = 1609.344 meters. 10-mile radius: `WHERE ST_Distance_Sphere(...) <= 10 * 1609.344`.
 
 ---
 
@@ -233,31 +238,31 @@ Geographic data for location-based features. Pre-populated with NC focus.
 
 Main user account table containing all user information.
 
-| Column               | Type         | Constraints        | Notes                                                     |
-|----------------------|--------------|--------------------|-----------------------------------------------------------|
-| `id_acc`             | int          | PK, auto-increment | -                                                         |
-| `first_name_acc`     | varchar(100) | not null           | -                                                         |
-| `last_name_acc`      | varchar(100) | not null           | -                                                         |
-| `phone_number_acc`   | varchar(20)  | -                  | -                                                         |
-| `email_address_acc`  | varchar(255) | unique, not null   | Primary login credential - used for authentication        |
-| `street_address_acc` | varchar(255) | -                  | Optional for privacy - ZIP required; if provided, id_sta_acc required |
-| `id_sta_acc`         | int          | -                  | Required if street_address provided; must match zip_code_zpc.id_sta_zpc |
-| `zip_code_acc`       | varchar(10)  | not null           | FK to zip_code_zpc                                        |
-| `password_hash_acc`  | varchar(255) | not null           | bcrypt or argon2 hash only                                |
-| `id_rol_acc`         | int          | not null           | FK to role_rol                                            |
-| `id_ast_acc`         | int          | not null           | FK to account_status_ast                                  |
-| `id_cpr_acc`         | int          | not null           | FK to contact_preference_cpr                              |
-| `is_verified_acc`    | boolean      | default: false     | -                                                         |
-| `has_consent_acc`    | boolean      | default: false     | -                                                         |
-| `last_login_at_acc`  | timestamp    | -                  | -                                                         |
-| `created_at_acc`     | timestamp    | default: now()     | -                                                         |
-| `updated_at_acc`     | timestamp    | default: now()     | -                                                         |
-| `metadata_json_acc`       | json         | -                  | Future: preferences, settings, etc.                       |
-| `avg_lender_rating_acc`   | decimal(3,2) | -                  | Cached average rating as lender (1.00-5.00); NULL if none |
-| `lender_rating_count_acc` | int          | default: 0         | Number of ratings received as lender                      |
-| `avg_borrower_rating_acc` | decimal(3,2) | -                  | Cached average rating as borrower; NULL if none           |
-| `borrower_rating_count_acc` | int        | default: 0         | Number of ratings received as borrower                    |
-| `tool_count_acc`          | int          | default: 0         | Number of active tools listed                             |
+| Column                      | Type         | Constraints        | Notes                                                                   |
+|-----------------------------|--------------|--------------------|-------------------------------------------------------------------------|
+| `id_acc`                    | int          | PK, auto-increment | -                                                                       |
+| `first_name_acc`            | varchar(100) | not null           | -                                                                       |
+| `last_name_acc`             | varchar(100) | not null           | -                                                                       |
+| `phone_number_acc`          | varchar(20)  | -                  | -                                                                       |
+| `email_address_acc`         | varchar(255) | unique, not null   | Primary login credential - used for authentication                      |
+| `street_address_acc`        | varchar(255) | -                  | Optional for privacy - ZIP required; if provided, id_sta_acc required   |
+| `id_sta_acc`                | int          | -                  | Required if street_address provided; must match zip_code_zpc.id_sta_zpc |
+| `zip_code_acc`              | varchar(10)  | not null           | FK to zip_code_zpc                                                      |
+| `password_hash_acc`         | varchar(255) | not null           | bcrypt or argon2 hash only                                              |
+| `id_rol_acc`                | int          | not null           | FK to role_rol                                                          |
+| `id_ast_acc`                | int          | not null           | FK to account_status_ast                                                |
+| `id_cpr_acc`                | int          | not null           | FK to contact_preference_cpr                                            |
+| `is_verified_acc`           | boolean      | default: false     | -                                                                       |
+| `has_consent_acc`           | boolean      | default: false     | -                                                                       |
+| `last_login_at_acc`         | timestamp    | -                  | -                                                                       |
+| `created_at_acc`            | timestamp    | default: now()     | -                                                                       |
+| `updated_at_acc`            | timestamp    | default: now()     | -                                                                       |
+| `metadata_json_acc`         | json         | -                  | Future: preferences, settings, etc.                                     |
+| `avg_lender_rating_acc`     | decimal(3,2) | -                  | Cached average rating as lender (1.00-5.00); NULL if none               |
+| `lender_rating_count_acc`   | int          | default: 0         | Number of ratings received as lender                                    |
+| `avg_borrower_rating_acc`   | decimal(3,2) | -                  | Cached average rating as borrower; NULL if none                         |
+| `borrower_rating_count_acc` | int          | default: 0         | Number of ratings received as borrower                                  |
+| `tool_count_acc`            | int          | default: 0         | Number of active tools listed                                           |
 
 **Indexes:**
 
@@ -278,7 +283,10 @@ CHECK (street_address_acc IS NULL OR id_sta_acc IS NOT NULL)
 CHECK (id_sta_acc IS NULL OR street_address_acc IS NOT NULL)
 ```
 
-> **Note:** SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input). Rating cache triggers: update avg/count on user_rating_urt changes. Tool count trigger: update on tool_tol changes.
+> **Note:**
+> -SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input).
+> -Rating cache triggers: update avg/count on user_rating_urt changes.
+> -Tool count trigger: update on tool_tol changes.
 
 **Soft-Delete Strategy:**
 
@@ -306,7 +314,8 @@ Profile images for user accounts. One account can have multiple images.
 
 - `idx_account_primary_aim` on `(id_acc_aim, is_primary_aim)`
 
-> **Note:** Single-primary constraint enforced via BEFORE INSERT/UPDATE trigger.
+> **Note:**
+> -Single-primary constraint enforced via BEFORE INSERT/UPDATE trigger.
 
 ---
 
@@ -323,7 +332,9 @@ provides a bio - application displays placeholder text when no row exists.
 | `created_at_abi` | timestamp | default: now()        | -                                                |
 | `updated_at_abi` | timestamp | default: now()        | -                                                |
 
-> **Note:** Row exists only when user provides a bio. Application should check for existence and display placeholder text if no row found.
+> **Note:**
+> -Row exists only when user provides a bio.
+> -Check for existence and display placeholder text if no row found.
 
 ---
 
@@ -353,23 +364,23 @@ Vector/SVG images uploaded by admins for site use.
 
 Main tool listing table.
 
-| Column                         | Type          | Constraints        | Notes                                                    |
-|--------------------------------|---------------|--------------------|----------------------------------------------------------|
-| `id_tol`                       | int           | PK, auto-increment | -                                                        |
-| `tool_name_tol`                | varchar(255)  | not null           | -                                                        |
-| `tool_description_tol`         | text          | -                  | -                                                        |
-| `id_tcd_tol`                   | int           | not null           | FK to tool_condition_tcd                                 |
-| `id_acc_tol`                   | int           | not null           | Owner account FK                                         |
-| `serial_number_tol`            | varchar(50)   | -                  | -                                                        |
-| `rental_fee_tol`               | decimal(6,2)  | default: 0.00      | 0 = free sharing                                         |
-| `default_loan_duration_hours_tol` | int        | default: 168       | Owner default in hours; UI converts days/weeks           |
-| `is_available_tol`             | boolean       | default: true      | Owner listing toggle - see Note for true availability logic |
-| `created_at_tol`               | timestamp     | default: now()     | -                                                        |
-| `updated_at_tol`               | timestamp     | default: now()     | -                                                        |
-| `metadata_json_tol`            | json          | -                  | Future: custom attributes, tags                          |
-| `avg_rating_tol`               | decimal(3,2)  | -                  | Cached average tool rating (1.00-5.00); NULL if none     |
-| `rating_count_tol`             | int           | default: 0         | Number of ratings received                               |
-| `borrow_count_tol`             | int           | default: 0         | Total completed borrows (status=returned)                |
+| Column                            | Type          | Constraints        | Notes                                                       |
+|-----------------------------------|---------------|--------------------|-------------------------------------------------------------|
+| `id_tol`                          | int           | PK, auto-increment | -                                                           |
+| `tool_name_tol`                   | varchar(255)  | not null           | -                                                           |
+| `tool_description_tol`            | text          | -                  | -                                                           |
+| `id_tcd_tol`                      | int           | not null           | FK to tool_condition_tcd                                    |
+| `id_acc_tol`                      | int           | not null           | Owner account FK                                            |
+| `serial_number_tol`               | varchar(50)   | -                  | -                                                           |
+| `rental_fee_tol`                  | decimal(6,2)  | default: 0.00      | 0 = free sharing                                            |
+| `default_loan_duration_hours_tol` | int           | default: 168       | Owner default in hours; UI converts days/weeks              |
+| `is_available_tol`                | boolean       | default: true      | Owner listing toggle - see Note for true availability logic |
+| `created_at_tol`                  | timestamp     | default: now()     | -                                                           |
+| `updated_at_tol`                  | timestamp     | default: now()     | -                                                           |
+| `metadata_json_tol`               | json          | -                  | Future: custom attributes, tags                             |
+| `avg_rating_tol`                  | decimal(3,2)  | -                  | Cached average tool rating (1.00-5.00); NULL if none        |
+| `rating_count_tol`                | int           | default: 0         | Number of ratings received                                  |
+| `borrow_count_tol`                | int           | default: 0         | Total completed borrows (status=returned)                   |
 
 **Indexes:**
 
@@ -380,7 +391,12 @@ Main tool listing table.
 - `idx_rental_fee_tol` on `rental_fee_tol`
 - `fulltext_tool_search_tol` (FULLTEXT) on `(tool_name_tol, tool_description_tol)`
 
-> **Note:** `is_available_tol` = owner intent only. True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`. Recommended: compute at query time (JOIN/NOT EXISTS) for accuracy. Rating cache triggers update on tool_rating_trt changes. Borrow count increments when status changes to returned.
+> **Note:**
+> -`is_available_tol` = owner intent only.
+> -True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`.
+> -Compute at query time (JOIN/NOT EXISTS) for accuracy.
+> -Rating cache triggers update on tool_rating_trt changes.
+> -Borrow count increments when status changes to returned.
 
 ---
 
@@ -403,7 +419,8 @@ Images for tools. One tool can have multiple images with display ordering.
 - `idx_tool_primary_tim` on `(id_tol_tim, is_primary_tim)`
 - `idx_tool_sort_tim` on `(id_tol_tim, sort_order_tim)`
 
-> **Note:** Single-primary constraint via BEFORE INSERT/UPDATE trigger.
+> **Note:**
+> -Single-primary constraint via BEFORE INSERT/UPDATE trigger.
 
 ---
 
@@ -439,7 +456,11 @@ Tracks tool borrow requests and their lifecycle.
 - `idx_returned_bor` on `returned_at_bor`
 - `idx_requested_at_bor` on `requested_at_bor`
 
-> **Note:** CHECK constraints required for timestamp order & mutual exclusivity (returned vs cancelled). Triggers: validate status-timestamp consistency + set `due_at_bor` when status changes to borrowed. Prevent `due_at_bor` modification once set. Trigger: prevent borrowing own tool (tool_tol.id_acc_tol != borrow_bor.id_acc_bor).
+> **Note:**
+> -CHECK constraints required for timestamp order & mutual exclusivity (returned vs cancelled).
+> -Trigger: validate status-timestamp consistency + set `due_at_bor` when status changes to borrowed.
+> -Prevent `due_at_bor` modification once set.
+> -Trigger: prevent borrowing own tool (tool_tol.id_acc_tol != borrow_bor.id_acc_bor).
 
 ---
 
@@ -466,11 +487,16 @@ borrow unavailability.
 - `uq_borrow_avb` (UNIQUE) on `id_bor_avb`
 - `idx_block_type_avb` on `id_btp_avb`
 
-> **Note:** `CHECK (end_at_avb > start_at_avb)`. Trigger: validate id_bor_avb presence based on block type (borrow -> required, admin -> NULL). 1-to-1 with borrow for borrow-type blocks; UPDATE existing block on extensions. **Overlap Prevention Trigger:** BEFORE INSERT/UPDATE prevents overlapping blocks for the same tool using `NEW.start_at_avb < end_at_avb AND NEW.end_at_avb > start_at_avb` check. MySQL lacks PostgreSQL EXCLUDE constraints; trigger-based enforcement required.
+> **Note:** 
+> -`CHECK (end_at_avb > start_at_avb)`. 
+> -Trigger: validate id_bor_avb presence based on block type (borrow -> required, admin -> NULL).
+> -1-to-1 with borrow for borrow-type blocks; UPDATE existing block on extensions.
+> -**Overlap Prevention Trigger:** BEFORE INSERT/UPDATE prevents overlapping blocks for the same tool using `NEW.start_at_avb < end_at_avb AND NEW.end_at_avb > start_at_avb` check.
+> -MySQL lacks PostgreSQL EXCLUDE constraints; trigger-based enforcement required.
 
 ---
 
-### Ratings and Disputes
+### Ratings & Disputes
 
 #### user_rating_urt
 
@@ -493,7 +519,9 @@ Ratings between users (lender rating borrower or vice versa).
 - `uq_one_user_rating_per_borrow_urt` (UNIQUE) on `(id_bor_urt, id_acc_urt, id_rtr_urt)`
 - `idx_rater_urt` on `id_acc_urt`
 
-> **Note:** `CHECK (score_urt BETWEEN 1 AND 5)`. `CHECK (id_acc_urt != id_acc_target_urt)` - prevents self-rating.
+> **Note:**
+> -`CHECK (score_urt BETWEEN 1 AND 5)`.
+> -`CHECK (id_acc_urt != id_acc_target_urt)` - prevents self-rating.
 
 ---
 
@@ -517,7 +545,9 @@ Ratings for tools after borrowing.
 - `uq_one_tool_rating_per_borrow_trt` (UNIQUE) on `(id_bor_trt, id_tol_trt)`
 - `idx_rater_trt` on `id_acc_trt`
 
-> **Note:** `CHECK (score_trt BETWEEN 1 AND 5)`; UNIQUE per borrow/tool. Covering index on (id_tol_trt, score_trt) enables AVG aggregation without table lookup.
+> **Note:**
+> -`CHECK (score_trt BETWEEN 1 AND 5)`; UNIQUE per borrow/tool.
+> -Covering index on (id_tol_trt, score_trt) enables AVG aggregation without table lookup.
 
 ---
 
@@ -552,15 +582,15 @@ Handles conflicts and issues related to borrow transactions. Dispute header; mes
 
 Messages within a dispute thread.
 
-| Column             | Type      | Constraints        | Notes                      |
-|--------------------|-----------|--------------------|----------------------------|
-| `id_dsm`           | int       | PK, auto-increment | -                          |
-| `id_dsp_dsm`       | int       | not null           | FK to dispute_dsp          |
-| `id_acc_dsm`       | int       | not null           | Author account FK          |
+| Column             | Type      | Constraints        | Notes                          |
+|--------------------|-----------|--------------------|--------------------------------|
+| `id_dsm`           | int       | PK, auto-increment | -                              |
+| `id_dsp_dsm`       | int       | not null           | FK to dispute_dsp              |
+| `id_acc_dsm`       | int       | not null           | Author account FK              |
 | `id_dmt_dsm`       | int       | not null           | FK to dispute_message_type_dmt |
-| `message_text_dsm` | text      | not null           | -                          |
-| `is_internal_dsm`  | boolean   | default: false     | Admin-only if true         |
-| `created_at_dsm`   | timestamp | default: now()     | -                          |
+| `message_text_dsm` | text      | not null           | -                              |
+| `is_internal_dsm`  | boolean   | default: false     | Admin-only if true             |
+| `created_at_dsm`   | timestamp | default: now()     | -                              |
 
 **Indexes:**
 
@@ -592,7 +622,9 @@ System notifications sent to users.
 - `idx_borrow_ntf` on `id_bor_ntf`
 - `idx_type_ntf` on `id_ntt_ntf`
 
-> **Note:** Archival: Delete or move records older than 12 months via scheduled job. At small scale (< 100K rows/year), no partitioning needed.
+> **Note:**
+> -Archival: Delete or move records older than 12 months via scheduled job.
+> -At small scale (< 100K rows/year), no partitioning needed.
 
 ---
 
@@ -617,7 +649,10 @@ Analytics table for tracking user searches.
 - `idx_account_slg` on `id_acc_slg`
 - `idx_tool_slg` on `id_tol_slg`
 
-> **Note:** Search logs for analytics. Archival: Delete or move records older than 12 months via scheduled job. At small scale (< 500K rows/year), no partitioning needed.
+> **Note:**
+> -Search logs for analytics.
+> -Archival: Delete or move records older than 12 months via scheduled job.
+> -At small scale (< 500K rows/year), no partitioning needed.
 
 ---
 
@@ -639,7 +674,8 @@ Junction table enabling many-to-many relationship between tools and categories.
 - `uq_tool_category_tct` (UNIQUE) on `(id_tol_tct, id_cat_tct)`
 - `idx_category_tct` on `id_cat_tct`
 
-> **Note:** Junction table: tools can belong to multiple categories.
+> **Note:**
+> -Junction table: tools can belong to multiple categories.
 
 ---
 
@@ -704,7 +740,8 @@ Placeholder for phpBB forum SSO integration.
 
 - `uq_account_php` (UNIQUE) on `id_acc_php`
 
-> **Note:** Placeholder for phpBB forum SSO integration.
+> **Note:**
+> -Placeholder for phpBB forum SSO integration.
 
 ---
 
@@ -729,7 +766,9 @@ Generic audit log for tracking changes across all tables. Implement when detaile
 - `idx_account_aud` on `id_acc_aud`
 - `idx_created_at_aud` on `created_at_aud`
 
-> **Note:** Future: Implement via AFTER INSERT/UPDATE/DELETE triggers on tables requiring audit trails. Archival: Delete or move records older than 24 months via scheduled job.
+> **Note:**
+> -Future: Implement via AFTER INSERT/UPDATE/DELETE triggers on tables requiring audit trails.
+> -Archival: Delete or move records older than 24 months via scheduled job.
 
 ---
 
@@ -876,10 +915,10 @@ Junction tables create the following M:M relationships:
 |                              TOOLS GROUP        |                            |
 +------------------------------------------------------------------------------+
 |                                                 |                            |
-|  +------------------+    +--------------+       |                            |
-|  | tool_condition_tcd|    | category_cat |      |                            |
-|  +--------+---------+    +------+-------+       |                            |
-|           |                     |               |                            |
+|  +-------------------+    +---------------+     |                            |
+|  | tool_condition_tcd|    | category_cat  |     |                            |
+|  +--------+----------+    +------+--------+     |                            |
+|           |                      |              |                            |
 |           +----------+----------+               |                            |
 |                      |                          |                            |
 |                      v                          |                            |
@@ -934,9 +973,9 @@ Junction tables create the following M:M relationships:
 |                                               +---------+----------+         |
 |                                                         |                    |
 |                                                         v                    |
-|                                              +------------------------+      |
+|                                              +-------------------------+     |
 |                                              | dispute_message_type_dmt|     |
-|                                              +------------------------+      |
+|                                              +-------------------------+     |
 |                                                                              |
 +------------------------------------------------------------------------------+
 

@@ -1,0 +1,8 @@
+# Force GitHub Linguist to recognize PHP files correctly
+*.php linguist-language=PHP
+
+# Mark documentation as documentation (not counted in language stats)
+*.md linguist-documentation
+
+# Mark vendor files as vendored (excluded from stats)
+vendor/* linguist-vendored

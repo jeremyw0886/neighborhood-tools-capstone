@@ -20,8 +20,8 @@
    - [Ratings & Disputes](#ratings--disputes)
    - [User Interactions](#user-interactions)
    - [Shared Assets](#shared-assets)
-   - [Future Expansion](#future-expansion)
    - [Junction Tables](#junction-tables)
+   - [Future Expansion](#future-expansion)
 5. [Relationships](#relationships)
 6. [Entity Relationship Diagram](#entity-relationship-diagram)
 
@@ -47,16 +47,16 @@ neighbors to share tools with each other. This database design supports:
 The database is organized into logical groups for easier management and
 visualization:
 
-| Group                  | Tables                                                                                                                                          |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Accounts**           | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `zip_code_zpc`, `account_acc`, `account_image_aim`, `account_bio_abi`  |
-| **Tools**              | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`                                                                              |
-| **Borrowing**          | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`                                                                   |
-| **Ratings & Disputes** | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm` |
-| **User Interactions**  | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                   |
-| **Shared Assets**      | `vector_image_vec`                                                                                                                              |
-| **Future Expansion**   | `event_evt`, `phpbb_integration_php`, `audit_log_aud`                                                                                           |
-| **Junction Tables**    | `tool_category_tct`, `bookmark_bmk`                                                                                                             |
+| Group                  | Tables                                                                                                                                                            |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Accounts**           | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `neighborhood_nbh`, `zip_code_zpc`, `account_acc`, `account_image_aim`, `account_bio_abi`|
+| **Tools**              | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`                                                                                                |
+| **Borrowing**          | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`                                                                                     |
+| **Ratings & Disputes** | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm`                   |
+| **User Interactions**  | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                                     |
+| **Shared Assets**      | `vector_image_vec`                                                                                                                                                |
+| **Junction Tables**    | `tool_category_tolcat`, `tool_bookmark_acctol`, `neighborhood_zip_nbhzpc`                                                                                         |
+| **Future Expansion**   | `event_evt`, `phpbb_integration_php`, `audit_log_aud`                                                                                                             |
 
 ---
 
@@ -106,6 +106,36 @@ US state lookup table for address normalization.
 | `id_sta`        | int         | PK, auto-increment | -                              |
 | `state_code_sta`| varchar(2)  | unique, not null   | Two-letter US state code       |
 | `state_name_sta`| varchar(50) | unique, not null   | Full US state name             |
+
+---
+
+### neighborhood_nbh
+
+Dedicated neighborhood entity for local communities/service areas.
+
+| Column                  | Type         | Constraints        | Notes                                                             |
+|-------------------------|--------------|--------------------|-------------------------------------------------------------------|
+| `id_nbh`                | int          | PK, auto-increment | -                                                                 |
+| `neighborhood_name_nbh` | varchar(100) | unique, not null   | Name of local community/service area                              |
+| `city_name_nbh`         | varchar(100) | -                  | Primary city for this neighborhood                                |
+| `id_sta_nbh`            | int          | not null           | State the neighborhood is primarily in (FK to state_sta)          |
+| `latitude_nbh`          | decimal(9,6) | -                  | -                                                                 |
+| `longitude_nbh`         | decimal(9,6) | -                  | -                                                                 |
+| `location_point_nbh`    | point        | -                  | MySQL 8 POINT type with SRID 4326 (WGS84) for optimized proximity |
+| `created_at_nbh`        | timestamp    | default: now()     | -                                                                 |
+| `updated_at_nbh`        | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                                       |
+| `metadata_json_nbh`     | json         | -                  | Future: community features, settings, etc.                        |
+
+**Indexes:**
+
+- `idx_state_nbh` on `id_sta_nbh`
+- `idx_city_nbh` on `city_name_nbh`
+- `idx_location_spatial_nbh` (SPATIAL) on `location_point_nbh`
+
+> **Note:**
+>
+> - Spatial trigger: BEFORE INSERT/UPDATE – auto-populate `location_point_nbh` from lat/long:
+>   `SET NEW.location_point_nbh = ST_PointFromText(CONCAT('POINT(', NEW.longitude_nbh, ' ', NEW.latitude_nbh, ')'), 4326)`
 
 ---
 
@@ -212,29 +242,27 @@ Categories of system notifications.
 
 #### zip_code_zpc
 
-Geographic data for location-based features. Pre-populated with NC focus.
+Simplified ZIP code table – pure geographic identifiers only.
 
-| Column                  | Type         | Constraints  | Notes                                    |
-|-------------------------|--------------|--------------|------------------------------------------|
-| `zip_code_zpc`          | varchar(10)  | PK           | -                                        |
-| `city_name_zpc`         | varchar(100) | not null     | -                                        |
-| `neighborhood_name_zpc` | varchar(100) | -            | -                                        |
-| `id_sta_zpc`            | int          | not null     | FK to state_sta; default NC on insert    |
-| `latitude_zpc`          | decimal(9,6) | -            | -                                        |
-| `longitude_zpc`         | decimal(9,6) | -            | -                                        |
-| `location_point_zpc`    | point        | -            | MySQL 8 POINT with SRID 4326 (WGS84)     |
+| Column               | Type         | Constraints | Notes                                |
+|----------------------|--------------|-------------|--------------------------------------|
+| `zip_code_zpc`       | varchar(10)  | PK          | -                                    |
+| `latitude_zpc`       | decimal(9,6) | -           | -                                    |
+| `longitude_zpc`      | decimal(9,6) | -           | -                                    |
+| `location_point_zpc` | point        | -           | MySQL 8 POINT with SRID 4326 (WGS84) |
 
 **Indexes:**
 
-- `idx_state_city_zpc` on `(id_sta_zpc, city_name_zpc)`
 - `idx_location_spatial_zpc` (SPATIAL) on `location_point_zpc`
 
 > **Note:**
 >
-> - Supports both legacy Haversine and optimized MySQL 8 spatial queries.
-> - Trigger auto-populates `location_point_zpc` from lat/long on INSERT/UPDATE.
-> - Use `ST_Distance_Sphere()` for proximity queries.
-> - **Conversion:** 1 mile = 1609.344 meters. 10-mile radius: `WHERE ST_Distance_Sphere(...) <= 10 * 1609.344`.
+> - Spatial trigger: BEFORE INSERT/UPDATE – auto-populate `location_point_zpc` from lat/long:
+>   `SET NEW.location_point_zpc = ST_PointFromText(CONCAT('POINT(', NEW.longitude_zpc, ' ', NEW.latitude_zpc, ')'), 4326)`
+> - Proximity queries (`ST_Distance_Sphere` returns meters):
+>   - Find within 10 miles: `WHERE ST_Distance_Sphere(location_point_zpc, point) <= 10 * 1609.344`
+>   - Return distance in miles: `ST_Distance_Sphere(...) / 1609.344 AS distance_miles`
+> - **Conversion:** 1 mile = 1609.344 meters.
 
 ---
 
@@ -242,31 +270,31 @@ Geographic data for location-based features. Pre-populated with NC focus.
 
 Main user account table containing all user information.
 
-| Column                      | Type         | Constraints        | Notes                                                                   |
-|-----------------------------|--------------|--------------------|-------------------------------------------------------------------------|
-| `id_acc`                    | int          | PK, auto-increment | -                                                                       |
-| `first_name_acc`            | varchar(100) | not null           | -                                                                       |
-| `last_name_acc`             | varchar(100) | not null           | -                                                                       |
-| `phone_number_acc`          | varchar(20)  | -                  | -                                                                       |
-| `email_address_acc`         | varchar(255) | unique, not null   | Primary login credential - used for authentication                      |
-| `street_address_acc`        | varchar(255) | -                  | Optional for privacy - ZIP required; if provided, id_sta_acc required   |
-| `id_sta_acc`                | int          | -                  | Required if street_address provided; must match zip_code_zpc.id_sta_zpc |
-| `zip_code_acc`              | varchar(10)  | not null           | FK to zip_code_zpc                                                      |
-| `password_hash_acc`         | varchar(255) | not null           | bcrypt or argon2 hash only                                              |
-| `id_rol_acc`                | int          | not null           | FK to role_rol                                                          |
-| `id_ast_acc`                | int          | not null           | FK to account_status_ast                                                |
-| `id_cpr_acc`                | int          | not null           | FK to contact_preference_cpr                                            |
-| `is_verified_acc`           | boolean      | default: false     | -                                                                       |
-| `has_consent_acc`           | boolean      | default: false     | -                                                                       |
-| `last_login_at_acc`         | timestamp    | -                  | -                                                                       |
-| `created_at_acc`            | timestamp    | default: now()     | -                                                                       |
-| `updated_at_acc`            | timestamp    | default: now()     | -                                                                       |
-| `metadata_json_acc`         | json         | -                  | Future: preferences, settings, etc.                                     |
-| `avg_lender_rating_acc`     | decimal(3,2) | -                  | Cached average rating as lender (1.00-5.00); NULL if none               |
-| `lender_rating_count_acc`   | int          | default: 0         | Number of ratings received as lender                                    |
-| `avg_borrower_rating_acc`   | decimal(3,2) | -                  | Cached average rating as borrower; NULL if none                         |
-| `borrower_rating_count_acc` | int          | default: 0         | Number of ratings received as borrower                                  |
-| `tool_count_acc`            | int          | default: 0         | Number of active tools listed                                           |
+| Column                      | Type         | Constraints        | Notes                                                                    |
+|-----------------------------|--------------|--------------------|--------------------------------------------------------------------------|
+| `id_acc`                    | int          | PK, auto-increment | -                                                                        |
+| `first_name_acc`            | varchar(100) | not null           | -                                                                        |
+| `last_name_acc`             | varchar(100) | not null           | -                                                                        |
+| `phone_number_acc`          | varchar(20)  | -                  | -                                                                        |
+| `email_address_acc`         | varchar(255) | unique, not null   | Primary login credential - used for authentication                       |
+| `street_address_acc`        | varchar(255) | -                  | Optional for privacy - ZIP required                                      |
+| `zip_code_acc`              | varchar(10)  | not null           | FK to zip_code_zpc                                                       |
+| `id_nbh_acc`                | int          | -                  | Optional neighborhood membership; state derivable via neighborhood_nbh   |
+| `password_hash_acc`         | varchar(255) | not null           | bcrypt or argon2 hash only                                               |
+| `id_rol_acc`                | int          | not null           | FK to role_rol                                                           |
+| `id_ast_acc`                | int          | not null           | FK to account_status_ast                                                 |
+| `id_cpr_acc`                | int          | not null           | FK to contact_preference_cpr                                             |
+| `is_verified_acc`           | boolean      | default: false     | -                                                                        |
+| `has_consent_acc`           | boolean      | default: false     | -                                                                        |
+| `last_login_at_acc`         | timestamp    | -                  | -                                                                        |
+| `created_at_acc`            | timestamp    | default: now()     | -                                                                        |
+| `updated_at_acc`            | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                                              |
+| `metadata_json_acc`         | json         | -                  | Future: preferences, settings, etc.                                      |
+| `avg_lender_rating_acc`     | decimal(3,2) | -                  | Cached average rating as lender (1.00-5.00); NULL if none                |
+| `lender_rating_count_acc`   | int          | default: 0         | Number of ratings received as lender                                     |
+| `avg_borrower_rating_acc`   | decimal(3,2) | -                  | Cached average rating as borrower; NULL if none                          |
+| `borrower_rating_count_acc` | int          | default: 0         | Number of ratings received as borrower                                   |
+| `tool_count_acc`            | int          | default: 0         | Number of active tools listed; updated via trigger on tool_tol           |
 
 **Indexes:**
 
@@ -275,7 +303,7 @@ Main user account table containing all user information.
 - `idx_role_acc` on `id_rol_acc`
 - `idx_status_verified_acc` on `(id_ast_acc, is_verified_acc)`
 - `idx_contact_preference_acc` on `id_cpr_acc`
-- `idx_state_acc` on `id_sta_acc`
+- `idx_neighborhood_acc` on `id_nbh_acc`
 - `idx_last_login_acc` on `last_login_at_acc`
 - `idx_created_at_acc` on `created_at_acc`
 
@@ -283,15 +311,12 @@ Main user account table containing all user information.
 
 ```sql
 CHECK (email_address_acc REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
-CHECK (street_address_acc IS NULL OR id_sta_acc IS NOT NULL)
-CHECK (id_sta_acc IS NULL OR street_address_acc IS NOT NULL)
 ```
 
 > **Note:**
 >
-> - SQL trigger required: BEFORE INSERT/UPDATE - derive id_sta_acc from zip_code_acc (ignore user input).
-> - Rating cache triggers: update avg/count on user_rating_urt changes.
-> - Tool count trigger: update on tool_tol changes.
+> - Trigger: AFTER INSERT/UPDATE/DELETE on user_rating_urt – recalculate avg and count for target account.
+> - Trigger: AFTER INSERT/UPDATE/DELETE on tool_tol – increment/decrement tool_count_acc based on is_available_tol.
 
 **Soft-Delete Strategy:**
 
@@ -673,21 +698,21 @@ Analytics table for tracking user searches.
 
 ### Junction Tables
 
-#### tool_category_tct
+#### tool_category_tolcat
 
 Junction table enabling many-to-many relationship between tools and categories.
 
-| Column          | Type      | Constraints        | Notes              |
-|-----------------|-----------|--------------------|--------------------|
-| `id_tct`        | int       | PK, auto-increment | -                  |
-| `id_tol_tct`    | int       | not null           | FK to tool_tol     |
-| `id_cat_tct`    | int       | not null           | FK to category_cat |
-| `created_at_tct`| timestamp | default: now()     | -                  |
+| Column             | Type      | Constraints        | Notes              |
+|--------------------|-----------|--------------------|--------------------|
+| `id_tolcat`        | int       | PK, auto-increment | -                  |
+| `id_tol_tolcat`    | int       | not null           | FK to tool_tol     |
+| `id_cat_tolcat`    | int       | not null           | FK to category_cat |
+| `created_at_tolcat`| timestamp | default: now()     | -                  |
 
 **Indexes:**
 
-- `uq_tool_category_tct` (UNIQUE) on `(id_tol_tct, id_cat_tct)`
-- `idx_category_tct` on `id_cat_tct`
+- `uq_tool_category_tolcat` (UNIQUE) on `(id_tol_tolcat, id_cat_tolcat)`
+- `idx_category_tolcat` on `id_cat_tolcat`
 
 > **Note:**
 >
@@ -695,21 +720,56 @@ Junction table enabling many-to-many relationship between tools and categories.
 
 ---
 
-#### bookmark_bmk
+#### tool_bookmark_acctol
 
 Junction table for user-saved/favorited tools.
 
-| Column          | Type      | Constraints        | Notes             |
-|-----------------|-----------|--------------------|-------------------|
-| `id_bmk`        | int       | PK, auto-increment | -                 |
-| `id_acc_bmk`    | int       | not null           | FK to account_acc |
-| `id_tol_bmk`    | int       | not null           | FK to tool_tol    |
-| `created_at_bmk`| timestamp | default: now()     | -                 |
+| Column              | Type      | Constraints        | Notes             |
+|---------------------|-----------|--------------------|-------------------|
+| `id_acctol`         | int       | PK, auto-increment | -                 |
+| `id_acc_acctol`     | int       | not null           | FK to account_acc |
+| `id_tol_acctol`     | int       | not null           | FK to tool_tol    |
+| `created_at_acctol` | timestamp | default: now()     | -                 |
 
 **Indexes:**
 
-- `uq_account_tool_bmk` (UNIQUE) on `(id_acc_bmk, id_tol_bmk)`
-- `idx_tool_bmk` on `id_tol_bmk`
+- `uq_account_tool_acctol` (UNIQUE) on `(id_acc_acctol, id_tol_acctol)`
+- `idx_tool_acctol` on `id_tol_acctol`
+
+---
+
+#### neighborhood_zip_nbhzpc
+
+Junction table: neighborhoods can contain multiple ZIPs, ZIPs can belong to multiple neighborhoods.
+
+| Column              | Type        | Constraints        | Notes                                                        |
+|---------------------|-------------|--------------------|--------------------------------------------------------------|
+| `id_nbhzpc`         | int         | PK, auto-increment | -                                                            |
+| `id_nbh_nbhzpc`     | int         | not null           | FK to neighborhood_nbh                                       |
+| `zip_code_nbhzpc`   | varchar(10) | not null           | FK to zip_code_zpc                                           |
+| `is_primary_nbhzpc` | boolean     | default: false     | True = primary neighborhood for this ZIP; one allowed per ZIP|
+| `created_at_nbhzpc` | timestamp   | default: now()     | -                                                            |
+
+**Indexes:**
+
+- `uq_neighborhood_zip_nbhzpc` (UNIQUE) on `(id_nbh_nbhzpc, zip_code_nbhzpc)`
+- `idx_zip_primary_nbhzpc` on `(zip_code_nbhzpc, is_primary_nbhzpc)`
+- `idx_neighborhood_nbhzpc` on `id_nbh_nbhzpc`
+
+> **Note:**
+>
+> - Handles edge cases where ZIP codes cross neighborhood/community boundaries.
+> - Constraint: Only one `is_primary_nbhzpc = true` per `zip_code_nbhzpc`.
+> - Trigger: BEFORE INSERT/UPDATE – enforce single primary per ZIP.
+
+```sql
+IF NEW.is_primary_nbhzpc = true AND EXISTS (
+  SELECT 1 FROM neighborhood_zip_nbhzpc
+  WHERE zip_code_nbhzpc = NEW.zip_code_nbhzpc
+    AND is_primary_nbhzpc = true
+    AND id_nbhzpc != COALESCE(NEW.id_nbhzpc, 0)
+) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Only one primary neighborhood per ZIP allowed';
+```
 
 ---
 
@@ -726,7 +786,7 @@ Community events table for future functionality.
 | `event_description_evt` | text         | -                  | -                                          |
 | `start_at_evt`          | timestamp    | not null           | -                                          |
 | `end_at_evt`            | timestamp    | -                  | -                                          |
-| `zip_code_zpc_evt`      | varchar(10)  | -                  | FK to zip_code_zpc                         |
+| `id_nbh_evt`            | int          | -                  | Neighborhood where event takes place       |
 | `id_acc_evt`            | int          | not null           | Created by account (admin) FK              |
 | `created_at_evt`        | timestamp    | default: now()     | -                                          |
 | `updated_at_evt`        | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                |
@@ -735,9 +795,10 @@ Community events table for future functionality.
 
 **Indexes:**
 
-- `idx_date_zip_evt` on `(start_at_evt, zip_code_zpc_evt)`
+- `idx_date_neighborhood_evt` on `(start_at_evt, id_nbh_evt)`
 - `idx_creator_evt` on `id_acc_evt`
 - `idx_updated_by_evt` on `id_acc_updated_by_evt`
+- `idx_neighborhood_evt` on `id_nbh_evt`
 
 ---
 
@@ -796,27 +857,35 @@ Generic audit log for tracking changes across all tables. Implement when detaile
 
 Junction tables create the following M:M relationships:
 
-| Relationship              | Parent A       | Parent B       | Junction Table     |
-|---------------------------|----------------|----------------|--------------------|
-| Tools have Categories     | `tool_tol`     | `category_cat` | `tool_category_tct`|
-| Accounts bookmark Tools   | `account_acc`  | `tool_tol`     | `bookmark_bmk`     |
+| Relationship               | Parent A           | Parent B       | Junction Table           |
+|----------------------------|--------------------|----------------|--------------------------|
+| Tools have Categories      | `tool_tol`         | `category_cat` | `tool_category_tolcat`   |
+| Accounts bookmark Tools    | `account_acc`      | `tool_tol`     | `tool_bookmark_acctol`   |
+| Neighborhoods have ZIPs    | `neighborhood_nbh` | `zip_code_zpc` | `neighborhood_zip_nbhzpc`|
 
 ### One-to-Many Relationships (1:M)
 
 #### Account Domain
 
-| Parent (One)             | Child (Many)        | Foreign Key        | Description                      |
-|--------------------------|---------------------|--------------------|----------------------------------|
-| `role_rol`               | `account_acc`       | `id_rol_acc`       | Role assigned to accounts        |
-| `account_status_ast`     | `account_acc`       | `id_ast_acc`       | Status of accounts               |
-| `contact_preference_cpr` | `account_acc`       | `id_cpr_acc`       | Contact preference for accounts  |
-| `state_sta`              | `account_acc`       | `id_sta_acc`       | State for account address        |
-| `zip_code_zpc`           | `account_acc`       | `zip_code_acc`     | Location of accounts             |
-| `state_sta`              | `zip_code_zpc`      | `id_sta_zpc`       | State for ZIP codes              |
-| `account_acc`            | `account_image_aim` | `id_acc_aim`       | Account has profile images       |
-| `account_acc`            | `account_bio_abi`   | `id_acc_abi`       | Account has optional bio (0 or 1)|
-| `account_acc`            | `vector_image_vec`  | `id_acc_vec`       | Admin uploads vector images      |
-| `vector_image_vec`       | `category_cat`      | `id_vec_cat`       | Category has optional icon       |
+| Parent (One)             | Child (Many)        | Foreign Key        | Description                       |
+|--------------------------|---------------------|--------------------|-----------------------------------|
+| `role_rol`               | `account_acc`       | `id_rol_acc`       | Role assigned to accounts         |
+| `account_status_ast`     | `account_acc`       | `id_ast_acc`       | Status of accounts                |
+| `contact_preference_cpr` | `account_acc`       | `id_cpr_acc`       | Contact preference for accounts   |
+| `zip_code_zpc`           | `account_acc`       | `zip_code_acc`     | Location of accounts              |
+| `neighborhood_nbh`       | `account_acc`       | `id_nbh_acc`       | Optional neighborhood membership  |
+| `account_acc`            | `account_image_aim` | `id_acc_aim`       | Account has profile images        |
+| `account_acc`            | `account_bio_abi`   | `id_acc_abi`       | Account has optional bio (0 or 1) |
+| `account_acc`            | `vector_image_vec`  | `id_acc_vec`       | Admin uploads vector images       |
+| `vector_image_vec`       | `category_cat`      | `id_vec_cat`       | Category has optional icon        |
+
+#### Neighborhood Domain
+
+| Parent (One)       | Child (Many)             | Foreign Key       | Description                        |
+|--------------------|--------------------------|-------------------|------------------------------------|
+| `state_sta`        | `neighborhood_nbh`       | `id_sta_nbh`      | State for neighborhood             |
+| `neighborhood_nbh` | `neighborhood_zip_nbhzpc`| `id_nbh_nbhzpc`   | Neighborhood contains ZIP codes    |
+| `zip_code_zpc`     | `neighborhood_zip_nbhzpc`| `zip_code_nbhzpc` | ZIP code belongs to neighborhoods  |
 
 #### Tool Domain
 
@@ -879,11 +948,11 @@ Junction tables create the following M:M relationships:
 
 #### Event Domain
 
-| Parent (One)   | Child (Many) | Foreign Key             | Description               |
-|----------------|--------------|-------------------------|---------------------------|
-| `zip_code_zpc` | `event_evt`  | `zip_code_zpc_evt`      | Location of events        |
-| `account_acc`  | `event_evt`  | `id_acc_evt`            | Admin creates events      |
-| `account_acc`  | `event_evt`  | `id_acc_updated_by_evt` | Admin last modified event |
+| Parent (One)       | Child (Many) | Foreign Key             | Description               |
+|--------------------|--------------|-------------------------|---------------------------|
+| `neighborhood_nbh` | `event_evt`  | `id_nbh_evt`            | Location of events        |
+| `account_acc`      | `event_evt`  | `id_acc_evt`            | Admin creates events      |
+| `account_acc`      | `event_evt`  | `id_acc_updated_by_evt` | Admin last modified event |
 
 #### phpBB Integration Domain
 
@@ -914,18 +983,18 @@ Junction tables create the following M:M relationships:
 |                              |                                               |
 |                              v                                               |
 |  +-----------+      +----------------+                                       |
-|  | state_sta |<-----+  account_acc   |<---------+                            |
+|  | state_sta |      |  account_acc   |<---------+                            |
 |  +-----+-----+      +-------+--------+          |                            |
 |        |                    |                   |                            |
 |        v                    v                   |                            |
-|  +-------------+     +------------------+       |                            |
-|  | zip_code_zpc|     | account_image_aim|       |                            |
-|  +-------------+     +------------------+       |                            |
-|                             |                   |                            |
-|                             v                   |                            |
-|                      +----------------+         |                            |
-|                      | account_bio_abi|         |                            |
-|                      +----------------+         |                            |
+|  +------------------+  +------------------+     |                            |
+|  | neighborhood_nbh |  | account_image_aim|     |                            |
+|  +--------+---------+  +------------------+     |                            |
+|           |                   |                 |                            |
+|           v                   v                 |                            |
+|    +-------------+     +----------------+       |                            |
+|    | zip_code_zpc|     | account_bio_abi|       |                            |
+|    +-------------+     +----------------+       |                            |
 |                                                 |                            |
 +------------------------------------------------------------------------------+
                                                   |
@@ -1013,24 +1082,24 @@ Junction tables create the following M:M relationships:
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-|                          JUNCTION TABLES GROUP                               |
-+------------------------------------------------------------------------------+
-|                                                                              |
-|            +-------------------+            +-----------------+              |
-|            | tool_category_tct |            |   bookmark_bmk  |              |
-|            +-------------------+            +-----------------+              |
-|                                                                              |
-|   Links: tool_tol <-> category_cat      Links: account_acc <-> tool_tol      |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
 |                          SHARED ASSETS GROUP                                 |
 +------------------------------------------------------------------------------+
 |                                                                              |
 |                         +-----------------+                                  |
 |                         | vector_image_vec|                                  |
 |                         +-----------------+                                  |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+|                          JUNCTION TABLES GROUP                               |
++------------------------------------------------------------------------------+
+|                                                                              |
+| +----------------------+  +---------------------+  +-----------------------+ |
+| | tool_category_tolcat |  | tool_bookmark_acctol|  |neighborhood_zip_nbhzpc| |
+| +----------------------+  +---------------------+  +-----------------------+ |
+|                                                                              |
+|   tool_tol <-> category_cat   account_acc <-> tool_tol   nbh <-> zip_code    |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
@@ -1057,6 +1126,18 @@ This database uses a consistent naming convention:
 - **Foreign keys:** `id_referenced_table_current_table` (e.g., `id_acc_bor` for
   account FK in borrow table)
 - **Indexes:** Descriptive names prefixed with `idx_`, `uq_`, or `fulltext_`
+
+### Junction Table Naming
+
+Junction tables model many-to-many relationships and use a special naming convention:
+
+- **Table names:** `descriptive_name_suffix1suffix2` where suffix1 and suffix2 are
+  the 3-character suffixes from both parent tables (e.g., `tool_category_tolcat`
+  combines `tol` + `cat`)
+- **Primary keys:** `id_suffix1suffix2` (e.g., `id_tolcat`, `id_acctol`)
+- **Foreign keys:** `id_parentsuffix_junctionsuffix` (e.g., `id_tol_tolcat`,
+  `id_cat_tolcat`)
+- **Uniqueness:** Enforced via composite unique constraint on both foreign keys
 
 This convention ensures clarity about which table each column belongs to and
 makes SQL queries more readable.

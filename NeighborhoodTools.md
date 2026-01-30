@@ -289,12 +289,8 @@ Main user account table containing all user information.
 | `last_login_at_acc`         | timestamp    | -                  | -                                                                        |
 | `created_at_acc`            | timestamp    | default: now()     | -                                                                        |
 | `updated_at_acc`            | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                                              |
+| `deleted_at_acc`            | timestamp    | -                  | Set via trigger when status changes to deleted; NULL = active            |
 | `metadata_json_acc`         | json         | -                  | Future: preferences, settings, etc.                                      |
-| `avg_lender_rating_acc`     | decimal(3,2) | -                  | Cached average rating as lender (1.00-5.00); NULL if none                |
-| `lender_rating_count_acc`   | int          | default: 0         | Number of ratings received as lender                                     |
-| `avg_borrower_rating_acc`   | decimal(3,2) | -                  | Cached average rating as borrower; NULL if none                          |
-| `borrower_rating_count_acc` | int          | default: 0         | Number of ratings received as borrower                                   |
-| `tool_count_acc`            | int          | default: 0         | Number of active tools listed; updated via trigger on tool_tol           |
 
 **Indexes:**
 
@@ -315,12 +311,18 @@ CHECK (email_address_acc REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,
 
 > **Note:**
 >
-> - Trigger: AFTER INSERT/UPDATE/DELETE on user_rating_urt – recalculate avg and count for target account.
-> - Trigger: AFTER INSERT/UPDATE/DELETE on tool_tol – increment/decrement tool_count_acc based on is_available_tol.
+> **Derived aggregates** (compute on-demand; cache later if needed):
+>
+> - Lender rating: `SELECT AVG(score_urt), COUNT(*) FROM user_rating_urt WHERE id_acc_target_urt = ? AND id_rtr_urt = <lender_id>`
+> - Borrower rating: `SELECT AVG(score_urt), COUNT(*) FROM user_rating_urt WHERE id_acc_target_urt = ? AND id_rtr_urt = <borrower_id>`
+> - Tool count: `SELECT COUNT(*) FROM tool_tol WHERE id_acc_tol = ? AND is_available_tol = true`
 
 **Soft-Delete Strategy:**
 
 - `id_ast_acc = deleted` status is the single source of truth for soft-delete
+- `deleted_at_acc` records WHEN deletion occurred (for retention policies, GDPR compliance)
+- CHECK: `(id_ast_acc = <deleted_id> AND deleted_at_acc IS NOT NULL) OR (id_ast_acc != <deleted_id> AND deleted_at_acc IS NULL)`
+- Trigger: BEFORE UPDATE – set `deleted_at_acc = NOW()` when `id_ast_acc` changes to deleted
 - View: `CREATE VIEW active_account_v AS SELECT * FROM account_acc WHERE id_ast_acc != <deleted_id>`
 - Use `active_account_v` for all application reads; use base table for admin/audit queries
 - Referencing tables enforce via BEFORE INSERT/UPDATE triggers (see tool_tol, borrow_bor, etc.)
@@ -410,9 +412,6 @@ Main tool listing table.
 | `created_at_tol`                  | timestamp     | default: now()     | -                                                           |
 | `updated_at_tol`                  | timestamp     | default: now()     | -                                                           |
 | `metadata_json_tol`               | json          | -                  | Future: custom attributes, tags                             |
-| `avg_rating_tol`                  | decimal(3,2)  | -                  | Cached average tool rating (1.00-5.00); NULL if none        |
-| `rating_count_tol`                | int           | default: 0         | Number of ratings received                                  |
-| `borrow_count_tol`                | int           | default: 0         | Total completed borrows (status=returned)                   |
 
 **Indexes:**
 
@@ -428,8 +427,12 @@ Main tool listing table.
 > - `is_available_tol` = owner intent only.
 > - True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`.
 > - Compute at query time (JOIN/NOT EXISTS) for accuracy.
-> - Rating cache triggers update on tool_rating_trt changes.
-> - Borrow count increments when status changes to returned.
+> - Trigger: BEFORE INSERT/UPDATE – reject if `id_acc_tol` references deleted account.
+>
+> **Derived aggregates** (compute on-demand; cache later if needed):
+>
+> - Avg rating: `SELECT AVG(score_trt), COUNT(*) FROM tool_rating_trt WHERE id_tol_trt = ?`
+> - Borrow count: `SELECT COUNT(*) FROM borrow_bor WHERE id_tol_bor = ? AND id_bst_bor = <returned_id>`
 
 ---
 

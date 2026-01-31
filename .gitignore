@@ -9,6 +9,7 @@ Thumbs.db
 
 # PHP dependencies
 vendor/
+includes/config.php
 
 # Environment and credentials
 .env

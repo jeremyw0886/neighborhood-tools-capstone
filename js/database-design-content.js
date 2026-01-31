@@ -41,7 +41,7 @@
     function loadMarkdown() {
         const contentElement = document.getElementById('markdown-content');
 
-        fetch('./neighborhood-tools.md')
+        fetch('/neighborhood-tools.md')
             .then(function(response) {
                 if (!response.ok) {
                     throw new Error(`HTTP error: ${response.status}`);

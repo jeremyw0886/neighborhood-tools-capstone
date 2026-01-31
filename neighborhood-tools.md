@@ -1553,7 +1553,7 @@ makes SQL queries more readable.
 Tools used in development of the database design
 
 - **VsCode** IDE
-- **Grok** Analytics
-- **Codex** Document(s) Analysis
-- **Claude Code** Document(s) refinement
+- **Grok** Analytics from X.com
+- **Codex** Document Analysis
+- **Claude Code** Document Refinement
 - **[dbdiagram.io](https://dbdiagram.io/d/neighborhoodtools-com-ERD-69711419bd82f5fce231c284)** [NeighborhoodTools.com](https://neighborhoodtools.com) ERD creation

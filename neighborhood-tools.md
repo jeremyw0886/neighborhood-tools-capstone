@@ -2,7 +2,7 @@
 
 **Author:** Jeremy Warren
 
-**Course:** WEB-289 Capstone
+**Course:** WEB-289 Capstone Project
 
 **Target Database:** MySQL 8.0.16 or later
 

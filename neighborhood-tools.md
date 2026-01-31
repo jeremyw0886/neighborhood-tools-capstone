@@ -22,8 +22,12 @@
    - [Shared Assets](#shared-assets)
    - [Junction Tables](#junction-tables)
    - [Future Expansion](#future-expansion)
+   - [Legal & Compliance](#legal--compliance)
+   - [Payments & Deposits](#payments--deposits)
 5. [Relationships](#relationships)
 6. [Entity Relationship Diagram](#entity-relationship-diagram)
+7. [Naming Conventions](#naming-conventions)
+8. [Development Tools Used](#development-tools-used)
 
 ---
 
@@ -38,6 +42,8 @@ neighbors to share tools with each other. This database design supports:
 - **Rating system** for both users and tools
 - **Dispute resolution** with message threading for handling conflicts
 - **User interactions** including bookmarks, notifications, and search logging
+- **Legal & compliance** with Terms of Service versioning, digital waivers, handover verification, and incident reporting
+- **Security deposits** with payment provider integration and transaction tracking
 - **Future expansion** for community events and phpBB forum integration
 
 ---
@@ -57,6 +63,8 @@ visualization:
 | **Shared Assets**      | `vector_image_vec`                                                                                                                                                |
 | **Junction Tables**    | `tool_category_tolcat`, `tool_bookmark_acctol`, `neighborhood_zip_nbhzpc`                                                                                         |
 | **Future Expansion**   | `event_evt`, `phpbb_integration_php`, `audit_log_aud`                                                                                                             |
+| **Legal & Compliance** | `terms_of_service_tos`, `tos_acceptance_tac`, `waiver_type_wtp`, `borrow_waiver_bwv`, `handover_type_hot`, `handover_verification_hov`, `incident_type_ity`, `incident_report_irt`|
+| **Payments & Deposits**| `deposit_status_dps`, `security_deposit_sdp`, `payment_provider_ppv`, `payment_transaction_ptx`                                                                                   |
 
 ---
 
@@ -106,36 +114,6 @@ US state lookup table for address normalization.
 | `id_sta`        | int         | PK, auto-increment | -                              |
 | `state_code_sta`| varchar(2)  | unique, not null   | Two-letter US state code       |
 | `state_name_sta`| varchar(50) | unique, not null   | Full US state name             |
-
----
-
-### neighborhood_nbh
-
-Dedicated neighborhood entity for local communities/service areas.
-
-| Column                  | Type         | Constraints        | Notes                                                             |
-|-------------------------|--------------|--------------------|-------------------------------------------------------------------|
-| `id_nbh`                | int          | PK, auto-increment | -                                                                 |
-| `neighborhood_name_nbh` | varchar(100) | unique, not null   | Name of local community/service area                              |
-| `city_name_nbh`         | varchar(100) | -                  | Primary city for this neighborhood                                |
-| `id_sta_nbh`            | int          | not null           | State the neighborhood is primarily in (FK to state_sta)          |
-| `latitude_nbh`          | decimal(9,6) | -                  | -                                                                 |
-| `longitude_nbh`         | decimal(9,6) | -                  | -                                                                 |
-| `location_point_nbh`    | point        | -                  | MySQL 8 POINT type with SRID 4326 (WGS84) for optimized proximity |
-| `created_at_nbh`        | timestamp    | default: now()     | -                                                                 |
-| `updated_at_nbh`        | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                                       |
-| `metadata_json_nbh`     | json         | -                  | Future: community features, settings, etc.                        |
-
-**Indexes:**
-
-- `idx_state_nbh` on `id_sta_nbh`
-- `idx_city_nbh` on `city_name_nbh`
-- `idx_location_spatial_nbh` (SPATIAL) on `location_point_nbh`
-
-> **Note:**
->
-> - Spatial trigger: BEFORE INSERT/UPDATE – auto-populate `location_point_nbh` from lat/long:
->   `SET NEW.location_point_nbh = ST_PointFromText(CONCAT('POINT(', NEW.longitude_nbh, ' ', NEW.latitude_nbh, ')'), 4326)`
 
 ---
 
@@ -236,13 +214,99 @@ Categories of system notifications.
 
 ---
 
+### waiver_type_wtp
+
+Types of digital waivers for legal compliance.
+
+| Column          | Type        | Constraints        | Notes                                                       |
+|-----------------|-------------|--------------------|-------------------------------------------------------------|
+| `id_wtp`        | int         | PK, auto-increment | -                                                           |
+| `type_name_wtp` | varchar(50) | unique, not null   | Values: borrow_waiver, condition_acknowledgment, liability_release |
+
+---
+
+### handover_type_hot
+
+Types of tool handover events.
+
+| Column          | Type        | Constraints        | Notes                  |
+|-----------------|-------------|--------------------|------------------------|
+| `id_hot`        | int         | PK, auto-increment | -                      |
+| `type_name_hot` | varchar(30) | unique, not null   | Values: pickup, return |
+
+---
+
+### incident_type_ity
+
+Categories of incidents for mandatory reporting.
+
+| Column          | Type        | Constraints        | Notes                                                              |
+|-----------------|-------------|--------------------|-------------------------------------------------------------------|
+| `id_ity`        | int         | PK, auto-increment | -                                                                  |
+| `type_name_ity` | varchar(50) | unique, not null   | Values: damage, theft, loss, injury, late_return, condition_dispute, other |
+
+---
+
+### deposit_status_dps
+
+States for security deposit lifecycle.
+
+| Column            | Type        | Constraints        | Notes                                                  |
+|-------------------|-------------|--------------------|--------------------------------------------------------|
+| `id_dps`          | int         | PK, auto-increment | -                                                      |
+| `status_name_dps` | varchar(30) | unique, not null   | Values: pending, held, released, forfeited, partial_release |
+
+---
+
+### payment_provider_ppv
+
+Supported payment providers for deposits and fees.
+
+| Column              | Type        | Constraints        | Notes                           |
+|---------------------|-------------|--------------------|--------------------------------|
+| `id_ppv`            | int         | PK, auto-increment | -                               |
+| `provider_name_ppv` | varchar(50) | unique, not null   | Values: stripe, paypal, manual  |
+| `is_active_ppv`     | boolean     | default: true      | Whether provider is available   |
+
+---
+
 ## Core Tables
 
 ### Accounts
 
+#### neighborhood_nbh
+
+Dedicated neighborhood entity for local communities/service areas.
+
+| Column                  | Type         | Constraints        | Notes                                                             |
+|-------------------------|--------------|--------------------|-------------------------------------------------------------------|
+| `id_nbh`                | int          | PK, auto-increment | -                                                                 |
+| `neighborhood_name_nbh` | varchar(100) | unique, not null   | Name of local community/service area                              |
+| `city_name_nbh`         | varchar(100) | -                  | Primary city for this neighborhood                                |
+| `id_sta_nbh`            | int          | not null           | State the neighborhood is primarily in (FK to state_sta)          |
+| `latitude_nbh`          | decimal(9,6) | -                  | -                                                                 |
+| `longitude_nbh`         | decimal(9,6) | -                  | -                                                                 |
+| `location_point_nbh`    | point        | -                  | MySQL 8 POINT type with SRID 4326 (WGS84) for optimized proximity |
+| `created_at_nbh`        | timestamp    | default: now()     | -                                                                 |
+| `updated_at_nbh`        | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                                       |
+| `metadata_json_nbh`     | json         | -                  | Future: community features, settings, etc.                        |
+
+**Indexes:**
+
+- `idx_state_nbh` on `id_sta_nbh`
+- `idx_city_nbh` on `city_name_nbh`
+- `idx_location_spatial_nbh` (SPATIAL) on `location_point_nbh`
+
+> **Note:**
+>
+> - Spatial trigger: BEFORE INSERT/UPDATE – auto-populate `location_point_nbh` from lat/long:
+>   `SET NEW.location_point_nbh = ST_PointFromText(CONCAT('POINT(', NEW.longitude_nbh, ' ', NEW.latitude_nbh, ')'), 4326)`
+
+---
+
 #### zip_code_zpc
 
-Simplified ZIP code table – pure geographic identifiers only.
+ZIP code table – pure geographic identifiers only.
 
 | Column               | Type         | Constraints | Notes                                |
 |----------------------|--------------|-------------|--------------------------------------|
@@ -372,26 +436,6 @@ provides a bio - application displays placeholder text when no row exists.
 
 ---
 
-### Shared Assets
-
-#### vector_image_vec
-
-Vector/SVG images uploaded by admins for site use.
-
-| Column                | Type         | Constraints        | Notes                        |
-|-----------------------|--------------|--------------------|------------------------------|
-| `id_vec`              | int          | PK, auto-increment | -                            |
-| `file_name_vec`       | varchar(255) | not null           | -                            |
-| `description_text_vec`| text         | -                  | -                            |
-| `id_acc_vec`          | int          | not null           | Uploaded by account (admin)  |
-| `uploaded_at_vec`     | timestamp    | default: now()     | -                            |
-
-**Indexes:**
-
-- `idx_uploader_vec` on `id_acc_vec`
-
----
-
 ### Tools
 
 #### tool_tol
@@ -409,6 +453,11 @@ Main tool listing table.
 | `rental_fee_tol`                  | decimal(6,2)  | default: 0.00      | 0 = free sharing                                            |
 | `default_loan_duration_hours_tol` | int           | default: 168       | Owner default in hours; UI converts days/weeks              |
 | `is_available_tol`                | boolean       | default: true      | Owner listing toggle - see Note for true availability logic |
+| `requires_deposit_tol`            | boolean       | default: false     | Lender requires refundable security deposit                 |
+| `default_deposit_amount_tol`      | decimal(8,2)  | default: 0.00      | Default deposit amount; 0 = no deposit required             |
+| `estimated_value_tol`             | decimal(8,2)  | -                  | Estimated tool value for insurance/deposit reference        |
+| `preexisting_conditions_tol`      | text          | -                  | Lender disclosure of pre-existing damage, wear, conditions  |
+| `insurance_recommended_tol`       | boolean       | default: false     | Flag for high-value tools where insurance is recommended    |
 | `created_at_tol`                  | timestamp     | default: now()     | -                                                           |
 | `updated_at_tol`                  | timestamp     | default: now()     | -                                                           |
 | `metadata_json_tol`               | json          | -                  | Future: custom attributes, tags                             |
@@ -420,6 +469,7 @@ Main tool listing table.
 - `idx_available_created_tol` on `(is_available_tol, created_at_tol)`
 - `idx_created_at_tol` on `created_at_tol`
 - `idx_rental_fee_tol` on `rental_fee_tol`
+- `idx_requires_deposit_tol` on `requires_deposit_tol`
 - `fulltext_tool_search_tol` (FULLTEXT) on `(tool_name_tol, tool_description_tol)`
 
 > **Note:**
@@ -428,6 +478,12 @@ Main tool listing table.
 > - True availability requires: `is_available_tol = true` AND no overlapping `availability_block_avb` AND no active `borrow_bor`.
 > - Compute at query time (JOIN/NOT EXISTS) for accuracy.
 > - Trigger: BEFORE INSERT/UPDATE – reject if `id_acc_tol` references deleted account.
+>
+> **Legal/Liability Fields:**
+>
+> - `requires_deposit_tol`: Lender can require refundable security deposit
+> - `preexisting_conditions_tol`: Required disclosure of tool condition before lending (ToS requirement)
+> - `insurance_recommended_tol`: Flags high-value tools ($1000+) for insurance recommendation
 >
 > **Derived aggregates** (compute on-demand; cache later if needed):
 >
@@ -699,6 +755,26 @@ Analytics table for tracking user searches.
 
 ---
 
+### Shared Assets
+
+#### vector_image_vec
+
+Vector/SVG images uploaded by admins for site use.
+
+| Column                | Type         | Constraints        | Notes                        |
+|-----------------------|--------------|--------------------|------------------------------|
+| `id_vec`              | int          | PK, auto-increment | -                            |
+| `file_name_vec`       | varchar(255) | not null           | -                            |
+| `description_text_vec`| text         | -                  | -                            |
+| `id_acc_vec`          | int          | not null           | Uploaded by account (admin)  |
+| `uploaded_at_vec`     | timestamp    | default: now()     | -                            |
+
+**Indexes:**
+
+- `idx_uploader_vec` on `id_acc_vec`
+
+---
+
 ### Junction Tables
 
 #### tool_category_tolcat
@@ -828,7 +904,7 @@ Placeholder for phpBB forum SSO integration.
 
 #### audit_log_aud
 
-Generic audit log for tracking changes across all tables. Implement when detailed change history is needed.
+Audit log for tracking changes across all tables. Implement when detailed change history is needed.
 
 | Column                | Type        | Constraints        | Notes                                         |
 |-----------------------|-------------|--------------------|-----------------------------------------------|
@@ -851,6 +927,250 @@ Generic audit log for tracking changes across all tables. Implement when detaile
 >
 > - Future: Implement via AFTER INSERT/UPDATE/DELETE triggers on tables requiring audit trails.
 > - Archival: Delete or move records older than 24 months via scheduled job.
+
+---
+
+### Legal & Compliance
+
+#### terms_of_service_tos
+
+Stores versioned Terms of Service documents. Emphasizes platform's matchmaking role.
+
+| Column                  | Type         | Constraints        | Notes                                         |
+|-------------------------|--------------|--------------------|-----------------------------------------------|
+| `id_tos`                | int          | PK, auto-increment | -                                             |
+| `version_tos`           | varchar(20)  | unique, not null   | Version identifier (e.g., 1.0, 2.0)           |
+| `title_tos`             | varchar(255) | not null           | ToS document title                            |
+| `content_tos`           | text         | not null           | Full Terms of Service text                    |
+| `summary_tos`           | text         | -                  | Plain-language summary of key terms           |
+| `effective_at_tos`      | timestamp    | not null           | When this version becomes active              |
+| `superseded_at_tos`     | timestamp    | -                  | When replaced; NULL = current                 |
+| `is_active_tos`         | boolean      | default: true      | Only one version should be active             |
+| `id_acc_created_by_tos` | int          | not null           | Admin who created this version                |
+| `created_at_tos`        | timestamp    | default: now()     | -                                             |
+
+**Indexes:**
+
+- `idx_active_tos` on `is_active_tos`
+- `idx_effective_tos` on `effective_at_tos`
+- `idx_creator_tos` on `id_acc_created_by_tos`
+
+> **Note:**
+>
+> Key ToS clauses for platform liability protection:
+> - Platform is a matchmaking service, not party to transactions
+> - Platform not liable for damage, theft, or loss of tools
+> - Users resolve disputes directly (e.g., small claims court)
+> - Borrowers assume responsibility during borrow period
+> - Lenders must disclose pre-existing conditions
+> - Mandatory incident reporting within 24-48 hours
+> - Users should verify their own insurance coverage
+
+---
+
+#### tos_acceptance_tac
+
+Records user acceptance of each Terms of Service version.
+
+| Column           | Type         | Constraints        | Notes                                    |
+|------------------|--------------|--------------------|------------------------------------------|
+| `id_tac`         | int          | PK, auto-increment | -                                        |
+| `id_acc_tac`     | int          | not null           | FK to account_acc                        |
+| `id_tos_tac`     | int          | not null           | FK to terms_of_service_tos               |
+| `ip_address_tac` | varchar(45)  | -                  | IP address at time of acceptance         |
+| `user_agent_tac` | varchar(512) | -                  | Browser/device info for audit trail      |
+| `accepted_at_tac`| timestamp    | not null           | When user accepted                       |
+
+**Indexes:**
+
+- `uq_account_tos_tac` (UNIQUE) on `(id_acc_tac, id_tos_tac)`
+- `idx_tos_version_tac` on `id_tos_tac`
+- `idx_accepted_at_tac` on `accepted_at_tac`
+
+> **Note:**
+>
+> - Required during registration and when new ToS versions are published.
+> - One acceptance record per user per ToS version.
+
+---
+
+#### borrow_waiver_bwv
+
+Digital waiver required for each borrow transaction.
+
+| Column                           | Type         | Constraints        | Notes                                           |
+|----------------------------------|--------------|--------------------|------------------------------------------------|
+| `id_bwv`                         | int          | PK, auto-increment | -                                               |
+| `id_bor_bwv`                     | int          | unique, not null   | One waiver per borrow; FK to borrow_bor         |
+| `id_wtp_bwv`                     | int          | not null           | FK to waiver_type_wtp                           |
+| `id_acc_bwv`                     | int          | not null           | Borrower who signed the waiver                  |
+| `tool_condition_acknowledged_bwv`| boolean      | not null           | Borrower confirms current tool condition        |
+| `preexisting_conditions_noted_bwv`| text        | -                  | Snapshot of tool conditions at waiver time      |
+| `responsibility_accepted_bwv`    | boolean      | not null           | Borrower accepts responsibility for tool        |
+| `liability_waiver_accepted_bwv`  | boolean      | not null           | Borrower acknowledges platform liability limits |
+| `insurance_reminder_shown_bwv`   | boolean      | default: false     | Insurance recommendation was displayed          |
+| `ip_address_bwv`                 | varchar(45)  | -                  | -                                               |
+| `user_agent_bwv`                 | varchar(512) | -                  | -                                               |
+| `signed_at_bwv`                  | timestamp    | not null           | -                                               |
+
+**Indexes:**
+
+- `idx_borrower_bwv` on `id_acc_bwv`
+- `idx_signed_at_bwv` on `signed_at_bwv`
+- `idx_waiver_type_bwv` on `id_wtp_bwv`
+
+> **Note:**
+>
+> - All acknowledgment booleans must be true for waiver to be valid.
+> - Trigger enforces required acknowledgments on INSERT.
+
+---
+
+#### handover_verification_hov
+
+Digital handshake system for tool pickup and return confirmation.
+
+| Column                 | Type        | Constraints        | Notes                                              |
+|------------------------|-------------|--------------------|---------------------------------------------------|
+| `id_hov`               | int         | PK, auto-increment | -                                                  |
+| `id_bor_hov`           | int         | not null           | FK to borrow_bor                                   |
+| `id_hot_hov`           | int         | not null           | FK to handover_type_hot (pickup or return)         |
+| `verification_code_hov`| varchar(8)  | not null           | Unique 6-8 character code for digital handshake    |
+| `id_acc_generator_hov` | int         | not null           | Account that generated the code                    |
+| `id_acc_verifier_hov`  | int         | -                  | Account that verified; NULL until verified         |
+| `condition_notes_hov`  | text        | -                  | Condition notes at handover                        |
+| `generated_at_hov`     | timestamp   | not null           | -                                                  |
+| `expires_at_hov`       | timestamp   | not null           | Code expires after 24 hours                        |
+| `verified_at_hov`      | timestamp   | -                  | When verification completed; NULL = pending        |
+
+**Indexes:**
+
+- `uq_borrow_handover_type_hov` (UNIQUE) on `(id_bor_hov, id_hot_hov)`
+- `idx_verification_code_hov` on `verification_code_hov`
+- `idx_generator_hov` on `id_acc_generator_hov`
+- `idx_verifier_hov` on `id_acc_verifier_hov`
+- `idx_expires_at_hov` on `expires_at_hov`
+
+> **Note:**
+>
+> Similar to ShareHub's "digital handshake" system:
+>
+> - **Pickup:** Lender generates code, borrower verifies at pickup
+> - **Return:** Borrower generates code, lender verifies at return
+> - Code expires after 24 hours; new code required if expired
+> - Trigger auto-generates unique verification code on INSERT
+
+---
+
+#### incident_report_irt
+
+Mandatory incident reporting for damage, theft, loss, or disputes.
+
+| Column                       | Type         | Constraints        | Notes                                           |
+|------------------------------|--------------|--------------------|------------------------------------------------|
+| `id_irt`                     | int          | PK, auto-increment | -                                               |
+| `id_bor_irt`                 | int          | not null           | FK to borrow_bor                                |
+| `id_acc_irt`                 | int          | not null           | Account reporting the incident                  |
+| `id_ity_irt`                 | int          | not null           | FK to incident_type_ity                         |
+| `subject_irt`                | varchar(255) | not null           | -                                               |
+| `description_irt`            | text         | not null           | -                                               |
+| `incident_occurred_at_irt`   | timestamp    | not null           | When the incident occurred                      |
+| `reported_within_deadline_irt`| boolean     | default: true      | True if reported within 48 hours                |
+| `photos_json_irt`            | json         | -                  | Array of photo references                       |
+| `estimated_damage_amount_irt`| decimal(8,2) | -                  | Estimated cost of damage/loss                   |
+| `resolution_notes_irt`       | text         | -                  | Admin resolution notes                          |
+| `resolved_at_irt`            | timestamp    | -                  | When incident was resolved                      |
+| `id_acc_resolved_by_irt`     | int          | -                  | Admin who resolved                              |
+| `created_at_irt`             | timestamp    | default: now()     | -                                               |
+| `updated_at_irt`             | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                     |
+
+**Indexes:**
+
+- `idx_borrow_irt` on `id_bor_irt`
+- `idx_reporter_irt` on `id_acc_irt`
+- `idx_incident_type_irt` on `id_ity_irt`
+- `idx_deadline_compliance_irt` on `reported_within_deadline_irt`
+- `idx_created_at_irt` on `created_at_irt`
+
+> **Note:**
+>
+> - ToS requires incident reporting within 24-48 hours.
+> - `reported_within_deadline_irt` auto-calculated by trigger: `(created_at - incident_occurred_at <= 48 hours)`
+
+---
+
+### Payments & Deposits
+
+#### security_deposit_sdp
+
+Refundable security deposit tracking for borrow transactions.
+
+| Column                   | Type         | Constraints        | Notes                                          |
+|--------------------------|--------------|--------------------|------------------------------------------------|
+| `id_sdp`                 | int          | PK, auto-increment | -                                              |
+| `id_bor_sdp`             | int          | unique, not null   | One deposit per borrow; FK to borrow_bor       |
+| `id_dps_sdp`             | int          | not null           | FK to deposit_status_dps                       |
+| `amount_sdp`             | decimal(8,2) | not null           | Deposit amount in USD                          |
+| `id_ppv_sdp`             | int          | not null           | FK to payment_provider_ppv                     |
+| `external_payment_id_sdp`| varchar(255) | -                  | Stripe PaymentIntent ID or similar             |
+| `held_at_sdp`            | timestamp    | -                  | When deposit was captured/held                 |
+| `released_at_sdp`        | timestamp    | -                  | When deposit was released back to borrower     |
+| `forfeited_at_sdp`       | timestamp    | -                  | When deposit was forfeited to lender           |
+| `forfeited_amount_sdp`   | decimal(8,2) | -                  | Amount forfeited (may be partial)              |
+| `forfeiture_reason_sdp`  | text         | -                  | Reason for forfeiture                          |
+| `id_irt_sdp`             | int          | -                  | FK to incident_report_irt if forfeited         |
+| `created_at_sdp`         | timestamp    | default: now()     | -                                              |
+| `updated_at_sdp`         | timestamp    | default: now()     | ON UPDATE CURRENT_TIMESTAMP                    |
+
+**Indexes:**
+
+- `idx_status_sdp` on `id_dps_sdp`
+- `idx_provider_sdp` on `id_ppv_sdp`
+- `idx_external_id_sdp` on `external_payment_id_sdp`
+- `idx_held_at_sdp` on `held_at_sdp`
+
+> **Note:**
+>
+> **Deposit Workflow:**
+>
+> 1. Deposit created with status = pending when borrow approved
+> 2. Funds captured via Stripe, status = held (escrow)
+> 3. On successful return (verified via `handover_verification_hov`): status = released
+> 4. On incident: status = forfeited (full or partial), funds transferred to lender
+
+---
+
+#### payment_transaction_ptx
+
+Detailed transaction log for all payment activities.
+
+| Column                      | Type         | Constraints        | Notes                                         |
+|-----------------------------|--------------|--------------------|-----------------------------------------------|
+| `id_ptx`                    | int          | PK, auto-increment | -                                             |
+| `id_sdp_ptx`                | int          | -                  | FK to security_deposit_sdp; NULL for fees     |
+| `id_bor_ptx`                | int          | not null           | FK to borrow_bor                              |
+| `id_ppv_ptx`                | int          | not null           | FK to payment_provider_ppv                    |
+| `transaction_type_ptx`      | varchar(30)  | not null           | deposit_hold, deposit_release, deposit_forfeit, rental_fee |
+| `amount_ptx`                | decimal(8,2) | not null           | -                                             |
+| `external_transaction_id_ptx`| varchar(255)| not null           | Stripe Charge/Transfer ID                     |
+| `external_status_ptx`       | varchar(50)  | -                  | Status from payment provider                  |
+| `id_acc_from_ptx`           | int          | -                  | Payer account (borrower)                      |
+| `id_acc_to_ptx`             | int          | -                  | Payee account; NULL for platform escrow       |
+| `processed_at_ptx`          | timestamp    | default: now()     | -                                             |
+| `metadata_json_ptx`         | json         | -                  | Additional details from payment provider      |
+
+**Indexes:**
+
+- `idx_deposit_ptx` on `id_sdp_ptx`
+- `idx_borrow_ptx` on `id_bor_ptx`
+- `idx_external_txn_ptx` on `external_transaction_id_ptx`
+- `idx_txn_type_ptx` on `transaction_type_ptx`
+- `idx_processed_at_ptx` on `processed_at_ptx`
+
+> **Note:**
+>
+> - Tracks Stripe integration for deposits and rental fees.
+> - Future expansion: Integrate insurance provider APIs (Lemonade, etc.) for quotes.
 
 ---
 
@@ -968,6 +1288,39 @@ Junction tables create the following M:M relationships:
 | Parent (One)  | Child (Many)    | Foreign Key  | Description                  |
 |---------------|-----------------|--------------|------------------------------|
 | `account_acc` | `audit_log_aud` | `id_acc_aud` | Account makes audited change |
+
+#### Legal & Compliance Domain
+
+| Parent (One)             | Child (Many)              | Foreign Key             | Description                        |
+|--------------------------|---------------------------|-------------------------|------------------------------------|
+| `account_acc`            | `terms_of_service_tos`    | `id_acc_created_by_tos` | Admin creates ToS versions         |
+| `account_acc`            | `tos_acceptance_tac`      | `id_acc_tac`            | Account accepts ToS                |
+| `terms_of_service_tos`   | `tos_acceptance_tac`      | `id_tos_tac`            | ToS version accepted               |
+| `borrow_bor`             | `borrow_waiver_bwv`       | `id_bor_bwv`            | Borrow has waiver (1:1)            |
+| `waiver_type_wtp`        | `borrow_waiver_bwv`       | `id_wtp_bwv`            | Waiver type                        |
+| `account_acc`            | `borrow_waiver_bwv`       | `id_acc_bwv`            | Borrower signs waiver              |
+| `borrow_bor`             | `handover_verification_hov`| `id_bor_hov`           | Borrow has handover verifications  |
+| `handover_type_hot`      | `handover_verification_hov`| `id_hot_hov`           | Handover type (pickup/return)      |
+| `account_acc`            | `handover_verification_hov`| `id_acc_generator_hov` | Account generates verification     |
+| `account_acc`            | `handover_verification_hov`| `id_acc_verifier_hov`  | Account verifies handover          |
+| `borrow_bor`             | `incident_report_irt`     | `id_bor_irt`            | Borrow has incidents               |
+| `account_acc`            | `incident_report_irt`     | `id_acc_irt`            | Account reports incident           |
+| `incident_type_ity`      | `incident_report_irt`     | `id_ity_irt`            | Incident type                      |
+| `account_acc`            | `incident_report_irt`     | `id_acc_resolved_by_irt`| Admin resolves incident            |
+
+#### Payments & Deposits Domain
+
+| Parent (One)             | Child (Many)              | Foreign Key             | Description                        |
+|--------------------------|---------------------------|-------------------------|------------------------------------|
+| `borrow_bor`             | `security_deposit_sdp`    | `id_bor_sdp`            | Borrow has deposit (1:1)           |
+| `deposit_status_dps`     | `security_deposit_sdp`    | `id_dps_sdp`            | Deposit status                     |
+| `payment_provider_ppv`   | `security_deposit_sdp`    | `id_ppv_sdp`            | Payment provider for deposit       |
+| `incident_report_irt`    | `security_deposit_sdp`    | `id_irt_sdp`            | Incident causing forfeiture        |
+| `security_deposit_sdp`   | `payment_transaction_ptx` | `id_sdp_ptx`            | Deposit has transactions           |
+| `borrow_bor`             | `payment_transaction_ptx` | `id_bor_ptx`            | Borrow has payment transactions    |
+| `payment_provider_ppv`   | `payment_transaction_ptx` | `id_ppv_ptx`            | Payment provider for transaction   |
+| `account_acc`            | `payment_transaction_ptx` | `id_acc_from_ptx`       | Payer account                      |
+| `account_acc`            | `payment_transaction_ptx` | `id_acc_to_ptx`         | Payee account                      |
 
 ---
 
@@ -1115,11 +1468,61 @@ Junction tables create the following M:M relationships:
 |    +-----------------+  +----------------------+  +-----------------+        |
 |                                                                              |
 +------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+|                        LEGAL & COMPLIANCE GROUP                              |
++------------------------------------------------------------------------------+
+|                                                                              |
+|  +---------------------+       +-------------------+                         |
+|  | terms_of_service_tos|       |  waiver_type_wtp  |                         |
+|  +---------+-----------+       +---------+---------+                         |
+|            |                             |                                   |
+|            v                             v                                   |
+|  +-------------------+         +-------------------+                         |
+|  | tos_acceptance_tac|         |  borrow_waiver_bwv|---> borrow_bor          |
+|  +-------------------+         +-------------------+                         |
+|                                                                              |
+|  +------------------+          +-------------------+                         |
+|  | handover_type_hot|          |  incident_type_ity|                         |
+|  +--------+---------+          +---------+---------+                         |
+|           |                              |                                   |
+|           v                              v                                   |
+|  +--------------------------+  +--------------------+                        |
+|  | handover_verification_hov|  | incident_report_irt|                        |
+|  +--------------------------+  +--------------------+                        |
+|            |                             |                                   |
+|            +-------------+---------------+                                   |
+|                          |                                                   |
+|                          +---> borrow_bor                                    |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+|                        PAYMENTS & DEPOSITS GROUP                             |
++------------------------------------------------------------------------------+
+|                                                                              |
+|  +-------------------+         +---------------------+                       |
+|  | deposit_status_dps|         | payment_provider_ppv|                       |
+|  +---------+---------+         +----------+----------+                       |
+|            |                              |                                  |
+|            +-------------+----------------+                                  |
+|                          |                                                   |
+|                          v                                                   |
+|              +-----------------------+                                       |
+|              |  security_deposit_sdp |---> borrow_bor                        |
+|              +----------+------------+                                       |
+|                         |                                                    |
+|                         v                                                    |
+|             +-------------------------+                                      |
+|             | payment_transaction_ptx |---> borrow_bor                       |
+|             +-------------------------+                                      |
+|                                                                              |
++------------------------------------------------------------------------------+
 ```
 
 ---
 
-## Naming Conventions
+### Naming Conventions
 
 This database uses a consistent naming convention:
 
@@ -1144,3 +1547,13 @@ Junction tables model many-to-many relationships and use a special naming conven
 
 This convention ensures clarity about which table each column belongs to and
 makes SQL queries more readable.
+
+### Development Tools Used
+
+Tools used in development of the database design
+
+- **VsCode** IDE
+- **Grok** Analytics
+- **Codex** Document(s) Analysis
+- **Claude Code** Document(s) refinement
+- **[dbdiagram.io](https://dbdiagram.io/d/neighborhoodtools-com-ERD-69711419bd82f5fce231c284)** [NeighborhoodTools.com](https://neighborhoodtools.com) ERD creation

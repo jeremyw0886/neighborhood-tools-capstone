@@ -81,3 +81,82 @@ footer {
   margin-top: auto;
   padding-top: 2rem;
 }
+
+/* Demo Page Styles */
+.demo-status {
+  align-items: center;
+  color: #065f46;
+  display: flex;
+  font-size: 1.2rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.demo-status::before {
+  content: "✓";
+}
+
+.demo-info {
+  background-color: #e8f5e9;
+  border-radius: 0.5rem;
+  margin: 1.5rem auto;
+  max-width: 600px;
+  padding: 1rem 1.5rem;
+  text-align: left;
+}
+
+.demo-info dt {
+  color: #475569;
+  display: inline;
+  font-weight: 600;
+}
+
+.demo-info dd {
+  display: inline;
+  margin: 0;
+}
+
+.demo-info div {
+  margin-bottom: 0.25rem;
+}
+
+.demo-table {
+  border-collapse: collapse;
+  margin: 1.5rem auto;
+  max-width: 600px;
+  width: 100%;
+}
+
+.demo-table th,
+.demo-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.demo-table th {
+  background-color: #065f46;
+  color: #fff;
+  font-weight: 600;
+}
+
+.demo-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.demo-table tbody tr:hover {
+  background-color: #e8f5e9;
+}
+
+.demo-error {
+  color: #dc2626;
+  font-weight: 600;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+}

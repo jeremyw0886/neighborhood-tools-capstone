@@ -22,6 +22,10 @@
         <h2>Database Design Documentation</h2>
         <p>View the database design overview</p>
       </a>
+      <a href="/demo.php" class="card">
+        <h2>Database Demo</h2>
+        <p>View live data from the database</p>
+      </a>
     </section>
   </main>
 

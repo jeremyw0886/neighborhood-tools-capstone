@@ -1,4 +1,4 @@
-# [NeighborhoodTools.com](https://neighborhoodtools.com) Database Design
+# NeighborhoodTools.com Database Design
 
 **Author:** Jeremy Warren
 

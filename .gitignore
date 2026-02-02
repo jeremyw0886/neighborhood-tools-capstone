@@ -21,8 +21,8 @@ credentials.json
 *.pem
 
 # Database
-*.sql
-*.sql.gz
+# *.sql
+# *.sql.gz
 
 # Logs
 *.log
@@ -35,3 +35,6 @@ error_log
 
 # User uploads (if not tracked)
 assets/uploads/
+
+# Local test files
+local_testing/

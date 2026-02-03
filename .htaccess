@@ -1,1 +1,5 @@
 DirectoryIndex index.php index.html
+
+# Allow serving markdown files
+
+AddType text/plain .md

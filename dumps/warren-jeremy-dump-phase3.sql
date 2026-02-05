@@ -9,7 +9,13 @@
 -- ============================================================
 
 -- ============================================================
--- SESSION SETTINGS
+-- ============================================================
+--                          SCHEMA
+-- ============================================================
+-- ============================================================
+
+-- ============================================================
+--                    SESSION SETTINGS
 -- ============================================================
 
 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
@@ -22,7 +28,7 @@ SET @OLD_TIME_ZONE=@@TIME_ZONE;
 SET TIME_ZONE='+00:00';
 
 -- ============================================================
--- DATABASE CREATION
+--                    DATABASE CREATION
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS neighborhoodtools
@@ -32,7 +38,7 @@ CREATE DATABASE IF NOT EXISTS neighborhoodtools
 USE neighborhoodtools;
 
 -- ============================================================
--- LOOKUP/REFERENCE TABLES
+--                LOOKUP/REFERENCE TABLES
 -- ============================================================
 
 -- role_rol
@@ -153,7 +159,7 @@ CREATE TABLE payment_provider_ppv (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- CORE SCHEMA TABLES
+--                    CORE SCHEMA TABLES
 -- ============================================================
 
 -- ZIP codes Table
@@ -1045,21 +1051,162 @@ CREATE TABLE payment_transaction_meta_ptm (
     COMMENT='Optional transaction metadata in key/value rows (strict 1NF/3NF).';
 
 -- ============================================================
--- MATERIALIZED SUMMARY TABLES
+--              MATERIALIZED SUMMARY TABLES
 -- ============================================================
 
 -- Matterialized version of neighborhood_summary_view
+CREATE TABLE neighborhood_summary_mat (
+    id_nbh INT UNSIGNED NOT NULL PRIMARY KEY,
+    neighborhood_name_nbh VARCHAR(100) NOT NULL,
+    city_name_nbh VARCHAR(100) NOT NULL,
+    state_code_sta CHAR(2) NOT NULL,
+    state_name_sta VARCHAR(50) NOT NULL,
+    latitude_nbh DECIMAL(10, 8),
+    longitude_nbh DECIMAL(11, 8),
+    location_point_nbh POINT SRID 4326,
+    created_at_nbh TIMESTAMP,
+    -- Member statistics
+    total_members INT UNSIGNED NOT NULL DEFAULT 0,
+    active_members INT UNSIGNED NOT NULL DEFAULT 0,
+    verified_members INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Tool statistics
+    total_tools INT UNSIGNED NOT NULL DEFAULT 0,
+    available_tools INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Borrow statistics
+    active_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    completed_borrows_30d INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Event statistics
+    upcoming_events INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Associated ZIP codes (comma-separated for display)
+    zip_codes TEXT,
+    -- Refresh metadata
+    refreshed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_state_mat (state_code_sta),
+    INDEX idx_city_mat (city_name_nbh),
+    INDEX idx_refreshed_mat (refreshed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Materialized view: pre-computed neighborhood statistics';
 
 -- Materialized version of user_reputation_v
+CREATE TABLE user_reputation_mat (
+    id_acc INT UNSIGNED NOT NULL PRIMARY KEY,
+    full_name VARCHAR(101) NOT NULL,
+    email_address_acc VARCHAR(255) NOT NULL,
+    account_status VARCHAR(30) NOT NULL,
+    member_since TIMESTAMP,
+    -- Lender metrics
+    lender_avg_rating DECIMAL(3, 1) NOT NULL DEFAULT 0,
+    lender_rating_count INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Borrower metrics
+    borrower_avg_rating DECIMAL(3, 1) NOT NULL DEFAULT 0,
+    borrower_rating_count INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Overall metrics
+    overall_avg_rating DECIMAL(3, 1) DEFAULT NULL,
+    total_rating_count INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Activity metrics
+    tools_owned INT UNSIGNED NOT NULL DEFAULT 0,
+    completed_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Refresh metadata
+    refreshed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_lender_rating_mat (lender_avg_rating DESC),
+    INDEX idx_borrower_rating_mat (borrower_avg_rating DESC),
+    INDEX idx_overall_rating_mat (overall_avg_rating DESC),
+    INDEX idx_refreshed_mat (refreshed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Materialized view: pre-computed user reputation scores';
 
 -- Materialized version of tool_statistics_view
+CREATE TABLE tool_statistics_mat (
+    id_tol INT UNSIGNED NOT NULL PRIMARY KEY,
+    tool_name_tol VARCHAR(100) NOT NULL,
+    owner_id INT UNSIGNED NOT NULL,
+    owner_name VARCHAR(101) NOT NULL,
+    tool_condition VARCHAR(30) NOT NULL,
+    rental_fee_tol DECIMAL(10, 2),
+    estimated_value_tol DECIMAL(10, 2),
+    created_at_tol TIMESTAMP,
+    -- Rating statistics
+    avg_rating DECIMAL(3, 1) NOT NULL DEFAULT 0,
+    rating_count INT UNSIGNED NOT NULL DEFAULT 0,
+    five_star_count INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Borrow statistics
+    total_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    completed_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    cancelled_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    denied_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Usage metrics
+    total_hours_borrowed INT UNSIGNED NOT NULL DEFAULT 0,
+    last_borrowed_at TIMESTAMP NULL,
+    -- Incident history
+    incident_count INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Refresh metadata
+    refreshed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_owner_mat (owner_id),
+    INDEX idx_avg_rating_mat (avg_rating DESC),
+    INDEX idx_total_borrows_mat (total_borrows DESC),
+    INDEX idx_refreshed_mat (refreshed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Materialized view: pre-computed tool statistics';
 
 -- Materialized version of category_summary_v
+CREATE TABLE category_summary_mat (
+    id_cat INT UNSIGNED NOT NULL PRIMARY KEY,
+    category_name_cat VARCHAR(100) NOT NULL,
+    category_icon VARCHAR(255),
+    -- Tool counts
+    total_tools INT UNSIGNED NOT NULL DEFAULT 0,
+    listed_tools INT UNSIGNED NOT NULL DEFAULT 0,
+    available_tools INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Rating statistics
+    category_avg_rating DECIMAL(3, 1) DEFAULT NULL,
+    -- Borrow activity
+    total_completed_borrows INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Price range
+    min_rental_fee DECIMAL(10, 2) DEFAULT NULL,
+    max_rental_fee DECIMAL(10, 2) DEFAULT NULL,
+    avg_rental_fee DECIMAL(10, 2) DEFAULT NULL,
+    -- Refresh metadata
+    refreshed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_total_tools_mat (total_tools DESC),
+    INDEX idx_available_mat (available_tools DESC),
+    INDEX idx_refreshed_mat (refreshed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Materialized view: pre-computed category statistics';
 
 -- Daily platform-wide statistics for admin dashboard
+CREATE TABLE platform_daily_stat_pds (
+    stat_date_pds DATE NOT NULL PRIMARY KEY,
+    -- User metrics
+    total_accounts_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    active_accounts_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    new_accounts_today_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Tool metrics
+    total_tools_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    available_tools_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    new_tools_today_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Borrow metrics
+    active_borrows_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    completed_today_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    new_requests_today_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Issue metrics
+    open_disputes_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    open_incidents_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    overdue_borrows_pds INT UNSIGNED NOT NULL DEFAULT 0,
+    -- Financial metrics (if deposits enabled)
+    deposits_held_total_pds DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    -- Refresh metadata
+    refreshed_at_pds TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_stat_month_pds (stat_date_pds)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Daily platform statistics for admin dashboard and reporting';
 
 -- ============================================================
--- RESTORE SESSION SETTINGS
+--                 RESTORE SESSION SETTINGS
 -- ============================================================
 
 SET TIME_ZONE=@OLD_TIME_ZONE;

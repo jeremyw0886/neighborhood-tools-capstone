@@ -36,36 +36,121 @@ USE neighborhoodtools;
 -- ============================================================
 
 -- role_rol
+CREATE TABLE role_rol (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    role_name_rol VARCHAR(50) NOT NULL UNIQUE
+        COMMENT 'member, admin, super_admin'
+) ENGINE=InnoDB;
 
 -- account_tatus_ast
+CREATE TABLE account_status_ast (
+    id_ast INT AUTO_INCREMENT PRIMARY KEY,
+    status_name_ast VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'pending, active, suspended, deleted'
+) ENGINE=InnoDB;
 
 -- contact_preference_cpr
+CREATE TABLE contact_preference_cpr (
+    id_cpr INT AUTO_INCREMENT PRIMARY KEY,
+    preference_name_cpr VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'email, phone, both, app'
+) ENGINE=InnoDB;
 
 -- state_sta
+CREATE TABLE state_sta (
+    id_sta INT AUTO_INCREMENT PRIMARY KEY,
+    state_code_sta VARCHAR(2) NOT NULL UNIQUE
+        COMMENT 'Two-letter US state code',
+    state_name_sta VARCHAR(50) NOT NULL UNIQUE
+        COMMENT 'Full US state name'
+) ENGINE=InnoDB
+    COMMENT='US state lookup table for address normalization';
 
 -- tool_condition_tcd
+CREATE TABLE tool_condition_tcd (
+    id_tcd INT AUTO_INCREMENT PRIMARY KEY,
+    condition_name_tcd VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'new, good, fair, poor'
+) ENGINE=InnoDB;
 
 -- borrow_status_bst
+CREATE TABLE borrow_status_bst (
+    id_bst INT AUTO_INCREMENT PRIMARY KEY,
+    status_name_bst VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'requested, approved, borrowed, returned, denied, cancelled'
+) ENGINE=InnoDB
+    COMMENT='Use name lookups or views at runtime. Enforce with BEFORE UPDATE/DELETE triggers and explicit seeding if IDs must be locked.';
 
 -- block_type_btp
+CREATE TABLE block_type_btp (
+    id_btp INT AUTO_INCREMENT PRIMARY KEY,
+    type_name_btp VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'admin, borrow'
+) ENGINE=InnoDB;
 
 -- rating_role_rtr
+CREATE TABLE rating_role_rtr (
+    id_rtr INT AUTO_INCREMENT PRIMARY KEY,
+    role_name_rtr VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'lender, borrower'
+) ENGINE=InnoDB;
 
 -- dispute_status_dst
+CREATE TABLE dispute_status_dst (
+    id_dst INT AUTO_INCREMENT PRIMARY KEY,
+    status_name_dst VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'open, resolved, dismissed'
+) ENGINE=InnoDB;
 
 -- dispute_message_type_dmt
+CREATE TABLE dispute_message_type_dmt (
+    id_dmt INT AUTO_INCREMENT PRIMARY KEY,
+    type_name_dmt VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'initial_report, response, admin_note, resolution'
+) ENGINE=InnoDB;
 
 -- notification_type_ntt
+CREATE TABLE notification_type_ntt (
+    id_ntt INT AUTO_INCREMENT PRIMARY KEY,
+    type_name_ntt VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'request, approval, due, return, rating'
+) ENGINE=InnoDB;
 
 -- waiver_type_wtp
+CREATE TABLE waiver_type_wtp (
+    id_wtp INT AUTO_INCREMENT PRIMARY KEY,
+    type_name_wtp VARCHAR(50) NOT NULL UNIQUE
+        COMMENT 'borrow_waiver, condition_acknowledgment, liability_release'
+) ENGINE=InnoDB;
 
 -- handover_type_hot
+CREATE TABLE handover_type_hot (
+    id_hot INT AUTO_INCREMENT PRIMARY KEY,
+    type_name_hot VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'pickup, return'
+) ENGINE=InnoDB;
 
 -- incident_type_ity
+CREATE TABLE incident_type_ity (
+    id_ity INT AUTO_INCREMENT PRIMARY KEY,
+    type_name_ity VARCHAR(50) NOT NULL UNIQUE
+        COMMENT 'damage, theft, loss, injury, late_return, condition_dispute, other'
+) ENGINE=InnoDB;
 
 -- deposit_status_dps
+CREATE TABLE deposit_status_dps (
+    id_dps INT AUTO_INCREMENT PRIMARY KEY,
+    status_name_dps VARCHAR(30) NOT NULL UNIQUE
+        COMMENT 'pending, held, released, forfeited, partial_release'
+) ENGINE=InnoDB;
 
 -- payment_provider_ppv
+CREATE TABLE payment_provider_ppv (
+    id_ppv INT AUTO_INCREMENT PRIMARY KEY,
+    provider_name_ppv VARCHAR(50) NOT NULL UNIQUE
+        COMMENT 'stripe, paypal, manual',
+    is_active_ppv BOOLEAN NOT NULL DEFAULT TRUE
+) ENGINE=InnoDB;
 
 -- ============================================================
 -- CORE SCHEMA TABLES

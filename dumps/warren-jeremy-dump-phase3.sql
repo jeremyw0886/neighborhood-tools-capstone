@@ -15,7 +15,7 @@
 -- ============================================================
 
 -- ============================================================
---                    SESSION SETTINGS
+-- SESSION SETTINGS
 -- ============================================================
 
 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
@@ -28,7 +28,7 @@ SET @OLD_TIME_ZONE=@@TIME_ZONE;
 SET TIME_ZONE='+00:00';
 
 -- ============================================================
---                    DATABASE CREATION
+-- DATABASE CREATION
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS neighborhoodtools
@@ -38,7 +38,7 @@ CREATE DATABASE IF NOT EXISTS neighborhoodtools
 USE neighborhoodtools;
 
 -- ============================================================
---                LOOKUP/REFERENCE TABLES
+-- LOOKUP/REFERENCE TABLES
 -- ============================================================
 
 -- role_rol
@@ -159,7 +159,7 @@ CREATE TABLE payment_provider_ppv (
 ) ENGINE=InnoDB;
 
 -- ============================================================
---                    CORE SCHEMA TABLES
+-- CORE SCHEMA TABLES
 -- ============================================================
 
 -- ZIP codes Table
@@ -1051,7 +1051,7 @@ CREATE TABLE payment_transaction_meta_ptm (
     COMMENT='Optional transaction metadata in key/value rows (strict 1NF/3NF).';
 
 -- ============================================================
---              MATERIALIZED SUMMARY TABLES
+-- MATERIALIZED SUMMARY TABLES
 -- ============================================================
 
 -- Matterialized version of neighborhood_summary_view
@@ -1206,7 +1206,7 @@ CREATE TABLE platform_daily_stat_pds (
 COMMENT='Daily platform statistics for admin dashboard and reporting';
 
 -- ============================================================
---                 RESTORE SESSION SETTINGS
+-- RESTORE SESSION SETTINGS
 -- ============================================================
 
 SET TIME_ZONE=@OLD_TIME_ZONE;
@@ -1214,3 +1214,121 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
+
+-- ============================================================
+-- ============================================================
+--                      End of Schema
+-- ============================================================
+-- ============================================================
+
+-- ============================================================
+-- ============================================================
+--                        Triggers
+-- ============================================================
+-- ============================================================
+
+-- ============================================================
+-- NEIGHBORHOOD TRIGGERS
+-- ============================================================
+
+-- Trigger: enforce single primary neighborhood per ZIP on INSERT
+
+-- Trigger: enforce single primary neighborhood per ZIP on UPDATE
+
+-- ============================================================
+-- ACCOUNT TRIGGERS
+-- ============================================================
+
+-- Trigger: set deleted_at_acc when status changes to deleted
+
+-- ============================================================
+-- TOOL TRIGGERS
+-- ============================================================
+
+-- Trigger: reject if owner is deleted account on INSERT
+
+-- Trigger: reject if owner is deleted account on UPDATE
+
+-- ============================================================
+-- BOOKMARK TRIGGERS
+-- ============================================================
+
+-- Trigger: reject deleted accounts on bookmark INSERT
+
+-- ============================================================
+-- BORROW TRIGGERS
+-- ============================================================
+
+-- Trigger: borrow validations on INSERT (PERMISSIVE)
+
+-- Trigger: borrow validations on UPDATE (STRICT)
+
+-- ============================================================
+-- AVAILABILITY BLOCK TRIGGERS
+-- ============================================================
+
+-- Trigger: validate availability block on INSERT
+
+-- Trigger: validate availability block on UPDATE
+
+-- ============================================================
+-- RATING TRIGGERS
+-- ============================================================
+
+-- Trigger: reject deleted accounts, self-ratings, and non-participants on user rating INSERT
+
+-- Trigger: prevent self-rating on UPDATE (defense in depth)
+
+-- Trigger: reject deleted accounts and non-borrowers on tool rating INSERT
+
+-- ============================================================
+-- DISPUTE TRIGGERS
+-- ============================================================
+
+-- Trigger: reject deleted reporter and non-participants on dispute INSERT
+
+-- Trigger: reject deleted author on dispute message INSERT
+
+-- ============================================================
+-- WAIVER & HANDOVER TRIGGERS
+-- ============================================================
+
+-- Trigger: enforce required acknowledgments
+
+-- Trigger: auto-generate unique verification code and set expiry
+
+-- ============================================================
+-- INCIDENT TRIGGERS
+-- ============================================================
+
+-- Trigger: auto-calculate is_reported_within_deadline_irt
+
+-- ============================================================
+-- TOS TRIGGERS
+-- ============================================================
+
+-- Trigger: Prevent direct INSERT of active ToS (forces use of sp_create_tos_version)
+
+-- ============================================================
+-- LOOKUP TABLE PROTECTION TRIGGERS
+-- ============================================================
+-- Prevent deletion or renaming of system-required lookup values
+-- that triggers depend on for enforcement logic.
+
+-- Protect account_status_ast required values
+
+-- Protect borrow_status_bst required values
+
+-- Protect block_type_btp required values
+
+-- Protect rating_role_rtr required values
+
+-- Protect handover_type_hot required values
+
+-- Protect deposit_status_dps required values
+
+-- ============================================================
+-- ============================================================
+--                        End of Triggers
+-- ============================================================
+-- ============================================================

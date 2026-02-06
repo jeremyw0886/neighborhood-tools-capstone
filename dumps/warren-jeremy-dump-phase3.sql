@@ -6130,6 +6130,16 @@ INSERT INTO payment_transaction_ptx (
 );
 
 -- ============================================================
+-- SAMPLE PAYMENT TRANSACTION METADATA
+-- ============================================================
+
+INSERT INTO payment_transaction_meta_ptm (id_ptx_ptm, meta_key_ptm, meta_value_ptm) VALUES
+    (1, 'stripe_payment_method', 'pm_card_visa'),
+    (1, 'stripe_receipt_url', 'https://pay.stripe.com/receipts/test_hold_001'),
+    (2, 'stripe_payment_method', 'pm_card_visa'),
+    (2, 'stripe_receipt_url', 'https://pay.stripe.com/receipts/test_fee_001');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

@@ -5909,6 +5909,52 @@ INSERT INTO tool_bookmark_acctol (id_acc_acctol, id_tol_acctol) VALUES
     (1, 9);   -- Allyson bookmarks Chantelle's apple picker
 
 -- ============================================================
+-- SAMPLE EVENTS (Asheville / Hendersonville area)
+-- ============================================================
+-- Neighborhood IDs: 1=Downtown AVL, 4=West AVL, 6=North AVL,
+--   8=Beaver Lake, 11=South AVL, 23=Downtown Hendersonville
+-- Account 5 = Admin User (event creator)
+
+INSERT INTO event_evt (event_name_evt, event_description_evt, start_at_evt, end_at_evt, id_nbh_evt, id_acc_evt) VALUES
+    ('Spring Tool Swap Meet',
+     'Bring tools you no longer need and swap with your neighbors! Tables provided in Pack Square Park. All hand tools, power tools, and gardening equipment welcome.',
+     '2026-03-15 10:00:00', '2026-03-15 14:00:00', 1, 5),
+
+    ('Community Garden Workday',
+     'Help build raised beds at the West Asheville Community Garden on Haywood Rd. Tools and materials provided. All skill levels welcome!',
+     '2026-03-08 09:00:00', '2026-03-08 13:00:00', 4, 5),
+
+    ('DIY Home Repair Workshop',
+     'Free workshop covering basic plumbing, electrical, and drywall repair. Hosted at the Henderson County Library. Bring a notepad!',
+     '2026-03-22 13:00:00', '2026-03-22 16:00:00', 23, 5),
+
+    ('Mountain Trail Cleanup Day',
+     'Join neighbors to clear storm debris from trails around Beaver Lake. Bring loppers, work gloves, and sturdy boots. Coffee and donuts provided.',
+     '2026-01-25 08:00:00', '2026-01-25 12:00:00', 8, 5),
+
+    ('Tool Safety & Maintenance Class',
+     'Learn proper chainsaw, circular saw, and power tool safety. Certification cards available for participants who complete the hands-on module. Hendersonville Fire Station #2.',
+     '2026-04-05 10:00:00', '2026-04-05 15:00:00', 23, 5);
+
+-- ============================================================
+-- SAMPLE EVENT METADATA
+-- ============================================================
+
+INSERT INTO event_meta_evm (id_evt_evm, meta_key_evm, meta_value_evm) VALUES
+    (1, 'location', 'Pack Square Park, Downtown Asheville'),
+    (1, 'max_capacity', '50'),
+    (1, 'contact_email', 'events@neighborhoodtools.com'),
+    (2, 'location', 'West Asheville Community Garden, Haywood Rd'),
+    (2, 'max_capacity', '30'),
+    (3, 'location', 'Henderson County Public Library, Main St'),
+    (3, 'max_capacity', '40'),
+    (4, 'location', 'Beaver Lake Trail Parking Lot, North Asheville'),
+    (4, 'max_capacity', '25'),
+    (5, 'location', 'Hendersonville Fire Station #2, Spartanburg Hwy'),
+    (5, 'max_capacity', '20'),
+    (5, 'contact_email', 'safety@neighborhoodtools.com');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

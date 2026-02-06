@@ -41,6 +41,3 @@ local_testing/
 
 # Claude
 .claude
-
-# Plans
-DATABASE_BUILD_PLANS.md

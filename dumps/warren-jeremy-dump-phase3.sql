@@ -4989,20 +4989,129 @@ DELIMITER ;
 -- ============================================================
 
 -- Refresh summary tables for dashboard performance every hour
+DROP EVENT IF EXISTS evt_refresh_summaries_hourly;
+
+DELIMITER $$
+CREATE EVENT evt_refresh_summaries_hourly
+ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
+ENABLE
+COMMENT 'Refresh summary tables hourly for dashboard performance'
+DO
+BEGIN
+    CALL sp_refresh_neighborhood_summary();
+    CALL sp_refresh_category_summary();
+END$$
+DELIMITER ;
 
 -- Refresh user reputation scores every 4 hours
+DROP EVENT IF EXISTS evt_refresh_user_reputation_every_4h;
+
+DELIMITER $$
+CREATE EVENT evt_refresh_user_reputation_every_4h
+ON SCHEDULE EVERY 4 HOUR
+STARTS CURRENT_TIMESTAMP
+ENABLE
+COMMENT 'Refresh user reputation every 4 hours'
+DO
+BEGIN
+    CALL sp_refresh_user_reputation();
+END$$
+DELIMITER ;
 
 -- Refresh tool statistics every 2 hours for trending and recommendations
+DROP EVENT IF EXISTS evt_refresh_tool_statistics_every_2h;
+
+DELIMITER $$
+CREATE EVENT evt_refresh_tool_statistics_every_2h
+ON SCHEDULE EVERY 2 HOUR
+STARTS CURRENT_TIMESTAMP
+ENABLE
+COMMENT 'Refresh tool statistics every 2 hours'
+DO
+BEGIN
+    CALL sp_refresh_tool_statistics();
+END$$
+DELIMITER ;
 
 -- Capture daily platform statistics at midnight for reporting and monitoring
+DROP EVENT IF EXISTS evt_daily_stat_midnight;
+
+DELIMITER $$
+CREATE EVENT evt_daily_stat_midnight
+ON SCHEDULE EVERY 1 DAY
+STARTS (TIMESTAMP(CURDATE()) + INTERVAL 1 DAY)
+ENABLE
+COMMENT 'Capture daily platform statistics at midnight'
+DO
+BEGIN
+    CALL sp_refresh_platform_daily_stat();
+END$$
+DELIMITER ;
 
 -- Daily overdue notifications (run at 8 AM)
+DROP EVENT IF EXISTS evt_send_overdue_notifications;
+
+DELIMITER $$
+CREATE EVENT evt_send_overdue_notifications
+ON SCHEDULE EVERY 1 DAY
+STARTS (TIMESTAMP(CURDATE()) + INTERVAL 8 HOUR)
+ENABLE
+COMMENT 'Send daily overdue notifications to borrowers'
+DO
+BEGIN
+    DECLARE v_count INT;
+    CALL sp_send_overdue_notifications(v_count);
+END$$
+DELIMITER ;
 
 -- Hourly cleanup of expired handover codes
+DROP EVENT IF EXISTS evt_cleanup_expired_handovers;
+
+DELIMITER $$
+CREATE EVENT evt_cleanup_expired_handovers
+ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
+ENABLE
+COMMENT 'Clean up expired handover verification codes'
+DO
+BEGIN
+    DECLARE v_count INT;
+    CALL sp_cleanup_expired_handover_codes(v_count);
+END$$
+DELIMITER ;
 
 -- Weekly notification cleanup (run Sunday at 2 AM)
+DROP EVENT IF EXISTS evt_archive_old_notifications;
+
+DELIMITER $$
+CREATE EVENT evt_archive_old_notifications
+ON SCHEDULE EVERY 1 WEEK
+STARTS (TIMESTAMP(CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY) + INTERVAL 2 HOUR)
+ENABLE
+COMMENT 'Archive old read notifications weekly'
+DO
+BEGIN
+    DECLARE v_count INT;
+    CALL sp_archive_old_notifications(90, v_count);
+END$$
+DELIMITER ;
 
 -- Weekly search log cleanup (run Sunday at 3 AM)
+DROP EVENT IF EXISTS evt_cleanup_search_logs;
+
+DELIMITER $$
+CREATE EVENT evt_cleanup_search_logs
+ON SCHEDULE EVERY 1 WEEK
+STARTS (TIMESTAMP(CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY) + INTERVAL 3 HOUR)
+ENABLE
+COMMENT 'Clean up old search logs weekly'
+DO
+BEGIN
+    DECLARE v_count INT;
+    CALL sp_cleanup_old_search_logs(30, v_count);
+END$$
+DELIMITER ;
 
 -- ================================================================
 -- ================================================================

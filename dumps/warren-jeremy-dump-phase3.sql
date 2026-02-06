@@ -5571,12 +5571,25 @@ INSERT INTO neighborhood_nbh (neighborhood_name_nbh, city_name_nbh, id_sta_nbh, 
 -- Maps neighborhoods to their zip codes
 -- is_primary indicates the main neighborhood for that zip code
 
--- Seed zip codes for Asheville and Hendersonville service areas (standard USPS ZIP codes)
-INSERT INTO zip_code_zpc (zip_code_zpc) VALUES
-('28801'), ('28806'), ('28715'), ('28804'), ('28787'),
-('28803'), ('28704'), ('28732'), ('28805'), ('28778'),
-('28791'), ('28739'), ('28792'), ('28731'), ('28726'),
-('28759'), ('28742');
+-- Seed zip codes for Asheville and Hendersonville service areas
+INSERT INTO zip_code_zpc (zip_code_zpc, latitude_zpc, longitude_zpc, location_point_zpc) VALUES
+('28801', 35.595000, -82.556000, ST_GeomFromText('POINT(-82.556000 35.595000)', 4326)),
+('28803', 35.549000, -82.522000, ST_GeomFromText('POINT(-82.522000 35.549000)', 4326)),
+('28804', 35.637000, -82.558000, ST_GeomFromText('POINT(-82.558000 35.637000)', 4326)),
+('28805', 35.595000, -82.502000, ST_GeomFromText('POINT(-82.502000 35.595000)', 4326)),
+('28806', 35.584000, -82.608000, ST_GeomFromText('POINT(-82.608000 35.584000)', 4326)),
+('28715', 35.537000, -82.681000, ST_GeomFromText('POINT(-82.681000 35.537000)', 4326)),
+('28787', 35.719000, -82.547000, ST_GeomFromText('POINT(-82.547000 35.719000)', 4326)),
+('28704', 35.473000, -82.519000, ST_GeomFromText('POINT(-82.519000 35.473000)', 4326)),
+('28732', 35.422000, -82.500000, ST_GeomFromText('POINT(-82.500000 35.422000)', 4326)),
+('28778', 35.603000, -82.409000, ST_GeomFromText('POINT(-82.409000 35.603000)', 4326)),
+('28791', 35.350000, -82.494000, ST_GeomFromText('POINT(-82.494000 35.350000)', 4326)),
+('28739', 35.319000, -82.488000, ST_GeomFromText('POINT(-82.488000 35.319000)', 4326)),
+('28792', 35.337000, -82.449000, ST_GeomFromText('POINT(-82.449000 35.337000)', 4326)),
+('28731', 35.272000, -82.420000, ST_GeomFromText('POINT(-82.420000 35.272000)', 4326)),
+('28726', 35.282000, -82.418000, ST_GeomFromText('POINT(-82.418000 35.282000)', 4326)),
+('28759', 35.302000, -82.581000, ST_GeomFromText('POINT(-82.581000 35.302000)', 4326)),
+('28742', 35.361000, -82.574000, ST_GeomFromText('POINT(-82.574000 35.361000)', 4326));
 
 INSERT INTO neighborhood_zip_nbhzpc (id_nbh_nbhzpc, zip_code_nbhzpc, is_primary_nbhzpc) VALUES
     -- Downtown & Central Asheville (28801)

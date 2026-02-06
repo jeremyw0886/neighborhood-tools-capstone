@@ -3386,8 +3386,6 @@ DELIMITER ;
 -- Procedure: sp_refresh_neighborhood_summary
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_refresh_neighborhood_summary;
-
 DELIMITER $$
 CREATE PROCEDURE sp_refresh_neighborhood_summary()
 BEGIN
@@ -3483,8 +3481,6 @@ DELIMITER ;
 -- Procedure: sp_refresh_user_reputation
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_refresh_user_reputation;
-
 DELIMITER $$
 CREATE PROCEDURE sp_refresh_user_reputation()
 BEGIN
@@ -3560,8 +3556,6 @@ DELIMITER ;
 -- -------------------------------------------------------------
 -- Procedure: sp_refresh_tool_statistics
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_refresh_tool_statistics;
 
 DELIMITER $$
 CREATE PROCEDURE sp_refresh_tool_statistics()
@@ -3640,8 +3634,6 @@ DELIMITER ;
 -- Procedure: sp_refresh_category_summary
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_refresh_category_summary;
-
 DELIMITER $$
 CREATE PROCEDURE sp_refresh_category_summary()
 BEGIN
@@ -3714,8 +3706,6 @@ DELIMITER ;
 -- Procedure: sp_refresh_platform_daily_stat
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_refresh_platform_daily_stat;
-
 DELIMITER $$
 CREATE PROCEDURE sp_refresh_platform_daily_stat()
 BEGIN
@@ -3776,8 +3766,6 @@ DELIMITER ;
 -- Master procedure to refresh all summary tables
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_refresh_all_summaries;
-
 DELIMITER $$
 CREATE PROCEDURE sp_refresh_all_summaries()
 BEGIN
@@ -3800,8 +3788,6 @@ DELIMITER ;
 -- Returns the ID for a given account status name
 -- Usage: fn_get_account_status_id('active') returns 2
 -- -------------------------------------------------------------
-
-DROP FUNCTION IF EXISTS fn_get_account_status_id;
 
 DELIMITER $$
 CREATE FUNCTION fn_get_account_status_id(p_status_name VARCHAR(30))
@@ -3826,8 +3812,6 @@ DELIMITER ;
 -- Usage: fn_get_borrow_status_id('borrowed') returns 3
 -- -------------------------------------------------------------
 
-DROP FUNCTION IF EXISTS fn_get_borrow_status_id;
-
 DELIMITER $$
 CREATE FUNCTION fn_get_borrow_status_id(p_status_name VARCHAR(30))
 RETURNS INT
@@ -3850,8 +3834,6 @@ DELIMITER ;
 -- Returns the ID for a given block type name
 -- Usage: fn_get_block_type_id('borrow') returns 2
 -- -------------------------------------------------------------
-
-DROP FUNCTION IF EXISTS fn_get_block_type_id;
 
 DELIMITER $$
 CREATE FUNCTION fn_get_block_type_id(p_type_name VARCHAR(30))
@@ -3876,8 +3858,6 @@ DELIMITER ;
 -- Usage: fn_get_rating_role_id('lender') returns 1
 -- -------------------------------------------------------------
 
-DROP FUNCTION IF EXISTS fn_get_rating_role_id;
-
 DELIMITER $$
 CREATE FUNCTION fn_get_rating_role_id(p_role_name VARCHAR(30))
 RETURNS INT
@@ -3900,8 +3880,6 @@ DELIMITER ;
 -- Returns the ID for a given notification type name
 -- Usage: fn_get_notification_type_id('request') returns 1
 -- -------------------------------------------------------------
-
-DROP FUNCTION IF EXISTS fn_get_notification_type_id;
 
 DELIMITER $$
 CREATE FUNCTION fn_get_notification_type_id(p_type_name VARCHAR(30))
@@ -3926,8 +3904,6 @@ DELIMITER ;
 -- Usage: fn_get_deposit_status_id('held') returns 2
 -- -------------------------------------------------------------
 
-DROP FUNCTION IF EXISTS fn_get_deposit_status_id;
-
 DELIMITER $$
 CREATE FUNCTION fn_get_deposit_status_id(p_status_name VARCHAR(30))
 RETURNS INT
@@ -3950,8 +3926,6 @@ DELIMITER ;
 -- Returns the ID for a given dispute status name
 -- Usage: fn_get_dispute_status_id('open') returns 1
 -- -------------------------------------------------------------
-
-DROP FUNCTION IF EXISTS fn_get_dispute_status_id;
 
 DELIMITER $$
 CREATE FUNCTION fn_get_dispute_status_id(p_status_name VARCHAR(30))
@@ -3976,8 +3950,6 @@ DELIMITER ;
 -- Usage: fn_get_handover_type_id('pickup') returns 1
 -- -------------------------------------------------------------
 
-DROP FUNCTION IF EXISTS fn_get_handover_type_id;
-
 DELIMITER $$
 CREATE FUNCTION fn_get_handover_type_id(p_type_name VARCHAR(30))
 RETURNS INT
@@ -4000,8 +3972,6 @@ DELIMITER ;
 -- Returns TRUE if tool is available for borrowing
 -- Checks: is_available_tol, no active borrow, no current block
 -- -------------------------------------------------------------
-
-DROP FUNCTION IF EXISTS fn_is_tool_available;
 
 DELIMITER $$
 CREATE FUNCTION fn_is_tool_available(p_tool_id INT)
@@ -4055,8 +4025,6 @@ DELIMITER ;
 -- Creates a new borrow request with full validation
 -- Validates: tool availability, account status, not own tool
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_create_borrow_request;
 
 DELIMITER $$
 CREATE PROCEDURE sp_create_borrow_request(
@@ -4167,8 +4135,6 @@ DELIMITER ;
 -- Updates status and sets approved_at timestamp
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_approve_borrow_request;
-
 DELIMITER $$
 CREATE PROCEDURE sp_approve_borrow_request(
     IN p_borrow_id INT,
@@ -4239,8 +4205,6 @@ DELIMITER ;
 -- Procedure: sp_deny_borrow_request
 -- Denies a pending borrow request
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_deny_borrow_request;
 
 DELIMITER $$
 CREATE PROCEDURE sp_deny_borrow_request(
@@ -4313,8 +4277,6 @@ DELIMITER ;
 -- Marks a borrow as picked up (status: borrowed)
 -- Creates availability block for the borrow period
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_complete_pickup;
 
 DELIMITER $$
 CREATE PROCEDURE sp_complete_pickup(
@@ -4402,8 +4364,6 @@ DELIMITER ;
 -- Removes the availability block
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_complete_return;
-
 DELIMITER $$
 CREATE PROCEDURE sp_complete_return(
     IN p_borrow_id INT,
@@ -4467,8 +4427,6 @@ DELIMITER ;
 -- Cancels a borrow request (by borrower or lender)
 -- Only allowed for 'requested' or 'approved' status
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_cancel_borrow_request;
 
 DELIMITER $$
 CREATE PROCEDURE sp_cancel_borrow_request(
@@ -4549,8 +4507,6 @@ DELIMITER ;
 -- Adds a rating for a user (lender or borrower) after transaction
 -- Validates: borrow must be completed, rater was part of transaction
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_rate_user;
 
 DELIMITER $$
 CREATE PROCEDURE sp_rate_user(
@@ -4660,8 +4616,6 @@ DELIMITER ;
 -- Validates: borrow must be completed, rater was the borrower
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_rate_tool;
-
 DELIMITER $$
 CREATE PROCEDURE sp_rate_tool(
     IN p_borrow_id INT,
@@ -4749,8 +4703,6 @@ DELIMITER ;
 -- Creates a notification for a user
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_send_notification;
-
 DELIMITER $$
 CREATE PROCEDURE sp_send_notification(
     IN p_account_id INT,
@@ -4797,8 +4749,6 @@ DELIMITER ;
 -- Batch marks multiple notifications as read for a user
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_mark_notifications_read;
-
 DELIMITER $$
 CREATE PROCEDURE sp_mark_notifications_read(
     IN p_account_id INT,
@@ -4837,8 +4787,6 @@ DELIMITER ;
 -- Sends notifications to borrowers with overdue tools
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_send_overdue_notifications;
 
 DELIMITER $$
 CREATE PROCEDURE sp_send_overdue_notifications(
@@ -4883,8 +4831,6 @@ DELIMITER ;
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_cleanup_expired_handover_codes;
-
 DELIMITER $$
 CREATE PROCEDURE sp_cleanup_expired_handover_codes(
     OUT p_count INT
@@ -4904,8 +4850,6 @@ DELIMITER ;
 -- Deletes read notifications older than specified days
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_archive_old_notifications;
 
 DELIMITER $$
 CREATE PROCEDURE sp_archive_old_notifications(
@@ -4932,8 +4876,6 @@ DELIMITER ;
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_cleanup_old_search_logs;
-
 DELIMITER $$
 CREATE PROCEDURE sp_cleanup_old_search_logs(
     IN p_days_old INT,
@@ -4957,8 +4899,6 @@ DELIMITER ;
 -- Releases security deposit when tool is returned successfully
 -- Should be called after sp_complete_return
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_release_deposit_on_return;
 
 DELIMITER $$
 CREATE PROCEDURE sp_release_deposit_on_return(
@@ -5026,8 +4966,6 @@ DELIMITER ;
 -- Efficiently searches for available tools with filters
 -- Uses covering indexes for optimal performance
 -- -------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_search_available_tools;
 
 DELIMITER $$
 CREATE PROCEDURE sp_search_available_tools(
@@ -5105,8 +5043,6 @@ DELIMITER ;
 -- Gets borrow history for a user with pagination
 -- -------------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_get_user_borrow_history;
-
 DELIMITER $$
 CREATE PROCEDURE sp_get_user_borrow_history(
     IN p_account_id INT,
@@ -5170,8 +5106,6 @@ DELIMITER ;
 -- ============================================================
 
 -- Refresh summary tables for dashboard performance every hour
-DROP EVENT IF EXISTS evt_refresh_summaries_hourly;
-
 DELIMITER $$
 CREATE EVENT evt_refresh_summaries_hourly
 ON SCHEDULE EVERY 1 HOUR
@@ -5186,8 +5120,6 @@ END$$
 DELIMITER ;
 
 -- Refresh user reputation scores every 4 hours
-DROP EVENT IF EXISTS evt_refresh_user_reputation_every_4h;
-
 DELIMITER $$
 CREATE EVENT evt_refresh_user_reputation_every_4h
 ON SCHEDULE EVERY 4 HOUR
@@ -5201,8 +5133,6 @@ END$$
 DELIMITER ;
 
 -- Refresh tool statistics every 2 hours for trending and recommendations
-DROP EVENT IF EXISTS evt_refresh_tool_statistics_every_2h;
-
 DELIMITER $$
 CREATE EVENT evt_refresh_tool_statistics_every_2h
 ON SCHEDULE EVERY 2 HOUR
@@ -5216,8 +5146,6 @@ END$$
 DELIMITER ;
 
 -- Capture daily platform statistics at midnight for reporting and monitoring
-DROP EVENT IF EXISTS evt_daily_stat_midnight;
-
 DELIMITER $$
 CREATE EVENT evt_daily_stat_midnight
 ON SCHEDULE EVERY 1 DAY
@@ -5231,8 +5159,6 @@ END$$
 DELIMITER ;
 
 -- Daily overdue notifications (run at 8 AM)
-DROP EVENT IF EXISTS evt_send_overdue_notifications;
-
 DELIMITER $$
 CREATE EVENT evt_send_overdue_notifications
 ON SCHEDULE EVERY 1 DAY
@@ -5247,8 +5173,6 @@ END$$
 DELIMITER ;
 
 -- Hourly cleanup of expired handover codes
-DROP EVENT IF EXISTS evt_cleanup_expired_handovers;
-
 DELIMITER $$
 CREATE EVENT evt_cleanup_expired_handovers
 ON SCHEDULE EVERY 1 HOUR
@@ -5263,8 +5187,6 @@ END$$
 DELIMITER ;
 
 -- Weekly notification cleanup (run Sunday at 2 AM)
-DROP EVENT IF EXISTS evt_archive_old_notifications;
-
 DELIMITER $$
 CREATE EVENT evt_archive_old_notifications
 ON SCHEDULE EVERY 1 WEEK
@@ -5279,8 +5201,6 @@ END$$
 DELIMITER ;
 
 -- Weekly search log cleanup (run Sunday at 3 AM)
-DROP EVENT IF EXISTS evt_cleanup_search_logs;
-
 DELIMITER $$
 CREATE EVENT evt_cleanup_search_logs
 ON SCHEDULE EVERY 1 WEEK

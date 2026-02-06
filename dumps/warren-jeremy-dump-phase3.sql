@@ -4568,6 +4568,47 @@ DELIMITER ;
 -- Creates a notification for a user
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_send_notification;
+
+DELIMITER $$
+CREATE PROCEDURE sp_send_notification(
+    IN p_account_id INT,
+    IN p_notification_type VARCHAR(30),
+    IN p_title VARCHAR(255),
+    IN p_body TEXT,
+    IN p_related_borrow_id INT,
+    OUT p_notification_id INT
+)
+BEGIN
+    DECLARE v_type_id INT;
+
+    SET v_type_id = fn_get_notification_type_id(p_notification_type);
+
+    IF v_type_id IS NULL THEN
+        SET v_type_id = fn_get_notification_type_id('request'); -- fallback
+    END IF;
+
+    INSERT INTO notification_ntf (
+        id_acc_ntf,
+        id_ntt_ntf,
+        title_ntf,
+        body_ntf,
+        id_bor_ntf,
+        is_read_ntf,
+        created_at_ntf
+    ) VALUES (
+        p_account_id,
+        v_type_id,
+        p_title,
+        p_body,
+        p_related_borrow_id,
+        FALSE,
+        NOW()
+    );
+
+    SET p_notification_id = LAST_INSERT_ID();
+END$$
+DELIMITER ;
 -- Usage: CALL sp_send_notification(2, 'request', 'New Borrow Request', 'User X wants to borrow your drill', 5, @ntf_id);
 
 -- -------------------------------------------------------------
@@ -4575,6 +4616,34 @@ DELIMITER ;
 -- Batch marks multiple notifications as read for a user
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_mark_notifications_read;
+
+DELIMITER $$
+CREATE PROCEDURE sp_mark_notifications_read(
+    IN p_account_id INT,
+    IN p_notification_ids TEXT,
+    OUT p_count INT
+)
+proc_body: BEGIN
+
+    IF p_notification_ids IS NULL OR p_notification_ids = '' THEN
+        UPDATE notification_ntf
+        SET is_read_ntf = TRUE,
+            read_at_ntf = NOW()
+        WHERE id_acc_ntf = p_account_id
+          AND is_read_ntf = FALSE;
+    ELSE
+        UPDATE notification_ntf
+        SET is_read_ntf = TRUE,
+            read_at_ntf = NOW()
+        WHERE id_acc_ntf = p_account_id
+          AND is_read_ntf = FALSE
+          AND FIND_IN_SET(id_ntf, p_notification_ids) > 0;
+    END IF;
+
+    SET p_count = ROW_COUNT();
+END$$
+DELIMITER ;
 -- Usage: CALL sp_mark_notifications_read(2, '1,5,7,12', @count);
 -- Usage: CALL sp_mark_notifications_read(2, NULL, @count);  -- marks all as read
 

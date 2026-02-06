@@ -8,11 +8,11 @@
 -- Description: Database Creation
 -- ============================================================
 
--- ============================================================
--- ============================================================
---                          SCHEMA
--- ============================================================
--- ============================================================
+-- ================================================================
+-- ================================================================
+--                            SCHEMA
+-- ================================================================
+-- ================================================================
 
 -- ============================================================
 -- SESSION SETTINGS
@@ -1215,120 +1215,945 @@ SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
 
--- ============================================================
--- ============================================================
---                      End of Schema
--- ============================================================
--- ============================================================
+-- ================================================================
+-- ================================================================
+--                         End of Schema
+-- ================================================================
+-- ================================================================
 
--- ============================================================
--- ============================================================
---                        Triggers
--- ============================================================
--- ============================================================
+
+-- ================================================================
+-- ================================================================
+--                           Triggers
+-- ================================================================
+-- ================================================================
 
 -- ============================================================
 -- NEIGHBORHOOD TRIGGERS
 -- ============================================================
 
 -- Trigger: enforce single primary neighborhood per ZIP on INSERT
+DELIMITER $$
+CREATE TRIGGER trg_nbhzpc_before_insert
+BEFORE INSERT ON neighborhood_zip_nbhzpc
+FOR EACH ROW
+BEGIN
+    IF NEW.is_primary_nbhzpc = TRUE THEN
+        IF EXISTS (
+            SELECT 1 FROM neighborhood_zip_nbhzpc
+            WHERE zip_code_nbhzpc = NEW.zip_code_nbhzpc
+              AND is_primary_nbhzpc = TRUE
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Only one primary neighborhood per ZIP allowed';
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: enforce single primary neighborhood per ZIP on UPDATE
+DELIMITER $$
+CREATE TRIGGER trg_nbhzpc_before_update
+BEFORE UPDATE ON neighborhood_zip_nbhzpc
+FOR EACH ROW
+BEGIN
+    IF NEW.is_primary_nbhzpc = TRUE THEN
+        IF EXISTS (
+            SELECT 1 FROM neighborhood_zip_nbhzpc
+            WHERE zip_code_nbhzpc = NEW.zip_code_nbhzpc
+              AND is_primary_nbhzpc = TRUE
+              AND id_nbhzpc != NEW.id_nbhzpc
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Only one primary neighborhood per ZIP allowed';
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- ACCOUNT TRIGGERS
 -- ============================================================
 
 -- Trigger: set deleted_at_acc when status changes to deleted
+DELIMITER $$
+CREATE TRIGGER trg_account_before_update
+BEFORE UPDATE ON account_acc
+FOR EACH ROW
+main_block: BEGIN
+    DECLARE deleted_status_id INT;
+
+    IF NEW.id_ast_acc = OLD.id_ast_acc THEN
+        LEAVE main_block;
+    END IF;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    IF deleted_status_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'System error: required lookup value "deleted" not found in account_status_ast';
+    END IF;
+
+    IF NEW.id_ast_acc = deleted_status_id THEN
+        SET NEW.deleted_at_acc = NOW();
+    ELSEIF OLD.id_ast_acc = deleted_status_id THEN
+        SET NEW.deleted_at_acc = NULL;
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- TOOL TRIGGERS
 -- ============================================================
 
 -- Trigger: reject if owner is deleted account on INSERT
+DELIMITER $$
+CREATE TRIGGER trg_tool_before_insert
+BEFORE INSERT ON tool_tol
+FOR EACH ROW
+BEGIN
+    DECLARE owner_status_id INT;
+    DECLARE deleted_status_id INT;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    SELECT id_ast_acc INTO owner_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_tol;
+
+    IF owner_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create tool: owner account is deleted';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: reject if owner is deleted account on UPDATE
+DELIMITER $$
+CREATE TRIGGER trg_tool_before_update
+BEFORE UPDATE ON tool_tol
+FOR EACH ROW
+BEGIN
+    DECLARE owner_status_name VARCHAR(30);
+
+    IF NEW.id_acc_tol != OLD.id_acc_tol THEN
+        SELECT ast.status_name_ast INTO owner_status_name
+        FROM account_acc acc
+        JOIN account_status_ast ast ON acc.id_ast_acc = ast.id_ast
+        WHERE acc.id_acc = NEW.id_acc_tol;
+
+        IF owner_status_name = 'deleted' THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Cannot transfer tool: new owner account is deleted';
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- BOOKMARK TRIGGERS
 -- ============================================================
 
 -- Trigger: reject deleted accounts on bookmark INSERT
+DELIMITER $$
+CREATE TRIGGER trg_bookmark_before_insert
+BEFORE INSERT ON tool_bookmark_acctol
+FOR EACH ROW
+BEGIN
+    DECLARE account_status_id INT;
+    DECLARE deleted_status_id INT;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    SELECT id_ast_acc INTO account_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_acctol;
+
+    IF account_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create bookmark: account is deleted';
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- BORROW TRIGGERS
 -- ============================================================
 
 -- Trigger: borrow validations on INSERT (PERMISSIVE)
+DELIMITER $$
+CREATE TRIGGER trg_borrow_before_insert
+BEFORE INSERT ON borrow_bor
+FOR EACH ROW
+BEGIN
+    DECLARE borrower_status_id INT;
+    DECLARE owner_status_id INT;
+    DECLARE tool_owner_id INT;
+    DECLARE deleted_status_id INT;
+    DECLARE approved_status_id INT;
+    DECLARE borrowed_status_id INT;
+    DECLARE returned_status_id INT;
+
+    SELECT
+        MAX(CASE WHEN status_name_bst = 'approved' THEN id_bst END),
+        MAX(CASE WHEN status_name_bst = 'borrowed' THEN id_bst END),
+        MAX(CASE WHEN status_name_bst = 'returned' THEN id_bst END)
+    INTO approved_status_id, borrowed_status_id, returned_status_id
+    FROM borrow_status_bst
+    WHERE status_name_bst IN ('approved', 'borrowed', 'returned');
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    IF approved_status_id IS NULL OR borrowed_status_id IS NULL OR returned_status_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'System error: required borrow status values not found in borrow_status_bst';
+    END IF;
+
+    SELECT id_acc_tol INTO tool_owner_id
+    FROM tool_tol
+    WHERE id_tol = NEW.id_tol_bor;
+
+    IF tool_owner_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'System error: tool not found for borrow request';
+    END IF;
+
+    IF tool_owner_id = NEW.id_acc_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot borrow own tool';
+    END IF;
+
+    SELECT id_ast_acc INTO borrower_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_bor;
+
+    IF borrower_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create borrow request: borrower account is deleted';
+    END IF;
+
+    SELECT id_ast_acc INTO owner_status_id
+    FROM account_acc
+    WHERE id_acc = tool_owner_id;
+
+    IF owner_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create borrow request: tool owner account is deleted';
+    END IF;
+
+    IF NEW.approved_at_bor IS NOT NULL AND NEW.requested_at_bor IS NOT NULL
+       AND NEW.approved_at_bor < NEW.requested_at_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'approved_at must be after requested_at';
+    END IF;
+
+    IF NEW.borrowed_at_bor IS NOT NULL AND NEW.approved_at_bor IS NOT NULL
+       AND NEW.borrowed_at_bor < NEW.approved_at_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'borrowed_at must be after approved_at';
+    END IF;
+
+    IF NEW.returned_at_bor IS NOT NULL AND NEW.borrowed_at_bor IS NOT NULL
+       AND NEW.returned_at_bor < NEW.borrowed_at_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'returned_at must be after borrowed_at';
+    END IF;
+
+    IF NEW.id_bst_bor = approved_status_id AND NEW.approved_at_bor IS NULL THEN
+        SET NEW.approved_at_bor = NOW();
+    END IF;
+
+    IF NEW.id_bst_bor = borrowed_status_id THEN
+        IF NEW.approved_at_bor IS NULL THEN
+            SET NEW.approved_at_bor = NOW();
+        END IF;
+        IF NEW.borrowed_at_bor IS NULL THEN
+            SET NEW.borrowed_at_bor = NOW();
+        END IF;
+        IF NEW.due_at_bor IS NULL THEN
+            SET NEW.due_at_bor = DATE_ADD(NEW.borrowed_at_bor, INTERVAL NEW.loan_duration_hours_bor HOUR);
+        END IF;
+    END IF;
+
+    IF NEW.id_bst_bor = returned_status_id THEN
+        IF NEW.approved_at_bor IS NULL THEN
+            SET NEW.approved_at_bor = NOW();
+        END IF;
+        IF NEW.borrowed_at_bor IS NULL THEN
+            SET NEW.borrowed_at_bor = NOW();
+        END IF;
+        IF NEW.due_at_bor IS NULL THEN
+            SET NEW.due_at_bor = DATE_ADD(NEW.borrowed_at_bor, INTERVAL NEW.loan_duration_hours_bor HOUR);
+        END IF;
+        IF NEW.returned_at_bor IS NULL THEN
+            SET NEW.returned_at_bor = NOW();
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: borrow validations on UPDATE (STRICT)
+DELIMITER $$
+CREATE TRIGGER trg_borrow_before_update
+BEFORE UPDATE ON borrow_bor
+FOR EACH ROW
+BEGIN
+    DECLARE requested_status_id INT;
+    DECLARE approved_status_id INT;
+    DECLARE borrowed_status_id INT;
+    DECLARE returned_status_id INT;
+    DECLARE denied_status_id INT;
+    DECLARE cancelled_status_id INT;
+    DECLARE tool_owner_id INT;
+
+    IF NEW.id_acc_bor != OLD.id_acc_bor OR NEW.id_tol_bor != OLD.id_tol_bor THEN
+        SELECT id_acc_tol INTO tool_owner_id
+        FROM tool_tol
+        WHERE id_tol = NEW.id_tol_bor;
+
+        IF tool_owner_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'System error: tool not found for borrow request';
+        END IF;
+
+        IF tool_owner_id = NEW.id_acc_bor THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Cannot borrow own tool';
+        END IF;
+    END IF;
+
+    IF OLD.id_bst_bor != NEW.id_bst_bor OR
+       (OLD.due_at_bor IS NOT NULL AND NEW.due_at_bor != OLD.due_at_bor) THEN
+
+        SELECT
+            MAX(CASE WHEN status_name_bst = 'requested' THEN id_bst END),
+            MAX(CASE WHEN status_name_bst = 'approved' THEN id_bst END),
+            MAX(CASE WHEN status_name_bst = 'borrowed' THEN id_bst END),
+            MAX(CASE WHEN status_name_bst = 'returned' THEN id_bst END),
+            MAX(CASE WHEN status_name_bst = 'denied' THEN id_bst END),
+            MAX(CASE WHEN status_name_bst = 'cancelled' THEN id_bst END)
+        INTO requested_status_id, approved_status_id, borrowed_status_id,
+             returned_status_id, denied_status_id, cancelled_status_id
+        FROM borrow_status_bst
+        WHERE status_name_bst IN ('requested', 'approved', 'borrowed', 'returned', 'denied', 'cancelled');
+
+        IF requested_status_id IS NULL OR approved_status_id IS NULL
+           OR borrowed_status_id IS NULL OR returned_status_id IS NULL
+           OR denied_status_id IS NULL OR cancelled_status_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'System error: required borrow status values not found in borrow_status_bst';
+        END IF;
+
+        -- ============================================================
+        -- STATUS TRANSITION VALIDATION (only when status changing)
+        -- ============================================================
+        IF OLD.id_bst_bor != NEW.id_bst_bor THEN
+            IF OLD.id_bst_bor IN (returned_status_id, denied_status_id, cancelled_status_id) THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot change status: borrow is in terminal state';
+            END IF;
+
+            IF OLD.id_bst_bor = borrowed_status_id
+               AND NEW.id_bst_bor IN (requested_status_id, approved_status_id) THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot regress status from borrowed to earlier state';
+            END IF;
+
+            IF OLD.id_bst_bor = approved_status_id
+               AND NEW.id_bst_bor = requested_status_id THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot regress status from approved to requested';
+            END IF;
+
+            IF OLD.id_bst_bor = requested_status_id
+               AND NEW.id_bst_bor IN (borrowed_status_id, returned_status_id) THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot skip approval step: must transition through approved status';
+            END IF;
+
+            IF OLD.id_bst_bor = approved_status_id
+               AND NEW.id_bst_bor = returned_status_id THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot skip borrowed step: must transition through borrowed status';
+            END IF;
+        END IF;
+
+        -- ============================================================
+        -- STRICT TIMESTAMP COHERENCE
+        -- ============================================================
+        IF NEW.id_bst_bor = approved_status_id THEN
+            IF NEW.requested_at_bor IS NULL THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot set approved status: requested_at timestamp missing';
+            END IF;
+            IF NEW.approved_at_bor IS NULL THEN
+                SET NEW.approved_at_bor = NOW();
+            END IF;
+        END IF;
+
+        IF NEW.id_bst_bor = borrowed_status_id THEN
+            IF NEW.approved_at_bor IS NULL THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot set borrowed status: approved_at timestamp missing';
+            END IF;
+            IF NEW.borrowed_at_bor IS NULL THEN
+                SET NEW.borrowed_at_bor = NOW();
+            END IF;
+            IF NEW.due_at_bor IS NULL THEN
+                SET NEW.due_at_bor = DATE_ADD(NEW.borrowed_at_bor, INTERVAL NEW.loan_duration_hours_bor HOUR);
+            END IF;
+        END IF;
+
+        IF NEW.id_bst_bor = returned_status_id THEN
+            IF NEW.borrowed_at_bor IS NULL THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot set returned status: borrowed_at timestamp missing';
+            END IF;
+            IF NEW.returned_at_bor IS NULL THEN
+                SET NEW.returned_at_bor = NOW();
+            END IF;
+        END IF;
+
+        IF NEW.id_bst_bor = cancelled_status_id THEN
+            IF NEW.cancelled_at_bor IS NULL THEN
+                SET NEW.cancelled_at_bor = NOW();
+            END IF;
+        END IF;
+
+        -- ============================================================
+        -- DUE DATE PROTECTION
+        -- ============================================================
+        IF OLD.due_at_bor IS NOT NULL AND NEW.due_at_bor != OLD.due_at_bor THEN
+            IF NOT EXISTS (
+                SELECT 1 FROM loan_extension_lex
+                WHERE id_bor_lex = NEW.id_bor
+                  AND new_due_at_lex = NEW.due_at_bor
+            ) THEN
+                SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Cannot modify due date without approved extension record';
+            END IF;
+        END IF;
+    END IF;
+
+    -- ============================================================
+    -- TIMESTAMP ORDERING VALIDATION (always check)
+    -- ============================================================
+    IF NEW.approved_at_bor IS NOT NULL AND NEW.requested_at_bor IS NOT NULL
+       AND NEW.approved_at_bor < NEW.requested_at_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'approved_at must be after requested_at';
+    END IF;
+
+    IF NEW.borrowed_at_bor IS NOT NULL AND NEW.approved_at_bor IS NOT NULL
+       AND NEW.borrowed_at_bor < NEW.approved_at_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'borrowed_at must be after approved_at';
+    END IF;
+
+    IF NEW.returned_at_bor IS NOT NULL AND NEW.borrowed_at_bor IS NOT NULL
+       AND NEW.returned_at_bor < NEW.borrowed_at_bor THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'returned_at must be after borrowed_at';
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- AVAILABILITY BLOCK TRIGGERS
 -- ============================================================
 
 -- Trigger: validate availability block on INSERT
+DELIMITER $$
+CREATE TRIGGER trg_availability_block_before_insert
+BEFORE INSERT ON availability_block_avb
+FOR EACH ROW
+BEGIN
+    DECLARE block_type_name VARCHAR(30);
+
+    SELECT type_name_btp INTO block_type_name
+    FROM block_type_btp
+    WHERE id_btp = NEW.id_btp_avb;
+
+    IF block_type_name IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'System error: block type not found in block_type_btp';
+    END IF;
+
+    IF block_type_name = 'borrow' AND NEW.id_bor_avb IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Borrow-type blocks require id_bor_avb';
+    END IF;
+
+    IF block_type_name = 'admin' AND NEW.id_bor_avb IS NOT NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Admin-type blocks must have NULL id_bor_avb';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: validate availability block on UPDATE
+DELIMITER $$
+CREATE TRIGGER trg_availability_block_before_update
+BEFORE UPDATE ON availability_block_avb
+FOR EACH ROW
+BEGIN
+    DECLARE block_type_name VARCHAR(30);
+
+    IF NEW.id_btp_avb != OLD.id_btp_avb OR
+       NOT (NEW.id_bor_avb <=> OLD.id_bor_avb) THEN
+
+        SELECT type_name_btp INTO block_type_name
+        FROM block_type_btp
+        WHERE id_btp = NEW.id_btp_avb;
+
+        IF block_type_name IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'System error: block type not found in block_type_btp';
+        END IF;
+
+        IF block_type_name = 'borrow' AND NEW.id_bor_avb IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Borrow-type blocks require id_bor_avb';
+        END IF;
+
+        IF block_type_name = 'admin' AND NEW.id_bor_avb IS NOT NULL THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Admin-type blocks must have NULL id_bor_avb';
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- RATING TRIGGERS
 -- ============================================================
 
 -- Trigger: reject deleted accounts, self-ratings, and non-participants on user rating INSERT
+DELIMITER $$
+CREATE TRIGGER trg_user_rating_before_insert
+BEFORE INSERT ON user_rating_urt
+FOR EACH ROW
+BEGIN
+    DECLARE rater_status_id INT;
+    DECLARE target_status_id INT;
+    DECLARE deleted_status_id INT;
+    DECLARE borrow_borrower_id INT;
+    DECLARE borrow_tool_owner_id INT;
+
+    IF NEW.id_acc_urt = NEW.id_acc_target_urt THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rate yourself';
+    END IF;
+
+    SELECT bor.id_acc_bor, tol.id_acc_tol
+    INTO borrow_borrower_id, borrow_tool_owner_id
+    FROM borrow_bor bor
+    JOIN tool_tol tol ON bor.id_tol_bor = tol.id_tol
+    WHERE bor.id_bor = NEW.id_bor_urt;
+
+    IF borrow_borrower_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'System error: borrow transaction not found for rating';
+    END IF;
+
+    IF NEW.id_acc_urt != borrow_borrower_id AND NEW.id_acc_urt != borrow_tool_owner_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create rating: rater was not a participant in this borrow';
+    END IF;
+
+    IF NEW.id_acc_target_urt != borrow_borrower_id AND NEW.id_acc_target_urt != borrow_tool_owner_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create rating: target was not a participant in this borrow';
+    END IF;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    SELECT id_ast_acc INTO rater_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_urt;
+
+    IF rater_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create rating: rater account is deleted';
+    END IF;
+
+    SELECT id_ast_acc INTO target_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_target_urt;
+
+    IF target_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create rating: target account is deleted';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: prevent self-rating on UPDATE (defense in depth)
+DELIMITER $$
+CREATE TRIGGER trg_user_rating_before_update
+BEFORE UPDATE ON user_rating_urt
+FOR EACH ROW
+BEGIN
+    IF NEW.id_acc_urt = NEW.id_acc_target_urt THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rate yourself';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: reject deleted accounts and non-borrowers on tool rating INSERT
+DELIMITER $$
+CREATE TRIGGER trg_tool_rating_before_insert
+BEFORE INSERT ON tool_rating_trt
+FOR EACH ROW
+BEGIN
+    DECLARE rater_status_id INT;
+    DECLARE deleted_status_id INT;
+    DECLARE borrow_borrower_id INT;
+    DECLARE borrow_tool_id INT;
+
+    SELECT id_acc_bor, id_tol_bor
+    INTO borrow_borrower_id, borrow_tool_id
+    FROM borrow_bor
+    WHERE id_bor = NEW.id_bor_trt;
+
+    IF NEW.id_acc_trt != borrow_borrower_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create tool rating: only the borrower can rate the tool';
+    END IF;
+
+    IF NEW.id_tol_trt != borrow_tool_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create tool rating: tool does not match borrow transaction';
+    END IF;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    SELECT id_ast_acc INTO rater_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_trt;
+
+    IF rater_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create rating: rater account is deleted';
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- DISPUTE TRIGGERS
 -- ============================================================
 
 -- Trigger: reject deleted reporter and non-participants on dispute INSERT
+DELIMITER $$
+CREATE TRIGGER trg_dispute_before_insert
+BEFORE INSERT ON dispute_dsp
+FOR EACH ROW
+BEGIN
+    DECLARE reporter_status_id INT;
+    DECLARE deleted_status_id INT;
+    DECLARE borrow_borrower_id INT;
+    DECLARE borrow_tool_owner_id INT;
+
+    SELECT bor.id_acc_bor, tol.id_acc_tol
+    INTO borrow_borrower_id, borrow_tool_owner_id
+    FROM borrow_bor bor
+    JOIN tool_tol tol ON bor.id_tol_bor = tol.id_tol
+    WHERE bor.id_bor = NEW.id_bor_dsp;
+
+    IF NEW.id_acc_dsp != borrow_borrower_id AND NEW.id_acc_dsp != borrow_tool_owner_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create dispute: reporter was not a participant in this borrow';
+    END IF;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    SELECT id_ast_acc INTO reporter_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_dsp;
+
+    IF reporter_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create dispute: reporter account is deleted';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: reject deleted author on dispute message INSERT
+DELIMITER $$
+CREATE TRIGGER trg_dispute_message_before_insert
+BEFORE INSERT ON dispute_message_dsm
+FOR EACH ROW
+BEGIN
+    DECLARE author_status_id INT;
+    DECLARE deleted_status_id INT;
+
+    SELECT id_ast INTO deleted_status_id
+    FROM account_status_ast
+    WHERE status_name_ast = 'deleted'
+    LIMIT 1;
+
+    SELECT id_ast_acc INTO author_status_id
+    FROM account_acc
+    WHERE id_acc = NEW.id_acc_dsm;
+
+    IF author_status_id = deleted_status_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot create dispute message: author account is deleted';
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- WAIVER & HANDOVER TRIGGERS
 -- ============================================================
 
 -- Trigger: enforce required acknowledgments
+DELIMITER $$
+CREATE TRIGGER trg_borrow_waiver_before_insert
+BEFORE INSERT ON borrow_waiver_bwv
+FOR EACH ROW
+BEGIN
+    IF NEW.is_tool_condition_acknowledged_bwv = FALSE THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Waiver requires tool condition acknowledgment';
+    END IF;
+
+    IF NEW.is_responsibility_accepted_bwv = FALSE THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Waiver requires responsibility acceptance';
+    END IF;
+
+    IF NEW.is_liability_waiver_accepted_bwv = FALSE THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Waiver requires liability waiver acceptance';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Trigger: auto-generate unique verification code and set expiry
+DELIMITER $$
+CREATE TRIGGER trg_handover_verification_before_insert
+BEFORE INSERT ON handover_verification_hov
+FOR EACH ROW
+BEGIN
+    SET NEW.verification_code_hov = UPPER(SUBSTRING(
+        MD5(CONCAT(
+            RAND(),
+            MICROSECOND(NOW(6)),
+            CONNECTION_ID(),
+            UUID()
+        )), 1, 6));
+
+    SET NEW.expires_at_hov = DATE_ADD(NOW(), INTERVAL 24 HOUR);
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- INCIDENT TRIGGERS
 -- ============================================================
 
 -- Trigger: auto-calculate is_reported_within_deadline_irt
+DELIMITER $$
+CREATE TRIGGER trg_incident_report_before_insert
+BEFORE INSERT ON incident_report_irt
+FOR EACH ROW
+BEGIN
+    IF TIMESTAMPDIFF(HOUR, NEW.incident_occurred_at_irt, NOW()) > 48 THEN
+        SET NEW.is_reported_within_deadline_irt = FALSE;
+    ELSE
+        SET NEW.is_reported_within_deadline_irt = TRUE;
+    END IF;
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- TOS TRIGGERS
 -- ============================================================
 
 -- Trigger: Prevent direct INSERT of active ToS (forces use of sp_create_tos_version)
+DELIMITER $$
+CREATE TRIGGER trg_tos_before_insert
+BEFORE INSERT ON terms_of_service_tos
+FOR EACH ROW
+BEGIN
+    -- Set created_at if not provided
+    SET NEW.created_at_tos = COALESCE(NEW.created_at_tos, NOW());
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- LOOKUP TABLE PROTECTION TRIGGERS
 -- ============================================================
--- Prevent deletion or renaming of system-required lookup values
--- that triggers depend on for enforcement logic.
+-- Prevent deletion or renaming of system-required lookup values that triggers depend on for enforcement logic.
 
 -- Protect account_status_ast required values
+DELIMITER $$
+CREATE TRIGGER trg_account_status_before_delete
+BEFORE DELETE ON account_status_ast
+FOR EACH ROW
+BEGIN
+    IF OLD.status_name_ast IN ('pending', 'active', 'suspended', 'deleted') THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete system-required status values';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_account_status_before_update
+BEFORE UPDATE ON account_status_ast
+FOR EACH ROW
+BEGIN
+    IF OLD.status_name_ast IN ('pending', 'active', 'suspended', 'deleted')
+       AND NEW.status_name_ast != OLD.status_name_ast THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rename system-required status values';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Protect borrow_status_bst required values
+DELIMITER $$
+CREATE TRIGGER trg_borrow_status_before_delete
+BEFORE DELETE ON borrow_status_bst
+FOR EACH ROW
+BEGIN
+    IF OLD.status_name_bst IN ('requested', 'approved', 'borrowed', 'returned', 'denied', 'cancelled') THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete system-required borrow status values';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_borrow_status_before_update
+BEFORE UPDATE ON borrow_status_bst
+FOR EACH ROW
+BEGIN
+    IF OLD.status_name_bst IN ('requested', 'approved', 'borrowed', 'returned', 'denied', 'cancelled')
+       AND NEW.status_name_bst != OLD.status_name_bst THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rename system-required borrow status values';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Protect block_type_btp required values
+DELIMITER $$
+CREATE TRIGGER trg_block_type_before_delete
+BEFORE DELETE ON block_type_btp
+FOR EACH ROW
+BEGIN
+    IF OLD.type_name_btp IN ('admin', 'borrow') THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete system-required block type values';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_block_type_before_update
+BEFORE UPDATE ON block_type_btp
+FOR EACH ROW
+BEGIN
+    IF OLD.type_name_btp IN ('admin', 'borrow')
+       AND NEW.type_name_btp != OLD.type_name_btp THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rename system-required block type values';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Protect rating_role_rtr required values
+DELIMITER $$
+CREATE TRIGGER trg_rating_role_before_delete
+BEFORE DELETE ON rating_role_rtr
+FOR EACH ROW
+BEGIN
+    IF OLD.role_name_rtr IN ('lender', 'borrower') THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete system-required rating role values';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_rating_role_before_update
+BEFORE UPDATE ON rating_role_rtr
+FOR EACH ROW
+BEGIN
+    IF OLD.role_name_rtr IN ('lender', 'borrower')
+       AND NEW.role_name_rtr != OLD.role_name_rtr THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rename system-required rating role values';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Protect handover_type_hot required values
+DELIMITER $$
+CREATE TRIGGER trg_handover_type_before_delete
+BEFORE DELETE ON handover_type_hot
+FOR EACH ROW
+BEGIN
+    IF OLD.type_name_hot IN ('pickup', 'return') THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete system-required handover type values';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_handover_type_before_update
+BEFORE UPDATE ON handover_type_hot
+FOR EACH ROW
+BEGIN
+    IF OLD.type_name_hot IN ('pickup', 'return')
+       AND NEW.type_name_hot != OLD.type_name_hot THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rename system-required handover type values';
+    END IF;
+END$$
+DELIMITER ;
 
 -- Protect deposit_status_dps required values
+DELIMITER $$
+CREATE TRIGGER trg_deposit_status_before_delete
+BEFORE DELETE ON deposit_status_dps
+FOR EACH ROW
+BEGIN
+    IF OLD.status_name_dps IN ('pending', 'held', 'released', 'forfeited', 'partial_release') THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete system-required deposit status values';
+    END IF;
+END$$
 
--- ============================================================
--- ============================================================
---                        End of Triggers
--- ============================================================
--- ============================================================
+CREATE TRIGGER trg_deposit_status_before_update
+BEFORE UPDATE ON deposit_status_dps
+FOR EACH ROW
+BEGIN
+    IF OLD.status_name_dps IN ('pending', 'held', 'released', 'forfeited', 'partial_release')
+       AND NEW.status_name_dps != OLD.status_name_dps THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot rename system-required deposit status values';
+    END IF;
+END$$
+DELIMITER ;
+
+-- ================================================================
+-- ================================================================
+--                         END OF TRIGGERS
+-- ================================================================
+-- ================================================================

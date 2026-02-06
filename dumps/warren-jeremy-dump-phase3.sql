@@ -5286,7 +5286,7 @@ INSERT INTO payment_provider_ppv (provider_name_ppv, is_active_ppv) VALUES
     ('manual', TRUE);
 
 -- ============================================================
--- SAMPLE DATA (Optional - for testing)
+-- SAMPLE DATA (Optional - for testing comment out if not needed)
 -- ============================================================
 
 -- ============================================================
@@ -5326,30 +5326,63 @@ INSERT INTO payment_provider_ppv (provider_name_ppv, is_active_ppv) VALUES
 -- ============================================================
 
 -- Get NC state ID
+SET @nc_state_id = (SELECT id_sta FROM state_sta WHERE state_code_sta = 'NC');
 
 -- ============================================================
 -- ASHEVILLE NEIGHBORHOODS
 -- ============================================================
 
--- Downtown & Central Asheville (28801)
+INSERT INTO neighborhood_nbh (neighborhood_name_nbh, city_name_nbh, id_sta_nbh, latitude_nbh, longitude_nbh, location_point_nbh) VALUES
+    -- Downtown & Central Asheville (28801)
+    ('Downtown Asheville', 'Asheville', @nc_state_id, 35.5951, -82.5515, ST_GeomFromText('POINT(-82.5515 35.5951)', 4326)),
+    ('South Slope', 'Asheville', @nc_state_id, 35.5912, -82.5540, ST_GeomFromText('POINT(-82.5540 35.5912)', 4326)),
+    ('Montford', 'Asheville', @nc_state_id, 35.6050, -82.5580, ST_GeomFromText('POINT(-82.5580 35.6050)', 4326)),
 
--- West Asheville (28806)
+    -- West Asheville (28806)
+    ('West Asheville', 'Asheville', @nc_state_id, 35.5851, -82.6146, ST_GeomFromText('POINT(-82.6146 35.5851)', 4326)),
+    ('Candler', 'Candler', @nc_state_id, 35.5379, -82.6985, ST_GeomFromText('POINT(-82.6985 35.5379)', 4326)),
 
--- North Asheville (28804)
+    -- North Asheville (28804)
+    ('North Asheville', 'Asheville', @nc_state_id, 35.6295, -82.5571, ST_GeomFromText('POINT(-82.5571 35.6295)', 4326)),
+    ('Grove Park', 'Asheville', @nc_state_id, 35.6120, -82.5650, ST_GeomFromText('POINT(-82.5650 35.6120)', 4326)),
+    ('Beaver Lake', 'Asheville', @nc_state_id, 35.6400, -82.5500, ST_GeomFromText('POINT(-82.5500 35.6400)', 4326)),
+    ('Woodfin', 'Woodfin', @nc_state_id, 35.6350, -82.5800, ST_GeomFromText('POINT(-82.5800 35.6350)', 4326)),
+    ('Weaverville', 'Weaverville', @nc_state_id, 35.6973, -82.5607, ST_GeomFromText('POINT(-82.5607 35.6973)', 4326)),
 
--- South Asheville (28803)
+    -- South Asheville (28803)
+    ('South Asheville', 'Asheville', @nc_state_id, 35.5578, -82.5210, ST_GeomFromText('POINT(-82.5210 35.5578)', 4326)),
+    ('Biltmore Village', 'Asheville', @nc_state_id, 35.5700, -82.5450, ST_GeomFromText('POINT(-82.5450 35.5700)', 4326)),
+    ('Biltmore Forest', 'Biltmore Forest', @nc_state_id, 35.5350, -82.5300, ST_GeomFromText('POINT(-82.5300 35.5350)', 4326)),
+    ('Biltmore Park', 'Asheville', @nc_state_id, 35.5100, -82.5280, ST_GeomFromText('POINT(-82.5280 35.5100)', 4326)),
+    ('Arden', 'Arden', @nc_state_id, 35.4661, -82.5345, ST_GeomFromText('POINT(-82.5345 35.4661)', 4326)),
+    ('Fletcher', 'Fletcher', @nc_state_id, 35.4300, -82.5000, ST_GeomFromText('POINT(-82.5000 35.4300)', 4326)),
 
--- East Asheville (28805)
+    -- East Asheville (28805)
+    ('East Asheville', 'Asheville', @nc_state_id, 35.5708, -82.4865, ST_GeomFromText('POINT(-82.4865 35.5708)', 4326)),
+    ('Kenilworth', 'Asheville', @nc_state_id, 35.5750, -82.5200, ST_GeomFromText('POINT(-82.5200 35.5750)', 4326)),
+    ('Haw Creek', 'Asheville', @nc_state_id, 35.5850, -82.4700, ST_GeomFromText('POINT(-82.4700 35.5850)', 4326)),
+    ('Oakley', 'Asheville', @nc_state_id, 35.5600, -82.4800, ST_GeomFromText('POINT(-82.4800 35.5600)', 4326)),
 
--- East of Asheville (28778)
+    -- East of Asheville (28778)
+    ('Swannanoa', 'Swannanoa', @nc_state_id, 35.6169, -82.3987, ST_GeomFromText('POINT(-82.3987 35.6169)', 4326)),
+    ('Black Mountain', 'Black Mountain', @nc_state_id, 35.6179, -82.3212, ST_GeomFromText('POINT(-82.3212 35.6179)', 4326)),
 
--- ============================================================
--- HENDERSONVILLE / HENDERSON COUNTY NEIGHBORHOODS
--- ============================================================
+    -- ============================================================
+    -- HENDERSONVILLE / HENDERSON COUNTY NEIGHBORHOODS
+    -- ============================================================
 
--- Hendersonville (28739, 28791, 28792)
+    -- Hendersonville (28739, 28791, 28792)
+    ('Downtown Hendersonville', 'Hendersonville', @nc_state_id, 35.3185, -82.4612, ST_GeomFromText('POINT(-82.4612 35.3185)', 4326)),
+    ('Laurel Park', 'Laurel Park', @nc_state_id, 35.3150, -82.4950, ST_GeomFromText('POINT(-82.4950 35.3150)', 4326)),
+    ('Druid Hills', 'Hendersonville', @nc_state_id, 35.3280, -82.4550, ST_GeomFromText('POINT(-82.4550 35.3280)', 4326)),
+    ('Fifth Avenue West', 'Hendersonville', @nc_state_id, 35.3200, -82.4700, ST_GeomFromText('POINT(-82.4700 35.3200)', 4326)),
 
--- Henderson County Communities
+    -- Henderson County Communities
+    ('Flat Rock', 'Flat Rock', @nc_state_id, 35.2730, -82.4420, ST_GeomFromText('POINT(-82.4420 35.2730)', 4326)),
+    ('East Flat Rock', 'East Flat Rock', @nc_state_id, 35.2850, -82.4100, ST_GeomFromText('POINT(-82.4100 35.2850)', 4326)),
+    ('Mills River', 'Mills River', @nc_state_id, 35.3813, -82.5889, ST_GeomFromText('POINT(-82.5889 35.3813)', 4326)),
+    ('Horse Shoe', 'Horse Shoe', @nc_state_id, 35.3500, -82.5600, ST_GeomFromText('POINT(-82.5600 35.3500)', 4326)),
+    ('Etowah', 'Etowah', @nc_state_id, 35.3200, -82.5900, ST_GeomFromText('POINT(-82.5900 35.3200)', 4326));
 
 -- ============================================================
 -- NEIGHBORHOOD-ZIP ASSOCIATIONS
@@ -5357,83 +5390,119 @@ INSERT INTO payment_provider_ppv (provider_name_ppv, is_active_ppv) VALUES
 -- Maps neighborhoods to their zip codes
 -- is_primary indicates the main neighborhood for that zip code
 
--- Downtown & Central Asheville (28801)
-    -- Downtown Asheville (primary)
-    -- South Slope
-    -- Montford
+INSERT INTO neighborhood_zip_nbhzpc (id_nbh_nbhzpc, zip_code_nbhzpc, is_primary_nbhzpc) VALUES
+    -- Downtown & Central Asheville (28801)
+    (1, '28801', TRUE),     -- Downtown Asheville (primary)
+    (2, '28801', FALSE),    -- South Slope
+    (3, '28801', FALSE),    -- Montford
 
--- West Asheville (28806)
-    -- West Asheville (primary)
+    -- West Asheville (28806)
+    (4, '28806', TRUE),     -- West Asheville (primary)
 
--- Candler (28715)
-    -- Candler (primary)
+    -- Candler (28715)
+    (5, '28715', TRUE),     -- Candler (primary)
 
--- North Asheville (28804)
-    -- North Asheville (primary)
-    -- Grove Park
-    -- Beaver Lake
-    -- Woodfin
+    -- North Asheville (28804)
+    (6, '28804', TRUE),     -- North Asheville (primary)
+    (7, '28804', FALSE),    -- Grove Park
+    (8, '28804', FALSE),    -- Beaver Lake
+    (9, '28804', FALSE),    -- Woodfin
 
--- Weaverville (28787)
-    -- Weaverville (primary)
+    -- Weaverville (28787)
+    (10, '28787', TRUE),    -- Weaverville (primary)
 
--- South Asheville (28803)
-    -- South Asheville (primary)
-    -- Biltmore Village
-    -- Biltmore Forest
-    -- Biltmore Park
+    -- South Asheville (28803)
+    (11, '28803', TRUE),    -- South Asheville (primary)
+    (12, '28803', FALSE),   -- Biltmore Village
+    (13, '28803', FALSE),   -- Biltmore Forest
+    (14, '28803', FALSE),   -- Biltmore Park
 
--- Arden (28704)
-    -- Arden (primary)
+    -- Arden (28704)
+    (15, '28704', TRUE),    -- Arden (primary)
 
--- Fletcher (28732)
-    -- Fletcher (primary)
+    -- Fletcher (28732)
+    (16, '28732', TRUE),    -- Fletcher (primary)
 
--- East Asheville (28805)
-    -- East Asheville (primary)
-    -- Kenilworth
-    -- Haw Creek
-    -- Oakley
+    -- East Asheville (28805)
+    (17, '28805', TRUE),    -- East Asheville (primary)
+    (18, '28805', FALSE),   -- Kenilworth
+    (19, '28805', FALSE),   -- Haw Creek
+    (20, '28805', FALSE),   -- Oakley
 
--- Swannanoa / Black Mountain (28778)
-    -- Swannanoa (primary)
-    -- Black Mountain
+    -- Swannanoa / Black Mountain (28778)
+    (21, '28778', TRUE),    -- Swannanoa (primary)
+    (22, '28778', FALSE),   -- Black Mountain
 
--- Hendersonville (28791 - north/downtown area)
-    -- Hendersonville (primary)
-    -- Druid Hills
+    -- Hendersonville (28791 - north/downtown area)
+    (23, '28791', TRUE),    -- Downtown Hendersonville (primary)
+    (25, '28791', FALSE),   -- Druid Hills
 
--- Hendersonville (28739 - west/Laurel Park area)
-    -- Laurel Park (primary)
-    -- Fifth Avenue West
+    -- Hendersonville (28739 - west/Laurel Park area)
+    (24, '28739', TRUE),    -- Laurel Park (primary)
+    (26, '28739', FALSE),   -- Fifth Avenue West
 
--- Hendersonville (28792 - east/south area)
-    -- Downtown Hendersonville (also serves 28792)
+    -- Hendersonville (28792 - east/south area)
+    (23, '28792', FALSE),    -- Downtown Hendersonville (also serves 28792)
 
--- Flat Rock (28731)
-    -- Flat Rock (primary)
+    -- Flat Rock (28731)
+    (27, '28731', TRUE),    -- Flat Rock (primary)
 
--- East Flat Rock (28726)
-    -- East Flat Rock (primary)
+    -- East Flat Rock (28726)
+    (28, '28726', TRUE),    -- East Flat Rock (primary)
 
--- Mills River (28759)
-    -- Mills River (primary)
+    -- Mills River (28759)
+    (29, '28759', TRUE),    -- Mills River (primary)
 
--- Horse Shoe (28742)
-    -- Horse Shoe (primary)
-    -- Etowah
+    -- Horse Shoe (28742)
+    (30, '28742', TRUE),    -- Horse Shoe (primary)
+    (31, '28742', FALSE);   -- Etowah
 
 -- ============================================================
 -- SAMPLE ACCOUNTS (Asheville/Hendersonville residents)
 -- ============================================================
 
 -- Get lookup IDs
+SET @member_role = (SELECT id_rol FROM role_rol WHERE role_name_rol = 'member');
+SET @admin_role = (SELECT id_rol FROM role_rol WHERE role_name_rol = 'admin');
+SET @active_status = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'active');
+SET @email_pref = (SELECT id_cpr FROM contact_preference_cpr WHERE preference_name_cpr = 'email');
 
 -- Sample users (placeholder hash is replaced by TEST ACCOUNTS SETUP below)
+-- Neighborhood IDs: 1=Downtown AVL, 4=West AVL, 6=North AVL, 23=Downtown Hendersonville
+INSERT INTO account_acc (
+    first_name_acc, last_name_acc, phone_number_acc, email_address_acc,
+    street_address_acc, zip_code_acc, id_nbh_acc, password_hash_acc,
+    id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
+) VALUES
+    ('Allyson', 'Warren', '828-555-0101', 'allyson.warren@example.com',
+     '123 Haywood St', '28801', 1, '$2y$10$abcdefghijklmnopqrstuv',
+     @member_role, @active_status, @email_pref, TRUE, TRUE),
+
+    ('Jeremiah', 'Lutz', '828-555-0102', 'jeremiah.lutz@example.com',
+     '456 Patton Ave', '28806', 4, '$2y$10$abcdefghijklmnopqrstuv',
+     @member_role, @active_status, @email_pref, TRUE, TRUE),
+
+    ('Chantelle', 'Turcotte', '828-555-0103', 'chantelle.turcotte@example.com',
+     '789 Main St', '28791', 23, '$2y$10$abcdefghijklmnopqrstuv',
+     @member_role, @active_status, @email_pref, TRUE, TRUE),
+
+    ('Alec', 'Fehl', '828-555-0104', 'alec.fehl@example.com',
+     '321 Merrimon Ave', '28804', 6, '$2y$10$abcdefghijklmnopqrstuv',
+     @member_role, @active_status, @email_pref, TRUE, TRUE),
+
+    ('Admin', 'User', '828-555-9999', 'admin@neighborhoodtools.com',
+     NULL, '28801', 1, '$2y$10$abcdefghijklmnopqrstuv',
+     @admin_role, @active_status, @email_pref, TRUE, TRUE);
 
 -- ============================================================
 -- SAMPLE ACCOUNT BIOS
 -- ============================================================
+
+INSERT INTO account_bio_abi (id_acc_abi, bio_text_abi) VALUES
+    (1, 'Avid gardener and DIY enthusiast in Downtown Asheville. Love sharing my tools with neighbors!'),
+    (2, 'Mountain biker and home renovator in North Asheville. My tools are your tools!'),
+    (3, 'Longtime Hendersonville resident and apple orchard volunteer. Happy to lend a hand (or tool)!'),
+    (4, 'Woodworking hobbyist in West Asheville. Always working on my next project in the garage.');
 
 -- Account mapping:
 -- 1 = Allyson Warren (Downtown Asheville)
@@ -5446,102 +5515,345 @@ INSERT INTO payment_provider_ppv (provider_name_ppv, is_active_ppv) VALUES
 -- SAMPLE VECTOR IMAGES (Admin uploads)
 -- ============================================================
 
+INSERT INTO vector_image_vec (file_name_vec, description_text_vec, id_acc_vec) VALUES
+    ('hammer-icon.svg', 'Hammer tool icon', 5),
+    ('saw-icon.svg', 'Saw tool icon', 5),
+    ('drill-icon.svg', 'Power drill icon', 5),
+    ('wrench-icon.svg', 'Wrench tool icon', 5),
+    ('gardening-icon.svg', 'Gardening tools icon', 5),
+    ('chainsaw-icon.svg', 'Chainsaw icon', 5);
+
 -- ============================================================
 -- SAMPLE CATEGORIES
 -- ============================================================
+
+INSERT INTO category_cat (category_name_cat, id_vec_cat) VALUES
+    ('Hand Tools', 1),
+    ('Power Tools', 3),
+    ('Gardening', 5),
+    ('Woodworking', 2),
+    ('Automotive', 4),
+    ('Plumbing', NULL),
+    ('Electrical', NULL),
+    ('Outdoor/Landscaping', 6);
 
 -- ============================================================
 -- SAMPLE TOOLS (Local Asheville/Hendersonville inventory)
 -- ============================================================
 
 -- Get condition IDs
+SET @new_condition = (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = 'new');
+SET @good_condition = (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = 'good');
+SET @fair_condition = (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = 'fair');
 
 -- Allyson's tools (Downtown Asheville)
+INSERT INTO tool_tol (
+    tool_name_tol, tool_description_tol, id_tcd_tol, id_acc_tol,
+    rental_fee_tol, default_loan_duration_hours_tol, is_available_tol,
+    is_deposit_required_tol, default_deposit_amount_tol, estimated_value_tol,
+    preexisting_conditions_tol, is_insurance_recommended_tol
+) VALUES
+    ('DeWalt 20V Cordless Drill', 'Powerful cordless drill with two batteries and charger. Great for all drilling and driving tasks.',
+     @new_condition, 1, 0.00, 168, TRUE, FALSE, 0.00, 150.00, NULL, FALSE),
+
+    ('Craftsman 16oz Claw Hammer', 'Classic claw hammer, perfect for general use around the house.',
+     @good_condition, 1, 0.00, 336, TRUE, FALSE, 0.00, 25.00, NULL, FALSE),
+
+    ('Stihl MS 170 Chainsaw', '16-inch gas chainsaw. Perfect for mountain property cleanup after storms.',
+     @good_condition, 1, 5.00, 48, TRUE, TRUE, 150.00, 250.00, 'Minor chain wear - recently sharpened', TRUE);
 
 -- Jeremiah's tools (West Asheville)
+INSERT INTO tool_tol (
+    tool_name_tol, tool_description_tol, id_tcd_tol, id_acc_tol,
+    rental_fee_tol, default_loan_duration_hours_tol, is_available_tol,
+    is_deposit_required_tol, default_deposit_amount_tol, estimated_value_tol,
+    preexisting_conditions_tol, is_insurance_recommended_tol
+) VALUES
+    ('Makita Circular Saw', '7-1/4 inch circular saw with laser guide. Very accurate cuts.',
+     @good_condition, 2, 2.00, 72, TRUE, TRUE, 50.00, 200.00, NULL, FALSE),
+
+    ('Milwaukee Reciprocating Saw', 'Powerful reciprocating saw for demolition and remodeling work.',
+     @fair_condition, 2, 1.50, 72, TRUE, TRUE, 40.00, 180.00, 'Blade guard has minor wear', FALSE),
+
+    ('Werner 24ft Extension Ladder', 'Aluminum extension ladder - perfect for two-story homes and tree trimming.',
+     @good_condition, 2, 3.00, 48, TRUE, TRUE, 75.00, 350.00, 'Some scuff marks on feet', TRUE);
 
 -- Chantelle's tools (Hendersonville)
+INSERT INTO tool_tol (
+    tool_name_tol, tool_description_tol, id_tcd_tol, id_acc_tol,
+    rental_fee_tol, default_loan_duration_hours_tol, is_available_tol
+) VALUES
+    ('Fiskars Loppers', 'Heavy-duty bypass loppers for pruning branches up to 2 inches.',
+     @new_condition, 3, 0.00, 168, TRUE),
+
+    ('Corona Hedge Shears', 'Manual hedge shears with cushioned grip. Great for shaping bushes.',
+     @good_condition, 3, 0.00, 168, TRUE),
+
+    ('Apple Picking Pole', 'Telescoping apple picker - great for Henderson County orchards!',
+     @good_condition, 3, 0.00, 336, TRUE);
 
 -- Alec's tools (North Asheville)
+INSERT INTO tool_tol (
+    tool_name_tol, tool_description_tol, id_tcd_tol, id_acc_tol,
+    rental_fee_tol, default_loan_duration_hours_tol, is_available_tol,
+    is_deposit_required_tol, default_deposit_amount_tol, estimated_value_tol
+) VALUES
+    ('Ryobi Pressure Washer', '2000 PSI electric pressure washer. Great for decks, driveways, and siding.',
+     @good_condition, 4, 3.00, 24, TRUE, TRUE, 50.00, 200.00),
+
+    ('Black & Decker Leaf Blower', 'Cordless leaf blower with 2 batteries. Quiet enough for city use.',
+     @good_condition, 4, 0.00, 72, TRUE, FALSE, 0.00, 100.00);
 
 -- ============================================================
 -- TOOL-CATEGORY ASSOCIATIONS
 -- ============================================================
+
+INSERT INTO tool_category_tolcat (id_tol_tolcat, id_cat_tolcat) VALUES
+    (1, 2),   -- DeWalt Drill -> Power Tools
+    (2, 1),   -- Craftsman Hammer -> Hand Tools
+    (3, 2),   -- Stihl Chainsaw -> Power Tools
+    (3, 8),   -- Stihl Chainsaw -> Outdoor/Landscaping
+    (4, 2),   -- Makita Circular Saw -> Power Tools
+    (4, 4),   -- Makita Circular Saw -> Woodworking
+    (5, 2),   -- Milwaukee Recip Saw -> Power Tools
+    (6, 1),   -- Werner Ladder -> Hand Tools
+    (7, 3),   -- Fiskars Loppers -> Gardening
+    (8, 3),   -- Corona Hedge Shears -> Gardening
+    (9, 3),   -- Apple Picking Pole -> Gardening
+    (10, 2),  -- Ryobi Pressure Washer -> Power Tools
+    (10, 8),  -- Ryobi Pressure Washer -> Outdoor/Landscaping
+    (11, 3),  -- Leaf Blower -> Gardening
+    (11, 8);  -- Leaf Blower -> Outdoor/Landscaping
 
 -- ============================================================
 -- SAMPLE BORROW TRANSACTION (Tests workflow)
 -- ============================================================
 
 -- Get status IDs
+SET @requested_status = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'requested');
+SET @approved_status = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'approved');
+SET @borrowed_status = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed');
+SET @returned_status = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned');
 
 -- Jeremiah (West AVL) borrows Allyson's drill (Downtown AVL) - completed transaction
+INSERT INTO borrow_bor (
+    id_tol_bor, id_acc_bor, id_bst_bor, loan_duration_hours_bor,
+    requested_at_bor, approved_at_bor, borrowed_at_bor, returned_at_bor,
+    notes_text_bor, is_contact_shared_bor
+) VALUES (
+    1, 2, @returned_status, 72,
+    '2026-01-15 10:00:00', '2026-01-15 12:00:00', '2026-01-15 14:00:00', '2026-01-18 14:00:00',
+    'Building shelves in my West Asheville workshop', TRUE
+);
 
 -- Chantelle (Hendersonville) borrows Allyson's hammer (Downtown AVL) - currently borrowed
+INSERT INTO borrow_bor (
+    id_tol_bor, id_acc_bor, id_bst_bor, loan_duration_hours_bor,
+    requested_at_bor, approved_at_bor, borrowed_at_bor,
+    notes_text_bor, is_contact_shared_bor
+) VALUES (
+    2, 3, @borrowed_status, 168,
+    '2026-01-28 09:00:00', '2026-01-28 10:00:00', '2026-01-28 11:00:00',
+    'Hanging pictures in new Hendersonville home', TRUE
+);
 
 -- Alec (North AVL) requests to borrow Chantelle's loppers - pending approval
+INSERT INTO borrow_bor (
+    id_tol_bor, id_acc_bor, id_bst_bor, loan_duration_hours_bor,
+    notes_text_bor
+) VALUES (
+    7, 4, @requested_status, 48,
+    'Spring cleanup on my mountain property'
+);
 
 -- Allyson borrows Jeremiah's ladder - approved, waiting for pickup
+INSERT INTO borrow_bor (
+    id_tol_bor, id_acc_bor, id_bst_bor, loan_duration_hours_bor,
+    requested_at_bor, approved_at_bor,
+    notes_text_bor, is_contact_shared_bor
+) VALUES (
+    6, 1, @approved_status, 48,
+    '2026-02-01 08:00:00', '2026-02-01 09:00:00',
+    'Need to clean gutters on my downtown building', TRUE
+);
 
 -- ============================================================
 -- SAMPLE AVAILABILITY BLOCKS
 -- ============================================================
 
+SET @admin_block_type = (SELECT id_btp FROM block_type_btp WHERE type_name_btp = 'admin');
+SET @borrow_block_type = (SELECT id_btp FROM block_type_btp WHERE type_name_btp = 'borrow');
+
 -- Admin block: Allyson's chainsaw unavailable for maintenance
+INSERT INTO availability_block_avb (
+    id_tol_avb, id_btp_avb, start_at_avb, end_at_avb, notes_text_avb
+) VALUES (
+    3, @admin_block_type, '2026-02-01 00:00:00', '2026-02-15 23:59:59',
+    'Chain replacement and engine tune-up at Asheville Outdoor Supply'
+);
 
 -- Borrow block: Chantelle's hammer borrow (linked to borrow record)
+INSERT INTO availability_block_avb (
+    id_tol_avb, id_btp_avb, start_at_avb, end_at_avb, id_bor_avb
+) VALUES (
+    2, @borrow_block_type, '2026-01-28 11:00:00', '2026-02-04 11:00:00', 2
+);
 
 -- ============================================================
 -- SAMPLE RATINGS (Tests self-rating prevention, participant validation)
 -- ============================================================
 
+SET @lender_role = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'lender');
+SET @borrower_role = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'borrower');
+
 -- Jeremiah rates Allyson as lender (for drill borrow)
+INSERT INTO user_rating_urt (
+    id_acc_urt, id_acc_target_urt, id_bor_urt, id_rtr_urt, score_urt, comment_text_urt
+) VALUES (
+    2, 1, 1, @lender_role, 5, 'Allyson was great! Easy pickup downtown and drill worked perfectly.'
+);
 
 -- Allyson rates Jeremiah as borrower (for drill borrow)
+INSERT INTO user_rating_urt (
+    id_acc_urt, id_acc_target_urt, id_bor_urt, id_rtr_urt, score_urt, comment_text_urt
+) VALUES (
+    1, 2, 1, @borrower_role, 5, 'Jeremiah returned the drill on time and in great shape. Great neighbor!'
+);
 
 -- Jeremiah rates the drill
+INSERT INTO tool_rating_trt (
+    id_acc_trt, id_tol_trt, id_bor_trt, score_trt, comment_text_trt
+) VALUES (
+    2, 1, 1, 5, 'Excellent drill! Made my workshop shelving project a breeze.'
+);
 
 -- ============================================================
 -- SAMPLE TERMS OF SERVICE
 -- ============================================================
 
+INSERT INTO terms_of_service_tos (
+    version_tos, title_tos, content_tos, summary_tos,
+    effective_at_tos, is_active_tos, id_acc_created_by_tos
+) VALUES (
+    '1.0',
+    'NeighborhoodTools Terms of Service',
+    'Full terms of service text would go here...\n\n1. Acceptance of Terms\n2. Platform Role\n3. User Responsibilities\n4. Liability Limitations\n5. Dispute Resolution\n6. Privacy Policy\n7. Modifications\n8. Termination',
+    'By using NeighborhoodTools, you agree to: (1) be responsible for borrowed tools, (2) report incidents within 48 hours, (3) resolve disputes directly with other users, (4) accept that the platform is a matchmaking service only.',
+    '2026-01-01 00:00:00',
+    TRUE,
+    5
+);
+
 -- ============================================================
 -- SAMPLE TOS ACCEPTANCE
 -- ============================================================
+
+INSERT INTO tos_acceptance_tac (id_acc_tac, id_tos_tac, ip_address_tac, user_agent_tac) VALUES
+    (1, 1, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'),
+    (2, 1, '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'),
+    (3, 1, '192.168.1.102', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0)'),
+    (4, 1, '192.168.1.103', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'),
+    (5, 1, '192.168.1.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
 
 -- ============================================================
 -- SAMPLE NOTIFICATIONS
 -- ============================================================
 
+SET @request_type = (SELECT id_ntt FROM notification_type_ntt WHERE type_name_ntt = 'request');
+SET @approval_type = (SELECT id_ntt FROM notification_type_ntt WHERE type_name_ntt = 'approval');
+
+INSERT INTO notification_ntf (id_acc_ntf, id_ntt_ntf, message_text_ntf, id_bor_ntf, is_read_ntf) VALUES
+    (3, @request_type, 'Alec from North Asheville has requested to borrow your Fiskars Loppers.', 3, FALSE),
+    (2, @approval_type, 'Allyson has approved your request for the DeWalt Drill.', 1, TRUE),
+    (3, @approval_type, 'Allyson has approved your request for the Craftsman Hammer.', 2, TRUE),
+    (1, @approval_type, 'Jeremiah has approved your request for the Werner Extension Ladder.', 4, FALSE);
+
 -- ============================================================
 -- SAMPLE BOOKMARKS
 -- ============================================================
+
+INSERT INTO tool_bookmark_acctol (id_acc_acctol, id_tol_acctol) VALUES
+    (2, 3),   -- Jeremiah bookmarks Allyson's chainsaw
+    (3, 4),   -- Chantelle bookmarks Jeremiah's circular saw
+    (3, 5),   -- Chantelle bookmarks Jeremiah's reciprocating saw
+    (4, 10),  -- Alec bookmarks his own pressure washer (for easy access)
+    (1, 9);   -- Allyson bookmarks Chantelle's apple picker
 
 -- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data
 
+CALL sp_refresh_all_summaries();
+
 -- ============================================================
 -- TEST ACCOUNTS SETUP
 -- ============================================================
 -- Password for ALL test accounts: password123
--- Note: If this hash doesn't work, visit /test-db.php to generate a fresh one
+
+SET @test_password_hash = '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm';
 
 -- Get additional lookup IDs for test accounts
+SET @super_admin_role = (SELECT id_rol FROM role_rol WHERE role_name_rol = 'super_admin');
+SET @pending_status = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'pending');
 
 -- Update all existing accounts to use test password
+UPDATE account_acc
+SET password_hash_acc = @test_password_hash
+WHERE deleted_at_acc IS NULL;
 
 -- Create Super Admin (if not exists)
+INSERT INTO account_acc (
+    first_name_acc, last_name_acc, phone_number_acc, email_address_acc,
+    street_address_acc, zip_code_acc, id_nbh_acc, password_hash_acc,
+    id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
+)
+SELECT
+    'Jeremy', 'Warren', '828-555-0001', 'jeremywarren@neighborhoodtools.com',
+    '100 Admin Way', '28791', 1, @test_password_hash,
+    @super_admin_role, @active_status, @email_pref, TRUE, TRUE
+FROM DUAL
+WHERE NOT EXISTS (
+    SELECT 1 FROM account_acc WHERE email_address_acc = 'jeremywarren@neighborhoodtools.com'
+);
 
 -- Create Pending User (for testing pending approval flow)
+INSERT INTO account_acc (
+    first_name_acc, last_name_acc, phone_number_acc, email_address_acc,
+    street_address_acc, zip_code_acc, id_nbh_acc, password_hash_acc,
+    id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
+)
+SELECT
+    'Pending', 'User', '828-555-0105', 'pending@test.com',
+    '999 Waiting Lane', '28801', 1, @test_password_hash,
+    @member_role, @pending_status, @email_pref, FALSE, TRUE
+FROM DUAL
+WHERE NOT EXISTS (
+    SELECT 1 FROM account_acc WHERE email_address_acc = 'pending@test.com'
+);
 
 -- ============================================================
 -- COMMIT TRANSACTION
 -- ============================================================
 
+COMMIT;
+
 -- ============================================================
 -- VERIFICATION QUERY
 -- ============================================================
+
+SELECT
+    id_acc AS 'ID',
+    first_name_acc AS 'First Name',
+    last_name_acc AS 'Last Name',
+    email_address_acc AS 'Email',
+    r.role_name_rol AS 'Role',
+    s.status_name_ast AS 'Status'
+FROM account_acc a
+JOIN role_rol r ON a.id_rol_acc = r.id_rol
+JOIN account_status_ast s ON a.id_ast_acc = s.id_ast
+WHERE a.deleted_at_acc IS NULL
+ORDER BY r.id_rol DESC, a.id_acc;
 
 -- ================================================================
 -- ================================================================

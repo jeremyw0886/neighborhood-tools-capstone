@@ -5986,6 +5986,31 @@ INSERT INTO dispute_message_dsm (id_dsp_dsm, id_acc_dsm, id_dmt_dsm, message_tex
      TRUE, '2026-01-20 09:00:00');
 
 -- ============================================================
+-- SAMPLE BORROW WAIVERS
+-- ============================================================
+-- All 3 acknowledgment booleans must be TRUE (enforced by trigger)
+
+SET @borrow_waiver_type = (SELECT id_wtp FROM waiver_type_wtp WHERE type_name_wtp = 'borrow_waiver');
+
+-- Borrow 1: Jeremiah signed waiver before picking up Allyson's drill
+-- Borrow 2: Chantelle signed waiver before picking up Allyson's hammer
+INSERT INTO borrow_waiver_bwv (
+    id_bor_bwv, id_wtp_bwv, id_acc_bwv,
+    is_tool_condition_acknowledged_bwv, preexisting_conditions_noted_bwv,
+    is_responsibility_accepted_bwv, is_liability_waiver_accepted_bwv,
+    is_insurance_reminder_shown_bwv, ip_address_bwv, user_agent_bwv, signed_at_bwv
+) VALUES
+    (1, @borrow_waiver_type, 2,
+     TRUE, NULL,
+     TRUE, TRUE,
+     TRUE, '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', '2026-01-15 13:45:00'),
+
+    (2, @borrow_waiver_type, 3,
+     TRUE, NULL,
+     TRUE, TRUE,
+     TRUE, '192.168.1.102', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0)', '2026-01-28 10:30:00');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

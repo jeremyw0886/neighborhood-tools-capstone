@@ -6043,6 +6043,34 @@ INSERT INTO handover_verification_hov (
      DATE_ADD(NOW(), INTERVAL 24 HOUR), '2026-01-28 11:00:00');
 
 -- ============================================================
+-- SAMPLE INCIDENT REPORT & PHOTOS
+-- ============================================================
+-- Allyson reports cosmetic damage to drill after borrow 1 return
+-- Note: trg_incident_report_before_insert auto-calculates deadline compliance
+-- (will show as outside deadline since seed dates are historical)
+
+SET @damage_incident = (SELECT id_ity FROM incident_type_ity WHERE type_name_ity = 'damage');
+
+INSERT INTO incident_report_irt (
+    id_bor_irt, id_acc_irt, id_ity_irt, subject_irt, description_irt,
+    incident_occurred_at_irt, estimated_damage_amount_irt,
+    resolution_notes_irt, resolved_at_irt, id_acc_resolved_by_irt,
+    created_at_irt
+) VALUES (
+    1, 1, @damage_incident,
+    'Scratches on DeWalt Drill Chuck',
+    'After Jeremiah returned the drill, I noticed several scratches on the drill chuck that were not present before the loan. The scratches don''t affect functionality but reduce the tool''s resale value. See attached photos comparing pickup and return condition.',
+    '2026-01-18 15:00:00', 25.00,
+    'Both parties agreed the scratches are cosmetic and do not affect drill function. No financial penalty applied. Recommended both users document condition more thoroughly with photos during future handovers.',
+    '2026-01-22 11:00:00', 5,
+    '2026-01-19 10:30:00'
+);
+
+INSERT INTO incident_photo_iph (id_irt_iph, file_name_iph, caption_iph, sort_order_iph) VALUES
+    (1, 'drill-scratch-closeup-01.jpg', 'Close-up of scratches on drill chuck', 1),
+    (1, 'drill-overview-02.jpg', 'Overview of drill showing affected area', 2);
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

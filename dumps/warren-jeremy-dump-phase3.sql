@@ -5571,6 +5571,13 @@ INSERT INTO neighborhood_nbh (neighborhood_name_nbh, city_name_nbh, id_sta_nbh, 
 -- Maps neighborhoods to their zip codes
 -- is_primary indicates the main neighborhood for that zip code
 
+-- Seed zip codes for Asheville and Hendersonville service areas (standard USPS ZIP codes)
+INSERT INTO zip_code_zpc (zip_code_zpc) VALUES
+('28801'), ('28806'), ('28715'), ('28804'), ('28787'),
+('28803'), ('28704'), ('28732'), ('28805'), ('28778'),
+('28791'), ('28739'), ('28792'), ('28731'), ('28726'),
+('28759'), ('28742');
+
 INSERT INTO neighborhood_zip_nbhzpc (id_nbh_nbhzpc, zip_code_nbhzpc, is_primary_nbhzpc) VALUES
     -- Downtown & Central Asheville (28801)
     (1, '28801', TRUE),     -- Downtown Asheville (primary)

@@ -3100,3 +3100,294 @@ FROM category_summary_mat;
 --                          END OF VIEWS
 -- ================================================================
 -- ================================================================
+
+-- ================================================================
+-- ================================================================
+--                     PROCEDURES & FUNCTIONS
+-- ================================================================
+-- ================================================================
+
+-- ============================================================
+-- ToS & Loan Extension Procedures
+-- ============================================================
+
+-- Stored Procedure: Create new ToS version atomically (deactivates previous, inserts new)
+
+-- Usage: CALL sp_create_tos_version('2.0', 'Updated Terms', 'Full text...', 'Summary...', NOW(), 5);
+
+-- Stored Procedure: Extend loan due date atomically (creates audit record, then updates borrow)
+
+-- Usage: CALL sp_extend_loan(2, 48, 'Borrower needs extra weekend for project', 1);
+
+-- ============================================================
+-- Refresh Stored Procedures
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Procedure: sp_refresh_neighborhood_summary
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Procedure: sp_refresh_user_reputation
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Procedure: sp_refresh_tool_statistics
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Procedure: sp_refresh_category_summary
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Procedure: sp_refresh_platform_daily_stat
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Procedure: sp_refresh_all_summaries
+-- Master procedure to refresh all summary tables
+-- -------------------------------------------------------------
+
+-- ============================================================
+-- Helper Functions for Lookup IDs
+-- ============================================================
+-- These functions cache lookup table IDs to avoid repeated queries in triggers and application code. MySQL caches function results within a query, reducing lookup overhead.
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Function: fn_get_account_status_id
+-- Returns the ID for a given account status name
+-- Usage: fn_get_account_status_id('active') returns 2
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_borrow_status_id
+-- Returns the ID for a given borrow status name
+-- Usage: fn_get_borrow_status_id('borrowed') returns 3
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_block_type_id
+-- Returns the ID for a given block type name
+-- Usage: fn_get_block_type_id('borrow') returns 2
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_rating_role_id
+-- Returns the ID for a given rating role name
+-- Usage: fn_get_rating_role_id('lender') returns 1
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_notification_type_id
+-- Returns the ID for a given notification type name
+-- Usage: fn_get_notification_type_id('request') returns 1
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_deposit_status_id
+-- Returns the ID for a given deposit status name
+-- Usage: fn_get_deposit_status_id('held') returns 2
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_dispute_status_id
+-- Returns the ID for a given dispute status name
+-- Usage: fn_get_dispute_status_id('open') returns 1
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_get_handover_type_id
+-- Returns the ID for a given handover type name
+-- Usage: fn_get_handover_type_id('pickup') returns 1
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
+-- Function: fn_is_tool_available
+-- Returns TRUE if tool is available for borrowing
+-- Checks: is_available_tol, no active borrow, no current block
+-- -------------------------------------------------------------
+
+-- ============================================================
+-- PART 3E: Borrow Workflow Procedures
+-- ============================================================
+-- These procedures encapsulate the complete borrow lifecycle, ensuring consistent validation and state management.
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Procedure: sp_create_borrow_request
+-- Creates a new borrow request with full validation
+-- Validates: tool availability, account status, not own tool
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_create_borrow_request(5, 2, 168, 'Need for weekend project', @borrow_id, @error);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_approve_borrow_request
+-- Approves a pending borrow request
+-- Updates status and sets approved_at timestamp
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_approve_borrow_request(1, 3, @success, @error);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_deny_borrow_request
+-- Denies a pending borrow request
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_deny_borrow_request(1, 3, 'Tool needed for personal use', @success, @error);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_complete_pickup
+-- Marks a borrow as picked up (status: borrowed)
+-- Creates availability block for the borrow period
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_complete_pickup(1, @success, @error);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_complete_return
+-- Marks a borrow as returned
+-- Removes the availability block
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_complete_return(1, @success, @error);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_cancel_borrow_request
+-- Cancels a borrow request (by borrower or lender)
+-- Only allowed for 'requested' or 'approved' status
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_cancel_borrow_request(1, 2, 'Change of plans', @success, @error);
+
+-- ============================================================
+-- Rating Procedures
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Procedure: sp_rate_user
+-- Adds a rating for a user (lender or borrower) after transaction
+-- Validates: borrow must be completed, rater was part of transaction
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_rate_user(1, 2, 3, 'lender', 5, 'Great lender, tool was in perfect condition!', @rating_id, @error);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_rate_tool
+-- Adds a rating for a tool after borrowing
+-- Validates: borrow must be completed, rater was the borrower
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_rate_tool(1, 2, 4, 'Tool worked well but was a bit worn', @rating_id, @error);
+
+-- ============================================================
+-- Notification Procedures
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Procedure: sp_send_notification
+-- Creates a notification for a user
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_send_notification(2, 'request', 'New Borrow Request', 'User X wants to borrow your drill', 5, @ntf_id);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_mark_notifications_read
+-- Batch marks multiple notifications as read for a user
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_mark_notifications_read(2, '1,5,7,12', @count);
+-- Usage: CALL sp_mark_notifications_read(2, NULL, @count);  -- marks all as read
+
+-- ============================================================
+-- Batch Processing Procedures
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Procedure: sp_send_overdue_notifications
+-- Sends notifications to borrowers with overdue tools
+-- Should be called by a scheduled event
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_send_overdue_notifications(@count);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_cleanup_expired_handover_codes
+-- Deletes expired unverified handover verification codes
+-- Should be called by a scheduled event
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_cleanup_expired_handover_codes(@count);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_archive_old_notifications
+-- Deletes read notifications older than specified days
+-- Should be called by a scheduled event
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_archive_old_notifications(90, @count);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_cleanup_old_search_logs
+-- Deletes search log entries older than specified days
+-- Should be called by a scheduled event
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_cleanup_old_search_logs(30, @count);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_release_deposit_on_return
+-- Releases security deposit when tool is returned successfully
+-- Should be called after sp_complete_return
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_release_deposit_on_return(1, @success, @error);
+
+-- ============================================================
+-- Search and Query Procedures
+-- ============================================================
+
+-- -------------------------------------------------------------
+-- Procedure: sp_search_available_tools
+-- Efficiently searches for available tools with filters
+-- Uses covering indexes for optimal performance
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_search_available_tools('drill', '28801', NULL, 50.00, 20, 0);
+
+-- -------------------------------------------------------------
+-- Procedure: sp_get_user_borrow_history
+-- Gets borrow history for a user with pagination
+-- -------------------------------------------------------------
+
+-- Usage: CALL sp_get_user_borrow_history(2, 'borrower', NULL, 20, 0);
+-- Usage: CALL sp_get_user_borrow_history(3, 'lender', 'borrowed', 10, 0);
+
+-- ============================================================
+-- Event Scheduler Jobs
+-- ============================================================
+-- SET GLOBAL event_scheduler = ON;
+-- ============================================================
+
+-- Refresh summary tables for dashboard performance every hour
+
+-- Refresh user reputation scores every 4 hours
+
+-- Refresh tool statistics every 2 hours for trending and recommendations
+
+-- Capture daily platform statistics at midnight for reporting and monitoring
+
+-- Daily overdue notifications (run at 8 AM)
+
+-- Hourly cleanup of expired handover codes
+
+-- Weekly notification cleanup (run Sunday at 2 AM)
+
+-- Weekly search log cleanup (run Sunday at 3 AM)
+
+-- ================================================================
+-- ================================================================
+--                  END PROCEDURES & FUNCTIONS
+-- ================================================================
+-- ================================================================

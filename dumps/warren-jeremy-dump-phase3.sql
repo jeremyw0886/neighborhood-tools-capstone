@@ -6104,6 +6104,32 @@ INSERT INTO security_deposit_sdp (
 );
 
 -- ============================================================
+-- SAMPLE PAYMENT TRANSACTIONS
+-- ============================================================
+
+-- Deposit hold for borrow 4 (Allyson's $75 deposit on Jeremiah's ladder)
+INSERT INTO payment_transaction_ptx (
+    id_sdp_ptx, id_bor_ptx, id_ppv_ptx, transaction_type_ptx,
+    amount_ptx, external_transaction_id_ptx, external_status_ptx,
+    id_acc_from_ptx, id_acc_to_ptx, processed_at_ptx
+) VALUES (
+    1, 4, @stripe_provider, 'deposit_hold',
+    75.00, 'ch_test_ladder_hold_001', 'succeeded',
+    1, NULL, '2026-02-01 09:15:00'
+);
+
+-- Rental fee for borrow 4 (ladder rental $3.00)
+INSERT INTO payment_transaction_ptx (
+    id_sdp_ptx, id_bor_ptx, id_ppv_ptx, transaction_type_ptx,
+    amount_ptx, external_transaction_id_ptx, external_status_ptx,
+    id_acc_from_ptx, id_acc_to_ptx, processed_at_ptx
+) VALUES (
+    NULL, 4, @stripe_provider, 'rental_fee',
+    3.00, 'ch_test_ladder_fee_001', 'succeeded',
+    1, 2, '2026-02-01 09:16:00'
+);
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

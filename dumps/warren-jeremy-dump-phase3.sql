@@ -6011,6 +6011,38 @@ INSERT INTO borrow_waiver_bwv (
      TRUE, '192.168.1.102', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0)', '2026-01-28 10:30:00');
 
 -- ============================================================
+-- SAMPLE HANDOVER VERIFICATIONS
+-- ============================================================
+-- Note: verification_code_hov and expires_at_hov are auto-generated
+-- by trg_handover_verification_before_insert (values below are overwritten)
+
+SET @pickup_handover = (SELECT id_hot FROM handover_type_hot WHERE type_name_hot = 'pickup');
+SET @return_handover = (SELECT id_hot FROM handover_type_hot WHERE type_name_hot = 'return');
+
+-- Borrow 1 pickup: Allyson (lender) generates code, Jeremiah (borrower) verifies
+INSERT INTO handover_verification_hov (
+    id_bor_hov, id_hot_hov, verification_code_hov,
+    id_acc_generator_hov, id_acc_verifier_hov,
+    condition_notes_hov, expires_at_hov, verified_at_hov
+) VALUES
+    (1, @pickup_handover, 'SEED01',
+     1, 2,
+     'Drill in excellent condition. Both batteries fully charged. No visible damage.',
+     DATE_ADD(NOW(), INTERVAL 24 HOUR), '2026-01-15 14:00:00'),
+
+    -- Borrow 1 return: Jeremiah (borrower) generates code, Allyson (lender) verifies
+    (1, @return_handover, 'SEED02',
+     2, 1,
+     'Drill returned. Minor scratches noted on chuck area. Batteries at ~40% charge.',
+     DATE_ADD(NOW(), INTERVAL 24 HOUR), '2026-01-18 14:00:00'),
+
+    -- Borrow 2 pickup: Allyson (lender) generates code, Chantelle (borrower) verifies
+    (2, @pickup_handover, 'SEED03',
+     1, 3,
+     'Hammer in good condition. Handle grip intact. No chips or cracks on head.',
+     DATE_ADD(NOW(), INTERVAL 24 HOUR), '2026-01-28 11:00:00');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

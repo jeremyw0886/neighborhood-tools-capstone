@@ -4369,6 +4369,108 @@ DELIMITER ;
 -- Validates: borrow must be completed, rater was part of transaction
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_rate_user;
+
+DELIMITER $$
+CREATE PROCEDURE sp_rate_user(
+    IN p_borrow_id INT,
+    IN p_rater_id INT,
+    IN p_target_id INT,
+    IN p_role VARCHAR(30),
+    IN p_score INT,
+    IN p_review_text TEXT,
+    OUT p_rating_id INT,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_borrow_status_id INT;
+    DECLARE v_borrower_id INT;
+    DECLARE v_lender_id INT;
+    DECLARE v_returned_status_id INT;
+    DECLARE v_role_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_rating_id = NULL;
+        ROLLBACK;
+    END;
+
+    SET p_rating_id = NULL;
+    SET p_error_message = NULL;
+
+    IF p_score < 1 OR p_score > 5 THEN
+        SET p_error_message = 'Score must be between 1 and 5';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Score must be between 1 and 5';
+    END IF;
+
+    SET v_returned_status_id = fn_get_borrow_status_id('returned');
+    SET v_role_id = fn_get_rating_role_id(p_role);
+
+    IF v_role_id IS NULL THEN
+        SET p_error_message = 'Invalid rating role';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid rating role';
+    END IF;
+
+    START TRANSACTION;
+
+    SELECT b.id_bst_bor, b.id_acc_bor, t.id_acc_tol
+    INTO v_borrow_status_id, v_borrower_id, v_lender_id
+    FROM borrow_bor b
+    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+    WHERE b.id_bor = p_borrow_id;
+
+    IF v_borrow_status_id IS NULL THEN
+        SET p_error_message = 'Borrow not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow not found';
+    END IF;
+
+    IF v_borrow_status_id != v_returned_status_id THEN
+        SET p_error_message = 'Can only rate completed borrows';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only rate completed borrows';
+    END IF;
+
+    IF p_rater_id != v_borrower_id AND p_rater_id != v_lender_id THEN
+        SET p_error_message = 'Rater must be the borrower or lender';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Rater must be the borrower or lender';
+    END IF;
+
+    IF p_target_id != v_borrower_id AND p_target_id != v_lender_id THEN
+        SET p_error_message = 'Target must be the borrower or lender';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Target must be the borrower or lender';
+    END IF;
+
+    IF p_rater_id = p_target_id THEN
+        SET p_error_message = 'Cannot rate yourself';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot rate yourself';
+    END IF;
+
+    INSERT INTO user_rating_urt (
+        id_acc_urt,
+        id_acc_target_urt,
+        id_bor_urt,
+        id_rtr_urt,
+        score_urt,
+        review_text_urt
+    ) VALUES (
+        p_rater_id,
+        p_target_id,
+        p_borrow_id,
+        v_role_id,
+        p_score,
+        p_review_text
+    );
+
+    SET p_rating_id = LAST_INSERT_ID();
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_rate_user(1, 2, 3, 'lender', 5, 'Great lender, tool was in perfect condition!', @rating_id, @error);
 
 -- -------------------------------------------------------------
@@ -4377,6 +4479,84 @@ DELIMITER ;
 -- Validates: borrow must be completed, rater was the borrower
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_rate_tool;
+
+DELIMITER $$
+CREATE PROCEDURE sp_rate_tool(
+    IN p_borrow_id INT,
+    IN p_rater_id INT,
+    IN p_score INT,
+    IN p_review_text TEXT,
+    OUT p_rating_id INT,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_borrow_status_id INT;
+    DECLARE v_borrower_id INT;
+    DECLARE v_tool_id INT;
+    DECLARE v_returned_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_rating_id = NULL;
+        ROLLBACK;
+    END;
+
+    SET p_rating_id = NULL;
+    SET p_error_message = NULL;
+
+    IF p_score < 1 OR p_score > 5 THEN
+        SET p_error_message = 'Score must be between 1 and 5';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Score must be between 1 and 5';
+    END IF;
+
+    SET v_returned_status_id = fn_get_borrow_status_id('returned');
+
+    START TRANSACTION;
+
+    SELECT id_bst_bor, id_acc_bor, id_tol_bor
+    INTO v_borrow_status_id, v_borrower_id, v_tool_id
+    FROM borrow_bor
+    WHERE id_bor = p_borrow_id;
+
+    IF v_borrow_status_id IS NULL THEN
+        SET p_error_message = 'Borrow not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow not found';
+    END IF;
+
+    IF v_borrow_status_id != v_returned_status_id THEN
+        SET p_error_message = 'Can only rate tools after borrow is completed';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only rate tools after borrow is completed';
+    END IF;
+
+    IF p_rater_id != v_borrower_id THEN
+        SET p_error_message = 'Only the borrower can rate the tool';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Only the borrower can rate the tool';
+    END IF;
+
+    INSERT INTO tool_rating_trt (
+        id_acc_trt,
+        id_tol_trt,
+        id_bor_trt,
+        score_trt,
+        review_text_trt
+    ) VALUES (
+        p_rater_id,
+        v_tool_id,
+        p_borrow_id,
+        p_score,
+        p_review_text
+    );
+
+    SET p_rating_id = LAST_INSERT_ID();
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_rate_tool(1, 2, 4, 'Tool worked well but was a bit worn', @rating_id, @error);
 
 -- ============================================================

@@ -6088,6 +6088,22 @@ INSERT INTO loan_extension_lex (
 );
 
 -- ============================================================
+-- SAMPLE SECURITY DEPOSITS
+-- ============================================================
+-- Borrow 4: Allyson borrows Jeremiah's ladder (deposit required: $75)
+
+SET @held_deposit_status = (SELECT id_dps FROM deposit_status_dps WHERE status_name_dps = 'held');
+SET @stripe_provider = (SELECT id_ppv FROM payment_provider_ppv WHERE provider_name_ppv = 'stripe');
+
+INSERT INTO security_deposit_sdp (
+    id_bor_sdp, id_dps_sdp, amount_sdp, id_ppv_sdp,
+    external_payment_id_sdp, held_at_sdp
+) VALUES (
+    4, @held_deposit_status, 75.00, @stripe_provider,
+    'pi_test_ladder_deposit_001', '2026-02-01 09:15:00'
+);
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

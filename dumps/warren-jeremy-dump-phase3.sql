@@ -5981,7 +5981,7 @@ SET @pending_status = (SELECT id_ast FROM account_status_ast WHERE status_name_a
 -- Update all existing accounts to use test password
 UPDATE account_acc
 SET password_hash_acc = @test_password_hash
-WHERE deleted_at_acc IS NULL;
+WHERE deleted_at_acc IS NULL AND account_id_acc > 0;
 
 -- Create Super Admin (if not exists)
 INSERT INTO account_acc (

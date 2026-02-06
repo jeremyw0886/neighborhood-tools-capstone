@@ -5405,6 +5405,11 @@ INSERT INTO borrow_status_bst (status_name_bst) VALUES
     ('denied'),
     ('cancelled');
 
+-- block_type_btp seed data
+INSERT INTO block_type_btp (type_name_btp) VALUES
+    ('admin'),
+    ('borrow');
+
 -- rating_role_rtr seed data
 INSERT INTO rating_role_rtr (role_name_rtr) VALUES
     ('lender'),

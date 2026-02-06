@@ -4657,6 +4657,43 @@ DELIMITER ;
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_send_overdue_notifications;
+
+DELIMITER $$
+CREATE PROCEDURE sp_send_overdue_notifications(
+    OUT p_count INT
+)
+BEGIN
+    DECLARE v_borrowed_status_id INT;
+    DECLARE v_due_type_id INT;
+
+    SET v_borrowed_status_id = fn_get_borrow_status_id('borrowed');
+    SET v_due_type_id = fn_get_notification_type_id('due');
+
+    INSERT INTO notification_ntf (id_acc_ntf, id_ntt_ntf, title_ntf, body_ntf, id_bor_ntf, is_read_ntf)
+    SELECT
+        b.id_acc_bor,
+        v_due_type_id,
+        CONCAT('Overdue: ', t.tool_name_tol),
+        CONCAT('Your borrow of "', t.tool_name_tol, '" was due on ',
+               DATE_FORMAT(b.due_at_bor, '%M %d, %Y at %h:%i %p'),
+               '. Please return it as soon as possible.'),
+        b.id_bor,
+        FALSE
+    FROM borrow_bor b
+    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+    WHERE b.id_bst_bor = v_borrowed_status_id
+      AND b.due_at_bor < NOW()
+      AND NOT EXISTS (
+          SELECT 1 FROM notification_ntf n
+          WHERE n.id_bor_ntf = b.id_bor
+            AND n.id_ntt_ntf = v_due_type_id
+            AND DATE(n.created_at_ntf) = CURDATE()
+      );
+
+    SET p_count = ROW_COUNT();
+END$$
+DELIMITER ;
 -- Usage: CALL sp_send_overdue_notifications(@count);
 
 -- -------------------------------------------------------------
@@ -4665,6 +4702,20 @@ DELIMITER ;
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_cleanup_expired_handover_codes;
+
+DELIMITER $$
+CREATE PROCEDURE sp_cleanup_expired_handover_codes(
+    OUT p_count INT
+)
+BEGIN
+    DELETE FROM handover_verification_hov
+    WHERE expires_at_hov < NOW()
+      AND verified_at_hov IS NULL;
+
+    SET p_count = ROW_COUNT();
+END$$
+DELIMITER ;
 -- Usage: CALL sp_cleanup_expired_handover_codes(@count);
 
 -- -------------------------------------------------------------
@@ -4673,6 +4724,25 @@ DELIMITER ;
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_archive_old_notifications;
+
+DELIMITER $$
+CREATE PROCEDURE sp_archive_old_notifications(
+    IN p_days_old INT,
+    OUT p_count INT
+)
+BEGIN
+    IF p_days_old IS NULL OR p_days_old < 30 THEN
+        SET p_days_old = 90;
+    END IF;
+
+    DELETE FROM notification_ntf
+    WHERE is_read_ntf = TRUE
+      AND created_at_ntf < DATE_SUB(NOW(), INTERVAL p_days_old DAY);
+
+    SET p_count = ROW_COUNT();
+END$$
+DELIMITER ;
 -- Usage: CALL sp_archive_old_notifications(90, @count);
 
 -- -------------------------------------------------------------
@@ -4681,6 +4751,24 @@ DELIMITER ;
 -- Should be called by a scheduled event
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_cleanup_old_search_logs;
+
+DELIMITER $$
+CREATE PROCEDURE sp_cleanup_old_search_logs(
+    IN p_days_old INT,
+    OUT p_count INT
+)
+BEGIN
+    IF p_days_old IS NULL OR p_days_old < 7 THEN
+        SET p_days_old = 30;
+    END IF;
+
+    DELETE FROM search_log_slg
+    WHERE created_at_slg < DATE_SUB(NOW(), INTERVAL p_days_old DAY);
+
+    SET p_count = ROW_COUNT();
+END$$
+DELIMITER ;
 -- Usage: CALL sp_cleanup_old_search_logs(30, @count);
 
 -- -------------------------------------------------------------
@@ -4689,6 +4777,63 @@ DELIMITER ;
 -- Should be called after sp_complete_return
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_release_deposit_on_return;
+
+DELIMITER $$
+CREATE PROCEDURE sp_release_deposit_on_return(
+    IN p_borrow_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+proc_block: BEGIN
+    DECLARE v_deposit_id INT;
+    DECLARE v_current_status_id INT;
+    DECLARE v_held_status_id INT;
+    DECLARE v_released_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    SET p_success = FALSE;
+    SET p_error_message = NULL;
+
+    SET v_held_status_id = fn_get_deposit_status_id('held');
+    SET v_released_status_id = fn_get_deposit_status_id('released');
+
+    START TRANSACTION;
+
+    SELECT id_sdp, id_dps_sdp
+    INTO v_deposit_id, v_current_status_id
+    FROM security_deposit_sdp
+    WHERE id_bor_sdp = p_borrow_id
+    FOR UPDATE;
+
+    IF v_deposit_id IS NULL THEN
+        SET p_success = TRUE;
+        COMMIT;
+        LEAVE proc_block;
+    END IF;
+
+    IF v_current_status_id != v_held_status_id THEN
+        SET p_error_message = 'Deposit is not in held status';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Deposit is not in held status';
+    END IF;
+
+    UPDATE security_deposit_sdp
+    SET id_dps_sdp = v_released_status_id,
+        released_at_sdp = NOW()
+    WHERE id_sdp = v_deposit_id;
+
+    SET p_success = TRUE;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_release_deposit_on_return(1, @success, @error);
 
 -- ============================================================

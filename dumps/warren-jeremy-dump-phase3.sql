@@ -6140,6 +6140,19 @@ INSERT INTO payment_transaction_meta_ptm (id_ptx_ptm, meta_key_ptm, meta_value_p
     (2, 'stripe_receipt_url', 'https://pay.stripe.com/receipts/test_fee_001');
 
 -- ============================================================
+-- SAMPLE SEARCH LOGS
+-- ============================================================
+
+INSERT INTO search_log_slg (id_acc_slg, id_tol_slg, search_text_slg, ip_address_slg, session_id_slg) VALUES
+    (2, 1,    'cordless drill',               '192.168.1.101', 'sess_test_001'),
+    (3, 4,    'circular saw woodworking',      '192.168.1.102', 'sess_test_002'),
+    (4, 7,    'garden loppers pruning',        '192.168.1.103', 'sess_test_003'),
+    (1, NULL, 'pressure washer deck cleaning', '192.168.1.100', 'sess_test_004'),
+    (NULL, NULL, 'chainsaw rental asheville',  '192.168.1.200', 'sess_test_005'),
+    (2, NULL, 'extension ladder',              '192.168.1.101', 'sess_test_006'),
+    (3, NULL, 'hedge trimmer hendersonville',  '192.168.1.102', 'sess_test_007');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

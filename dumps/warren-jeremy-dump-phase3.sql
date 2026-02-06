@@ -6071,6 +6071,23 @@ INSERT INTO incident_photo_iph (id_irt_iph, file_name_iph, caption_iph, sort_ord
     (1, 'drill-overview-02.jpg', 'Overview of drill showing affected area', 2);
 
 -- ============================================================
+-- SAMPLE LOAN EXTENSION
+-- ============================================================
+-- Chantelle requests extra time with Allyson's hammer (borrow 2)
+-- Borrow 2: borrowed_at = 2026-01-28 11:00:00, duration = 168h
+-- Original due: 2026-02-04 11:00:00
+-- Extended by 72h (3 days) -> new due: 2026-02-07 11:00:00
+
+INSERT INTO loan_extension_lex (
+    id_bor_lex, original_due_at_lex, extended_hours_lex, new_due_at_lex,
+    reason_lex, id_acc_approved_by_lex
+) VALUES (
+    2, '2026-02-04 11:00:00', 72, '2026-02-07 11:00:00',
+    'Need a few more days to finish hanging pictures and shelves in the new Hendersonville house.',
+    1
+);
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

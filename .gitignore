@@ -9,13 +9,11 @@ Thumbs.db
 
 # PHP dependencies
 vendor/
-includes/config.php
 
 # Environment and credentials
 .env
 .env.local
 .env.*.local
-includes/db_connect.php
 config.local.php
 credentials.json
 *.pem
@@ -25,6 +23,7 @@ credentials.json
 # *.sql.gz
 
 # Logs
+logs/*.log
 *.log
 error_log
 
@@ -33,8 +32,11 @@ error_log
 *.tmp
 *.swp
 
-# User uploads (if not tracked)
-assets/uploads/
+# User uploads (keep directory structure via .gitkeep)
+uploads/incidents/*
+uploads/profiles/*
+uploads/tools/*
+!uploads/**/.gitkeep
 
 # Local test files
 local_testing/

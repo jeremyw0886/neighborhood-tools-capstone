@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * NeighborhoodTools Front Controller
+ *
+ * All web requests are routed through this file.
+ */
+
+define('BASE_PATH', dirname(__DIR__));
+
+// Autoload dependencies
+require BASE_PATH . '/vendor/autoload.php';
+
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
+$dotenv->load();
+
+// Load configuration
+$appConfig = require BASE_PATH . '/config/app.php';
+$dbConfig  = require BASE_PATH . '/config/database.php';
+$routes    = require BASE_PATH . '/config/routes.php';
+
+// Set timezone
+date_default_timezone_set($appConfig['timezone']);
+
+// Start session
+session_start();
+
+// Get request method and URI
+$method = $_SERVER['REQUEST_METHOD'];
+$uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Strip trailing slash (except root)
+if ($uri !== '/') {
+    $uri = rtrim($uri, '/');
+}
+
+// Match route
+$matched = false;
+
+foreach ($routes as $route => $handler) {
+    [$routeMethod, $routePath] = explode(' ', $route, 2);
+
+    if ($method !== $routeMethod) {
+        continue;
+    }
+
+    // Convert route placeholders {param} to regex
+    $pattern = preg_replace('/\{([a-zA-Z]+)\}/', '(?P<$1>[^/]+)', $routePath);
+    $pattern = '#^' . $pattern . '$#';
+
+    if (preg_match($pattern, $uri, $matches)) {
+        [$controllerClass, $action] = $handler;
+
+        // Extract named parameters
+        $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+
+        // Instantiate controller and call action
+        $controller = new $controllerClass();
+        $controller->$action(...array_values($params));
+
+        $matched = true;
+        break;
+    }
+}
+
+if (!$matched) {
+    http_response_code(404);
+    require BASE_PATH . '/src/Views/errors/404.php';
+}

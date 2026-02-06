@@ -6153,6 +6153,22 @@ INSERT INTO search_log_slg (id_acc_slg, id_tol_slg, search_text_slg, ip_address_
     (3, NULL, 'hedge trimmer hendersonville',  '192.168.1.102', 'sess_test_007');
 
 -- ============================================================
+-- SAMPLE AUDIT LOGS
+-- ============================================================
+
+INSERT INTO audit_log_aud (table_name_aud, row_id_aud, action_aud, id_acc_aud, created_at_aud) VALUES
+    ('account_acc', 1, 'INSERT', NULL, '2026-01-01 08:00:00'),
+    ('account_acc', 2, 'INSERT', NULL, '2026-01-02 09:00:00'),
+    ('tool_tol',    1, 'INSERT', 1,    '2026-01-05 10:00:00'),
+    ('borrow_bor',  1, 'INSERT', 2,    '2026-01-15 10:00:00'),
+    ('borrow_bor',  1, 'UPDATE', 1,    '2026-01-15 12:00:00');
+
+INSERT INTO audit_log_detail_ald (id_aud_ald, column_name_ald, old_value_ald, new_value_ald) VALUES
+    (4, 'id_bst_bor',    NULL,        'requested'),
+    (5, 'id_bst_bor',    'requested', 'approved'),
+    (5, 'approved_at_bor', NULL,      '2026-01-15 12:00:00');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

@@ -810,9 +810,11 @@ CREATE TABLE notification_ntf (
     id_ntf INT AUTO_INCREMENT PRIMARY KEY,
     id_acc_ntf INT NOT NULL,
     id_ntt_ntf INT NOT NULL,
-    message_text_ntf TEXT NOT NULL,
+    title_ntf VARCHAR(255) NOT NULL,
+    body_ntf TEXT,
     id_bor_ntf INT,
     is_read_ntf BOOLEAN NOT NULL DEFAULT FALSE,
+    read_at_ntf TIMESTAMP NULL DEFAULT NULL,
     created_at_ntf TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_unread_timeline_type_ntf (id_acc_ntf, is_read_ntf, created_at_ntf, id_ntt_ntf),
     INDEX idx_borrow_ntf (id_bor_ntf),
@@ -3050,7 +3052,8 @@ SELECT
     CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS user_name,
     a.email_address_acc AS user_email,
     ntt.type_name_ntt AS notification_type,
-    ntf.message_text_ntf,
+    ntf.title_ntf,
+    ntf.body_ntf,
     ntf.created_at_ntf,
     TIMESTAMPDIFF(HOUR, ntf.created_at_ntf, NOW()) AS hours_ago,
     ntf.id_bor_ntf,
@@ -5888,11 +5891,11 @@ INSERT INTO tos_acceptance_tac (id_acc_tac, id_tos_tac, ip_address_tac, user_age
 SET @request_type = (SELECT id_ntt FROM notification_type_ntt WHERE type_name_ntt = 'request');
 SET @approval_type = (SELECT id_ntt FROM notification_type_ntt WHERE type_name_ntt = 'approval');
 
-INSERT INTO notification_ntf (id_acc_ntf, id_ntt_ntf, message_text_ntf, id_bor_ntf, is_read_ntf) VALUES
-    (3, @request_type, 'Alec from North Asheville has requested to borrow your Fiskars Loppers.', 3, FALSE),
-    (2, @approval_type, 'Allyson has approved your request for the DeWalt Drill.', 1, TRUE),
-    (3, @approval_type, 'Allyson has approved your request for the Craftsman Hammer.', 2, TRUE),
-    (1, @approval_type, 'Jeremiah has approved your request for the Werner Extension Ladder.', 4, FALSE);
+INSERT INTO notification_ntf (id_acc_ntf, id_ntt_ntf, title_ntf, body_ntf, id_bor_ntf, is_read_ntf) VALUES
+    (3, @request_type, 'New Borrow Request', 'Alec from North Asheville has requested to borrow your Fiskars Loppers.', 3, FALSE),
+    (2, @approval_type, 'Request Approved', 'Allyson has approved your request for the DeWalt Drill.', 1, TRUE),
+    (3, @approval_type, 'Request Approved', 'Allyson has approved your request for the Craftsman Hammer.', 2, TRUE),
+    (1, @approval_type, 'Request Approved', 'Jeremiah has approved your request for the Werner Extension Ladder.', 4, FALSE);
 
 -- ============================================================
 -- SAMPLE BOOKMARKS

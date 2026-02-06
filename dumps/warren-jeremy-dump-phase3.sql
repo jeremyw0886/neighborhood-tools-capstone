@@ -4846,6 +4846,77 @@ DELIMITER ;
 -- Uses covering indexes for optimal performance
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_search_available_tools;
+
+DELIMITER $$
+CREATE PROCEDURE sp_search_available_tools(
+    IN p_search_term VARCHAR(255),
+    IN p_zip_code VARCHAR(10),
+    IN p_category_id INT,
+    IN p_max_rental_fee DECIMAL(6,2),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    DECLARE v_active_status_id INT;
+    DECLARE v_deleted_status_id INT;
+
+    SET v_active_status_id = fn_get_account_status_id('active');
+    SET v_deleted_status_id = fn_get_account_status_id('deleted');
+
+    IF p_limit IS NULL OR p_limit < 1 THEN SET p_limit = 20; END IF;
+    IF p_limit > 100 THEN SET p_limit = 100; END IF;
+    IF p_offset IS NULL OR p_offset < 0 THEN SET p_offset = 0; END IF;
+
+    SELECT
+        t.id_tol,
+        t.tool_name_tol,
+        t.tool_description_tol,
+        t.rental_fee_tol,
+        t.default_loan_duration_hours_tol,
+        t.is_deposit_required_tol,
+        t.default_deposit_amount_tol,
+        tcd.condition_name_tcd AS tool_condition,
+        CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
+        a.zip_code_acc AS owner_zip,
+        tim.file_name_tim AS primary_image,
+        COALESCE(rs.avg_rating, 0) AS avg_rating,
+        COALESCE(rs.rating_count, 0) AS rating_count
+    FROM tool_tol t
+    JOIN account_acc a ON t.id_acc_tol = a.id_acc
+    JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+    LEFT JOIN tool_image_tim tim ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+    LEFT JOIN (
+        SELECT id_tol_trt, ROUND(AVG(score_trt), 1) AS avg_rating, COUNT(*) AS rating_count
+        FROM tool_rating_trt
+        GROUP BY id_tol_trt
+    ) rs ON t.id_tol = rs.id_tol_trt
+    LEFT JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat
+    WHERE t.is_available_tol = TRUE
+      AND a.id_ast_acc NOT IN (v_deleted_status_id)
+      AND (p_search_term IS NULL OR MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(p_search_term IN NATURAL LANGUAGE MODE))
+      AND (p_zip_code IS NULL OR a.zip_code_acc = p_zip_code)
+      AND (p_category_id IS NULL OR tc.id_cat_tolcat = p_category_id)
+      AND (p_max_rental_fee IS NULL OR t.rental_fee_tol <= p_max_rental_fee)
+      AND NOT EXISTS (
+          SELECT 1 FROM borrow_bor b
+          WHERE b.id_tol_bor = t.id_tol
+            AND b.id_bst_bor IN (
+                fn_get_borrow_status_id('requested'),
+                fn_get_borrow_status_id('approved'),
+                fn_get_borrow_status_id('borrowed')
+            )
+      )
+      AND NOT EXISTS (
+          SELECT 1 FROM availability_block_avb avb
+          WHERE avb.id_tol_avb = t.id_tol
+            AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
+      )
+    GROUP BY t.id_tol
+    ORDER BY rs.avg_rating DESC, t.created_at_tol DESC
+    LIMIT p_limit OFFSET p_offset;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_search_available_tools('drill', '28801', NULL, 50.00, 20, 0);
 
 -- -------------------------------------------------------------
@@ -4853,6 +4924,61 @@ DELIMITER ;
 -- Gets borrow history for a user with pagination
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_get_user_borrow_history;
+
+DELIMITER $$
+CREATE PROCEDURE sp_get_user_borrow_history(
+    IN p_account_id INT,
+    IN p_role VARCHAR(10),
+    IN p_status VARCHAR(30),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+
+    DECLARE v_status_id INT DEFAULT NULL;
+
+    IF p_limit IS NULL OR p_limit < 1 THEN SET p_limit = 20; END IF;
+    IF p_limit > 100 THEN SET p_limit = 100; END IF;
+    IF p_offset IS NULL OR p_offset < 0 THEN SET p_offset = 0; END IF;
+
+    IF p_status IS NOT NULL THEN
+        SET v_status_id = fn_get_borrow_status_id(p_status);
+    END IF;
+
+    SELECT
+        b.id_bor,
+        t.id_tol,
+        t.tool_name_tol,
+        tim.file_name_tim AS tool_image,
+        bst.status_name_bst AS status,
+        b.loan_duration_hours_bor,
+        b.requested_at_bor,
+        b.approved_at_bor,
+        b.borrowed_at_bor,
+        b.due_at_bor,
+        b.returned_at_bor,
+        CASE WHEN b.id_acc_bor = p_account_id THEN 'borrower' ELSE 'lender' END AS user_role,
+        CASE
+            WHEN b.id_acc_bor = p_account_id THEN CONCAT(owner.first_name_acc, ' ', owner.last_name_acc)
+            ELSE CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc)
+        END AS other_party_name
+    FROM borrow_bor b
+    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+    JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+    JOIN account_acc owner ON t.id_acc_tol = owner.id_acc
+    JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+    LEFT JOIN tool_image_tim tim ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+    WHERE (
+        (p_role = 'borrower' AND b.id_acc_bor = p_account_id)
+        OR (p_role = 'lender' AND t.id_acc_tol = p_account_id)
+        OR (p_role IS NULL AND (b.id_acc_bor = p_account_id OR t.id_acc_tol = p_account_id))
+    )
+    AND (v_status_id IS NULL OR b.id_bst_bor = v_status_id)
+    ORDER BY b.requested_at_bor DESC
+    LIMIT p_limit OFFSET p_offset;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_get_user_borrow_history(2, 'borrower', NULL, 20, 0);
 -- Usage: CALL sp_get_user_borrow_history(3, 'lender', 'borrowed', 10, 0);
 

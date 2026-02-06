@@ -3205,26 +3205,408 @@ DELIMITER ;
 -- Procedure: sp_refresh_neighborhood_summary
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_refresh_neighborhood_summary;
+
+DELIMITER $$
+CREATE PROCEDURE sp_refresh_neighborhood_summary()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM neighborhood_summary_mat LIMIT 999999999;
+
+    INSERT INTO neighborhood_summary_mat (
+        id_nbh, neighborhood_name_nbh, city_name_nbh,
+        state_code_sta, state_name_sta,
+        latitude_nbh, longitude_nbh, location_point_nbh, created_at_nbh,
+        total_members, active_members, verified_members,
+        total_tools, available_tools,
+        active_borrows, completed_borrows_30d,
+        upcoming_events, zip_codes, refreshed_at
+    )
+    SELECT
+        nbh.id_nbh,
+        nbh.neighborhood_name_nbh,
+        nbh.city_name_nbh,
+        sta.state_code_sta,
+        sta.state_name_sta,
+        nbh.latitude_nbh,
+        nbh.longitude_nbh,
+        nbh.location_point_nbh,
+        nbh.created_at_nbh,
+        COALESCE(member_stats.total_members, 0),
+        COALESCE(member_stats.active_members, 0),
+        COALESCE(member_stats.verified_members, 0),
+        COALESCE(tool_stats.total_tools, 0),
+        COALESCE(tool_stats.available_tools, 0),
+        COALESCE(borrow_stats.active_borrows, 0),
+        COALESCE(borrow_stats.completed_borrows_30d, 0),
+        COALESCE(event_stats.upcoming_events, 0),
+        zip_list.zip_codes,
+        NOW()
+    FROM neighborhood_nbh nbh
+    JOIN state_sta sta ON nbh.id_sta_nbh = sta.id_sta
+    LEFT JOIN (
+        SELECT id_nbh_acc,
+               COUNT(*) AS total_members,
+               SUM(CASE WHEN id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'active') THEN 1 ELSE 0 END) AS active_members,
+               SUM(CASE WHEN is_verified_acc = TRUE THEN 1 ELSE 0 END) AS verified_members
+        FROM account_acc
+        WHERE id_nbh_acc IS NOT NULL
+          AND id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')
+        GROUP BY id_nbh_acc
+    ) member_stats ON nbh.id_nbh = member_stats.id_nbh_acc
+    LEFT JOIN (
+        SELECT a.id_nbh_acc,
+               COUNT(*) AS total_tools,
+               SUM(CASE WHEN t.is_available_tol = TRUE THEN 1 ELSE 0 END) AS available_tools
+        FROM tool_tol t
+        JOIN account_acc a ON t.id_acc_tol = a.id_acc
+        WHERE a.id_nbh_acc IS NOT NULL
+        GROUP BY a.id_nbh_acc
+    ) tool_stats ON nbh.id_nbh = tool_stats.id_nbh_acc
+    LEFT JOIN (
+        SELECT a.id_nbh_acc,
+               SUM(CASE WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed') THEN 1 ELSE 0 END) AS active_borrows,
+               SUM(CASE WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+                        AND b.returned_at_bor >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) AS completed_borrows_30d
+        FROM borrow_bor b
+        JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+        JOIN account_acc a ON t.id_acc_tol = a.id_acc
+        WHERE a.id_nbh_acc IS NOT NULL
+        GROUP BY a.id_nbh_acc
+    ) borrow_stats ON nbh.id_nbh = borrow_stats.id_nbh_acc
+    LEFT JOIN (
+        SELECT id_nbh_evt, COUNT(*) AS upcoming_events
+        FROM event_evt
+        WHERE start_at_evt > NOW()
+        GROUP BY id_nbh_evt
+    ) event_stats ON nbh.id_nbh = event_stats.id_nbh_evt
+    LEFT JOIN (
+        SELECT id_nbh_nbhzpc,
+               GROUP_CONCAT(zip_code_nbhzpc ORDER BY is_primary_nbhzpc DESC SEPARATOR ', ') AS zip_codes
+        FROM neighborhood_zip_nbhzpc
+        GROUP BY id_nbh_nbhzpc
+    ) zip_list ON nbh.id_nbh = zip_list.id_nbh_nbhzpc;
+
+    COMMIT;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Procedure: sp_refresh_user_reputation
 -- -------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_refresh_user_reputation;
+
+DELIMITER $$
+CREATE PROCEDURE sp_refresh_user_reputation()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM user_reputation_mat LIMIT 999999999;
+
+    INSERT INTO user_reputation_mat (
+        id_acc, full_name, email_address_acc, account_status, member_since,
+        lender_avg_rating, lender_rating_count,
+        borrower_avg_rating, borrower_rating_count,
+        overall_avg_rating, total_rating_count,
+        tools_owned, completed_borrows, refreshed_at
+    )
+    SELECT
+        a.id_acc,
+        CONCAT(a.first_name_acc, ' ', a.last_name_acc),
+        a.email_address_acc,
+        ast.status_name_ast,
+        a.created_at_acc,
+        COALESCE(lender_stats.avg_score, 0),
+        COALESCE(lender_stats.rating_count, 0),
+        COALESCE(borrower_stats.avg_score, 0),
+        COALESCE(borrower_stats.rating_count, 0),
+        ROUND((COALESCE(lender_stats.avg_score, 0) + COALESCE(borrower_stats.avg_score, 0)) /
+              NULLIF((CASE WHEN lender_stats.avg_score IS NOT NULL THEN 1 ELSE 0 END +
+                      CASE WHEN borrower_stats.avg_score IS NOT NULL THEN 1 ELSE 0 END), 0), 1),
+        COALESCE(lender_stats.rating_count, 0) + COALESCE(borrower_stats.rating_count, 0),
+        COALESCE(tool_counts.tools_owned, 0),
+        COALESCE(borrow_counts.completed_borrows, 0),
+        NOW()
+    FROM account_acc a
+    JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+    LEFT JOIN (
+        SELECT id_acc_target_urt,
+               ROUND(AVG(score_urt), 1) AS avg_score,
+               COUNT(*) AS rating_count
+        FROM user_rating_urt
+        WHERE id_rtr_urt = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'lender')
+        GROUP BY id_acc_target_urt
+    ) lender_stats ON a.id_acc = lender_stats.id_acc_target_urt
+    LEFT JOIN (
+        SELECT id_acc_target_urt,
+               ROUND(AVG(score_urt), 1) AS avg_score,
+               COUNT(*) AS rating_count
+        FROM user_rating_urt
+        WHERE id_rtr_urt = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'borrower')
+        GROUP BY id_acc_target_urt
+    ) borrower_stats ON a.id_acc = borrower_stats.id_acc_target_urt
+    LEFT JOIN (
+        SELECT id_acc_tol, COUNT(*) AS tools_owned
+        FROM tool_tol
+        GROUP BY id_acc_tol
+    ) tool_counts ON a.id_acc = tool_counts.id_acc_tol
+    LEFT JOIN (
+        SELECT id_acc_bor, COUNT(*) AS completed_borrows
+        FROM borrow_bor
+        WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+        GROUP BY id_acc_bor
+    ) borrow_counts ON a.id_acc = borrow_counts.id_acc_bor
+    WHERE a.id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted');
+
+    COMMIT;
+END$$
+DELIMITER ;
 
 -- -------------------------------------------------------------
 -- Procedure: sp_refresh_tool_statistics
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_refresh_tool_statistics;
+
+DELIMITER $$
+CREATE PROCEDURE sp_refresh_tool_statistics()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM tool_statistics_mat LIMIT 999999999;
+
+    INSERT INTO tool_statistics_mat (
+        id_tol, tool_name_tol, owner_id, owner_name, tool_condition,
+        rental_fee_tol, estimated_value_tol, created_at_tol,
+        avg_rating, rating_count, five_star_count,
+        total_borrows, completed_borrows, cancelled_borrows, denied_borrows,
+        total_hours_borrowed, last_borrowed_at, incident_count, refreshed_at
+    )
+    SELECT
+        t.id_tol,
+        t.tool_name_tol,
+        t.id_acc_tol,
+        CONCAT(a.first_name_acc, ' ', a.last_name_acc),
+        tcd.condition_name_tcd,
+        t.rental_fee_tol,
+        t.estimated_value_tol,
+        t.created_at_tol,
+        COALESCE(rating_stats.avg_rating, 0),
+        COALESCE(rating_stats.rating_count, 0),
+        COALESCE(rating_stats.five_star_count, 0),
+        COALESCE(borrow_stats.total_borrows, 0),
+        COALESCE(borrow_stats.completed_borrows, 0),
+        COALESCE(borrow_stats.cancelled_borrows, 0),
+        COALESCE(borrow_stats.denied_borrows, 0),
+        COALESCE(borrow_stats.total_hours_borrowed, 0),
+        borrow_stats.last_borrowed_at,
+        COALESCE(incident_stats.incident_count, 0),
+        NOW()
+    FROM tool_tol t
+    JOIN account_acc a ON t.id_acc_tol = a.id_acc
+    JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+    LEFT JOIN (
+        SELECT id_tol_trt,
+               ROUND(AVG(score_trt), 1) AS avg_rating,
+               COUNT(*) AS rating_count,
+               SUM(CASE WHEN score_trt = 5 THEN 1 ELSE 0 END) AS five_star_count
+        FROM tool_rating_trt
+        GROUP BY id_tol_trt
+    ) rating_stats ON t.id_tol = rating_stats.id_tol_trt
+    LEFT JOIN (
+        SELECT id_tol_bor,
+               COUNT(*) AS total_borrows,
+               SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned') THEN 1 ELSE 0 END) AS completed_borrows,
+               SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'cancelled') THEN 1 ELSE 0 END) AS cancelled_borrows,
+               SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'denied') THEN 1 ELSE 0 END) AS denied_borrows,
+               SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned') THEN loan_duration_hours_bor ELSE 0 END) AS total_hours_borrowed,
+               MAX(borrowed_at_bor) AS last_borrowed_at
+        FROM borrow_bor
+        GROUP BY id_tol_bor
+    ) borrow_stats ON t.id_tol = borrow_stats.id_tol_bor
+    LEFT JOIN (
+        SELECT b.id_tol_bor, COUNT(*) AS incident_count
+        FROM incident_report_irt irt
+        JOIN borrow_bor b ON irt.id_bor_irt = b.id_bor
+        GROUP BY b.id_tol_bor
+    ) incident_stats ON t.id_tol = incident_stats.id_tol_bor;
+
+    COMMIT;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Procedure: sp_refresh_category_summary
 -- -------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_refresh_category_summary;
+
+DELIMITER $$
+CREATE PROCEDURE sp_refresh_category_summary()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM category_summary_mat LIMIT 999999999;
+
+    INSERT INTO category_summary_mat (
+        id_cat, category_name_cat, category_icon,
+        total_tools, listed_tools, available_tools,
+        category_avg_rating, total_completed_borrows,
+        min_rental_fee, max_rental_fee, avg_rental_fee, refreshed_at
+    )
+    SELECT
+        c.id_cat,
+        c.category_name_cat,
+        vec.file_name_vec,
+        COUNT(DISTINCT tc.id_tol_tolcat),
+        SUM(CASE WHEN t.is_available_tol = TRUE THEN 1 ELSE 0 END),
+        SUM(CASE
+            WHEN t.is_available_tol = TRUE
+             AND owner.id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')
+             AND active_borrow.id_bor IS NULL
+             AND active_block.id_avb IS NULL
+            THEN 1 ELSE 0
+        END),
+        ROUND(AVG(rating_stats.avg_rating), 1),
+        COALESCE(SUM(borrow_stats.completed_borrows), 0),
+        MIN(t.rental_fee_tol),
+        MAX(t.rental_fee_tol),
+        ROUND(AVG(t.rental_fee_tol), 2),
+        NOW()
+    FROM category_cat c
+    LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+    LEFT JOIN tool_category_tolcat tc ON c.id_cat = tc.id_cat_tolcat
+    LEFT JOIN tool_tol t ON tc.id_tol_tolcat = t.id_tol
+    LEFT JOIN account_acc owner ON t.id_acc_tol = owner.id_acc
+    LEFT JOIN borrow_bor active_borrow ON t.id_tol = active_borrow.id_tol_bor
+        AND active_borrow.id_bst_bor IN (
+            (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'requested'),
+            (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'approved'),
+            (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed')
+        )
+    LEFT JOIN availability_block_avb active_block ON t.id_tol = active_block.id_tol_avb
+        AND NOW() BETWEEN active_block.start_at_avb AND active_block.end_at_avb
+    LEFT JOIN (
+        SELECT id_tol_trt, ROUND(AVG(score_trt), 1) AS avg_rating
+        FROM tool_rating_trt
+        GROUP BY id_tol_trt
+    ) rating_stats ON t.id_tol = rating_stats.id_tol_trt
+    LEFT JOIN (
+        SELECT id_tol_bor, COUNT(*) AS completed_borrows
+        FROM borrow_bor
+        WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+        GROUP BY id_tol_bor
+    ) borrow_stats ON t.id_tol = borrow_stats.id_tol_bor
+    GROUP BY c.id_cat, c.category_name_cat, vec.file_name_vec;
+
+    COMMIT;
+END$$
+DELIMITER ;
 
 -- -------------------------------------------------------------
 -- Procedure: sp_refresh_platform_daily_stat
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_refresh_platform_daily_stat;
+
+DELIMITER $$
+CREATE PROCEDURE sp_refresh_platform_daily_stat()
+BEGIN
+    DECLARE v_today DATE DEFAULT CURDATE();
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM platform_daily_stat_pds WHERE stat_date_pds = v_today;
+
+    INSERT INTO platform_daily_stat_pds (
+        stat_date_pds,
+        total_accounts_pds, active_accounts_pds, new_accounts_today_pds,
+        total_tools_pds, available_tools_pds, new_tools_today_pds,
+        active_borrows_pds, completed_today_pds, new_requests_today_pds,
+        open_disputes_pds, open_incidents_pds, overdue_borrows_pds,
+        deposits_held_total_pds, refreshed_at_pds
+    )
+    SELECT
+        v_today,
+        (SELECT COUNT(*) FROM account_acc
+         WHERE id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')),
+        (SELECT COUNT(*) FROM account_acc
+         WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'active')),
+        (SELECT COUNT(*) FROM account_acc
+         WHERE DATE(created_at_acc) = v_today
+           AND id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')),
+        (SELECT COUNT(*) FROM tool_tol),
+        (SELECT COUNT(*) FROM tool_tol WHERE is_available_tol = TRUE),
+        (SELECT COUNT(*) FROM tool_tol WHERE DATE(created_at_tol) = v_today),
+        (SELECT COUNT(*) FROM borrow_bor
+         WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed')),
+        (SELECT COUNT(*) FROM borrow_bor
+         WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+           AND DATE(returned_at_bor) = v_today),
+        (SELECT COUNT(*) FROM borrow_bor
+         WHERE DATE(requested_at_bor) = v_today),
+        (SELECT COUNT(*) FROM dispute_dsp
+         WHERE id_dst_dsp = (SELECT id_dst FROM dispute_status_dst WHERE status_name_dst = 'open')),
+        (SELECT COUNT(*) FROM incident_report_irt WHERE resolved_at_irt IS NULL),
+        (SELECT COUNT(*) FROM borrow_bor
+         WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed')
+           AND due_at_bor < NOW()),
+        (SELECT COALESCE(SUM(amount_sdp), 0) FROM security_deposit_sdp
+         WHERE id_dps_sdp = (SELECT id_dps FROM deposit_status_dps WHERE status_name_dps = 'held')),
+        NOW();
+
+    COMMIT;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Procedure: sp_refresh_all_summaries
 -- Master procedure to refresh all summary tables
 -- -------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_refresh_all_summaries;
+
+DELIMITER $$
+CREATE PROCEDURE sp_refresh_all_summaries()
+BEGIN
+    CALL sp_refresh_neighborhood_summary();
+    CALL sp_refresh_user_reputation();
+    CALL sp_refresh_tool_statistics();
+    CALL sp_refresh_category_summary();
+    CALL sp_refresh_platform_daily_stat();
+END$$
+DELIMITER ;
 
 -- ============================================================
 -- Helper Functions for Lookup IDs

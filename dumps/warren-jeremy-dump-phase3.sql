@@ -33,7 +33,7 @@ SET TIME_ZONE='+00:00';
 
 CREATE DATABASE IF NOT EXISTS neighborhoodtools
     CHARACTER SET utf8mb4
-    COLLATE utf8mb4_general_ci;
+    COLLATE utf8mb4_unicode_ci;
 
 USE neighborhoodtools;
 

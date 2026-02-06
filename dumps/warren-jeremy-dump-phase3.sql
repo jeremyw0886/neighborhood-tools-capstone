@@ -2169,80 +2169,931 @@ DELIMITER ;
 -- ============================================================
 
 -- active_account_v: All accounts except deleted ones
+CREATE VIEW active_account_v AS
+SELECT *
+FROM account_acc
+WHERE id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted');
 
 -- available_tool_v: Tools truly available for borrowing
+CREATE VIEW available_tool_v AS
+SELECT
+    t.id_tol,
+    t.tool_name_tol,
+    t.tool_description_tol,
+    t.rental_fee_tol,
+    t.default_loan_duration_hours_tol,
+    t.is_deposit_required_tol,
+    t.default_deposit_amount_tol,
+    t.estimated_value_tol,
+    t.preexisting_conditions_tol,
+    t.is_insurance_recommended_tol,
+    t.created_at_tol,
+    t.id_acc_tol AS owner_id,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
+    a.zip_code_acc AS owner_zip,
+    tcd.condition_name_tcd AS tool_condition,
+    tim.file_name_tim AS primary_image,
+    nbh.neighborhood_name_nbh AS owner_neighborhood
+FROM tool_tol t
+JOIN account_acc a ON t.id_acc_tol = a.id_acc
+JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+LEFT JOIN tool_image_tim tim ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+LEFT JOIN neighborhood_nbh nbh ON a.id_nbh_acc = nbh.id_nbh
+LEFT JOIN borrow_bor active_borrow ON t.id_tol = active_borrow.id_tol_bor
+    AND active_borrow.id_bst_bor IN ((SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'requested'), (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'approved'), (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed'))
+LEFT JOIN availability_block_avb active_block ON t.id_tol = active_block.id_tol_avb
+    AND NOW() BETWEEN active_block.start_at_avb AND active_block.end_at_avb
+WHERE t.is_available_tol = TRUE
+  AND a.id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')
+  AND active_borrow.id_bor IS NULL
+  AND active_block.id_avb IS NULL;
 
 -- active_borrow_v: Currently checked-out items
+CREATE VIEW active_borrow_v AS
+SELECT
+    b.id_bor,
+    b.id_tol_bor,
+    t.tool_name_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    borrower.email_address_acc AS borrower_email,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    lender.email_address_acc AS lender_email,
+    b.loan_duration_hours_bor,
+    b.borrowed_at_bor,
+    b.due_at_bor,
+    TIMESTAMPDIFF(HOUR, NOW(), b.due_at_bor) AS hours_until_due,
+    CASE
+        WHEN b.due_at_bor < NOW() THEN 'OVERDUE'
+        WHEN TIMESTAMPDIFF(HOUR, NOW(), b.due_at_bor) <= 24 THEN 'DUE SOON'
+        ELSE 'ON TIME'
+    END AS due_status,
+    b.notes_text_bor,
+    b.is_contact_shared_bor
+FROM borrow_bor b
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+WHERE b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed');
 
 -- overdue_borrow_v: Past-due items requiring attention
+CREATE VIEW overdue_borrow_v AS
+SELECT
+    b.id_bor,
+    b.id_tol_bor,
+    t.tool_name_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    borrower.email_address_acc AS borrower_email,
+    borrower.phone_number_acc AS borrower_phone,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    lender.email_address_acc AS lender_email,
+    b.borrowed_at_bor,
+    b.due_at_bor,
+    TIMESTAMPDIFF(HOUR, b.due_at_bor, NOW()) AS hours_overdue,
+    TIMESTAMPDIFF(DAY, b.due_at_bor, NOW()) AS days_overdue,
+    t.estimated_value_tol,
+    sdp.amount_sdp AS deposit_held,
+    sdp.id_sdp AS deposit_id
+FROM borrow_bor b
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+LEFT JOIN security_deposit_sdp sdp ON b.id_bor = sdp.id_bor_sdp
+WHERE b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed')
+  AND b.due_at_bor < NOW();
 
 -- pending_request_v: Borrow requests awaiting approval
+CREATE VIEW pending_request_v AS
+SELECT
+    b.id_bor,
+    b.id_tol_bor,
+    t.tool_name_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    borrower.email_address_acc AS borrower_email,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    lender.email_address_acc AS lender_email,
+    b.loan_duration_hours_bor,
+    b.requested_at_bor,
+    TIMESTAMPDIFF(HOUR, b.requested_at_bor, NOW()) AS hours_pending,
+    b.notes_text_bor,
+    t.is_deposit_required_tol,
+    t.default_deposit_amount_tol,
+    COALESCE(borrower_ratings.avg_rating, 0) AS borrower_avg_rating,
+    COALESCE(borrower_ratings.rating_count, 0) AS borrower_rating_count
+FROM borrow_bor b
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+LEFT JOIN (
+    SELECT id_acc_target_urt,
+           ROUND(AVG(score_urt), 1) AS avg_rating,
+           COUNT(*) AS rating_count
+    FROM user_rating_urt
+    GROUP BY id_acc_target_urt
+) borrower_ratings ON b.id_acc_bor = borrower_ratings.id_acc_target_urt
+WHERE b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'requested');
 
 -- ============================================================
 -- Profile/Detail Views
 -- ============================================================
 
 -- account_profile_v: Complete member profile with all related data
+CREATE VIEW account_profile_v AS
+SELECT
+    a.id_acc,
+    a.first_name_acc,
+    a.last_name_acc,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
+    a.email_address_acc,
+    a.phone_number_acc,
+    a.street_address_acc,
+    a.zip_code_acc,
+    zpc.latitude_zpc,
+    zpc.longitude_zpc,
+    nbh.id_nbh AS neighborhood_id,
+    nbh.neighborhood_name_nbh,
+    nbh.city_name_nbh,
+    COALESCE(sta.state_code_sta, sta_fallback.state_code_sta) AS state_code_sta,
+    COALESCE(sta.state_name_sta, sta_fallback.state_name_sta) AS state_name_sta,
+    rol.role_name_rol,
+    ast.status_name_ast AS account_status,
+    cpr.preference_name_cpr AS contact_preference,
+    a.is_verified_acc,
+    a.has_consent_acc,
+    a.last_login_at_acc,
+    a.created_at_acc,
+    aim.file_name_aim AS primary_image,
+    aim.alt_text_aim AS image_alt_text,
+    abi.bio_text_abi,
+    COALESCE(tool_counts.active_tool_count, 0) AS active_tool_count,
+    COALESCE(lender_ratings.avg_rating, 0) AS lender_rating,
+    COALESCE(borrower_ratings.avg_rating, 0) AS borrower_rating
+FROM account_acc a
+JOIN role_rol rol ON a.id_rol_acc = rol.id_rol
+JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+JOIN contact_preference_cpr cpr ON a.id_cpr_acc = cpr.id_cpr
+JOIN zip_code_zpc zpc ON a.zip_code_acc = zpc.zip_code_zpc
+LEFT JOIN neighborhood_nbh nbh ON a.id_nbh_acc = nbh.id_nbh
+LEFT JOIN state_sta sta ON nbh.id_sta_nbh = sta.id_sta
+LEFT JOIN neighborhood_zip_nbhzpc nz
+    ON a.zip_code_acc = nz.zip_code_nbhzpc
+    AND nz.is_primary_nbhzpc = TRUE
+LEFT JOIN neighborhood_nbh nbh_fallback ON nz.id_nbh_nbhzpc = nbh_fallback.id_nbh
+LEFT JOIN state_sta sta_fallback ON nbh_fallback.id_sta_nbh = sta_fallback.id_sta
+LEFT JOIN account_image_aim aim ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
+LEFT JOIN account_bio_abi abi ON a.id_acc = abi.id_acc_abi
+LEFT JOIN (
+    SELECT id_acc_tol, COUNT(*) AS active_tool_count
+    FROM tool_tol
+    WHERE is_available_tol = TRUE
+    GROUP BY id_acc_tol
+) tool_counts ON a.id_acc = tool_counts.id_acc_tol
+LEFT JOIN (
+    SELECT id_acc_target_urt, ROUND(AVG(score_urt), 1) AS avg_rating
+    FROM user_rating_urt
+    WHERE id_rtr_urt = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'lender')
+    GROUP BY id_acc_target_urt
+) lender_ratings ON a.id_acc = lender_ratings.id_acc_target_urt
+LEFT JOIN (
+    SELECT id_acc_target_urt, ROUND(AVG(score_urt), 1) AS avg_rating
+    FROM user_rating_urt
+    WHERE id_rtr_urt = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'borrower')
+    GROUP BY id_acc_target_urt
+) borrower_ratings ON a.id_acc = borrower_ratings.id_acc_target_urt
+WHERE a.id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted');
 
 -- tool_detail_v: Full tool listing information
+CREATE VIEW tool_detail_v AS
+SELECT
+    t.id_tol,
+    t.tool_name_tol,
+    t.tool_description_tol,
+    t.serial_number_tol,
+    t.rental_fee_tol,
+    t.default_loan_duration_hours_tol,
+    t.is_available_tol,
+    t.is_deposit_required_tol,
+    t.default_deposit_amount_tol,
+    t.estimated_value_tol,
+    t.preexisting_conditions_tol,
+    t.is_insurance_recommended_tol,
+    t.created_at_tol,
+    t.updated_at_tol,
+    tcd.condition_name_tcd AS tool_condition,
+    t.id_acc_tol AS owner_id,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
+    a.email_address_acc AS owner_email,
+    a.zip_code_acc AS owner_zip,
+    nbh.neighborhood_name_nbh AS owner_neighborhood,
+    sta.state_code_sta AS owner_state,
+    tim.file_name_tim AS primary_image,
+    tim.alt_text_tim AS primary_image_alt,
+    COALESCE(rating_stats.avg_rating, 0) AS avg_rating,
+    COALESCE(rating_stats.rating_count, 0) AS rating_count,
+    COALESCE(borrow_stats.completed_borrow_count, 0) AS completed_borrow_count,
+    cat_list.categories,
+    CASE
+        WHEN t.is_available_tol = FALSE THEN 'UNLISTED'
+        WHEN active_borrow.id_bor IS NOT NULL THEN 'BORROWED'
+        WHEN active_block.id_avb IS NOT NULL THEN 'BLOCKED'
+        ELSE 'AVAILABLE'
+    END AS availability_status
+FROM tool_tol t
+JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+JOIN account_acc a ON t.id_acc_tol = a.id_acc
+LEFT JOIN neighborhood_nbh nbh ON a.id_nbh_acc = nbh.id_nbh
+LEFT JOIN state_sta sta ON nbh.id_sta_nbh = sta.id_sta
+LEFT JOIN tool_image_tim tim ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+LEFT JOIN (
+    SELECT id_tol_trt,
+           ROUND(AVG(score_trt), 1) AS avg_rating,
+           COUNT(*) AS rating_count
+    FROM tool_rating_trt
+    GROUP BY id_tol_trt
+) rating_stats ON t.id_tol = rating_stats.id_tol_trt
+LEFT JOIN (
+    SELECT id_tol_bor, COUNT(*) AS completed_borrow_count
+    FROM borrow_bor
+    WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+    GROUP BY id_tol_bor
+) borrow_stats ON t.id_tol = borrow_stats.id_tol_bor
+LEFT JOIN (
+    SELECT tc.id_tol_tolcat,
+           GROUP_CONCAT(c.category_name_cat ORDER BY c.category_name_cat SEPARATOR ', ') AS categories
+    FROM tool_category_tolcat tc
+    JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+    GROUP BY tc.id_tol_tolcat
+) cat_list ON t.id_tol = cat_list.id_tol_tolcat
+LEFT JOIN borrow_bor active_borrow ON t.id_tol = active_borrow.id_tol_bor
+    AND active_borrow.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed')
+LEFT JOIN availability_block_avb active_block ON t.id_tol = active_block.id_tol_avb
+    AND NOW() BETWEEN active_block.start_at_avb AND active_block.end_at_avb;
 
 -- ============================================================
 -- Analytics/Reporting Views
 -- ============================================================
 
 -- user_reputation_v: Aggregated user ratings by role
+CREATE VIEW user_reputation_v AS
+SELECT
+    a.id_acc,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
+    a.email_address_acc,
+    ast.status_name_ast AS account_status,
+    a.created_at_acc AS member_since,
+    COALESCE(lender_stats.avg_score, 0) AS lender_avg_rating,
+    COALESCE(lender_stats.rating_count, 0) AS lender_rating_count,
+    COALESCE(borrower_stats.avg_score, 0) AS borrower_avg_rating,
+    COALESCE(borrower_stats.rating_count, 0) AS borrower_rating_count,
+    ROUND((COALESCE(lender_stats.avg_score, 0) + COALESCE(borrower_stats.avg_score, 0)) /
+          NULLIF((CASE WHEN lender_stats.avg_score IS NOT NULL THEN 1 ELSE 0 END +
+                  CASE WHEN borrower_stats.avg_score IS NOT NULL THEN 1 ELSE 0 END), 0), 1) AS overall_avg_rating,
+    COALESCE(lender_stats.rating_count, 0) + COALESCE(borrower_stats.rating_count, 0) AS total_rating_count,
+    COALESCE(tool_counts.tools_owned, 0) AS tools_owned,
+    COALESCE(borrow_counts.completed_borrows, 0) AS completed_borrows
+FROM account_acc a
+JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+LEFT JOIN (
+    SELECT id_acc_target_urt,
+           ROUND(AVG(score_urt), 1) AS avg_score,
+           COUNT(*) AS rating_count
+    FROM user_rating_urt
+    WHERE id_rtr_urt = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'lender')
+    GROUP BY id_acc_target_urt
+) lender_stats ON a.id_acc = lender_stats.id_acc_target_urt
+LEFT JOIN (
+    SELECT id_acc_target_urt,
+           ROUND(AVG(score_urt), 1) AS avg_score,
+           COUNT(*) AS rating_count
+    FROM user_rating_urt
+    WHERE id_rtr_urt = (SELECT id_rtr FROM rating_role_rtr WHERE role_name_rtr = 'borrower')
+    GROUP BY id_acc_target_urt
+) borrower_stats ON a.id_acc = borrower_stats.id_acc_target_urt
+LEFT JOIN (
+    SELECT id_acc_tol, COUNT(*) AS tools_owned
+    FROM tool_tol
+    GROUP BY id_acc_tol
+) tool_counts ON a.id_acc = tool_counts.id_acc_tol
+LEFT JOIN (
+    SELECT id_acc_bor, COUNT(*) AS completed_borrows
+    FROM borrow_bor
+    WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+    GROUP BY id_acc_bor
+) borrow_counts ON a.id_acc = borrow_counts.id_acc_bor
+WHERE a.id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted');
 
 -- tool_statistics_v: Tool ratings and borrow counts
+CREATE VIEW tool_statistics_v AS
+SELECT
+    t.id_tol,
+    t.tool_name_tol,
+    t.id_acc_tol AS owner_id,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
+    tcd.condition_name_tcd AS tool_condition,
+    t.rental_fee_tol,
+    t.estimated_value_tol,
+    t.created_at_tol,
+    COALESCE(rating_stats.avg_rating, 0) AS avg_rating,
+    COALESCE(rating_stats.rating_count, 0) AS rating_count,
+    COALESCE(rating_stats.five_star_count, 0) AS five_star_count,
+    COALESCE(borrow_stats.total_borrows, 0) AS total_borrows,
+    COALESCE(borrow_stats.completed_borrows, 0) AS completed_borrows,
+    COALESCE(borrow_stats.cancelled_borrows, 0) AS cancelled_borrows,
+    COALESCE(borrow_stats.denied_borrows, 0) AS denied_borrows,
+    COALESCE(borrow_stats.total_hours_borrowed, 0) AS total_hours_borrowed,
+    borrow_stats.last_borrowed_at,
+    COALESCE(incident_stats.incident_count, 0) AS incident_count
+FROM tool_tol t
+JOIN account_acc a ON t.id_acc_tol = a.id_acc
+JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+LEFT JOIN (
+    SELECT id_tol_trt,
+           ROUND(AVG(score_trt), 1) AS avg_rating,
+           COUNT(*) AS rating_count,
+           SUM(CASE WHEN score_trt = 5 THEN 1 ELSE 0 END) AS five_star_count
+    FROM tool_rating_trt
+    GROUP BY id_tol_trt
+) rating_stats ON t.id_tol = rating_stats.id_tol_trt
+LEFT JOIN (
+    SELECT id_tol_bor,
+           COUNT(*) AS total_borrows,
+           SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned') THEN 1 ELSE 0 END) AS completed_borrows,
+           SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'cancelled') THEN 1 ELSE 0 END) AS cancelled_borrows,
+           SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'denied') THEN 1 ELSE 0 END) AS denied_borrows,
+           SUM(CASE WHEN id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned') THEN loan_duration_hours_bor ELSE 0 END) AS total_hours_borrowed,
+           MAX(borrowed_at_bor) AS last_borrowed_at
+    FROM borrow_bor
+    GROUP BY id_tol_bor
+) borrow_stats ON t.id_tol = borrow_stats.id_tol_bor
+LEFT JOIN (
+    SELECT b.id_tol_bor, COUNT(*) AS incident_count
+    FROM incident_report_irt irt
+    JOIN borrow_bor b ON irt.id_bor_irt = b.id_bor
+    GROUP BY b.id_tol_bor
+) incident_stats ON t.id_tol = incident_stats.id_tol_bor;
 
 -- neighborhood_summary_v: Community statistics
+CREATE VIEW neighborhood_summary_v AS
+SELECT
+    nbh.id_nbh,
+    nbh.neighborhood_name_nbh,
+    nbh.city_name_nbh,
+    sta.state_code_sta,
+    sta.state_name_sta,
+    nbh.latitude_nbh,
+    nbh.longitude_nbh,
+    nbh.location_point_nbh,
+    nbh.created_at_nbh,
+    COALESCE(member_stats.total_members, 0) AS total_members,
+    COALESCE(member_stats.active_members, 0) AS active_members,
+    COALESCE(member_stats.verified_members, 0) AS verified_members,
+    COALESCE(tool_stats.total_tools, 0) AS total_tools,
+    COALESCE(tool_stats.available_tools, 0) AS available_tools,
+    COALESCE(borrow_stats.active_borrows, 0) AS active_borrows,
+    COALESCE(borrow_stats.completed_borrows_30d, 0) AS completed_borrows_30d,
+    COALESCE(event_stats.upcoming_events, 0) AS upcoming_events,
+    zip_list.zip_codes
+FROM neighborhood_nbh nbh
+JOIN state_sta sta ON nbh.id_sta_nbh = sta.id_sta
+LEFT JOIN (
+    SELECT id_nbh_acc,
+           COUNT(*) AS total_members,
+           SUM(CASE WHEN id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'active') THEN 1 ELSE 0 END) AS active_members,
+           SUM(CASE WHEN is_verified_acc = TRUE THEN 1 ELSE 0 END) AS verified_members
+    FROM account_acc
+    WHERE id_nbh_acc IS NOT NULL AND id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')
+    GROUP BY id_nbh_acc
+) member_stats ON nbh.id_nbh = member_stats.id_nbh_acc
+LEFT JOIN (
+    SELECT a.id_nbh_acc,
+           COUNT(*) AS total_tools,
+           SUM(CASE WHEN t.is_available_tol = TRUE THEN 1 ELSE 0 END) AS available_tools
+    FROM tool_tol t
+    JOIN account_acc a ON t.id_acc_tol = a.id_acc
+    WHERE a.id_nbh_acc IS NOT NULL
+    GROUP BY a.id_nbh_acc
+) tool_stats ON nbh.id_nbh = tool_stats.id_nbh_acc
+LEFT JOIN (
+    SELECT a.id_nbh_acc,
+           SUM(CASE WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed') THEN 1 ELSE 0 END) AS active_borrows,
+           SUM(CASE WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+                     AND b.returned_at_bor >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) AS completed_borrows_30d
+    FROM borrow_bor b
+    JOIN account_acc a ON b.id_acc_bor = a.id_acc
+    WHERE a.id_nbh_acc IS NOT NULL
+    GROUP BY a.id_nbh_acc
+) borrow_stats ON nbh.id_nbh = borrow_stats.id_nbh_acc
+LEFT JOIN (
+    SELECT id_nbh_evt, COUNT(*) AS upcoming_events
+    FROM event_evt
+    WHERE start_at_evt >= NOW()
+    GROUP BY id_nbh_evt
+) event_stats ON nbh.id_nbh = event_stats.id_nbh_evt
+LEFT JOIN (
+    SELECT id_nbh_nbhzpc,
+           GROUP_CONCAT(zip_code_nbhzpc ORDER BY zip_code_nbhzpc SEPARATOR ', ') AS zip_codes
+    FROM neighborhood_zip_nbhzpc
+    GROUP BY id_nbh_nbhzpc
+) zip_list ON nbh.id_nbh = zip_list.id_nbh_nbhzpc;
 
 -- ============================================================
 -- Admin Views
 -- ============================================================
 
 -- open_dispute_v: Unresolved disputes requiring attention
+CREATE VIEW open_dispute_v AS
+SELECT
+    d.id_dsp,
+    d.subject_text_dsp,
+    d.created_at_dsp,
+    TIMESTAMPDIFF(DAY, d.created_at_dsp, NOW()) AS days_open,
+    d.id_acc_dsp AS reporter_id,
+    CONCAT(reporter.first_name_acc, ' ', reporter.last_name_acc) AS reporter_name,
+    reporter.email_address_acc AS reporter_email,
+    d.id_bor_dsp,
+    t.tool_name_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    COALESCE(msg_stats.message_count, 0) AS message_count,
+    msg_stats.last_message_at,
+    COALESCE(incident_stats.related_incidents, 0) AS related_incidents,
+    sdp.amount_sdp AS deposit_amount,
+    dps.status_name_dps AS deposit_status
+FROM dispute_dsp d
+JOIN account_acc reporter ON d.id_acc_dsp = reporter.id_acc
+JOIN borrow_bor b ON d.id_bor_dsp = b.id_bor
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+LEFT JOIN security_deposit_sdp sdp ON b.id_bor = sdp.id_bor_sdp
+LEFT JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+LEFT JOIN (
+    SELECT id_dsp_dsm,
+           COUNT(*) AS message_count,
+           MAX(created_at_dsm) AS last_message_at
+    FROM dispute_message_dsm
+    GROUP BY id_dsp_dsm
+) msg_stats ON d.id_dsp = msg_stats.id_dsp_dsm
+LEFT JOIN (
+    SELECT id_bor_irt, COUNT(*) AS related_incidents
+    FROM incident_report_irt
+    GROUP BY id_bor_irt
+) incident_stats ON d.id_bor_dsp = incident_stats.id_bor_irt
+WHERE d.id_dst_dsp = (SELECT id_dst FROM dispute_status_dst WHERE status_name_dst = 'open');
 
 -- pending_deposit_v: Deposits held in escrow requiring action
+CREATE VIEW pending_deposit_v AS
+SELECT
+    sdp.id_sdp,
+    sdp.amount_sdp,
+    dps.status_name_dps AS deposit_status,
+    ppv.provider_name_ppv AS payment_provider,
+    sdp.external_payment_id_sdp,
+    sdp.held_at_sdp,
+    TIMESTAMPDIFF(DAY, sdp.held_at_sdp, NOW()) AS days_held,
+    sdp.id_bor_sdp,
+    bst.status_name_bst AS borrow_status,
+    b.due_at_bor,
+    CASE
+        WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned') THEN 'READY FOR RELEASE'
+        WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed') AND b.due_at_bor < NOW() THEN 'OVERDUE - REVIEW NEEDED'
+        WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed') THEN 'ACTIVE BORROW'
+        ELSE 'REVIEW NEEDED'
+    END AS action_required,
+    t.id_tol,
+    t.tool_name_tol,
+    t.estimated_value_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    borrower.email_address_acc AS borrower_email,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    lender.email_address_acc AS lender_email,
+    COALESCE(incident_stats.incident_count, 0) AS incident_count,
+    sdp.id_irt_sdp AS linked_incident_id
+FROM security_deposit_sdp sdp
+JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+JOIN payment_provider_ppv ppv ON sdp.id_ppv_sdp = ppv.id_ppv
+JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
+JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+LEFT JOIN (
+    SELECT id_bor_irt, COUNT(*) AS incident_count
+    FROM incident_report_irt
+    GROUP BY id_bor_irt
+) incident_stats ON sdp.id_bor_sdp = incident_stats.id_bor_irt
+WHERE sdp.id_dps_sdp = (SELECT id_dps FROM deposit_status_dps WHERE status_name_dps = 'held');
 
 -- ============================================================
 -- Legal & Compliance Views
 -- ============================================================
 
 -- current_tos_v: Currently active Terms of Service version
+CREATE VIEW current_tos_v AS
+SELECT
+    tos.id_tos,
+    tos.version_tos,
+    tos.title_tos,
+    tos.content_tos,
+    tos.summary_tos,
+    tos.effective_at_tos,
+    tos.created_at_tos,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS created_by_name,
+    COALESCE(acceptance_stats.total_acceptances, 0) AS total_acceptances
+FROM terms_of_service_tos tos
+JOIN account_acc a ON tos.id_acc_created_by_tos = a.id_acc
+LEFT JOIN (
+    SELECT id_tos_tac, COUNT(DISTINCT id_acc_tac) AS total_acceptances
+    FROM tos_acceptance_tac
+    GROUP BY id_tos_tac
+) acceptance_stats ON tos.id_tos = acceptance_stats.id_tos_tac
+WHERE tos.is_active_tos = TRUE
+  AND tos.superseded_at_tos IS NULL;
 
 -- tos_acceptance_required_v: Active users who need to accept the current ToS
+CREATE VIEW tos_acceptance_required_v AS
+SELECT
+    a.id_acc,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
+    a.email_address_acc,
+    ast.status_name_ast AS account_status,
+    a.last_login_at_acc,
+    a.created_at_acc,
+    tos_history.last_tos_accepted_at,
+    tos_history.last_accepted_version
+FROM account_acc a
+JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+LEFT JOIN (
+    SELECT DISTINCT tac.id_acc_tac
+    FROM tos_acceptance_tac tac
+    JOIN terms_of_service_tos tos ON tac.id_tos_tac = tos.id_tos
+    WHERE tos.is_active_tos = TRUE
+      AND tos.superseded_at_tos IS NULL
+) current_tos_accepted ON a.id_acc = current_tos_accepted.id_acc_tac
+LEFT JOIN (
+    SELECT tac.id_acc_tac,
+           MAX(tac.accepted_at_tac) AS last_tos_accepted_at,
+           (SELECT tos2.version_tos
+            FROM tos_acceptance_tac tac2
+            JOIN terms_of_service_tos tos2 ON tac2.id_tos_tac = tos2.id_tos
+            WHERE tac2.id_acc_tac = tac.id_acc_tac
+            ORDER BY tac2.accepted_at_tac DESC
+            LIMIT 1) AS last_accepted_version
+    FROM tos_acceptance_tac tac
+    GROUP BY tac.id_acc_tac
+) tos_history ON a.id_acc = tos_history.id_acc_tac
+WHERE a.id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'active')
+  AND current_tos_accepted.id_acc_tac IS NULL;
 
 -- pending_waiver_v: Approved borrows missing signed waivers (compliance gate)
+CREATE VIEW pending_waiver_v AS
+SELECT
+    b.id_bor,
+    b.id_tol_bor,
+    t.tool_name_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    borrower.email_address_acc AS borrower_email,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    b.approved_at_bor,
+    TIMESTAMPDIFF(HOUR, b.approved_at_bor, NOW()) AS hours_since_approval,
+    t.preexisting_conditions_tol,
+    t.is_deposit_required_tol,
+    t.default_deposit_amount_tol
+FROM borrow_bor b
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+LEFT JOIN borrow_waiver_bwv bwv ON b.id_bor = bwv.id_bor_bwv
+WHERE b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'approved')
+  AND bwv.id_bwv IS NULL;
 
 -- open_incident_v: Unresolved incident reports requiring admin action
+CREATE VIEW open_incident_v AS
+SELECT
+    irt.id_irt,
+    irt.subject_irt,
+    irt.description_irt,
+    ity.type_name_ity AS incident_type,
+    irt.incident_occurred_at_irt,
+    irt.created_at_irt,
+    TIMESTAMPDIFF(DAY, irt.created_at_irt, NOW()) AS days_open,
+    irt.is_reported_within_deadline_irt,
+    irt.estimated_damage_amount_irt,
+    irt.id_acc_irt AS reporter_id,
+    CONCAT(reporter.first_name_acc, ' ', reporter.last_name_acc) AS reporter_name,
+    reporter.email_address_acc AS reporter_email,
+    irt.id_bor_irt,
+    t.id_tol AS tool_id,
+    t.tool_name_tol,
+    t.estimated_value_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    COALESCE(dispute_stats.related_disputes, 0) AS related_disputes,
+    sdp.id_sdp AS deposit_id,
+    sdp.amount_sdp AS deposit_amount,
+    dps.status_name_dps AS deposit_status
+FROM incident_report_irt irt
+JOIN incident_type_ity ity ON irt.id_ity_irt = ity.id_ity
+JOIN account_acc reporter ON irt.id_acc_irt = reporter.id_acc
+JOIN borrow_bor b ON irt.id_bor_irt = b.id_bor
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+LEFT JOIN security_deposit_sdp sdp ON b.id_bor = sdp.id_bor_sdp
+LEFT JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+LEFT JOIN (
+    SELECT id_bor_dsp, COUNT(*) AS related_disputes
+    FROM dispute_dsp
+    GROUP BY id_bor_dsp
+) dispute_stats ON irt.id_bor_irt = dispute_stats.id_bor_dsp
+WHERE irt.resolved_at_irt IS NULL;
 
 -- pending_handover_v: Verification codes generated but not yet confirmed
+CREATE VIEW pending_handover_v AS
+SELECT
+    hov.id_hov,
+    hov.verification_code_hov,
+    hot.type_name_hot AS handover_type,
+    hov.generated_at_hov,
+    hov.expires_at_hov,
+    TIMESTAMPDIFF(HOUR, NOW(), hov.expires_at_hov) AS hours_until_expiry,
+    CASE
+        WHEN hov.expires_at_hov < NOW() THEN 'EXPIRED'
+        WHEN TIMESTAMPDIFF(HOUR, NOW(), hov.expires_at_hov) <= 2 THEN 'EXPIRING SOON'
+        ELSE 'ACTIVE'
+    END AS code_status,
+    hov.condition_notes_hov,
+    hov.id_acc_generator_hov AS generator_id,
+    CONCAT(generator.first_name_acc, ' ', generator.last_name_acc) AS generator_name,
+    generator.email_address_acc AS generator_email,
+    hov.id_bor_hov,
+    t.id_tol AS tool_id,
+    t.tool_name_tol,
+    b.id_acc_bor AS borrower_id,
+    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+    t.id_acc_tol AS lender_id,
+    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+    bst.status_name_bst AS borrow_status
+FROM handover_verification_hov hov
+JOIN handover_type_hot hot ON hov.id_hot_hov = hot.id_hot
+JOIN account_acc generator ON hov.id_acc_generator_hov = generator.id_acc
+JOIN borrow_bor b ON hov.id_bor_hov = b.id_bor
+JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+WHERE hov.verified_at_hov IS NULL;
 
 -- ============================================================
 -- User Interaction Views
 -- ============================================================
 
 -- unread_notification_v: User notification feed (unread items)
+CREATE VIEW unread_notification_v AS
+SELECT
+    ntf.id_ntf,
+    ntf.id_acc_ntf AS user_id,
+    CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS user_name,
+    a.email_address_acc AS user_email,
+    ntt.type_name_ntt AS notification_type,
+    ntf.message_text_ntf,
+    ntf.created_at_ntf,
+    TIMESTAMPDIFF(HOUR, ntf.created_at_ntf, NOW()) AS hours_ago,
+    ntf.id_bor_ntf,
+    t.tool_name_tol AS related_tool_name,
+    bst.status_name_bst AS related_borrow_status
+FROM notification_ntf ntf
+JOIN account_acc a ON ntf.id_acc_ntf = a.id_acc
+JOIN notification_type_ntt ntt ON ntf.id_ntt_ntf = ntt.id_ntt
+LEFT JOIN borrow_bor b ON ntf.id_bor_ntf = b.id_bor
+LEFT JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+LEFT JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+WHERE ntf.is_read_ntf = FALSE;
 
 -- user_bookmarks_v: User's saved tools with current availability status
+CREATE VIEW user_bookmarks_v AS
+SELECT
+    acctol.id_acctol AS bookmark_id,
+    acctol.id_acc_acctol AS user_id,
+    CONCAT(bookmarker.first_name_acc, ' ', bookmarker.last_name_acc) AS user_name,
+    acctol.created_at_acctol AS bookmarked_at,
+    t.id_tol AS tool_id,
+    t.tool_name_tol,
+    t.tool_description_tol,
+    t.rental_fee_tol,
+    tcd.condition_name_tcd AS tool_condition,
+    tim.file_name_tim AS primary_image,
+    t.id_acc_tol AS owner_id,
+    CONCAT(owner.first_name_acc, ' ', owner.last_name_acc) AS owner_name,
+    nbh.neighborhood_name_nbh AS owner_neighborhood,
+    CASE
+        WHEN owner.id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted') THEN 'OWNER DELETED'
+        WHEN t.is_available_tol = FALSE THEN 'UNLISTED'
+        WHEN active_borrow.id_bor IS NOT NULL THEN 'UNAVAILABLE'
+        WHEN active_block.id_avb IS NOT NULL THEN 'BLOCKED'
+        ELSE 'AVAILABLE'
+    END AS availability_status,
+    COALESCE(rating_stats.avg_rating, 0) AS avg_rating,
+    COALESCE(rating_stats.rating_count, 0) AS rating_count
+FROM tool_bookmark_acctol acctol
+JOIN account_acc bookmarker ON acctol.id_acc_acctol = bookmarker.id_acc
+JOIN tool_tol t ON acctol.id_tol_acctol = t.id_tol
+JOIN account_acc owner ON t.id_acc_tol = owner.id_acc
+JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+LEFT JOIN tool_image_tim tim ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+LEFT JOIN neighborhood_nbh nbh ON owner.id_nbh_acc = nbh.id_nbh
+LEFT JOIN borrow_bor active_borrow ON t.id_tol = active_borrow.id_tol_bor
+    AND active_borrow.id_bst_bor IN ((SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'requested'), (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'approved'), (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed'))
+LEFT JOIN availability_block_avb active_block ON t.id_tol = active_block.id_tol_avb
+    AND NOW() BETWEEN active_block.start_at_avb AND active_block.end_at_avb
+LEFT JOIN (
+    SELECT id_tol_trt,
+           ROUND(AVG(score_trt), 1) AS avg_rating,
+           COUNT(*) AS rating_count
+    FROM tool_rating_trt
+    GROUP BY id_tol_trt
+) rating_stats ON t.id_tol = rating_stats.id_tol_trt;
 
 -- ============================================================
 -- Analytics/Categorization Views
 -- ============================================================
 
 -- category_summary_v: Tool counts and statistics by category
+CREATE VIEW category_summary_v AS
+SELECT
+    c.id_cat,
+    c.category_name_cat,
+    vec.file_name_vec AS category_icon,
+    COUNT(DISTINCT tc.id_tol_tolcat) AS total_tools,
+    SUM(CASE WHEN t.is_available_tol = TRUE THEN 1 ELSE 0 END) AS listed_tools,
+    SUM(CASE
+        WHEN t.is_available_tol = TRUE
+         AND owner.id_ast_acc != (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'deleted')
+         AND active_borrow.id_bor IS NULL
+         AND active_block.id_avb IS NULL
+        THEN 1 ELSE 0
+    END) AS available_tools,
+    ROUND(AVG(rating_stats.avg_rating), 1) AS category_avg_rating,
+    COALESCE(SUM(borrow_stats.completed_borrows), 0) AS total_completed_borrows,
+    MIN(t.rental_fee_tol) AS min_rental_fee,
+    MAX(t.rental_fee_tol) AS max_rental_fee,
+    ROUND(AVG(t.rental_fee_tol), 2) AS avg_rental_fee
+FROM category_cat c
+LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+LEFT JOIN tool_category_tolcat tc ON c.id_cat = tc.id_cat_tolcat
+LEFT JOIN tool_tol t ON tc.id_tol_tolcat = t.id_tol
+LEFT JOIN account_acc owner ON t.id_acc_tol = owner.id_acc
+LEFT JOIN borrow_bor active_borrow ON t.id_tol = active_borrow.id_tol_bor
+    AND active_borrow.id_bst_bor IN ((SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'requested'), (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'approved'), (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed'))
+LEFT JOIN availability_block_avb active_block ON t.id_tol = active_block.id_tol_avb
+    AND NOW() BETWEEN active_block.start_at_avb AND active_block.end_at_avb
+LEFT JOIN (
+    SELECT id_tol_trt, ROUND(AVG(score_trt), 1) AS avg_rating
+    FROM tool_rating_trt
+    GROUP BY id_tol_trt
+) rating_stats ON t.id_tol = rating_stats.id_tol_trt
+LEFT JOIN (
+    SELECT id_tol_bor, COUNT(*) AS completed_borrows
+    FROM borrow_bor
+    WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+    GROUP BY id_tol_bor
+) borrow_stats ON t.id_tol = borrow_stats.id_tol_bor
+GROUP BY c.id_cat, c.category_name_cat, vec.file_name_vec;
 
 -- ============================================================
 -- Future Expansion Views
 -- ============================================================
 
 -- upcoming_event_v: Community events for discovery and engagement
+CREATE VIEW upcoming_event_v AS
+SELECT
+    e.id_evt,
+    e.event_name_evt,
+    e.event_description_evt,
+    e.start_at_evt,
+    e.end_at_evt,
+    TIMESTAMPDIFF(DAY, NOW(), e.start_at_evt) AS days_until_event,
+    CASE
+        WHEN e.start_at_evt <= NOW() AND (e.end_at_evt IS NULL OR e.end_at_evt >= NOW()) THEN 'HAPPENING NOW'
+        WHEN TIMESTAMPDIFF(DAY, NOW(), e.start_at_evt) <= 7 THEN 'THIS WEEK'
+        WHEN TIMESTAMPDIFF(DAY, NOW(), e.start_at_evt) <= 30 THEN 'THIS MONTH'
+        ELSE 'UPCOMING'
+    END AS event_timing,
+    e.id_nbh_evt AS neighborhood_id,
+    nbh.neighborhood_name_nbh,
+    nbh.city_name_nbh,
+    sta.state_code_sta,
+    e.id_acc_evt AS creator_id,
+    CONCAT(creator.first_name_acc, ' ', creator.last_name_acc) AS creator_name,
+    e.created_at_evt,
+    e.updated_at_evt,
+    CONCAT(updater.first_name_acc, ' ', updater.last_name_acc) AS last_updated_by
+FROM event_evt e
+LEFT JOIN neighborhood_nbh nbh ON e.id_nbh_evt = nbh.id_nbh
+LEFT JOIN state_sta sta ON nbh.id_sta_nbh = sta.id_sta
+JOIN account_acc creator ON e.id_acc_evt = creator.id_acc
+LEFT JOIN account_acc updater ON e.id_acc_updated_by_evt = updater.id_acc
+WHERE e.start_at_evt >= NOW()
+   OR (e.end_at_evt IS NOT NULL AND e.end_at_evt >= NOW());
 
 -- ============================================================
 -- Convenience Views for Summary Tables (Fast Views)
 -- ============================================================
 -- These views provide a simple interface to the materialized summary tables.
 -- Used for dashboard queries when near-real-time data is acceptable.
+
+CREATE VIEW neighborhood_summary_fast_v AS
+SELECT
+    id_nbh,
+    neighborhood_name_nbh,
+    city_name_nbh,
+    state_code_sta,
+    state_name_sta,
+    latitude_nbh,
+    longitude_nbh,
+    location_point_nbh,
+    created_at_nbh,
+    total_members,
+    active_members,
+    verified_members,
+    total_tools,
+    available_tools,
+    active_borrows,
+    completed_borrows_30d,
+    upcoming_events,
+    zip_codes,
+    refreshed_at
+FROM neighborhood_summary_mat;
+
+CREATE VIEW user_reputation_fast_v AS
+SELECT
+    id_acc,
+    full_name,
+    email_address_acc,
+    account_status,
+    member_since,
+    lender_avg_rating,
+    lender_rating_count,
+    borrower_avg_rating,
+    borrower_rating_count,
+    overall_avg_rating,
+    total_rating_count,
+    tools_owned,
+    completed_borrows,
+    refreshed_at
+FROM user_reputation_mat;
+
+CREATE VIEW tool_statistics_fast_v AS
+SELECT
+    id_tol,
+    tool_name_tol,
+    owner_id,
+    owner_name,
+    tool_condition,
+    rental_fee_tol,
+    estimated_value_tol,
+    created_at_tol,
+    avg_rating,
+    rating_count,
+    five_star_count,
+    total_borrows,
+    completed_borrows,
+    cancelled_borrows,
+    denied_borrows,
+    total_hours_borrowed,
+    last_borrowed_at,
+    incident_count,
+    refreshed_at
+FROM tool_statistics_mat;
+
+CREATE VIEW category_summary_fast_v AS
+SELECT
+    id_cat,
+    category_name_cat,
+    category_icon,
+    total_tools,
+    listed_tools,
+    available_tools,
+    category_avg_rating,
+    total_completed_borrows,
+    min_rental_fee,
+    max_rental_fee,
+    avg_rental_fee,
+    refreshed_at
+FROM category_summary_mat;
 
 -- ================================================================
 -- ================================================================

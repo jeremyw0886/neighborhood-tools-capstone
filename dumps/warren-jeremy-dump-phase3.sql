@@ -3620,11 +3620,49 @@ DELIMITER ;
 -- Usage: fn_get_account_status_id('active') returns 2
 -- -------------------------------------------------------------
 
+DROP FUNCTION IF EXISTS fn_get_account_status_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_account_status_id(p_status_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_ast INTO v_id
+    FROM account_status_ast
+    WHERE status_name_ast = p_status_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Function: fn_get_borrow_status_id
 -- Returns the ID for a given borrow status name
 -- Usage: fn_get_borrow_status_id('borrowed') returns 3
 -- -------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS fn_get_borrow_status_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_borrow_status_id(p_status_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_bst INTO v_id
+    FROM borrow_status_bst
+    WHERE status_name_bst = p_status_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
 
 -- -------------------------------------------------------------
 -- Function: fn_get_block_type_id
@@ -3632,11 +3670,49 @@ DELIMITER ;
 -- Usage: fn_get_block_type_id('borrow') returns 2
 -- -------------------------------------------------------------
 
+DROP FUNCTION IF EXISTS fn_get_block_type_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_block_type_id(p_type_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_btp INTO v_id
+    FROM block_type_btp
+    WHERE type_name_btp = p_type_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Function: fn_get_rating_role_id
 -- Returns the ID for a given rating role name
 -- Usage: fn_get_rating_role_id('lender') returns 1
 -- -------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS fn_get_rating_role_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_rating_role_id(p_role_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_rtr INTO v_id
+    FROM rating_role_rtr
+    WHERE role_name_rtr = p_role_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
 
 -- -------------------------------------------------------------
 -- Function: fn_get_notification_type_id
@@ -3644,11 +3720,49 @@ DELIMITER ;
 -- Usage: fn_get_notification_type_id('request') returns 1
 -- -------------------------------------------------------------
 
+DROP FUNCTION IF EXISTS fn_get_notification_type_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_notification_type_id(p_type_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_ntt INTO v_id
+    FROM notification_type_ntt
+    WHERE type_name_ntt = p_type_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Function: fn_get_deposit_status_id
 -- Returns the ID for a given deposit status name
 -- Usage: fn_get_deposit_status_id('held') returns 2
 -- -------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS fn_get_deposit_status_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_deposit_status_id(p_status_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_dps INTO v_id
+    FROM deposit_status_dps
+    WHERE status_name_dps = p_status_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
 
 -- -------------------------------------------------------------
 -- Function: fn_get_dispute_status_id
@@ -3656,11 +3770,49 @@ DELIMITER ;
 -- Usage: fn_get_dispute_status_id('open') returns 1
 -- -------------------------------------------------------------
 
+DROP FUNCTION IF EXISTS fn_get_dispute_status_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_dispute_status_id(p_status_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_dst INTO v_id
+    FROM dispute_status_dst
+    WHERE status_name_dst = p_status_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
+
 -- -------------------------------------------------------------
 -- Function: fn_get_handover_type_id
 -- Returns the ID for a given handover type name
 -- Usage: fn_get_handover_type_id('pickup') returns 1
 -- -------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS fn_get_handover_type_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_handover_type_id(p_type_name VARCHAR(30))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_id INT;
+
+    SELECT id_hot INTO v_id
+    FROM handover_type_hot
+    WHERE type_name_hot = p_type_name
+    LIMIT 1;
+
+    RETURN v_id;
+END$$
+DELIMITER ;
 
 -- -------------------------------------------------------------
 -- Function: fn_is_tool_available
@@ -3668,8 +3820,51 @@ DELIMITER ;
 -- Checks: is_available_tol, no active borrow, no current block
 -- -------------------------------------------------------------
 
+DROP FUNCTION IF EXISTS fn_is_tool_available;
+
+DELIMITER $$
+CREATE FUNCTION fn_is_tool_available(p_tool_id INT)
+RETURNS BOOLEAN
+READS SQL DATA
+BEGIN
+    DECLARE v_is_listed BOOLEAN;
+    DECLARE v_has_active_borrow BOOLEAN DEFAULT FALSE;
+    DECLARE v_has_active_block BOOLEAN DEFAULT FALSE;
+
+    SELECT is_available_tol INTO v_is_listed
+    FROM tool_tol
+    WHERE id_tol = p_tool_id;
+
+    IF v_is_listed IS NULL OR v_is_listed = FALSE THEN
+        RETURN FALSE;
+    END IF;
+
+    SELECT EXISTS(
+        SELECT 1 FROM borrow_bor
+        WHERE id_tol_bor = p_tool_id
+          AND id_bst_bor IN (
+              fn_get_borrow_status_id('requested'),
+              fn_get_borrow_status_id('approved'),
+              fn_get_borrow_status_id('borrowed')
+          )
+    ) INTO v_has_active_borrow;
+
+    IF v_has_active_borrow THEN
+        RETURN FALSE;
+    END IF;
+
+    SELECT EXISTS(
+        SELECT 1 FROM availability_block_avb
+        WHERE id_tol_avb = p_tool_id
+          AND NOW() BETWEEN start_at_avb AND end_at_avb
+    ) INTO v_has_active_block;
+
+    RETURN NOT v_has_active_block;
+END$$
+DELIMITER ;
+
 -- ============================================================
--- PART 3E: Borrow Workflow Procedures
+-- Borrow Workflow Procedures
 -- ============================================================
 -- These procedures encapsulate the complete borrow lifecycle, ensuring consistent validation and state management.
 -- ============================================================

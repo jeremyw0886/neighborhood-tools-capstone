@@ -2157,3 +2157,95 @@ DELIMITER ;
 --                         END OF TRIGGERS
 -- ================================================================
 -- ================================================================
+
+-- ================================================================
+-- ================================================================
+--                              VIEWS
+-- ================================================================
+-- ================================================================
+
+-- ============================================================
+-- Status/Availability Views
+-- ============================================================
+
+-- active_account_v: All accounts except deleted ones
+
+-- available_tool_v: Tools truly available for borrowing
+
+-- active_borrow_v: Currently checked-out items
+
+-- overdue_borrow_v: Past-due items requiring attention
+
+-- pending_request_v: Borrow requests awaiting approval
+
+-- ============================================================
+-- Profile/Detail Views
+-- ============================================================
+
+-- account_profile_v: Complete member profile with all related data
+
+-- tool_detail_v: Full tool listing information
+
+-- ============================================================
+-- Analytics/Reporting Views
+-- ============================================================
+
+-- user_reputation_v: Aggregated user ratings by role
+
+-- tool_statistics_v: Tool ratings and borrow counts
+
+-- neighborhood_summary_v: Community statistics
+
+-- ============================================================
+-- Admin Views
+-- ============================================================
+
+-- open_dispute_v: Unresolved disputes requiring attention
+
+-- pending_deposit_v: Deposits held in escrow requiring action
+
+-- ============================================================
+-- Legal & Compliance Views
+-- ============================================================
+
+-- current_tos_v: Currently active Terms of Service version
+
+-- tos_acceptance_required_v: Active users who need to accept the current ToS
+
+-- pending_waiver_v: Approved borrows missing signed waivers (compliance gate)
+
+-- open_incident_v: Unresolved incident reports requiring admin action
+
+-- pending_handover_v: Verification codes generated but not yet confirmed
+
+-- ============================================================
+-- User Interaction Views
+-- ============================================================
+
+-- unread_notification_v: User notification feed (unread items)
+
+-- user_bookmarks_v: User's saved tools with current availability status
+
+-- ============================================================
+-- Analytics/Categorization Views
+-- ============================================================
+
+-- category_summary_v: Tool counts and statistics by category
+
+-- ============================================================
+-- Future Expansion Views
+-- ============================================================
+
+-- upcoming_event_v: Community events for discovery and engagement
+
+-- ============================================================
+-- Convenience Views for Summary Tables (Fast Views)
+-- ============================================================
+-- These views provide a simple interface to the materialized summary tables.
+-- Used for dashboard queries when near-real-time data is acceptable.
+
+-- ================================================================
+-- ================================================================
+--                          END OF VIEWS
+-- ================================================================
+-- ================================================================

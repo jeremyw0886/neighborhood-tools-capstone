@@ -3875,6 +3875,109 @@ DELIMITER ;
 -- Validates: tool availability, account status, not own tool
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_create_borrow_request;
+
+DELIMITER $$
+CREATE PROCEDURE sp_create_borrow_request(
+    IN p_tool_id INT,
+    IN p_borrower_id INT,
+    IN p_loan_duration_hours INT,
+    IN p_notes TEXT,
+    OUT p_borrow_id INT,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_tool_owner_id INT;
+    DECLARE v_borrower_status_id INT;
+    DECLARE v_owner_status_id INT;
+    DECLARE v_deleted_status_id INT;
+    DECLARE v_requested_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_borrow_id = NULL;
+        ROLLBACK;
+    END;
+
+    SET p_error_message = NULL;
+    SET p_borrow_id = NULL;
+
+    SET v_deleted_status_id = fn_get_account_status_id('deleted');
+    SET v_requested_status_id = fn_get_borrow_status_id('requested');
+
+    START TRANSACTION;
+
+    SELECT id_acc_tol INTO v_tool_owner_id
+    FROM tool_tol
+    WHERE id_tol = p_tool_id
+    FOR UPDATE;
+
+    IF v_tool_owner_id IS NULL THEN
+        SET p_error_message = 'Tool not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tool not found';
+    END IF;
+
+    IF v_tool_owner_id = p_borrower_id THEN
+        SET p_error_message = 'Cannot borrow your own tool';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot borrow your own tool';
+    END IF;
+
+    IF NOT fn_is_tool_available(p_tool_id) THEN
+        SET p_error_message = 'Tool is not available for borrowing';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tool is not available for borrowing';
+    END IF;
+
+    SELECT id_ast_acc INTO v_borrower_status_id
+    FROM account_acc
+    WHERE id_acc = p_borrower_id;
+
+    IF v_borrower_status_id IS NULL THEN
+        SET p_error_message = 'Borrower account not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrower account not found';
+    END IF;
+
+    IF v_borrower_status_id = v_deleted_status_id THEN
+        SET p_error_message = 'Borrower account is deleted';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrower account is deleted';
+    END IF;
+
+    SELECT id_ast_acc INTO v_owner_status_id
+    FROM account_acc
+    WHERE id_acc = v_tool_owner_id;
+
+    IF v_owner_status_id = v_deleted_status_id THEN
+        SET p_error_message = 'Tool owner account is deleted';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tool owner account is deleted';
+    END IF;
+
+    INSERT INTO borrow_bor (
+        id_tol_bor,
+        id_acc_bor,
+        id_bst_bor,
+        loan_duration_hours_bor,
+        notes_text_bor,
+        requested_at_bor
+    ) VALUES (
+        p_tool_id,
+        p_borrower_id,
+        v_requested_status_id,
+        p_loan_duration_hours,
+        p_notes,
+        NOW()
+    );
+
+    SET p_borrow_id = LAST_INSERT_ID();
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_create_borrow_request(5, 2, 168, 'Need for weekend project', @borrow_id, @error);
 
 -- -------------------------------------------------------------
@@ -3883,6 +3986,72 @@ DELIMITER ;
 -- Updates status and sets approved_at timestamp
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_approve_borrow_request;
+
+DELIMITER $$
+CREATE PROCEDURE sp_approve_borrow_request(
+    IN p_borrow_id INT,
+    IN p_approver_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_current_status_id INT;
+    DECLARE v_tool_owner_id INT;
+    DECLARE v_tool_id INT;
+    DECLARE v_requested_status_id INT;
+    DECLARE v_approved_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    SET p_success = FALSE;
+    SET p_error_message = NULL;
+
+    SET v_requested_status_id = fn_get_borrow_status_id('requested');
+    SET v_approved_status_id = fn_get_borrow_status_id('approved');
+
+    START TRANSACTION;
+
+    SELECT b.id_bst_bor, b.id_tol_bor, t.id_acc_tol
+    INTO v_current_status_id, v_tool_id, v_tool_owner_id
+    FROM borrow_bor b
+    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+    WHERE b.id_bor = p_borrow_id
+    FOR UPDATE;
+
+    IF v_current_status_id IS NULL THEN
+        SET p_error_message = 'Borrow request not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow request not found';
+    END IF;
+
+    IF v_tool_owner_id != p_approver_id THEN
+        SET p_error_message = 'Only the tool owner can approve requests';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Only the tool owner can approve requests';
+    END IF;
+
+    IF v_current_status_id != v_requested_status_id THEN
+        SET p_error_message = 'Can only approve requests in "requested" status';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only approve requests in "requested" status';
+    END IF;
+
+    UPDATE borrow_bor
+    SET id_bst_bor = v_approved_status_id,
+        approved_at_bor = NOW()
+    WHERE id_bor = p_borrow_id;
+
+    SET p_success = TRUE;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_approve_borrow_request(1, 3, @success, @error);
 
 -- -------------------------------------------------------------
@@ -3890,6 +4059,72 @@ DELIMITER ;
 -- Denies a pending borrow request
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_deny_borrow_request;
+
+DELIMITER $$
+CREATE PROCEDURE sp_deny_borrow_request(
+    IN p_borrow_id INT,
+    IN p_denier_id INT,
+    IN p_reason TEXT,
+    OUT p_success BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_current_status_id INT;
+    DECLARE v_tool_owner_id INT;
+    DECLARE v_requested_status_id INT;
+    DECLARE v_denied_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    SET p_success = FALSE;
+    SET p_error_message = NULL;
+
+    SET v_requested_status_id = fn_get_borrow_status_id('requested');
+    SET v_denied_status_id = fn_get_borrow_status_id('denied');
+
+    START TRANSACTION;
+
+    SELECT b.id_bst_bor, t.id_acc_tol
+    INTO v_current_status_id, v_tool_owner_id
+    FROM borrow_bor b
+    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+    WHERE b.id_bor = p_borrow_id
+    FOR UPDATE;
+
+    IF v_current_status_id IS NULL THEN
+        SET p_error_message = 'Borrow request not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow request not found';
+    END IF;
+
+    IF v_tool_owner_id != p_denier_id THEN
+        SET p_error_message = 'Only the tool owner can deny requests';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Only the tool owner can deny requests';
+    END IF;
+
+    IF v_current_status_id != v_requested_status_id THEN
+        SET p_error_message = 'Can only deny requests in "requested" status';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only deny requests in "requested" status';
+    END IF;
+
+    UPDATE borrow_bor
+    SET id_bst_bor = v_denied_status_id,
+        notes_text_bor = CONCAT(COALESCE(notes_text_bor, ''), '\n[DENIED] ', p_reason)
+    WHERE id_bor = p_borrow_id;
+
+    SET p_success = TRUE;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_deny_borrow_request(1, 3, 'Tool needed for personal use', @success, @error);
 
 -- -------------------------------------------------------------
@@ -3898,6 +4133,86 @@ DELIMITER ;
 -- Creates availability block for the borrow period
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_complete_pickup;
+
+DELIMITER $$
+CREATE PROCEDURE sp_complete_pickup(
+    IN p_borrow_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_current_status_id INT;
+    DECLARE v_tool_id INT;
+    DECLARE v_loan_hours INT;
+    DECLARE v_approved_status_id INT;
+    DECLARE v_borrowed_status_id INT;
+    DECLARE v_borrow_block_type_id INT;
+    DECLARE v_due_at TIMESTAMP;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    SET p_success = FALSE;
+    SET p_error_message = NULL;
+
+    SET v_approved_status_id = fn_get_borrow_status_id('approved');
+    SET v_borrowed_status_id = fn_get_borrow_status_id('borrowed');
+    SET v_borrow_block_type_id = fn_get_block_type_id('borrow');
+
+    START TRANSACTION;
+
+    SELECT id_bst_bor, id_tol_bor, loan_duration_hours_bor
+    INTO v_current_status_id, v_tool_id, v_loan_hours
+    FROM borrow_bor
+    WHERE id_bor = p_borrow_id
+    FOR UPDATE;
+
+    IF v_current_status_id IS NULL THEN
+        SET p_error_message = 'Borrow request not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow request not found';
+    END IF;
+
+    IF v_current_status_id != v_approved_status_id THEN
+        SET p_error_message = 'Can only complete pickup for approved requests';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only complete pickup for approved requests';
+    END IF;
+
+    SET v_due_at = DATE_ADD(NOW(), INTERVAL v_loan_hours HOUR);
+
+    UPDATE borrow_bor
+    SET id_bst_bor = v_borrowed_status_id,
+        borrowed_at_bor = NOW(),
+        due_at_bor = v_due_at
+    WHERE id_bor = p_borrow_id;
+
+    INSERT INTO availability_block_avb (
+        id_tol_avb,
+        id_btp_avb,
+        start_at_avb,
+        end_at_avb,
+        id_bor_avb,
+        notes_text_avb
+    ) VALUES (
+        v_tool_id,
+        v_borrow_block_type_id,
+        NOW(),
+        v_due_at,
+        p_borrow_id,
+        'Active borrow period'
+    );
+
+    SET p_success = TRUE;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_complete_pickup(1, @success, @error);
 
 -- -------------------------------------------------------------
@@ -3906,6 +4221,64 @@ DELIMITER ;
 -- Removes the availability block
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_complete_return;
+
+DELIMITER $$
+CREATE PROCEDURE sp_complete_return(
+    IN p_borrow_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_current_status_id INT;
+    DECLARE v_borrowed_status_id INT;
+    DECLARE v_returned_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    SET p_success = FALSE;
+    SET p_error_message = NULL;
+
+    SET v_borrowed_status_id = fn_get_borrow_status_id('borrowed');
+    SET v_returned_status_id = fn_get_borrow_status_id('returned');
+
+    START TRANSACTION;
+
+    SELECT id_bst_bor INTO v_current_status_id
+    FROM borrow_bor
+    WHERE id_bor = p_borrow_id
+    FOR UPDATE;
+
+    IF v_current_status_id IS NULL THEN
+        SET p_error_message = 'Borrow request not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow request not found';
+    END IF;
+
+    IF v_current_status_id != v_borrowed_status_id THEN
+        SET p_error_message = 'Can only complete return for borrowed items';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only complete return for borrowed items';
+    END IF;
+
+    UPDATE borrow_bor
+    SET id_bst_bor = v_returned_status_id,
+        returned_at_bor = NOW()
+    WHERE id_bor = p_borrow_id;
+
+    DELETE FROM availability_block_avb
+    WHERE id_bor_avb = p_borrow_id;
+
+    SET p_success = TRUE;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_complete_return(1, @success, @error);
 
 -- -------------------------------------------------------------
@@ -3914,6 +4287,76 @@ DELIMITER ;
 -- Only allowed for 'requested' or 'approved' status
 -- -------------------------------------------------------------
 
+DROP PROCEDURE IF EXISTS sp_cancel_borrow_request;
+
+DELIMITER $$
+CREATE PROCEDURE sp_cancel_borrow_request(
+    IN p_borrow_id INT,
+    IN p_canceller_id INT,
+    IN p_reason TEXT,
+    OUT p_success BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_current_status_id INT;
+    DECLARE v_borrower_id INT;
+    DECLARE v_tool_owner_id INT;
+    DECLARE v_requested_status_id INT;
+    DECLARE v_approved_status_id INT;
+    DECLARE v_cancelled_status_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 p_error_message = MESSAGE_TEXT;
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    SET p_success = FALSE;
+    SET p_error_message = NULL;
+
+    SET v_requested_status_id = fn_get_borrow_status_id('requested');
+    SET v_approved_status_id = fn_get_borrow_status_id('approved');
+    SET v_cancelled_status_id = fn_get_borrow_status_id('cancelled');
+
+    START TRANSACTION;
+
+    SELECT b.id_bst_bor, b.id_acc_bor, t.id_acc_tol
+    INTO v_current_status_id, v_borrower_id, v_tool_owner_id
+    FROM borrow_bor b
+    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+    WHERE b.id_bor = p_borrow_id
+    FOR UPDATE;
+
+    IF v_current_status_id IS NULL THEN
+        SET p_error_message = 'Borrow request not found';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Borrow request not found';
+    END IF;
+
+    IF p_canceller_id != v_borrower_id AND p_canceller_id != v_tool_owner_id THEN
+        SET p_error_message = 'Only the borrower or tool owner can cancel';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Only the borrower or tool owner can cancel';
+    END IF;
+
+    IF v_current_status_id NOT IN (v_requested_status_id, v_approved_status_id) THEN
+        SET p_error_message = 'Can only cancel requests in "requested" or "approved" status';
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Can only cancel requests in "requested" or "approved" status';
+    END IF;
+
+    UPDATE borrow_bor
+    SET id_bst_bor = v_cancelled_status_id,
+        cancelled_at_bor = NOW(),
+        notes_text_bor = CONCAT(COALESCE(notes_text_bor, ''), '\n[CANCELLED] ', p_reason)
+    WHERE id_bor = p_borrow_id;
+
+    SET p_success = TRUE;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_cancel_borrow_request(1, 2, 'Change of plans', @success, @error);
 
 -- ============================================================

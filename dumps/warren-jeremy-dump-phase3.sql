@@ -5118,3 +5118,312 @@ DELIMITER ;
 --                  END PROCEDURES & FUNCTIONS
 -- ================================================================
 -- ================================================================
+
+-- ================================================================
+-- ================================================================
+--                    SEED DATA FOR TESTING
+-- ================================================================
+-- ================================================================
+
+-- ============================================================
+-- Begin transaction for atomic seed data insertion
+-- All INSERTs succeed or none do - allows clean rollback on failure
+-- ============================================================
+
+-- ============================================================
+-- LOOKUP TABLE SEED DATA (required for foreign key constraints and application logic)
+-- ============================================================
+
+-- role_rol seed data
+
+-- account_status_ast seed data
+
+-- contact_preference_cpr seed data
+
+-- state_sta seed data (all 50 US states)
+
+-- tool_condition_tcd seed data
+
+-- borrow_status_bst seed data
+
+-- rating_role_rtr seed data
+
+-- dispute_status_dst seed data
+
+-- dispute_message_type_dmt seed data
+
+-- notification_type_ntt seed data
+
+-- waiver_type_wtp seed data
+
+-- handover_type_hot seed data
+
+-- incident_type_ity seed data
+
+-- deposit_status_dps seed data
+
+-- payment_provider_ppv seed data
+
+-- ============================================================
+-- SAMPLE DATA (Optional - for testing)
+-- ============================================================
+
+-- ============================================================
+-- ZIP CODES (Asheville & Hendersonville Service Area)
+-- ============================================================
+-- Source: USPS / zip-codes.com
+-- Standard ZIP codes only
+-- ============================================================
+
+-- Asheville ZIP Codes (Buncombe County)
+-- 28801 - Downtown Asheville
+-- 28803 - South Asheville / Biltmore Forest
+-- 28804 - North Asheville / Woodfin
+-- 28805 - East Asheville
+-- 28806 - West Asheville
+
+-- Greater Asheville Area
+-- 28704 - Arden
+-- 28715 - Candler
+-- 28778 - Black Mountain / Swannanoa
+-- 28787 - Weaverville
+-- 28732 - Fletcher
+
+-- Hendersonville ZIP Codes (Henderson County)
+-- 28739 - Hendersonville / Laurel Park
+-- 28791 - Hendersonville (North)
+-- 28792 - Hendersonville (East/South)
+
+-- Henderson County Area
+-- 28726 - East Flat Rock
+-- 28731 - Flat Rock
+-- 28742 - Horse Shoe
+-- 28759 - Mills River
+
+-- ============================================================
+-- NEIGHBORHOODS (Asheville/Hendersonville Area)
+-- ============================================================
+
+-- Get NC state ID
+
+-- ============================================================
+-- ASHEVILLE NEIGHBORHOODS
+-- ============================================================
+
+-- Downtown & Central Asheville (28801)
+
+-- West Asheville (28806)
+
+-- North Asheville (28804)
+
+-- South Asheville (28803)
+
+-- East Asheville (28805)
+
+-- East of Asheville (28778)
+
+-- ============================================================
+-- HENDERSONVILLE / HENDERSON COUNTY NEIGHBORHOODS
+-- ============================================================
+
+-- Hendersonville (28739, 28791, 28792)
+
+-- Henderson County Communities
+
+-- ============================================================
+-- NEIGHBORHOOD-ZIP ASSOCIATIONS
+-- ============================================================
+-- Maps neighborhoods to their zip codes
+-- is_primary indicates the main neighborhood for that zip code
+
+-- Downtown & Central Asheville (28801)
+    -- Downtown Asheville (primary)
+    -- South Slope
+    -- Montford
+
+-- West Asheville (28806)
+    -- West Asheville (primary)
+
+-- Candler (28715)
+    -- Candler (primary)
+
+-- North Asheville (28804)
+    -- North Asheville (primary)
+    -- Grove Park
+    -- Beaver Lake
+    -- Woodfin
+
+-- Weaverville (28787)
+    -- Weaverville (primary)
+
+-- South Asheville (28803)
+    -- South Asheville (primary)
+    -- Biltmore Village
+    -- Biltmore Forest
+    -- Biltmore Park
+
+-- Arden (28704)
+    -- Arden (primary)
+
+-- Fletcher (28732)
+    -- Fletcher (primary)
+
+-- East Asheville (28805)
+    -- East Asheville (primary)
+    -- Kenilworth
+    -- Haw Creek
+    -- Oakley
+
+-- Swannanoa / Black Mountain (28778)
+    -- Swannanoa (primary)
+    -- Black Mountain
+
+-- Hendersonville (28791 - north/downtown area)
+    -- Hendersonville (primary)
+    -- Druid Hills
+
+-- Hendersonville (28739 - west/Laurel Park area)
+    -- Laurel Park (primary)
+    -- Fifth Avenue West
+
+-- Hendersonville (28792 - east/south area)
+    -- Downtown Hendersonville (also serves 28792)
+
+-- Flat Rock (28731)
+    -- Flat Rock (primary)
+
+-- East Flat Rock (28726)
+    -- East Flat Rock (primary)
+
+-- Mills River (28759)
+    -- Mills River (primary)
+
+-- Horse Shoe (28742)
+    -- Horse Shoe (primary)
+    -- Etowah
+
+-- ============================================================
+-- SAMPLE ACCOUNTS (Asheville/Hendersonville residents)
+-- ============================================================
+
+-- Get lookup IDs
+
+-- Sample users (placeholder hash is replaced by TEST ACCOUNTS SETUP below)
+
+-- ============================================================
+-- SAMPLE ACCOUNT BIOS
+-- ============================================================
+
+-- Account mapping:
+-- 1 = Allyson Warren (Downtown Asheville)
+-- 2 = Jeremiah Lutz (West Asheville)
+-- 3 = Chantelle Turcotte (Hendersonville)
+-- 4 = Alec Fehl (North Asheville)
+-- 5 = Admin User
+
+-- ============================================================
+-- SAMPLE VECTOR IMAGES (Admin uploads)
+-- ============================================================
+
+-- ============================================================
+-- SAMPLE CATEGORIES
+-- ============================================================
+
+-- ============================================================
+-- SAMPLE TOOLS (Local Asheville/Hendersonville inventory)
+-- ============================================================
+
+-- Get condition IDs
+
+-- Allyson's tools (Downtown Asheville)
+
+-- Jeremiah's tools (West Asheville)
+
+-- Chantelle's tools (Hendersonville)
+
+-- Alec's tools (North Asheville)
+
+-- ============================================================
+-- TOOL-CATEGORY ASSOCIATIONS
+-- ============================================================
+
+-- ============================================================
+-- SAMPLE BORROW TRANSACTION (Tests workflow)
+-- ============================================================
+
+-- Get status IDs
+
+-- Jeremiah (West AVL) borrows Allyson's drill (Downtown AVL) - completed transaction
+
+-- Chantelle (Hendersonville) borrows Allyson's hammer (Downtown AVL) - currently borrowed
+
+-- Alec (North AVL) requests to borrow Chantelle's loppers - pending approval
+
+-- Allyson borrows Jeremiah's ladder - approved, waiting for pickup
+
+-- ============================================================
+-- SAMPLE AVAILABILITY BLOCKS
+-- ============================================================
+
+-- Admin block: Allyson's chainsaw unavailable for maintenance
+
+-- Borrow block: Chantelle's hammer borrow (linked to borrow record)
+
+-- ============================================================
+-- SAMPLE RATINGS (Tests self-rating prevention, participant validation)
+-- ============================================================
+
+-- Jeremiah rates Allyson as lender (for drill borrow)
+
+-- Allyson rates Jeremiah as borrower (for drill borrow)
+
+-- Jeremiah rates the drill
+
+-- ============================================================
+-- SAMPLE TERMS OF SERVICE
+-- ============================================================
+
+-- ============================================================
+-- SAMPLE TOS ACCEPTANCE
+-- ============================================================
+
+-- ============================================================
+-- SAMPLE NOTIFICATIONS
+-- ============================================================
+
+-- ============================================================
+-- SAMPLE BOOKMARKS
+-- ============================================================
+
+-- ============================================================
+-- POPULATE SUMMARY TABLES
+-- ============================================================
+-- Refresh all materialized summary tables with the sample data
+
+-- ============================================================
+-- TEST ACCOUNTS SETUP
+-- ============================================================
+-- Password for ALL test accounts: password123
+-- Note: If this hash doesn't work, visit /test-db.php to generate a fresh one
+
+-- Get additional lookup IDs for test accounts
+
+-- Update all existing accounts to use test password
+
+-- Create Super Admin (if not exists)
+
+-- Create Pending User (for testing pending approval flow)
+
+-- ============================================================
+-- COMMIT TRANSACTION
+-- ============================================================
+
+-- ============================================================
+-- VERIFICATION QUERY
+-- ============================================================
+
+-- ================================================================
+-- ================================================================
+--                  END SEED DATA FOR TESTING
+-- ================================================================
+-- ================================================================

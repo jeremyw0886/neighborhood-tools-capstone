@@ -5955,6 +5955,37 @@ INSERT INTO event_meta_evm (id_evt_evm, meta_key_evm, meta_value_evm) VALUES
     (5, 'contact_email', 'safety@neighborhoodtools.com');
 
 -- ============================================================
+-- SAMPLE DISPUTES & MESSAGES
+-- ============================================================
+-- Dispute on borrow 1 (Jeremiah returned Allyson's drill)
+-- Allyson reports minor scratches found after return
+
+SET @open_dispute_status = (SELECT id_dst FROM dispute_status_dst WHERE status_name_dst = 'open');
+SET @initial_report_msg = (SELECT id_dmt FROM dispute_message_type_dmt WHERE type_name_dmt = 'initial_report');
+SET @response_msg = (SELECT id_dmt FROM dispute_message_type_dmt WHERE type_name_dmt = 'response');
+SET @admin_note_msg = (SELECT id_dmt FROM dispute_message_type_dmt WHERE type_name_dmt = 'admin_note');
+
+INSERT INTO dispute_dsp (
+    id_bor_dsp, id_acc_dsp, subject_text_dsp, id_dst_dsp, created_at_dsp
+) VALUES (
+    1, 1, 'Minor scratches found on DeWalt Drill after return',
+    @open_dispute_status, '2026-01-19 10:00:00'
+);
+
+INSERT INTO dispute_message_dsm (id_dsp_dsm, id_acc_dsm, id_dmt_dsm, message_text_dsm, is_internal_dsm, created_at_dsm) VALUES
+    (1, 1, @initial_report_msg,
+     'I noticed some scratches on the drill chuck after Jeremiah returned it. These weren''t there before the loan. I have photos from the handover that show the condition before and after.',
+     FALSE, '2026-01-19 10:00:00'),
+
+    (1, 2, @response_msg,
+     'The scratches were already there when I picked it up. I was very careful with the drill and only used it for shelving work. Happy to discuss in person at the West Asheville farmer''s market.',
+     FALSE, '2026-01-19 14:30:00'),
+
+    (1, 5, @admin_note_msg,
+     'Reviewed handover condition notes from both pickup and return. Pickup notes say "excellent condition" but no photo evidence was uploaded at pickup. Suggesting mediation between both parties.',
+     TRUE, '2026-01-20 09:00:00');
+
+-- ============================================================
 -- POPULATE SUMMARY TABLES
 -- ============================================================
 -- Refresh all materialized summary tables with the sample data

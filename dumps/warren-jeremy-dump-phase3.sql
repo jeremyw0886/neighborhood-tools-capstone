@@ -38,6 +38,187 @@ CREATE DATABASE IF NOT EXISTS neighborhoodtools
 USE neighborhoodtools;
 
 -- ============================================================
+-- CLEANUP: Drop existing objects (for re-import)
+-- ============================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Drop all views (including fast/materialized convenience views)
+DROP VIEW IF EXISTS category_summary_fast_v;
+DROP VIEW IF EXISTS tool_statistics_fast_v;
+DROP VIEW IF EXISTS user_reputation_fast_v;
+DROP VIEW IF EXISTS neighborhood_summary_fast_v;
+DROP VIEW IF EXISTS upcoming_event_v;
+DROP VIEW IF EXISTS category_summary_v;
+DROP VIEW IF EXISTS user_bookmarks_v;
+DROP VIEW IF EXISTS unread_notification_v;
+DROP VIEW IF EXISTS pending_handover_v;
+DROP VIEW IF EXISTS open_incident_v;
+DROP VIEW IF EXISTS pending_waiver_v;
+DROP VIEW IF EXISTS tos_acceptance_required_v;
+DROP VIEW IF EXISTS current_tos_v;
+DROP VIEW IF EXISTS pending_deposit_v;
+DROP VIEW IF EXISTS open_dispute_v;
+DROP VIEW IF EXISTS neighborhood_summary_v;
+DROP VIEW IF EXISTS tool_statistics_v;
+DROP VIEW IF EXISTS user_reputation_v;
+DROP VIEW IF EXISTS tool_detail_v;
+DROP VIEW IF EXISTS account_profile_v;
+DROP VIEW IF EXISTS pending_request_v;
+DROP VIEW IF EXISTS overdue_borrow_v;
+DROP VIEW IF EXISTS active_borrow_v;
+DROP VIEW IF EXISTS available_tool_v;
+DROP VIEW IF EXISTS active_account_v;
+
+-- Drop all triggers
+DROP TRIGGER IF EXISTS trg_incident_report_before_insert;
+DROP TRIGGER IF EXISTS trg_handover_verification_before_insert;
+DROP TRIGGER IF EXISTS trg_borrow_waiver_before_insert;
+DROP TRIGGER IF EXISTS trg_dispute_message_before_insert;
+DROP TRIGGER IF EXISTS trg_dispute_before_insert;
+DROP TRIGGER IF EXISTS trg_tool_rating_before_insert;
+DROP TRIGGER IF EXISTS trg_user_rating_before_update;
+DROP TRIGGER IF EXISTS trg_user_rating_before_insert;
+DROP TRIGGER IF EXISTS trg_availability_block_before_update;
+DROP TRIGGER IF EXISTS trg_availability_block_before_insert;
+DROP TRIGGER IF EXISTS trg_borrow_before_update;
+DROP TRIGGER IF EXISTS trg_borrow_before_insert;
+DROP TRIGGER IF EXISTS trg_bookmark_before_insert;
+DROP TRIGGER IF EXISTS trg_tool_before_update;
+DROP TRIGGER IF EXISTS trg_tool_before_insert;
+DROP TRIGGER IF EXISTS trg_account_before_update;
+DROP TRIGGER IF EXISTS trg_nbhzpc_before_update;
+DROP TRIGGER IF EXISTS trg_nbhzpc_before_insert;
+DROP TRIGGER IF EXISTS trg_tos_before_insert;
+
+-- Drop lookup table protection triggers
+DROP TRIGGER IF EXISTS trg_deposit_status_before_update;
+DROP TRIGGER IF EXISTS trg_deposit_status_before_delete;
+DROP TRIGGER IF EXISTS trg_handover_type_before_update;
+DROP TRIGGER IF EXISTS trg_handover_type_before_delete;
+DROP TRIGGER IF EXISTS trg_rating_role_before_update;
+DROP TRIGGER IF EXISTS trg_rating_role_before_delete;
+DROP TRIGGER IF EXISTS trg_block_type_before_update;
+DROP TRIGGER IF EXISTS trg_block_type_before_delete;
+DROP TRIGGER IF EXISTS trg_borrow_status_before_update;
+DROP TRIGGER IF EXISTS trg_borrow_status_before_delete;
+DROP TRIGGER IF EXISTS trg_account_status_before_update;
+DROP TRIGGER IF EXISTS trg_account_status_before_delete;
+
+-- Drop scheduled events
+DROP EVENT IF EXISTS evt_daily_stat_midnight;
+DROP EVENT IF EXISTS evt_refresh_tool_statistics_every_2h;
+DROP EVENT IF EXISTS evt_refresh_user_reputation_every_4h;
+DROP EVENT IF EXISTS evt_refresh_summaries_hourly;
+DROP EVENT IF EXISTS evt_send_overdue_notifications;
+DROP EVENT IF EXISTS evt_cleanup_expired_handovers;
+DROP EVENT IF EXISTS evt_archive_old_notifications;
+DROP EVENT IF EXISTS evt_cleanup_search_logs;
+
+-- Drop stored procedures
+DROP PROCEDURE IF EXISTS sp_refresh_all_summaries;
+DROP PROCEDURE IF EXISTS sp_refresh_platform_daily_stat;
+DROP PROCEDURE IF EXISTS sp_refresh_category_summary;
+DROP PROCEDURE IF EXISTS sp_refresh_tool_statistics;
+DROP PROCEDURE IF EXISTS sp_refresh_user_reputation;
+DROP PROCEDURE IF EXISTS sp_refresh_neighborhood_summary;
+DROP PROCEDURE IF EXISTS sp_create_tos_version;
+DROP PROCEDURE IF EXISTS sp_extend_loan;
+DROP PROCEDURE IF EXISTS sp_create_borrow_request;
+DROP PROCEDURE IF EXISTS sp_approve_borrow_request;
+DROP PROCEDURE IF EXISTS sp_deny_borrow_request;
+DROP PROCEDURE IF EXISTS sp_complete_pickup;
+DROP PROCEDURE IF EXISTS sp_complete_return;
+DROP PROCEDURE IF EXISTS sp_cancel_borrow_request;
+DROP PROCEDURE IF EXISTS sp_rate_user;
+DROP PROCEDURE IF EXISTS sp_rate_tool;
+DROP PROCEDURE IF EXISTS sp_send_notification;
+DROP PROCEDURE IF EXISTS sp_mark_notifications_read;
+DROP PROCEDURE IF EXISTS sp_send_overdue_notifications;
+DROP PROCEDURE IF EXISTS sp_cleanup_expired_handover_codes;
+DROP PROCEDURE IF EXISTS sp_archive_old_notifications;
+DROP PROCEDURE IF EXISTS sp_cleanup_old_search_logs;
+DROP PROCEDURE IF EXISTS sp_release_deposit_on_return;
+DROP PROCEDURE IF EXISTS sp_search_available_tools;
+DROP PROCEDURE IF EXISTS sp_get_user_borrow_history;
+
+-- Drop helper functions
+DROP FUNCTION IF EXISTS fn_get_account_status_id;
+DROP FUNCTION IF EXISTS fn_get_borrow_status_id;
+DROP FUNCTION IF EXISTS fn_get_block_type_id;
+DROP FUNCTION IF EXISTS fn_get_rating_role_id;
+DROP FUNCTION IF EXISTS fn_get_notification_type_id;
+DROP FUNCTION IF EXISTS fn_get_deposit_status_id;
+DROP FUNCTION IF EXISTS fn_get_dispute_status_id;
+DROP FUNCTION IF EXISTS fn_get_handover_type_id;
+DROP FUNCTION IF EXISTS fn_is_tool_available;
+
+-- Drop tables in reverse dependency order
+-- Summary/materialized tables (no FK dependencies)
+DROP TABLE IF EXISTS platform_daily_stat_pds;
+DROP TABLE IF EXISTS category_summary_mat;
+DROP TABLE IF EXISTS tool_statistics_mat;
+DROP TABLE IF EXISTS user_reputation_mat;
+DROP TABLE IF EXISTS neighborhood_summary_mat;
+-- Transactional tables
+DROP TABLE IF EXISTS payment_transaction_meta_ptm;
+DROP TABLE IF EXISTS payment_transaction_ptx;
+DROP TABLE IF EXISTS security_deposit_sdp;
+DROP TABLE IF EXISTS loan_extension_lex;
+DROP TABLE IF EXISTS incident_photo_iph;
+DROP TABLE IF EXISTS incident_report_irt;
+DROP TABLE IF EXISTS handover_verification_hov;
+DROP TABLE IF EXISTS borrow_waiver_bwv;
+DROP TABLE IF EXISTS tos_acceptance_tac;
+DROP TABLE IF EXISTS terms_of_service_tos;
+DROP TABLE IF EXISTS payment_provider_ppv;
+DROP TABLE IF EXISTS deposit_status_dps;
+DROP TABLE IF EXISTS incident_type_ity;
+DROP TABLE IF EXISTS handover_type_hot;
+DROP TABLE IF EXISTS waiver_type_wtp;
+DROP TABLE IF EXISTS audit_log_detail_ald;
+DROP TABLE IF EXISTS audit_log_aud;
+DROP TABLE IF EXISTS phpbb_integration_php;
+DROP TABLE IF EXISTS event_meta_evm;
+DROP TABLE IF EXISTS event_evt;
+DROP TABLE IF EXISTS search_log_slg;
+DROP TABLE IF EXISTS notification_ntf;
+DROP TABLE IF EXISTS dispute_message_dsm;
+DROP TABLE IF EXISTS dispute_dsp;
+DROP TABLE IF EXISTS tool_rating_trt;
+DROP TABLE IF EXISTS user_rating_urt;
+DROP TABLE IF EXISTS availability_block_avb;
+DROP TABLE IF EXISTS borrow_bor;
+DROP TABLE IF EXISTS tool_bookmark_acctol;
+DROP TABLE IF EXISTS tool_category_tolcat;
+DROP TABLE IF EXISTS tool_image_tim;
+DROP TABLE IF EXISTS tool_meta_tlm;
+DROP TABLE IF EXISTS tool_tol;
+DROP TABLE IF EXISTS category_cat;
+DROP TABLE IF EXISTS vector_image_vec;
+DROP TABLE IF EXISTS account_bio_abi;
+DROP TABLE IF EXISTS account_image_aim;
+DROP TABLE IF EXISTS account_meta_acm;
+DROP TABLE IF EXISTS account_acc;
+DROP TABLE IF EXISTS neighborhood_zip_nbhzpc;
+DROP TABLE IF EXISTS neighborhood_meta_nbm;
+DROP TABLE IF EXISTS neighborhood_nbh;
+DROP TABLE IF EXISTS zip_code_zpc;
+DROP TABLE IF EXISTS notification_type_ntt;
+DROP TABLE IF EXISTS dispute_message_type_dmt;
+DROP TABLE IF EXISTS dispute_status_dst;
+DROP TABLE IF EXISTS rating_role_rtr;
+DROP TABLE IF EXISTS block_type_btp;
+DROP TABLE IF EXISTS borrow_status_bst;
+DROP TABLE IF EXISTS tool_condition_tcd;
+DROP TABLE IF EXISTS state_sta;
+DROP TABLE IF EXISTS contact_preference_cpr;
+DROP TABLE IF EXISTS account_status_ast;
+DROP TABLE IF EXISTS role_rol;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================
 -- LOOKUP/REFERENCE TABLES
 -- ============================================================
 

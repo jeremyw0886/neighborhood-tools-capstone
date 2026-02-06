@@ -5129,40 +5129,161 @@ DELIMITER ;
 -- Begin transaction for atomic seed data insertion
 -- All INSERTs succeed or none do - allows clean rollback on failure
 -- ============================================================
+START TRANSACTION;
 
 -- ============================================================
 -- LOOKUP TABLE SEED DATA (required for foreign key constraints and application logic)
 -- ============================================================
 
 -- role_rol seed data
+INSERT INTO role_rol (role_name_rol) VALUES
+    ('member'),
+    ('admin'),
+    ('super_admin');
 
 -- account_status_ast seed data
+INSERT INTO account_status_ast (status_name_ast) VALUES
+    ('pending'),
+    ('active'),
+    ('suspended'),
+    ('deleted');
 
 -- contact_preference_cpr seed data
+INSERT INTO contact_preference_cpr (preference_name_cpr) VALUES
+    ('email'),
+    ('phone'),
+    ('both'),
+    ('app');
 
 -- state_sta seed data (all 50 US states)
+INSERT INTO state_sta (state_code_sta, state_name_sta) VALUES
+    ('AL', 'Alabama'),
+    ('AK', 'Alaska'),
+    ('AZ', 'Arizona'),
+    ('AR', 'Arkansas'),
+    ('CA', 'California'),
+    ('CO', 'Colorado'),
+    ('CT', 'Connecticut'),
+    ('DE', 'Delaware'),
+    ('FL', 'Florida'),
+    ('GA', 'Georgia'),
+    ('HI', 'Hawaii'),
+    ('ID', 'Idaho'),
+    ('IL', 'Illinois'),
+    ('IN', 'Indiana'),
+    ('IA', 'Iowa'),
+    ('KS', 'Kansas'),
+    ('KY', 'Kentucky'),
+    ('LA', 'Louisiana'),
+    ('ME', 'Maine'),
+    ('MD', 'Maryland'),
+    ('MA', 'Massachusetts'),
+    ('MI', 'Michigan'),
+    ('MN', 'Minnesota'),
+    ('MS', 'Mississippi'),
+    ('MO', 'Missouri'),
+    ('MT', 'Montana'),
+    ('NE', 'Nebraska'),
+    ('NV', 'Nevada'),
+    ('NH', 'New Hampshire'),
+    ('NJ', 'New Jersey'),
+    ('NM', 'New Mexico'),
+    ('NY', 'New York'),
+    ('NC', 'North Carolina'),
+    ('ND', 'North Dakota'),
+    ('OH', 'Ohio'),
+    ('OK', 'Oklahoma'),
+    ('OR', 'Oregon'),
+    ('PA', 'Pennsylvania'),
+    ('RI', 'Rhode Island'),
+    ('SC', 'South Carolina'),
+    ('SD', 'South Dakota'),
+    ('TN', 'Tennessee'),
+    ('TX', 'Texas'),
+    ('UT', 'Utah'),
+    ('VT', 'Vermont'),
+    ('VA', 'Virginia'),
+    ('WA', 'Washington'),
+    ('WV', 'West Virginia'),
+    ('WI', 'Wisconsin'),
+    ('WY', 'Wyoming');
 
 -- tool_condition_tcd seed data
+INSERT INTO tool_condition_tcd (condition_name_tcd) VALUES
+    ('new'),
+    ('good'),
+    ('fair'),
+    ('poor');
 
 -- borrow_status_bst seed data
+INSERT INTO borrow_status_bst (status_name_bst) VALUES
+    ('requested'),
+    ('approved'),
+    ('borrowed'),
+    ('returned'),
+    ('denied'),
+    ('cancelled');
 
 -- rating_role_rtr seed data
+INSERT INTO rating_role_rtr (role_name_rtr) VALUES
+    ('lender'),
+    ('borrower');
 
 -- dispute_status_dst seed data
+INSERT INTO dispute_status_dst (status_name_dst) VALUES
+    ('open'),
+    ('resolved'),
+    ('dismissed');
 
 -- dispute_message_type_dmt seed data
+INSERT INTO dispute_message_type_dmt (type_name_dmt) VALUES
+    ('initial_report'),
+    ('response'),
+    ('admin_note'),
+    ('resolution');
 
 -- notification_type_ntt seed data
+INSERT INTO notification_type_ntt (type_name_ntt) VALUES
+    ('request'),
+    ('approval'),
+    ('due'),
+    ('return'),
+    ('rating');
 
 -- waiver_type_wtp seed data
+INSERT INTO waiver_type_wtp (type_name_wtp) VALUES
+    ('borrow_waiver'),
+    ('condition_acknowledgment'),
+    ('liability_release');
 
 -- handover_type_hot seed data
+INSERT INTO handover_type_hot (type_name_hot) VALUES
+    ('pickup'),
+    ('return');
 
 -- incident_type_ity seed data
+INSERT INTO incident_type_ity (type_name_ity) VALUES
+    ('damage'),
+    ('theft'),
+    ('loss'),
+    ('injury'),
+    ('late_return'),
+    ('condition_dispute'),
+    ('other');
 
 -- deposit_status_dps seed data
+INSERT INTO deposit_status_dps (status_name_dps) VALUES
+    ('pending'),
+    ('held'),
+    ('released'),
+    ('forfeited'),
+    ('partial_release');
 
 -- payment_provider_ppv seed data
+INSERT INTO payment_provider_ppv (provider_name_ppv, is_active_ppv) VALUES
+    ('stripe', TRUE),
+    ('paypal', FALSE),
+    ('manual', TRUE);
 
 -- ============================================================
 -- SAMPLE DATA (Optional - for testing)

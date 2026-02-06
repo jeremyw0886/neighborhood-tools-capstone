@@ -3112,11 +3112,89 @@ FROM category_summary_mat;
 -- ============================================================
 
 -- Stored Procedure: Create new ToS version atomically (deactivates previous, inserts new)
+DELIMITER $$
+CREATE PROCEDURE sp_create_tos_version(
+    IN p_version VARCHAR(20),
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_summary TEXT,
+    IN p_effective_at TIMESTAMP,
+    IN p_created_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
+    START TRANSACTION;
+
+    UPDATE terms_of_service_tos
+    SET is_active_tos = FALSE,
+        superseded_at_tos = NOW()
+    WHERE is_active_tos = TRUE;
+
+    INSERT INTO terms_of_service_tos (
+        version_tos, title_tos, content_tos, summary_tos,
+        effective_at_tos, is_active_tos, id_acc_created_by_tos
+    ) VALUES (
+        p_version, p_title, p_content, p_summary,
+        p_effective_at, TRUE, p_created_by
+    );
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_create_tos_version('2.0', 'Updated Terms', 'Full text...', 'Summary...', NOW(), 5);
 
 -- Stored Procedure: Extend loan due date atomically (creates audit record, then updates borrow)
+DELIMITER $$
+CREATE PROCEDURE sp_extend_loan(
+    IN p_bor_id INT,
+    IN p_extra_hours INT,
+    IN p_reason TEXT,
+    IN p_approved_by INT
+)
+BEGIN
+    DECLARE v_current_due TIMESTAMP;
+    DECLARE v_new_due TIMESTAMP;
 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    SELECT due_at_bor INTO v_current_due
+    FROM borrow_bor
+    WHERE id_bor = p_bor_id
+    FOR UPDATE;
+
+    IF v_current_due IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot extend: borrow has no due date set';
+    END IF;
+
+    SET v_new_due = DATE_ADD(v_current_due, INTERVAL p_extra_hours HOUR);
+
+    INSERT INTO loan_extension_lex (
+        id_bor_lex, original_due_at_lex, extended_hours_lex,
+        new_due_at_lex, reason_lex, id_acc_approved_by_lex
+    ) VALUES (
+        p_bor_id, v_current_due, p_extra_hours,
+        v_new_due, p_reason, p_approved_by
+    );
+
+    UPDATE borrow_bor
+    SET due_at_bor = v_new_due
+    WHERE id_bor = p_bor_id;
+
+    COMMIT;
+END$$
+DELIMITER ;
 -- Usage: CALL sp_extend_loan(2, 48, 'Borrower needs extra weekend for project', 1);
 
 -- ============================================================

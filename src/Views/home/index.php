@@ -52,7 +52,7 @@
           <a href="/register" id="hero-join" role="button"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
         </div>
         <form id="hero-search" role="search" aria-label="Search tools" action="/tools" method="get">
-          <label for="search-tools" id="search-label">Search tools</label>
+          <label for="search-tools" class="visually-hidden">Search tools</label>
           <span id="search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
           <input type="search" id="search-tools" name="q" placeholder="Search tools near the mountains...">
           <button type="submit"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
@@ -298,7 +298,7 @@
             </a>
           <?php endforeach; ?>
         <?php else: ?>
-          <p>Join the community to see friendly neighbors here!</p>
+          <p>Friendly neighbors coming soon!</p>
         <?php endif; ?>
       </div>
     </section>

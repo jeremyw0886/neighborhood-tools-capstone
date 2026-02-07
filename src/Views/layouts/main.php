@@ -7,6 +7,11 @@
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ0Z5ZxuJEC6EPHnR3JluAnip1UQIzmfh73LoR1bBgNw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="/assets/css/base.css">
+    <?php if (!empty($css)): ?>
+      <?php foreach ((array) $css as $sheet): ?>
+    <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($sheet) ?>.css">
+      <?php endforeach; ?>
+    <?php endif; ?>
 </head>
 <body>
 

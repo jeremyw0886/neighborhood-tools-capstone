@@ -6,6 +6,7 @@
     <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ0Z5ZxuJEC6EPHnR3JluAnip1UQIzmfh73LoR1bBgNw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/assets/css/base.css">
 </head>
 <body>
 
@@ -14,7 +15,7 @@
     <nav>
       <div>
         <a href="/">
-          <img src="/assets/images/logo.png" alt="NeighborhoodTools Logo" class="nav-logo">
+          <img src="/assets/images/logo.png" alt="NeighborhoodTools Logo">
           NeighborhoodTools
         </a>
       </div>
@@ -28,11 +29,11 @@
           <?php endif; ?>
           <li>
             <span>Hello, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></span>
-            <a href="/logout" class="btn btn-sm">Logout</a>
+            <a href="/logout">Logout</a>
           </li>
         <?php else: ?>
           <li><a href="/login">Login</a></li>
-          <li><a href="/register" class="btn btn-primary">Sign Up</a></li>
+          <li><a href="/register">Sign Up</a></li>
         <?php endif; ?>
       </ul>
     </nav>

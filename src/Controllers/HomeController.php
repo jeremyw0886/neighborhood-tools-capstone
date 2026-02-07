@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Models\Tool;
 
 class HomeController extends BaseController
 {
@@ -13,7 +14,7 @@ class HomeController extends BaseController
             'heroPage'    => true,
             'css'         => ['home'],
             'nearbyMembers' => [],
-            'featuredTools' => [],
+            'featuredTools' => Tool::getFeatured(6),
             'topMembers'    => [],
         ]);
     }

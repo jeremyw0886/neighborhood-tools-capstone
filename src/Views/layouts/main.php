@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ0Z5ZxuJEC6EPHnR3JluAnip1UQIzmfh73LoR1bBgNw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
 
+  <?php if (empty($heroPage)): ?>
   <header>
     <nav>
       <div>
@@ -37,8 +39,13 @@
   </header>
 
   <main>
+  <?php endif; ?>
+
     <?= $content ?>
+
+  <?php if (empty($heroPage)): ?>
   </main>
+  <?php endif; ?>
 
   <footer>
     <p>&copy; <?= date('Y') ?> NeighborhoodTools. Share tools, build community.</p>

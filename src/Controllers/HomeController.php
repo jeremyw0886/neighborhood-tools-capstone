@@ -11,7 +11,7 @@ class HomeController extends BaseController
     {
         try {
             $featuredTools = Tool::getFeatured(6);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $featuredTools = [];
         }
 

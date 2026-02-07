@@ -18,11 +18,11 @@ if ($isLocal) {
 } else {
     // SiteGround production configuration
     $dbConfig = [
-        'host'     => 'localhost',
-        'port'     => 3306,
-        'database' => 'dbh0ummzt1azm6',
-        'username' => 'u1at5eyvxeu68',
-        'password' => 'Ethan22122!',
+        'host'     => $_ENV['DB_HOST'] ?? 'localhost',
+        'port'     => $_ENV['DB_PORT'] ?? 3306,
+        'database' => $_ENV['DB_DATABASE'] ?? '',
+        'username' => $_ENV['DB_USERNAME'] ?? '',
+        'password' => $_ENV['DB_PASSWORD'] ?? '',
     ];
 }
 

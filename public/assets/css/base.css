@@ -101,10 +101,15 @@ a:hover {
 
 /* --- Media --- */
 
-img {
+img,
+svg {
     display: block;
     height: auto;
     max-width: 100%;
+}
+
+nav svg {
+    width: 48px;
 }
 
 /* --- Form elements --- */

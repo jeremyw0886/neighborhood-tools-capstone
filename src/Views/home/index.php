@@ -4,7 +4,7 @@
       <div id="top-bar-row">
         <div id="top-left">
           <a href="/" aria-label="NeighborhoodTools home">
-            <img src="/assets/images/logo.png" alt="NeighborhoodTools" id="top-logo">
+            <?php include BASE_PATH . '/public/assets/images/logo.svg'; ?>
           </a>
         </div>
         <nav id="top-nav" aria-label="Main navigation">

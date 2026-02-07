@@ -20,7 +20,7 @@
     <nav>
       <div>
         <a href="/">
-          <img src="/assets/images/logo.png" alt="NeighborhoodTools Logo">
+          <?php include BASE_PATH . '/public/assets/images/logo.svg'; ?>
           NeighborhoodTools
         </a>
       </div>

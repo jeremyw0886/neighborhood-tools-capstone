@@ -20,7 +20,7 @@ body:has(#home-wrapper) {
   margin: 0 auto;
   max-width: 1400px;
   text-align: center;
-  overflow-x: clip;
+  overflow-x: hidden;
   width: 100%;
 }
 
@@ -440,6 +440,7 @@ body:has(#home-wrapper) {
   gap: 1.25rem;
   overflow-x: auto;
   max-width: 100%;
+  width: 100%;
   overscroll-behavior-x: contain;
   padding-bottom: 0.75rem;
   scroll-snap-type: x mandatory;
@@ -667,8 +668,13 @@ body:has(#home-wrapper)>footer {
 /* ===== RESPONSIVE — TABLET (max-width: 900px) ===== */
 
 @media (max-width: 900px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   #home-wrapper {
-    width: auto;
+    width: 100%;
   }
 
   #home-wrapper #site-header {

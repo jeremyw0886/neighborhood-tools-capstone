@@ -8,6 +8,9 @@
 
 body:has(#home-wrapper) {
   background: linear-gradient(180deg, var(--mountain-fog) 0%, var(--mountain-cloud) 100%);
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
 }
 
 /* --- Home wrapper --- */
@@ -17,6 +20,7 @@ body:has(#home-wrapper) {
   margin: 0 auto;
   max-width: 1400px;
   text-align: center;
+  overflow-x: clip;
   width: 100%;
 }
 
@@ -413,6 +417,7 @@ body:has(#home-wrapper) {
 #home-wrapper #popular-picks {
   margin: 0 auto;
   max-width: 1400px;
+  overflow-x: hidden;
   padding: 3rem 1.5rem;
 }
 
@@ -434,6 +439,8 @@ body:has(#home-wrapper) {
   display: flex;
   gap: 1.25rem;
   overflow-x: auto;
+  max-width: 100%;
+  overscroll-behavior-x: contain;
   padding-bottom: 0.75rem;
   scroll-snap-type: x mandatory;
 }
@@ -641,9 +648,29 @@ body:has(#home-wrapper)>footer {
   color: var(--mountain-pine-dark);
 }
 
+@media (max-width: 1024px) {
+
+  #home-wrapper,
+  #home-wrapper #site-header,
+  #home-wrapper #top-bar-home,
+  #home-wrapper #members-sidebar,
+  #home-wrapper #home-main {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  #home-wrapper #site-header {
+    flex-direction: column;
+  }
+}
+
 /* ===== RESPONSIVE — TABLET (max-width: 900px) ===== */
 
 @media (max-width: 900px) {
+  #home-wrapper {
+    width: auto;
+  }
+
   #home-wrapper #site-header {
     flex-direction: column;
   }
@@ -822,9 +849,11 @@ body:has(#home-wrapper)>footer {
   }
 
   #home-wrapper #top-links {
-    left: -0.75rem;
-    right: -0.75rem;
+    left: 0;
+    right: 0;
+    width: 100%;
   }
+
 
   #home-wrapper #hero-content h1 {
     font-size: 1.35rem;

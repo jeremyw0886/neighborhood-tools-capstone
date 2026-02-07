@@ -4,23 +4,22 @@
    Properties alphabetized within each rule
    ============================================================ */
 
-/* --- Home page body override --- */
-
+/* ── Home page body override ── */
 body:has(#home-wrapper) {
   background: linear-gradient(180deg, var(--mountain-fog) 0%, var(--mountain-cloud) 100%);
   min-height: 100vh;
   min-height: 100svh;
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
-/* --- Home wrapper --- */
-
+/* ── Home wrapper ── */
 #home-wrapper {
   flex: 1;
   margin: 0 auto;
   max-width: 1400px;
+  overflow-x: hidden;
   text-align: center;
-  overflow-x: clip;
   width: 100%;
 }
 
@@ -32,8 +31,7 @@ body:has(#home-wrapper) {
   width: 100%;
 }
 
-/* ===== TOP BAR / HERO ===== */
-
+/* ── TOP BAR / HERO ── */
 #home-wrapper #top-bar-home {
   background: linear-gradient(135deg,
       var(--mountain-pine-dark) 0%,
@@ -44,7 +42,7 @@ body:has(#home-wrapper) {
   display: flex;
   flex: 2.8;
   flex-direction: column;
-  gap: .5rem;
+  gap: 0.5rem;
   padding: 1.25rem 1.5rem 2rem;
   position: relative;
 }
@@ -57,11 +55,6 @@ body:has(#home-wrapper) {
 
 #home-wrapper #top-bar-home a:hover {
   color: var(--mountain-gold);
-}
-
-#home-wrapper #top-bar-home a i {
-  margin-right: 0.25rem;
-  opacity: 0.8;
 }
 
 #home-wrapper #top-bar-home button {
@@ -118,25 +111,7 @@ body:has(#home-wrapper) {
   justify-content: flex-end;
 }
 
-#home-wrapper #hero-dropdown {
-  align-items: flex-start;
-  display: inline-flex;
-  flex-direction: row;
-  gap: 0.375rem;
-}
-
-#home-wrapper #hero-dropdown-toggle {
-  align-items: center;
-  display: inline-flex;
-}
-
-#home-wrapper #hero-dropdown-menu {
-  display: none;
-  gap: 0.75rem;
-}
-
-/* ===== HERO CONTENT ===== */
-
+/* ── HERO CONTENT ── */
 #home-wrapper #hero-content {
   display: flex;
   flex-direction: column;
@@ -204,8 +179,7 @@ body:has(#home-wrapper) {
   transform: translateY(-2px);
 }
 
-/* ===== HERO SEARCH ===== */
-
+/* ── HERO SEARCH ── */
 #home-wrapper #hero-search {
   align-items: center;
   background-color: var(--mountain-cloud);
@@ -264,8 +238,7 @@ body:has(#home-wrapper) {
   transform: scale(1.02);
 }
 
-/* ===== MEMBERS SIDEBAR ===== */
-
+/* ── MEMBERS SIDEBAR ── */
 #home-wrapper #members-sidebar {
   align-self: flex-start;
   border-radius: 0 0 0.75rem 0;
@@ -291,8 +264,7 @@ body:has(#home-wrapper) {
   margin-right: 0.375rem;
 }
 
-/* --- Location pill toggle --- */
-
+/* Location pill toggle */
 #home-wrapper #location-toggle {
   background: var(--mountain-fog);
   border: 1px solid rgba(139, 133, 120, 0.3);
@@ -328,24 +300,29 @@ body:has(#home-wrapper) {
   color: #fff;
 }
 
-/* --- Member cards --- */
-
+/* Member cards carousel */
 #home-wrapper #member-cards {
   display: flex;
   flex: 1;
   flex-direction: row;
   gap: 0.75rem;
+  min-width: 0;
   overflow-x: auto;
   padding-bottom: 0.5rem;
   scroll-snap-type: x mandatory;
+  scrollbar-gutter: thin;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 #home-wrapper #member-cards article {
   background: var(--mountain-cloud);
   border: 1px solid rgba(139, 133, 120, 0.2);
   border-radius: 0.75rem;
-  flex-shrink: 0;
+  box-sizing: border-box;
+  flex: 0 0 auto;
   min-width: 140px;
+  width: 140px;
   padding: 1rem;
   scroll-snap-align: start;
   transition: all 0.3s ease;
@@ -383,10 +360,6 @@ body:has(#home-wrapper) {
   margin-top: 0.25rem;
 }
 
-#home-wrapper .member-location i {
-  color: var(--mountain-gold);
-}
-
 #home-wrapper #member-cards article a[role="button"] {
   background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
   border-radius: 1.25rem;
@@ -404,21 +377,23 @@ body:has(#home-wrapper) {
   color: var(--mountain-pine-dark);
 }
 
-/* ===== HOME MAIN ===== */
-
+/* ── HOME MAIN ── */
 #home-wrapper #home-main {
-  max-width: 1275px;
+  box-sizing: border-box;
+  flex: 1;
   margin: 0 auto;
-  padding: 1.5rem;
+  max-width: 1275px;
+  overflow: hidden;
+  padding: 0 1.5rem;
 }
 
-/* ===== POPULAR PICKS ===== */
-
+/* ── POPULAR PICKS ── */
 #home-wrapper #popular-picks {
   margin: 0 auto;
   max-width: 1400px;
   overflow-x: hidden;
   padding: 3rem 1.5rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 #home-wrapper #popular-picks h2 {
@@ -438,18 +413,23 @@ body:has(#home-wrapper) {
 #home-wrapper #tool-cards {
   display: flex;
   gap: 1.25rem;
-  overflow-x: auto;
   max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
   overscroll-behavior-x: contain;
   padding-bottom: 0.75rem;
   scroll-snap-type: x mandatory;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 #home-wrapper .tool-card {
   background: var(--mountain-cloud);
   border: 1px solid rgba(139, 133, 120, 0.2);
   border-radius: 1rem 0 1rem 0;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  min-width: 220px;
   overflow: hidden;
   scroll-snap-align: start;
   transition: all 0.3s ease;
@@ -534,8 +514,17 @@ body:has(#home-wrapper) {
   width: 1.75rem;
 }
 
-/* ===== FRIENDLY NEIGHBORS ===== */
+/* Ensure cards never force extra width */
+#home-wrapper .tool-card,
+#home-wrapper #member-cards article {
+  min-width: 0;
+  /* Allow shrinking below explicit width if needed */
+  flex-shrink: 1;
+  /* Explicitly allow shrink (default anyway, but reinforce) */
+  box-sizing: border-box;
+}
 
+/* ── FRIENDLY NEIGHBORS ── */
 #home-wrapper #friendly-neighbors {
   background: linear-gradient(180deg,
       transparent 0%,
@@ -616,8 +605,7 @@ body:has(#home-wrapper) {
   margin-top: 0.625rem;
 }
 
-/* ===== HOME FOOTER OVERRIDE ===== */
-
+/* ── HOME FOOTER OVERRIDE ── */
 body:has(#home-wrapper)>footer {
   background: linear-gradient(135deg, var(--mountain-pine-dark) 0%, var(--mountain-pine) 100%);
   color: var(--mountain-cream);
@@ -626,8 +614,7 @@ body:has(#home-wrapper)>footer {
   text-align: center;
 }
 
-/* ===== MOBILE MENU TOGGLE ===== */
-
+/* ── MOBILE MENU TOGGLE ── */
 #home-wrapper #mobile-menu-toggle {
   align-items: center;
   background: rgba(255, 255, 255, 0.12);
@@ -648,6 +635,67 @@ body:has(#home-wrapper)>footer {
   color: var(--mountain-pine-dark);
 }
 
+/* ── RESPONSIVE ── */
+
+@media (max-width: 1100px) and (min-width: 641px) {
+
+  #home-wrapper #site-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  #home-wrapper #top-bar-home {
+    border-radius: 0;
+    flex: none;
+    width: 100%;
+  }
+
+  #home-wrapper #members-sidebar {
+    align-self: center;
+    border-radius: 0.75rem;
+    max-height: none;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  #home-wrapper #member-cards {
+    justify-content: center;
+  }
+
+  #home-wrapper #home-main {
+    padding: 1.25rem 1rem;
+  }
+
+  #home-wrapper #popular-picks,
+  #home-wrapper #friendly-neighbors {
+    padding: 2.5rem 1rem;
+  }
+
+  #home-wrapper #tool-cards,
+  #home-wrapper #member-cards {
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 1000px) {
+  #home-wrapper #hero-content>div {
+    flex-direction: column;
+  }
+
+  #home-wrapper #hero-browse,
+  #home-wrapper #hero-join {
+    max-width: none;
+    width: 100%;
+  }
+
+  #home-wrapper #hero-search {
+    margin: 0.5rem 0;
+    max-width: 100%;
+  }
+}
+
+/* Tablet / narrow desktop */
 @media (max-width: 1024px) {
 
   #home-wrapper,
@@ -663,8 +711,6 @@ body:has(#home-wrapper)>footer {
     flex-direction: column;
   }
 }
-
-/* ===== RESPONSIVE — TABLET (max-width: 900px) ===== */
 
 @media (max-width: 900px) {
   #home-wrapper {
@@ -703,16 +749,16 @@ body:has(#home-wrapper)>footer {
   }
 }
 
-/* ===== RESPONSIVE — LARGE PHONE (max-width: 640px) ===== */
-
+/* Large phone */
 @media (max-width: 640px) {
   #home-wrapper #mobile-menu-toggle {
     display: inline-flex;
   }
 
   #home-wrapper #top-bar-home {
+    border-radius: 0;
     gap: 1.25rem;
-    padding: 1rem 1rem 1.5rem;
+    padding: 1rem;
   }
 
   #home-wrapper #top-bar-row {
@@ -764,10 +810,6 @@ body:has(#home-wrapper)>footer {
     border-bottom: none;
   }
 
-  #home-wrapper #top-links a {
-    font-size: 1rem;
-  }
-
   #home-wrapper #hero-content h1 {
     font-size: 1.75rem;
   }
@@ -810,16 +852,22 @@ body:has(#home-wrapper)>footer {
     margin-bottom: 1rem;
   }
 
+  #home-wrapper #member-cards article {
+    min-width: 120px;
+    width: 120px;
+  }
+
   #home-wrapper #tool-cards {
     gap: 0.75rem;
   }
 
   #home-wrapper .tool-card {
-    width: 180px;
+    min-width: 160px;
+    width: 160px;
   }
 
   #home-wrapper .tool-card-image {
-    height: 140px;
+    height: 130px;
   }
 
   #home-wrapper #neighbor-cards {
@@ -835,8 +883,7 @@ body:has(#home-wrapper)>footer {
   }
 }
 
-/* ===== RESPONSIVE — SMALL PHONE (max-width: 400px) ===== */
-
+/* Small phone */
 @media (max-width: 400px) {
   #home-wrapper #top-bar-home {
     border-radius: 0 0 1rem 0;
@@ -853,7 +900,6 @@ body:has(#home-wrapper)>footer {
     right: 0;
     width: 100%;
   }
-
 
   #home-wrapper #hero-content h1 {
     font-size: 1.35rem;
@@ -883,12 +929,18 @@ body:has(#home-wrapper)>footer {
     padding: 0.5rem 0.875rem;
   }
 
+  #home-wrapper #member-cards article {
+    min-width: 110px;
+    width: 110px;
+  }
+
   #home-wrapper .tool-card {
-    width: 160px;
+    min-width: 140px;
+    width: 140px;
   }
 
   #home-wrapper .tool-card-image {
-    height: 120px;
+    height: 110px;
   }
 
   #home-wrapper #popular-picks h2,

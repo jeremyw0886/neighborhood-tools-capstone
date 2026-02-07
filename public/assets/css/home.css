@@ -17,6 +17,7 @@ body:has(#home-wrapper) {
   margin: 0 auto;
   max-width: 1400px;
   text-align: center;
+  width: 100%;
 }
 
 #home-wrapper #site-header {
@@ -39,7 +40,7 @@ body:has(#home-wrapper) {
   display: flex;
   flex: 2.8;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: .5rem;
   padding: 1.25rem 1.5rem 2rem;
   position: relative;
 }
@@ -102,7 +103,7 @@ body:has(#home-wrapper) {
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
-  padding: 1.45rem 1.5rem 0 0;
+  margin: 1.45rem 1.5rem 0 0;
 }
 
 #home-wrapper #top-links {
@@ -277,7 +278,7 @@ body:has(#home-wrapper) {
 #home-wrapper #members-sidebar h3 {
   color: var(--mountain-pine);
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.15rem;
+  font-size: 1.75rem;
   font-weight: 700;
 }
 
@@ -402,8 +403,9 @@ body:has(#home-wrapper) {
 /* ===== HOME MAIN ===== */
 
 #home-wrapper #home-main {
+  max-width: 1275px;
+  margin: 0 auto;
   padding: 1.5rem;
-  width: 100%;
 }
 
 /* ===== POPULAR PICKS ===== */

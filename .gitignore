@@ -44,3 +44,6 @@ local_testing/
 # Claude
 .claude
 CLAUDE.md
+
+# Minify CSS
+build-css.sh

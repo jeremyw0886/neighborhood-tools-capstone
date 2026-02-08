@@ -76,7 +76,7 @@
         <?php if (!empty($nearbyMembers)): ?>
           <?php foreach (array_slice($nearbyMembers, 0, 3) as $member): ?>
             <article aria-label="<?= htmlspecialchars($member['name']) ?> member card">
-              <a href="/profile/<?= $member['id_acc'] ?>">
+              <a href="/profile/<?= (int) $member['id_acc'] ?>">
                 <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                      alt="<?= htmlspecialchars($member['name']) ?>"
                      loading="lazy">
@@ -92,7 +92,7 @@
               <p class="member-location">
                 <i class="fa-solid fa-map-pin" aria-hidden="true"></i> <?= htmlspecialchars($member['neighborhood'] ?? 'Unknown') ?>
               </p>
-              <a href="/profile/<?= $member['id_acc'] ?>" role="button"><i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> View Profile</a>
+              <a href="/profile/<?= (int) $member['id_acc'] ?>" role="button"><i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> View Profile</a>
             </article>
           <?php endforeach; ?>
         <?php else: ?>
@@ -121,7 +121,7 @@
       <div id="neighbor-cards">
         <?php if (!empty($topMembers)): ?>
           <?php foreach (array_slice($topMembers, 0, 4) as $neighbor): ?>
-            <a href="/profile/<?= $neighbor['id_acc'] ?>" class="neighbor-card">
+            <a href="/profile/<?= (int) $neighbor['id_acc'] ?>" class="neighbor-card">
               <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                    alt="<?= htmlspecialchars($neighbor['name']) ?>"
                    class="neighbor-photo"

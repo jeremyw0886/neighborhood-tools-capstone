@@ -14,7 +14,7 @@
     </button>
   </figure>
   <div class="tool-card-info">
-    <h3><a href="/tools/<?= $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></h3>
+    <h3><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></h3>
     <footer class="tool-card-footer">
       <p class="tool-rating">
         <?php $avg = round($tool['avg_rating'] ?? 0); ?>

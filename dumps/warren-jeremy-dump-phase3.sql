@@ -4596,7 +4596,7 @@ BEGIN
         id_bor_urt,
         id_rtr_urt,
         score_urt,
-        review_text_urt
+        comment_text_urt
     ) VALUES (
         p_rater_id,
         p_target_id,
@@ -4681,7 +4681,7 @@ BEGIN
         id_tol_trt,
         id_bor_trt,
         score_trt,
-        review_text_trt
+        comment_text_trt
     ) VALUES (
         p_rater_id,
         v_tool_id,

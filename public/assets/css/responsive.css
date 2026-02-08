@@ -28,7 +28,7 @@
     justify-content: center;
   }
 
-  #home-wrapper #home-main {
+  #home-wrapper #main-content {
     padding: 1.25rem 1rem;
   }
 
@@ -72,7 +72,7 @@
     width: 100%;
   }
 
-  #home-wrapper #home-main {
+  #home-wrapper #main-content {
     max-width: 100%;
     width: 100%;
   }
@@ -197,7 +197,7 @@
     max-width: 100%;
   }
 
-  #home-wrapper #home-main {
+  #home-wrapper #main-content {
     padding: 1rem;
   }
 

@@ -102,7 +102,7 @@
     </aside>
   </header>
 
-  <main id="home-main">
+  <main id="main-content">
     <section id="popular-picks" aria-labelledby="popular-heading">
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <div id="tool-cards" role="list">

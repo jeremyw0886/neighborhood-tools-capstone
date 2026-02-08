@@ -378,7 +378,7 @@ body:has(#home-wrapper) {
 }
 
 /* ── HOME MAIN ── */
-#home-wrapper #home-main {
+#home-wrapper #main-content {
   box-sizing: border-box;
   flex: 1;
   margin: 0 auto;

@@ -15,6 +15,8 @@
 </head>
 <body>
 
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <?php if (empty($heroPage)): ?>
   <header>
     <nav>
@@ -46,7 +48,7 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main-content">
   <?php endif; ?>
 
     <?= $content ?>

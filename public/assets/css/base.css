@@ -143,6 +143,25 @@ main {
 
 /* --- Accessibility --- */
 
+.skip-link {
+    background: var(--mountain-pine);
+    border-radius: 0 0 0.25rem 0.25rem;
+    color: var(--mountain-cream);
+    font-weight: 600;
+    left: 50%;
+    padding: 0.5rem 1.5rem;
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%) translateY(-100%);
+    transition: transform 0.2s;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    color: var(--mountain-gold-light);
+    transform: translateX(-50%) translateY(0);
+}
+
 .visually-hidden {
     clip-path: inset(50%);
     height: 1px;

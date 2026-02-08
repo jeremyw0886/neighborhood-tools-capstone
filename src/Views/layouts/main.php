@@ -28,7 +28,7 @@
           NeighborhoodTools
         </a>
       </div>
-      <ul>
+      <ul role="list">
         <li><a href="/">Home</a></li>
         <li><a href="/tools">Browse Tools</a></li>
         <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>

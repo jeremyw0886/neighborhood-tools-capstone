@@ -36,7 +36,7 @@
           <?php endif; ?>
           <li>
             <span>Hello, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></span>
-            <form action="/logout" method="post" style="display:inline;">
+            <form action="/logout" method="post">
               <button type="submit">Logout</button>
             </form>
           </li>

@@ -123,6 +123,10 @@ button {
     font: inherit;
 }
 
+form[action="/logout"] {
+    display: inline;
+}
+
 input,
 select,
 textarea {

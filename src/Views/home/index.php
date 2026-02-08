@@ -28,7 +28,7 @@
               <ul id="hero-dropdown-menu" role="menu">
                 <li role="menuitem"><a href="/notifications" aria-label="Notifications"><i class="fa-solid fa-bell" aria-hidden="true"></i></a></li>
                 <li role="menuitem">
-                  <form action="/logout" method="post" style="display:inline;">
+                  <form action="/logout" method="post">
                     <button type="submit"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
                   </form>
                 </li>

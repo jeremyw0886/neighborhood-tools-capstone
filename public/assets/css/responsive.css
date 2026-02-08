@@ -46,18 +46,49 @@
 
 /* Tablet / narrow desktop */
 @media (max-width: 1024px) {
+  #home-wrapper {
+    max-width: 100%;
+    width: auto;
+  }
 
-  #home-wrapper,
-  #home-wrapper #site-header,
-  #home-wrapper #top-bar-home,
-  #home-wrapper #members-sidebar,
+  #home-wrapper #site-header {
+    flex-direction: column;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  #home-wrapper #top-bar-home {
+    border-radius: 0 0 2rem 0;
+    max-height: none;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  #home-wrapper #members-sidebar {
+    align-self: stretch;
+    height: auto;
+    max-height: none;
+    max-width: 100%;
+    width: 100%;
+  }
+
   #home-wrapper #home-main {
     max-width: 100%;
     width: 100%;
   }
 
-  #home-wrapper #site-header {
-    flex-direction: column;
+  #home-wrapper #popular-picks,
+  #home-wrapper #friendly-neighbors {
+    padding: 2rem 1.25rem;
+  }
+
+  #home-wrapper #neighbor-cards {
+    flex-wrap: wrap;
+  }
+
+  #home-wrapper .neighbor-card {
+    flex: 1 1 calc(50% - 0.625rem);
+    min-width: 200px;
   }
 }
 
@@ -75,43 +106,6 @@
   #home-wrapper #hero-search {
     margin: 0.5rem 0;
     max-width: 100%;
-  }
-}
-
-@media (max-width: 1024px) {
-  #home-wrapper {
-    width: auto;
-  }
-
-  #home-wrapper #site-header {
-    flex-direction: column;
-  }
-
-  #home-wrapper #top-bar-home {
-    border-radius: 0 0 2rem 0;
-    max-height: none;
-    width: 100%;
-  }
-
-  #home-wrapper #members-sidebar {
-    align-self: stretch;
-    height: auto;
-    max-height: none;
-    max-width: 100%;
-  }
-
-  #home-wrapper #popular-picks,
-  #home-wrapper #friendly-neighbors {
-    padding: 2rem 1.25rem;
-  }
-
-  #home-wrapper #neighbor-cards {
-    flex-wrap: wrap;
-  }
-
-  #home-wrapper .neighbor-card {
-    flex: 1 1 calc(50% - 0.625rem);
-    min-width: 200px;
   }
 }
 

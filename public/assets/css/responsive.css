@@ -1,0 +1,338 @@
+/* ── RESPONSIVE ── */
+
+@media (max-width: 1100px) and (min-width: 641px) {
+  body:has(#home-wrapper) {
+    max-width: 1100px;
+  }
+
+  #home-wrapper #site-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  #home-wrapper #top-bar-home {
+    border-radius: 0;
+    flex: none;
+    width: 100%;
+  }
+
+  #home-wrapper #members-sidebar {
+    align-self: center;
+    border-radius: 0.75rem;
+    max-height: none;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  #home-wrapper #member-cards {
+    justify-content: center;
+  }
+
+  #home-wrapper #home-main {
+    padding: 1.25rem 1rem;
+  }
+
+  #home-wrapper #popular-picks,
+  #home-wrapper #friendly-neighbors {
+    padding: 2.5rem 1rem;
+  }
+
+  #home-wrapper #tool-cards,
+  #home-wrapper #member-cards {
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+}
+
+/* Tablet / narrow desktop */
+@media (max-width: 1024px) {
+
+  #home-wrapper,
+  #home-wrapper #site-header,
+  #home-wrapper #top-bar-home,
+  #home-wrapper #members-sidebar,
+  #home-wrapper #home-main {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  #home-wrapper #site-header {
+    flex-direction: column;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 1000px) {
+  #home-wrapper #hero-content>div {
+    flex-direction: column;
+  }
+
+  #home-wrapper #hero-browse,
+  #home-wrapper #hero-join {
+    max-width: none;
+    width: 100%;
+  }
+
+  #home-wrapper #hero-search {
+    margin: 0.5rem 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  #home-wrapper {
+    width: auto;
+  }
+
+  #home-wrapper #site-header {
+    flex-direction: column;
+  }
+
+  #home-wrapper #top-bar-home {
+    border-radius: 0 0 2rem 0;
+    max-height: none;
+    width: 100%;
+  }
+
+  #home-wrapper #members-sidebar {
+    align-self: stretch;
+    height: auto;
+    max-height: none;
+    max-width: 100%;
+  }
+
+  #home-wrapper #popular-picks,
+  #home-wrapper #friendly-neighbors {
+    padding: 2rem 1.25rem;
+  }
+
+  #home-wrapper #neighbor-cards {
+    flex-wrap: wrap;
+  }
+
+  #home-wrapper .neighbor-card {
+    flex: 1 1 calc(50% - 0.625rem);
+    min-width: 200px;
+  }
+}
+
+/* Large phone */
+@media (max-width: 640px) {
+  #home-wrapper #mobile-menu-toggle {
+    display: inline-flex;
+  }
+
+  #home-wrapper #top-bar-home {
+    border-radius: 0;
+    gap: 1.25rem;
+    padding: 1rem;
+  }
+
+  #home-wrapper #top-bar-row {
+    align-items: center;
+    flex-direction: row;
+    position: relative;
+  }
+
+  #home-wrapper #top-left {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  #home-wrapper #top-left svg {
+    width: 120px;
+  }
+
+  #home-wrapper #top-nav {
+    align-items: center;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  #home-wrapper #top-links {
+    background: var(--mountain-pine-dark);
+    border-radius: 0 0 0.75rem 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    left: -1rem;
+    padding: 0.5rem 1rem;
+    position: absolute;
+    right: -1rem;
+    top: 100%;
+    z-index: 50;
+  }
+
+  #home-wrapper #top-links.open {
+    display: flex;
+  }
+
+  #home-wrapper #top-links li {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 0.5rem;
+  }
+
+  #home-wrapper #top-links li:last-child {
+    border-bottom: none;
+  }
+
+  #home-wrapper #hero-content h1 {
+    font-size: 1.75rem;
+  }
+
+  #home-wrapper #hero-content p {
+    font-size: 0.95rem;
+  }
+
+  #home-wrapper #hero-content>div {
+    align-items: center;
+    flex-direction: column;
+  }
+
+  #home-wrapper #hero-content>div a {
+    max-width: 280px;
+    width: 100%;
+  }
+
+  #home-wrapper #hero-browse,
+  #home-wrapper #hero-join {
+    width: 100%;
+  }
+
+  #home-wrapper #hero-search {
+    max-width: 100%;
+  }
+
+  #home-wrapper #home-main {
+    padding: 1rem;
+  }
+
+  #home-wrapper #popular-picks,
+  #home-wrapper #friendly-neighbors {
+    padding: 1.5rem 0;
+  }
+
+  #home-wrapper #popular-picks h2,
+  #home-wrapper #friendly-neighbors h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  #home-wrapper #member-cards article {
+    min-width: 120px;
+    width: 120px;
+  }
+
+  #home-wrapper #tool-cards {
+    gap: 0.75rem;
+  }
+
+  #home-wrapper .tool-card {
+    min-width: 160px;
+    width: 160px;
+  }
+
+  #home-wrapper .tool-card-image {
+    height: 130px;
+  }
+
+  #home-wrapper #neighbor-cards {
+    flex-direction: column;
+  }
+
+  #home-wrapper .neighbor-card {
+    flex: 1 1 100%;
+  }
+
+  #home-wrapper #members-sidebar {
+    padding: 1rem;
+  }
+}
+
+/* Small phone */
+@media (max-width: 400px) {
+  #home-wrapper #top-bar-home {
+    border-radius: 0 0 1rem 0;
+    gap: 1rem;
+    padding: 0.75rem 0.75rem 1.25rem;
+  }
+
+  #home-wrapper #top-left svg {
+    width: 100px;
+  }
+
+  #home-wrapper #top-links {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+
+  #home-wrapper #hero-content h1 {
+    font-size: 1.35rem;
+  }
+
+  #home-wrapper #hero-content p {
+    font-size: 0.85rem;
+  }
+
+  #home-wrapper #hero-browse,
+  #home-wrapper #hero-join {
+    font-size: 0.9rem;
+    padding: 0.625rem 1.25rem;
+  }
+
+  #home-wrapper #hero-search {
+    padding: 0.1875rem 0.1875rem 0.1875rem 0.75rem;
+  }
+
+  #home-wrapper #hero-search input {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+
+  #home-wrapper #hero-search button {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  #home-wrapper #member-cards article {
+    min-width: 110px;
+    width: 110px;
+  }
+
+  #home-wrapper .tool-card {
+    min-width: 140px;
+    width: 140px;
+  }
+
+  #home-wrapper .tool-card-image {
+    height: 110px;
+  }
+
+  #home-wrapper #popular-picks h2,
+  #home-wrapper #friendly-neighbors h2 {
+    font-size: 1.25rem;
+  }
+
+  #home-wrapper .neighbor-card {
+    padding: 1rem 0.75rem;
+  }
+
+  body:has(#home-wrapper)>footer {
+    font-size: 0.85rem;
+    padding: 1rem;
+  }
+
+  #home-wrapper #members-sidebar {
+    padding: 0.75rem;
+  }
+
+  #home-wrapper #members-sidebar h3 {
+    font-size: 1rem;
+  }
+
+  #home-wrapper #member-cards article img {
+    height: 48px;
+    width: 48px;
+  }
+}

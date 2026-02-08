@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'name'     => $_ENV['APP_NAME'] ?? 'NeighborhoodTools',
     'env'      => $_ENV['APP_ENV'] ?? 'production',

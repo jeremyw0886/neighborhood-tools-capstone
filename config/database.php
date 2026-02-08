@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Detect environment based on server name
 $isLocal = in_array(
     $_SERVER['SERVER_NAME'] ?? '',

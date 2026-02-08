@@ -7,8 +7,8 @@ Thumbs.db
 !.vscode/settings.json
 !.vscode/extensions.json
 
-# PHP dependencies
-vendor/
+# PHP dependencies (root Composer vendor only)
+/vendor/
 
 # Environment and credentials
 .env

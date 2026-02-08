@@ -53,6 +53,10 @@
 
   /* --- Document --- */
 
+  html {
+      scroll-behavior: smooth;
+  }
+
   body {
       background-color: var(--mountain-cream);
       color: var(--mountain-charcoal);

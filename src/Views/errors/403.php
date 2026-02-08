@@ -3,20 +3,20 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Page Not Found — NeighborhoodTools</title>
-    <meta name="description" content="The page you're looking for doesn't exist.">
+    <title>Access Denied — NeighborhoodTools</title>
+    <meta name="description" content="You don't have permission to access this page.">
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/errors.css">
 </head>
 <body>
     <main id="error-page">
         <div id="error-fog" aria-hidden="true"></div>
-        <h1>404</h1>
-        <h2>Lost in the Mountains</h2>
-        <p>The trail you're looking for doesn't exist &mdash; it may have been moved or the path was wrong.</p>
+        <h1>403</h1>
+        <h2>Trail Closed</h2>
+        <p>You don't have permission to access this area. If you think this is a mistake, try logging in or head back home.</p>
         <nav>
             <a href="/">Back to Home</a>
-            <a href="/tools">Browse Tools</a>
+            <a href="/login">Log In</a>
         </nav>
         <figure aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">

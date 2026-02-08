@@ -23,4 +23,21 @@ class BaseController
         // Load the layout (which uses $content)
         require BASE_PATH . '/src/Views/layouts/main.php';
     }
+
+    /**
+     * Halt execution and display an error page.
+     */
+    protected function abort(int $code): never
+    {
+        http_response_code($code);
+        $errorPage = BASE_PATH . '/src/Views/errors/' . $code . '.php';
+
+        if (is_file($errorPage)) {
+            require $errorPage;
+        } else {
+            require BASE_PATH . '/src/Views/errors/500.php';
+        }
+
+        exit;
+    }
 }

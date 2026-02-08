@@ -38,33 +38,39 @@ if ($uri !== '/') {
 // Match route
 $matched = false;
 
-foreach ($routes as $route => $handler) {
-    [$routeMethod, $routePath] = explode(' ', $route, 2);
+try {
+    foreach ($routes as $route => $handler) {
+        [$routeMethod, $routePath] = explode(' ', $route, 2);
 
-    if ($method !== $routeMethod) {
-        continue;
+        if ($method !== $routeMethod) {
+            continue;
+        }
+
+        // Convert route placeholders {param} to regex
+        $pattern = preg_replace('/\{([a-zA-Z]+)\}/', '(?P<$1>[^/]+)', $routePath);
+        $pattern = '#^' . $pattern . '$#';
+
+        if (preg_match($pattern, $uri, $matches)) {
+            [$controllerClass, $action] = $handler;
+
+            // Extract named parameters
+            $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+
+            // Instantiate controller and call action
+            $controller = new $controllerClass();
+            $controller->$action(...array_values($params));
+
+            $matched = true;
+            break;
+        }
     }
 
-    // Convert route placeholders {param} to regex
-    $pattern = preg_replace('/\{([a-zA-Z]+)\}/', '(?P<$1>[^/]+)', $routePath);
-    $pattern = '#^' . $pattern . '$#';
-
-    if (preg_match($pattern, $uri, $matches)) {
-        [$controllerClass, $action] = $handler;
-
-        // Extract named parameters
-        $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
-
-        // Instantiate controller and call action
-        $controller = new $controllerClass();
-        $controller->$action(...array_values($params));
-
-        $matched = true;
-        break;
+    if (!$matched) {
+        http_response_code(404);
+        require BASE_PATH . '/src/Views/errors/404.php';
     }
-}
-
-if (!$matched) {
-    http_response_code(404);
-    require BASE_PATH . '/src/Views/errors/404.php';
+} catch (\Throwable $e) {
+    http_response_code(500);
+    error_log($e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    require BASE_PATH . '/src/Views/errors/500.php';
 }

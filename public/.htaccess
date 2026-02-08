@@ -18,9 +18,41 @@ Options -Indexes
 # Set default charset
 AddDefaultCharset UTF-8
 
-# Security headers for static assets
+# Security headers
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "DENY"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Fonts — immutable, cache for 1 year
+    ExpiresByType font/woff2                      "access plus 1 year"
+    ExpiresByType font/woff                       "access plus 1 year"
+    ExpiresByType application/font-woff2          "access plus 1 year"
+    ExpiresByType application/font-woff           "access plus 1 year"
+
+    # CSS and JS — cache for 1 year (use fingerprinted filenames or query strings to bust)
+    ExpiresByType text/css                        "access plus 1 year"
+    ExpiresByType application/javascript           "access plus 1 year"
+    ExpiresByType text/javascript                  "access plus 1 year"
+
+    # Images
+    ExpiresByType image/svg+xml                   "access plus 1 year"
+    ExpiresByType image/png                       "access plus 1 year"
+    ExpiresByType image/jpeg                      "access plus 1 year"
+    ExpiresByType image/webp                      "access plus 1 year"
+    ExpiresByType image/avif                      "access plus 1 year"
+    ExpiresByType image/gif                       "access plus 1 year"
+    ExpiresByType image/x-icon                    "access plus 1 year"
+</IfModule>
+
+# Cache-Control headers for assets that mod_expires may miss
+<IfModule mod_headers.c>
+    <FilesMatch "\.(woff2|woff|css|js|svg|png|jpe?g|webp|avif|gif|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
 </IfModule>

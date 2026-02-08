@@ -19,25 +19,17 @@ class Tool
 
         $sql = "
             SELECT
-                t.id_tol,
-                t.tool_name_tol,
-                tim.file_name_tim   AS primary_image,
-                COALESCE(
-                    (SELECT AVG(trt.score_trt)
-                     FROM tool_rating_trt trt
-                     WHERE trt.id_tol_trt = t.id_tol), 0
-                ) AS avg_rating,
-                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
-                aim.file_name_aim   AS owner_avatar
-            FROM tool_tol t
-            JOIN account_acc a
-                ON a.id_acc = t.id_acc_tol
-            LEFT JOIN tool_image_tim tim
-                ON tim.id_tol_tim = t.id_tol AND tim.is_primary_tim = 1
+                td.id_tol,
+                td.tool_name_tol,
+                td.primary_image,
+                td.avg_rating,
+                td.owner_name,
+                aim.file_name_aim AS owner_avatar
+            FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
-                ON aim.id_acc_aim = a.id_acc AND aim.is_primary_aim = 1
-            WHERE t.is_available_tol = 1
-            ORDER BY avg_rating DESC, t.created_at_tol DESC
+                ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
+            WHERE td.availability_status = 'AVAILABLE'
+            ORDER BY td.avg_rating DESC, td.created_at_tol DESC
             LIMIT :limit
         ";
 

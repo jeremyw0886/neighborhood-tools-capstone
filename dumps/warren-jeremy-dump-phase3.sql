@@ -33,7 +33,7 @@ SET TIME_ZONE='+00:00';
 
 CREATE DATABASE IF NOT EXISTS neighborhoodtools
     CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+    COLLATE utf8mb4_0900_ai_ci;
 
 USE neighborhoodtools;
 
@@ -1268,7 +1268,7 @@ CREATE TABLE neighborhood_summary_mat (
     INDEX idx_state_mat (state_code_sta),
     INDEX idx_city_mat (city_name_nbh),
     INDEX idx_refreshed_mat (refreshed_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 COMMENT='Materialized view: pre-computed neighborhood statistics';
 
 -- Materialized version of user_reputation_v
@@ -1297,7 +1297,7 @@ CREATE TABLE user_reputation_mat (
     INDEX idx_borrower_rating_mat (borrower_avg_rating DESC),
     INDEX idx_overall_rating_mat (overall_avg_rating DESC),
     INDEX idx_refreshed_mat (refreshed_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 COMMENT='Materialized view: pre-computed user reputation scores';
 
 -- Materialized version of tool_statistics_view
@@ -1331,7 +1331,7 @@ CREATE TABLE tool_statistics_mat (
     INDEX idx_avg_rating_mat (avg_rating DESC),
     INDEX idx_total_borrows_mat (total_borrows DESC),
     INDEX idx_refreshed_mat (refreshed_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 COMMENT='Materialized view: pre-computed tool statistics';
 
 -- Materialized version of category_summary_v
@@ -1357,7 +1357,7 @@ CREATE TABLE category_summary_mat (
     INDEX idx_total_tools_mat (total_tools DESC),
     INDEX idx_available_mat (available_tools DESC),
     INDEX idx_refreshed_mat (refreshed_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 COMMENT='Materialized view: pre-computed category statistics';
 
 -- Daily platform-wide statistics for admin dashboard
@@ -1385,7 +1385,7 @@ CREATE TABLE platform_daily_stat_pds (
     refreshed_at_pds TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_stat_month_pds (stat_date_pds)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 COMMENT='Daily platform statistics for admin dashboard and reporting';
 
 -- ============================================================

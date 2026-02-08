@@ -17,3 +17,10 @@ Options -Indexes
 
 # Set default charset
 AddDefaultCharset UTF-8
+
+# Security headers for static assets
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

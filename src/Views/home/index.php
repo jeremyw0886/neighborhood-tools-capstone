@@ -80,7 +80,8 @@
                 <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                      alt="<?= htmlspecialchars($member['name']) ?>"
                      width="60" height="60"
-                     loading="lazy">
+                     loading="lazy"
+                     decoding="async">
               </a>
               <h4><?= htmlspecialchars($member['name']) ?></h4>
               <p class="member-rating">

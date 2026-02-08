@@ -4,12 +4,14 @@
       <img src="/uploads/tools/<?= htmlspecialchars($tool['primary_image']) ?>"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="220" height="180"
-           loading="lazy">
+           loading="lazy"
+           decoding="async">
     <?php else: ?>
       <img src="/assets/images/tool-placeholder.png"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="220" height="180"
-           loading="lazy">
+           loading="lazy"
+           decoding="async">
     <?php endif; ?>
     <button class="tool-bookmark" type="button" aria-label="Bookmark <?= htmlspecialchars($tool['tool_name_tol']) ?>">
       <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
@@ -29,7 +31,8 @@
            alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
            class="tool-owner-avatar"
            width="28" height="28"
-           loading="lazy">
+           loading="lazy"
+           decoding="async">
     </footer>
   </div>
 </article>

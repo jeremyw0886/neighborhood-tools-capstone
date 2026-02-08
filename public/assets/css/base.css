@@ -4,191 +4,199 @@
    Properties alphabetized within each rule
    ============================================================ */
 
-/* --- Design tokens --- */
+/* --- Layer order declaration --- */
 
-:root {
-    /* Primary - Deep Pine Forest */
-    --mountain-pine: #1b3a2f;
-    --mountain-pine-dark: #0f251d;
-    --mountain-pine-light: #3a6a55;
+@layer base, components, utilities;
 
-    /* Secondary - Misty Mountain Blues */
-    --mountain-mist: #5f7480;
-    --mountain-mist-light: #8ea1ab;
-    --mountain-slate: #394a53;
+/* --- Base layer: tokens, resets, element defaults --- */
 
-    /* Accent - Golden Sunset */
-    --mountain-gold: #c89b3c;
-    --mountain-gold-light: #e0bd71;
-    --mountain-gold-dark: #a1792b;
+@layer base {
+  :root {
+      /* Primary - Deep Pine Forest */
+      --mountain-pine: #1b3a2f;
+      --mountain-pine-dark: #0f251d;
+      --mountain-pine-light: #3a6a55;
 
-    /* Earth Tones */
-    --mountain-earth: #7a5a3d;
-    --mountain-bark: #4c3626;
-    --mountain-stone: #9a9081;
+      /* Secondary - Misty Mountain Blues */
+      --mountain-mist: #5f7480;
+      --mountain-mist-light: #8ea1ab;
+      --mountain-slate: #394a53;
 
-    /* Neutrals */
-    --mountain-cream: #f4efe7;
-    --mountain-fog: #e0e2db;
-    --mountain-cloud: #fbfaf6;
-    --mountain-charcoal: #2a2a2a;
+      /* Accent - Golden Sunset */
+      --mountain-gold: #c89b3c;
+      --mountain-gold-light: #e0bd71;
+      --mountain-gold-dark: #a1792b;
 
-    /* Shadows */
-    --shadow-pine: rgba(27, 58, 47, 0.18);
-    --shadow-mountain: rgba(57, 74, 83, 0.14);
+      /* Earth Tones */
+      --mountain-earth: #7a5a3d;
+      --mountain-bark: #4c3626;
+      --mountain-stone: #9a9081;
+
+      /* Neutrals */
+      --mountain-cream: #f4efe7;
+      --mountain-fog: #e0e2db;
+      --mountain-cloud: #fbfaf6;
+      --mountain-charcoal: #2a2a2a;
+
+      /* Shadows */
+      --shadow-pine: rgba(27, 58, 47, 0.18);
+      --shadow-mountain: rgba(57, 74, 83, 0.14);
+  }
+
+  /* --- Reset --- */
+
+  * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+  }
+
+  /* --- Document --- */
+
+  body {
+      background-color: var(--mountain-cream);
+      color: var(--mountain-charcoal);
+      display: flex;
+      flex-direction: column;
+      font: clamp(0.938rem, 0.75rem + 0.5vw, 1.125rem) / 1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+  }
+
+  /* --- Typography --- */
+
+  h1 {
+      font-size: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.1;
+  }
+
+  h2 {
+      font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+      font-weight: 600;
+      line-height: 1.2;
+  }
+
+  h3 {
+      font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+      font-weight: 600;
+      line-height: 1.3;
+  }
+
+  h4 {
+      font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+      font-weight: 600;
+      line-height: 1.4;
+  }
+
+  p {
+      margin-bottom: 0.75rem;
+  }
+
+  /* --- Links --- */
+
+  a {
+      color: var(--mountain-pine-light);
+      text-decoration: none;
+      transition: color 0.25s;
+  }
+
+  a:hover {
+      color: var(--mountain-gold);
+  }
+
+  /* --- Media --- */
+
+  img,
+  svg {
+      display: block;
+      height: auto;
+      max-width: 100%;
+  }
+
+  nav svg {
+      width: 48px;
+  }
+
+  /* --- Form elements --- */
+
+  button {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+  }
+
+  form[action="/logout"] {
+      display: inline;
+  }
+
+  input,
+  select,
+  textarea {
+      font: inherit;
+  }
+
+  /* --- Lists --- */
+
+  ul {
+      list-style: none;
+  }
+
+  /* --- Layout --- */
+
+  main {
+      flex: 1;
+  }
 }
 
-/* --- Reset --- */
+/* --- Utilities layer: accessibility, focus, reduced motion --- */
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+@layer utilities {
+  .skip-link {
+      background: var(--mountain-pine);
+      border-radius: 0 0 0.25rem 0.25rem;
+      color: var(--mountain-cream);
+      font-weight: 600;
+      left: 50%;
+      padding: 0.5rem 1.5rem;
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%) translateY(-100%);
+      transition: transform 0.2s;
+      z-index: 1000;
+  }
 
-/* --- Document --- */
+  .skip-link:focus {
+      color: var(--mountain-gold-light);
+      transform: translateX(-50%) translateY(0);
+  }
 
-body {
-    background-color: var(--mountain-cream);
-    color: var(--mountain-charcoal);
-    display: flex;
-    flex-direction: column;
-    font: clamp(0.938rem, 0.75rem + 0.5vw, 1.125rem) / 1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
+  .visually-hidden {
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+  }
 
-/* --- Typography --- */
+  :focus-visible {
+      outline: 2px solid var(--mountain-pine-light);
+      outline-offset: 2px;
+  }
 
-h1 {
-    font-size: clamp(2rem, 1.5rem + 2vw, 2.75rem);
-    font-weight: 700;
-    line-height: 1.1;
-}
+  /* --- Reduced motion --- */
 
-h2 {
-    font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-h3 {
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-h4 {
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-p {
-    margin-bottom: 0.75rem;
-}
-
-/* --- Links --- */
-
-a {
-    color: var(--mountain-pine-light);
-    text-decoration: none;
-    transition: color 0.25s;
-}
-
-a:hover {
-    color: var(--mountain-gold);
-}
-
-/* --- Media --- */
-
-img,
-svg {
-    display: block;
-    height: auto;
-    max-width: 100%;
-}
-
-nav svg {
-    width: 48px;
-}
-
-/* --- Form elements --- */
-
-button {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    font: inherit;
-}
-
-form[action="/logout"] {
-    display: inline;
-}
-
-input,
-select,
-textarea {
-    font: inherit;
-}
-
-/* --- Lists --- */
-
-ul {
-    list-style: none;
-}
-
-/* --- Layout --- */
-
-main {
-    flex: 1;
-}
-
-/* --- Accessibility --- */
-
-.skip-link {
-    background: var(--mountain-pine);
-    border-radius: 0 0 0.25rem 0.25rem;
-    color: var(--mountain-cream);
-    font-weight: 600;
-    left: 50%;
-    padding: 0.5rem 1.5rem;
-    position: absolute;
-    top: 0;
-    transform: translateX(-50%) translateY(-100%);
-    transition: transform 0.2s;
-    z-index: 1000;
-}
-
-.skip-link:focus {
-    color: var(--mountain-gold-light);
-    transform: translateX(-50%) translateY(0);
-}
-
-.visually-hidden {
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-}
-
-:focus-visible {
-    outline: 2px solid var(--mountain-pine-light);
-    outline-offset: 2px;
-}
-
-/* --- Reduced motion --- */
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
-    }
+  @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+      }
+  }
 }

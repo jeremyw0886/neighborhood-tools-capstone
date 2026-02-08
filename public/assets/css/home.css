@@ -64,7 +64,7 @@ body:has(#home-wrapper) {
   color: #fff;
   font-size: 0.9rem;
   padding: 0.5rem 1rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 #home-wrapper #top-bar-home button:hover {
@@ -190,7 +190,7 @@ body:has(#home-wrapper) {
   margin: 0.25rem auto 0;
   max-width: 480px;
   padding: 0.25rem 0.25rem 0.25rem 1rem;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   width: 100%;
 }
 
@@ -229,7 +229,7 @@ body:has(#home-wrapper) {
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0.625rem 1.25rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 #home-wrapper #hero-search button:hover {
@@ -291,7 +291,7 @@ body:has(#home-wrapper) {
   font-weight: 600;
   padding: 0.5rem 1rem;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
 }
 
 #home-wrapper #location-toggle input[type="radio"]:checked+label {
@@ -324,7 +324,7 @@ body:has(#home-wrapper) {
   width: 140px;
   padding: 1rem;
   scroll-snap-align: start;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 #home-wrapper #member-cards article:hover {
@@ -368,7 +368,7 @@ body:has(#home-wrapper) {
   font-weight: 600;
   margin-top: 0.75rem;
   padding: 0.5rem 1.125rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #home-wrapper #member-cards article a[role="button"]:hover {
@@ -431,7 +431,7 @@ body:has(#home-wrapper) {
   min-width: 220px;
   overflow: hidden;
   scroll-snap-align: start;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   width: 220px;
 }
 
@@ -462,7 +462,7 @@ body:has(#home-wrapper) {
   position: absolute;
   right: 0.5rem;
   top: 0.5rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
   width: 2.75rem;
 }
 
@@ -562,7 +562,7 @@ body:has(#home-wrapper) {
   padding: 1.5rem 1rem;
   text-align: center;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 #home-wrapper .neighbor-card:hover {
@@ -621,7 +621,7 @@ body:has(#home-wrapper)>footer {
   font-size: 1.25rem;
   height: 2.75rem;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   width: 2.75rem;
 }
 

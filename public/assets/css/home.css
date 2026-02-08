@@ -310,7 +310,6 @@ body:has(#home-wrapper) {
   overflow-x: auto;
   padding-bottom: 0.5rem;
   scroll-snap-type: x mandatory;
-  scrollbar-gutter: thin;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }

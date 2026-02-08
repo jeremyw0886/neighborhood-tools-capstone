@@ -30,11 +30,13 @@
         <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
           <li><a href="/dashboard">Dashboard</a></li>
           <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'super_admin'])): ?>
-            <li><a href="/admin/dashboard">Admin</a></li>
+            <li><a href="/admin">Admin</a></li>
           <?php endif; ?>
           <li>
             <span>Hello, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></span>
-            <a href="/logout">Logout</a>
+            <form action="/logout" method="post" style="display:inline;">
+              <button type="submit">Logout</button>
+            </form>
           </li>
         <?php else: ?>
           <li><a href="/login">Login</a></li>

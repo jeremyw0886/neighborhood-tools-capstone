@@ -64,7 +64,7 @@
       </section>
     </section>
     <aside aria-labelledby="sidebar-heading">
-      <h3 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h3>
+      <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
       <fieldset aria-label="Select your area">
         <legend class="visually-hidden">Choose location</legend>
         <input type="radio" id="loc-asheville" name="location" value="asheville" checked>
@@ -83,7 +83,7 @@
                      loading="lazy"
                      decoding="async">
               </a>
-              <h4><?= htmlspecialchars($member['name']) ?></h4>
+              <h3><?= htmlspecialchars($member['name']) ?></h3>
               <p>
                 <?php $avg = round($member['avg_rating'] ?? 0); ?>
                 <?php for ($i = 1; $i <= 5; $i++): ?>

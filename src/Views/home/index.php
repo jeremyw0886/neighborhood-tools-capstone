@@ -27,7 +27,11 @@
               </button>
               <ul id="hero-dropdown-menu" role="menu">
                 <li role="menuitem"><a href="/notifications" aria-label="Notifications"><i class="fa-solid fa-bell" aria-hidden="true"></i></a></li>
-                <li role="menuitem"><a href="/logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</a></li>
+                <li role="menuitem">
+                  <form action="/logout" method="post" style="display:inline;">
+                    <button type="submit"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
+                  </form>
+                </li>
               </ul>
             <?php else: ?>
               <a href="/login" role="button">
@@ -104,7 +108,7 @@
       <div id="tool-cards" role="list">
         <?php if (!empty($featuredTools)): ?>
           <?php foreach ($featuredTools as $tool): ?>
-            <?php include BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
+            <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
           <?php endforeach; ?>
         <?php else: ?>
           <p>No tools available yet. Be the first to list one!</p>

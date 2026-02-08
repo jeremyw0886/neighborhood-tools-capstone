@@ -1,6 +1,6 @@
 /* ── RESPONSIVE ── */
 
-@media (max-width: 1100px) and (min-width: 641px) {
+@media (max-width: 1100px) and (min-width: 1025px) {
   body:has(#home-wrapper) {
     max-width: 1100px;
   }
@@ -53,12 +53,14 @@
 
   #home-wrapper #site-header {
     flex-direction: column;
+    gap: 1.5rem;
     max-width: 100%;
     width: 100%;
   }
 
   #home-wrapper #top-bar-home {
     border-radius: 0 0 2rem 0;
+    flex: none;
     max-height: none;
     max-width: 100%;
     width: 100%;
@@ -66,20 +68,32 @@
 
   #home-wrapper #members-sidebar {
     align-self: stretch;
+    border-radius: 0.75rem;
     height: auto;
     max-height: none;
     max-width: 100%;
     width: 100%;
   }
 
+  #home-wrapper #member-cards {
+    justify-content: center;
+  }
+
   #home-wrapper #main-content {
     max-width: 100%;
+    padding: 1.25rem 1rem;
     width: 100%;
   }
 
   #home-wrapper #popular-picks,
   #home-wrapper #friendly-neighbors {
     padding: 2rem 1.25rem;
+  }
+
+  #home-wrapper #tool-cards,
+  #home-wrapper #member-cards {
+    gap: 1rem;
+    padding: 0 0.5rem;
   }
 
   #home-wrapper #neighbor-cards {

@@ -79,6 +79,7 @@
               <a href="/profile/<?= (int) $member['id_acc'] ?>">
                 <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                      alt="<?= htmlspecialchars($member['name']) ?>"
+                     width="60" height="60"
                      loading="lazy">
               </a>
               <h4><?= htmlspecialchars($member['name']) ?></h4>
@@ -125,6 +126,7 @@
               <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                    alt="<?= htmlspecialchars($neighbor['name']) ?>"
                    class="neighbor-photo"
+                   width="80" height="80"
                    loading="lazy">
               <h3><?= htmlspecialchars($neighbor['name']) ?></h3>
               <p class="neighbor-rating">

@@ -25,8 +25,15 @@ $routes    = require BASE_PATH . '/config/routes.php';
 // Set timezone
 date_default_timezone_set($appConfig['timezone']);
 
-// Start session
-session_start();
+// Start session with secure cookie settings
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
+
+session_start([
+    'cookie_httponly' => true,
+    'cookie_samesite' => 'Lax',
+    'cookie_secure'   => $isHttps,
+]);
 
 // Security headers
 header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'");

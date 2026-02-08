@@ -299,6 +299,8 @@
 
     /* Member cards carousel */
     & > section {
+      container-name: member-list;
+      container-type: inline-size;
       display: flex;
       flex: 1;
       flex-direction: row;
@@ -437,6 +439,8 @@
     }
 
     & > div {
+      container-name: card-grid;
+      container-type: inline-size;
       display: flex;
       gap: 1.25rem;
       max-width: 100%;
@@ -575,6 +579,8 @@
     }
 
     & > div {
+      container-name: neighbor-grid;
+      container-type: inline-size;
       display: flex;
       gap: 1.25rem;
     }
@@ -630,6 +636,62 @@
       font-style: italic;
       line-height: 1.5;
       margin-block-start: 0.625rem;
+    }
+  }
+
+  /* ── CONTAINER QUERIES — component-responsive card layouts ── */
+
+  @container card-grid (max-width: 500px) {
+    .tool-card {
+      min-width: 160px;
+      width: 160px;
+
+      & > figure {
+        height: 130px;
+      }
+    }
+  }
+
+  @container card-grid (max-width: 350px) {
+    .tool-card {
+      min-width: 140px;
+      width: 140px;
+
+      & > figure {
+        height: 110px;
+      }
+    }
+  }
+
+  @container neighbor-grid (max-width: 700px) {
+    .neighbor-card {
+      flex: 1 1 calc(50% - 0.625rem);
+      min-width: 200px;
+    }
+  }
+
+  @container neighbor-grid (max-width: 400px) {
+    .neighbor-card {
+      flex: 1 1 100%;
+    }
+  }
+
+  @container member-list (max-width: 400px) {
+    article {
+      min-width: 120px;
+      width: 120px;
+    }
+  }
+
+  @container member-list (max-width: 300px) {
+    article {
+      min-width: 110px;
+      width: 110px;
+
+      & img {
+        height: 48px;
+        width: 48px;
+      }
     }
   }
 

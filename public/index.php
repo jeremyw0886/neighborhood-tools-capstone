@@ -36,6 +36,11 @@ session_start([
     'cookie_secure'   => $isHttps,
 ]);
 
+// Generate CSRF token if one doesn't exist
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Security headers
 header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'");
 header('X-Content-Type-Options: nosniff');

@@ -132,7 +132,7 @@
       font: inherit;
   }
 
-  form[action="/logout"] {
+  #hero-dropdown form {
       display: inline;
   }
 

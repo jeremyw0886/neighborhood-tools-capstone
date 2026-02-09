@@ -253,6 +253,40 @@
     }
   }
 
+  /* ── Auth pages ── */
+
+  @media (max-width: 640px) {
+    .auth-page {
+      padding: 1rem;
+    }
+
+    .auth-card {
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .auth-card form > button[type="submit"] {
+      min-height: 3rem;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .auth-card {
+      box-shadow: none;
+      border-inline: none;
+      border-radius: 0;
+    }
+
+    .auth-page {
+      padding: 0.5rem 0;
+    }
+  }
+
   /* Small phone */
   @media (max-width: 400px) {
     .home-page > header > section {

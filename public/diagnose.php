@@ -10,9 +10,12 @@ declare(strict_types=1);
 
 header('Content-Type: text/plain; charset=utf-8');
 
-// Bootstrap the app so Database::connection() and constants work
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../config/bootstrap.php';
+// Bootstrap — mirrors public/index.php setup
+define('BASE_PATH', dirname(__DIR__));
+require BASE_PATH . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
+$dotenv->load();
 
 use App\Core\Database;
 

@@ -9,10 +9,6 @@ declare(strict_types=1);
  */
 
 define('BASE_PATH', dirname(__DIR__));
-define('ASSET_VERSION', ($_ENV['APP_ENV'] ?? 'production') === 'development'
-    ? (string) time()
-    : '1.0.1'
-);
 
 // Autoload dependencies
 require BASE_PATH . '/vendor/autoload.php';
@@ -20,6 +16,12 @@ require BASE_PATH . '/vendor/autoload.php';
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
 $dotenv->load();
+
+// Cache-busting version — must come after dotenv so APP_ENV is available
+define('ASSET_VERSION', ($_ENV['APP_ENV'] ?? 'production') === 'development'
+    ? (string) time()
+    : '1.0.1'
+);
 
 // Load configuration
 $appConfig = require BASE_PATH . '/config/app.php';

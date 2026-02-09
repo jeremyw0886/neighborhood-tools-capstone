@@ -398,6 +398,7 @@
     dialog {
       border-radius: 0.75rem;
       max-height: 95vh;
+      max-height: 95dvh;
       width: calc(100vw - 1rem);
     }
 
@@ -432,22 +433,25 @@
       border-radius: 0;
       height: 100%;
       max-height: 100vh;
+      max-height: 100dvh;
       max-width: 100vw;
       width: 100%;
     }
 
     dialog > header {
       background: var(--mountain-cloud);
+      padding-block-start: calc(0.625rem + env(safe-area-inset-top, 0px));
       position: sticky;
       top: 0;
       z-index: 1;
     }
 
     dialog > footer {
-      flex-direction: column;
-      position: sticky;
-      bottom: 0;
       background: var(--mountain-cloud);
+      bottom: 0;
+      flex-direction: column;
+      padding-block-end: calc(0.625rem + env(safe-area-inset-bottom, 0px));
+      position: sticky;
       z-index: 1;
     }
 

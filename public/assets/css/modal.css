@@ -23,6 +23,7 @@
     color: var(--mountain-charcoal);
     margin: auto;
     max-height: 85vh;
+    max-height: 85dvh;
     max-width: 720px;
     opacity: 1;
     padding: 0;
@@ -104,7 +105,8 @@
     /* ── Body — scrollable content area ── */
 
     & > div {
-      flex: 1;
+      flex: 1 1 0%;
+      min-height: 0;
       overflow-y: auto;
       overscroll-behavior: contain;
       padding-block: clamp(1rem, 0.75rem + 0.75vw, 1.5rem);

@@ -22,8 +22,8 @@
                 0 4px 12px rgba(0, 0, 0, 0.1);
     color: var(--mountain-charcoal);
     margin: auto;
-    max-height: 85vh;
-    max-height: 85dvh;
+    height: 85vh;
+    height: 85dvh;
     max-width: min(54rem, calc(100vw - 2rem));
     opacity: 1;
     padding: 0;

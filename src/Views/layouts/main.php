@@ -6,9 +6,17 @@
     <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
     <link rel="preload" href="/assets/vendor/fontawesome/css/all.min.css" as="style">
-    <link rel="preload" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css">
+    <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
+    <link rel="stylesheet" href="/assets/css/base.css?v=<?= ASSET_VERSION ?>">
+    <link rel="stylesheet" href="/assets/css/home.css?v=<?= ASSET_VERSION ?>">
+    <link rel="stylesheet" href="/assets/css/auth.css?v=<?= ASSET_VERSION ?>">
+    <link rel="stylesheet" href="/assets/css/errors.css?v=<?= ASSET_VERSION ?>">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=<?= ASSET_VERSION ?>">
+    <?php else: ?>
+    <link rel="preload" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
+    <?php endif; ?>
     <?php if (!empty($pageCss)): ?>
       <?php foreach ((array) $pageCss as $cssFile): ?>
     <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>">

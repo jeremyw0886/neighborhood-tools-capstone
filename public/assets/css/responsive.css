@@ -136,25 +136,15 @@
       padding: 1rem;
     }
 
-    .home-page > header > section > div {
+    .home-page > header > section > nav[data-hero] {
       align-items: center;
-      flex-direction: row;
+      display: flex;
+      gap: 0.5rem;
       position: relative;
     }
 
-    .home-page > header > section > div > div {
-      align-items: center;
-      flex-direction: row;
-    }
-
-    .home-page > header > section > div > div svg {
+    .home-page > header > section > nav[data-hero] > a:first-child svg {
       width: 120px;
-    }
-
-    .home-page > header nav {
-      align-items: center;
-      flex-direction: row;
-      gap: 0.5rem;
     }
 
     .home-page > header nav > ul {
@@ -295,7 +285,7 @@
       padding: 0.75rem 0.75rem 1.25rem;
     }
 
-    .home-page > header > section > div > div svg {
+    .home-page > header > section > nav[data-hero] > a:first-child svg {
       width: 100px;
     }
 

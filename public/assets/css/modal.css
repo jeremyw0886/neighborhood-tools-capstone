@@ -24,12 +24,12 @@
     margin: auto;
     max-height: 85vh;
     max-height: 85dvh;
-    max-width: 720px;
+    max-width: min(54rem, calc(100vw - 2rem));
     opacity: 1;
     padding: 0;
     transform: scale(1);
     transition: opacity 0.25s ease, transform 0.25s ease;
-    width: min(720px, calc(100vw - 2rem));
+    width: min(54rem, calc(100vw - 2rem));
 
     /* ── Backdrop ── */
 

@@ -193,6 +193,13 @@
     margin-block-start: 0.25rem;
   }
 
+  /* --- Honeypot — offscreen so bots fill it, users don't --- */
+
+  .auth-card [name="website"] {
+    left: -9999px;
+    position: absolute;
+  }
+
   /* --- Submit button --- */
 
   .auth-card form > button[type="submit"] {

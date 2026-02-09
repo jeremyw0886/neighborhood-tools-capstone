@@ -1,0 +1,248 @@
+/* ============================================================
+   auth.css — Login and registration form styles
+   Uses mountain design tokens from base.css
+   ============================================================ */
+
+@layer components {
+
+  /* --- Page wrapper — centers the card vertically --- */
+
+  .auth-page {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    min-height: calc(100vh - 8rem);
+    padding: clamp(1rem, 3vw, 3rem);
+  }
+
+  /* --- Card container --- */
+
+  .auth-card {
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px var(--shadow-pine), 0 1px 4px var(--shadow-mountain);
+    max-width: 520px;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    width: 100%;
+
+    /* Card header */
+    & > header {
+      margin-block-end: 1.5rem;
+      text-align: center;
+
+      & > i {
+        color: var(--mountain-pine-light);
+        font-size: 2rem;
+        margin-block-end: 0.75rem;
+      }
+
+      & > h1 {
+        color: var(--mountain-pine);
+        font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+        margin-block-end: 0.375rem;
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: 0.938rem;
+        margin-block-end: 0;
+      }
+    }
+
+    /* Card footer */
+    & > footer {
+      border-top: 1px solid var(--mountain-fog);
+      margin-block-start: 1.5rem;
+      padding-block-start: 1rem;
+      text-align: center;
+
+      & p {
+        color: var(--mountain-mist);
+        font-size: 0.875rem;
+        margin-block-end: 0;
+      }
+
+      & a {
+        color: var(--mountain-pine-light);
+        font-weight: 600;
+        text-decoration: underline;
+        text-decoration-color: var(--mountain-gold-light);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-gold);
+          text-decoration-color: var(--mountain-gold);
+        }
+      }
+    }
+  }
+
+  /* --- Alert / error messages --- */
+
+  .auth-message {
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-block-end: 1.25rem;
+    padding: 0.75rem 1rem;
+
+    & > i {
+      margin-inline-end: 0.5rem;
+    }
+  }
+
+  .auth-message--error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+  }
+
+  /* --- Form elements --- */
+
+  .auth-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .auth-card fieldset {
+    border: none;
+    margin-block-end: 0.75rem;
+    padding: 0;
+
+    & > legend {
+      color: var(--mountain-pine);
+      font-size: 0.813rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-block-end: 0.75rem;
+      text-transform: uppercase;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+
+    & > .form-group {
+      flex: 1;
+    }
+  }
+
+  .form-group {
+    margin-block-end: 1rem;
+
+    & > label {
+      color: var(--mountain-slate);
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-block-end: 0.375rem;
+    }
+
+    & > :is(input, select) {
+      background: var(--mountain-cream);
+      border: 1.5px solid var(--mountain-fog);
+      border-radius: 0.5rem;
+      color: var(--mountain-charcoal);
+      min-height: 2.75rem;
+      padding: 0.625rem 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+
+      &::placeholder {
+        color: var(--mountain-stone);
+      }
+
+      &:focus {
+        border-color: var(--mountain-pine-light);
+        box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
+        outline: none;
+      }
+
+      &:user-invalid {
+        border-color: #ef4444;
+      }
+    }
+
+    & > select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23394a53' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-position: right 0.875rem center;
+      background-repeat: no-repeat;
+      background-size: 12px;
+      padding-inline-end: 2.5rem;
+    }
+
+    /* Inline error spans */
+    & > span[role="alert"] {
+      color: #dc2626;
+      display: block;
+      font-size: 0.813rem;
+      margin-block-start: 0.25rem;
+    }
+  }
+
+  .form-hint {
+    color: var(--mountain-mist);
+    display: block;
+    font-size: 0.75rem;
+    margin-block-start: 0.25rem;
+  }
+
+  /* --- Submit button --- */
+
+  .auth-card form > button[type="submit"] {
+    background: var(--mountain-pine);
+    border-radius: 0.5rem;
+    color: var(--mountain-cream);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-block-start: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.75rem 1.5rem;
+    transition: background-color 0.2s, transform 0.1s;
+    width: 100%;
+
+    & > i {
+      margin-inline-end: 0.5rem;
+    }
+
+    &:is(:hover, :focus-visible) {
+      background: var(--mountain-pine-light);
+    }
+
+    &:active {
+      transform: scale(0.985);
+    }
+  }
+
+  /* --- High contrast mode --- */
+
+  @media (prefers-contrast: more) {
+    .auth-card {
+      border-width: 2px;
+      border-color: var(--mountain-charcoal);
+    }
+
+    .auth-card :is(input, select) {
+      border-width: 2px;
+    }
+
+    .auth-card form > button[type="submit"] {
+      border: 2px solid var(--mountain-pine-dark);
+    }
+  }
+
+  /* --- Reduced motion --- */
+
+  @media (prefers-reduced-motion: reduce) {
+    .auth-card :is(input, select, button) {
+      transition: none;
+    }
+  }
+
+}

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/assets/css/base.css?v=<?= ASSET_VERSION ?>">
     <link rel="stylesheet" href="/assets/css/home.css?v=<?= ASSET_VERSION ?>">
     <link rel="stylesheet" href="/assets/css/nav.css?v=<?= ASSET_VERSION ?>">
+    <link rel="stylesheet" href="/assets/css/modal.css?v=<?= ASSET_VERSION ?>">
     <link rel="stylesheet" href="/assets/css/auth.css?v=<?= ASSET_VERSION ?>">
     <link rel="stylesheet" href="/assets/css/errors.css?v=<?= ASSET_VERSION ?>">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=<?= ASSET_VERSION ?>">

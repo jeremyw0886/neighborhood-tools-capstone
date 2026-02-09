@@ -543,4 +543,60 @@
     }
   }
 
+  /* ── Browse tools page ── */
+
+  @media (max-width: 640px) {
+    main > section[aria-labelledby="browse-heading"] {
+      padding-block: 1.25rem;
+      padding-inline: 1rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > header > h1 {
+      font-size: 1.5rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type > div {
+      flex-basis: 100%;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type > button[type="submit"],
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type > a[role="button"] {
+      align-self: stretch;
+      justify-content: center;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > div[role="list"] {
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    main > section[aria-labelledby="browse-heading"] > nav[aria-label="Pagination"] > ul > li > a > span,
+    main > section[aria-labelledby="browse-heading"] > nav[aria-label="Pagination"] > ul > li > span[aria-disabled] > span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 400px) {
+    main > section[aria-labelledby="browse-heading"] {
+      padding-inline: 0.75rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type {
+      padding-inline: 0.75rem 0.1875rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type > button > span {
+      display: none;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > div[role="list"] {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+  }
+
 }

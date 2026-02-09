@@ -195,7 +195,7 @@
 
   /* --- Honeypot — offscreen so bots fill it, users don't --- */
 
-  .auth-card [name="website"] {
+  .auth-card div[aria-hidden="true"] {
     left: -9999px;
     position: absolute;
   }

@@ -27,7 +27,7 @@
         <?php endfor; ?>
         <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
       </p>
-      <img src="<?= htmlspecialchars($tool['owner_avatar'] ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.png') ?>"
+      <img src="<?= htmlspecialchars(($tool['owner_avatar'] ?? null) ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.png') ?>"
            alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
            width="28" height="28"
            loading="lazy"

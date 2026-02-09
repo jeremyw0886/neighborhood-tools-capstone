@@ -21,34 +21,7 @@
 
   <?php if (empty($heroPage)): ?>
   <header>
-    <nav>
-      <div>
-        <a href="/">
-          <?php include BASE_PATH . '/public/assets/images/logo.svg'; ?>
-          NeighborhoodTools
-        </a>
-      </div>
-      <ul role="list">
-        <li><a href="/">Home</a></li>
-        <li><a href="/tools">Browse Tools</a></li>
-        <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
-          <li><a href="/dashboard">Dashboard</a></li>
-          <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'super_admin'])): ?>
-            <li><a href="/admin">Admin</a></li>
-          <?php endif; ?>
-          <li>
-            <span>Hello, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></span>
-            <form action="/logout" method="post">
-              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '') ?>">
-              <button type="submit">Logout</button>
-            </form>
-          </li>
-        <?php else: ?>
-          <li><a href="/login">Login</a></li>
-          <li><a href="/register">Sign Up</a></li>
-        <?php endif; ?>
-      </ul>
-    </nav>
+    <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
   </header>
 
   <main id="main-content">
@@ -63,6 +36,16 @@
   <footer>
     <p>&copy; <?= date('Y') ?> NeighborhoodTools. Share tools, build community.</p>
   </footer>
+
+  <?php
+    $modalPartials = ['modal-how-to.php', 'modal-faq.php', 'modal-tos.php'];
+    foreach ($modalPartials as $modal) {
+        $path = BASE_PATH . '/src/Views/partials/' . $modal;
+        if (file_exists($path)) {
+            require $path;
+        }
+    }
+  ?>
 
 </body>
 </html>

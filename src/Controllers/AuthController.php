@@ -22,6 +22,7 @@ class AuthController extends BaseController
         $this->render('auth/login', [
             'title'       => 'Log In — NeighborhoodTools',
             'description' => 'Log in to your NeighborhoodTools account to borrow and lend tools in your community.',
+            'pageCss'     => ['auth.css'],
             'error'       => $_SESSION['auth_error'] ?? null,
             'oldEmail'    => $_SESSION['auth_old_email'] ?? '',
         ]);
@@ -108,6 +109,7 @@ class AuthController extends BaseController
         $this->render('auth/register', [
             'title'         => 'Sign Up — NeighborhoodTools',
             'description'   => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
+            'pageCss'       => ['auth.css'],
             'neighborhoods' => $neighborhoods,
             'errors'        => $_SESSION['register_errors'] ?? [],
             'old'           => $_SESSION['register_old'] ?? [],

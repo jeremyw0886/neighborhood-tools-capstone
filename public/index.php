@@ -18,9 +18,13 @@ $dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
 $dotenv->load();
 
 // Cache-busting version — must come after dotenv so APP_ENV is available
+// Dev: timestamp on every request (never cached). Prod: content hash from build.
 define('ASSET_VERSION', ($_ENV['APP_ENV'] ?? 'production') === 'development'
     ? (string) time()
-    : '1.0.1'
+    : (static function (): string {
+        $file = BASE_PATH . '/config/asset-version.php';
+        return file_exists($file) ? require $file : '1.0.0';
+    })()
 );
 
 // Load configuration

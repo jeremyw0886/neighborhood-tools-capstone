@@ -45,5 +45,5 @@ local_testing/
 .claude
 CLAUDE.md
 
-# Minify CSS
-build-css.sh
+# Build tools (not needed on server — output is committed)
+build-css.php

@@ -9,6 +9,11 @@
     <link rel="preload" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
+    <?php if (!empty($pageCss)): ?>
+      <?php foreach ((array) $pageCss as $cssFile): ?>
+    <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>">
+      <?php endforeach; ?>
+    <?php endif; ?>
 </head>
 <body>
 
@@ -34,6 +39,7 @@
           <li>
             <span>Hello, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></span>
             <form action="/logout" method="post">
+              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '') ?>">
               <button type="submit">Logout</button>
             </form>
           </li>

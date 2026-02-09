@@ -397,8 +397,9 @@
   @media (max-width: 640px) {
     dialog {
       border-radius: 0.75rem;
-      max-height: 95vh;
-      max-height: 95dvh;
+      height: 90vh;
+      height: 90dvh;
+      max-height: none;
       width: calc(100vw - 1rem);
     }
 

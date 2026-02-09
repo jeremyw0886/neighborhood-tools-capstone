@@ -4,14 +4,21 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\Tos;
+
 class BaseController
 {
+    /** Cache for current TOS to avoid repeated queries within a request. */
+    private static ?array $cachedTos = null;
+    private static bool $tosCacheLoaded = false;
+
     /**
      * Build the shared data array available to every view.
      *
      * Views receive these variables automatically — no direct $_SESSION reads needed.
      *
-     * @return array{isLoggedIn: bool, authUser: ?array, csrfToken: string, currentPage: string}
+     * @return array{isLoggedIn: bool, authUser: ?array, csrfToken: string,
+     *               currentPage: string, currentTos: ?array, tosAccepted: bool}
      */
     protected function getSharedData(): array
     {
@@ -27,11 +34,26 @@ class BaseController
             ]
             : null;
 
+        // Cache TOS query — lightweight (single row) but no reason to repeat it
+        if (!self::$tosCacheLoaded) {
+            self::$cachedTos = Tos::getCurrent();
+            self::$tosCacheLoaded = true;
+        }
+
+        $currentTos = self::$cachedTos;
+
+        // Safe default: if no active TOS exists, treat as accepted so users aren't blocked
+        $tosAccepted = $currentTos === null
+            || !$isLoggedIn
+            || Tos::hasUserAccepted(accountId: $authUser['id'], tosId: (int) $currentTos['id_tos']);
+
         return [
             'isLoggedIn'  => $isLoggedIn,
             'authUser'    => $authUser,
             'csrfToken'   => $_SESSION['csrf_token'] ?? '',
             'currentPage' => parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/',
+            'currentTos'  => $currentTos,
+            'tosAccepted' => $tosAccepted,
         ];
     }
 

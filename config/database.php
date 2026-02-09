@@ -30,7 +30,8 @@ if ($isLocal) {
 
 $dbConfig['charset']   = 'utf8mb4';
 $dbConfig['collation'] = $isLocal ? 'utf8mb4_0900_ai_ci' : 'utf8mb4_unicode_ci';
-$dbConfig['options']   = [
+
+$dbConfig['options'] = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,

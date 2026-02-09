@@ -3780,6 +3780,9 @@ BEGIN
 END$$
 DELIMITER ;
 
+SET @ROUTINE_OLD_SQL_MODE=@@SQL_MODE;
+SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
 -- ============================================================
 -- Helper Functions for Lookup IDs
 -- ============================================================
@@ -5216,6 +5219,8 @@ BEGIN
     CALL sp_cleanup_old_search_logs(30, v_count);
 END$$
 DELIMITER ;
+
+SET SQL_MODE=@ROUTINE_OLD_SQL_MODE;
 
 -- ================================================================
 -- ================================================================

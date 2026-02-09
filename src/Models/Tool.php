@@ -81,7 +81,15 @@ class Tool
 
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        $results = $stmt->fetchAll();
+
+        // MySQL SPs return multiple result sets (data + status). Consume all
+        // of them so the connection is clean for the next query. Without this,
+        // subsequent queries on the same PDO connection fail with
+        // "Cannot execute queries while other unbuffered queries are active."
+        $stmt->closeCursor();
+
+        return $results;
     }
 
     /**

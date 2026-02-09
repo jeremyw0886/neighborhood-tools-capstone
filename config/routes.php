@@ -26,6 +26,7 @@ use App\Controllers\IncidentController;
 use App\Controllers\NotificationController;
 use App\Controllers\WaiverController;
 use App\Controllers\TosController;
+use App\Controllers\PageController;
 use App\Controllers\CategoryController;
 use App\Controllers\AdminController;
 
@@ -113,6 +114,10 @@ return [
     // Waivers
     'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],
     'POST /waiver/{borrowId}'      => [WaiverController::class, 'sign'],
+
+    // Informational pages (progressive-enhancement fallbacks for modals)
+    'GET /how-to'                  => [PageController::class, 'howTo'],
+    'GET /faq'                     => [PageController::class, 'faq'],
 
     // Terms of Service
     'GET /tos'                     => [TosController::class, 'show'],

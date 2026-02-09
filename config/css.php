@@ -17,6 +17,7 @@ return [
     'nav.css',
     'modal.css',
     'auth.css',
+    'pages.css',
     'errors.css',
     'home.css',
     'responsive.css',

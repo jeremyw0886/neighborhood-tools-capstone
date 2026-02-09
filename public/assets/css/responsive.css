@@ -126,7 +126,7 @@
 
   /* Large phone */
   @media (max-width: 640px) {
-    .home-page > header nav > button {
+    .home-page > header nav[data-hero] > button {
       display: inline-flex;
     }
 
@@ -147,7 +147,7 @@
       width: 120px;
     }
 
-    .home-page > header nav > ul {
+    .home-page > header nav[data-hero] > ul {
       background: var(--mountain-pine-dark);
       border-radius: 0 0 0.75rem 0.75rem;
       border-top: 1px solid rgba(255, 255, 255, 0.15);
@@ -162,16 +162,16 @@
       z-index: 50;
     }
 
-    .home-page > header nav > ul.open {
+    .home-page > header nav[data-hero] > ul.open {
       display: flex;
     }
 
-    .home-page > header nav > ul > li {
+    .home-page > header nav[data-hero] > ul > li {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding: 0.75rem 0.5rem;
     }
 
-    .home-page > header nav > ul > li:last-child {
+    .home-page > header nav[data-hero] > ul > li:last-child {
       border-bottom: none;
     }
 
@@ -289,7 +289,7 @@
       width: 100px;
     }
 
-    .home-page > header nav > ul {
+    .home-page > header nav[data-hero] > ul {
       left: 0;
       right: 0;
       width: 100%;

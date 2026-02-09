@@ -9,7 +9,10 @@ declare(strict_types=1);
  */
 
 define('BASE_PATH', dirname(__DIR__));
-define('ASSET_VERSION', '1.0.0');
+define('ASSET_VERSION', ($_ENV['APP_ENV'] ?? 'production') === 'development'
+    ? (string) time()
+    : '1.0.1'
+);
 
 // Autoload dependencies
 require BASE_PATH . '/vendor/autoload.php';

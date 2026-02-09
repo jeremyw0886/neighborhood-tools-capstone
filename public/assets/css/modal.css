@@ -21,10 +21,6 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25),
                 0 4px 12px rgba(0, 0, 0, 0.1);
     color: var(--mountain-charcoal);
-    container-name: modal;
-    container-type: inline-size;
-    display: flex;
-    flex-direction: column;
     margin: auto;
     max-height: 85vh;
     max-width: 720px;
@@ -51,6 +47,15 @@
       &::backdrop {
         opacity: 0;
       }
+    }
+
+    /* Only generate a visible box when the dialog is open.
+       Keeps UA display:none intact for closed dialogs. */
+    &[open] {
+      container-name: modal;
+      container-type: inline-size;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── Header — sticky with title and close button ── */

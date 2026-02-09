@@ -277,6 +277,33 @@
     }
   }
 
+  /* ── Standalone pages (How To, FAQs, TOS) ── */
+
+  @media (max-width: 640px) {
+    article[aria-labelledby$="-heading"] > header {
+      margin-block-end: 1.5rem;
+    }
+
+    article[aria-labelledby$="-heading"] > footer {
+      margin-block-start: 1.5rem;
+      padding-block-start: 1rem;
+    }
+  }
+
+  @media (max-width: 400px) {
+    article[aria-labelledby$="-heading"] > header > h1 {
+      font-size: 1.25rem;
+    }
+
+    article[aria-labelledby$="-heading"] > footer {
+      flex-direction: column;
+    }
+
+    article[aria-labelledby$="-heading"] > footer button[type="submit"] {
+      width: 100%;
+    }
+  }
+
   /* ── Standard nav — collapse to hamburger ── */
 
   @media (max-width: 640px) {

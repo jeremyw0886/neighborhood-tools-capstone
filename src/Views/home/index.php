@@ -1,59 +1,17 @@
 <div class="home-page">
   <header>
     <section aria-label="Hero section">
-      <div>
-        <div>
-          <a href="/" aria-label="NeighborhoodTools home">
-            <?php include BASE_PATH . '/public/assets/images/logo.svg'; ?>
-          </a>
-        </div>
-        <nav aria-label="Main navigation">
-          <button id="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="top-links">
-            <i class="fa-solid fa-bars" aria-hidden="true"></i>
-          </button>
-          <ul id="top-links" role="list">
-            <li><a href="#"><i class="fa-solid fa-book" aria-hidden="true"></i> How To</a></li>
-            <li><a href="/tos"><i class="fa-solid fa-file-contract" aria-hidden="true"></i> Terms of Service</a></li>
-            <li><a href="#"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> FAQ's</a></li>
-            <li><a href="/tools"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools</a></li>
-          </ul>
-          <div>
-            <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
-              <a href="/dashboard" role="button">
-                <i class="fa-solid fa-gauge" aria-hidden="true"></i> <?= htmlspecialchars($_SESSION['user_first_name'] ?? 'My') ?>'s Dashboard
-              </a>
-              <button id="hero-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More options">
-                <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-              </button>
-              <ul id="hero-dropdown-menu" role="menu">
-                <li role="menuitem"><a href="/notifications" aria-label="Notifications"><i class="fa-solid fa-bell" aria-hidden="true"></i></a></li>
-                <li role="menuitem">
-                  <form action="/logout" method="post">
-                    <button type="submit"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
-                  </form>
-                </li>
-              </ul>
-            <?php else: ?>
-              <a href="/login" role="button">
-                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in
-              </a>
-              <button id="hero-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More options">
-                <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-              </button>
-              <ul id="hero-dropdown-menu" role="menu">
-                <li role="menuitem"><a href="/register"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Sign Up</a></li>
-                <li role="menuitem"><a href="/tools"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools</a></li>
-              </ul>
-            <?php endif; ?>
-          </div>
-        </nav>
-      </div>
+      <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
       <section aria-labelledby="hero-heading">
         <h1 id="hero-heading">Share Tools, Build Community</h1>
         <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
         <div>
           <a href="/tools" role="button"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools</a>
-          <a href="/register" role="button"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
+          <?php if ($isLoggedIn): ?>
+            <a href="/tools/create" role="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool</a>
+          <?php else: ?>
+            <a href="/register" role="button"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
+          <?php endif; ?>
         </div>
         <form role="search" aria-label="Search tools" action="/tools" method="get">
           <label for="search-tools" class="visually-hidden">Search tools</label>

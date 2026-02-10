@@ -5,18 +5,31 @@ declare(strict_types=1);
 // Detect environment based on server name
 $isLocal = in_array(
     $_SERVER['SERVER_NAME'] ?? '',
-    ['localhost', 'neighborhoodtools', 'neighborhoodtools.local', '127.0.0.1']
+    ['localhost', 'neighborhoodtools', 'neighborhoodtools.local', 'neighborhoodtools.test', '127.0.0.1']
 );
 
 if ($isLocal) {
-    // Local MAMP PRO MySQL configuration (port 8889)
-    $dbConfig = [
-        'host'     => 'localhost',
-        'port'     => 8889,
-        'database' => 'neighborhoodtools',
-        'username' => 'root',
-        'password' => 'root',
-    ];
+    $isWindows = PHP_OS_FAMILY === 'Windows';
+
+    if ($isWindows) {
+        // Local Laragon MySQL configuration (default port, empty password)
+        $dbConfig = [
+            'host'     => 'localhost',
+            'port'     => 3306,
+            'database' => 'neighborhoodtools',
+            'username' => 'root',
+            'password' => '',
+        ];
+    } else {
+        // Local MAMP PRO MySQL configuration (port 8889)
+        $dbConfig = [
+            'host'     => 'localhost',
+            'port'     => 8889,
+            'database' => 'neighborhoodtools',
+            'username' => 'root',
+            'password' => 'root',
+        ];
+    }
 } else {
     // SiteGround production configuration
     $dbConfig = [

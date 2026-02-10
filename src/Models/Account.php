@@ -127,6 +127,36 @@ class Account
     }
 
     /**
+     * Fetch reputation data for a user from the fast (materialized) view.
+     *
+     * Returns lender/borrower/overall ratings, tool counts, and completed borrows.
+     *
+     * @return ?array{id_acc: int, full_name: string, lender_avg_rating: float,
+     *               lender_rating_count: int, borrower_avg_rating: float,
+     *               borrower_rating_count: int, overall_avg_rating: float,
+     *               total_rating_count: int, tools_owned: int, completed_borrows: int}
+     */
+    public static function getReputation(int $accountId): ?array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT *
+            FROM user_reputation_fast_v
+            WHERE id_acc = :id
+            LIMIT 1
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Verify a plaintext password against a stored hash.
      */
     public static function verifyPassword(string $input, string $hash): bool

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\Notification;
 use App\Models\Tos;
 
 class BaseController
@@ -12,13 +13,18 @@ class BaseController
     private static ?array $cachedTos = null;
     private static bool $tosCacheLoaded = false;
 
+    /** Cache for unread notification count — same pattern as TOS cache. */
+    private static ?int $cachedUnreadCount = null;
+    private static bool $unreadCacheLoaded = false;
+
     /**
      * Build the shared data array available to every view.
      *
      * Views receive these variables automatically — no direct $_SESSION reads needed.
      *
      * @return array{isLoggedIn: bool, authUser: ?array, csrfToken: string,
-     *               currentPage: string, currentTos: ?array, tosAccepted: bool}
+     *               currentPage: string, currentTos: ?array, tosAccepted: bool,
+     *               unreadCount: int}
      */
     protected function getSharedData(): array
     {
@@ -47,6 +53,14 @@ class BaseController
             || !$isLoggedIn
             || Tos::hasUserAccepted(accountId: $authUser['id'], tosId: (int) $currentTos['id_tos']);
 
+        // Cache unread notification count — cheap indexed query, but no reason to repeat
+        if (!self::$unreadCacheLoaded) {
+            self::$cachedUnreadCount = $isLoggedIn
+                ? Notification::getUnreadCount($authUser['id'])
+                : 0;
+            self::$unreadCacheLoaded = true;
+        }
+
         return [
             'isLoggedIn'  => $isLoggedIn,
             'authUser'    => $authUser,
@@ -54,6 +68,7 @@ class BaseController
             'currentPage' => parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/',
             'currentTos'  => $currentTos,
             'tosAccepted' => $tosAccepted,
+            'unreadCount' => self::$cachedUnreadCount,
         ];
     }
 

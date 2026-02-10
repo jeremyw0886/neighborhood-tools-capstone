@@ -11,6 +11,7 @@
  *   $authUser    ?array{id, name, first_name, role, avatar}
  *   $csrfToken   string
  *   $currentPage string  (current URI path)
+ *   $unreadCount int     (unread notification count for badge)
  *   $heroPage    bool    (set by controller, absent/false for standard pages)
  */
 
@@ -64,6 +65,14 @@ $isHero = !empty($heroPage);
 
       <span>Hello, <?= htmlspecialchars($authUser['first_name']) ?></span>
 
+      <a href="/notifications"
+         aria-label="Notifications<?= $unreadCount > 0 ? " ({$unreadCount} unread)" : '' ?>">
+        <i class="fa-solid fa-bell" aria-hidden="true"></i>
+        <?php if ($unreadCount > 0): ?>
+          <span><?= $unreadCount ?></span>
+        <?php endif; ?>
+      </a>
+
       <button id="hero-dropdown-toggle"
               type="button"
               aria-haspopup="true"
@@ -76,11 +85,6 @@ $isHero = !empty($heroPage);
         <li role="menuitem">
           <a href="/dashboard">
             <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard
-          </a>
-        </li>
-        <li role="menuitem">
-          <a href="/notifications" aria-label="Notifications">
-            <i class="fa-solid fa-bell" aria-hidden="true"></i> Notifications
           </a>
         </li>
         <?php if (\App\Core\Role::tryFrom($authUser['role'])?->isAdmin()): ?>

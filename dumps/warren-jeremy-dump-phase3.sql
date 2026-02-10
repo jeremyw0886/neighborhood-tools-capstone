@@ -5609,23 +5609,23 @@ INSERT INTO account_acc (
     id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
 ) VALUES
     ('Allyson', 'Warren', '828-555-0101', 'allyson.warren@example.com',
-     '123 Haywood St', '28801', 1, '$2y$10$abcdefghijklmnopqrstuv',
+     '123 Haywood St', '28801', 1, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
     ('Jeremiah', 'Lutz', '828-555-0102', 'jeremiah.lutz@example.com',
-     '456 Patton Ave', '28806', 4, '$2y$10$abcdefghijklmnopqrstuv',
+     '456 Patton Ave', '28806', 4, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
     ('Chantelle', 'Turcotte', '828-555-0103', 'chantelle.turcotte@example.com',
-     '789 Main St', '28791', 23, '$2y$10$abcdefghijklmnopqrstuv',
+     '789 Main St', '28791', 23, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
     ('Alec', 'Fehl', '828-555-0104', 'alec.fehl@example.com',
-     '321 Merrimon Ave', '28804', 6, '$2y$10$abcdefghijklmnopqrstuv',
+     '321 Merrimon Ave', '28804', 6, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
     ('Admin', 'User', '828-555-9999', 'admin@neighborhoodtools.com',
-     NULL, '28801', 1, '$2y$10$abcdefghijklmnopqrstuv',
+     NULL, '28801', 1, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @admin_role, @active_status, @email_pref, TRUE, TRUE);
 
 -- ============================================================
@@ -6185,7 +6185,7 @@ CALL sp_refresh_all_summaries();
 -- ============================================================
 -- Password for ALL test accounts: password123
 
-SET @test_password_hash = '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm';
+SET @test_password_hash = '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG';
 
 -- Get additional lookup IDs for test accounts
 SET @super_admin_role = (SELECT id_rol FROM role_rol WHERE role_name_rol = 'super_admin');

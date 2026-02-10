@@ -2351,6 +2351,10 @@ DELIMITER ;
 -- Status/Availability Views
 -- ============================================================
 
+-- Force session collation so CASE-expression string literals
+-- inherit utf8mb4_0900_ai_ci instead of the server default.
+SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
 -- active_account_v: All accounts except deleted ones
 CREATE VIEW active_account_v AS
 SELECT *

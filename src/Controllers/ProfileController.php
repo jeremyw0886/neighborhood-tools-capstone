@@ -11,7 +11,7 @@ use App\Models\Tool;
 class ProfileController extends BaseController
 {
     /** Results per page — divisible by 2, 3, and 4 for grid layouts. */
-    private const PER_PAGE = 12;
+    private const int PER_PAGE = 12;
 
     /**
      * Show a user's public profile.

@@ -10,7 +10,7 @@ use App\Models\Tool;
 class ToolController extends BaseController
 {
     /** Results per page — divisible by 2, 3, and 4 for auto-fill grid columns. */
-    private const PER_PAGE = 12;
+    private const int PER_PAGE = 12;
 
     /**
      * Browse tools with search, filters, and pagination.

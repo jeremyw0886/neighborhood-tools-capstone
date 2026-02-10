@@ -10,7 +10,7 @@ use App\Models\Notification;
 class NotificationController extends BaseController
 {
     /** Results per page — divisible by 2, 3, and 4 for grid layouts. */
-    private const PER_PAGE = 12;
+    private const int PER_PAGE = 12;
 
     /**
      * Show the user's notifications with pagination.

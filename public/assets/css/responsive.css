@@ -810,4 +810,58 @@
     }
   }
 
+  /* ── Profile page ── */
+
+  @media (max-width: 640px) {
+    main > article[aria-labelledby="profile-heading"] {
+      padding-block: 1.25rem;
+      padding-inline: 1rem;
+    }
+
+    /* Stack avatar + info vertically */
+    main > article[aria-labelledby="profile-heading"] > header {
+      align-items: center;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    main > article[aria-labelledby="profile-heading"] > header > h1 {
+      font-size: 1.5rem;
+    }
+
+    /* Rating cards — side by side on mobile */
+    main > article[aria-labelledby="profile-heading"] > section[aria-labelledby="ratings-heading"] > div {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    /* Tool grid — smaller cards */
+    main > article[aria-labelledby="profile-heading"] > section[aria-labelledby="tools-heading"] > div[role="list"] {
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    /* Hide prev/next text labels, keep chevron icons */
+    main > article[aria-labelledby="profile-heading"] > section[aria-labelledby="tools-heading"] > nav[aria-label="Pagination"] > ul > li > a > span,
+    main > article[aria-labelledby="profile-heading"] > section[aria-labelledby="tools-heading"] > nav[aria-label="Pagination"] > ul > li > span[aria-disabled] > span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 400px) {
+    main > article[aria-labelledby="profile-heading"] {
+      padding-inline: 0.75rem;
+    }
+
+    /* Rating cards — stack on very small screens */
+    main > article[aria-labelledby="profile-heading"] > section[aria-labelledby="ratings-heading"] > div {
+      grid-template-columns: 1fr;
+    }
+
+    main > article[aria-labelledby="profile-heading"] > section[aria-labelledby="tools-heading"] > div[role="list"] {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+  }
+
 }

@@ -156,6 +156,39 @@
         }
       }
 
+      /* Notification bell link */
+      & > a[href="/notifications"] {
+        color: var(--mountain-cream);
+        font-size: 1.125rem;
+        padding: 0.375rem;
+        position: relative;
+        text-decoration: none;
+        transition: color 0.25s;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-gold-light);
+        }
+
+        /* Unread count badge */
+        & > span {
+          align-items: center;
+          background: #dc2626;
+          border-radius: 1rem;
+          color: #fff;
+          display: flex;
+          font-size: 0.688rem;
+          font-weight: 700;
+          inset-block-start: -0.25rem;
+          inset-inline-end: -0.375rem;
+          justify-content: center;
+          line-height: 1;
+          min-height: 1.125rem;
+          min-width: 1.125rem;
+          padding-inline: 0.25rem;
+          position: absolute;
+        }
+      }
+
       /* Ellipsis toggle button */
       & > #hero-dropdown-toggle {
         align-items: center;

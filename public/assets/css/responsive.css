@@ -375,6 +375,15 @@
       display: none;
     }
 
+    /* Notification bell — 44px touch target on mobile */
+    nav:not([data-hero]) > #hero-dropdown > a[href="/notifications"] {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      min-height: 2.75rem;
+      min-width: 2.75rem;
+    }
+
     /* Reposition dropdown below the header */
     body:not(:has(.home-page)) > header {
       position: relative;
@@ -746,6 +755,58 @@
       [aria-labelledby="history-heading"]
     ) > nav[aria-label="Dashboard sections"] > ul > li > a > i {
       display: none;
+    }
+  }
+
+  /* ── Notifications page ── */
+
+  @media (max-width: 640px) {
+    main > section[aria-labelledby="notifications-heading"] {
+      padding-block: 1.25rem;
+      padding-inline: 1rem;
+    }
+
+    main > section[aria-labelledby="notifications-heading"] > header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    main > section[aria-labelledby="notifications-heading"] > header > h1 {
+      font-size: 1.5rem;
+    }
+
+    main > section[aria-labelledby="notifications-heading"] > header > form > button {
+      width: 100%;
+    }
+
+    main > section[aria-labelledby="notifications-heading"] > ol > li > article {
+      gap: 0.75rem;
+      padding-inline: 0.75rem;
+    }
+
+    /* Hide prev/next text labels, keep chevron icons */
+    main > section[aria-labelledby="notifications-heading"] > nav[aria-label="Pagination"] > ul > li > a > span,
+    main > section[aria-labelledby="notifications-heading"] > nav[aria-label="Pagination"] > ul > li > span[aria-disabled] > span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 400px) {
+    main > section[aria-labelledby="notifications-heading"] {
+      padding-inline: 0.75rem;
+    }
+
+    /* Hide type icon on very small screens */
+    main > section[aria-labelledby="notifications-heading"] > ol > li > article > span:first-child {
+      display: none;
+    }
+
+    /* Stack timestamp below message */
+    main > section[aria-labelledby="notifications-heading"] > ol > li > article > div > footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
     }
   }
 

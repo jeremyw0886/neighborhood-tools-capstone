@@ -5,7 +5,7 @@ Thumbs.db
 # VS Code
 .vscode/*
 .vscode/settings.json
-!.vscode/extensions.json
+.vscode/extensions.json
 
 # PHP dependencies (root Composer vendor only)
 /vendor/
@@ -47,3 +47,4 @@ CLAUDE.md
 
 # Build tools (not needed on server — output is committed)
 build-css.php
+nul

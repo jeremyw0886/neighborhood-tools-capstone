@@ -1,0 +1,421 @@
+/* ============================================================
+   dashboard.css — Dashboard overview, lender, borrower, history
+   Loaded conditionally via $pageCss
+   Properties alphabetized within each rule
+   ============================================================ */
+
+@layer components {
+
+  /* ── Shared dashboard page wrapper ── */
+
+  main > section:is(
+    [aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]
+  ) {
+    margin-inline: auto;
+    max-width: 1100px;
+    padding-block: 2rem;
+    padding-inline: 1.5rem;
+
+    /* ── Page header ── */
+
+    & > header {
+      margin-block-end: 1.5rem;
+
+      & > h1 {
+        color: var(--mountain-pine);
+        font-family: Georgia, 'Times New Roman', serif;
+
+        & > i {
+          color: var(--mountain-gold);
+          margin-inline-end: 0.375rem;
+        }
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+        margin-block: 0.5rem 0;
+      }
+    }
+
+    /* ── Dashboard sub-navigation ── */
+
+    & > nav[aria-label="Dashboard sections"] {
+      border-block-end: 2px solid var(--mountain-fog);
+      margin-block-end: 2rem;
+      overflow-x: auto;
+      scrollbar-gutter: stable;
+
+      & > ul {
+        display: flex;
+        gap: 0;
+
+        & > li > a {
+          align-items: center;
+          border-block-end: 3px solid transparent;
+          color: var(--mountain-mist);
+          display: inline-flex;
+          font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
+          font-weight: 600;
+          gap: 0.4rem;
+          margin-block-end: -2px;
+          min-height: 2.75rem;
+          padding-block: 0.625rem;
+          padding-inline: 1rem;
+          text-decoration: none;
+          transition: border-color 0.25s, color 0.25s;
+          white-space: nowrap;
+
+          & > i {
+            font-size: 0.85em;
+            opacity: 0.7;
+          }
+
+          &:is(:hover, :focus-visible) {
+            border-color: var(--mountain-gold-light);
+            color: var(--mountain-pine);
+          }
+
+          &[aria-current="page"] {
+            border-color: var(--mountain-gold);
+            color: var(--mountain-pine);
+
+            & > i {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+
+    /* ── Section headings (h2s within sub-sections) ── */
+
+    & > section > h2 {
+      color: var(--mountain-pine);
+      margin-block-end: 1rem;
+
+      & > i {
+        color: var(--mountain-gold);
+        margin-inline-end: 0.375rem;
+      }
+
+      &[data-urgent] {
+        color: #b91c1c;
+
+        & > i {
+          color: #b91c1c;
+        }
+      }
+    }
+
+    /* ── Sections spacing ── */
+
+    & > section + section {
+      margin-block-start: 2.5rem;
+    }
+  }
+
+  /* ── Summary card grid (index page) ── */
+
+  section[aria-labelledby="summary-heading"] > div[role="list"],
+  section[aria-labelledby="admin-summary-heading"] > div[role="list"] {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+    & > article {
+
+      & > a {
+        align-items: flex-start;
+        background: var(--mountain-cloud);
+        border: 1px solid var(--mountain-fog);
+        border-radius: 0.75rem;
+        color: var(--mountain-charcoal);
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        min-height: 8rem;
+        padding: 1.25rem;
+        text-decoration: none;
+        transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+
+        &:is(:hover, :focus-visible) {
+          border-color: var(--mountain-gold);
+          box-shadow: 0 4px 16px var(--shadow-mountain);
+          transform: translateY(-2px);
+        }
+
+        /* Card icon */
+        & > i:first-child {
+          color: var(--mountain-pine-light);
+          font-size: 1.25rem;
+        }
+
+        /* Card title */
+        & > h3 {
+          color: var(--mountain-slate);
+          font-size: 0.813rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+        }
+
+        /* Card count */
+        & > p {
+          color: var(--mountain-pine);
+          font-family: Georgia, 'Times New Roman', serif;
+          font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+          font-weight: 700;
+          line-height: 1;
+          margin-block-end: 0;
+
+          & > span {
+            color: var(--mountain-mist);
+            font-size: 0.5em;
+            font-weight: 400;
+          }
+        }
+
+        /* Card footer text / stars */
+        & > span:last-child {
+          color: var(--mountain-mist);
+          font-size: 0.813rem;
+          margin-block-start: auto;
+
+          & > i {
+            color: var(--mountain-gold);
+            font-size: 0.75rem;
+          }
+        }
+      }
+
+      /* Urgent card (overdue) */
+      &[data-urgent] > a {
+        border-color: #fca5a5;
+
+        & > i:first-child {
+          color: #b91c1c;
+        }
+
+        & > h3 {
+          color: #b91c1c;
+        }
+
+        & > p {
+          color: #b91c1c;
+        }
+
+        &:is(:hover, :focus-visible) {
+          border-color: #ef4444;
+          box-shadow: 0 4px 16px rgba(185, 28, 28, 0.12);
+        }
+      }
+    }
+  }
+
+  /* Admin section heading */
+  section[aria-labelledby="admin-summary-heading"] > h2 {
+    color: var(--mountain-pine);
+    margin-block-end: 1rem;
+
+    & > i {
+      color: var(--mountain-gold);
+      margin-inline-end: 0.375rem;
+    }
+  }
+
+  /* ── Quick actions ── */
+
+  section[aria-labelledby="quick-actions-heading"] {
+    border-block-start: 1px solid var(--mountain-fog);
+    margin-block-start: 2.5rem;
+    padding-block-start: 1.5rem;
+
+    & > h2 {
+      color: var(--mountain-pine);
+      font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+      margin-block-end: 1rem;
+    }
+
+    & > ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+
+      & > li > a {
+        align-items: center;
+        background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+        border-radius: 2rem;
+        color: #fff;
+        display: inline-flex;
+        font-size: 0.875rem;
+        font-weight: 600;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        text-decoration: none;
+        transition: background 0.25s, transform 0.15s;
+
+        &:is(:hover, :focus-visible) {
+          background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+          color: #fff;
+          transform: scale(1.02);
+        }
+
+        & > span {
+          color: var(--mountain-gold-light);
+          font-size: 0.8em;
+        }
+      }
+    }
+  }
+
+  /* ── Dashboard tables (lender, borrower, history) ── */
+
+  main > section:is(
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]
+  ) table {
+    border-collapse: collapse;
+    width: 100%;
+
+    & thead {
+      border-block-end: 2px solid var(--mountain-fog);
+
+      & th {
+        color: var(--mountain-slate);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        padding-block: 0.75rem;
+        padding-inline: 0.75rem;
+        text-align: start;
+        text-transform: uppercase;
+      }
+    }
+
+    & tbody tr {
+      border-block-end: 1px solid var(--mountain-fog);
+      transition: background-color 0.15s;
+
+      &:is(:hover, :focus-within) {
+        background-color: rgba(244, 239, 231, 0.5);
+      }
+
+      & td {
+        color: var(--mountain-charcoal);
+        font-size: 0.875rem;
+        padding-block: 0.75rem;
+        padding-inline: 0.75rem;
+        vertical-align: middle;
+
+        & > a {
+          color: var(--mountain-pine-light);
+          font-weight: 500;
+          text-decoration: none;
+
+          &:is(:hover, :focus-visible) {
+            color: var(--mountain-gold);
+            text-decoration: underline;
+          }
+        }
+
+        & > time {
+          white-space: nowrap;
+        }
+
+        /* Status badges */
+        & > span[data-urgent] {
+          color: #b91c1c;
+          font-weight: 600;
+        }
+
+        & > span[data-warning] {
+          color: #b45309;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  /* ── Lender page tool grid ── */
+
+  section[aria-labelledby="listed-tools-heading"] > div[role="list"] {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  section[aria-labelledby="listed-tools-heading"] > div[role="list"] > .tool-card {
+    flex: none;
+    min-width: 0;
+    width: auto;
+  }
+
+  /* ── Empty states ── */
+
+  main > section:is(
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]
+  ) section > p:last-child {
+    color: var(--mountain-mist);
+  }
+
+  main > section:is(
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]
+  ) a[role="button"] {
+    align-items: center;
+    background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+    border-radius: 2rem;
+    color: #fff;
+    display: inline-flex;
+    font-weight: 600;
+    gap: 0.5rem;
+    margin-block-start: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    text-decoration: none;
+    transition: background 0.25s;
+
+    &:is(:hover, :focus-visible) {
+      background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+      color: #fff;
+    }
+  }
+
+  /* ── High contrast mode ── */
+
+  @media (prefers-contrast: more) {
+    section[aria-labelledby="summary-heading"] > div[role="list"] > article > a,
+    section[aria-labelledby="admin-summary-heading"] > div[role="list"] > article > a {
+      border-width: 2px;
+    }
+
+    main > section:is(
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]
+    ) table thead {
+      border-block-end-width: 3px;
+    }
+
+    main > section:is(
+      [aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]
+    ) > nav[aria-label="Dashboard sections"] {
+      border-block-end-width: 3px;
+
+      & a[aria-current="page"] {
+        border-block-end-width: 4px;
+      }
+    }
+  }
+
+}

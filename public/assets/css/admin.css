@@ -1,0 +1,247 @@
+/* ============================================================
+   admin.css — Admin dashboard, sub-pages, and stub views
+   Loaded conditionally via $pageCss
+   Admin dashboard loads ['dashboard.css', 'admin.css'] for
+   card grid reuse; stub pages load ['admin.css'] only
+   Properties alphabetized within each rule
+   ============================================================ */
+
+@layer components {
+
+  /* ── Admin page wrapper ── */
+  /* Mirrors dashboard wrapper dimensions and spacing.
+     All nine admin views share this outer structure. */
+
+  main > section:is(
+    [aria-labelledby="admin-heading"],
+    [aria-labelledby="admin-users-heading"],
+    [aria-labelledby="admin-tools-heading"],
+    [aria-labelledby="admin-disputes-heading"],
+    [aria-labelledby="admin-events-heading"],
+    [aria-labelledby="admin-incidents-heading"],
+    [aria-labelledby="admin-reports-heading"],
+    [aria-labelledby="admin-audit-heading"],
+    [aria-labelledby="admin-tos-heading"]
+  ) {
+    margin-inline: auto;
+    max-width: 1100px;
+    padding-block: 2rem;
+    padding-inline: 1.5rem;
+
+    /* ── Page header ── */
+
+    & > header {
+      margin-block-end: 1.5rem;
+
+      & > h1 {
+        color: var(--mountain-pine);
+        font-family: Georgia, 'Times New Roman', serif;
+
+        & > i {
+          color: var(--mountain-gold);
+          margin-inline-end: 0.375rem;
+        }
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+        margin-block: 0.5rem 0;
+      }
+    }
+
+    /* ── Admin sub-navigation ── */
+    /* 9 links — needs horizontal scroll for smaller viewports */
+
+    & > nav[aria-label="Admin navigation"] {
+      border-block-end: 2px solid var(--mountain-fog);
+      margin-block-end: 2rem;
+      overflow-x: auto;
+      scrollbar-gutter: stable;
+
+      & > ul {
+        display: flex;
+        gap: 0;
+
+        & > li > a {
+          align-items: center;
+          border-block-end: 3px solid transparent;
+          color: var(--mountain-mist);
+          display: inline-flex;
+          font-size: clamp(0.75rem, 0.688rem + 0.25vw, 0.875rem);
+          font-weight: 600;
+          gap: 0.4rem;
+          margin-block-end: -2px;
+          min-height: 2.75rem;
+          padding-block: 0.625rem;
+          padding-inline: 0.75rem;
+          text-decoration: none;
+          transition: border-color 0.25s, color 0.25s;
+          white-space: nowrap;
+
+          & > i {
+            font-size: 0.85em;
+            opacity: 0.7;
+          }
+
+          &:is(:hover, :focus-visible) {
+            border-color: var(--mountain-gold-light);
+            color: var(--mountain-pine);
+          }
+
+          &[aria-current="page"] {
+            border-color: var(--mountain-gold);
+            color: var(--mountain-pine);
+
+            & > i {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+
+    /* ── Section headings ── */
+
+    & > section > h2 {
+      color: var(--mountain-pine);
+      margin-block-end: 1rem;
+
+      & > i {
+        color: var(--mountain-gold);
+        margin-inline-end: 0.375rem;
+      }
+    }
+
+    /* ── Section spacing ── */
+
+    & > section + section {
+      margin-block-start: 2.5rem;
+    }
+  }
+
+  /* ── Admin quick actions ── */
+
+  section[aria-labelledby="admin-actions-heading"] {
+    border-block-start: 1px solid var(--mountain-fog);
+    margin-block-start: 2.5rem;
+    padding-block-start: 1.5rem;
+
+    & > h2 {
+      color: var(--mountain-pine);
+      font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+      margin-block-end: 1rem;
+    }
+
+    & > ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+
+      & > li > a {
+        align-items: center;
+        background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+        border-radius: 2rem;
+        color: #fff;
+        display: inline-flex;
+        font-size: 0.875rem;
+        font-weight: 600;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        text-decoration: none;
+        transition: background 0.25s, transform 0.15s;
+
+        &:is(:hover, :focus-visible) {
+          background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+          color: #fff;
+          transform: scale(1.02);
+        }
+      }
+    }
+  }
+
+  /* ── Warning card variant (pending deposits, etc.) ── */
+
+  section[aria-labelledby="admin-summary-heading"] > div[role="list"] > article[data-warning] > a {
+    border-color: var(--mountain-gold-light);
+
+    & > i:first-child {
+      color: #b45309;
+    }
+
+    & > h3 {
+      color: #b45309;
+    }
+
+    &:is(:hover, :focus-visible) {
+      border-color: var(--mountain-gold);
+      box-shadow: 0 4px 16px rgba(180, 83, 9, 0.12);
+    }
+  }
+
+  /* ── Stub page content ── */
+  /* The "not yet available" message and back link on unbuilt sub-pages */
+
+  main > section:is(
+    [aria-labelledby="admin-users-heading"],
+    [aria-labelledby="admin-tools-heading"],
+    [aria-labelledby="admin-disputes-heading"],
+    [aria-labelledby="admin-events-heading"],
+    [aria-labelledby="admin-incidents-heading"],
+    [aria-labelledby="admin-reports-heading"],
+    [aria-labelledby="admin-audit-heading"],
+    [aria-labelledby="admin-tos-heading"]
+  ) {
+    & > p {
+      color: var(--mountain-mist);
+      font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+      line-height: 1.6;
+      margin-block: 1rem 1.5rem;
+      max-width: 65ch;
+    }
+
+    & > a[role="button"] {
+      align-items: center;
+      background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+      border-radius: 2rem;
+      color: #fff;
+      display: inline-flex;
+      font-weight: 600;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      text-decoration: none;
+      transition: background 0.25s;
+
+      &:is(:hover, :focus-visible) {
+        background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+        color: #fff;
+      }
+    }
+  }
+
+  /* ── Reduced motion ── */
+
+  @media (prefers-reduced-motion: reduce) {
+    main > section[aria-labelledby="admin-heading"] a,
+    nav[aria-label="Admin navigation"] a {
+      transition: none;
+    }
+  }
+
+  /* ── High contrast ── */
+
+  @media (prefers-contrast: more) {
+    nav[aria-label="Admin navigation"] {
+      border-block-end-width: 3px;
+
+      & a[aria-current="page"] {
+        border-block-end-width: 4px;
+      }
+    }
+
+    section[aria-labelledby="admin-summary-heading"] > div[role="list"] > article[data-warning] > a {
+      border-width: 2px;
+    }
+  }
+
+}

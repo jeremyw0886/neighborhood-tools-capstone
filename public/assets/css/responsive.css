@@ -810,6 +810,76 @@
     }
   }
 
+  /* ── Admin pages ── */
+
+  @media (max-width: 640px) {
+    main > section:is(
+      [aria-labelledby="admin-heading"],
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-incidents-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-audit-heading"],
+      [aria-labelledby="admin-tos-heading"]
+    ) {
+      padding-block: 1.25rem;
+      padding-inline: 1rem;
+    }
+
+    main > section:is(
+      [aria-labelledby="admin-heading"],
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-incidents-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-audit-heading"],
+      [aria-labelledby="admin-tos-heading"]
+    ) > header > h1 {
+      font-size: 1.5rem;
+    }
+
+    /* Admin sub-nav — smaller font to fit 9 links */
+    nav[aria-label="Admin navigation"] > ul > li > a {
+      font-size: 0.75rem;
+      padding-inline: 0.5rem;
+    }
+
+    /* Quick actions — stack vertically */
+    section[aria-labelledby="admin-actions-heading"] > ul {
+      flex-direction: column;
+    }
+
+    section[aria-labelledby="admin-actions-heading"] > ul > li > a {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 400px) {
+    main > section:is(
+      [aria-labelledby="admin-heading"],
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-incidents-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-audit-heading"],
+      [aria-labelledby="admin-tos-heading"]
+    ) {
+      padding-inline: 0.75rem;
+    }
+
+    /* Admin sub-nav — hide icons, text only */
+    nav[aria-label="Admin navigation"] > ul > li > a > i {
+      display: none;
+    }
+  }
+
   /* ── Profile page ── */
 
   @media (max-width: 640px) {

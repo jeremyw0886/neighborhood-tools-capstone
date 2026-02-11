@@ -28,18 +28,16 @@
         <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
       <?php endif; ?>
 
-      <form method="get" action="/" aria-label="Select your area" id="location-form">
-        <fieldset>
-          <legend class="visually-hidden">Choose location</legend>
-          <input type="radio" id="loc-asheville" name="location" value="Asheville"
-                 <?= strcasecmp($selectedCity, 'Asheville') === 0 ? 'checked' : '' ?>>
-          <label for="loc-asheville"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Asheville</label>
-          <input type="radio" id="loc-hendersonville" name="location" value="Hendersonville"
-                 <?= strcasecmp($selectedCity, 'Hendersonville') === 0 ? 'checked' : '' ?>>
-          <label for="loc-hendersonville"><i class="fa-solid fa-tree" aria-hidden="true"></i> Hendersonville</label>
-          <noscript><button type="submit">Go</button></noscript>
-        </fieldset>
-      </form>
+      <nav aria-label="Filter by city" id="location-toggle" hidden>
+        <a href="/?location=Asheville" data-city="Asheville"
+           <?= strcasecmp($selectedCity, 'Asheville') === 0 ? 'aria-current="true"' : '' ?>>
+          <i class="fa-solid fa-mountain" aria-hidden="true"></i> Asheville
+        </a>
+        <a href="/?location=Hendersonville" data-city="Hendersonville"
+           <?= strcasecmp($selectedCity, 'Hendersonville') === 0 ? 'aria-current="true"' : '' ?>>
+          <i class="fa-solid fa-tree" aria-hidden="true"></i> Hendersonville
+        </a>
+      </nav>
 
       <section aria-label="Members list" id="member-list" aria-live="polite">
         <?php if (!empty($nearbyMembers)): ?>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Models\Account;
 use App\Models\Tool;
 
 class HomeController extends BaseController
@@ -17,12 +18,18 @@ class HomeController extends BaseController
             $featuredTools = [];
         }
 
+        try {
+            $topMembers = Account::getTopMembers(3);
+        } catch (\Exception) {
+            $topMembers = [];
+        }
+
         $this->render('home/index', [
             'title'       => 'NeighborhoodTools — Share Tools, Build Community',
             'heroPage'    => true,
             'nearbyMembers' => [],
             'featuredTools' => $featuredTools,
-            'topMembers'    => [],
+            'topMembers'    => $topMembers,
         ]);
     }
 }

@@ -42,7 +42,7 @@
     .home-page > main > section:first-of-type > div,
     .home-page > header > aside > section {
       gap: 1rem;
-      padding: 0 0.5rem;
+      padding-inline: 0.5rem;
     }
   }
 
@@ -95,7 +95,7 @@
     .home-page > main > section:first-of-type > div,
     .home-page > header > aside > section {
       gap: 1rem;
-      padding: 0 0.5rem;
+      padding-inline: 0.5rem;
     }
 
     .home-page > main > section:last-of-type > div {
@@ -232,12 +232,27 @@
     }
 
     .home-page > main > section:last-of-type > div {
-      flex-direction: column;
+      container-type: normal;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      padding-block-start: 0.5rem;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .home-page > main > section:last-of-type > div::-webkit-scrollbar {
+      display: none;
     }
 
     .neighbor-card {
-      flex: 1 1 100%;
+      flex: 0 0 100%;
+      max-width: none;
+      min-width: 0;
+      scroll-snap-align: center;
     }
+
 
     .home-page > header > aside {
       padding: 1rem;

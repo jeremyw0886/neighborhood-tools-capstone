@@ -627,6 +627,7 @@
       container-type: inline-size;
       display: flex;
       gap: 1.25rem;
+      padding-block: 0.5rem 0.75rem;
     }
   }
 
@@ -635,6 +636,7 @@
     align-items: center;
     background: var(--mountain-cloud);
     border: 1px solid rgba(139, 133, 120, 0.2);
+    position: relative;
     border-radius: 1.5rem 0 1.5rem 0;
     color: inherit;
     display: flex;
@@ -650,6 +652,14 @@
       border-color: var(--mountain-gold);
       box-shadow: 0 8px 24px var(--shadow-mountain);
       transform: translateY(-6px);
+    }
+
+    & > span {
+      color: var(--mountain-gold);
+      font-size: 1.25rem;
+      inset-block-start: 0.75rem;
+      inset-inline-end: 0.75rem;
+      position: absolute;
     }
 
     & > img {
@@ -695,6 +705,57 @@
   @container neighbor-grid (max-width: 400px) {
     .neighbor-card {
       flex: 1 1 100%;
+    }
+  }
+
+  /* ── CAROUSEL INDICATORS (JS-generated, mobile only) ── */
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+
+    & > button {
+      appearance: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0;
+      position: relative;
+
+      &::after {
+        aspect-ratio: 1;
+        background: var(--mountain-mist);
+        border-radius: 50%;
+        content: '';
+        height: 0.625rem;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        translate: -50% -50%;
+        transition: background-color 0.3s ease, scale 0.3s ease;
+      }
+
+      &.active::after {
+        background: var(--mountain-pine);
+        scale: 1.3;
+      }
+
+      &:hover::after {
+        background: var(--mountain-pine-light);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--mountain-pine);
+        outline-offset: -2px;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-dots > button::after {
+      transition: none;
     }
   }
 

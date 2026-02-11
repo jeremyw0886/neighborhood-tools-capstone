@@ -104,10 +104,10 @@
             <a href="/profile/<?= (int) $neighbor['id_acc'] ?>" class="neighbor-card">
               <span aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
               <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
-                   alt="<?= htmlspecialchars($neighbor['name']) ?>"
+                   alt="<?= htmlspecialchars($neighbor['username']) ?>"
                    width="80" height="80"
                    loading="lazy" decoding="async">
-              <h3><?= htmlspecialchars($neighbor['name']) ?></h3>
+              <h3><?= htmlspecialchars($neighbor['username']) ?></h3>
               <p>
                 <?php $avg = round($neighbor['avg_rating'] ?? 0); ?>
                 <?php for ($i = 1; $i <= 5; $i++): ?>

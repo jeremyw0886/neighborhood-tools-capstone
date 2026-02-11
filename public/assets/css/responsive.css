@@ -165,6 +165,14 @@
       border-bottom: none;
     }
 
+    nav[data-hero] > #hero-dropdown > span {
+      font-size: 0;
+    }
+
+    nav[data-hero] > #hero-dropdown > span > i {
+      font-size: 1.125rem;
+    }
+
     .home-page > header > section > section > h1 {
       font-size: 1.75rem;
     }
@@ -418,7 +426,11 @@
     }
 
     nav:not([data-hero]) > #hero-dropdown > span {
-      display: none;
+      font-size: 0;
+    }
+
+    nav:not([data-hero]) > #hero-dropdown > span > i {
+      font-size: 1.125rem;
     }
 
     /* Notification bell — 44px touch target on mobile */

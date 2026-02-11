@@ -110,6 +110,11 @@
         grid-column: 2;
         grid-row: 1;
         justify-content: flex-end;
+
+        & a[aria-current="page"] {
+          border-block-end: 2px solid var(--mountain-gold);
+          color: var(--mountain-gold);
+        }
       }
 
       & > #hero-dropdown {
@@ -545,6 +550,13 @@
 
     .home-page > header > aside article a[role="button"] > i {
       font-size: 0.9rem;
+    }
+  }
+
+  /* Touch devices — ensure 44px min tap targets on hero nav links */
+  @media (pointer: coarse) {
+    nav[data-hero] > ul a {
+      min-height: 2.75rem;
     }
   }
 

@@ -68,7 +68,7 @@ $isHero = !empty($heroPage);
   <div id="hero-dropdown">
     <?php if ($isLoggedIn): ?>
 
-      <span>Hello, <?= htmlspecialchars($authUser['first_name']) ?></span>
+      <span><i class="fa-solid fa-circle-user" aria-hidden="true"></i> Hello, <?= htmlspecialchars($authUser['first_name']) ?></span>
 
       <a href="/notifications"
          aria-label="Notifications<?= $unreadCount > 0 ? " ({$unreadCount} unread)" : '' ?>">
@@ -127,11 +127,6 @@ $isHero = !empty($heroPage);
         <li role="menuitem">
           <a href="/register">
             <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Sign Up
-          </a>
-        </li>
-        <li role="menuitem">
-          <a href="/tools">
-            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
           </a>
         </li>
       </ul>

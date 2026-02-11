@@ -209,9 +209,10 @@ class Account
      *
      * @param  string $city   City name to compute the centroid from
      * @param  int    $limit  Max members to return (default 10)
-     * @return array<int, array{id_acc: int, name: string, avatar: ?string,
+     * @return array<int, array{id_acc: int, username: string, avatar: ?string,
      *               avg_rating: float, total_rating_count: int,
-     *               neighborhood: ?string, distance_miles: float}>
+     *               neighborhood: ?string, is_top_member: int,
+     *               distance_miles: float}>
      */
     public static function getNearbyMembers(string $city, int $limit = 10): array
     {
@@ -231,11 +232,16 @@ class Account
             )
             SELECT
                 p.id_acc,
-                p.full_name                       AS name,
+                p.username_acc                    AS username,
                 p.primary_image                   AS avatar,
                 COALESCE(r.overall_avg_rating, 0) AS avg_rating,
                 COALESCE(r.total_rating_count, 0) AS total_rating_count,
                 p.neighborhood_name_nbh           AS neighborhood,
+                CASE
+                    WHEN COALESCE(r.overall_avg_rating, 0) >= 4.0
+                     AND COALESCE(r.total_rating_count, 0) >= 1
+                    THEN 1 ELSE 0
+                END                               AS is_top_member,
                 ROUND(
                     ST_Distance_Sphere(
                         zpc.location_point_zpc,

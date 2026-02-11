@@ -36,6 +36,11 @@ $isHero = !empty($heroPage);
 
   <ul id="top-links" role="list">
     <li>
+      <a href="/"<?= $currentPage === '/' ? ' aria-current="page"' : '' ?>>
+        <i class="fa-solid fa-house" aria-hidden="true"></i> Home
+      </a>
+    </li>
+    <li>
       <a href="/how-to"
          data-modal="how-to"<?= $currentPage === '/how-to' ? ' aria-current="page"' : '' ?>>
         <i class="fa-solid fa-book" aria-hidden="true"></i> How To

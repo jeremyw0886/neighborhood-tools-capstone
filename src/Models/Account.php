@@ -201,6 +201,67 @@ class Account
     }
 
     /**
+     * Fetch active members ranked by proximity to a city's geographic centroid.
+     *
+     * Uses a CTE to compute the centroid of all neighborhoods in the selected
+     * city, then ranks members by ST_Distance_Sphere from that reference point.
+     * LEFT JOINs reputation so new/unrated members still appear.
+     *
+     * @param  string $city   City name to compute the centroid from
+     * @param  int    $limit  Max members to return (default 10)
+     * @return array<int, array{id_acc: int, name: string, avatar: ?string,
+     *               avg_rating: float, total_rating_count: int,
+     *               neighborhood: ?string, distance_miles: float}>
+     */
+    public static function getNearbyMembers(string $city, int $limit = 10): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            WITH city_ref AS (
+                SELECT ST_SRID(
+                    POINT(
+                        AVG(ST_X(location_point_nbh)),
+                        AVG(ST_Y(location_point_nbh))
+                    ),
+                    4326
+                ) AS ref_point
+                FROM neighborhood_nbh
+                WHERE city_name_nbh = :city
+            )
+            SELECT
+                p.id_acc,
+                p.full_name                       AS name,
+                p.primary_image                   AS avatar,
+                COALESCE(r.overall_avg_rating, 0) AS avg_rating,
+                COALESCE(r.total_rating_count, 0) AS total_rating_count,
+                p.neighborhood_name_nbh           AS neighborhood,
+                ROUND(
+                    ST_Distance_Sphere(
+                        zpc.location_point_zpc,
+                        city_ref.ref_point
+                    ) / 1609.344,
+                1)                                AS distance_miles
+            FROM account_profile_v p
+            CROSS JOIN city_ref
+            LEFT JOIN user_reputation_fast_v r  ON p.id_acc = r.id_acc
+            JOIN zip_code_zpc zpc               ON p.zip_code_acc = zpc.zip_code_zpc
+            WHERE p.account_status = 'active'
+              AND p.role_name_rol  = 'member'
+            HAVING distance_miles IS NOT NULL
+            ORDER BY distance_miles ASC, COALESCE(r.overall_avg_rating, 0) DESC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':city', $city);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Verify a plaintext password against a stored hash.
      */
     public static function verifyPassword(string $input, string $hash): bool

@@ -22,37 +22,54 @@
       </section>
     </section>
     <aside aria-labelledby="sidebar-heading">
-      <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
-      <fieldset aria-label="Select your area">
-        <legend class="visually-hidden">Choose location</legend>
-        <input type="radio" id="loc-asheville" name="location" value="asheville" checked>
-        <label for="loc-asheville"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Asheville</label>
-        <input type="radio" id="loc-hendersonville" name="location" value="hendersonville">
-        <label for="loc-hendersonville"><i class="fa-solid fa-tree" aria-hidden="true"></i> Hendersonville</label>
-      </fieldset>
-      <section aria-label="Members list">
+      <?php if ($isNearbyFallback): ?>
+        <h2 id="sidebar-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Top Members</h2>
+      <?php else: ?>
+        <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
+      <?php endif; ?>
+
+      <form method="get" action="/" aria-label="Select your area" id="location-form">
+        <fieldset>
+          <legend class="visually-hidden">Choose location</legend>
+          <input type="radio" id="loc-asheville" name="location" value="Asheville"
+                 <?= strcasecmp($selectedCity, 'Asheville') === 0 ? 'checked' : '' ?>>
+          <label for="loc-asheville"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Asheville</label>
+          <input type="radio" id="loc-hendersonville" name="location" value="Hendersonville"
+                 <?= strcasecmp($selectedCity, 'Hendersonville') === 0 ? 'checked' : '' ?>>
+          <label for="loc-hendersonville"><i class="fa-solid fa-tree" aria-hidden="true"></i> Hendersonville</label>
+          <noscript><button type="submit">Go</button></noscript>
+        </fieldset>
+      </form>
+
+      <section aria-label="Members list" id="member-list" aria-live="polite">
         <?php if (!empty($nearbyMembers)): ?>
-          <?php foreach (array_slice($nearbyMembers, 0, 3) as $member): ?>
+          <?php foreach ($nearbyMembers as $member): ?>
             <article aria-label="<?= htmlspecialchars($member['name']) ?> member card">
-              <a href="/profile/<?= (int) $member['id_acc'] ?>">
+              <a href="/profile/<?= (int) $member['id_acc'] ?>" tabindex="-1" aria-hidden="true">
                 <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                      alt="<?= htmlspecialchars($member['name']) ?>"
                      width="60" height="60"
                      loading="lazy"
                      decoding="async">
               </a>
-              <h3><?= htmlspecialchars($member['name']) ?></h3>
-              <p>
-                <?php $avg = round($member['avg_rating'] ?? 0); ?>
-                <?php for ($i = 1; $i <= 5; $i++): ?>
-                  <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
-                <?php endfor; ?>
-                <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
-              </p>
-              <p>
-                <i class="fa-solid fa-map-pin" aria-hidden="true"></i> <?= htmlspecialchars($member['neighborhood'] ?? 'Unknown') ?>
-              </p>
-              <a href="/profile/<?= (int) $member['id_acc'] ?>" role="button"><i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> View Profile</a>
+              <div>
+                <h3><?= htmlspecialchars($member['name']) ?></h3>
+                <p>
+                  <?php $avg = round((float) ($member['avg_rating'] ?? 0)); ?>
+                  <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+                  <?php endfor; ?>
+                  <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
+                </p>
+                <?php if (isset($member['distance_miles'])): ?>
+                  <p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars((string) $member['distance_miles']) ?> mi</p>
+                <?php elseif (!empty($member['neighborhood'])): ?>
+                  <p><i class="fa-solid fa-map-pin" aria-hidden="true"></i> <?= htmlspecialchars($member['neighborhood']) ?></p>
+                <?php endif; ?>
+              </div>
+              <a href="/profile/<?= (int) $member['id_acc'] ?>" role="button">
+                <i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> View Profile
+              </a>
             </article>
           <?php endforeach; ?>
         <?php else: ?>

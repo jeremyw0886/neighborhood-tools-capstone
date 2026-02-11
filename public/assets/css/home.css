@@ -800,7 +800,7 @@
 
   /* ── CAROUSEL INDICATORS (JS-generated, mobile only) ── */
   .carousel-dots {
-    display: flex;
+    display: none;
     justify-content: center;
 
     & > button {
@@ -846,6 +846,12 @@
   @media (prefers-reduced-motion: reduce) {
     .carousel-dots > button::after {
       transition: none;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .carousel-dots:not([hidden]) {
+      display: flex;
     }
   }
 

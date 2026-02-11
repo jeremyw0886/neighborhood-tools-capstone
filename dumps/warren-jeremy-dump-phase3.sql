@@ -414,6 +414,8 @@ CREATE TABLE account_acc (
     id_acc INT AUTO_INCREMENT PRIMARY KEY,
     first_name_acc VARCHAR(100) NOT NULL,
     last_name_acc VARCHAR(100) NOT NULL,
+    username_acc VARCHAR(30) NOT NULL
+        COMMENT 'Public display name — unique, 3-30 chars, alphanumeric + underscores',
     phone_number_acc VARCHAR(20),
     email_address_acc VARCHAR(255) NOT NULL UNIQUE
         COMMENT 'Primary login credential - used for authentication',
@@ -435,6 +437,7 @@ CREATE TABLE account_acc (
     deleted_at_acc TIMESTAMP NULL
         COMMENT 'Set via trigger when id_ast_acc changes to deleted status; NULL = active',
     INDEX idx_email_acc (email_address_acc),
+    UNIQUE INDEX idx_username_acc (username_acc),
     INDEX idx_zip_acc (zip_code_acc),
     INDEX idx_role_acc (id_rol_acc),
     INDEX idx_status_verified_acc (id_ast_acc, is_verified_acc),
@@ -2495,6 +2498,7 @@ SELECT
     a.id_acc,
     a.first_name_acc,
     a.last_name_acc,
+    a.username_acc,
     CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
     a.email_address_acc,
     a.phone_number_acc,
@@ -5608,27 +5612,27 @@ SET @email_pref = (SELECT id_cpr FROM contact_preference_cpr WHERE preference_na
 -- Sample users (placeholder hash is replaced by TEST ACCOUNTS SETUP below)
 -- Neighborhood IDs: 1=Downtown AVL, 4=West AVL, 6=North AVL, 23=Downtown Hendersonville
 INSERT INTO account_acc (
-    first_name_acc, last_name_acc, phone_number_acc, email_address_acc,
+    first_name_acc, last_name_acc, username_acc, phone_number_acc, email_address_acc,
     street_address_acc, zip_code_acc, id_nbh_acc, password_hash_acc,
     id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
 ) VALUES
-    ('Allyson', 'Warren', '828-555-0101', 'allyson.warren@example.com',
+    ('Allyson', 'Warren', 'allyson_w', '828-555-0101', 'allyson.warren@example.com',
      '123 Haywood St', '28801', 1, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
-    ('Jeremiah', 'Lutz', '828-555-0102', 'jeremiah.lutz@example.com',
+    ('Jeremiah', 'Lutz', 'jeremiah_l', '828-555-0102', 'jeremiah.lutz@example.com',
      '456 Patton Ave', '28806', 4, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
-    ('Chantelle', 'Turcotte', '828-555-0103', 'chantelle.turcotte@example.com',
+    ('Chantelle', 'Turcotte', 'chantelle_t', '828-555-0103', 'chantelle.turcotte@example.com',
      '789 Main St', '28791', 23, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
-    ('Alec', 'Fehl', '828-555-0104', 'alec.fehl@example.com',
+    ('Alec', 'Fehl', 'alec_f', '828-555-0104', 'alec.fehl@example.com',
      '321 Merrimon Ave', '28804', 6, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @member_role, @active_status, @email_pref, TRUE, TRUE),
 
-    ('Admin', 'User', '828-555-9999', 'admin@neighborhoodtools.com',
+    ('Admin', 'User', 'admin', '828-555-9999', 'admin@neighborhoodtools.com',
      NULL, '28801', 1, '$2y$12$EqSpCwhxEfLgDS6GhoZUAOG.Ohx.hqtCE78NMG/IF744hsSr9BlkG',
      @admin_role, @active_status, @email_pref, TRUE, TRUE);
 
@@ -6202,12 +6206,12 @@ WHERE deleted_at_acc IS NULL AND id_acc > 0;
 
 -- Create Super Admin (if not exists)
 INSERT INTO account_acc (
-    first_name_acc, last_name_acc, phone_number_acc, email_address_acc,
+    first_name_acc, last_name_acc, username_acc, phone_number_acc, email_address_acc,
     street_address_acc, zip_code_acc, id_nbh_acc, password_hash_acc,
     id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
 )
 SELECT
-    'Jeremy', 'Warren', '828-555-0001', 'jeremywarren@neighborhoodtools.com',
+    'Jeremy', 'Warren', 'jeremy_w', '828-555-0001', 'jeremywarren@neighborhoodtools.com',
     '100 Admin Way', '28791', 1, @test_password_hash,
     @super_admin_role, @active_status, @email_pref, TRUE, TRUE
 FROM DUAL
@@ -6217,12 +6221,12 @@ WHERE NOT EXISTS (
 
 -- Create Pending User (for testing pending approval flow)
 INSERT INTO account_acc (
-    first_name_acc, last_name_acc, phone_number_acc, email_address_acc,
+    first_name_acc, last_name_acc, username_acc, phone_number_acc, email_address_acc,
     street_address_acc, zip_code_acc, id_nbh_acc, password_hash_acc,
     id_rol_acc, id_ast_acc, id_cpr_acc, is_verified_acc, has_consent_acc
 )
 SELECT
-    'Pending', 'User', '828-555-0105', 'pending@test.com',
+    'Pending', 'User', 'pending_u', '828-555-0105', 'pending@test.com',
     '999 Waiting Lane', '28801', 1, @test_password_hash,
     @member_role, @pending_status, @email_pref, FALSE, TRUE
 FROM DUAL

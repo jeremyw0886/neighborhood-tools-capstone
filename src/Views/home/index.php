@@ -44,16 +44,22 @@
       <section aria-label="Members list" id="member-list" aria-live="polite">
         <?php if (!empty($nearbyMembers)): ?>
           <?php foreach ($nearbyMembers as $member): ?>
-            <article aria-label="<?= htmlspecialchars($member['name']) ?> member card">
+            <?php $displayName = $member['username'] ?? $member['name'] ?? 'Member'; ?>
+            <article aria-label="<?= htmlspecialchars($displayName) ?> member card">
               <a href="/profile/<?= (int) $member['id_acc'] ?>" tabindex="-1" aria-hidden="true">
                 <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
-                     alt="<?= htmlspecialchars($member['name']) ?>"
+                     alt="<?= htmlspecialchars($displayName) ?>"
                      width="60" height="60"
                      loading="lazy"
                      decoding="async">
               </a>
               <div>
-                <h3><?= htmlspecialchars($member['name']) ?></h3>
+                <h3>
+                  <?php if (!empty($member['is_top_member'])): ?>
+                    <span aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+                  <?php endif; ?>
+                  <?= htmlspecialchars($displayName) ?>
+                </h3>
                 <p>
                   <?php $avg = round((float) ($member['avg_rating'] ?? 0)); ?>
                   <?php for ($i = 1; $i <= 5; $i++): ?>
@@ -61,11 +67,10 @@
                   <?php endfor; ?>
                   <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
                 </p>
-                <?php if (isset($member['distance_miles'])): ?>
-                  <p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars((string) $member['distance_miles']) ?> mi</p>
-                <?php elseif (!empty($member['neighborhood'])): ?>
-                  <p><i class="fa-solid fa-map-pin" aria-hidden="true"></i> <?= htmlspecialchars($member['neighborhood']) ?></p>
-                <?php endif; ?>
+                <p>
+                  <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
+                  <?= htmlspecialchars($member['neighborhood'] ?? $selectedCity) ?>
+                </p>
               </div>
               <a href="/profile/<?= (int) $member['id_acc'] ?>" role="button">
                 <i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> View Profile

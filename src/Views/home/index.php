@@ -80,12 +80,12 @@
       <h2 id="neighbors-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Friendly Neighbors</h2>
       <div>
         <?php if (!empty($topMembers)): ?>
-          <?php foreach (array_slice($topMembers, 0, 4) as $neighbor): ?>
+          <?php foreach (array_slice($topMembers, 0, 3) as $neighbor): ?>
             <a href="/profile/<?= (int) $neighbor['id_acc'] ?>" class="neighbor-card">
               <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                    alt="<?= htmlspecialchars($neighbor['name']) ?>"
                    width="80" height="80"
-                   loading="lazy">
+                   loading="lazy" decoding="async">
               <h3><?= htmlspecialchars($neighbor['name']) ?></h3>
               <p>
                 <?php $avg = round($neighbor['avg_rating'] ?? 0); ?>

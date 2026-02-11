@@ -343,6 +343,11 @@
       }
     }
 
+    /* Form wrapper: transparent to flex layout — fieldset acts as direct child */
+    & > form {
+      display: contents;
+    }
+
     /* Location pill toggle */
     & > fieldset {
       background: var(--mountain-fog);
@@ -361,12 +366,16 @@
       }
 
       & label {
+        align-items: center;
         border-radius: 1.25rem;
         color: var(--mountain-slate);
         cursor: pointer;
+        display: inline-flex;
         flex: 1;
         font-size: 0.85rem;
         font-weight: 600;
+        justify-content: center;
+        min-height: 2.75rem;
         padding: 0.5rem 1rem;
         text-align: center;
         transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
@@ -377,84 +386,142 @@
         box-shadow: 0 2px 8px var(--shadow-pine);
         color: #fff;
       }
-    }
 
-    /* Member cards carousel */
-    & > section {
-      container-name: member-list;
-      container-type: inline-size;
-      display: flex;
-      flex: 1;
-      flex-direction: row;
-      gap: 0.75rem;
-      min-width: 0;
-      overflow-x: auto;
-      padding-block-end: 0.5rem;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: thin;
-      -webkit-overflow-scrolling: touch;
-
-      & article {
-        background: var(--mountain-cloud);
-        border: 1px solid rgba(139, 133, 120, 0.2);
-        border-radius: 0.75rem;
-        box-sizing: border-box;
-        flex: 0 0 auto;
-        min-width: 140px;
-        padding: 1rem;
-        scroll-snap-align: start;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-        width: 140px;
-
-        &:hover {
-          border-color: var(--mountain-gold);
-          box-shadow: 0 4px 16px var(--shadow-mountain);
-          transform: scale(1.02);
-        }
-
-        & img {
-          border: 3px solid var(--mountain-pine-light);
-          border-radius: 50%;
-          height: 60px;
-          object-fit: cover;
-          width: 60px;
-        }
-
-        & h3 {
-          color: var(--mountain-pine);
-          font-weight: 600;
-          margin-block-start: 0.625rem;
-        }
-
-        & a[role="button"] {
-          background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
-          border-radius: 1.25rem;
-          color: #fff;
-          display: inline-block;
-          font-size: 0.85rem;
-          font-weight: 600;
-          margin-block-start: 0.75rem;
-          padding: 0.5rem 1.125rem;
-          transition: background-color 0.3s ease, color 0.3s ease;
-
-          &:hover {
-            background: linear-gradient(135deg, var(--mountain-gold) 0%, var(--mountain-gold-dark) 100%);
-            color: var(--mountain-pine-dark);
-          }
-        }
+      & noscript button {
+        background: var(--mountain-pine);
+        border: none;
+        border-radius: 1.25rem;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        min-height: 2.75rem;
+        padding: 0.5rem 1.25rem;
       }
     }
 
-    & article > p:first-of-type {
-      color: var(--mountain-gold);
-      font-size: 0.85rem;
-      margin-block-start: 0.375rem;
+    /* Member list — vertical scroll */
+    & > section {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      padding-inline-end: 0.25rem;
+      scrollbar-color: var(--mountain-mist) transparent;
+      scrollbar-width: thin;
     }
 
-    & article > p:last-of-type {
-      color: var(--mountain-mist);
-      font-size: 0.8rem;
-      margin-block-start: 0.25rem;
+    /* Scroll indicator gradient */
+    & > section::after {
+      background: linear-gradient(transparent, var(--mountain-cream));
+      content: '';
+      display: block;
+      flex-shrink: 0;
+      height: 1.5rem;
+      pointer-events: none;
+      position: sticky;
+      bottom: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    & > section.scrolled-end::after {
+      opacity: 0;
+    }
+
+    /* Loading state (AJAX) */
+    & > section[aria-busy="true"] {
+      opacity: 0.5;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+  }
+
+  /* ── MEMBER CARD (vertical row layout) ── */
+  .home-page > header > aside article {
+    align-items: center;
+    background: var(--mountain-cloud);
+    border: 1px solid rgba(139, 133, 120, 0.2);
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    gap: 0.75rem;
+    padding: 0.625rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: var(--mountain-gold);
+      box-shadow: 0 2px 8px var(--shadow-mountain);
+    }
+  }
+
+  .home-page > header > aside article img {
+    border: 3px solid var(--mountain-pine-light);
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: 60px;
+    object-fit: cover;
+    width: 60px;
+  }
+
+  .home-page > header > aside article > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .home-page > header > aside article h3 {
+    color: var(--mountain-pine);
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .home-page > header > aside article > div > p:first-of-type {
+    color: var(--mountain-gold);
+    font-size: 0.85rem;
+    margin-block-start: 0.25rem;
+  }
+
+  .home-page > header > aside article > div > p:last-of-type {
+    color: var(--mountain-mist);
+    font-size: 0.8rem;
+    margin-block-start: 0.125rem;
+  }
+
+  .home-page > header > aside article a[role="button"] {
+    background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+    border-radius: 1.25rem;
+    color: #fff;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: linear-gradient(135deg, var(--mountain-gold) 0%, var(--mountain-gold-dark) 100%);
+      color: var(--mountain-pine-dark);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-page > header > aside article {
+      transition: none;
+    }
+
+    .home-page > header > aside > section::after {
+      transition: none;
+    }
+
+    .home-page > header > aside > section[aria-busy="true"] {
+      transition: none;
     }
   }
 
@@ -756,25 +823,6 @@
   @media (prefers-reduced-motion: reduce) {
     .carousel-dots > button::after {
       transition: none;
-    }
-  }
-
-  @container member-list (max-width: 400px) {
-    article {
-      min-width: 120px;
-      width: 120px;
-    }
-  }
-
-  @container member-list (max-width: 300px) {
-    article {
-      min-width: 110px;
-      width: 110px;
-
-      & img {
-        height: 48px;
-        width: 48px;
-      }
     }
   }
 

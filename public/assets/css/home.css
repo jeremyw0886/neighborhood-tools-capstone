@@ -322,6 +322,7 @@
   .home-page > header > aside {
     align-self: flex-start;
     border-radius: 0 0 0.75rem 0;
+    container-type: inline-size;
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -446,6 +447,7 @@
     flex-direction: row;
     flex-shrink: 0;
     gap: 0.75rem;
+    min-height: 4.5rem;
     padding: 0.625rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -482,6 +484,7 @@
     color: var(--mountain-gold);
     font-size: 0.85rem;
     margin-block-start: 0.25rem;
+    white-space: nowrap;
   }
 
   .home-page > header > aside article > div > p:last-of-type {
@@ -524,6 +527,24 @@
 
     .home-page > header > aside > section[aria-busy="true"] {
       transition: none;
+    }
+  }
+
+  /* Narrow aside — collapse button to icon-only, shrink avatar */
+  @container (max-width: 340px) {
+    .home-page > header > aside article img {
+      height: 48px;
+      width: 48px;
+    }
+
+    .home-page > header > aside article a[role="button"] {
+      font-size: 0;
+      min-width: 2.75rem;
+      padding: 0.5rem;
+    }
+
+    .home-page > header > aside article a[role="button"] > i {
+      font-size: 0.9rem;
     }
   }
 

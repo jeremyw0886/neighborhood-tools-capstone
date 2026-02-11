@@ -77,15 +77,20 @@
 
       if (!authSection) return;
 
-      // Greeting text — logged-in users (full "Hello, Name")
-      const greeting = authSection.querySelector(':scope > span');
-      if (greeting) {
+      // Greeting — logged-in users (extracted from the toggle button)
+      const toggleBtn = document.getElementById('hero-dropdown-toggle');
+      if (toggleBtn) {
         const span = document.createElement('span');
-        span.innerHTML = greeting.innerHTML;
+        for (const node of toggleBtn.childNodes) {
+          // Skip the chevron icon — not needed in the mobile menu
+          if (node.nodeType === Node.ELEMENT_NODE &&
+              node.classList?.contains('fa-chevron-down')) continue;
+          span.appendChild(node.cloneNode(true));
+        }
         addLi().appendChild(span);
       }
 
-      // Login link — logged-out users (duplicated for discoverability)
+      // Login link — logged-out users
       const loginLink = authSection.querySelector(':scope > a[role="button"]');
       if (loginLink) {
         const a = loginLink.cloneNode(true);
@@ -93,8 +98,13 @@
         addLi().appendChild(a);
       }
 
-      // Dropdown menu items (Dashboard / Admin / Logout  —or—  Sign Up)
-      // Spread into static array so the live HTMLCollection is safe
+      // Sign Up link — logged-out users (direct child, not in a dropdown)
+      const signUpLink = authSection.querySelector(':scope > a[href="/register"]');
+      if (signUpLink) {
+        addLi().appendChild(signUpLink.cloneNode(true));
+      }
+
+      // Dropdown menu items (Dashboard / Admin / Logout)
       if (authMenu) {
         for (const item of [...authMenu.children]) {
           const clone = item.cloneNode(true);

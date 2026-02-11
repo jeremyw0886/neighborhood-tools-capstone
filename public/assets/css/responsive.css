@@ -127,14 +127,12 @@
     }
 
     .home-page > header > section > nav[data-hero] {
-      align-items: center;
-      display: flex;
       gap: 0.5rem;
       position: relative;
     }
 
     .home-page > header > section > nav[data-hero] > a:first-child svg {
-      width: 120px;
+      width: 48px;
     }
 
     .home-page > header > section > nav[data-hero] > ul {
@@ -163,14 +161,6 @@
 
     .home-page > header > section > nav[data-hero] > ul > li:last-child {
       border-bottom: none;
-    }
-
-    nav[data-hero] > #hero-dropdown > span {
-      font-size: 0;
-    }
-
-    nav[data-hero] > #hero-dropdown > span > i {
-      font-size: 1.125rem;
     }
 
     .home-page > header > section > section > h1 {
@@ -425,14 +415,6 @@
       margin-inline-start: auto;
     }
 
-    nav:not([data-hero]) > #hero-dropdown > span {
-      font-size: 0;
-    }
-
-    nav:not([data-hero]) > #hero-dropdown > span > i {
-      font-size: 1.125rem;
-    }
-
     /* Notification bell — 44px touch target on mobile */
     nav:not([data-hero]) > #hero-dropdown > a[href="/notifications"] {
       align-items: center;
@@ -463,11 +445,10 @@
 
   @media (max-width: 640px) {
 
-    /* Hide the separate ellipsis toggle and dropdown on mobile */
-    nav:not([data-hero]) > #hero-dropdown > #hero-dropdown-toggle,
-    nav:not([data-hero]) > #hero-dropdown > #hero-dropdown-menu,
-    nav[data-hero] > #hero-dropdown > #hero-dropdown-toggle,
-    nav[data-hero] > #hero-dropdown > #hero-dropdown-menu {
+    /* Hide dropdown toggle, menu, and Sign Up on mobile (cloned into hamburger) */
+    nav > #hero-dropdown > #hero-dropdown-toggle,
+    nav > #hero-dropdown > #hero-dropdown-menu,
+    nav > #hero-dropdown > a[href="/register"] {
       display: none;
     }
 
@@ -606,7 +587,7 @@
     }
 
     .home-page > header > section > nav[data-hero] > a:first-child svg {
-      width: 100px;
+      width: 40px;
     }
 
     .home-page > header > section > nav[data-hero] > ul {

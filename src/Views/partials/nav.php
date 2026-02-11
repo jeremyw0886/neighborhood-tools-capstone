@@ -60,7 +60,7 @@ $isHero = !empty($heroPage);
     </li>
     <li>
       <a href="/tools"<?= $currentPage === '/tools' ? ' aria-current="page"' : '' ?>>
-        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
+        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Tools
       </a>
     </li>
   </ul>
@@ -68,7 +68,14 @@ $isHero = !empty($heroPage);
   <div id="hero-dropdown">
     <?php if ($isLoggedIn): ?>
 
-      <span><i class="fa-solid fa-circle-user" aria-hidden="true"></i> Hello, <?= htmlspecialchars($authUser['first_name']) ?></span>
+      <button id="hero-dropdown-toggle"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false">
+        <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+        Hello, <?= htmlspecialchars($authUser['first_name']) ?>
+        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+      </button>
 
       <a href="/notifications"
          aria-label="Notifications<?= $unreadCount > 0 ? " ({$unreadCount} unread)" : '' ?>">
@@ -77,14 +84,6 @@ $isHero = !empty($heroPage);
           <span><?= $unreadCount ?></span>
         <?php endif; ?>
       </a>
-
-      <button id="hero-dropdown-toggle"
-              type="button"
-              aria-haspopup="true"
-              aria-expanded="false"
-              aria-label="More options">
-        <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-      </button>
 
       <ul id="hero-dropdown-menu" role="menu">
         <li role="menuitem">
@@ -115,21 +114,9 @@ $isHero = !empty($heroPage);
         <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in
       </a>
 
-      <button id="hero-dropdown-toggle"
-              type="button"
-              aria-haspopup="true"
-              aria-expanded="false"
-              aria-label="More options">
-        <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-      </button>
-
-      <ul id="hero-dropdown-menu" role="menu">
-        <li role="menuitem">
-          <a href="/register">
-            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Sign Up
-          </a>
-        </li>
-      </ul>
+      <a href="/register">
+        <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Sign Up
+      </a>
 
     <?php endif; ?>
   </div>

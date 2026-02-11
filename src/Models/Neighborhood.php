@@ -29,4 +29,24 @@ class Neighborhood
 
         return $stmt->fetchAll();
     }
+
+    /**
+     * Fetch distinct city names for the location toggle radio buttons.
+     *
+     * @return array<int, array{city: string}>
+     */
+    public static function getCities(): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT DISTINCT city_name_nbh AS city
+            FROM neighborhood_nbh
+            ORDER BY city_name_nbh
+        ";
+
+        $stmt = $pdo->query($sql);
+
+        return $stmt->fetchAll();
+    }
 }

@@ -1,13 +1,28 @@
 'use strict';
 
 /**
- * Navigation JavaScript — hamburger menu, hero dropdown, and <dialog> modal system.
+ * Navigation JavaScript — hamburger menu, unified mobile menu, hero dropdown,
+ * and <dialog> modal system.
  *
  * Progressive enhancement: without this script, nav links navigate normally,
  * dropdown items remain visible, and [data-modal] links go to full pages.
  *
- * @see src/Views/partials/nav.php  — nav HTML structure
- * @see src/Views/layouts/main.php  — <dialog> modal partials
+ * Mobile (<=640px):
+ *   The hamburger merges both #top-links and #hero-dropdown into a single
+ *   slide-down panel. Auth items (greeting, Dashboard, Notifications, Logout
+ *   —or— Login, Sign Up) are cloned into #top-links by JS, separated by a
+ *   visual divider. The ellipsis toggle and its floating dropdown are hidden
+ *   via CSS. The notification bell remains visible in the nav bar for quick
+ *   access. Items are added/removed when the viewport crosses the 640px
+ *   breakpoint (e.g. device rotation).
+ *
+ * Desktop (>640px):
+ *   Hamburger is hidden. #top-links and #hero-dropdown render side by side.
+ *   The ellipsis toggle opens a floating dropdown menu for account actions.
+ *
+ * @see src/Views/partials/nav.php   — nav HTML structure
+ * @see src/Views/layouts/main.php   — <dialog> modal partials
+ * @see public/assets/css/responsive.css — unified mobile menu CSS
  */
 
 (() => {
@@ -20,6 +35,8 @@
     if (!toggle || !menu) return;
 
     const icon = toggle.querySelector('i');
+    const authSection = document.getElementById('hero-dropdown');
+    const authMenu = document.getElementById('hero-dropdown-menu');
 
     const open = () => {
       menu.classList.add('open');
@@ -40,28 +57,111 @@
 
     const isOpen = () => menu.classList.contains('open');
 
+    // ── Unified mobile menu: merge auth actions into hamburger ──
+
+    const mobile = window.matchMedia('(max-width: 640px)');
+
+    const buildMobileAuthItems = () => {
+      if (menu.querySelector('[data-mobile-auth]')) return;
+
+      // Helper — create <li data-mobile-auth>, append to #top-links
+      const addLi = () => {
+        const li = document.createElement('li');
+        li.dataset.mobileAuth = '';
+        menu.appendChild(li);
+        return li;
+      };
+
+      // Visual divider between navigation links and auth section
+      addLi().setAttribute('role', 'separator');
+
+      if (!authSection) return;
+
+      // Greeting text — logged-in users (full "Hello, Name")
+      const greeting = authSection.querySelector(':scope > span');
+      if (greeting) {
+        const span = document.createElement('span');
+        span.innerHTML = greeting.innerHTML;
+        addLi().appendChild(span);
+      }
+
+      // Login link — logged-out users (duplicated for discoverability)
+      const loginLink = authSection.querySelector(':scope > a[role="button"]');
+      if (loginLink) {
+        const a = loginLink.cloneNode(true);
+        a.removeAttribute('role');
+        addLi().appendChild(a);
+      }
+
+      // Dropdown menu items (Dashboard / Admin / Logout  —or—  Sign Up)
+      // Spread into static array so the live HTMLCollection is safe
+      if (authMenu) {
+        for (const item of [...authMenu.children]) {
+          const clone = item.cloneNode(true);
+          clone.dataset.mobileAuth = '';
+          clone.removeAttribute('role');
+          menu.appendChild(clone);
+        }
+      }
+
+      // Notification link — logged-in users (placed before Logout)
+      const bellLink = authSection.querySelector(':scope > a[href="/notifications"]');
+      if (bellLink) {
+        const a = document.createElement('a');
+        a.href = '/notifications';
+
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-bell';
+        icon.setAttribute('aria-hidden', 'true');
+        a.appendChild(icon);
+
+        const badge = bellLink.querySelector('span');
+        const count = badge?.textContent.trim();
+        a.append(count ? ` Notifications (${count})` : ' Notifications');
+
+        const li = document.createElement('li');
+        li.dataset.mobileAuth = '';
+        li.appendChild(a);
+
+        // Insert before Logout (last auth item) so order matches the plan
+        const allAuth = menu.querySelectorAll('[data-mobile-auth]');
+        const last = allAuth[allAuth.length - 1];
+        menu.insertBefore(li, last);
+      }
+    };
+
+    const removeMobileAuthItems = () => {
+      for (const el of menu.querySelectorAll('[data-mobile-auth]')) {
+        el.remove();
+      }
+    };
+
+    // Build on init if already mobile; sync on viewport change
+    if (mobile.matches) buildMobileAuthItems();
+
+    mobile.addEventListener('change', (e) => {
+      if (e.matches) {
+        buildMobileAuthItems();
+      } else {
+        removeMobileAuthItems();
+        if (isOpen()) close(false);
+      }
+    });
+
+    // ── Event listeners ──
+
     toggle.addEventListener('click', () => {
       isOpen() ? close() : open();
     });
 
-    // Escape closes the mobile menu
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isOpen()) {
         close();
       }
     });
 
-    // Click outside closes the mobile menu
     document.addEventListener('click', (e) => {
       if (isOpen() && !menu.contains(e.target) && !toggle.contains(e.target)) {
-        close(false);
-      }
-    });
-
-    // Close mobile menu when viewport crosses the breakpoint (e.g. device rotation)
-    const desktop = window.matchMedia('(min-width: 641px)');
-    desktop.addEventListener('change', (e) => {
-      if (e.matches && isOpen()) {
         close(false);
       }
     });

@@ -127,4 +127,4 @@
     </section>
   </main>
 </div>
-<script src="/assets/js/home.js" defer></script>
+<script src="/assets/js/home.js?v=<?= ASSET_VERSION ?>" defer></script>

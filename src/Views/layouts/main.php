@@ -51,7 +51,7 @@
     }
   ?>
 
-  <script src="/assets/js/nav.js" defer></script>
+  <script src="/assets/js/nav.js?v=<?= ASSET_VERSION ?>" defer></script>
 
 </body>
 </html>

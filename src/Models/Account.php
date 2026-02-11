@@ -157,6 +157,50 @@ class Account
     }
 
     /**
+     * Fetch top-rated and most-active members for the home page.
+     *
+     * Joins account_profile_v (display data) with user_reputation_fast_v
+     * (ranking metrics). Sorts by overall rating first, then by an activity
+     * score (tools owned + completed borrows) as a tiebreaker/fallback.
+     *
+     * @param  int   $limit  Number of members to return (default 3)
+     * @return array<int, array{id_acc: int, name: string, avatar: ?string,
+     *               avg_rating: ?float, bio: ?string, tools_owned: int,
+     *               completed_borrows: int}>
+     */
+    public static function getTopMembers(int $limit = 3): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                p.id_acc,
+                p.full_name                  AS name,
+                p.primary_image              AS avatar,
+                r.overall_avg_rating         AS avg_rating,
+                p.bio_text_abi               AS bio,
+                r.tools_owned,
+                r.completed_borrows,
+                r.total_rating_count
+            FROM account_profile_v p
+            JOIN user_reputation_fast_v r ON p.id_acc = r.id_acc
+            WHERE p.account_status = 'active'
+              AND p.role_name_rol  = 'member'
+            ORDER BY
+                COALESCE(r.overall_avg_rating, 0) DESC,
+                r.total_rating_count DESC,
+                (r.tools_owned + r.completed_borrows) DESC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Verify a plaintext password against a stored hash.
      */
     public static function verifyPassword(string $input, string $hash): bool

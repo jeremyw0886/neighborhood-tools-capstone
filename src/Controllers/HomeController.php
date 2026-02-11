@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\Account;
+use App\Models\Neighborhood;
 use App\Models\Tool;
 
 class HomeController extends BaseController
@@ -24,11 +25,12 @@ class HomeController extends BaseController
             $topMembers = [];
         }
 
-        // Location toggle: validate against the two served cities
+        // Location toggle: validate against actual DB cities
         $location = trim($_GET['location'] ?? '');
-        $validCities = ['Asheville', 'Hendersonville'];
+        $cities = Neighborhood::getCities();
+        $cityNames = array_column($cities, 'city');
 
-        $selectedCity = array_find($validCities, fn(string $c) => strcasecmp($c, $location) === 0)
+        $selectedCity = array_find($cityNames, fn(string $c) => strcasecmp($c, $location) === 0)
             ?? 'Asheville';
 
         try {
@@ -48,6 +50,7 @@ class HomeController extends BaseController
         $this->render('home/index', [
             'title'            => 'NeighborhoodTools — Share Tools, Build Community',
             'heroPage'         => true,
+            'cities'           => $cities,
             'selectedCity'     => $selectedCity,
             'nearbyMembers'    => $nearbyMembers,
             'isNearbyFallback' => $isNearbyFallback,

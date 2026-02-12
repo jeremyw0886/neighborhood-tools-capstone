@@ -273,6 +273,10 @@
       padding: 0.625rem 0.75rem;
       width: 100%;
 
+      &:focus-visible {
+        outline: none;
+      }
+
       &::placeholder {
         color: var(--mountain-stone);
       }

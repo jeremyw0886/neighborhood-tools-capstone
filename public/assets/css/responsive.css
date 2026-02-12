@@ -21,6 +21,8 @@
     .home-page > header > aside {
       align-self: center;
       border-radius: 0.75rem;
+      flex: none;
+      height: 320px;
       max-height: 320px;
       max-width: 500px;
       width: 100%;
@@ -66,6 +68,7 @@
     .home-page > header > aside {
       align-self: stretch;
       border-radius: 0.75rem;
+      flex: none;
       height: 280px;
       max-height: 280px;
       max-width: 100%;
@@ -246,6 +249,7 @@
 
 
     .home-page > header > aside {
+      flex: none;
       height: 240px;
       max-height: 240px;
       padding: 1rem;
@@ -274,6 +278,7 @@
   /* Phone landscape — very limited vertical space */
   @media (max-width: 640px) and (orientation: landscape) {
     .home-page > header > aside {
+      flex: none;
       height: 160px;
       max-height: 160px;
     }
@@ -659,6 +664,7 @@
     }
 
     .home-page > header > aside {
+      flex: none;
       height: 200px;
       max-height: 200px;
       padding: 0.75rem;

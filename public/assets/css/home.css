@@ -9,10 +9,6 @@
   /* ── Home page body override ── */
   body:has(.home-page) {
     background: linear-gradient(180deg, var(--mountain-fog) 0%, var(--mountain-cloud) 100%);
-    min-height: 100vh;
-    min-height: 100svh;
-    min-height: 100dvh;
-    overflow-x: hidden;
   }
 
   /* ── Home wrapper ── */

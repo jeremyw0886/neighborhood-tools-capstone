@@ -22,7 +22,7 @@ $isHero = !empty($heroPage);
   <a href="/" aria-label="NeighborhoodTools home">
     <?php include BASE_PATH . '/public/assets/images/logo.svg'; ?>
     <?php if (!$isHero): ?>
-      <span>NeighborhoodTools</span>
+      <!-- <span>NeighborhoodTools</span> -->
     <?php endif; ?>
   </a>
 

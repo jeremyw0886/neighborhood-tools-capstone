@@ -83,3 +83,61 @@
   MQ.addEventListener('change', handleViewport);
   handleViewport(MQ);
 })();
+
+/**
+ * Location toggle — progressive enhancement.
+ *
+ * Unhides the city toggle nav and intercepts clicks to swap
+ * the member list via fetch + DOMParser instead of a full
+ * page reload.
+ *
+ * Without JS the toggle stays hidden and the server-rendered
+ * default city shows — graceful degradation.
+ */
+(function () {
+  const toggle = document.getElementById('location-toggle');
+  if (!toggle) return;
+
+  const memberList = document.getElementById('member-list');
+  if (!memberList) return;
+
+  toggle.removeAttribute('hidden');
+
+  const links = toggle.querySelectorAll('a[data-city]');
+  let controller = null;
+
+  for (const link of links) {
+    link.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      const city = link.dataset.city;
+
+      for (const l of links) l.removeAttribute('aria-current');
+      link.setAttribute('aria-current', 'true');
+
+      if (controller) controller.abort();
+      controller = new AbortController();
+
+      memberList.setAttribute('aria-busy', 'true');
+
+      try {
+        const res = await fetch(`/?location=${encodeURIComponent(city)}`, {
+          signal: controller.signal,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        if (!res.ok) throw new Error(res.statusText);
+
+        const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+        const fresh = doc.getElementById('member-list');
+
+        if (fresh) memberList.innerHTML = fresh.innerHTML;
+      } catch (err) {
+        if (err.name !== 'AbortError') window.location.href = link.href;
+      } finally {
+        memberList.removeAttribute('aria-busy');
+        controller = null;
+      }
+    });
+  }
+})();

@@ -82,8 +82,9 @@
 
     & > nav[data-hero] {
       align-items: center;
-      display: flex;
+      display: grid;
       gap: clamp(0.375rem, 0.125rem + 0.75vw, 0.75rem);
+      grid-template-columns: 1fr auto 1fr;
 
       & > a:first-child {
         & svg {
@@ -97,10 +98,8 @@
       & > ul {
         align-items: center;
         display: flex;
-        flex: 1 1 0%;
-        flex-wrap: wrap;
         gap: clamp(0.5rem, 0.25rem + 1vw, 1.25rem);
-        justify-content: flex-end;
+        justify-content: center;
         min-width: 0;
 
         & a {
@@ -121,8 +120,8 @@
       }
 
       & > #user-actions {
-        flex-shrink: 0;
         gap: 0.75rem;
+        justify-self: end;
 
         /* Greeting toggle — reset hero section button styles */
         & > #user-actions-toggle {
@@ -448,6 +447,7 @@
   .home-page > header > aside article > div {
     flex: 1;
     min-width: 0;
+    text-align: start;
   }
 
   .home-page > header > aside article h3 {
@@ -490,25 +490,6 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .home-page > header > aside > #location-toggle::before,
-    .home-page > header > aside > #location-toggle a {
-      transition: none;
-    }
-
-    .home-page > header > aside article {
-      transition: none;
-    }
-
-    .home-page > header > aside > section::after {
-      transition: none;
-    }
-
-    .home-page > header > aside > section[aria-busy="true"] {
-      transition: none;
-    }
-  }
-
   /* Narrow aside — collapse button to icon-only, shrink avatar */
   @container (max-width: 340px) {
     .home-page > header > aside article img {
@@ -542,6 +523,7 @@
     overflow-x: clip;
     padding-block: 3rem;
     padding-inline: 1.5rem;
+    position: relative;
     -webkit-overflow-scrolling: touch;
 
     & > h2 {
@@ -570,6 +552,17 @@
       scrollbar-gutter: stable both-edges;
       scrollbar-width: thin;
       -webkit-overflow-scrolling: touch;
+    }
+
+    &::after {
+      background: transparent;
+      content: '';
+      height: calc(100% - 3rem);
+      inset-block-end: 0;
+      inset-inline-end: 0;
+      pointer-events: none;
+      position: absolute;
+      width: 3rem;
     }
   }
 
@@ -729,12 +722,6 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .carousel-dots > button::after {
-      transition: none;
-    }
-  }
-
   @media (max-width: 640px) {
     .carousel-dots:not([hidden]) {
       display: flex;
@@ -752,47 +739,6 @@
 
   /* ── RESPONSIVE — Home page breakpoints ── */
 
-  @media (max-width: 1100px) and (min-width: 1025px) {
-    body:has(.home-page) {
-      max-width: 1100px;
-    }
-
-    .home-page > header {
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .home-page > header > section {
-      border-radius: 0;
-      flex: none;
-      width: 100%;
-    }
-
-    .home-page > header > aside {
-      align-self: center;
-      border-radius: 0.75rem;
-      flex: none;
-      height: 320px;
-      max-height: 320px;
-      max-width: 500px;
-      width: 100%;
-    }
-
-    .home-page > main {
-      padding: 1.25rem 1rem;
-    }
-
-    .home-page > main > section:first-of-type,
-    .home-page > main > section:last-of-type {
-      padding: 2.5rem 1rem;
-    }
-
-    .home-page > main > section:first-of-type > div {
-      gap: 1rem;
-      padding-inline: 0.5rem;
-    }
-  }
-
   /* Tablet / narrow desktop */
   @media (max-width: 1024px) {
     .home-page {
@@ -808,7 +754,7 @@
     }
 
     .home-page > header > section {
-      border-radius: 0 0 2rem 0;
+      border-radius: 0;
       flex: none;
       max-height: none;
       max-width: 100%;
@@ -849,15 +795,49 @@
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
     }
+
+    /* Reorder: hero → picks → members → neighbors */
+    .home-page {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-page > header,
+    .home-page > main {
+      display: contents;
+    }
+
+    .home-page > header > section[aria-label="Hero section"] {
+      order: 1;
+    }
+
+    .home-page > main > section:first-of-type {
+      order: 2;
+    }
+
+    .home-page > header > aside {
+      order: 3;
+    }
+
+    .home-page > main > section:last-of-type {
+      order: 4;
+    }
+
+    .home-page > main > section:first-of-type,
+    .home-page > main > section:last-of-type {
+      margin-inline: 0;
+      width: 100%;
+    }
   }
 
   @media (orientation: portrait) and (max-width: 1000px) {
     .home-page > header > section > section > div {
+      align-items: center;
       flex-direction: column;
     }
 
     .home-page > header > section > section > div > a {
-      max-width: none;
+      max-width: 280px;
       width: 100%;
     }
 
@@ -868,7 +848,7 @@
   }
 
   /* Large phone */
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     .home-page > header > section {
       border-radius: 0;
       gap: 1.25rem;
@@ -944,33 +924,6 @@
 
     .home-page form[role="search"] {
       max-width: 100%;
-    }
-
-    /* Reorder mobile: hero → picks → members → neighbors */
-    .home-page {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .home-page > header,
-    .home-page > main {
-      display: contents;
-    }
-
-    .home-page > header > section[aria-label="Hero section"] {
-      order: 1;
-    }
-
-    .home-page > main > section:first-of-type {
-      order: 2;
-    }
-
-    .home-page > header > aside {
-      order: 3;
-    }
-
-    .home-page > main > section:last-of-type {
-      order: 4;
     }
 
     .home-page > main > section:first-of-type,

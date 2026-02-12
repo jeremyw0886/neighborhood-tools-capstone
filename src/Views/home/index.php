@@ -3,7 +3,8 @@
     <section aria-label="Hero section">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
       <section aria-labelledby="hero-heading">
-        <h1 id="hero-heading">Share Tools, Build Community</h1>
+        <h1 id="hero-heading">Share Tools,<br> 
+          Build Community</h1>
         <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
         <div>
           <a href="/tools" role="button"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools</a>

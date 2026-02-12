@@ -21,17 +21,22 @@ class Tool
 
         $sql = "
             SELECT
-                td.id_tol,
-                td.tool_name_tol,
-                td.primary_image,
-                td.avg_rating,
-                td.owner_name,
+                av.id_tol,
+                av.tool_name_tol,
+                av.primary_image,
+                COALESCE(rs.avg_rating, 0) AS avg_rating,
+                av.owner_name,
                 aim.file_name_aim AS owner_avatar
-            FROM tool_detail_v td
+            FROM available_tool_v av
+            LEFT JOIN (
+                SELECT id_tol_trt,
+                       ROUND(AVG(score_trt), 1) AS avg_rating
+                FROM tool_rating_trt
+                GROUP BY id_tol_trt
+            ) rs ON av.id_tol = rs.id_tol_trt
             LEFT JOIN account_image_aim aim
-                ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
-            WHERE td.availability_status = 'AVAILABLE'
-            ORDER BY td.avg_rating DESC, td.created_at_tol DESC
+                ON aim.id_acc_aim = av.owner_id AND aim.is_primary_aim = 1
+            ORDER BY avg_rating DESC, av.created_at_tol DESC
             LIMIT :limit
         ";
 

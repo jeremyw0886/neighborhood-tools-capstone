@@ -3,8 +3,10 @@
  * List a Tool — tool creation form.
  *
  * Variables from ToolController::create():
- *   $categories  array  Rows from category_summary_v
- *   $csrfToken   string CSRF token from shared data
+ *   $categories  array   Rows from category_summary_v
+ *   $errors      array   Field-keyed validation errors (empty on first load)
+ *   $old         array   Previous input values for sticky fields (empty on first load)
+ *   $csrfToken   string  CSRF token from shared data
  */
 ?>
 
@@ -16,6 +18,14 @@
     </h1>
     <p>Share your tools with your neighbors. Fill out the details below to get started.</p>
   </header>
+
+  <?php if (!empty($errors)): ?>
+    <ul role="alert" aria-label="Form errors">
+      <?php foreach ($errors as $msg): ?>
+        <li><?= htmlspecialchars($msg) ?></li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
 
   <form action="/tools" method="post" enctype="multipart/form-data" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -31,7 +41,12 @@
                required
                maxlength="100"
                placeholder="e.g. DeWalt 20V Cordless Drill"
-               autocomplete="off">
+               autocomplete="off"
+               value="<?= htmlspecialchars($old['tool_name'] ?? '') ?>"
+               <?php if (isset($errors['tool_name'])): ?>aria-invalid="true" aria-describedby="tool-name-error"<?php endif; ?>>
+        <?php if (isset($errors['tool_name'])): ?>
+          <p id="tool-name-error" role="alert"><?= htmlspecialchars($errors['tool_name']) ?></p>
+        <?php endif; ?>
       </div>
 
       <div>
@@ -40,19 +55,26 @@
                   name="description"
                   rows="4"
                   maxlength="1000"
-                  placeholder="Describe the tool's features, included accessories, any usage tips…"></textarea>
+                  placeholder="Describe the tool's features, included accessories, any usage tips…"><?= htmlspecialchars($old['description'] ?? '') ?></textarea>
       </div>
 
       <div>
         <label for="tool-category">Category <span aria-hidden="true">*</span></label>
-        <select id="tool-category" name="category_id" required>
+        <select id="tool-category"
+                name="category_id"
+                required
+                <?php if (isset($errors['category_id'])): ?>aria-invalid="true" aria-describedby="tool-category-error"<?php endif; ?>>
           <option value="">Select a category</option>
           <?php foreach ($categories as $cat): ?>
-            <option value="<?= (int) $cat['id_cat'] ?>">
+            <option value="<?= (int) $cat['id_cat'] ?>"
+              <?= ((int) ($old['category_id'] ?? 0)) === (int) $cat['id_cat'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($cat['category_name_cat']) ?>
             </option>
           <?php endforeach; ?>
         </select>
+        <?php if (isset($errors['category_id'])): ?>
+          <p id="tool-category-error" role="alert"><?= htmlspecialchars($errors['category_id']) ?></p>
+        <?php endif; ?>
       </div>
     </fieldset>
 
@@ -68,7 +90,12 @@
                min="0"
                max="9999"
                step="0.01"
-               placeholder="0.00">
+               placeholder="0.00"
+               value="<?= htmlspecialchars($old['rental_fee'] ?? '') ?>"
+               <?php if (isset($errors['rental_fee'])): ?>aria-invalid="true" aria-describedby="tool-fee-error"<?php endif; ?>>
+        <?php if (isset($errors['rental_fee'])): ?>
+          <p id="tool-fee-error" role="alert"><?= htmlspecialchars($errors['rental_fee']) ?></p>
+        <?php endif; ?>
       </div>
 
       <div>
@@ -76,14 +103,16 @@
         <input type="file"
                id="tool-image"
                name="tool_image"
-               accept="image/jpeg,image/png,image/webp">
+               accept="image/jpeg,image/png,image/webp"
+               <?php if (isset($errors['tool_image'])): ?>aria-invalid="true" aria-describedby="tool-image-error"<?php endif; ?>>
+        <?php if (isset($errors['tool_image'])): ?>
+          <p id="tool-image-error" role="alert"><?= htmlspecialchars($errors['tool_image']) ?></p>
+        <?php endif; ?>
       </div>
     </fieldset>
 
-    <p><em>Full tool listing functionality is coming soon. This form is a preview of what's ahead.</em></p>
-
-    <button type="submit" disabled>
-      <i class="fa-solid fa-check" aria-hidden="true"></i> List Tool (Coming Soon)
+    <button type="submit">
+      <i class="fa-solid fa-check" aria-hidden="true"></i> List Tool
     </button>
   </form>
 

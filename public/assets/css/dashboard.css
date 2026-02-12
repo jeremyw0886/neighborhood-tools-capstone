@@ -120,13 +120,13 @@
 
   /* ── Summary card grid (index page) ── */
 
-  section[aria-labelledby="summary-heading"] > div[role="list"],
-  section[aria-labelledby="admin-summary-heading"] > div[role="list"] {
+  section[aria-labelledby="summary-heading"] > ul,
+  section[aria-labelledby="admin-summary-heading"] > ul {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 
-    & > article {
+    & > li > article {
 
       & > a {
         align-items: flex-start;
@@ -349,7 +349,7 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
-  section[aria-labelledby="listed-tools-heading"] > div[role="list"] > .tool-card {
+  section[aria-labelledby="listed-tools-heading"] > div[role="list"] > article {
     flex: none;
     min-width: 0;
     width: auto;
@@ -391,8 +391,8 @@
   /* ── High contrast mode ── */
 
   @media (prefers-contrast: more) {
-    section[aria-labelledby="summary-heading"] > div[role="list"] > article > a,
-    section[aria-labelledby="admin-summary-heading"] > div[role="list"] > article > a {
+    section[aria-labelledby="summary-heading"] > ul > li > article > a,
+    section[aria-labelledby="admin-summary-heading"] > ul > li > article > a {
       border-width: 2px;
     }
 

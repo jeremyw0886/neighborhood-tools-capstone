@@ -571,8 +571,8 @@
     }
   }
 
-  /* ── NEIGHBOR CARD (reusable component) ── */
-  .neighbor-card {
+  /* ── NEIGHBOR CARD ── */
+  .home-page > main > section:last-of-type > div > a {
     align-items: center;
     background: var(--mountain-cloud);
     border: 1px solid rgba(139, 133, 120, 0.2);
@@ -636,14 +636,14 @@
   /* ── CONTAINER QUERIES — component-responsive card layouts ── */
 
   @container neighbor-grid (max-width: 700px) {
-    .neighbor-card {
+    .home-page > main > section:last-of-type > div > a {
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
     }
   }
 
   @container neighbor-grid (max-width: 400px) {
-    .neighbor-card {
+    .home-page > main > section:last-of-type > div > a {
       flex: 1 1 100%;
     }
   }
@@ -762,7 +762,7 @@
       flex-wrap: wrap;
     }
 
-    .neighbor-card {
+    .home-page > main > section:last-of-type > div > a {
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
     }
@@ -885,7 +885,7 @@
       display: none;
     }
 
-    .neighbor-card {
+    .home-page > main > section:last-of-type > div > a {
       flex: 0 0 100%;
       max-width: none;
       min-width: 0;
@@ -996,7 +996,7 @@
       font-size: 1.25rem;
     }
 
-    .neighbor-card {
+    .home-page > main > section:last-of-type > div > a {
       padding: 1rem 0.75rem;
     }
 

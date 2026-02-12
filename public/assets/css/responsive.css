@@ -399,14 +399,14 @@
     }
 
     /* Summary cards — 2 columns on mobile */
-    section[aria-labelledby="summary-heading"] > div[role="list"],
-    section[aria-labelledby="admin-summary-heading"] > div[role="list"] {
+    section[aria-labelledby="summary-heading"] > ul,
+    section[aria-labelledby="admin-summary-heading"] > ul {
       grid-template-columns: repeat(2, 1fr);
       gap: 0.75rem;
     }
 
-    section[aria-labelledby="summary-heading"] > div[role="list"] > article > a,
-    section[aria-labelledby="admin-summary-heading"] > div[role="list"] > article > a {
+    section[aria-labelledby="summary-heading"] > ul > li > article > a,
+    section[aria-labelledby="admin-summary-heading"] > ul > li > article > a {
       min-height: 6.5rem;
       padding: 1rem;
     }
@@ -485,8 +485,8 @@
     }
 
     /* Summary cards — single column on very small screens */
-    section[aria-labelledby="summary-heading"] > div[role="list"],
-    section[aria-labelledby="admin-summary-heading"] > div[role="list"] {
+    section[aria-labelledby="summary-heading"] > ul,
+    section[aria-labelledby="admin-summary-heading"] > ul {
       grid-template-columns: 1fr;
     }
 

@@ -62,9 +62,11 @@
             <dt><i class="fa-solid fa-tags" aria-hidden="true"></i> Categories</dt>
             <dd><?= htmlspecialchars($tool['categories']) ?></dd>
           <?php endif; ?>
-        </dl>
 
-        <span><?= htmlspecialchars($tool['availability_status'] ?? 'UNKNOWN') ?></span>
+          <?php $status = $tool['availability_status'] ?? 'UNKNOWN'; ?>
+          <dt><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Availability</dt>
+          <dd data-availability="<?= htmlspecialchars(strtolower($status)) ?>"><?= htmlspecialchars($status) ?></dd>
+        </dl>
       </div>
     </header>
 

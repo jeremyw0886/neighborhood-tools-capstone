@@ -20,7 +20,7 @@
   const grid = section.querySelector(':scope > div');
   if (!grid) return;
 
-  const cards = grid.querySelectorAll('.neighbor-card');
+  const cards = grid.querySelectorAll(':scope > a');
   if (cards.length < 2) return;
 
   /* ── Build dot nav (not yet in DOM) ── */

@@ -44,70 +44,80 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
   <section aria-labelledby="summary-heading">
     <h2 id="summary-heading" class="visually-hidden">Activity Summary</h2>
 
-    <div role="list">
+    <ul>
 
-      <article role="listitem">
-        <a href="/dashboard/borrower">
-          <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
-          <h3>Active Borrows</h3>
-          <p><?= $activeBorrowCount ?></p>
-          <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-        </a>
-      </article>
-
-      <article role="listitem">
-        <a href="/dashboard/lender">
-          <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
-          <h3>Pending Requests</h3>
-          <p><?= $pendingRequestCount ?></p>
-          <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-        </a>
-      </article>
-
-      <?php if ($overdueCount > 0): ?>
-        <article role="listitem" data-urgent>
+      <li>
+        <article>
           <a href="/dashboard/borrower">
-            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            <h3>Overdue</h3>
-            <p><?= $overdueCount ?></p>
+            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+            <h3>Active Borrows</h3>
+            <p><?= $activeBorrowCount ?></p>
             <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </article>
+      </li>
+
+      <li>
+        <article>
+          <a href="/dashboard/lender">
+            <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+            <h3>Pending Requests</h3>
+            <p><?= $pendingRequestCount ?></p>
+            <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+        </article>
+      </li>
+
+      <?php if ($overdueCount > 0): ?>
+        <li>
+          <article data-urgent>
+            <a href="/dashboard/borrower">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <h3>Overdue</h3>
+              <p><?= $overdueCount ?></p>
+              <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+          </article>
+        </li>
       <?php endif; ?>
 
-      <article role="listitem">
-        <a href="/dashboard/lender">
-          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
-          <h3>My Listed Tools</h3>
-          <p><?= $listedToolCount ?></p>
-          <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-        </a>
-      </article>
+      <li>
+        <article>
+          <a href="/dashboard/lender">
+            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
+            <h3>My Listed Tools</h3>
+            <p><?= $listedToolCount ?></p>
+            <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+        </article>
+      </li>
 
-      <article role="listitem">
-        <a href="/profile/<?= (int) $authUser['id'] ?>">
-          <i class="fa-solid fa-star" aria-hidden="true"></i>
-          <h3>My Rating</h3>
-          <p>
-            <?= $overallRating ?><span>/5</span>
-          </p>
-          <span>
-            <?php for ($i = 0; $i < $starsFull; $i++): ?>
-              <i class="fa-solid fa-star" aria-hidden="true"></i>
-            <?php endfor; ?>
-            <?php if ($starsHalf): ?>
-              <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
-            <?php endif; ?>
-            <?php for ($i = 0; $i < $starsEmpty; $i++): ?>
-              <i class="fa-regular fa-star" aria-hidden="true"></i>
-            <?php endfor; ?>
-            <span class="visually-hidden"><?= $overallRating ?> out of 5 stars</span>
-            (<?= $totalRatings ?> review<?= $totalRatings !== 1 ? 's' : '' ?>)
-          </span>
-        </a>
-      </article>
+      <li>
+        <article>
+          <a href="/profile/<?= (int) $authUser['id'] ?>">
+            <i class="fa-solid fa-star" aria-hidden="true"></i>
+            <h3>My Rating</h3>
+            <p>
+              <?= $overallRating ?><span>/5</span>
+            </p>
+            <span>
+              <?php for ($i = 0; $i < $starsFull; $i++): ?>
+                <i class="fa-solid fa-star" aria-hidden="true"></i>
+              <?php endfor; ?>
+              <?php if ($starsHalf): ?>
+                <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+              <?php endif; ?>
+              <?php for ($i = 0; $i < $starsEmpty; $i++): ?>
+                <i class="fa-regular fa-star" aria-hidden="true"></i>
+              <?php endfor; ?>
+              <span class="visually-hidden"><?= $overallRating ?> out of 5 stars</span>
+              (<?= $totalRatings ?> review<?= $totalRatings !== 1 ? 's' : '' ?>)
+            </span>
+          </a>
+        </article>
+      </li>
 
-    </div>
+    </ul>
   </section>
 
   <?php if ($adminStats !== null): ?>
@@ -116,31 +126,37 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
         <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Admin Overview
       </h2>
 
-      <div role="list">
-        <article role="listitem">
-          <a href="/admin/disputes">
-            <i class="fa-solid fa-gavel" aria-hidden="true"></i>
-            <h3>Open Disputes</h3>
-            <p><?= $adminStats['openDisputes'] ?></p>
-          </a>
-        </article>
+      <ul>
+        <li>
+          <article>
+            <a href="/admin/disputes">
+              <i class="fa-solid fa-gavel" aria-hidden="true"></i>
+              <h3>Open Disputes</h3>
+              <p><?= $adminStats['openDisputes'] ?></p>
+            </a>
+          </article>
+        </li>
 
-        <article role="listitem">
-          <a href="/admin">
-            <i class="fa-solid fa-vault" aria-hidden="true"></i>
-            <h3>Pending Deposits</h3>
-            <p><?= $adminStats['pendingDeposits'] ?></p>
-          </a>
-        </article>
+        <li>
+          <article>
+            <a href="/admin">
+              <i class="fa-solid fa-vault" aria-hidden="true"></i>
+              <h3>Pending Deposits</h3>
+              <p><?= $adminStats['pendingDeposits'] ?></p>
+            </a>
+          </article>
+        </li>
 
-        <article role="listitem">
-          <a href="/admin/incidents">
-            <i class="fa-solid fa-flag" aria-hidden="true"></i>
-            <h3>Open Incidents</h3>
-            <p><?= $adminStats['openIncidents'] ?></p>
-          </a>
-        </article>
-      </div>
+        <li>
+          <article>
+            <a href="/admin/incidents">
+              <i class="fa-solid fa-flag" aria-hidden="true"></i>
+              <h3>Open Incidents</h3>
+              <p><?= $adminStats['openIncidents'] ?></p>
+            </a>
+          </article>
+        </li>
+      </ul>
     </section>
   <?php endif; ?>
 

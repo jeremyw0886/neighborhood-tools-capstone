@@ -20,57 +20,65 @@
   <form action="/tools" method="post" enctype="multipart/form-data" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
-    <div>
-      <label for="tool-name">Tool Name <span aria-hidden="true">*</span></label>
-      <input type="text"
-             id="tool-name"
-             name="tool_name"
-             required
-             maxlength="100"
-             placeholder="e.g. DeWalt 20V Cordless Drill"
-             autocomplete="off">
-    </div>
+    <fieldset>
+      <legend>Tool Details</legend>
 
-    <div>
-      <label for="tool-description">Description</label>
-      <textarea id="tool-description"
-                name="description"
-                rows="4"
-                maxlength="1000"
-                placeholder="Describe the tool's features, included accessories, any usage tips…"></textarea>
-    </div>
+      <div>
+        <label for="tool-name">Tool Name <span aria-hidden="true">*</span></label>
+        <input type="text"
+               id="tool-name"
+               name="tool_name"
+               required
+               maxlength="100"
+               placeholder="e.g. DeWalt 20V Cordless Drill"
+               autocomplete="off">
+      </div>
 
-    <div>
-      <label for="tool-category">Category <span aria-hidden="true">*</span></label>
-      <select id="tool-category" name="category_id" required>
-        <option value="">Select a category</option>
-        <?php foreach ($categories as $cat): ?>
-          <option value="<?= (int) $cat['id_cat'] ?>">
-            <?= htmlspecialchars($cat['category_name_cat']) ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
+      <div>
+        <label for="tool-description">Description</label>
+        <textarea id="tool-description"
+                  name="description"
+                  rows="4"
+                  maxlength="1000"
+                  placeholder="Describe the tool's features, included accessories, any usage tips…"></textarea>
+      </div>
 
-    <div>
-      <label for="tool-fee">Rental Fee ($/day) <span aria-hidden="true">*</span></label>
-      <input type="number"
-             id="tool-fee"
-             name="rental_fee"
-             required
-             min="0"
-             max="9999"
-             step="0.01"
-             placeholder="0.00">
-    </div>
+      <div>
+        <label for="tool-category">Category <span aria-hidden="true">*</span></label>
+        <select id="tool-category" name="category_id" required>
+          <option value="">Select a category</option>
+          <?php foreach ($categories as $cat): ?>
+            <option value="<?= (int) $cat['id_cat'] ?>">
+              <?= htmlspecialchars($cat['category_name_cat']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+    </fieldset>
 
-    <div>
-      <label for="tool-image">Tool Photo</label>
-      <input type="file"
-             id="tool-image"
-             name="tool_image"
-             accept="image/jpeg,image/png,image/webp">
-    </div>
+    <fieldset>
+      <legend>Listing Options</legend>
+
+      <div>
+        <label for="tool-fee">Rental Fee ($/day) <span aria-hidden="true">*</span></label>
+        <input type="number"
+               id="tool-fee"
+               name="rental_fee"
+               required
+               min="0"
+               max="9999"
+               step="0.01"
+               placeholder="0.00">
+      </div>
+
+      <div>
+        <label for="tool-image">Tool Photo</label>
+        <input type="file"
+               id="tool-image"
+               name="tool_image"
+               accept="image/jpeg,image/png,image/webp">
+      </div>
+    </fieldset>
 
     <p><em>Full tool listing functionality is coming soon. This form is a preview of what's ahead.</em></p>
 

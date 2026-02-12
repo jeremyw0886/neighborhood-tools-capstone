@@ -102,7 +102,7 @@
       <div>
         <?php if (!empty($topMembers)): ?>
           <?php foreach (array_slice($topMembers, 0, 3) as $neighbor): ?>
-            <a href="/profile/<?= (int) $neighbor['id_acc'] ?>" class="neighbor-card">
+            <a href="/profile/<?= (int) $neighbor['id_acc'] ?>">
               <span aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
               <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
                    alt="<?= htmlspecialchars($neighbor['username']) ?>"

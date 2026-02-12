@@ -132,6 +132,10 @@
       display: inline;
   }
 
+  fieldset {
+      border: none;
+  }
+
   input,
   select,
   textarea {

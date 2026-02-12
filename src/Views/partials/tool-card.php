@@ -1,4 +1,4 @@
-<article class="tool-card" role="listitem">
+<article role="listitem">
   <figure>
     <?php if (!empty($tool['primary_image'])): ?>
       <img src="/uploads/tools/<?= htmlspecialchars($tool['primary_image']) ?>"

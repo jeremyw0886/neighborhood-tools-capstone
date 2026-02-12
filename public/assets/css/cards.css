@@ -6,7 +6,7 @@
 @layer components {
 
   /* ── TOOL CARD ── */
-  .tool-card {
+  div[role="list"] > article:has(> figure) {
     background: var(--mountain-cloud);
     border: 1px solid rgba(139, 133, 120, 0.2);
     border-radius: 1rem 0 1rem 0;
@@ -108,25 +108,25 @@
   /* ── TOOL CARD — responsive ── */
 
   @media (max-width: 640px) {
-    .tool-card {
+    div[role="list"] > article:has(> figure) {
       height: 230px;
       min-width: 160px;
       width: 160px;
     }
 
-    .tool-card > figure {
+    div[role="list"] > article:has(> figure) > figure {
       height: 130px;
     }
   }
 
   @media (max-width: 400px) {
-    .tool-card {
+    div[role="list"] > article:has(> figure) {
       height: 200px;
       min-width: 140px;
       width: 140px;
     }
 
-    .tool-card > figure {
+    div[role="list"] > article:has(> figure) > figure {
       height: 110px;
     }
   }

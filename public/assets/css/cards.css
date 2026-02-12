@@ -1,0 +1,134 @@
+/* ============================================================
+   cards.css — Shared card components used across multiple pages
+   Properties alphabetized within each rule
+   ============================================================ */
+
+@layer components {
+
+  /* ── TOOL CARD ── */
+  .tool-card {
+    background: var(--mountain-cloud);
+    border: 1px solid rgba(139, 133, 120, 0.2);
+    border-radius: 1rem 0 1rem 0;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    height: 310px;
+    min-width: 0;
+    overflow: hidden;
+    scroll-snap-align: start;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    width: 220px;
+
+    &:hover {
+      border-color: var(--mountain-gold);
+      box-shadow: 0 8px 24px var(--shadow-mountain);
+      transform: translateY(-4px);
+    }
+
+    & > figure {
+      background: linear-gradient(135deg, var(--mountain-fog) 0%, var(--mountain-cream) 100%);
+      height: 180px;
+      position: relative;
+
+      & img {
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+      }
+
+      & > button {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        color: var(--mountain-pine);
+        font-size: 1rem;
+        height: 2.75rem;
+        position: absolute;
+        inset-block-start: 0.5rem;
+        inset-inline-end: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        width: 2.75rem;
+
+        &:hover {
+          background: var(--mountain-gold);
+          color: #fff;
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    & > div {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.625rem;
+      padding: 0.75rem;
+
+      & > h3 {
+        -webkit-box-orient: vertical;
+        color: var(--mountain-pine);
+        display: -webkit-box;
+        font-size: 0.95rem;
+        font-weight: 600;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+
+        & a {
+          color: var(--mountain-pine);
+          transition: color 0.3s ease;
+
+          &:hover {
+            color: var(--mountain-pine-light);
+          }
+        }
+      }
+    }
+
+    & footer {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-block-start: auto;
+
+      & > p {
+        color: var(--mountain-gold);
+        font-size: 0.75rem;
+      }
+
+      & > img {
+        border: 2px solid var(--mountain-pine-light);
+        border-radius: 50%;
+        height: 1.75rem;
+        object-fit: cover;
+        width: 1.75rem;
+      }
+    }
+  }
+
+  /* ── TOOL CARD — responsive ── */
+
+  @media (max-width: 640px) {
+    .tool-card {
+      height: 230px;
+      min-width: 160px;
+      width: 160px;
+    }
+
+    .tool-card > figure {
+      height: 130px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .tool-card {
+      height: 200px;
+      min-width: 140px;
+      width: 140px;
+    }
+
+    .tool-card > figure {
+      height: 110px;
+    }
+  }
+
+}

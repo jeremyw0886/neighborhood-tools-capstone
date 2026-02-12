@@ -18,6 +18,6 @@ return [
     'modal.css',
     'auth.css',
     'errors.css',
-    'home.css',
+    'cards.css',
     'responsive.css',
 ];

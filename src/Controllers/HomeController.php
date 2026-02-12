@@ -48,6 +48,7 @@ class HomeController extends BaseController
         $this->render('home/index', [
             'title'            => 'NeighborhoodTools — Share Tools, Build Community',
             'heroPage'         => true,
+            'pageCss'          => ['home.css'],
             'selectedCity'     => $selectedCity,
             'nearbyMembers'    => $nearbyMembers,
             'isNearbyFallback' => $isNearbyFallback,

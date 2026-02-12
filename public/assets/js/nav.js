@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Navigation JavaScript — hamburger menu, unified mobile menu, hero dropdown,
+ * Navigation JavaScript — hamburger menu, unified mobile menu, user-actions dropdown,
  * and <dialog> modal system.
  *
  * Progressive enhancement: without this script, nav links navigate normally,
  * dropdown items remain visible, and [data-modal] links go to full pages.
  *
  * Mobile (<=640px):
- *   The hamburger merges both #top-links and #hero-dropdown into a single
+ *   The hamburger merges both #top-links and #user-actions into a single
  *   slide-down panel. Auth items (greeting, Dashboard, Notifications, Logout
  *   —or— Login, Sign Up) are cloned into #top-links by JS, separated by a
  *   visual divider. The ellipsis toggle and its floating dropdown are hidden
@@ -17,7 +17,7 @@
  *   breakpoint (e.g. device rotation).
  *
  * Desktop (>640px):
- *   Hamburger is hidden. #top-links and #hero-dropdown render side by side.
+ *   Hamburger is hidden. #top-links and #user-actions render side by side.
  *   The ellipsis toggle opens a floating dropdown menu for account actions.
  *
  * @see src/Views/partials/nav.php   — nav HTML structure
@@ -35,8 +35,8 @@
     if (!toggle || !menu) return;
 
     const icon = toggle.querySelector('i');
-    const authSection = document.getElementById('hero-dropdown');
-    const authMenu = document.getElementById('hero-dropdown-menu');
+    const authSection = document.getElementById('user-actions');
+    const authMenu = document.getElementById('user-actions-menu');
 
     const open = () => {
       menu.classList.add('open');
@@ -78,7 +78,7 @@
       if (!authSection) return;
 
       // Greeting — logged-in users (extracted from the toggle button)
-      const toggleBtn = document.getElementById('hero-dropdown-toggle');
+      const toggleBtn = document.getElementById('user-actions-toggle');
       if (toggleBtn) {
         const span = document.createElement('span');
         for (const node of toggleBtn.childNodes) {
@@ -177,11 +177,11 @@
     });
   };
 
-  // ─── Hero Dropdown ──────────────────────────────────────────────────
+  // ─── User Actions Dropdown ─────────────────────────────────────────
 
   const initDropdown = () => {
-    const toggle = document.getElementById('hero-dropdown-toggle');
-    const menu = document.getElementById('hero-dropdown-menu');
+    const toggle = document.getElementById('user-actions-toggle');
+    const menu = document.getElementById('user-actions-menu');
     if (!toggle || !menu) return;
 
     menu.hidden = true;

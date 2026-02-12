@@ -116,10 +116,6 @@
 
   /* Large phone */
   @media (max-width: 640px) {
-    .home-page > header > section > nav[data-hero] > button {
-      display: inline-flex;
-    }
-
     .home-page > header > section {
       border-radius: 0;
       gap: 1.25rem;
@@ -127,8 +123,20 @@
     }
 
     .home-page > header > section > nav[data-hero] {
+      display: grid;
       gap: 0.5rem;
+      grid-template-columns: 1fr auto 1fr;
       position: relative;
+    }
+
+    .home-page > header > section > nav[data-hero] > button {
+      display: inline-flex;
+      grid-column: 2;
+      justify-self: center;
+    }
+
+    .home-page > header > section > nav[data-hero] > #user-actions {
+      justify-self: end;
     }
 
     .home-page > header > section > nav[data-hero] > a:first-child svg {
@@ -411,12 +419,12 @@
       border-inline-start: 3px solid var(--mountain-gold);
     }
 
-    nav:not([data-hero]) > #hero-dropdown {
+    nav:not([data-hero]) > #user-actions {
       margin-inline-start: auto;
     }
 
     /* Notification bell — 44px touch target on mobile */
-    nav:not([data-hero]) > #hero-dropdown > a[href="/notifications"] {
+    nav:not([data-hero]) > #user-actions > a[href="/notifications"] {
       align-items: center;
       display: flex;
       justify-content: center;
@@ -446,9 +454,9 @@
   @media (max-width: 640px) {
 
     /* Hide dropdown toggle, menu, and Sign Up on mobile (cloned into hamburger) */
-    nav > #hero-dropdown > #hero-dropdown-toggle,
-    nav > #hero-dropdown > #hero-dropdown-menu,
-    nav > #hero-dropdown > a[href="/register"] {
+    nav > #user-actions > #user-actions-toggle,
+    nav > #user-actions > #user-actions-menu,
+    nav > #user-actions > a[href="/register"] {
       display: none;
     }
 
@@ -457,12 +465,15 @@
       padding: 0;
     }
 
-    /* Divider between navigation links and auth section */
+    /* Dividers between link groups / auth section */
     nav > #top-links > li[role="separator"] {
+      background: none;
       border-block-end: none;
       border-block-start: 1px solid rgba(255, 255, 255, 0.25);
+      height: auto;
       margin-block: 0.375rem;
       padding: 0;
+      width: auto;
     }
 
     /* Greeting label (logged-in users) */

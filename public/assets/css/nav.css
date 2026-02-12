@@ -117,11 +117,18 @@
           opacity: 0.8;
         }
       }
+
+      /* Visual separator between link groups */
+      & > li[role="separator"] {
+        background: rgba(255, 255, 255, 0.2);
+        height: 1rem;
+        width: 1px;
+      }
     }
 
     /* ── Auth section (dropdown area) ── */
 
-    & > #hero-dropdown {
+    & > #user-actions {
       align-items: center;
       display: flex;
       gap: 0.625rem;
@@ -201,7 +208,7 @@
       }
 
       /* Greeting toggle button (logged-in) */
-      & > #hero-dropdown-toggle {
+      & > #user-actions-toggle {
         align-items: center;
         background: transparent;
         border: none;
@@ -229,7 +236,7 @@
       }
 
       /* Dropdown menu */
-      & > #hero-dropdown-menu {
+      & > #user-actions-menu {
         background: var(--mountain-cream);
         border: 1px solid var(--mountain-fog);
         border-radius: 0.75rem;
@@ -313,7 +320,7 @@
         font-weight: 700;
       }
 
-      & > #hero-dropdown > #hero-dropdown-menu {
+      & > #user-actions > #user-actions-menu {
         border: 2px solid var(--mountain-pine);
       }
     }

@@ -41,6 +41,12 @@ $isHero = !empty($heroPage);
       </a>
     </li>
     <li>
+      <a href="/tools"<?= $currentPage === '/tools' ? ' aria-current="page"' : '' ?>>
+        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Tools
+      </a>
+    </li>
+    <li role="separator" aria-hidden="true"></li>
+    <li>
       <a href="/how-to"
          data-modal="how-to"<?= $currentPage === '/how-to' ? ' aria-current="page"' : '' ?>>
         <i class="fa-solid fa-book" aria-hidden="true"></i> How To
@@ -49,7 +55,7 @@ $isHero = !empty($heroPage);
     <li>
       <a href="/tos"
          data-modal="tos"<?= $currentPage === '/tos' ? ' aria-current="page"' : '' ?>>
-        <i class="fa-solid fa-file-contract" aria-hidden="true"></i> Terms of Service
+        <i class="fa-solid fa-file-contract" aria-hidden="true"></i> Legal
       </a>
     </li>
     <li>
@@ -58,17 +64,12 @@ $isHero = !empty($heroPage);
         <i class="fa-solid fa-circle-question" aria-hidden="true"></i> FAQs
       </a>
     </li>
-    <li>
-      <a href="/tools"<?= $currentPage === '/tools' ? ' aria-current="page"' : '' ?>>
-        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Tools
-      </a>
-    </li>
   </ul>
 
-  <div id="hero-dropdown">
+  <div id="user-actions">
     <?php if ($isLoggedIn): ?>
 
-      <button id="hero-dropdown-toggle"
+      <button id="user-actions-toggle"
               type="button"
               aria-haspopup="true"
               aria-expanded="false">
@@ -85,7 +86,7 @@ $isHero = !empty($heroPage);
         <?php endif; ?>
       </a>
 
-      <ul id="hero-dropdown-menu" role="menu">
+      <ul id="user-actions-menu" role="menu">
         <li role="menuitem">
           <a href="/dashboard">
             <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard

@@ -87,7 +87,7 @@
     & > nav[data-hero] {
       align-items: center;
       display: flex;
-      gap: 0.75rem;
+      gap: clamp(0.375rem, 0.125rem + 0.75vw, 0.75rem);
 
       & > a:first-child {
         & svg {
@@ -103,26 +103,36 @@
         display: flex;
         flex: 1 1 0%;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: clamp(0.5rem, 0.25rem + 1vw, 1.25rem);
         justify-content: flex-end;
         min-width: 0;
+
+        & a {
+          font-size: clamp(0.8rem, 0.75rem + 0.25vw, 0.95rem);
+        }
 
         & a[aria-current="page"] {
           border-block-end: 2px solid var(--mountain-gold);
           color: var(--mountain-gold);
         }
+
+        /* Visual separator between link groups */
+        & > li[role="separator"] {
+          background: rgba(255, 255, 255, 0.2);
+          height: 1rem;
+          width: 1px;
+        }
       }
 
-      & > #hero-dropdown {
+      & > #user-actions {
         align-items: center;
         display: flex;
         flex-shrink: 0;
         gap: 0.75rem;
-        margin-inline-start: 0.5rem;
         position: relative;
 
         /* Greeting toggle — override generic section button styles */
-        & > #hero-dropdown-toggle {
+        & > #user-actions-toggle {
           background: transparent;
           border: none;
           border-radius: 0;

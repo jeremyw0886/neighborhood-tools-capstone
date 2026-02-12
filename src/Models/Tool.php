@@ -283,6 +283,78 @@ class Tool
     }
 
     /**
+     * Create a new tool listing with category assignment and optional image.
+     *
+     * Performs up to 3 INSERTs in a transaction:
+     *   1. tool_tol — the tool record (condition defaults to 'good')
+     *   2. tool_category_tolcat — junction row linking tool to its category
+     *   3. tool_image_tim — primary image row (only if an image was uploaded)
+     *
+     * @param  array{tool_name: string, description: ?string, rental_fee: float,
+     *               owner_id: int, category_id: int, image_filename: ?string} $data
+     * @return int  The new tool's primary key (id_tol)
+     */
+    public static function create(array $data): int
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            $sql = "
+                INSERT INTO tool_tol (
+                    tool_name_tol,
+                    tool_description_tol,
+                    rental_fee_tol,
+                    id_acc_tol,
+                    id_tcd_tol
+                ) VALUES (
+                    :name,
+                    :description,
+                    :fee,
+                    :owner,
+                    (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = 'good')
+                )
+            ";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':name', $data['tool_name'], PDO::PARAM_STR);
+            $stmt->bindValue(':description', $data['description'], $data['description'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':fee', $data['rental_fee'], PDO::PARAM_STR);
+            $stmt->bindValue(':owner', $data['owner_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            $toolId = (int) $pdo->lastInsertId();
+
+            // Category junction
+            $stmt = $pdo->prepare("
+                INSERT INTO tool_category_tolcat (id_tol_tolcat, id_cat_tolcat)
+                VALUES (:tool, :category)
+            ");
+            $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+            $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Primary image (optional)
+            if ($data['image_filename'] !== null) {
+                $stmt = $pdo->prepare("
+                    INSERT INTO tool_image_tim (id_tol_tim, file_name_tim, is_primary_tim)
+                    VALUES (:tool, :filename, TRUE)
+                ");
+                $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+                $stmt->bindValue(':filename', $data['image_filename'], PDO::PARAM_STR);
+                $stmt->execute();
+            }
+
+            $pdo->commit();
+
+            return $toolId;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Fetch full tool detail by ID, including owner avatar.
      *
      * Queries tool_detail_v (which provides all tool columns, owner info,

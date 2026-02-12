@@ -254,7 +254,7 @@ class Account
             JOIN zip_code_zpc zpc               ON p.zip_code_acc = zpc.zip_code_zpc
             WHERE p.account_status = 'active'
               AND p.role_name_rol  = 'member'
-            HAVING distance_miles IS NOT NULL
+            HAVING distance_miles IS NOT NULL AND distance_miles <= 15
             ORDER BY distance_miles ASC, COALESCE(r.overall_avg_rating, 0) DESC
             LIMIT :limit
         ";

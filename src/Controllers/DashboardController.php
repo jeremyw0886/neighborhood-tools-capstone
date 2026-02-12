@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Account;
 use App\Models\Borrow;
+use App\Models\PlatformStats;
 use App\Models\Tool;
 
 class DashboardController extends BaseController
@@ -147,8 +148,8 @@ class DashboardController extends BaseController
     /**
      * History sub-page — past completed borrows.
      *
-     * Uses sp_get_user_borrow_history() to fetch completed/denied/cancelled
-     * borrows for the logged-in user in both lender and borrower roles.
+     * Uses Borrow::getUserHistory() (wraps sp_get_user_borrow_history) to fetch
+     * completed/denied/cancelled borrows for the logged-in user in both roles.
      */
     public function history(): void
     {
@@ -160,29 +161,8 @@ class DashboardController extends BaseController
         $borrowerHistory = [];
 
         try {
-            $pdo = \App\Core\Database::connection();
-
-            // Lender history
-            $stmt = $pdo->prepare('CALL sp_get_user_borrow_history(:id, :role, :status, :limit, :offset)');
-            $stmt->bindValue(':id', $userId, \PDO::PARAM_INT);
-            $stmt->bindValue(':role', 'lender', \PDO::PARAM_STR);
-            $stmt->bindValue(':status', null, \PDO::PARAM_NULL);
-            $stmt->bindValue(':limit', 20, \PDO::PARAM_INT);
-            $stmt->bindValue(':offset', 0, \PDO::PARAM_INT);
-            $stmt->execute();
-            $lenderHistory = $stmt->fetchAll();
-            $stmt->closeCursor();
-
-            // Borrower history
-            $stmt = $pdo->prepare('CALL sp_get_user_borrow_history(:id, :role, :status, :limit, :offset)');
-            $stmt->bindValue(':id', $userId, \PDO::PARAM_INT);
-            $stmt->bindValue(':role', 'borrower', \PDO::PARAM_STR);
-            $stmt->bindValue(':status', null, \PDO::PARAM_NULL);
-            $stmt->bindValue(':limit', 20, \PDO::PARAM_INT);
-            $stmt->bindValue(':offset', 0, \PDO::PARAM_INT);
-            $stmt->execute();
-            $borrowerHistory = $stmt->fetchAll();
-            $stmt->closeCursor();
+            $lenderHistory   = Borrow::getUserHistory($userId, 'lender');
+            $borrowerHistory = Borrow::getUserHistory($userId, 'borrower');
         } catch (\Throwable $e) {
             error_log('DashboardController::history — ' . $e->getMessage());
         }
@@ -203,16 +183,6 @@ class DashboardController extends BaseController
      */
     private function fetchAdminStats(): array
     {
-        $pdo = \App\Core\Database::connection();
-
-        $openDisputes = (int) $pdo->query('SELECT COUNT(*) FROM open_dispute_v')->fetchColumn();
-        $pendingDeposits = (int) $pdo->query('SELECT COUNT(*) FROM pending_deposit_v')->fetchColumn();
-        $openIncidents = (int) $pdo->query('SELECT COUNT(*) FROM open_incident_v')->fetchColumn();
-
-        return [
-            'openDisputes'    => $openDisputes,
-            'pendingDeposits' => $pendingDeposits,
-            'openIncidents'   => $openIncidents,
-        ];
+        return PlatformStats::getAdminDashboardCounts();
     }
 }

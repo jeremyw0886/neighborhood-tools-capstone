@@ -201,13 +201,14 @@ class Account
     }
 
     /**
-     * Fetch active members ranked by proximity to a city's geographic centroid.
+     * Fetch all active members ranked by proximity to a city's downtown.
      *
-     * Uses a CTE to compute the centroid of all neighborhoods in the selected
-     * city, then ranks members by ST_Distance_Sphere from that reference point.
-     * LEFT JOINs reputation so new/unrated members still appear.
+     * Uses the "Downtown {City}" neighborhood point as reference, then ranks
+     * every active member by ST_Distance_Sphere from that point. Resolves the
+     * member's neighborhood name via id_nbh_acc first, falling back to the
+     * primary ZIP-based neighborhood when the direct assignment is NULL.
      *
-     * @param  string $city   City name to compute the centroid from
+     * @param  string $city   City name (e.g. "Asheville", "Hendersonville")
      * @param  int    $limit  Max members to return (default 10)
      * @return array<int, array{id_acc: int, username: string, avatar: ?string,
      *               avg_rating: float, total_rating_count: int,
@@ -217,18 +218,14 @@ class Account
     public static function getNearbyMembers(string $city, int $limit = 10): array
     {
         $pdo = Database::connection();
+        $downtown = 'Downtown ' . $city;
 
         $sql = "
             WITH city_ref AS (
-                SELECT ST_SRID(
-                    POINT(
-                        AVG(ST_X(location_point_nbh)),
-                        AVG(ST_Y(location_point_nbh))
-                    ),
-                    4326
-                ) AS ref_point
+                SELECT location_point_nbh AS ref_point
                 FROM neighborhood_nbh
-                WHERE city_name_nbh = :city
+                WHERE neighborhood_name_nbh = :downtown
+                LIMIT 1
             )
             SELECT
                 p.id_acc,
@@ -236,7 +233,10 @@ class Account
                 p.primary_image                   AS avatar,
                 COALESCE(r.overall_avg_rating, 0) AS avg_rating,
                 COALESCE(r.total_rating_count, 0) AS total_rating_count,
-                p.neighborhood_name_nbh           AS neighborhood,
+                COALESCE(
+                    p.neighborhood_name_nbh,
+                    nbh_z.neighborhood_name_nbh
+                )                                 AS neighborhood,
                 CASE
                     WHEN COALESCE(r.overall_avg_rating, 0) >= 4.0
                      AND COALESCE(r.total_rating_count, 0) >= 1
@@ -250,17 +250,20 @@ class Account
                 1)                                AS distance_miles
             FROM account_profile_v p
             CROSS JOIN city_ref
-            LEFT JOIN user_reputation_fast_v r  ON p.id_acc = r.id_acc
-            JOIN zip_code_zpc zpc               ON p.zip_code_acc = zpc.zip_code_zpc
+            LEFT JOIN user_reputation_fast_v r     ON p.id_acc = r.id_acc
+            JOIN zip_code_zpc zpc                  ON p.zip_code_acc = zpc.zip_code_zpc
+            LEFT JOIN neighborhood_zip_nbhzpc nz
+                ON p.zip_code_acc = nz.zip_code_nbhzpc AND nz.is_primary_nbhzpc = TRUE
+            LEFT JOIN neighborhood_nbh nbh_z       ON nz.id_nbh_nbhzpc = nbh_z.id_nbh
             WHERE p.account_status = 'active'
               AND p.role_name_rol  = 'member'
-            HAVING distance_miles IS NOT NULL AND distance_miles <= 15
-            ORDER BY distance_miles ASC, COALESCE(r.overall_avg_rating, 0) DESC
+            HAVING distance_miles IS NOT NULL
+            ORDER BY distance_miles ASC
             LIMIT :limit
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':city', $city);
+        $stmt->bindValue(':downtown', $downtown);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

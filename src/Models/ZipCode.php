@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
-use PDO;
 
 class ZipCode
 {
@@ -116,8 +115,8 @@ class ZipCode
      * Uses INSERT IGNORE to handle race conditions — if two users register
      * with the same new ZIP simultaneously, the second insert is a no-op.
      *
-     * MySQL POINT() takes (longitude, latitude) order — the reverse of the
-     * Google API response.
+     * Constructs the POINT via ST_GeomFromText('POINT(lng lat)', 4326) to
+     * match the seed data convention in the SQL dump.
      */
     private static function insert(string $zipCode, float $lat, float $lng): void
     {
@@ -130,19 +129,12 @@ class ZipCode
                 longitude_zpc,
                 location_point_zpc
             ) VALUES (
-                :zip,
-                :lat,
-                :lng,
-                ST_SRID(POINT(:lng_point, :lat_point), 4326)
+                ?, ?, ?,
+                ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326, 'axis-order=long-lat')
             )
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':zip', $zipCode);
-        $stmt->bindValue(':lat', $lat);
-        $stmt->bindValue(':lng', $lng);
-        $stmt->bindValue(':lng_point', $lng);
-        $stmt->bindValue(':lat_point', $lat);
-        $stmt->execute();
+        $stmt->execute([$zipCode, $lat, $lng, $lng, $lat]);
     }
 }

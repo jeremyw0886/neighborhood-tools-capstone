@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Account;
 use App\Models\Neighborhood;
+use App\Models\ZipCode;
 
 class AuthController extends BaseController
 {
@@ -162,6 +163,25 @@ class AuthController extends BaseController
 
         if ($existing !== null) {
             $_SESSION['register_errors'] = ['email' => 'An account with this email already exists.'];
+            $_SESSION['register_old'] = [
+                'first_name'      => $data['first_name'],
+                'last_name'       => $data['last_name'],
+                'email'           => $data['email'],
+                'zip_code'        => $data['zip_code'],
+                'neighborhood_id' => $data['neighborhood_id'],
+            ];
+            $this->redirect('/register');
+        }
+
+        // Ensure ZIP code exists in database (geocode via Google API if necessary)
+        try {
+            ZipCode::ensureExists($data['zip_code']);
+        } catch (\Throwable $e) {
+            error_log('AuthController::register — ZIP geocoding failed: ' . $e->getMessage());
+
+            $_SESSION['register_errors'] = [
+                'zip_code' => 'Unable to validate ZIP code. Please verify it is a valid US ZIP code and try again.',
+            ];
             $_SESSION['register_old'] = [
                 'first_name'      => $data['first_name'],
                 'last_name'       => $data['last_name'],

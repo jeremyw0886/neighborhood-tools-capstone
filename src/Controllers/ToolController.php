@@ -123,6 +123,7 @@ class ToolController extends BaseController
      * Show the tool listing form.
      *
      * Requires authentication — guests are redirected to login.
+     * Recovers flash data (errors + old input) after a failed store() attempt.
      */
     public function create(): void
     {
@@ -136,10 +137,202 @@ class ToolController extends BaseController
             error_log('ToolController::create — ' . $e->getMessage());
         }
 
+        // Recover flash data from failed submission
+        $errors = $_SESSION['tool_errors'] ?? [];
+        $old    = $_SESSION['tool_old'] ?? [];
+        unset($_SESSION['tool_errors'], $_SESSION['tool_old']);
+
         $this->render('tools/create', [
             'title'      => 'List a Tool — NeighborhoodTools',
             'pageCss'    => ['tools.css'],
             'categories' => $categories,
+            'errors'     => $errors,
+            'old'        => $old,
         ]);
+    }
+
+    /**
+     * Handle tool listing form submission.
+     *
+     * Validates input, processes optional image upload, creates the tool
+     * via Tool::create(), and redirects to the new tool's detail page.
+     */
+    public function store(): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        // Extract and sanitize POST data
+        $toolName   = trim($_POST['tool_name'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $categoryId = (int) ($_POST['category_id'] ?? 0);
+        $rentalFee  = $_POST['rental_fee'] ?? '';
+
+        // Validate fields
+        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee);
+
+        // Validate image (if one was uploaded)
+        $imageFilename = null;
+        $hasImage = isset($_FILES['tool_image'])
+            && $_FILES['tool_image']['error'] !== UPLOAD_ERR_NO_FILE;
+
+        if ($hasImage) {
+            $imageErrors = $this->validateToolImage($_FILES['tool_image']);
+            $errors = array_merge($errors, $imageErrors);
+        }
+
+        // On validation failure, flash errors + old input and redirect back
+        if ($errors !== []) {
+            $_SESSION['tool_errors'] = $errors;
+            $_SESSION['tool_old'] = [
+                'tool_name'   => $toolName,
+                'description' => $description,
+                'category_id' => $categoryId,
+                'rental_fee'  => $rentalFee,
+            ];
+            $this->redirect('/tools/create');
+        }
+
+        // Move uploaded file to disk (after validation passed)
+        if ($hasImage) {
+            $imageFilename = $this->moveToolImage($_FILES['tool_image']);
+
+            if ($imageFilename === null) {
+                $_SESSION['tool_errors'] = ['tool_image' => 'Failed to save the uploaded image. Please try again.'];
+                $_SESSION['tool_old'] = [
+                    'tool_name'   => $toolName,
+                    'description' => $description,
+                    'category_id' => $categoryId,
+                    'rental_fee'  => $rentalFee,
+                ];
+                $this->redirect('/tools/create');
+            }
+        }
+
+        // Create tool via model
+        try {
+            $toolId = Tool::create([
+                'tool_name'      => $toolName,
+                'description'    => $description !== '' ? $description : null,
+                'rental_fee'     => (float) $rentalFee,
+                'owner_id'       => $userId,
+                'category_id'    => $categoryId,
+                'image_filename' => $imageFilename,
+            ]);
+
+            $this->redirect('/tools/' . $toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::store — ' . $e->getMessage());
+
+            // Clean up orphaned image file on DB failure
+            if ($imageFilename !== null) {
+                $path = BASE_PATH . '/public/uploads/tools/' . $imageFilename;
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+
+            $_SESSION['tool_errors'] = ['general' => 'Something went wrong creating your listing. Please try again.'];
+            $_SESSION['tool_old'] = [
+                'tool_name'   => $toolName,
+                'description' => $description,
+                'category_id' => $categoryId,
+                'rental_fee'  => $rentalFee,
+            ];
+            $this->redirect('/tools/create');
+        }
+    }
+
+    /**
+     * Validate tool listing form fields.
+     *
+     * @return array<string, string>  Field-keyed error messages (empty = valid)
+     */
+    private function validateToolListing(string $name, int $categoryId, string $fee): array
+    {
+        $errors = [];
+
+        if ($name === '') {
+            $errors['tool_name'] = 'Tool name is required.';
+        } elseif (mb_strlen($name) > 100) {
+            $errors['tool_name'] = 'Tool name must be 100 characters or fewer.';
+        }
+
+        if ($categoryId < 1) {
+            $errors['category_id'] = 'Please select a category.';
+        }
+
+        if ($fee === '' || !is_numeric($fee)) {
+            $errors['rental_fee'] = 'Rental fee is required and must be a number.';
+        } elseif ((float) $fee < 0 || (float) $fee > 9999) {
+            $errors['rental_fee'] = 'Rental fee must be between $0 and $9,999.';
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Validate an uploaded tool image file.
+     *
+     * Checks upload status, file size (max 5 MB), and MIME type
+     * via finfo (not the untrusted $_FILES type).
+     *
+     * @param  array  $file  The $_FILES['tool_image'] entry
+     * @return array<string, string>  Error messages (empty = valid)
+     */
+    private function validateToolImage(array $file): array
+    {
+        $errors = [];
+        $maxSize = 5 * 1024 * 1024; // 5 MB
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $errors['tool_image'] = 'Image upload failed. Please try again.';
+            return $errors;
+        }
+
+        if ($file['size'] > $maxSize) {
+            $errors['tool_image'] = 'Image must be 5 MB or smaller.';
+            return $errors;
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mime, $allowedMimes, true)) {
+            $errors['tool_image'] = 'Image must be a JPEG, PNG, or WebP file.';
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Move a validated tool image to the uploads directory.
+     *
+     * Generates a unique filename to prevent collisions. Returns the
+     * filename on success, null on failure.
+     */
+    private function moveToolImage(array $file): ?string
+    {
+        $extensions = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($file['tmp_name']);
+        $ext   = $extensions[$mime] ?? 'jpg';
+
+        $filename = uniqid('tool_', true) . '.' . $ext;
+        $destination = BASE_PATH . '/public/uploads/tools/' . $filename;
+
+        if (move_uploaded_file($file['tmp_name'], $destination)) {
+            return $filename;
+        }
+
+        return null;
     }
 }

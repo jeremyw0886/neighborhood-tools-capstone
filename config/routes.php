@@ -60,12 +60,12 @@ return [
     'POST /tools/{id}/bookmark'    => [ToolController::class, 'toggleBookmark'],
 
     // Borrowing
-    'POST /borrow/request'         => [BorrowController::class, 'request'],
-    'POST /borrow/{id}/approve'    => [BorrowController::class, 'approve'],
-    'POST /borrow/{id}/deny'       => [BorrowController::class, 'deny'],
-    'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],
-    'POST /borrow/{id}/return'     => [BorrowController::class, 'return'],
-    'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
+    // 'POST /borrow/request'         => [BorrowController::class, 'request'],
+    // 'POST /borrow/{id}/approve'    => [BorrowController::class, 'approve'],
+    // 'POST /borrow/{id}/deny'       => [BorrowController::class, 'deny'],
+    // 'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],
+    // 'POST /borrow/{id}/return'     => [BorrowController::class, 'return'],
+    // 'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
 
     // Profile
     'GET /profile/{id}'            => [ProfileController::class, 'show'],
@@ -73,47 +73,47 @@ return [
     'POST /profile/edit'           => [ProfileController::class, 'update'],
 
     // Search
-    'GET /search'                  => [SearchController::class, 'index'],
+    // 'GET /search'                  => [SearchController::class, 'index'],
 
     // Ratings
-    'GET /rate/{borrowId}'         => [RatingController::class, 'show'],
-    'POST /rate/user'              => [RatingController::class, 'rateUser'],
-    'POST /rate/tool'              => [RatingController::class, 'rateTool'],
+    // 'GET /rate/{borrowId}'         => [RatingController::class, 'show'],
+    // 'POST /rate/user'              => [RatingController::class, 'rateUser'],
+    // 'POST /rate/tool'              => [RatingController::class, 'rateTool'],
 
     // Payments
-    'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
-    'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
-    'GET /payments/history'        => [PaymentController::class, 'history'],
+    // 'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
+    // 'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
+    // 'GET /payments/history'        => [PaymentController::class, 'history'],
 
     // Disputes
-    'GET /disputes'                => [DisputeController::class, 'index'],
-    'GET /disputes/create/{borrowId}' => [DisputeController::class, 'create'],
-    'POST /disputes'               => [DisputeController::class, 'store'],
-    'GET /disputes/{id}'           => [DisputeController::class, 'show'],
-    'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
+    // 'GET /disputes'                => [DisputeController::class, 'index'],
+    // 'GET /disputes/create/{borrowId}' => [DisputeController::class, 'create'],
+    // 'POST /disputes'               => [DisputeController::class, 'store'],
+    // 'GET /disputes/{id}'           => [DisputeController::class, 'show'],
+    // 'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
 
     // Events
-    'GET /events'                  => [EventController::class, 'index'],
-    'GET /events/create'           => [EventController::class, 'create'],
-    'POST /events'                 => [EventController::class, 'store'],
-    'GET /events/{id}'             => [EventController::class, 'show'],
+    // 'GET /events'                  => [EventController::class, 'index'],
+    // 'GET /events/create'           => [EventController::class, 'create'],
+    // 'POST /events'                 => [EventController::class, 'store'],
+    // 'GET /events/{id}'             => [EventController::class, 'show'],
 
     // Handover
-    'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],
-    'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
+    // 'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],
+    // 'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
 
     // Incidents
-    'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],
-    'POST /incidents'              => [IncidentController::class, 'store'],
-    'GET /incidents/{id}'          => [IncidentController::class, 'show'],
+    // 'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],
+    // 'POST /incidents'              => [IncidentController::class, 'store'],
+    // 'GET /incidents/{id}'          => [IncidentController::class, 'show'],
 
     // Notifications
     'GET /notifications'           => [NotificationController::class, 'index'],
     'POST /notifications/read'     => [NotificationController::class, 'markRead'],
 
     // Waivers
-    'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],
-    'POST /waiver/{borrowId}'      => [WaiverController::class, 'sign'],
+    // 'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],
+    // 'POST /waiver/{borrowId}'      => [WaiverController::class, 'sign'],
 
     // Informational pages (progressive-enhancement fallbacks for modals)
     'GET /how-to'                  => [PageController::class, 'howTo'],
@@ -124,7 +124,7 @@ return [
     'POST /tos/accept'             => [TosController::class, 'accept'],
 
     // Categories (API)
-    'GET /categories'              => [CategoryController::class, 'index'],
+    // 'GET /categories'              => [CategoryController::class, 'index'],
 
     // Admin
     'GET /admin'                   => [AdminController::class, 'dashboard'],

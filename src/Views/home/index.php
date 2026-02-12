@@ -26,7 +26,7 @@
       <?php if ($isNearbyFallback): ?>
         <h2 id="sidebar-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Top Members</h2>
       <?php else: ?>
-        <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
+        <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span>Members Near You</h2>
       <?php endif; ?>
 
       <nav aria-label="Filter by city" id="location-toggle" hidden>

@@ -7,16 +7,16 @@
  * Progressive enhancement: without this script, nav links navigate normally,
  * dropdown items remain visible, and [data-modal] links go to full pages.
  *
- * Mobile (<=640px):
+ * Mobile (<=700px):
  *   The hamburger merges both #top-links and #user-actions into a single
  *   slide-down panel. Auth items (greeting, Dashboard, Notifications, Logout
  *   —or— Login, Sign Up) are cloned into #top-links by JS, separated by a
  *   visual divider. The ellipsis toggle and its floating dropdown are hidden
  *   via CSS. The notification bell remains visible in the nav bar for quick
- *   access. Items are added/removed when the viewport crosses the 640px
+ *   access. Items are added/removed when the viewport crosses the 700px
  *   breakpoint (e.g. device rotation).
  *
- * Desktop (>640px):
+ * Desktop (>700px):
  *   Hamburger is hidden. #top-links and #user-actions render side by side.
  *   The ellipsis toggle opens a floating dropdown menu for account actions.
  *
@@ -59,7 +59,7 @@
 
     // ── Unified mobile menu: merge auth actions into hamburger ──
 
-    const mobile = window.matchMedia('(max-width: 640px)');
+    const mobile = window.matchMedia('(max-width: 700px)');
 
     const buildMobileAuthItems = () => {
       if (menu.querySelector('[data-mobile-auth]')) return;

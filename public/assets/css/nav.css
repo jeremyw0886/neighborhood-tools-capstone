@@ -1,6 +1,6 @@
 /* ============================================================
    nav.css — Navigation chrome, shared user-actions, inner-page chrome
-   Standard mode: nav:not([data-hero]) — hero overrides in home.css
+   Shared layout for all navs — hero visual overrides in home.css
    Properties alphabetized within each rule
    ============================================================ */
 
@@ -18,13 +18,13 @@
     z-index: 200;
   }
 
-  /* ── Standard nav layout ── */
+  /* ── Shared nav layout (all pages) ── */
 
-  nav:not([data-hero]) {
+  nav {
     align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    display: grid;
+    gap: clamp(0.375rem, 0.125rem + 0.75vw, 0.75rem);
+    grid-template-columns: 1fr auto 1fr;
     margin-inline: auto;
     max-width: 1400px;
     padding-block: 0.625rem;
@@ -34,7 +34,6 @@
 
     & > a:first-child {
       align-items: center;
-      color: var(--mountain-cream);
       display: flex;
       gap: 0.625rem;
       text-decoration: none;
@@ -52,10 +51,6 @@
         letter-spacing: -0.01em;
         white-space: nowrap;
       }
-
-      &:is(:hover, :focus-visible) {
-        color: var(--mountain-gold-light);
-      }
     }
 
     /* ── Mobile menu toggle — hidden on desktop ── */
@@ -70,7 +65,6 @@
       font-size: 1.25rem;
       height: 2.75rem;
       justify-content: center;
-      margin-inline-start: auto;
       transition: background-color 0.25s, border-color 0.25s, color 0.25s;
       width: 2.75rem;
 
@@ -86,8 +80,8 @@
     & > #top-links {
       align-items: center;
       display: flex;
-      gap: clamp(0.5rem, 0.25rem + 1vw, 1.25rem);
-      margin-inline-start: auto;
+      justify-content: center;
+      min-width: 0;
 
       & a {
         align-items: center;
@@ -126,13 +120,29 @@
       }
     }
 
-    /* ── Auth section — standard mode overrides ── */
+    /* ── User actions — layout ── */
 
     & > #user-actions {
       gap: 0.625rem;
-      margin-inline-start: 0.5rem;
+      justify-self: end;
+    }
+  }
 
-      /* Login link — ghost pill (standard only) */
+  /* ── Standard nav — visual overrides ── */
+
+  nav:not([data-hero]) {
+
+    & > a:first-child {
+      color: var(--mountain-cream);
+
+      &:is(:hover, :focus-visible) {
+        color: var(--mountain-gold-light);
+      }
+    }
+
+    & > #user-actions {
+
+      /* Login link — ghost pill */
       & > a[role="button"] {
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.3);

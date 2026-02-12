@@ -141,3 +141,26 @@
     });
   }
 })();
+
+/**
+ * Sidebar scroll fade — hides the bottom gradient when
+ * the member list is scrolled to the end.
+ */
+(function () {
+  const section = document.getElementById('member-list');
+  if (!section) return;
+
+  function checkScroll() {
+    const atEnd = section.scrollHeight - section.scrollTop - section.clientHeight < 4;
+    section.classList.toggle('scrolled-end', atEnd);
+  }
+
+  section.addEventListener('scroll', checkScroll, { passive: true });
+
+  // Check on load in case content doesn't overflow
+  checkScroll();
+
+  // Re-check when the sidebar height changes (viewport resize)
+  const observer = new ResizeObserver(checkScroll);
+  observer.observe(section);
+})();

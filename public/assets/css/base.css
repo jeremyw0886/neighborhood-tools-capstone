@@ -191,6 +191,11 @@
       outline-offset: 2px;
   }
 
+  /* Search bars use the parent form's :focus-within as their focus indicator */
+  form[role="search"] input:focus-visible {
+      outline: none;
+  }
+
   /* --- Reduced motion --- */
 
   @media (prefers-reduced-motion: reduce) {

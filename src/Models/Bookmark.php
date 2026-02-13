@@ -89,16 +89,23 @@ class Bookmark
         }
 
         // No existing bookmark — create one
-        $stmt = $pdo->prepare("
-            INSERT INTO tool_bookmark_acctol (id_acc_acctol, id_tol_acctol)
-            VALUES (:user, :tool)
-        ");
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO tool_bookmark_acctol (id_acc_acctol, id_tol_acctol)
+                VALUES (:user, :tool)
+            ");
 
-        $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
-        $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-        $stmt->execute();
+            $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
 
-        return true; // Now bookmarked
+            return true; // Now bookmarked
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000') {
+                return true; // Concurrent insert won the race — tool is bookmarked
+            }
+            throw $e;
+        }
     }
 
     /**

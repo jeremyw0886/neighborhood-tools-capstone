@@ -13,9 +13,12 @@
            loading="lazy"
            decoding="async">
     <?php endif; ?>
-    <button type="button" aria-label="Bookmark <?= htmlspecialchars($tool['tool_name_tol']) ?>">
-      <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
-    </button>
+    <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <button type="submit" aria-label="Bookmark <?= htmlspecialchars($tool['tool_name_tol']) ?>">
+        <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
+      </button>
+    </form>
   </figure>
   <div>
     <h3><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></h3>

@@ -384,6 +384,54 @@ class ToolController extends BaseController
     }
 
     /**
+     * Toggle a bookmark for the authenticated user on a tool.
+     *
+     * Delegates to Bookmark::toggle(), flashes a status message, and
+     * redirects back to the referring page (preserving query string)
+     * or the tool detail page as fallback.
+     */
+    public function toggleBookmark(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $bookmarked = Bookmark::toggle($userId, $toolId);
+            $_SESSION['bookmark_flash'] = $bookmarked
+                ? 'Tool bookmarked.'
+                : 'Bookmark removed.';
+        } catch (\Throwable $e) {
+            error_log('ToolController::toggleBookmark — ' . $e->getMessage());
+            $_SESSION['bookmark_flash'] = 'Could not update bookmark. Please try again.';
+        }
+
+        // Redirect to referer path (same-origin safe) or tool detail
+        $back = '/tools/' . $toolId;
+
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $parsed = parse_url($_SERVER['HTTP_REFERER']);
+
+            if (isset($parsed['path'])) {
+                $back = $parsed['path'];
+
+                if (isset($parsed['query'])) {
+                    $back .= '?' . $parsed['query'];
+                }
+            }
+        }
+
+        $this->redirect($back);
+    }
+
+    /**
      * Soft-delete a tool listing.
      *
      * Validates ownership, then marks the tool as unavailable via

@@ -60,6 +60,48 @@ class Bookmark
     }
 
     /**
+     * Toggle a bookmark on or off for a user–tool pair.
+     *
+     * If the bookmark exists it is deleted (unbookmark); otherwise a new
+     * row is inserted (bookmark). The UNIQUE constraint on
+     * (id_acc_acctol, id_tol_acctol) prevents duplicates.
+     *
+     * @param  int  $userId  Account ID of the user
+     * @param  int  $toolId  Tool primary key
+     * @return bool          TRUE if the tool is now bookmarked, FALSE if removed
+     */
+    public static function toggle(int $userId, int $toolId): bool
+    {
+        $pdo = Database::connection();
+
+        // Attempt to remove an existing bookmark
+        $stmt = $pdo->prepare("
+            DELETE FROM tool_bookmark_acctol
+            WHERE id_acc_acctol = :user AND id_tol_acctol = :tool
+        ");
+
+        $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            return false; // Was bookmarked → now removed
+        }
+
+        // No existing bookmark — create one
+        $stmt = $pdo->prepare("
+            INSERT INTO tool_bookmark_acctol (id_acc_acctol, id_tol_acctol)
+            VALUES (:user, :tool)
+        ");
+
+        $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return true; // Now bookmarked
+    }
+
+    /**
      * Count total bookmarks for a user.
      *
      * Used for pagination on the bookmarks page.

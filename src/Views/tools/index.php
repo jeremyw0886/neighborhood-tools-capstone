@@ -14,20 +14,9 @@
  *   $categoryId   ?int    Selected category ID or null
  *   $zip          ?string Zip code filter or null
  *   $maxFee       ?float  Max rental fee or null
+ *   $sliderMax    int     Rounded ceiling for the fee range slider
+ *   $sliderValue  int     Current slider position (user-set or sliderMax)
  */
-
-// Compute the global max rental fee from categories for the slider ceiling
-$sliderMax = 0;
-foreach ($categories as $cat) {
-    if (isset($cat['max_rental_fee']) && (float) $cat['max_rental_fee'] > $sliderMax) {
-        $sliderMax = (float) $cat['max_rental_fee'];
-    }
-}
-// Round up to nearest 5 for a clean slider max, minimum 50
-$sliderMax = $sliderMax > 0 ? (int) (ceil($sliderMax / 5) * 5) : 50;
-
-// Current slider value — either what the user set or the slider ceiling (no cap)
-$sliderValue = $maxFee !== null ? (int) $maxFee : $sliderMax;
 
 // Pagination range display
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;

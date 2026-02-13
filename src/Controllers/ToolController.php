@@ -70,6 +70,16 @@ class ToolController extends BaseController
             'max_fee'  => $maxFee,
         ], static fn(mixed $v): bool => $v !== null);
 
+        // Compute slider ceiling from the highest rental fee across categories
+        $sliderMax = 0;
+        foreach ($categories as $cat) {
+            if (isset($cat['max_rental_fee']) && (float) $cat['max_rental_fee'] > $sliderMax) {
+                $sliderMax = (float) $cat['max_rental_fee'];
+            }
+        }
+        $sliderMax   = $sliderMax > 0 ? (int) (ceil($sliderMax / 5) * 5) : 50;
+        $sliderValue = $maxFee !== null ? (int) $maxFee : $sliderMax;
+
         $this->render('tools/index', [
             'title'        => 'Browse Tools — NeighborhoodTools',
             'description'  => 'Search and browse available tools to borrow from your neighbors in the Asheville and Hendersonville areas.',
@@ -85,6 +95,8 @@ class ToolController extends BaseController
             'categoryId'   => $categoryId,
             'zip'          => $zip,
             'maxFee'       => $maxFee,
+            'sliderMax'    => $sliderMax,
+            'sliderValue'  => $sliderValue,
         ]);
     }
 

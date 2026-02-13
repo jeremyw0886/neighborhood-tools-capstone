@@ -6,9 +6,9 @@
 
 @layer components {
 
-  /* ── Browse page wrapper ── */
+  /* ── Tool listing pages (browse + bookmarks) ── */
 
-  main > section:is([aria-labelledby="browse-heading"], [aria-labelledby="bookmarks-heading"]) {
+  :is(#browse-page, #bookmarks-page) {
     margin-inline: auto;
     max-width: 1200px;
     padding-block: 2rem;
@@ -658,7 +658,7 @@
   /* ── High contrast mode ── */
 
   @media (prefers-contrast: more) {
-    main > section:is([aria-labelledby="browse-heading"], [aria-labelledby="bookmarks-heading"]) {
+    :is(#browse-page, #bookmarks-page) {
 
       & > form[role="search"] > fieldset:first-of-type {
         border-width: 3px;

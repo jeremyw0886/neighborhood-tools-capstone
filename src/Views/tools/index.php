@@ -31,7 +31,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
 };
 ?>
 
-<section aria-labelledby="browse-heading">
+<section id="browse-page" aria-labelledby="browse-heading">
 
   <header>
     <h1 id="browse-heading">

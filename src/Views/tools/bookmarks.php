@@ -18,7 +18,7 @@ $paginationUrl = static function (int $pageNum): string {
 };
 ?>
 
-<section aria-labelledby="bookmarks-heading">
+<section id="bookmarks-page" aria-labelledby="bookmarks-heading">
 
   <header>
     <h1 id="bookmarks-heading">

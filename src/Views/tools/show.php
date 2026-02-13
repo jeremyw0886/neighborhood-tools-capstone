@@ -39,7 +39,7 @@
                width="600" height="400"
                decoding="async">
         <?php else: ?>
-          <img src="/assets/images/tool-placeholder.png"
+          <img src="/assets/images/tool-placeholder.svg"
                alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
                width="600" height="400"
                decoding="async">

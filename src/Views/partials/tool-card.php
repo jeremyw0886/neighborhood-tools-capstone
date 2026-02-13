@@ -8,7 +8,7 @@
            loading="lazy"
            decoding="async">
     <?php else: ?>
-      <img src="/assets/images/tool-placeholder.png"
+      <img src="/assets/images/tool-placeholder.svg"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="220" height="180"
            loading="lazy"

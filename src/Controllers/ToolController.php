@@ -449,7 +449,7 @@ class ToolController extends BaseController
 
         $toolId = (int) $id;
 
-        if ($toolId < 1) {
+        if ($toolId < 1 || !Tool::findById($toolId)) {
             $this->abort(404);
         }
 

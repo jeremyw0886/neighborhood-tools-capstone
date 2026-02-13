@@ -14,7 +14,7 @@ use App\Controllers\HomeController;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\ToolController;
-// use App\Controllers\BorrowController;
+use App\Controllers\BorrowController;
 use App\Controllers\ProfileController;
 // use App\Controllers\SearchController;
 // use App\Controllers\RatingController;

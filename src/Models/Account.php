@@ -78,13 +78,30 @@ class Account
     }
 
     /**
+     * Check whether a username is already taken.
+     */
+    public static function usernameExists(string $username): bool
+    {
+        $pdo = Database::connection();
+
+        $sql = "SELECT 1 FROM account_acc WHERE username_acc = :username LIMIT 1";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':username', $username);
+        $stmt->execute();
+
+        return $stmt->fetch() !== false;
+    }
+
+    /**
      * Create a new account and return the new ID.
      *
      * Uses subqueries and fn_get_account_status_id() to resolve FK values
      * by name — no hard-coded lookup IDs.
      *
-     * @param array{first_name: string, last_name: string, email: string,
-     *              password_hash: string, zip_code: string, neighborhood_id: ?int} $data
+     * @param array{first_name: string, last_name: string, username: string,
+     *              email: string, password_hash: string, street_address: ?string,
+     *              zip_code: string, neighborhood_id: ?int} $data
      */
     public static function create(array $data): int
     {
@@ -94,8 +111,10 @@ class Account
             INSERT INTO account_acc (
                 first_name_acc,
                 last_name_acc,
+                username_acc,
                 email_address_acc,
                 password_hash_acc,
+                street_address_acc,
                 zip_code_acc,
                 id_nbh_acc,
                 id_rol_acc,
@@ -104,8 +123,10 @@ class Account
             ) VALUES (
                 :first_name,
                 :last_name,
+                :username,
                 :email,
                 :password_hash,
+                :street_address,
                 :zip_code,
                 :neighborhood_id,
                 (SELECT id_rol FROM role_rol WHERE role_name_rol = 'member'),
@@ -117,8 +138,10 @@ class Account
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':first_name', $data['first_name']);
         $stmt->bindValue(':last_name', $data['last_name']);
+        $stmt->bindValue(':username', $data['username']);
         $stmt->bindValue(':email', $data['email']);
         $stmt->bindValue(':password_hash', $data['password_hash']);
+        $stmt->bindValue(':street_address', $data['street_address'], $data['street_address'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
         $stmt->bindValue(':zip_code', $data['zip_code']);
         $stmt->bindValue(':neighborhood_id', $data['neighborhood_id'], $data['neighborhood_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
         $stmt->execute();

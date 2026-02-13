@@ -22,6 +22,8 @@
         <input type="text" id="reg-website" name="website" tabindex="-1" autocomplete="off">
       </div>
 
+      <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
+
       <fieldset>
         <legend>Personal Information</legend>
 
@@ -63,6 +65,30 @@
               <span id="last-name-error" role="alert"><?= htmlspecialchars($errors['last_name']) ?></span>
             <?php endif; ?>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value="<?= htmlspecialchars($old['username'] ?? '') ?>"
+            required
+            minlength="3"
+            maxlength="30"
+            pattern="[a-z][a-z0-9_]*"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            placeholder="e.g. your_username"
+            aria-describedby="username-hint<?= !empty($errors['username']) ? ' username-error' : '' ?>"
+            <?= !empty($errors['username']) ? 'aria-invalid="true"' : '' ?>
+          >
+          <span id="username-hint" class="form-hint">Lowercase letters, numbers, and underscores only</span>
+          <?php if (!empty($errors['username'])): ?>
+            <span id="username-error" role="alert"><?= htmlspecialchars($errors['username']) ?></span>
+          <?php endif; ?>
         </div>
 
         <div class="form-group">
@@ -131,6 +157,21 @@
 
       <fieldset>
         <legend>Location</legend>
+
+        <div class="form-group">
+          <label for="street_address">Street Address</label>
+          <input
+            type="text"
+            id="street_address"
+            name="street_address"
+            value="<?= htmlspecialchars($old['street_address'] ?? '') ?>"
+            maxlength="255"
+            autocomplete="street-address"
+            placeholder="123 Haywood St"
+            aria-describedby="address-hint"
+          >
+          <span id="address-hint" class="form-hint">Used to find your nearest neighborhood if not listed below</span>
+        </div>
 
         <div class="form-group">
           <label for="neighborhood_id">Neighborhood</label>

@@ -137,9 +137,11 @@ class AuthController extends BaseController
         $data = [
             'first_name'      => trim($_POST['first_name'] ?? ''),
             'last_name'       => trim($_POST['last_name'] ?? ''),
+            'username'        => strtolower(trim($_POST['username'] ?? '')),
             'email'           => trim($_POST['email'] ?? ''),
             'password'        => $_POST['password'] ?? '',
             'password_confirm' => $_POST['password_confirm'] ?? '',
+            'street_address'  => trim($_POST['street_address'] ?? ''),
             'zip_code'        => trim($_POST['zip_code'] ?? ''),
             'neighborhood_id' => ($_POST['neighborhood_id'] ?? '') !== '' ? (int) $_POST['neighborhood_id'] : null,
         ];
@@ -151,22 +153,34 @@ class AuthController extends BaseController
             $_SESSION['register_old'] = [
                 'first_name'      => $data['first_name'],
                 'last_name'       => $data['last_name'],
+                'username'        => $data['username'],
                 'email'           => $data['email'],
+                'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
             ];
             $this->redirect('/register');
         }
 
-        // Check for existing email
-        $existing = Account::findByEmail($data['email']);
+        // Check for existing email or username
+        $uniqueErrors = [];
 
-        if ($existing !== null) {
-            $_SESSION['register_errors'] = ['email' => 'An account with this email already exists.'];
+        if (Account::findByEmail($data['email']) !== null) {
+            $uniqueErrors['email'] = 'An account with this email already exists.';
+        }
+
+        if (Account::usernameExists($data['username'])) {
+            $uniqueErrors['username'] = 'This username is already taken.';
+        }
+
+        if ($uniqueErrors !== []) {
+            $_SESSION['register_errors'] = $uniqueErrors;
             $_SESSION['register_old'] = [
                 'first_name'      => $data['first_name'],
                 'last_name'       => $data['last_name'],
+                'username'        => $data['username'],
                 'email'           => $data['email'],
+                'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
             ];
@@ -185,11 +199,25 @@ class AuthController extends BaseController
             $_SESSION['register_old'] = [
                 'first_name'      => $data['first_name'],
                 'last_name'       => $data['last_name'],
+                'username'        => $data['username'],
                 'email'           => $data['email'],
+                'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
             ];
             $this->redirect('/register');
+        }
+
+        // Auto-resolve neighborhood from street address if none selected
+        if ($data['neighborhood_id'] === null && $data['street_address'] !== '') {
+            try {
+                $data['neighborhood_id'] = Neighborhood::resolveFromAddress(
+                    address: $data['street_address'],
+                    zipCode: $data['zip_code'],
+                );
+            } catch (\Throwable $e) {
+                error_log('AuthController::register — neighborhood resolution failed: ' . $e->getMessage());
+            }
         }
 
         // Create account
@@ -203,8 +231,10 @@ class AuthController extends BaseController
             $newId = Account::create([
                 'first_name'      => $data['first_name'],
                 'last_name'       => $data['last_name'],
+                'username'        => $data['username'],
                 'email'           => $data['email'],
                 'password_hash'   => $passwordHash,
+                'street_address'  => $data['street_address'] !== '' ? $data['street_address'] : null,
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
             ]);
@@ -214,7 +244,9 @@ class AuthController extends BaseController
             $_SESSION['register_old'] = [
                 'first_name'      => $data['first_name'],
                 'last_name'       => $data['last_name'],
+                'username'        => $data['username'],
                 'email'           => $data['email'],
+                'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
             ];
@@ -317,6 +349,16 @@ class AuthController extends BaseController
             $errors['last_name'] = 'Last name must be 50 characters or fewer.';
         }
 
+        if ($data['username'] === '') {
+            $errors['username'] = 'Username is required.';
+        } elseif (mb_strlen($data['username']) < 3) {
+            $errors['username'] = 'Username must be at least 3 characters.';
+        } elseif (mb_strlen($data['username']) > 30) {
+            $errors['username'] = 'Username must be 30 characters or fewer.';
+        } elseif (!preg_match('/^[a-z][a-z0-9_]*$/', $data['username'])) {
+            $errors['username'] = 'Username must start with a letter and contain only lowercase letters, numbers, and underscores.';
+        }
+
         if ($data['email'] === '') {
             $errors['email'] = 'Email is required.';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
@@ -335,6 +377,10 @@ class AuthController extends BaseController
             $errors['password_confirm'] = 'Please confirm your password.';
         } elseif ($data['password'] !== $data['password_confirm']) {
             $errors['password_confirm'] = 'Passwords do not match.';
+        }
+
+        if ($data['street_address'] !== '' && mb_strlen($data['street_address']) > 255) {
+            $errors['street_address'] = 'Street address must be 255 characters or fewer.';
         }
 
         if ($data['zip_code'] === '') {

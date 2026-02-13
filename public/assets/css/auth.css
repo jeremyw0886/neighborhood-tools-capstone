@@ -186,6 +186,24 @@
     }
   }
 
+  /* --- Required-field indicator (CSS-only, no JS) --- */
+
+  .auth-card .form-group:has(:required) > label::after {
+    color: #dc2626;
+    content: " *";
+  }
+
+  .auth-card .required-note {
+    color: var(--mountain-mist);
+    font-size: 0.813rem;
+    margin-block-end: 0.75rem;
+
+    & abbr {
+      color: #dc2626;
+      text-decoration: none;
+    }
+  }
+
   .form-hint {
     color: var(--mountain-mist);
     display: block;

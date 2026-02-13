@@ -23,6 +23,7 @@ class Tool
             SELECT
                 av.id_tol,
                 av.tool_name_tol,
+                av.rental_fee_tol,
                 av.primary_image,
                 COALESCE(rs.avg_rating, 0) AS avg_rating,
                 av.owner_name,

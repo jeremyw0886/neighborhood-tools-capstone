@@ -85,6 +85,19 @@
           }
         }
       }
+
+      & > p {
+        color: var(--mountain-pine);
+        font-size: 0.938rem;
+        font-weight: 700;
+        margin-block-end: 0;
+
+        & > span {
+          color: var(--mountain-mist);
+          font-size: 0.75rem;
+          font-weight: 400;
+        }
+      }
     }
 
     & footer {

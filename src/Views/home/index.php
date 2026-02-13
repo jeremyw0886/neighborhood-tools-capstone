@@ -55,7 +55,7 @@
               <div>
                 <h3>
                   <?php if (!empty($member['is_top_member'])): ?>
-                    <span aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+                    <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
                   <?php endif; ?>
                   <?= htmlspecialchars($displayName) ?>
                 </h3>
@@ -108,7 +108,7 @@
         <?php if (!empty($topMembers)): ?>
           <?php foreach (array_slice($topMembers, 0, 3) as $neighbor): ?>
             <a href="/profile/<?= (int) $neighbor['id_acc'] ?>">
-              <span aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+              <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
               <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
                    alt="<?= htmlspecialchars($neighbor['username']) ?>"
                    width="80" height="80"

@@ -5514,23 +5514,23 @@ INSERT INTO neighborhood_nbh (neighborhood_name_nbh, city_name_nbh, id_sta_nbh, 
 
 -- Seed zip codes for Asheville and Hendersonville service areas
 INSERT INTO zip_code_zpc (zip_code_zpc, latitude_zpc, longitude_zpc, location_point_zpc) VALUES
-('28801', 35.595000, -82.556000, ST_GeomFromText('POINT(-82.556000 35.595000)', 4326, 'axis-order=long-lat')),
-('28803', 35.539000, -82.518000, ST_GeomFromText('POINT(-82.518000 35.539000)', 4326, 'axis-order=long-lat')),
-('28804', 35.637000, -82.565000, ST_GeomFromText('POINT(-82.565000 35.637000)', 4326, 'axis-order=long-lat')),
-('28805', 35.600000, -82.492000, ST_GeomFromText('POINT(-82.492000 35.600000)', 4326, 'axis-order=long-lat')),
-('28806', 35.584000, -82.608000, ST_GeomFromText('POINT(-82.608000 35.584000)', 4326, 'axis-order=long-lat')),
-('28715', 35.538000, -82.700000, ST_GeomFromText('POINT(-82.700000 35.538000)', 4326, 'axis-order=long-lat')),
-('28787', 35.713000, -82.549000, ST_GeomFromText('POINT(-82.549000 35.713000)', 4326, 'axis-order=long-lat')),
-('28704', 35.464000, -82.535000, ST_GeomFromText('POINT(-82.535000 35.464000)', 4326, 'axis-order=long-lat')),
-('28732', 35.450000, -82.497000, ST_GeomFromText('POINT(-82.497000 35.450000)', 4326, 'axis-order=long-lat')),
-('28778', 35.617000, -82.407000, ST_GeomFromText('POINT(-82.407000 35.617000)', 4326, 'axis-order=long-lat')),
-('28791', 35.347000, -82.525000, ST_GeomFromText('POINT(-82.525000 35.347000)', 4326, 'axis-order=long-lat')),
-('28739', 35.319000, -82.500000, ST_GeomFromText('POINT(-82.500000 35.319000)', 4326, 'axis-order=long-lat')),
-('28792', 35.361000, -82.426000, ST_GeomFromText('POINT(-82.426000 35.361000)', 4326, 'axis-order=long-lat')),
-('28731', 35.286000, -82.407000, ST_GeomFromText('POINT(-82.407000 35.286000)', 4326, 'axis-order=long-lat')),
-('28726', 35.282000, -82.418000, ST_GeomFromText('POINT(-82.418000 35.282000)', 4326, 'axis-order=long-lat')),
-('28759', 35.391000, -82.568000, ST_GeomFromText('POINT(-82.568000 35.391000)', 4326, 'axis-order=long-lat')),
-('28742', 35.370000, -82.598000, ST_GeomFromText('POINT(-82.598000 35.370000)', 4326, 'axis-order=long-lat'));
+('28801', 35.5901, -82.5582, ST_GeomFromText('POINT(-82.5582 35.5901)', 4326, 'axis-order=long-lat')),
+('28803', 35.5320, -82.5227, ST_GeomFromText('POINT(-82.5227 35.5320)', 4326, 'axis-order=long-lat')),
+('28804', 35.6482, -82.5543, ST_GeomFromText('POINT(-82.5543 35.6482)', 4326, 'axis-order=long-lat')),
+('28805', 35.6213, -82.4792, ST_GeomFromText('POINT(-82.4792 35.6213)', 4326, 'axis-order=long-lat')),
+('28806', 35.5716, -82.6216, ST_GeomFromText('POINT(-82.6216 35.5716)', 4326, 'axis-order=long-lat')),
+('28715', 35.5126, -82.7142, ST_GeomFromText('POINT(-82.7142 35.5126)', 4326, 'axis-order=long-lat')),
+('28787', 35.7304, -82.5145, ST_GeomFromText('POINT(-82.5145 35.7304)', 4326, 'axis-order=long-lat')),
+('28704', 35.4623, -82.5758, ST_GeomFromText('POINT(-82.5758 35.4623)', 4326, 'axis-order=long-lat')),
+('28732', 35.4460, -82.4659, ST_GeomFromText('POINT(-82.4659 35.4460)', 4326, 'axis-order=long-lat')),
+('28778', 35.6281, -82.4063, ST_GeomFromText('POINT(-82.4063 35.6281)', 4326, 'axis-order=long-lat')),
+('28791', 35.3630, -82.5111, ST_GeomFromText('POINT(-82.5111 35.3630)', 4326, 'axis-order=long-lat')),
+('28739', 35.2526, -82.5333, ST_GeomFromText('POINT(-82.5333 35.2526)', 4326, 'axis-order=long-lat')),
+('28792', 35.3895, -82.3809, ST_GeomFromText('POINT(-82.3809 35.3895)', 4326, 'axis-order=long-lat')),
+('28731', 35.2876, -82.3887, ST_GeomFromText('POINT(-82.3887 35.2876)', 4326, 'axis-order=long-lat')),
+('28726', 35.2810, -82.4193, ST_GeomFromText('POINT(-82.4193 35.2810)', 4326, 'axis-order=long-lat')),
+('28759', 35.3740, -82.5979, ST_GeomFromText('POINT(-82.5979 35.3740)', 4326, 'axis-order=long-lat')),
+('28742', 35.3824, -82.6410, ST_GeomFromText('POINT(-82.6410 35.3824)', 4326, 'axis-order=long-lat'));
 
 INSERT INTO neighborhood_zip_nbhzpc (id_nbh_nbhzpc, zip_code_nbhzpc, is_primary_nbhzpc) VALUES
     -- Downtown & Central Asheville (28801)

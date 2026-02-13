@@ -13,7 +13,7 @@
 
   /* ── Home wrapper ── */
   .home-page {
-    flex: 1;
+    grid-row: span 2;
     margin-inline: auto;
     max-width: 1400px;
     overflow-x: hidden;
@@ -706,6 +706,12 @@
     margin-block-start: auto;
     padding: 1.5rem;
     text-align: center;
+
+    & p {
+      font-size: 0.9rem;
+      margin-block-end: 0;
+      opacity: 0.9;
+    }
   }
 
   /* ── RESPONSIVE — Home page breakpoints ── */

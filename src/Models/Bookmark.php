@@ -102,6 +102,31 @@ class Bookmark
     }
 
     /**
+     * Get all bookmarked tool IDs for a user.
+     *
+     * Lightweight query against the junction table (no view join)
+     * for powering the active-state bookmark icon in tool cards.
+     *
+     * @param  int   $userId  Account ID
+     * @return int[]           Flat array of tool PKs
+     */
+    public static function getToolIdsForUser(int $userId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT id_tol_acctol
+            FROM tool_bookmark_acctol
+            WHERE id_acc_acctol = :userId
+        ");
+
+        $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
      * Count total bookmarks for a user.
      *
      * Used for pagination on the bookmarks page.

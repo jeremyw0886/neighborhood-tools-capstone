@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\Account;
+use App\Models\Bookmark;
 use App\Models\Tool;
 
 class HomeController extends BaseController
@@ -45,6 +46,17 @@ class HomeController extends BaseController
             $nearbyMembers = $topMembers;
         }
 
+        // Fetch bookmarked tool IDs for the active-state icon in tool cards
+        $bookmarkedIds = [];
+
+        if (!empty($_SESSION['logged_in'])) {
+            try {
+                $bookmarkedIds = Bookmark::getToolIdsForUser((int) $_SESSION['user_id']);
+            } catch (\Throwable $e) {
+                error_log('HomeController::index bookmarks — ' . $e->getMessage());
+            }
+        }
+
         $this->render('home/index', [
             'title'            => 'NeighborhoodTools — Share Tools, Build Community',
             'heroPage'         => true,
@@ -54,6 +66,7 @@ class HomeController extends BaseController
             'isNearbyFallback' => $isNearbyFallback,
             'featuredTools'    => $featuredTools,
             'topMembers'       => $topMembers,
+            'bookmarkedIds'    => $bookmarkedIds,
         ]);
     }
 }

@@ -91,23 +91,35 @@ class ToolController extends BaseController
         $sliderMax   = $sliderMax > 0 ? (int) (ceil($sliderMax / 5) * 5) : 50;
         $sliderValue = $maxFee !== null ? (int) $maxFee : $sliderMax;
 
+        // Fetch bookmarked tool IDs for the active-state icon in tool cards
+        $bookmarkedIds = [];
+
+        if (!empty($_SESSION['logged_in'])) {
+            try {
+                $bookmarkedIds = Bookmark::getToolIdsForUser((int) $_SESSION['user_id']);
+            } catch (\Throwable $e) {
+                error_log('ToolController::index bookmarks — ' . $e->getMessage());
+            }
+        }
+
         $this->render('tools/index', [
-            'title'        => 'Browse Tools — NeighborhoodTools',
-            'description'  => 'Search and browse available tools to borrow from your neighbors in the Asheville and Hendersonville areas.',
-            'pageCss'      => ['tools.css'],
-            'tools'        => $tools,
-            'categories'   => $categories,
-            'totalCount'   => $totalCount,
-            'page'         => $page,
-            'totalPages'   => $totalPages,
-            'perPage'      => self::PER_PAGE,
-            'filterParams' => $filterParams,
-            'term'         => $term,
-            'categoryId'   => $categoryId,
-            'zip'          => $zip,
-            'maxFee'       => $maxFee,
-            'sliderMax'    => $sliderMax,
-            'sliderValue'  => $sliderValue,
+            'title'         => 'Browse Tools — NeighborhoodTools',
+            'description'   => 'Search and browse available tools to borrow from your neighbors in the Asheville and Hendersonville areas.',
+            'pageCss'       => ['tools.css'],
+            'tools'         => $tools,
+            'categories'    => $categories,
+            'totalCount'    => $totalCount,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => self::PER_PAGE,
+            'filterParams'  => $filterParams,
+            'term'          => $term,
+            'categoryId'    => $categoryId,
+            'zip'           => $zip,
+            'maxFee'        => $maxFee,
+            'sliderMax'     => $sliderMax,
+            'sliderValue'   => $sliderValue,
+            'bookmarkedIds' => $bookmarkedIds,
         ]);
     }
 
@@ -141,14 +153,18 @@ class ToolController extends BaseController
             $page = $totalPages;
         }
 
+        // Every tool on this page is bookmarked — derive IDs from fetched results
+        $bookmarkedIds = array_column($bookmarks, 'id_tol');
+
         $this->render('tools/bookmarks', [
-            'title'      => 'My Bookmarks — NeighborhoodTools',
-            'pageCss'    => ['tools.css'],
-            'bookmarks'  => $bookmarks,
-            'totalCount' => $totalCount,
-            'page'       => $page,
-            'totalPages' => $totalPages,
-            'perPage'    => self::PER_PAGE,
+            'title'         => 'My Bookmarks — NeighborhoodTools',
+            'pageCss'       => ['tools.css'],
+            'bookmarks'     => $bookmarks,
+            'totalCount'    => $totalCount,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => self::PER_PAGE,
+            'bookmarkedIds' => $bookmarkedIds,
         ]);
     }
 

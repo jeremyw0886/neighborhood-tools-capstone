@@ -14,14 +14,14 @@
            loading="lazy"
            decoding="async">
     <?php endif; ?>
-    <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
-      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-      <button type="submit"
-              aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
-        <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
-      </button>
-    </form>
   </figure>
+  <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+    <button type="submit"
+            aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
+      <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
+    </button>
+  </form>
   <div>
     <?php if (!empty($tool['category_name'])): ?>
       <span><?= htmlspecialchars($tool['category_name']) ?></span>

@@ -19,6 +19,19 @@
     padding-block: 2rem;
     padding-inline: 1.5rem;
 
+    /* ── Flash messages ── */
+
+    & > p[role="status"] {
+      background: var(--mountain-cream);
+      border: 1px solid var(--mountain-gold-light);
+      border-radius: 0.5rem;
+      color: var(--mountain-pine);
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
     /* ── Page header ── */
 
     & > header {

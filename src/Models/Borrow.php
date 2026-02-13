@@ -151,6 +151,46 @@ class Borrow
     }
 
     /**
+     * Create a borrow request via sp_create_borrow_request().
+     *
+     * The SP validates tool availability internally via fn_is_tool_available()
+     * and creates the availability block atomically. Uses MySQL user variables
+     * for OUT parameters to avoid PDO driver inconsistencies.
+     *
+     * @param  int     $toolId             Tool being requested
+     * @param  int     $borrowerId         Account placing the request
+     * @param  int     $loanDurationHours  Requested loan period in hours
+     * @param  ?string $notes              Optional notes from borrower
+     * @return array{borrow_id: ?int, error: ?string}
+     */
+    public static function create(
+        int $toolId,
+        int $borrowerId,
+        int $loanDurationHours,
+        ?string $notes = null,
+    ): array {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_create_borrow_request(:tool_id, :borrower_id, :duration, :notes, @borrow_id, @error_msg)'
+        );
+
+        $stmt->bindValue(':tool_id', $toolId, PDO::PARAM_INT);
+        $stmt->bindValue(':borrower_id', $borrowerId, PDO::PARAM_INT);
+        $stmt->bindValue(':duration', $loanDurationHours, PDO::PARAM_INT);
+        $stmt->bindValue(':notes', $notes, $notes === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @borrow_id AS borrow_id, @error_msg AS error')->fetch();
+
+        return [
+            'borrow_id' => $out['borrow_id'] !== null ? (int) $out['borrow_id'] : null,
+            'error'     => $out['error'],
+        ];
+    }
+
+    /**
      * Fetch borrow history for a user via sp_get_user_borrow_history().
      *
      * Returns completed, denied, and cancelled borrows for the given role.

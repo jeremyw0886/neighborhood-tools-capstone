@@ -101,6 +101,45 @@ class Notification
     }
 
     /**
+     * Send a notification via sp_send_notification().
+     *
+     * Uses MySQL user variables for the OUT parameter to stay consistent
+     * with the markRead() pattern.
+     *
+     * @param  int    $accountId        Recipient account
+     * @param  string $type             Notification type name (e.g. 'request', 'approval')
+     * @param  string $title            Short title
+     * @param  string $body             Full message body
+     * @param  ?int   $relatedBorrowId  Associated borrow record (null if none)
+     * @return ?int   The new notification ID, or null on failure
+     */
+    public static function send(
+        int $accountId,
+        string $type,
+        string $title,
+        string $body,
+        ?int $relatedBorrowId = null,
+    ): ?int {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_send_notification(:account_id, :type, :title, :body, :borrow_id, @notification_id)'
+        );
+
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        $stmt->bindValue(':title', $title, PDO::PARAM_STR);
+        $stmt->bindValue(':body', $body, PDO::PARAM_STR);
+        $stmt->bindValue(':borrow_id', $relatedBorrowId, $relatedBorrowId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @notification_id AS nid')->fetchColumn();
+
+        return $out !== false && $out !== null ? (int) $out : null;
+    }
+
+    /**
      * Mark notifications as read via sp_mark_notifications_read.
      *
      * Pass null for $notificationIds to mark ALL unread notifications

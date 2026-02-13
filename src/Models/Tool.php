@@ -483,6 +483,47 @@ class Tool
     }
 
     /**
+     * Fetch the primary category name for a batch of tool IDs.
+     *
+     * Returns an associative array keyed by tool ID. Tools with no
+     * category assignment are omitted from the result.
+     *
+     * @param  int[] $toolIds  Tool primary keys
+     * @return array<int, string>  [id_tol => category_name_cat]
+     */
+    public static function getCategoryNamesForTools(array $toolIds): array
+    {
+        if ($toolIds === []) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+
+        $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
+
+        $stmt = $pdo->prepare("
+            SELECT tc.id_tol_tolcat, MIN(c.category_name_cat) AS category_name
+            FROM tool_category_tolcat tc
+            JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+            WHERE tc.id_tol_tolcat IN ({$placeholders})
+            GROUP BY tc.id_tol_tolcat
+        ");
+
+        foreach (array_values($toolIds) as $i => $id) {
+            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        $map = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $map[(int) $row['id_tol_tolcat']] = $row['category_name'];
+        }
+
+        return $map;
+    }
+
+    /**
      * Fetch full tool detail by ID, including owner avatar.
      *
      * Queries tool_detail_v (which provides all tool columns, owner info,

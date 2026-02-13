@@ -21,6 +21,9 @@
     </form>
   </figure>
   <div>
+    <?php if (!empty($tool['category_name'])): ?>
+      <span><?= htmlspecialchars($tool['category_name']) ?></span>
+    <?php endif; ?>
     <h3><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></h3>
     <p>$<?= number_format((float) ($tool['rental_fee_tol'] ?? 0), 2) ?><span>/day</span></p>
     <footer>

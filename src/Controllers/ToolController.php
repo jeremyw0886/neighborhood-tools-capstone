@@ -48,6 +48,17 @@ class ToolController extends BaseController
             );
 
             $categories = Tool::getCategories();
+
+            // Enrich search results with category names for card display
+            if ($tools !== []) {
+                $toolIds     = array_column($tools, 'id_tol');
+                $categoryMap = Tool::getCategoryNamesForTools($toolIds);
+
+                foreach ($tools as &$t) {
+                    $t['category_name'] = $categoryMap[(int) $t['id_tol']] ?? null;
+                }
+                unset($t);
+            }
         } catch (\Throwable $e) {
             error_log('ToolController::index — ' . $e->getMessage());
             $tools      = [];

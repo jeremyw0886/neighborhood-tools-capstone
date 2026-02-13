@@ -152,6 +152,73 @@ class ToolController extends BaseController
     }
 
     /**
+     * Show the tool edit form, pre-filled with current values.
+     *
+     * Requires authentication and owner-only access — only the tool's
+     * owner may edit it. Recovers flash data from a failed update()
+     * attempt so the user sees their last-entered values.
+     */
+    public function edit(string $id): void
+    {
+        $this->requireAuth();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::edit — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        // Owner-only access
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        $categories = [];
+
+        try {
+            $categories = Tool::getCategories();
+        } catch (\Throwable $e) {
+            error_log('ToolController::edit categories — ' . $e->getMessage());
+        }
+
+        // Get current category ID for pre-selecting the dropdown
+        $currentCategoryId = null;
+
+        try {
+            $currentCategoryId = Tool::getCategoryId($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::edit categoryId — ' . $e->getMessage());
+        }
+
+        // Flash data from a failed update() overrides DB values
+        $errors = $_SESSION['edit_tool_errors'] ?? [];
+        $old    = $_SESSION['edit_tool_old'] ?? [];
+        unset($_SESSION['edit_tool_errors'], $_SESSION['edit_tool_old']);
+
+        $this->render('tools/edit', [
+            'title'             => 'Edit ' . htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
+            'pageCss'           => ['tools.css'],
+            'tool'              => $tool,
+            'categories'        => $categories,
+            'currentCategoryId' => $currentCategoryId,
+            'errors'            => $errors,
+            'old'               => $old,
+        ]);
+    }
+
+    /**
      * Handle tool listing form submission.
      *
      * Validates input, processes optional image upload, creates the tool

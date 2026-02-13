@@ -909,23 +909,9 @@
     }
 
     .home-page > header > aside {
-      height: auto;
-      max-height: none;
-      overflow: visible;
+      height: 280px;
+      max-height: 280px;
       padding: 1rem;
-    }
-
-    .home-page > header > aside > section {
-      flex: none;
-      overflow-y: visible;
-    }
-
-    .home-page > header > aside > section::after {
-      display: none;
-    }
-
-    .home-page > header > aside > section > article:nth-child(n+3) {
-      display: none;
     }
 
     .home-page > header > aside article {
@@ -951,8 +937,8 @@
   /* Phone landscape — very limited vertical space */
   @media (max-width: 640px) and (orientation: landscape) {
     .home-page > header > aside {
-      height: auto;
-      max-height: none;
+      height: 200px;
+      max-height: 200px;
     }
 
     .home-page > header > aside article img {
@@ -1022,8 +1008,8 @@
     }
 
     .home-page > header > aside {
-      height: auto;
-      max-height: none;
+      height: 240px;
+      max-height: 240px;
       padding: 0.75rem;
     }
 

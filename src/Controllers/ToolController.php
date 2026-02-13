@@ -211,11 +211,14 @@ class ToolController extends BaseController
             }
         }
 
+        $isOwner = !empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id'];
+
         $this->render('tools/show', [
             'title'        => htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
             'pageCss'      => ['tools.css'],
             'tool'         => $tool,
             'isBookmarked' => $isBookmarked,
+            'isOwner'      => $isOwner,
         ]);
     }
 

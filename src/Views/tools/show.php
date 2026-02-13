@@ -5,15 +5,22 @@
  * Variables from ToolController::show():
  *   $tool          array  Full row from tool_detail_v + owner_avatar
  *   $isBookmarked  bool   Whether the logged-in user has bookmarked this tool
+ *   $isOwner       bool   Whether the logged-in user owns this tool
  */
 ?>
 
 <section aria-labelledby="tool-detail-heading">
 
   <nav aria-label="Back">
-    <a href="<?= htmlspecialchars($backUrl) ?>">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-    </a>
+    <?php if ($isOwner): ?>
+      <a href="/dashboard">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
+      </a>
+    <?php else: ?>
+      <a href="<?= htmlspecialchars($backUrl) ?>">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+      </a>
+    <?php endif; ?>
   </nav>
 
   <?php if (!empty($_SESSION['bookmark_flash'])): ?>

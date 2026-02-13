@@ -37,22 +37,25 @@
         width: 100%;
       }
 
-      & > button {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 50%;
-        color: var(--mountain-pine);
-        font-size: 1rem;
-        height: 2.75rem;
+      & > form {
         position: absolute;
         inset-block-start: 0.5rem;
         inset-inline-end: 0.5rem;
-        transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-        width: 2.75rem;
 
-        &:hover {
-          background: var(--mountain-gold);
-          color: #fff;
-          transform: scale(1.1);
+        & > button {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          color: var(--mountain-pine);
+          font-size: 1rem;
+          height: 2.75rem;
+          transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+          width: 2.75rem;
+
+          &:hover {
+            background: var(--mountain-gold);
+            color: #fff;
+            transform: scale(1.1);
+          }
         }
       }
     }
@@ -117,6 +120,17 @@
     div[role="list"] > article:has(> figure) > figure {
       height: 130px;
     }
+
+    div[role="list"] > article:has(> figure) > figure > form {
+      inset-block-start: 0.375rem;
+      inset-inline-end: 0.375rem;
+    }
+
+    div[role="list"] > article:has(> figure) > figure > form > button {
+      font-size: 0.875rem;
+      height: 2.25rem;
+      width: 2.25rem;
+    }
   }
 
   @media (max-width: 400px) {
@@ -128,6 +142,12 @@
 
     div[role="list"] > article:has(> figure) > figure {
       height: 110px;
+    }
+
+    div[role="list"] > article:has(> figure) > figure > form > button {
+      font-size: 0.813rem;
+      height: 2rem;
+      width: 2rem;
     }
   }
 

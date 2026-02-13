@@ -8,9 +8,9 @@
         "vlucas/phpdotenv": "^5.5"
     },
     "autoload": {
-        "psr-4": {
-            "App\\": "src/"
-        }
+        "classmap": [
+            "src/"
+        ]
     },
     "scripts": {
         "post-install-cmd": [

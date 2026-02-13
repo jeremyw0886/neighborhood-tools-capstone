@@ -430,6 +430,29 @@ class Tool
     }
 
     /**
+     * Soft-delete a tool by clearing its availability flag.
+     *
+     * Sets is_available_tol = FALSE so the tool drops out of
+     * available_tool_v and search results. Historical borrows,
+     * ratings, and images are preserved.
+     *
+     * @param  int  $toolId  Tool primary key
+     */
+    public static function softDelete(int $toolId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE tool_tol
+            SET is_available_tol = FALSE
+            WHERE id_tol = :id
+        ");
+
+        $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
      * Fetch the primary category ID for a tool.
      *
      * The tool_detail_v view returns category names as a GROUP_CONCAT string,

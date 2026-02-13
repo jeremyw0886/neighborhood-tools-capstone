@@ -342,6 +342,49 @@ class ToolController extends BaseController
     }
 
     /**
+     * Soft-delete a tool listing.
+     *
+     * Validates ownership, then marks the tool as unavailable via
+     * Tool::softDelete(). The tool remains in the database for
+     * historical records but disappears from search and browse.
+     */
+    public function delete(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::delete fetch — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        try {
+            Tool::softDelete($toolId);
+            $this->redirect('/tools');
+        } catch (\Throwable $e) {
+            error_log('ToolController::delete — ' . $e->getMessage());
+            $this->abort(500);
+        }
+    }
+
+    /**
      * Handle tool listing form submission.
      *
      * Validates input, processes optional image upload, creates the tool

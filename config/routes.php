@@ -60,7 +60,7 @@ return [
     'POST /tools/{id}/bookmark'    => [ToolController::class, 'toggleBookmark'],
 
     // Borrowing
-    // 'POST /borrow/request'         => [BorrowController::class, 'request'],
+    'POST /borrow/request'         => [BorrowController::class, 'request'],
     // 'POST /borrow/{id}/approve'    => [BorrowController::class, 'approve'],
     // 'POST /borrow/{id}/deny'       => [BorrowController::class, 'deny'],
     // 'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],

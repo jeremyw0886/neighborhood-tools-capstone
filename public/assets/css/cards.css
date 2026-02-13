@@ -13,10 +13,12 @@
     display: flex;
     flex: 0 0 auto;
     flex-direction: column;
-    height: 310px;
+    height: auto;
+    min-height: 310px;
     min-width: 0;
     overflow: hidden;
     scroll-snap-align: start;
+    text-align: start;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     width: 220px;
 
@@ -99,7 +101,7 @@
         color: var(--mountain-pine);
         font-size: 0.938rem;
         font-weight: 700;
-        margin-block-end: 0;
+        margin-block-start: auto;
 
         & > span {
           color: var(--mountain-mist);
@@ -113,7 +115,6 @@
       align-items: center;
       display: flex;
       justify-content: space-between;
-      margin-block-start: auto;
 
       & > span[role="img"] {
         color: var(--mountain-gold);
@@ -134,13 +135,14 @@
 
   @media (max-width: 640px) {
     div[role="list"] > article:has(> figure) {
-      height: 230px;
+      height: auto;
+      min-height: 200px;
       min-width: 160px;
       width: 160px;
     }
 
     div[role="list"] > article:has(> figure) > figure {
-      height: 130px;
+      height: 110px;
     }
 
     div[role="list"] > article:has(> figure) > figure > form {
@@ -157,7 +159,8 @@
 
   @media (max-width: 400px) {
     div[role="list"] > article:has(> figure) {
-      height: 200px;
+      height: auto;
+      min-height: 180px;
       min-width: 140px;
       width: 140px;
     }

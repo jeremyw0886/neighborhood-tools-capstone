@@ -513,7 +513,7 @@
 
     & > div {
       display: flex;
-      gap: 1.25rem;
+      gap: 1.5rem;
       max-width: 100%;
       min-width: 0;
       overflow-x: auto;
@@ -523,6 +523,16 @@
       scrollbar-gutter: stable both-edges;
       scrollbar-width: thin;
       -webkit-overflow-scrolling: touch;
+    }
+
+    /* Keep carousel cards at desktop proportions across all breakpoints */
+    & > div > article {
+      min-height: 310px;
+      width: 220px;
+    }
+
+    & > div > article > figure {
+      height: 180px;
     }
 
     &::after {
@@ -760,7 +770,7 @@
     }
 
     .home-page > main > section:first-of-type > div {
-      gap: 1rem;
+      gap: 1.5rem;
       padding-inline: 0.5rem;
     }
 
@@ -873,7 +883,7 @@
     }
 
     .home-page > main > section:first-of-type > div {
-      gap: 0.75rem;
+      gap: 1rem;
     }
 
     .home-page > main > section:last-of-type > div {

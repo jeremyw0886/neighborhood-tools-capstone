@@ -312,21 +312,6 @@
       font-size: 1.5rem;
     }
 
-    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type > div {
-      flex-basis: 100%;
-    }
-
-    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type > button[type="submit"],
-    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:last-of-type > a[role="button"] {
-      align-self: stretch;
-      justify-content: center;
-    }
-
     main > section[aria-labelledby="browse-heading"] > div[role="list"] {
       gap: 1rem;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

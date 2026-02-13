@@ -27,7 +27,11 @@ class Tool
                 av.primary_image,
                 COALESCE(rs.avg_rating, 0) AS avg_rating,
                 av.owner_name,
-                aim.file_name_aim AS owner_avatar
+                aim.file_name_aim AS owner_avatar,
+                (SELECT MIN(c.category_name_cat)
+                 FROM tool_category_tolcat tc
+                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                 WHERE tc.id_tol_tolcat = av.id_tol) AS category_name
             FROM available_tool_v av
             LEFT JOIN (
                 SELECT id_tol_trt,
@@ -243,7 +247,11 @@ class Tool
                 td.rental_fee_tol,
                 td.tool_condition,
                 td.owner_name,
-                aim.file_name_aim AS owner_avatar
+                aim.file_name_aim AS owner_avatar,
+                (SELECT MIN(c.category_name_cat)
+                 FROM tool_category_tolcat tc
+                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                 WHERE tc.id_tol_tolcat = td.id_tol) AS category_name
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1

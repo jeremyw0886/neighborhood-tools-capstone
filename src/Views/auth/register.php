@@ -170,34 +170,7 @@
             placeholder="123 Haywood St"
             aria-describedby="address-hint"
           >
-          <span id="address-hint" class="form-hint">Used to find your nearest neighborhood if not listed below</span>
-        </div>
-
-        <div class="form-group">
-          <label for="neighborhood_id">Neighborhood</label>
-          <select id="neighborhood_id" name="neighborhood_id" autocomplete="address-level3">
-            <option value="">— Select your neighborhood (optional) —</option>
-            <?php
-              $currentCity = '';
-              foreach ($neighborhoods as $nbh):
-                  $city = $nbh['city_name_nbh'] ?? 'Other';
-                  if ($city !== $currentCity):
-                      if ($currentCity !== ''):
-                          echo '</optgroup>';
-                      endif;
-                      $currentCity = $city;
-            ?>
-              <optgroup label="<?= htmlspecialchars($city) ?>">
-            <?php endif; ?>
-                <option
-                  value="<?= (int) $nbh['id_nbh'] ?>"
-                  <?= ((int) ($old['neighborhood_id'] ?? 0)) === (int) $nbh['id_nbh'] ? 'selected' : '' ?>
-                ><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></option>
-            <?php endforeach; ?>
-            <?php if ($currentCity !== ''): ?>
-              </optgroup>
-            <?php endif; ?>
-          </select>
+          <span id="address-hint" class="form-hint">Used to determine your neighborhood automatically</span>
         </div>
 
         <div class="form-group">

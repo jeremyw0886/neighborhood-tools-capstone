@@ -100,20 +100,12 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
-        try {
-            $neighborhoods = Neighborhood::allGroupedByCity();
-        } catch (\Throwable) {
-            $neighborhoods = [];
-            error_log('AuthController::showRegister — failed to load neighborhoods');
-        }
-
         $this->render('auth/register', [
-            'title'         => 'Sign Up — NeighborhoodTools',
-            'description'   => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
-            'pageCss'       => ['auth.css'],
-            'neighborhoods' => $neighborhoods,
-            'errors'        => $_SESSION['register_errors'] ?? [],
-            'old'           => $_SESSION['register_old'] ?? [],
+            'title'       => 'Sign Up — NeighborhoodTools',
+            'description' => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
+            'pageCss'     => ['auth.css'],
+            'errors'      => $_SESSION['register_errors'] ?? [],
+            'old'         => $_SESSION['register_old'] ?? [],
         ]);
 
         unset($_SESSION['register_errors'], $_SESSION['register_old']);
@@ -135,15 +127,15 @@ class AuthController extends BaseController
         }
 
         $data = [
-            'first_name'      => trim($_POST['first_name'] ?? ''),
-            'last_name'       => trim($_POST['last_name'] ?? ''),
-            'username'        => strtolower(trim($_POST['username'] ?? '')),
-            'email'           => trim($_POST['email'] ?? ''),
-            'password'        => $_POST['password'] ?? '',
+            'first_name'       => trim($_POST['first_name'] ?? ''),
+            'last_name'        => trim($_POST['last_name'] ?? ''),
+            'username'         => strtolower(trim($_POST['username'] ?? '')),
+            'email'            => trim($_POST['email'] ?? ''),
+            'password'         => $_POST['password'] ?? '',
             'password_confirm' => $_POST['password_confirm'] ?? '',
-            'street_address'  => trim($_POST['street_address'] ?? ''),
-            'zip_code'        => trim($_POST['zip_code'] ?? ''),
-            'neighborhood_id' => ($_POST['neighborhood_id'] ?? '') !== '' ? (int) $_POST['neighborhood_id'] : null,
+            'street_address'   => trim($_POST['street_address'] ?? ''),
+            'zip_code'         => trim($_POST['zip_code'] ?? ''),
+            'neighborhood_id'  => null,
         ];
 
         $errors = $this->validateRegistration($data);
@@ -151,13 +143,12 @@ class AuthController extends BaseController
         if ($errors !== []) {
             $_SESSION['register_errors'] = $errors;
             $_SESSION['register_old'] = [
-                'first_name'      => $data['first_name'],
-                'last_name'       => $data['last_name'],
-                'username'        => $data['username'],
-                'email'           => $data['email'],
-                'street_address'  => $data['street_address'],
-                'zip_code'        => $data['zip_code'],
-                'neighborhood_id' => $data['neighborhood_id'],
+                'first_name'     => $data['first_name'],
+                'last_name'      => $data['last_name'],
+                'username'       => $data['username'],
+                'email'          => $data['email'],
+                'street_address' => $data['street_address'],
+                'zip_code'       => $data['zip_code'],
             ];
             $this->redirect('/register');
         }
@@ -176,13 +167,12 @@ class AuthController extends BaseController
         if ($uniqueErrors !== []) {
             $_SESSION['register_errors'] = $uniqueErrors;
             $_SESSION['register_old'] = [
-                'first_name'      => $data['first_name'],
-                'last_name'       => $data['last_name'],
-                'username'        => $data['username'],
-                'email'           => $data['email'],
-                'street_address'  => $data['street_address'],
-                'zip_code'        => $data['zip_code'],
-                'neighborhood_id' => $data['neighborhood_id'],
+                'first_name'     => $data['first_name'],
+                'last_name'      => $data['last_name'],
+                'username'       => $data['username'],
+                'email'          => $data['email'],
+                'street_address' => $data['street_address'],
+                'zip_code'       => $data['zip_code'],
             ];
             $this->redirect('/register');
         }
@@ -197,19 +187,17 @@ class AuthController extends BaseController
                 'zip_code' => 'Unable to validate ZIP code. Please verify it is a valid US ZIP code and try again.',
             ];
             $_SESSION['register_old'] = [
-                'first_name'      => $data['first_name'],
-                'last_name'       => $data['last_name'],
-                'username'        => $data['username'],
-                'email'           => $data['email'],
-                'street_address'  => $data['street_address'],
-                'zip_code'        => $data['zip_code'],
-                'neighborhood_id' => $data['neighborhood_id'],
+                'first_name'     => $data['first_name'],
+                'last_name'      => $data['last_name'],
+                'username'       => $data['username'],
+                'email'          => $data['email'],
+                'street_address' => $data['street_address'],
+                'zip_code'       => $data['zip_code'],
             ];
             $this->redirect('/register');
         }
 
-        // Auto-resolve neighborhood from street address if none selected
-        if ($data['neighborhood_id'] === null && $data['street_address'] !== '') {
+        if ($data['street_address'] !== '') {
             try {
                 $data['neighborhood_id'] = Neighborhood::resolveFromAddress(
                     address: $data['street_address'],
@@ -242,18 +230,17 @@ class AuthController extends BaseController
             error_log('AuthController::register — ' . $e->getMessage());
             $_SESSION['register_errors'] = ['general' => 'Registration failed. Please try again.'];
             $_SESSION['register_old'] = [
-                'first_name'      => $data['first_name'],
-                'last_name'       => $data['last_name'],
-                'username'        => $data['username'],
-                'email'           => $data['email'],
-                'street_address'  => $data['street_address'],
-                'zip_code'        => $data['zip_code'],
-                'neighborhood_id' => $data['neighborhood_id'],
+                'first_name'     => $data['first_name'],
+                'last_name'      => $data['last_name'],
+                'username'       => $data['username'],
+                'email'          => $data['email'],
+                'street_address' => $data['street_address'],
+                'zip_code'       => $data['zip_code'],
             ];
             $this->redirect('/register');
         }
 
-        // Auto-login — new accounts start as 'pending' with 'member' role
+        // Auto-login — new accounts start as 'active' with 'member' role
         $_SESSION['logged_in']        = true;
         $_SESSION['user_id']          = $newId;
         $_SESSION['user_name']        = $data['first_name'] . ' ' . $data['last_name'];

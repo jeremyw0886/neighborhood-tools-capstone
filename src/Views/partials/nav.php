@@ -92,6 +92,11 @@ $isHero = !empty($heroPage);
             <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard
           </a>
         </li>
+        <li role="menuitem">
+          <a href="/bookmarks"<?= $currentPage === '/bookmarks' ? ' aria-current="page"' : '' ?>>
+            <i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bookmarks
+          </a>
+        </li>
         <?php if (\App\Core\Role::tryFrom($authUser['role'])?->isAdmin()): ?>
           <li role="menuitem">
             <a href="/admin">

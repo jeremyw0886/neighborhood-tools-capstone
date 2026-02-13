@@ -158,6 +158,7 @@ class ToolController extends BaseController
 
         $this->render('tools/bookmarks', [
             'title'         => 'My Bookmarks — NeighborhoodTools',
+            'description'   => 'Your saved tools — NeighborhoodTools',
             'pageCss'       => ['tools.css'],
             'bookmarks'     => $bookmarks,
             'totalCount'    => $totalCount,

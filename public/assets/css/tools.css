@@ -8,7 +8,7 @@
 
   /* ── Browse page wrapper ── */
 
-  main > section[aria-labelledby="browse-heading"] {
+  main > section:is([aria-labelledby="browse-heading"], [aria-labelledby="bookmarks-heading"]) {
     margin-inline: auto;
     max-width: 1200px;
     padding-block: 2rem;
@@ -35,6 +35,19 @@
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
         margin-block: 0.5rem 0;
       }
+    }
+
+    /* ── Bookmark flash message ── */
+
+    & > p[role="status"] {
+      background: var(--mountain-cream);
+      border: 1px solid var(--mountain-gold-light);
+      border-radius: 0.5rem;
+      color: var(--mountain-pine);
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
     }
 
     /* ── Search + Filter form ── */
@@ -352,7 +365,7 @@
 
     /* ── Empty state ── */
 
-    & > section[aria-label="No results"] {
+    & > section:is([aria-label="No results"], [aria-label="No bookmarks"]) {
       padding-block: 4rem;
       text-align: center;
 
@@ -645,7 +658,7 @@
   /* ── High contrast mode ── */
 
   @media (prefers-contrast: more) {
-    main > section[aria-labelledby="browse-heading"] {
+    main > section:is([aria-labelledby="browse-heading"], [aria-labelledby="bookmarks-heading"]) {
 
       & > form[role="search"] > fieldset:first-of-type {
         border-width: 3px;

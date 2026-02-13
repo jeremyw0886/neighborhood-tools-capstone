@@ -219,6 +219,129 @@ class ToolController extends BaseController
     }
 
     /**
+     * Handle tool edit form submission.
+     *
+     * Validates ownership, input, and optional image upload, then persists
+     * changes via Tool::update(). On success, cleans up the old image file
+     * if a replacement was uploaded and redirects to the tool detail page.
+     */
+    public function update(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        // Fetch tool for ownership check (also captures old image filename)
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::update fetch — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        // Extract and sanitize POST data
+        $toolName    = trim($_POST['tool_name'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $categoryId  = (int) ($_POST['category_id'] ?? 0);
+        $rentalFee   = $_POST['rental_fee'] ?? '';
+
+        // Validate fields
+        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee);
+
+        // Validate image (if one was uploaded)
+        $imageFilename = null;
+        $hasImage = isset($_FILES['tool_image'])
+            && $_FILES['tool_image']['error'] !== UPLOAD_ERR_NO_FILE;
+
+        if ($hasImage) {
+            $imageErrors = $this->validateToolImage($_FILES['tool_image']);
+            $errors = array_merge($errors, $imageErrors);
+        }
+
+        // On validation failure, flash errors + old input and redirect back
+        if ($errors !== []) {
+            $_SESSION['edit_tool_errors'] = $errors;
+            $_SESSION['edit_tool_old'] = [
+                'tool_name'   => $toolName,
+                'description' => $description,
+                'category_id' => $categoryId,
+                'rental_fee'  => $rentalFee,
+            ];
+            $this->redirect('/tools/' . $toolId . '/edit');
+        }
+
+        // Move uploaded file to disk (after validation passed)
+        if ($hasImage) {
+            $imageFilename = $this->moveToolImage($_FILES['tool_image']);
+
+            if ($imageFilename === null) {
+                $_SESSION['edit_tool_errors'] = ['tool_image' => 'Failed to save the uploaded image. Please try again.'];
+                $_SESSION['edit_tool_old'] = [
+                    'tool_name'   => $toolName,
+                    'description' => $description,
+                    'category_id' => $categoryId,
+                    'rental_fee'  => $rentalFee,
+                ];
+                $this->redirect('/tools/' . $toolId . '/edit');
+            }
+        }
+
+        // Persist changes via model
+        try {
+            Tool::update($toolId, [
+                'tool_name'      => $toolName,
+                'description'    => $description !== '' ? $description : null,
+                'rental_fee'     => (float) $rentalFee,
+                'category_id'    => $categoryId,
+                'image_filename' => $imageFilename,
+            ]);
+
+            // Delete old image file after successful DB commit
+            if ($imageFilename !== null && !empty($tool['primary_image'])) {
+                $oldPath = BASE_PATH . '/public/uploads/tools/' . $tool['primary_image'];
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+
+            $this->redirect('/tools/' . $toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::update — ' . $e->getMessage());
+
+            // Clean up orphaned new image on DB failure
+            if ($imageFilename !== null) {
+                $path = BASE_PATH . '/public/uploads/tools/' . $imageFilename;
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+
+            $_SESSION['edit_tool_errors'] = ['general' => 'Something went wrong updating your listing. Please try again.'];
+            $_SESSION['edit_tool_old'] = [
+                'tool_name'   => $toolName,
+                'description' => $description,
+                'category_id' => $categoryId,
+                'rental_fee'  => $rentalFee,
+            ];
+            $this->redirect('/tools/' . $toolId . '/edit');
+        }
+    }
+
+    /**
      * Handle tool listing form submission.
      *
      * Validates input, processes optional image upload, creates the tool

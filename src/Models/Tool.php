@@ -355,6 +355,81 @@ class Tool
     }
 
     /**
+     * Update an existing tool listing, its category, and optionally its image.
+     *
+     * Performs up to 4 statements in a transaction:
+     *   1. UPDATE tool_tol — name, description, fee
+     *   2. DELETE tool_category_tolcat — remove old category link
+     *   3. INSERT tool_category_tolcat — assign new category
+     *   4. (conditional) DELETE old + INSERT new tool_image_tim row
+     *
+     * @param  int   $toolId  Tool primary key
+     * @param  array{tool_name: string, description: ?string, rental_fee: float,
+     *               category_id: int, image_filename: ?string} $data
+     */
+    public static function update(int $toolId, array $data): void
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            // 1. Update core tool columns
+            $stmt = $pdo->prepare("
+                UPDATE tool_tol SET
+                    tool_name_tol        = :name,
+                    tool_description_tol = :description,
+                    rental_fee_tol       = :fee
+                WHERE id_tol = :id
+            ");
+
+            $stmt->bindValue(':name', $data['tool_name'], PDO::PARAM_STR);
+            $stmt->bindValue(':description', $data['description'], $data['description'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':fee', $data['rental_fee'], PDO::PARAM_STR);
+            $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // 2–3. Replace category junction (delete + insert)
+            $stmt = $pdo->prepare("
+                DELETE FROM tool_category_tolcat
+                WHERE id_tol_tolcat = :tool
+            ");
+            $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $stmt = $pdo->prepare("
+                INSERT INTO tool_category_tolcat (id_tol_tolcat, id_cat_tolcat)
+                VALUES (:tool, :category)
+            ");
+            $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+            $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            // 4. Replace primary image (only if a new file was uploaded)
+            if ($data['image_filename'] !== null) {
+                $stmt = $pdo->prepare("
+                    DELETE FROM tool_image_tim
+                    WHERE id_tol_tim = :tool AND is_primary_tim = TRUE
+                ");
+                $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $stmt = $pdo->prepare("
+                    INSERT INTO tool_image_tim (id_tol_tim, file_name_tim, is_primary_tim)
+                    VALUES (:tool, :filename, TRUE)
+                ");
+                $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+                $stmt->bindValue(':filename', $data['image_filename'], PDO::PARAM_STR);
+                $stmt->execute();
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Fetch the primary category ID for a tool.
      *
      * The tool_detail_v view returns category names as a GROUP_CONCAT string,

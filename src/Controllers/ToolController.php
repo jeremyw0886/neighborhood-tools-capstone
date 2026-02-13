@@ -194,7 +194,10 @@ class ToolController extends BaseController
             $this->abort(404);
         }
 
-        if (!empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id']) {
+        $justSaved = !empty($_SESSION['tool_saved']);
+        unset($_SESSION['tool_saved']);
+
+        if (!$justSaved && !empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id']) {
             $this->redirect('/tools/' . $toolId . '/edit');
         }
 
@@ -419,6 +422,7 @@ class ToolController extends BaseController
                 }
             }
 
+            $_SESSION['tool_saved'] = true;
             $this->redirect('/tools/' . $toolId);
         } catch (\Throwable $e) {
             error_log('ToolController::update — ' . $e->getMessage());
@@ -612,6 +616,7 @@ class ToolController extends BaseController
                 'image_filename' => $imageFilename,
             ]);
 
+            $_SESSION['tool_saved'] = true;
             $this->redirect('/tools/' . $toolId);
         } catch (\Throwable $e) {
             error_log('ToolController::store — ' . $e->getMessage());

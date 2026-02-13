@@ -194,7 +194,10 @@ class ToolController extends BaseController
             $this->abort(404);
         }
 
-        // Check bookmark state for the logged-in user
+        if (!empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id']) {
+            $this->redirect('/tools/' . $toolId . '/edit');
+        }
+
         $isBookmarked = false;
 
         if (!empty($_SESSION['logged_in'])) {

@@ -459,7 +459,9 @@ class ToolController extends BaseController
 
         // Owners cannot bookmark their own tools
         if ((int) $tool['owner_id'] === $userId) {
-            $this->abort(403);
+            $_SESSION['bookmark_flash'] = 'You cannot bookmark your own tool.';
+            $this->redirect('/tools/' . $toolId);
+            return;
         }
 
         try {

@@ -15,7 +15,7 @@
            decoding="async">
     <?php endif; ?>
   </figure>
-  <?php if (!empty($isLoggedIn)): ?>
+  <?php if (!empty($isLoggedIn) && ($authUser['id'] ?? 0) !== (int) ($tool['owner_id'] ?? 0)): ?>
     <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <button type="submit"

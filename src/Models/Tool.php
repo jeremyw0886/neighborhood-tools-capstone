@@ -22,6 +22,7 @@ class Tool
         $sql = "
             SELECT
                 av.id_tol,
+                av.owner_id,
                 av.tool_name_tol,
                 av.rental_fee_tol,
                 av.primary_image,
@@ -93,11 +94,31 @@ class Tool
 
         $results = $stmt->fetchAll();
 
-        // MySQL SPs return multiple result sets (data + status). Consume all
-        // of them so the connection is clean for the next query. Without this,
-        // subsequent queries on the same PDO connection fail with
-        // "Cannot execute queries while other unbuffered queries are active."
         $stmt->closeCursor();
+
+        // SP doesn't return owner_id — look it up so views can check ownership
+        if ($results !== []) {
+            $toolIds = array_column($results, 'id_tol');
+            $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
+
+            $ownerStmt = $pdo->prepare("
+                SELECT id_tol, id_acc_tol AS owner_id
+                FROM tool_tol
+                WHERE id_tol IN ({$placeholders})
+            ");
+
+            foreach ($toolIds as $i => $tid) {
+                $ownerStmt->bindValue($i + 1, $tid, PDO::PARAM_INT);
+            }
+
+            $ownerStmt->execute();
+            $ownerMap = array_column($ownerStmt->fetchAll(), 'owner_id', 'id_tol');
+
+            foreach ($results as &$row) {
+                $row['owner_id'] = $ownerMap[(int) $row['id_tol']] ?? null;
+            }
+            unset($row);
+        }
 
         return $results;
     }
@@ -239,6 +260,7 @@ class Tool
         $sql = "
             SELECT
                 td.id_tol,
+                td.owner_id,
                 td.tool_name_tol,
                 td.primary_image,
                 td.avg_rating,

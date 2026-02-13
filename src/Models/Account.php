@@ -130,7 +130,7 @@ class Account
                 :zip_code,
                 :neighborhood_id,
                 (SELECT id_rol FROM role_rol WHERE role_name_rol = 'member'),
-                fn_get_account_status_id('pending'),
+                fn_get_account_status_id('active'),
                 (SELECT id_cpr FROM contact_preference_cpr WHERE preference_name_cpr = 'email')
             )
         ";

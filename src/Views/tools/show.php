@@ -3,7 +3,8 @@
  * Tool Detail page — displays full info for a single tool.
  *
  * Variables from ToolController::show():
- *   $tool  array  Full row from tool_detail_v + owner_avatar
+ *   $tool          array  Full row from tool_detail_v + owner_avatar
+ *   $isBookmarked  bool   Whether the logged-in user has bookmarked this tool
  */
 ?>
 
@@ -67,6 +68,17 @@
           <dt><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Availability</dt>
           <dd data-availability="<?= htmlspecialchars(strtolower($status)) ?>"><?= htmlspecialchars($status) ?></dd>
         </dl>
+
+        <?php if (!empty($isLoggedIn)): ?>
+          <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+            <button type="submit"
+                    aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
+              <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
+              <?= $isBookmarked ? 'Bookmarked' : 'Bookmark' ?>
+            </button>
+          </form>
+        <?php endif; ?>
       </div>
     </header>
 

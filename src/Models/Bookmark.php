@@ -102,6 +102,31 @@ class Bookmark
     }
 
     /**
+     * Check whether a user has bookmarked a specific tool.
+     *
+     * @param  int  $userId  Account ID
+     * @param  int  $toolId  Tool primary key
+     * @return bool
+     */
+    public static function isBookmarked(int $userId, int $toolId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT 1
+            FROM tool_bookmark_acctol
+            WHERE id_acc_acctol = :user AND id_tol_acctol = :tool
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * Get all bookmarked tool IDs for a user.
      *
      * Lightweight query against the junction table (no view join)

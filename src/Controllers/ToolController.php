@@ -193,10 +193,22 @@ class ToolController extends BaseController
             $this->abort(404);
         }
 
+        // Check bookmark state for the logged-in user
+        $isBookmarked = false;
+
+        if (!empty($_SESSION['logged_in'])) {
+            try {
+                $isBookmarked = Bookmark::isBookmarked((int) $_SESSION['user_id'], $toolId);
+            } catch (\Throwable $e) {
+                error_log('ToolController::show bookmark check — ' . $e->getMessage());
+            }
+        }
+
         $this->render('tools/show', [
-            'title'   => htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
-            'pageCss' => ['tools.css'],
-            'tool'    => $tool,
+            'title'        => htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
+            'pageCss'      => ['tools.css'],
+            'tool'         => $tool,
+            'isBookmarked' => $isBookmarked,
         ]);
     }
 

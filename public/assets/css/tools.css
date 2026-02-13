@@ -104,6 +104,7 @@
       /* Filter bar fieldset */
       & > fieldset:last-of-type {
         align-items: flex-end;
+        background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
         border-radius: 1rem;
         display: flex;

@@ -355,6 +355,35 @@ class Tool
     }
 
     /**
+     * Fetch the primary category ID for a tool.
+     *
+     * The tool_detail_v view returns category names as a GROUP_CONCAT string,
+     * which isn't useful for pre-selecting a <select>. This queries the
+     * junction table directly for the first assigned category ID.
+     *
+     * @param  int  $toolId  Tool primary key
+     * @return ?int          Category ID, or null if none assigned
+     */
+    public static function getCategoryId(int $toolId): ?int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT id_cat_tolcat
+            FROM tool_category_tolcat
+            WHERE id_tol_tolcat = :toolId
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $id = $stmt->fetchColumn();
+
+        return $id !== false ? (int) $id : null;
+    }
+
+    /**
      * Fetch full tool detail by ID, including owner avatar.
      *
      * Queries tool_detail_v (which provides all tool columns, owner info,

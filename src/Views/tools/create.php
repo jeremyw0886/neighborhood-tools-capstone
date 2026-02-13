@@ -98,6 +98,38 @@
       </div>
 
       <div>
+        <label for="tool-condition">Condition <span aria-hidden="true">*</span></label>
+        <?php $selectedCondition = $old['condition'] ?? 'good'; ?>
+        <select id="tool-condition"
+                name="condition"
+                required
+                <?php if (isset($errors['condition'])): ?>aria-invalid="true" aria-describedby="tool-condition-error"<?php endif; ?>>
+          <option value="new" <?= $selectedCondition === 'new' ? 'selected' : '' ?>>New</option>
+          <option value="good" <?= $selectedCondition === 'good' ? 'selected' : '' ?>>Good</option>
+          <option value="fair" <?= $selectedCondition === 'fair' ? 'selected' : '' ?>>Fair</option>
+          <option value="poor" <?= $selectedCondition === 'poor' ? 'selected' : '' ?>>Poor</option>
+        </select>
+        <?php if (isset($errors['condition'])): ?>
+          <p id="tool-condition-error" role="alert"><?= htmlspecialchars($errors['condition']) ?></p>
+        <?php endif; ?>
+      </div>
+
+      <div>
+        <label for="tool-duration">Loan Duration (hours)</label>
+        <input type="number"
+               id="tool-duration"
+               name="loan_duration"
+               min="1"
+               max="720"
+               step="1"
+               value="<?= htmlspecialchars($old['loan_duration'] ?? '168') ?>"
+               <?php if (isset($errors['loan_duration'])): ?>aria-invalid="true" aria-describedby="tool-duration-error"<?php endif; ?>>
+        <?php if (isset($errors['loan_duration'])): ?>
+          <p id="tool-duration-error" role="alert"><?= htmlspecialchars($errors['loan_duration']) ?></p>
+        <?php endif; ?>
+      </div>
+
+      <div>
         <label for="tool-image">Tool Photo</label>
         <input type="file"
                id="tool-image"

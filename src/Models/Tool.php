@@ -300,7 +300,8 @@ class Tool
      *   3. tool_image_tim — primary image row (only if an image was uploaded)
      *
      * @param  array{tool_name: string, description: ?string, rental_fee: float,
-     *               owner_id: int, category_id: int, image_filename: ?string} $data
+     *               owner_id: int, category_id: int, condition: string,
+     *               loan_duration: ?int, image_filename: ?string} $data
      * @return int  The new tool's primary key (id_tol)
      */
     public static function create(array $data): int
@@ -308,7 +309,12 @@ class Tool
         $pdo = Database::connection();
         $pdo->beginTransaction();
 
+        $hasDuration = $data['loan_duration'] !== null;
+
         try {
+            $durationCol = $hasDuration ? ', default_loan_duration_hours_tol' : '';
+            $durationVal = $hasDuration ? ', :duration' : '';
+
             $sql = "
                 INSERT INTO tool_tol (
                     tool_name_tol,
@@ -316,12 +322,14 @@ class Tool
                     rental_fee_tol,
                     id_acc_tol,
                     id_tcd_tol
+                    {$durationCol}
                 ) VALUES (
                     :name,
                     :description,
                     :fee,
                     :owner,
-                    (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = 'good')
+                    (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = :condition)
+                    {$durationVal}
                 )
             ";
 
@@ -330,6 +338,12 @@ class Tool
             $stmt->bindValue(':description', $data['description'], $data['description'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
             $stmt->bindValue(':fee', $data['rental_fee'], PDO::PARAM_STR);
             $stmt->bindValue(':owner', $data['owner_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':condition', $data['condition'], PDO::PARAM_STR);
+
+            if ($hasDuration) {
+                $stmt->bindValue(':duration', $data['loan_duration'], PDO::PARAM_INT);
+            }
+
             $stmt->execute();
 
             $toolId = (int) $pdo->lastInsertId();
@@ -367,13 +381,14 @@ class Tool
      * Update an existing tool listing, its category, and optionally its image.
      *
      * Performs up to 4 statements in a transaction:
-     *   1. UPDATE tool_tol — name, description, fee
+     *   1. UPDATE tool_tol — name, description, fee, condition, loan duration
      *   2. DELETE tool_category_tolcat — remove old category link
      *   3. INSERT tool_category_tolcat — assign new category
      *   4. (conditional) DELETE old + INSERT new tool_image_tim row
      *
      * @param  int   $toolId  Tool primary key
      * @param  array{tool_name: string, description: ?string, rental_fee: float,
+     *               condition: string, loan_duration: ?int,
      *               category_id: int, image_filename: ?string} $data
      */
     public static function update(int $toolId, array $data): void
@@ -381,20 +396,32 @@ class Tool
         $pdo = Database::connection();
         $pdo->beginTransaction();
 
+        $hasDuration = $data['loan_duration'] !== null;
+
         try {
             // 1. Update core tool columns
+            $durationSet = $hasDuration ? ', default_loan_duration_hours_tol = :duration' : '';
+
             $stmt = $pdo->prepare("
                 UPDATE tool_tol SET
                     tool_name_tol        = :name,
                     tool_description_tol = :description,
-                    rental_fee_tol       = :fee
+                    rental_fee_tol       = :fee,
+                    id_tcd_tol           = (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = :condition)
+                    {$durationSet}
                 WHERE id_tol = :id
             ");
 
             $stmt->bindValue(':name', $data['tool_name'], PDO::PARAM_STR);
             $stmt->bindValue(':description', $data['description'], $data['description'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
             $stmt->bindValue(':fee', $data['rental_fee'], PDO::PARAM_STR);
+            $stmt->bindValue(':condition', $data['condition'], PDO::PARAM_STR);
             $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+
+            if ($hasDuration) {
+                $stmt->bindValue(':duration', $data['loan_duration'], PDO::PARAM_INT);
+            }
+
             $stmt->execute();
 
             // 2–3. Replace category junction (delete + insert)

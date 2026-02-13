@@ -348,13 +348,15 @@ class ToolController extends BaseController
         }
 
         // Extract and sanitize POST data
-        $toolName    = trim($_POST['tool_name'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $categoryId  = (int) ($_POST['category_id'] ?? 0);
-        $rentalFee   = $_POST['rental_fee'] ?? '';
+        $toolName     = trim($_POST['tool_name'] ?? '');
+        $description  = trim($_POST['description'] ?? '');
+        $categoryId   = (int) ($_POST['category_id'] ?? 0);
+        $rentalFee    = $_POST['rental_fee'] ?? '';
+        $condition    = trim($_POST['condition'] ?? '');
+        $loanDuration = $_POST['loan_duration'] ?? '';
 
         // Validate fields
-        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee);
+        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration);
 
         // Validate image (if one was uploaded)
         $imageFilename = null;
@@ -366,15 +368,20 @@ class ToolController extends BaseController
             $errors = array_merge($errors, $imageErrors);
         }
 
+        // Build sticky flash data array
+        $oldInput = [
+            'tool_name'     => $toolName,
+            'description'   => $description,
+            'category_id'   => $categoryId,
+            'rental_fee'    => $rentalFee,
+            'condition'     => $condition,
+            'loan_duration' => $loanDuration,
+        ];
+
         // On validation failure, flash errors + old input and redirect back
         if ($errors !== []) {
             $_SESSION['edit_tool_errors'] = $errors;
-            $_SESSION['edit_tool_old'] = [
-                'tool_name'   => $toolName,
-                'description' => $description,
-                'category_id' => $categoryId,
-                'rental_fee'  => $rentalFee,
-            ];
+            $_SESSION['edit_tool_old'] = $oldInput;
             $this->redirect('/tools/' . $toolId . '/edit');
         }
 
@@ -384,12 +391,7 @@ class ToolController extends BaseController
 
             if ($imageFilename === null) {
                 $_SESSION['edit_tool_errors'] = ['tool_image' => 'Failed to save the uploaded image. Please try again.'];
-                $_SESSION['edit_tool_old'] = [
-                    'tool_name'   => $toolName,
-                    'description' => $description,
-                    'category_id' => $categoryId,
-                    'rental_fee'  => $rentalFee,
-                ];
+                $_SESSION['edit_tool_old'] = $oldInput;
                 $this->redirect('/tools/' . $toolId . '/edit');
             }
         }
@@ -400,6 +402,8 @@ class ToolController extends BaseController
                 'tool_name'      => $toolName,
                 'description'    => $description !== '' ? $description : null,
                 'rental_fee'     => (float) $rentalFee,
+                'condition'      => $condition,
+                'loan_duration'  => $loanDuration !== '' ? (int) $loanDuration : null,
                 'category_id'    => $categoryId,
                 'image_filename' => $imageFilename,
             ]);
@@ -425,12 +429,7 @@ class ToolController extends BaseController
             }
 
             $_SESSION['edit_tool_errors'] = ['general' => 'Something went wrong updating your listing. Please try again.'];
-            $_SESSION['edit_tool_old'] = [
-                'tool_name'   => $toolName,
-                'description' => $description,
-                'category_id' => $categoryId,
-                'rental_fee'  => $rentalFee,
-            ];
+            $_SESSION['edit_tool_old'] = $oldInput;
             $this->redirect('/tools/' . $toolId . '/edit');
         }
     }
@@ -549,13 +548,15 @@ class ToolController extends BaseController
         $userId = (int) $_SESSION['user_id'];
 
         // Extract and sanitize POST data
-        $toolName   = trim($_POST['tool_name'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $categoryId = (int) ($_POST['category_id'] ?? 0);
-        $rentalFee  = $_POST['rental_fee'] ?? '';
+        $toolName     = trim($_POST['tool_name'] ?? '');
+        $description  = trim($_POST['description'] ?? '');
+        $categoryId   = (int) ($_POST['category_id'] ?? 0);
+        $rentalFee    = $_POST['rental_fee'] ?? '';
+        $condition    = trim($_POST['condition'] ?? '');
+        $loanDuration = $_POST['loan_duration'] ?? '';
 
         // Validate fields
-        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee);
+        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration);
 
         // Validate image (if one was uploaded)
         $imageFilename = null;
@@ -567,15 +568,20 @@ class ToolController extends BaseController
             $errors = array_merge($errors, $imageErrors);
         }
 
+        // Build sticky flash data array
+        $oldInput = [
+            'tool_name'     => $toolName,
+            'description'   => $description,
+            'category_id'   => $categoryId,
+            'rental_fee'    => $rentalFee,
+            'condition'     => $condition,
+            'loan_duration' => $loanDuration,
+        ];
+
         // On validation failure, flash errors + old input and redirect back
         if ($errors !== []) {
             $_SESSION['tool_errors'] = $errors;
-            $_SESSION['tool_old'] = [
-                'tool_name'   => $toolName,
-                'description' => $description,
-                'category_id' => $categoryId,
-                'rental_fee'  => $rentalFee,
-            ];
+            $_SESSION['tool_old'] = $oldInput;
             $this->redirect('/tools/create');
         }
 
@@ -585,12 +591,7 @@ class ToolController extends BaseController
 
             if ($imageFilename === null) {
                 $_SESSION['tool_errors'] = ['tool_image' => 'Failed to save the uploaded image. Please try again.'];
-                $_SESSION['tool_old'] = [
-                    'tool_name'   => $toolName,
-                    'description' => $description,
-                    'category_id' => $categoryId,
-                    'rental_fee'  => $rentalFee,
-                ];
+                $_SESSION['tool_old'] = $oldInput;
                 $this->redirect('/tools/create');
             }
         }
@@ -603,6 +604,8 @@ class ToolController extends BaseController
                 'rental_fee'     => (float) $rentalFee,
                 'owner_id'       => $userId,
                 'category_id'    => $categoryId,
+                'condition'      => $condition,
+                'loan_duration'  => $loanDuration !== '' ? (int) $loanDuration : null,
                 'image_filename' => $imageFilename,
             ]);
 
@@ -619,12 +622,7 @@ class ToolController extends BaseController
             }
 
             $_SESSION['tool_errors'] = ['general' => 'Something went wrong creating your listing. Please try again.'];
-            $_SESSION['tool_old'] = [
-                'tool_name'   => $toolName,
-                'description' => $description,
-                'category_id' => $categoryId,
-                'rental_fee'  => $rentalFee,
-            ];
+            $_SESSION['tool_old'] = $oldInput;
             $this->redirect('/tools/create');
         }
     }
@@ -634,8 +632,13 @@ class ToolController extends BaseController
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)
      */
-    private function validateToolListing(string $name, int $categoryId, string $fee): array
-    {
+    private function validateToolListing(
+        string $name,
+        int $categoryId,
+        string $fee,
+        string $condition,
+        string $loanDuration,
+    ): array {
         $errors = [];
 
         if ($name === '') {
@@ -652,6 +655,15 @@ class ToolController extends BaseController
             $errors['rental_fee'] = 'Rental fee is required and must be a number.';
         } elseif ((float) $fee < 0 || (float) $fee > 9999) {
             $errors['rental_fee'] = 'Rental fee must be between $0 and $9,999.';
+        }
+
+        $validConditions = ['new', 'good', 'fair', 'poor'];
+        if (!in_array($condition, $validConditions, true)) {
+            $errors['condition'] = 'Please select a valid condition.';
+        }
+
+        if ($loanDuration !== '' && (!ctype_digit($loanDuration) || (int) $loanDuration < 1 || (int) $loanDuration > 720)) {
+            $errors['loan_duration'] = 'Loan duration must be between 1 and 720 hours.';
         }
 
         return $errors;

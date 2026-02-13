@@ -40,6 +40,11 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
     <p>Find the right tool from your neighbors in the Asheville and Hendersonville areas.</p>
   </header>
 
+  <?php if (!empty($_SESSION['bookmark_flash'])): ?>
+    <p role="status"><?= htmlspecialchars($_SESSION['bookmark_flash']) ?></p>
+    <?php unset($_SESSION['bookmark_flash']); ?>
+  <?php endif; ?>
+
   <form role="search" action="/tools" method="get" aria-label="Search and filter tools">
 
     <fieldset aria-label="Search">

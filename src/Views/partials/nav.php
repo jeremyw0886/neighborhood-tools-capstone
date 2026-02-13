@@ -86,7 +86,7 @@ $isHero = !empty($heroPage);
         <?php endif; ?>
       </a>
 
-      <ul id="user-actions-menu" role="menu">
+      <ul id="user-actions-menu" role="menu" hidden>
         <li role="menuitem">
           <a href="/dashboard">
             <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard

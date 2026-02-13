@@ -84,6 +84,11 @@
   </header>
 
   <main id="main-content">
+    <?php if (!empty($_SESSION['bookmark_flash'])): ?>
+      <p role="status"><?= htmlspecialchars($_SESSION['bookmark_flash']) ?></p>
+      <?php unset($_SESSION['bookmark_flash']); ?>
+    <?php endif; ?>
+
     <section aria-labelledby="popular-heading">
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <div role="list">

@@ -16,6 +16,11 @@
     </ol>
   </nav>
 
+  <?php if (!empty($_SESSION['bookmark_flash'])): ?>
+    <p role="status"><?= htmlspecialchars($_SESSION['bookmark_flash']) ?></p>
+    <?php unset($_SESSION['bookmark_flash']); ?>
+  <?php endif; ?>
+
   <article>
     <header>
       <figure>

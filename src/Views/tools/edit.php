@@ -14,14 +14,10 @@
 
 <section aria-labelledby="edit-tool-heading">
 
-  <nav aria-label="Breadcrumb">
-    <ol>
-      <li>
-        <a href="/tools/<?= (int) $tool['id_tol'] ?>">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Tool
-        </a>
-      </li>
-    </ol>
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <header>

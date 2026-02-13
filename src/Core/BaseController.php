@@ -61,6 +61,23 @@ class BaseController
             self::$unreadCacheLoaded = true;
         }
 
+        $backUrl = '/';
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+
+        if ($referer !== '') {
+            $parsed  = parse_url($referer);
+            $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+            $curHost = $_SERVER['HTTP_HOST'] ?? '';
+
+            if ($refHost === $curHost && isset($parsed['path'])) {
+                $backUrl = $parsed['path'];
+
+                if (isset($parsed['query'])) {
+                    $backUrl .= '?' . $parsed['query'];
+                }
+            }
+        }
+
         return [
             'isLoggedIn'  => $isLoggedIn,
             'authUser'    => $authUser,
@@ -69,6 +86,7 @@ class BaseController
             'currentTos'  => $currentTos,
             'tosAccepted' => $tosAccepted,
             'unreadCount' => self::$cachedUnreadCount,
+            'backUrl'     => $backUrl,
         ];
     }
 

@@ -10,10 +10,10 @@
 
 <section aria-labelledby="tool-detail-heading">
 
-  <nav aria-label="Breadcrumb">
-    <ol>
-      <li><a href="/tools"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Browse</a></li>
-    </ol>
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <?php if (!empty($_SESSION['bookmark_flash'])): ?>

@@ -24,8 +24,8 @@
 
   <p>Audit logging is not yet available. This page will display a chronological record of administrative actions and platform events once the audit infrastructure is in place.</p>
 
-  <a href="/admin" role="button">
-    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Admin Dashboard
+  <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
   </a>
 
 </section>

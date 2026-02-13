@@ -237,8 +237,8 @@ $paginationUrl = static fn(int $pageNum): string =>
       <i class="fa-regular fa-bell-slash" aria-hidden="true"></i>
       <h2>No Notifications</h2>
       <p>You&rsquo;re all caught up! We&rsquo;ll let you know when something needs your attention.</p>
-      <a href="/dashboard" role="button">
-        <i class="fa-solid fa-gauge" aria-hidden="true"></i> Back to Dashboard
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>
 

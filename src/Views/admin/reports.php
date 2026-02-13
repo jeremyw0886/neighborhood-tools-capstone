@@ -25,8 +25,8 @@
 
   <p>Reports are not yet available. This page will display deposit status summaries, neighborhood statistics, and platform activity metrics.</p>
 
-  <a href="/admin" role="button">
-    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Admin Dashboard
+  <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
   </a>
 
 </section>

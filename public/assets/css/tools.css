@@ -411,9 +411,7 @@
     padding-block: 2rem;
     padding-inline: 1.5rem;
 
-    /* ── Breadcrumb ── */
-
-    & > nav[aria-label="Breadcrumb"] {
+    & > nav[aria-label="Back"] {
       margin-block-end: 1.5rem;
 
       & a {
@@ -835,11 +833,9 @@
     }
   }
 
-  /* ── Edit page: breadcrumb + current image preview ── */
-
   main > section[aria-labelledby="edit-tool-heading"] {
 
-    & > nav[aria-label="Breadcrumb"] {
+    & > nav[aria-label="Back"] {
       margin-block-end: 1.5rem;
 
       & a {

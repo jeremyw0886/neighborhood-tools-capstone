@@ -87,7 +87,7 @@
     <aside aria-label="Owner information">
       <h2>Listed By</h2>
       <a href="/profile/<?= (int) ($tool['owner_id'] ?? 0) ?>">
-        <img src="<?= htmlspecialchars(($tool['owner_avatar'] ?? null) ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.png') ?>"
+        <img src="<?= htmlspecialchars(($tool['owner_avatar'] ?? null) ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
              alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
              width="48" height="48"
              loading="lazy"

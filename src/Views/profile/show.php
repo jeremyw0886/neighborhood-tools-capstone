@@ -22,7 +22,7 @@
 // Avatar path with fallback
 $avatarSrc = $profile['primary_image']
     ? '/uploads/profiles/' . $profile['primary_image']
-    : '/assets/images/avatar-placeholder.png';
+    : '/assets/images/avatar-placeholder.svg';
 
 $avatarAlt = $profile['image_alt_text']
     ?? $profile['full_name'];

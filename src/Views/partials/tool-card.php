@@ -33,7 +33,7 @@
           <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
         <?php endfor; ?>
       </span>
-      <img src="<?= htmlspecialchars(($tool['owner_avatar'] ?? null) ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.png') ?>"
+      <img src="<?= htmlspecialchars(($tool['owner_avatar'] ?? null) ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
            alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
            width="28" height="28"
            loading="lazy"

@@ -46,7 +46,7 @@
             <?php $displayName = $member['username'] ?? $member['name'] ?? 'Member'; ?>
             <article aria-label="<?= htmlspecialchars($displayName) ?> member card">
               <a href="/profile/<?= (int) $member['id_acc'] ?>" tabindex="-1" aria-hidden="true">
-                <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
+                <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
                      alt="<?= htmlspecialchars($displayName) ?>"
                      width="60" height="60"
                      loading="lazy"
@@ -104,7 +104,7 @@
           <?php foreach (array_slice($topMembers, 0, 3) as $neighbor): ?>
             <a href="/profile/<?= (int) $neighbor['id_acc'] ?>">
               <span aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
-              <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.png') ?>"
+              <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
                    alt="<?= htmlspecialchars($neighbor['username']) ?>"
                    width="80" height="80"
                    loading="lazy" decoding="async">

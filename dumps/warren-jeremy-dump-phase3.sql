@@ -5456,55 +5456,55 @@ SET @nc_state_id = (SELECT id_sta FROM state_sta WHERE state_code_sta = 'NC');
 
 INSERT INTO neighborhood_nbh (neighborhood_name_nbh, city_name_nbh, id_sta_nbh, latitude_nbh, longitude_nbh, location_point_nbh) VALUES
     -- Downtown & Central Asheville (28801)
-    ('Downtown Asheville', 'Asheville', @nc_state_id, 35.5951, -82.5515, ST_GeomFromText('POINT(-82.5515 35.5951)', 4326)),
-    ('South Slope', 'Asheville', @nc_state_id, 35.5912, -82.5540, ST_GeomFromText('POINT(-82.5540 35.5912)', 4326)),
-    ('Montford', 'Asheville', @nc_state_id, 35.6050, -82.5580, ST_GeomFromText('POINT(-82.5580 35.6050)', 4326)),
+    ('Downtown Asheville', 'Asheville', @nc_state_id, 35.5951, -82.5515, ST_GeomFromText('POINT(-82.5515 35.5951)', 4326, 'axis-order=long-lat')),
+    ('South Slope', 'Asheville', @nc_state_id, 35.5912, -82.5540, ST_GeomFromText('POINT(-82.5540 35.5912)', 4326, 'axis-order=long-lat')),
+    ('Montford', 'Asheville', @nc_state_id, 35.6050, -82.5670, ST_GeomFromText('POINT(-82.5670 35.6050)', 4326, 'axis-order=long-lat')),
 
     -- West Asheville (28806)
-    ('West Asheville', 'Asheville', @nc_state_id, 35.5851, -82.6146, ST_GeomFromText('POINT(-82.6146 35.5851)', 4326)),
-    ('Candler', 'Candler', @nc_state_id, 35.5379, -82.6985, ST_GeomFromText('POINT(-82.6985 35.5379)', 4326)),
+    ('West Asheville', 'Asheville', @nc_state_id, 35.5779, -82.5838, ST_GeomFromText('POINT(-82.5838 35.5779)', 4326, 'axis-order=long-lat')),
+    ('Candler', 'Candler', @nc_state_id, 35.5365, -82.6929, ST_GeomFromText('POINT(-82.6929 35.5365)', 4326, 'axis-order=long-lat')),
 
     -- North Asheville (28804)
-    ('North Asheville', 'Asheville', @nc_state_id, 35.6295, -82.5571, ST_GeomFromText('POINT(-82.5571 35.6295)', 4326)),
-    ('Grove Park', 'Asheville', @nc_state_id, 35.6120, -82.5650, ST_GeomFromText('POINT(-82.5650 35.6120)', 4326)),
-    ('Beaver Lake', 'Asheville', @nc_state_id, 35.6400, -82.5500, ST_GeomFromText('POINT(-82.5500 35.6400)', 4326)),
-    ('Woodfin', 'Woodfin', @nc_state_id, 35.6350, -82.5800, ST_GeomFromText('POINT(-82.5800 35.6350)', 4326)),
-    ('Weaverville', 'Weaverville', @nc_state_id, 35.6973, -82.5607, ST_GeomFromText('POINT(-82.5607 35.6973)', 4326)),
+    ('North Asheville', 'Asheville', @nc_state_id, 35.6150, -82.5571, ST_GeomFromText('POINT(-82.5571 35.6150)', 4326, 'axis-order=long-lat')),
+    ('Grove Park', 'Asheville', @nc_state_id, 35.6110, -82.5530, ST_GeomFromText('POINT(-82.5530 35.6110)', 4326, 'axis-order=long-lat')),
+    ('Beaver Lake', 'Asheville', @nc_state_id, 35.6343, -82.5629, ST_GeomFromText('POINT(-82.5629 35.6343)', 4326, 'axis-order=long-lat')),
+    ('Woodfin', 'Woodfin', @nc_state_id, 35.6350, -82.5800, ST_GeomFromText('POINT(-82.5800 35.6350)', 4326, 'axis-order=long-lat')),
+    ('Weaverville', 'Weaverville', @nc_state_id, 35.6973, -82.5607, ST_GeomFromText('POINT(-82.5607 35.6973)', 4326, 'axis-order=long-lat')),
 
     -- South Asheville (28803)
-    ('South Asheville', 'Asheville', @nc_state_id, 35.5578, -82.5210, ST_GeomFromText('POINT(-82.5210 35.5578)', 4326)),
-    ('Biltmore Village', 'Asheville', @nc_state_id, 35.5700, -82.5450, ST_GeomFromText('POINT(-82.5450 35.5700)', 4326)),
-    ('Biltmore Forest', 'Biltmore Forest', @nc_state_id, 35.5350, -82.5300, ST_GeomFromText('POINT(-82.5300 35.5350)', 4326)),
-    ('Biltmore Park', 'Asheville', @nc_state_id, 35.5100, -82.5280, ST_GeomFromText('POINT(-82.5280 35.5100)', 4326)),
-    ('Arden', 'Arden', @nc_state_id, 35.4661, -82.5345, ST_GeomFromText('POINT(-82.5345 35.4661)', 4326)),
-    ('Fletcher', 'Fletcher', @nc_state_id, 35.4300, -82.5000, ST_GeomFromText('POINT(-82.5000 35.4300)', 4326)),
+    ('South Asheville', 'Asheville', @nc_state_id, 35.5578, -82.5210, ST_GeomFromText('POINT(-82.5210 35.5578)', 4326, 'axis-order=long-lat')),
+    ('Biltmore Village', 'Asheville', @nc_state_id, 35.5700, -82.5450, ST_GeomFromText('POINT(-82.5450 35.5700)', 4326, 'axis-order=long-lat')),
+    ('Biltmore Forest', 'Biltmore Forest', @nc_state_id, 35.5350, -82.5300, ST_GeomFromText('POINT(-82.5300 35.5350)', 4326, 'axis-order=long-lat')),
+    ('Biltmore Park', 'Asheville', @nc_state_id, 35.4884, -82.5565, ST_GeomFromText('POINT(-82.5565 35.4884)', 4326, 'axis-order=long-lat')),
+    ('Arden', 'Arden', @nc_state_id, 35.4662, -82.5165, ST_GeomFromText('POINT(-82.5165 35.4662)', 4326, 'axis-order=long-lat')),
+    ('Fletcher', 'Fletcher', @nc_state_id, 35.4300, -82.5000, ST_GeomFromText('POINT(-82.5000 35.4300)', 4326, 'axis-order=long-lat')),
 
     -- East Asheville (28805)
-    ('East Asheville', 'Asheville', @nc_state_id, 35.5708, -82.4865, ST_GeomFromText('POINT(-82.4865 35.5708)', 4326)),
-    ('Kenilworth', 'Asheville', @nc_state_id, 35.5750, -82.5200, ST_GeomFromText('POINT(-82.5200 35.5750)', 4326)),
-    ('Haw Creek', 'Asheville', @nc_state_id, 35.5850, -82.4700, ST_GeomFromText('POINT(-82.4700 35.5850)', 4326)),
-    ('Oakley', 'Asheville', @nc_state_id, 35.5600, -82.4800, ST_GeomFromText('POINT(-82.4800 35.5600)', 4326)),
+    ('East Asheville', 'Asheville', @nc_state_id, 35.5800, -82.4960, ST_GeomFromText('POINT(-82.4960 35.5800)', 4326, 'axis-order=long-lat')),
+    ('Kenilworth', 'Asheville', @nc_state_id, 35.5760, -82.5390, ST_GeomFromText('POINT(-82.5390 35.5760)', 4326, 'axis-order=long-lat')),
+    ('Haw Creek', 'Asheville', @nc_state_id, 35.5850, -82.5260, ST_GeomFromText('POINT(-82.5260 35.5850)', 4326, 'axis-order=long-lat')),
+    ('Oakley', 'Asheville', @nc_state_id, 35.5620, -82.5100, ST_GeomFromText('POINT(-82.5100 35.5620)', 4326, 'axis-order=long-lat')),
 
     -- East of Asheville (28778)
-    ('Swannanoa', 'Swannanoa', @nc_state_id, 35.6169, -82.3987, ST_GeomFromText('POINT(-82.3987 35.6169)', 4326)),
-    ('Black Mountain', 'Black Mountain', @nc_state_id, 35.6179, -82.3212, ST_GeomFromText('POINT(-82.3212 35.6179)', 4326)),
+    ('Swannanoa', 'Swannanoa', @nc_state_id, 35.5979, -82.3998, ST_GeomFromText('POINT(-82.3998 35.5979)', 4326, 'axis-order=long-lat')),
+    ('Black Mountain', 'Black Mountain', @nc_state_id, 35.6179, -82.3212, ST_GeomFromText('POINT(-82.3212 35.6179)', 4326, 'axis-order=long-lat')),
 
     -- ============================================================
     -- HENDERSONVILLE / HENDERSON COUNTY NEIGHBORHOODS
     -- ============================================================
 
     -- Hendersonville (28739, 28791, 28792)
-    ('Downtown Hendersonville', 'Hendersonville', @nc_state_id, 35.3185, -82.4612, ST_GeomFromText('POINT(-82.4612 35.3185)', 4326)),
-    ('Laurel Park', 'Laurel Park', @nc_state_id, 35.3150, -82.4950, ST_GeomFromText('POINT(-82.4950 35.3150)', 4326)),
-    ('Druid Hills', 'Hendersonville', @nc_state_id, 35.3280, -82.4550, ST_GeomFromText('POINT(-82.4550 35.3280)', 4326)),
-    ('Fifth Avenue West', 'Hendersonville', @nc_state_id, 35.3200, -82.4700, ST_GeomFromText('POINT(-82.4700 35.3200)', 4326)),
+    ('Downtown Hendersonville', 'Hendersonville', @nc_state_id, 35.3185, -82.4612, ST_GeomFromText('POINT(-82.4612 35.3185)', 4326, 'axis-order=long-lat')),
+    ('Laurel Park', 'Laurel Park', @nc_state_id, 35.3150, -82.4950, ST_GeomFromText('POINT(-82.4950 35.3150)', 4326, 'axis-order=long-lat')),
+    ('Druid Hills', 'Hendersonville', @nc_state_id, 35.3321, -82.4729, ST_GeomFromText('POINT(-82.4729 35.3321)', 4326, 'axis-order=long-lat')),
+    ('Fifth Avenue West', 'Hendersonville', @nc_state_id, 35.3195, -82.4680, ST_GeomFromText('POINT(-82.4680 35.3195)', 4326, 'axis-order=long-lat')),
 
     -- Henderson County Communities
-    ('Flat Rock', 'Flat Rock', @nc_state_id, 35.2730, -82.4420, ST_GeomFromText('POINT(-82.4420 35.2730)', 4326)),
-    ('East Flat Rock', 'East Flat Rock', @nc_state_id, 35.2850, -82.4100, ST_GeomFromText('POINT(-82.4100 35.2850)', 4326)),
-    ('Mills River', 'Mills River', @nc_state_id, 35.3813, -82.5889, ST_GeomFromText('POINT(-82.5889 35.3813)', 4326)),
-    ('Horse Shoe', 'Horse Shoe', @nc_state_id, 35.3500, -82.5600, ST_GeomFromText('POINT(-82.5600 35.3500)', 4326)),
-    ('Etowah', 'Etowah', @nc_state_id, 35.3200, -82.5900, ST_GeomFromText('POINT(-82.5900 35.3200)', 4326));
+    ('Flat Rock', 'Flat Rock', @nc_state_id, 35.2730, -82.4420, ST_GeomFromText('POINT(-82.4420 35.2730)', 4326, 'axis-order=long-lat')),
+    ('East Flat Rock', 'East Flat Rock', @nc_state_id, 35.2801, -82.4219, ST_GeomFromText('POINT(-82.4219 35.2801)', 4326, 'axis-order=long-lat')),
+    ('Mills River', 'Mills River', @nc_state_id, 35.3884, -82.5668, ST_GeomFromText('POINT(-82.5668 35.3884)', 4326, 'axis-order=long-lat')),
+    ('Horse Shoe', 'Horse Shoe', @nc_state_id, 35.3432, -82.5565, ST_GeomFromText('POINT(-82.5565 35.3432)', 4326, 'axis-order=long-lat')),
+    ('Etowah', 'Etowah', @nc_state_id, 35.3200, -82.5900, ST_GeomFromText('POINT(-82.5900 35.3200)', 4326, 'axis-order=long-lat'));
 
 -- ============================================================
 -- NEIGHBORHOOD-ZIP ASSOCIATIONS
@@ -5514,23 +5514,23 @@ INSERT INTO neighborhood_nbh (neighborhood_name_nbh, city_name_nbh, id_sta_nbh, 
 
 -- Seed zip codes for Asheville and Hendersonville service areas
 INSERT INTO zip_code_zpc (zip_code_zpc, latitude_zpc, longitude_zpc, location_point_zpc) VALUES
-('28801', 35.595000, -82.556000, ST_GeomFromText('POINT(-82.556000 35.595000)', 4326)),
-('28803', 35.549000, -82.522000, ST_GeomFromText('POINT(-82.522000 35.549000)', 4326)),
-('28804', 35.637000, -82.558000, ST_GeomFromText('POINT(-82.558000 35.637000)', 4326)),
-('28805', 35.595000, -82.502000, ST_GeomFromText('POINT(-82.502000 35.595000)', 4326)),
-('28806', 35.584000, -82.608000, ST_GeomFromText('POINT(-82.608000 35.584000)', 4326)),
-('28715', 35.537000, -82.681000, ST_GeomFromText('POINT(-82.681000 35.537000)', 4326)),
-('28787', 35.719000, -82.547000, ST_GeomFromText('POINT(-82.547000 35.719000)', 4326)),
-('28704', 35.473000, -82.519000, ST_GeomFromText('POINT(-82.519000 35.473000)', 4326)),
-('28732', 35.422000, -82.500000, ST_GeomFromText('POINT(-82.500000 35.422000)', 4326)),
-('28778', 35.603000, -82.409000, ST_GeomFromText('POINT(-82.409000 35.603000)', 4326)),
-('28791', 35.350000, -82.494000, ST_GeomFromText('POINT(-82.494000 35.350000)', 4326)),
-('28739', 35.319000, -82.488000, ST_GeomFromText('POINT(-82.488000 35.319000)', 4326)),
-('28792', 35.337000, -82.449000, ST_GeomFromText('POINT(-82.449000 35.337000)', 4326)),
-('28731', 35.272000, -82.420000, ST_GeomFromText('POINT(-82.420000 35.272000)', 4326)),
-('28726', 35.282000, -82.418000, ST_GeomFromText('POINT(-82.418000 35.282000)', 4326)),
-('28759', 35.302000, -82.581000, ST_GeomFromText('POINT(-82.581000 35.302000)', 4326)),
-('28742', 35.361000, -82.574000, ST_GeomFromText('POINT(-82.574000 35.361000)', 4326));
+('28801', 35.595000, -82.556000, ST_GeomFromText('POINT(-82.556000 35.595000)', 4326, 'axis-order=long-lat')),
+('28803', 35.539000, -82.518000, ST_GeomFromText('POINT(-82.518000 35.539000)', 4326, 'axis-order=long-lat')),
+('28804', 35.637000, -82.565000, ST_GeomFromText('POINT(-82.565000 35.637000)', 4326, 'axis-order=long-lat')),
+('28805', 35.600000, -82.492000, ST_GeomFromText('POINT(-82.492000 35.600000)', 4326, 'axis-order=long-lat')),
+('28806', 35.584000, -82.608000, ST_GeomFromText('POINT(-82.608000 35.584000)', 4326, 'axis-order=long-lat')),
+('28715', 35.538000, -82.700000, ST_GeomFromText('POINT(-82.700000 35.538000)', 4326, 'axis-order=long-lat')),
+('28787', 35.713000, -82.549000, ST_GeomFromText('POINT(-82.549000 35.713000)', 4326, 'axis-order=long-lat')),
+('28704', 35.464000, -82.535000, ST_GeomFromText('POINT(-82.535000 35.464000)', 4326, 'axis-order=long-lat')),
+('28732', 35.450000, -82.497000, ST_GeomFromText('POINT(-82.497000 35.450000)', 4326, 'axis-order=long-lat')),
+('28778', 35.617000, -82.407000, ST_GeomFromText('POINT(-82.407000 35.617000)', 4326, 'axis-order=long-lat')),
+('28791', 35.347000, -82.525000, ST_GeomFromText('POINT(-82.525000 35.347000)', 4326, 'axis-order=long-lat')),
+('28739', 35.319000, -82.500000, ST_GeomFromText('POINT(-82.500000 35.319000)', 4326, 'axis-order=long-lat')),
+('28792', 35.361000, -82.426000, ST_GeomFromText('POINT(-82.426000 35.361000)', 4326, 'axis-order=long-lat')),
+('28731', 35.286000, -82.407000, ST_GeomFromText('POINT(-82.407000 35.286000)', 4326, 'axis-order=long-lat')),
+('28726', 35.282000, -82.418000, ST_GeomFromText('POINT(-82.418000 35.282000)', 4326, 'axis-order=long-lat')),
+('28759', 35.391000, -82.568000, ST_GeomFromText('POINT(-82.568000 35.391000)', 4326, 'axis-order=long-lat')),
+('28742', 35.370000, -82.598000, ST_GeomFromText('POINT(-82.598000 35.370000)', 4326, 'axis-order=long-lat'));
 
 INSERT INTO neighborhood_zip_nbhzpc (id_nbh_nbhzpc, zip_code_nbhzpc, is_primary_nbhzpc) VALUES
     -- Downtown & Central Asheville (28801)

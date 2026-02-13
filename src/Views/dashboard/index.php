@@ -24,6 +24,11 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
 
 <section aria-labelledby="dashboard-heading">
 
+  <?php if (!empty($_SESSION['borrow_success'])): ?>
+    <p role="status"><?= htmlspecialchars($_SESSION['borrow_success']) ?></p>
+    <?php unset($_SESSION['borrow_success']); ?>
+  <?php endif; ?>
+
   <header>
     <h1 id="dashboard-heading">
       <i class="fa-solid fa-gauge" aria-hidden="true"></i>

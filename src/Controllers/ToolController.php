@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Models\Bookmark;
 use App\Models\Tool;
 
 class ToolController extends BaseController
@@ -84,6 +85,47 @@ class ToolController extends BaseController
             'categoryId'   => $categoryId,
             'zip'          => $zip,
             'maxFee'       => $maxFee,
+        ]);
+    }
+
+    /**
+     * Show the authenticated user's bookmarked tools.
+     *
+     * Paginates bookmarks newest-first using the Bookmark model,
+     * which queries user_bookmarks_v. Results are compatible with
+     * the tool-card partial via column aliasing.
+     */
+    public function bookmarks(): void
+    {
+        $this->requireAuth();
+
+        $userId = (int) $_SESSION['user_id'];
+        $page   = max(1, (int) ($_GET['page'] ?? 1));
+        $offset = ($page - 1) * self::PER_PAGE;
+
+        try {
+            $bookmarks  = Bookmark::getForUser($userId, self::PER_PAGE, $offset);
+            $totalCount = Bookmark::getCountForUser($userId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::bookmarks — ' . $e->getMessage());
+            $bookmarks  = [];
+            $totalCount = 0;
+        }
+
+        $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $this->render('tools/bookmarks', [
+            'title'      => 'My Bookmarks — NeighborhoodTools',
+            'pageCss'    => ['tools.css'],
+            'bookmarks'  => $bookmarks,
+            'totalCount' => $totalCount,
+            'page'       => $page,
+            'totalPages' => $totalPages,
+            'perPage'    => self::PER_PAGE,
         ]);
     }
 

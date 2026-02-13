@@ -449,11 +449,18 @@ class ToolController extends BaseController
 
         $toolId = (int) $id;
 
-        if ($toolId < 1 || !Tool::findById($toolId)) {
+        $tool = ($toolId >= 1) ? Tool::findById($toolId) : null;
+
+        if ($tool === null) {
             $this->abort(404);
         }
 
         $userId = (int) $_SESSION['user_id'];
+
+        // Owners cannot bookmark their own tools
+        if ((int) $tool['owner_id'] === $userId) {
+            $this->abort(403);
+        }
 
         try {
             $bookmarked = Bookmark::toggle($userId, $toolId);

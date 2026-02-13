@@ -410,6 +410,228 @@
     max-width: 900px;
     padding-block: 2rem;
     padding-inline: 1.5rem;
+
+    /* ── Breadcrumb ── */
+
+    & > nav[aria-label="Breadcrumb"] {
+      margin-block-end: 1.5rem;
+
+      & a {
+        align-items: center;
+        color: var(--mountain-pine-light);
+        display: inline-flex;
+        font-size: 0.938rem;
+        gap: 0.375rem;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-pine-dark);
+        }
+      }
+    }
+
+    /* ── Bookmark flash message ── */
+
+    & > p[role="status"] {
+      background: var(--mountain-cream);
+      border: 1px solid var(--mountain-gold-light);
+      border-radius: 0.5rem;
+      color: var(--mountain-pine);
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
+    /* ── Article header — image + info side by side ── */
+
+    & article > header {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: 1fr 1fr;
+      margin-block-end: 2rem;
+
+      @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+      }
+
+      /* Tool image */
+      & > figure {
+        & > img {
+          border: 1px solid var(--mountain-fog);
+          border-radius: 0.75rem;
+          display: block;
+          height: auto;
+          object-fit: cover;
+          width: 100%;
+        }
+      }
+
+      /* Info panel */
+      & > div {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        & > h1 {
+          color: var(--mountain-pine);
+          font-family: Georgia, 'Times New Roman', serif;
+          font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+          line-height: 1.2;
+        }
+
+        /* Star rating */
+        & > p:first-of-type {
+          align-items: center;
+          color: var(--mountain-mist);
+          display: flex;
+          font-size: 0.938rem;
+          gap: 0.25rem;
+
+          & > i.fa-star {
+            color: var(--mountain-gold);
+            font-size: 0.875rem;
+          }
+
+          & > span:last-child {
+            margin-inline-start: 0.25rem;
+          }
+        }
+
+        /* Details definition list */
+        & > dl {
+          display: grid;
+          gap: 0.5rem 1rem;
+          grid-template-columns: auto 1fr;
+
+          & > dt {
+            color: var(--mountain-slate);
+            font-size: 0.875rem;
+            font-weight: 600;
+
+            & > i {
+              color: var(--mountain-gold);
+              margin-inline-end: 0.25rem;
+              width: 1rem;
+            }
+          }
+
+          & > dd {
+            color: var(--mountain-charcoal);
+            font-size: 0.875rem;
+          }
+
+          & > dd[data-availability="available"] {
+            color: var(--mountain-pine);
+            font-weight: 600;
+          }
+
+          & > dd[data-availability="borrowed"] {
+            color: #b45309;
+            font-weight: 600;
+          }
+
+          & > dd[data-availability="unavailable"] {
+            color: #dc2626;
+            font-weight: 600;
+          }
+        }
+
+        /* Bookmark button */
+        & > form > button {
+          align-items: center;
+          background: var(--mountain-cream);
+          border: 1.5px solid var(--mountain-fog);
+          border-radius: 0.5rem;
+          color: var(--mountain-pine);
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 0.875rem;
+          font-weight: 600;
+          gap: 0.5rem;
+          min-height: 2.75rem;
+          padding-inline: 1.25rem;
+          transition: background-color 0.2s, border-color 0.2s;
+
+          &:is(:hover, :focus-visible) {
+            background: var(--mountain-fog);
+            border-color: var(--mountain-pine-light);
+          }
+
+          & > i.fa-bookmark {
+            color: var(--mountain-gold);
+          }
+        }
+      }
+    }
+
+    /* ── Description + conditions sections ── */
+
+    & article > section {
+      background: var(--mountain-cloud);
+      border: 1px solid var(--mountain-fog);
+      border-radius: 0.75rem;
+      margin-block-end: 1.25rem;
+      padding: 1.5rem;
+
+      & > h2 {
+        color: var(--mountain-pine);
+        font-size: 1.125rem;
+        margin-block-end: 0.75rem;
+      }
+
+      & > p {
+        color: var(--mountain-charcoal);
+        line-height: 1.65;
+      }
+    }
+
+    /* ── Owner aside ── */
+
+    & article > aside {
+      background: var(--mountain-cloud);
+      border: 1px solid var(--mountain-fog);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+
+      & > h2 {
+        color: var(--mountain-pine);
+        font-size: 1.125rem;
+        margin-block-end: 0.75rem;
+      }
+
+      & > a {
+        align-items: center;
+        color: var(--mountain-pine);
+        display: inline-flex;
+        font-weight: 600;
+        gap: 0.75rem;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-pine-light);
+        }
+
+        & > img {
+          border: 2px solid var(--mountain-fog);
+          border-radius: 50%;
+          object-fit: cover;
+        }
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: 0.875rem;
+        margin-block-start: 0.5rem;
+
+        & > i {
+          color: var(--mountain-gold);
+          margin-inline-end: 0.25rem;
+        }
+      }
+    }
   }
 
   /* ── Tool create + edit pages ── */

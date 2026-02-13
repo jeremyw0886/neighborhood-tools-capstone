@@ -100,7 +100,7 @@
                required
                min="0"
                max="9999"
-               step="0.01"
+               step="0.50"
                value="<?= htmlspecialchars($old['rental_fee'] ?? number_format((float) $tool['rental_fee_tol'], 2, '.', '')) ?>"
                <?php if (isset($errors['rental_fee'])): ?>aria-invalid="true" aria-describedby="tool-fee-error"<?php endif; ?>>
         <?php if (isset($errors['rental_fee'])): ?>

@@ -89,9 +89,8 @@
                required
                min="0"
                max="9999"
-               step="0.01"
-               placeholder="0.00"
-               value="<?= htmlspecialchars($old['rental_fee'] ?? '') ?>"
+               step="0.50"
+               value="<?= htmlspecialchars($old['rental_fee'] ?? '0.00') ?>"
                <?php if (isset($errors['rental_fee'])): ?>aria-invalid="true" aria-describedby="tool-fee-error"<?php endif; ?>>
         <?php if (isset($errors['rental_fee'])): ?>
           <p id="tool-fee-error" role="alert"><?= htmlspecialchars($errors['rental_fee']) ?></p>

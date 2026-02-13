@@ -27,7 +27,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
   <header>
     <h1 id="dashboard-heading">
       <i class="fa-solid fa-gauge" aria-hidden="true"></i>
-      Welcome back, <?= htmlspecialchars($authUser['first_name']) ?>
+      Welcome, <?= htmlspecialchars($authUser['first_name']) ?>
     </h1>
     <p>Here&rsquo;s a snapshot of your NeighborhoodTools activity.</p>
   </header>

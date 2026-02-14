@@ -34,14 +34,15 @@
     const menu = document.getElementById('top-links');
     if (!toggle || !menu) return;
 
-    const icon = toggle.querySelector('i');
+    toggle.closest('nav').classList.add('js-nav');
+
     const authSection = document.getElementById('user-actions');
     const authMenu = document.getElementById('user-actions-menu');
 
     const open = () => {
       menu.classList.add('open');
       toggle.setAttribute('aria-expanded', 'true');
-      icon?.classList.replace('fa-bars', 'fa-xmark');
+      document.body.classList.add('menu-open');
 
       const firstLink = menu.querySelector('a');
       firstLink?.focus();
@@ -50,7 +51,7 @@
     const close = (returnFocus = true) => {
       menu.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
-      icon?.classList.replace('fa-xmark', 'fa-bars');
+      document.body.classList.remove('menu-open');
 
       if (returnFocus) toggle.focus();
     };

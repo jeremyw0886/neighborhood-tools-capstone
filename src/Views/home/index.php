@@ -17,7 +17,7 @@
         <form role="search" aria-label="Search tools" action="/tools" method="get">
           <label for="search-tools" class="visually-hidden">Search tools</label>
           <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
-          <input type="search" id="search-tools" name="q" placeholder="Search tools near the mountains...">
+          <input type="search" id="search-tools" name="q" placeholder="Search tools near you ...">
           <button type="submit"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
         </form>
       </section>

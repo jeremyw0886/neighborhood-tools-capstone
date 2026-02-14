@@ -28,7 +28,9 @@ $isHero = !empty($heroPage);
           aria-label="Toggle navigation menu"
           aria-expanded="false"
           aria-controls="top-links">
-    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
   </button>
 
   <ul id="top-links" role="list">
@@ -83,7 +85,7 @@ $isHero = !empty($heroPage);
         <?php endif; ?>
       </a>
 
-      <ul id="user-actions-menu" role="menu" hidden>
+      <ul id="user-actions-menu" role="menu">
         <li role="menuitem">
           <a href="/dashboard">
             <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard

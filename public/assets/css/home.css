@@ -91,10 +91,8 @@
         height: auto;
       }
 
-      /* Hamburger toggle — override generic hero section button styles */
       & > #mobile-menu-toggle {
-        border-radius: 0.5rem;
-        padding: 0;
+        padding: 0.5rem;
       }
 
       /* Greeting toggle — reset hero section button styles */

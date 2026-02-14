@@ -61,18 +61,43 @@
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 0.5rem;
-      color: var(--mountain-cream);
       display: none;
-      font-size: 1.25rem;
+      flex-direction: column;
+      gap: 5px;
       height: 2.75rem;
       justify-content: center;
-      transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+      padding: 0.5rem;
+      transition: background-color 0.25s, border-color 0.25s;
       width: 2.75rem;
+
+      & > span {
+        background: var(--mountain-cream);
+        border-radius: 2px;
+        display: block;
+        height: 2px;
+        transition: transform 0.3s, opacity 0.3s;
+        width: 1.125rem;
+      }
+
+      &[aria-expanded="true"] > span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+
+      &[aria-expanded="true"] > span:nth-child(2) {
+        opacity: 0;
+      }
+
+      &[aria-expanded="true"] > span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
 
       &:is(:hover, :focus-visible) {
         background: var(--mountain-gold);
         border-color: var(--mountain-gold-dark);
-        color: var(--mountain-pine-dark);
+
+        & > span {
+          background: var(--mountain-pine-dark);
+        }
       }
     }
 

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
     <?php endif; ?>
     <?php foreach ($pageCss ?? [] as $cssFile): ?>
+    <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>">
     <?php endforeach; ?>
 </head>

@@ -1,18 +1,17 @@
 <?php $isBookmarked = isset($bookmarkedIds) && in_array((int) $tool['id_tol'], $bookmarkedIds, true); ?>
+<?php $isEager = !empty($eagerLoad); $eagerLoad = false; ?>
 <article role="listitem">
   <figure>
     <?php if (!empty($tool['primary_image'])): ?>
       <img src="/uploads/tools/<?= htmlspecialchars($tool['primary_image']) ?>"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="220" height="180"
-           loading="lazy"
-           decoding="async">
+           <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?>>
     <?php else: ?>
       <img src="/assets/images/tool-placeholder.svg"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="220" height="180"
-           loading="lazy"
-           decoding="async">
+           <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?>>
     <?php endif; ?>
   </figure>
   <?php if (!empty($isLoggedIn) && ($authUser['id'] ?? 0) !== (int) ($tool['owner_id'] ?? 0)): ?>

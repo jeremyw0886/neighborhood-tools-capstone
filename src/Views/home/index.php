@@ -93,7 +93,8 @@
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <div role="list">
         <?php if (!empty($featuredTools)): ?>
-          <?php foreach ($featuredTools as $tool): ?>
+          <?php foreach ($featuredTools as $toolIndex => $tool): ?>
+            <?php $eagerLoad = ($toolIndex === 0); ?>
             <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
           <?php endforeach; ?>
         <?php else: ?>

@@ -155,12 +155,20 @@
     section.classList.toggle('scrolled-end', atEnd);
   }
 
-  section.addEventListener('scroll', checkScroll, { passive: true });
+  let rafPending = false;
+  function scheduleCheck() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      checkScroll();
+      rafPending = false;
+    });
+  }
 
-  // Check on load in case content doesn't overflow
-  checkScroll();
+  section.addEventListener('scroll', scheduleCheck, { passive: true });
 
-  // Re-check when the sidebar height changes (viewport resize)
-  const observer = new ResizeObserver(checkScroll);
+  scheduleCheck();
+
+  const observer = new ResizeObserver(scheduleCheck);
   observer.observe(section);
 })();

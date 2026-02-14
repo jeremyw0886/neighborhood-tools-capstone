@@ -39,8 +39,9 @@
       text-decoration: none;
       transition: color 0.25s;
 
-      & svg {
+      & img {
         flex-shrink: 0;
+        height: auto;
         width: 80px;
       }
 

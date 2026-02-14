@@ -70,12 +70,8 @@
       position: relative;
     }
 
-    nav > a:first-child svg {
+    nav > a:first-child img {
       width: 48px;
-    }
-
-    nav > a:first-child span {
-      font-size: 0.938rem;
     }
 
     nav > #mobile-menu-toggle {
@@ -146,12 +142,8 @@
   }
 
   @media (max-width: 400px) {
-    nav > a:first-child svg {
+    nav > a:first-child img {
       width: 32px;
-    }
-
-    nav > a:first-child span {
-      font-size: 0.85rem;
     }
 
     nav > #top-links {

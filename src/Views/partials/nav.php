@@ -20,10 +20,7 @@ $isHero = !empty($heroPage);
 <nav aria-label="Main navigation"<?= $isHero ? ' data-hero' : '' ?>>
 
   <a href="/" aria-label="NeighborhoodTools home">
-    <?php include BASE_PATH . '/public/assets/images/logo.svg'; ?>
-    <?php if (!$isHero): ?>
-      <!-- <span>NeighborhoodTools</span> -->
-    <?php endif; ?>
+    <img src="/assets/images/logo.svg" alt="NeighborhoodTools logo" width="80" height="80" fetchpriority="high">
   </a>
 
   <button id="mobile-menu-toggle"

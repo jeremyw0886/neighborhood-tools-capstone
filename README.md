@@ -65,7 +65,19 @@ neighborhoodtools/
 
 ## Not Yet Implemented
 
-Search, ratings, payments/deposits, disputes (member-facing), events, handover verification, incidents (member-facing), waivers, categories API.
+- **Borrow workflow** &mdash; Approve/deny requests, checkout, check-in, return, extend (lender actions)
+- **Loan tracking** &mdash; Real-time status tracking of active loans through the borrow lifecycle (requested, approved, borrowed, due soon, overdue, returned)
+- **Dashboard sort/filter** &mdash; Filter/sort lender and borrower views by date, name, status
+- **Tool search sort** &mdash; Sort results asc/desc, JS sort/filter enhancement with PHP fallback
+- **Ratings** &mdash; Rate borrowers and lenders after transactions
+- **Admin actions** &mdash; Approve account requests, activate/deactivate members, vector image library
+- **Payments/deposits** &mdash; Security deposit handling
+- **Disputes** &mdash; Member-facing dispute filing and messaging
+- **Events** &mdash; Community events
+- **Handover verification** &mdash; Pickup/return code confirmation
+- **Incidents** &mdash; Member-facing damage/loss/injury reporting
+- **Waivers** &mdash; Borrow waiver, condition acknowledgment, liability release
+- **Categories API** &mdash; Category browsing endpoint
 
 ## Coding Standards
 

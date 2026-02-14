@@ -50,7 +50,7 @@
     flex: 2.8;
     flex-direction: column;
     gap: 0.5rem;
-    padding-block: 1.25rem 2rem;
+    padding-block-end: 2rem;
     padding-inline: 1.5rem;
     position: relative;
     max-width: 70%;
@@ -95,7 +95,23 @@
         padding: 0.5rem;
       }
 
-      /* Greeting toggle — reset hero section button styles */
+      & > #user-actions > a[role="button"] {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.4rem 1rem;
+        transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+        white-space: nowrap;
+
+        &:hover {
+          background: var(--mountain-gold);
+          border-color: var(--mountain-gold-dark);
+          color: var(--mountain-pine-dark);
+        }
+      }
+
       & > #user-actions > #user-actions-toggle {
         border-radius: 0;
         padding: 0;
@@ -841,7 +857,11 @@
     .home-page > header > section {
       border-radius: 0;
       gap: 1.25rem;
-      padding: 1rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .home-page > header > section > nav.js-nav > #top-links {
+      inset-inline: -1rem;
     }
 
     .home-page > header > section > section > h1 {
@@ -962,6 +982,10 @@
       border-radius: 0 0 1rem 0;
       gap: 1rem;
       padding: 0.75rem 0.75rem 1.25rem;
+    }
+
+    .home-page > header > section > nav.js-nav > #top-links {
+      inset-inline: -0.75rem;
     }
 
     .home-page > header > section > section > h1 {

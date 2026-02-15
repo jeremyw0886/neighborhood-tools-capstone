@@ -92,6 +92,11 @@ $isHero = !empty($heroPage);
           </a>
         </li>
         <li role="menuitem">
+          <a href="/profile/<?= $authUser['id'] ?>"<?= str_starts_with($currentPage, '/profile') ? ' aria-current="page"' : '' ?>>
+            <i class="fa-solid fa-id-card" aria-hidden="true"></i> My Profile
+          </a>
+        </li>
+        <li role="menuitem">
           <a href="/bookmarks"<?= $currentPage === '/bookmarks' ? ' aria-current="page"' : '' ?>>
             <i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bookmarks
           </a>

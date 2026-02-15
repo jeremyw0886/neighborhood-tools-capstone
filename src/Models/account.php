@@ -294,6 +294,24 @@ class Account
     }
 
     /**
+     * Update the password hash for an account.
+     */
+    public static function updatePassword(int $accountId, string $passwordHash): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_acc
+            SET password_hash_acc = :hash
+            WHERE id_acc = :id
+        ");
+
+        $stmt->bindValue(':hash', $passwordHash, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
      * Verify a plaintext password against a stored hash.
      */
     public static function verifyPassword(string $input, string $hash): bool

@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\RateLimiter;
 use App\Models\Account;
 use App\Models\Neighborhood;
+use App\Models\PasswordReset;
 use App\Models\ZipCode;
 
 class AuthController extends BaseController

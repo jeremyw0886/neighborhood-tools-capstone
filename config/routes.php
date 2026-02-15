@@ -41,6 +41,10 @@ return [
     'GET /register'                => [AuthController::class, 'showRegister'],
     'POST /register'               => [AuthController::class, 'register'],
     'POST /logout'                 => [AuthController::class, 'logout'],
+    'GET /forgot-password'         => [AuthController::class, 'showForgotPassword'],
+    'POST /forgot-password'        => [AuthController::class, 'forgotPassword'],
+    'GET /reset-password'          => [AuthController::class, 'showResetPassword'],
+    'POST /reset-password'         => [AuthController::class, 'resetPassword'],
 
     // Dashboard
     'GET /dashboard'               => [DashboardController::class, 'index'],

@@ -68,9 +68,9 @@ return [
     // 'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
 
     // Profile
-    'GET /profile/{id}'            => [ProfileController::class, 'show'],
     'GET /profile/edit'            => [ProfileController::class, 'edit'],
     'POST /profile/edit'           => [ProfileController::class, 'update'],
+    'GET /profile/{id}'            => [ProfileController::class, 'show'],
 
     // Search
     // 'GET /search'                  => [SearchController::class, 'index'],

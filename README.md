@@ -98,6 +98,12 @@ Requires a local Apache/PHP/MySQL stack such as MAMP PRO (macOS) or Laragon (Win
 5. Point Apache document root to `public/`
 6. Visit `http://localhost:8888`
 
+After adding new PHP classes (controllers, models), regenerate the autoloader:
+
+```bash
+composer dump-autoload
+```
+
 After changing bundled CSS files, rebuild the production bundle:
 
 ```bash

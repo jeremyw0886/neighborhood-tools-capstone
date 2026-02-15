@@ -6,6 +6,13 @@
       <p>Welcome back! Sign in to manage your tools and borrows.</p>
     </header>
 
+    <?php if (!empty($authSuccess)): ?>
+      <div role="status" aria-live="polite" class="auth-message auth-message--success">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <?= htmlspecialchars($authSuccess) ?>
+      </div>
+    <?php endif; ?>
+
     <?php if (!empty($error)): ?>
       <div role="alert" aria-live="polite" class="auth-message auth-message--error">
         <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
@@ -48,6 +55,7 @@
           minlength="8"
           placeholder="Enter your password"
         >
+        <a href="/forgot-password" class="forgot-link">Forgot your password?</a>
       </div>
 
       <button type="submit">

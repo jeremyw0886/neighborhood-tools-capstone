@@ -27,10 +27,11 @@ class AuthController extends BaseController
             'description' => 'Log in to your NeighborhoodTools account to borrow and lend tools in your community.',
             'pageCss'     => ['auth.css'],
             'error'       => $_SESSION['auth_error'] ?? null,
+            'authSuccess' => $_SESSION['auth_success'] ?? null,
             'oldEmail'    => $_SESSION['auth_old_email'] ?? '',
         ]);
 
-        unset($_SESSION['auth_error'], $_SESSION['auth_old_email']);
+        unset($_SESSION['auth_error'], $_SESSION['auth_old_email'], $_SESSION['auth_success']);
     }
 
     /**

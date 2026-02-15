@@ -297,6 +297,160 @@ class AuthController extends BaseController
         $this->redirect('/');
     }
 
+    /**
+     * Show the forgot-password form.
+     */
+    public function showForgotPassword(): void
+    {
+        if (!empty($_SESSION['logged_in'])) {
+            $this->redirect('/dashboard');
+        }
+
+        $this->render('auth/forgot-password', [
+            'title'       => 'Forgot Password — NeighborhoodTools',
+            'description' => 'Request a password reset link for your NeighborhoodTools account.',
+            'pageCss'     => ['auth.css'],
+            'success'     => $_SESSION['forgot_success'] ?? null,
+            'error'       => $_SESSION['forgot_error'] ?? null,
+        ]);
+
+        unset($_SESSION['forgot_success'], $_SESSION['forgot_error']);
+    }
+
+    /**
+     * Process forgot-password form submission.
+     *
+     * Creates a reset token, emails it, and always shows a generic
+     * success message regardless of whether the email exists (prevents
+     * account enumeration).
+     */
+    public function forgotPassword(): void
+    {
+        $this->validateCsrf();
+        $this->checkRateLimit(
+            'forgot_password',
+            '/forgot-password',
+            'forgot_error',
+            'Too many reset requests. Please try again in {minutes}.',
+        );
+
+        $email = trim($_POST['email'] ?? '');
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['forgot_error'] = 'Please enter a valid email address.';
+            $this->redirect('/forgot-password');
+        }
+
+        RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|forgot_password');
+
+        $account = Account::findByEmail($email);
+
+        if ($account !== null && $account['account_status'] === 'active') {
+            try {
+                $token    = PasswordReset::createToken((int) $account['id_acc']);
+                $baseUrl  = rtrim($_ENV['APP_URL'] ?? 'http://localhost', '/');
+                $resetUrl = $baseUrl . '/reset-password?token=' . $token;
+
+                $this->sendResetEmail(
+                    $email,
+                    $account['first_name_acc'],
+                    $resetUrl,
+                );
+            } catch (\Throwable $e) {
+                error_log('AuthController::forgotPassword — ' . $e->getMessage());
+            }
+        }
+
+        try {
+            PasswordReset::cleanup();
+        } catch (\Throwable) {
+        }
+
+        $_SESSION['forgot_success'] = 'If an account with that email exists, a password reset link has been sent. Please check your inbox.';
+        $this->redirect('/forgot-password');
+    }
+
+    /**
+     * Show the reset-password form (accessed via emailed link).
+     *
+     * Validates the token from the query string before rendering the form.
+     */
+    public function showResetPassword(): void
+    {
+        if (!empty($_SESSION['logged_in'])) {
+            $this->redirect('/dashboard');
+        }
+
+        $token = $_GET['token'] ?? '';
+
+        if ($token === '' || PasswordReset::findValidToken($token) === null) {
+            $_SESSION['forgot_error'] = 'This reset link is invalid or has expired. Please request a new one.';
+            $this->redirect('/forgot-password');
+        }
+
+        $this->render('auth/reset-password', [
+            'title'       => 'Reset Password — NeighborhoodTools',
+            'description' => 'Choose a new password for your NeighborhoodTools account.',
+            'pageCss'     => ['auth.css'],
+            'token'       => $token,
+            'error'       => $_SESSION['reset_error'] ?? null,
+        ]);
+
+        unset($_SESSION['reset_error']);
+    }
+
+    /**
+     * Process reset-password form submission.
+     *
+     * Validates the token again, updates the password, and redirects
+     * to login with a success flash.
+     */
+    public function resetPassword(): void
+    {
+        $this->validateCsrf();
+
+        $token           = $_POST['token'] ?? '';
+        $password        = $_POST['password'] ?? '';
+        $passwordConfirm = $_POST['password_confirm'] ?? '';
+
+        if ($token === '') {
+            $this->abort(403);
+        }
+
+        $resetRecord = PasswordReset::findValidToken($token);
+
+        if ($resetRecord === null) {
+            $_SESSION['forgot_error'] = 'This reset link is invalid or has expired. Please request a new one.';
+            $this->redirect('/forgot-password');
+        }
+
+        $errors = $this->validateNewPassword($password, $passwordConfirm);
+
+        if ($errors !== []) {
+            $_SESSION['reset_error'] = implode(' ', $errors);
+            $this->redirect('/reset-password?token=' . urlencode($token));
+        }
+
+        try {
+            $hash = password_hash(
+                password: $password,
+                algo: PASSWORD_BCRYPT,
+                options: ['cost' => 12],
+            );
+
+            Account::updatePassword((int) $resetRecord['id_acc_pwr'], $hash);
+            PasswordReset::markUsed((int) $resetRecord['id_pwr']);
+        } catch (\Throwable $e) {
+            error_log('AuthController::resetPassword — ' . $e->getMessage());
+            $_SESSION['reset_error'] = 'Something went wrong. Please try again.';
+            $this->redirect('/reset-password?token=' . urlencode($token));
+        }
+
+        $_SESSION['auth_error'] = null;
+        $_SESSION['auth_success'] = 'Your password has been reset. Please log in with your new password.';
+        $this->redirect('/login');
+    }
+
     // -------------------------------------------------------
     //  Private helpers
     // -------------------------------------------------------
@@ -327,6 +481,63 @@ class AuthController extends BaseController
         $_SESSION['user_first_name'] = $account['first_name_acc'];
         $_SESSION['user_role']       = $account['role_name_rol'];
         $_SESSION['user_avatar']     = $account['avatar'];
+    }
+
+    /**
+     * Send a password-reset email via PHP's built-in mail().
+     *
+     * On local development (APP_DEBUG=true) the link is also written
+     * to the error log for easy access when mail delivery is unavailable.
+     */
+    private function sendResetEmail(string $to, string $firstName, string $resetUrl): void
+    {
+        $subject = 'NeighborhoodTools — Password Reset';
+
+        $body = "Hi {$firstName},\r\n\r\n"
+            . "We received a request to reset your NeighborhoodTools password.\r\n\r\n"
+            . "Click the link below to choose a new password:\r\n"
+            . "{$resetUrl}\r\n\r\n"
+            . "This link expires in 1 hour. If you didn't request this, you can safely ignore this email.\r\n\r\n"
+            . "— NeighborhoodTools";
+
+        $headers = implode("\r\n", [
+            'From: noreply@neighborhoodtools.com',
+            'Reply-To: noreply@neighborhoodtools.com',
+            'Content-Type: text/plain; charset=UTF-8',
+            'X-Mailer: PHP/' . PHP_VERSION,
+        ]);
+
+        $sent = @mail($to, $subject, $body, $headers);
+
+        if (!$sent) {
+            error_log("Password reset email failed for {$to} — link: {$resetUrl}");
+        }
+    }
+
+    /**
+     * Validate new password fields from the reset form.
+     *
+     * @return array<int, string>  Error messages (empty if valid)
+     */
+    private function validateNewPassword(string $password, string $confirm): array
+    {
+        $errors = [];
+
+        if ($password === '') {
+            $errors[] = 'Password is required.';
+        } elseif (mb_strlen($password) < 8) {
+            $errors[] = 'Password must be at least 8 characters.';
+        } elseif (mb_strlen($password) > 72) {
+            $errors[] = 'Password must be 72 characters or fewer.';
+        }
+
+        if ($confirm === '') {
+            $errors[] = 'Please confirm your password.';
+        } elseif ($password !== $confirm) {
+            $errors[] = 'Passwords do not match.';
+        }
+
+        return $errors;
     }
 
     /**

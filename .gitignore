@@ -38,6 +38,11 @@ uploads/profiles/*
 uploads/tools/*
 !uploads/**/.gitkeep
 
+# Rate limit data files
+storage/rate-limits/*.json
+!storage/rate-limits/.gitkeep
+!storage/rate-limits/.htaccess
+
 # Local test files
 local_testing/
 

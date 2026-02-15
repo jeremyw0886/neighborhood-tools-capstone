@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\RateLimiter;
 use App\Models\Borrow;
 use App\Models\Notification;
 use App\Models\Tool;
@@ -30,6 +31,13 @@ class BorrowController extends BaseController
         if ($toolId < 1) {
             $this->abort(404);
         }
+
+        $this->checkRateLimit(
+            'borrow_request',
+            '/tools/' . $toolId,
+            'borrow_errors.general',
+            'Too many borrow requests. Please try again in {minutes}.',
+        );
 
         $loanDuration = (int) ($_POST['loan_duration'] ?? 0);
         $notes        = trim($_POST['notes'] ?? '');
@@ -61,6 +69,8 @@ class BorrowController extends BaseController
             $_SESSION['borrow_errors'] = ['general' => 'You cannot borrow your own tool.'];
             $this->redirect('/tools/' . $toolId);
         }
+
+        RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|borrow_request');
 
         try {
             $result = Borrow::create(

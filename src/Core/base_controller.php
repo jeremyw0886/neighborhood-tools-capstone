@@ -163,6 +163,53 @@ class BaseController
     }
 
     /**
+     * Enforce rate limiting on the current request.
+     *
+     * Call at the top of state-changing actions, after validateCsrf().
+     * If the limit is exceeded, flashes a message and redirects (never returns).
+     *
+     * Flash keys support dot notation for nested arrays:
+     *   'auth_error'            → $_SESSION['auth_error'] = message
+     *   'register_errors.general' → $_SESSION['register_errors'] = ['general' => message]
+     */
+    protected function checkRateLimit(
+        string $action,
+        string $redirectTo,
+        string $flashKey,
+        string $flashValue = 'Too many attempts. Please try again in {minutes}.',
+    ): void {
+        static $config = null;
+        $config ??= require BASE_PATH . '/config/rate-limit.php';
+
+        $limits = $config[$action] ?? null;
+
+        if ($limits === null) {
+            return;
+        }
+
+        $ip  = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $key = $ip . '|' . $action;
+
+        if (!RateLimiter::tooManyAttempts($key, $limits['max_attempts'], $limits['window_seconds'])) {
+            return;
+        }
+
+        $remaining = RateLimiter::remainingSeconds($key, $limits['window_seconds']);
+        $minutes   = (int) ceil($remaining / 60);
+        $label     = $minutes === 1 ? '1 minute' : $minutes . ' minutes';
+        $message   = str_replace('{minutes}', $label, $flashValue);
+
+        if (str_contains($flashKey, '.')) {
+            [$sessionKey, $subKey] = explode('.', $flashKey, 2);
+            $_SESSION[$sessionKey] = [$subKey => $message];
+        } else {
+            $_SESSION[$flashKey] = $message;
+        }
+
+        $this->redirect($redirectTo);
+    }
+
+    /**
      * Halt execution and display an error page.
      */
     protected function abort(int $code): never

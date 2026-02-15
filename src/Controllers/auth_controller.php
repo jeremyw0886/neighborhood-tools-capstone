@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\RateLimiter;
 use App\Models\Account;
 use App\Models\Neighborhood;
 use App\Models\ZipCode;
@@ -40,6 +41,7 @@ class AuthController extends BaseController
     public function login(): void
     {
         $this->validateCsrf();
+        $this->checkRateLimit('login', '/login', 'auth_error');
 
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -85,7 +87,8 @@ class AuthController extends BaseController
         // Success — populate session
         $this->setSessionFromAccount($account);
 
-        // Regenerate session ID to prevent fixation
+        RateLimiter::reset(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
+
         session_regenerate_id(delete_old_session: true);
 
         $this->redirect('/dashboard');
@@ -119,12 +122,20 @@ class AuthController extends BaseController
     public function register(): void
     {
         $this->validateCsrf();
+        $this->checkRateLimit(
+            'register',
+            '/register',
+            'register_errors.general',
+            'Too many registration attempts. Please try again in {minutes}.',
+        );
 
         $honeypot = $_POST['website'] ?? '';
 
         if ($honeypot !== '') {
             $this->redirect('/register');
         }
+
+        RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|register');
 
         $data = [
             'first_name'       => trim($_POST['first_name'] ?? ''),
@@ -294,6 +305,8 @@ class AuthController extends BaseController
      */
     private function loginFailed(string $email, string $message): never
     {
+        RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
+
         $_SESSION['auth_error']     = $message;
         $_SESSION['auth_old_email'] = $email;
         $this->redirect('/login');

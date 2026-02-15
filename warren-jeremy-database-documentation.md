@@ -1,4 +1,4 @@
-# [NeighborhoodTools.com](https://neighborhoodtools.com) Complete Schema Reference
+# [NeighborhoodTools.com](https://neighborhoodtools.com) Complete Documentation
 
 **Author:** Jeremy Warren
 
@@ -6,7 +6,7 @@
 
 **Target Database:** MySQL 8.0.16 or later
 
-**Source File:** `warren-jeremy-dump-phase3.sql`
+**Source File:** `warren-jeremy-dump-phase3.sql` - Updated February 15, 2026
 
 ---
 
@@ -112,13 +112,13 @@ neighbors to share tools with each other. This database design supports:
 
 | Object Type | Count |
 |-------------|-------|
-| Tables | 59 |
+| Tables | 60 |
 | Triggers | 31 |
 | Views | 25 |
 | Stored Procedures | 25 |
 | Stored Functions | 9 |
 | Scheduled Events | 8 |
-| Foreign Keys | 82 |
+| Foreign Keys | 83 |
 | Indexes | ~200 |
 
 ---
@@ -128,19 +128,19 @@ neighbors to share tools with each other. This database design supports:
 The database is organized into logical groups for easier management and
 visualization:
 
-| Group                  | Tables                                                                                                                                                                                            |
-|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Accounts**           | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `neighborhood_nbh`, `neighborhood_meta_nbm`, `zip_code_zpc`, `account_acc`, `account_meta_acm`, `account_image_aim`, `account_bio_abi` |
-| **Tools**              | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`, `tool_meta_tlm`                                                                                                               |
-| **Borrowing**          | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`, `loan_extension_lex`                                                                                               |
-| **Ratings & Disputes** | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm`                                                   |
-| **User Interactions**  | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                                                                     |
-| **Shared Assets**      | `vector_image_vec`                                                                                                                                                                                |
-| **Junction Tables**    | `tool_category_tolcat`, `tool_bookmark_acctol`, `neighborhood_zip_nbhzpc`                                                                                                                         |
-| **Future Expansion**   | `event_evt`, `event_meta_evm`, `phpbb_integration_php`, `audit_log_aud`, `audit_log_detail_ald`                                                                                                   |
-| **Legal & Compliance** | `terms_of_service_tos`, `tos_acceptance_tac`, `waiver_type_wtp`, `borrow_waiver_bwv`, `handover_type_hot`, `handover_verification_hov`, `incident_type_ity`, `incident_report_irt`, `incident_photo_iph` |
-| **Payments & Deposits**| `deposit_status_dps`, `security_deposit_sdp`, `payment_provider_ppv`, `payment_transaction_ptx`, `payment_transaction_meta_ptm`                                                                   |
-| **Materialized Cache & Analytics** | `neighborhood_summary_mat`, `user_reputation_mat`, `tool_statistics_mat`, `category_summary_mat`, `platform_daily_stat_pds`                                                         |
+| Group                            | Tables                                                                                                                                                                                                                                |
+|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Accounts**                     | `role_rol`, `account_status_ast`, `contact_preference_cpr`, `state_sta`, `neighborhood_nbh`, `neighborhood_meta_nbm`, `zip_code_zpc`, `account_acc`, `account_meta_acm`, `account_image_aim`, `account_bio_abi`, `password_reset_pwr` |
+| **Tools**                        | `category_cat`, `tool_condition_tcd`, `tool_tol`, `tool_image_tim`, `tool_meta_tlm`                                                                                                                                                   |
+| **Borrowing**                    | `borrow_status_bst`, `block_type_btp`, `borrow_bor`, `availability_block_avb`, `loan_extension_lex`                                                                                                                                   |
+| **Ratings & Disputes**           | `rating_role_rtr`, `user_rating_urt`, `tool_rating_trt`, `dispute_dsp`, `dispute_status_dst`, `dispute_message_type_dmt`, `dispute_message_dsm`                                                                                       |
+| **User Interactions**            | `notification_ntf`, `notification_type_ntt`, `search_log_slg`                                                                                                                                                                         |
+| **Shared Assets**                | `vector_image_vec`                                                                                                                                                                                                                    |
+| **Junction Tables**              | `tool_category_tolcat`, `tool_bookmark_acctol`, `neighborhood_zip_nbhzpc`                                                                                                                                                             |
+| **Future Expansion**             | `event_evt`, `event_meta_evm`, `phpbb_integration_php`, `audit_log_aud`, `audit_log_detail_ald`                                                                                                                                       |
+| **Legal & Compliance**           | `terms_of_service_tos`, `tos_acceptance_tac`, `waiver_type_wtp`, `borrow_waiver_bwv`, `handover_type_hot`, `handover_verification_hov`, `incident_type_ity`, `incident_report_irt`, `incident_photo_iph`                              |
+| **Payments & Deposits**          | `deposit_status_dps`, `security_deposit_sdp`, `payment_provider_ppv`, `payment_transaction_ptx`, `payment_transaction_meta_ptm`                                                                                                       |
+| **Materialized Cache & Analytics** | `neighborhood_summary_mat`, `user_reputation_mat`, `tool_statistics_mat`, `category_summary_mat`, `platform_daily_stat_pds`                                                                                                         |
 
 ---
 
@@ -438,6 +438,7 @@ Main user account table containing all user information.
 | `id_acc`                    | int          | PK, auto-increment       | -                                                                      |
 | `first_name_acc`            | varchar(100) | not null                 | -                                                                      |
 | `last_name_acc`             | varchar(100) | not null                 | -                                                                      |
+| `username_acc`              | varchar(30)  | unique, not null         | Public display name — 3-30 chars, alphanumeric + underscores           |
 | `phone_number_acc`          | varchar(20)  | -                        | -                                                                      |
 | `email_address_acc`         | varchar(255) | unique, not null         | Primary login credential - used for authentication                     |
 | `street_address_acc`        | varchar(255) | -                        | Optional for privacy - ZIP required                                    |
@@ -457,6 +458,7 @@ Main user account table containing all user information.
 **Indexes:**
 
 - `idx_email_acc` on `email_address_acc`
+- `idx_username_acc` (UNIQUE) on `username_acc`
 - `idx_zip_acc` on `zip_code_acc`
 - `idx_role_acc` on `id_rol_acc`
 - `idx_status_verified_acc` on `(id_ast_acc, is_verified_acc)`
@@ -562,6 +564,31 @@ provides a bio - application displays placeholder text when no row exists.
 >
 > - Row exists only when user provides a bio.
 > - Check for existence and display placeholder text if no row found.
+
+---
+
+#### password_reset_pwr
+
+Password reset tokens tied to user accounts. Tokens are hashed, have an
+expiration, and track whether they have been used.
+
+| Column             | Type        | Constraints        | Notes                                                |
+|--------------------|-------------|--------------------|------------------------------------------------------|
+| `id_pwr`           | int         | PK, auto-increment | -                                                    |
+| `id_acc_pwr`       | int         | not null           | FK to account_acc                                    |
+| `token_hash_pwr`   | varchar(64) | not null           | Hashed reset token                                   |
+| `expires_at_pwr`   | timestamp   | not null           | Token expiry time                                    |
+| `created_at_pwr`   | timestamp   | default: now()     | -                                                    |
+| `used_at_pwr`      | timestamp   | -                  | When token was used; NULL = unused                   |
+
+**Indexes:**
+
+- `idx_token_hash_pwr` on `token_hash_pwr`
+- `idx_acc_expires_pwr` on `(id_acc_pwr, expires_at_pwr)`
+
+> **Note:**
+>
+> - FK cascades on delete (account deletion removes tokens).
 
 ---
 
@@ -1186,18 +1213,18 @@ Normalized audit detail rows (strict 1NF/3NF). One row per changed column per au
 
 Stores versioned Terms of Service documents. Emphasizes platform's matchmaking role.
 
-| Column                  | Type         | Constraints        | Notes                                         |
-|-------------------------|--------------|--------------------|-----------------------------------------------|
-| `id_tos`                | int          | PK, auto-increment | -                                             |
-| `version_tos`           | varchar(20)  | unique, not null   | Version identifier (e.g., 1.0, 2.0)           |
-| `title_tos`             | varchar(255) | not null           | ToS document title                            |
-| `content_tos`           | text         | not null           | Full Terms of Service text                    |
-| `summary_tos`           | text         | -                  | Plain-language summary of key terms           |
-| `effective_at_tos`      | timestamp    | not null           | When this version becomes active              |
-| `superseded_at_tos`     | timestamp    | -                  | When replaced; NULL = current                 |
-| `is_active_tos`         | boolean      | default: true      | Only one version should be active             |
-| `id_acc_created_by_tos` | int          | not null           | Admin who created this version                |
-| `created_at_tos`        | timestamp    | default: now()     | -                                             |
+| Column                  | Type         | Constraints             | Notes                                    |
+|-------------------------|--------------|-------------------------|------------------------------------------|
+| `id_tos`                | int          | PK, auto-increment      | -                                        |
+| `version_tos`           | varchar(20)  | unique, not null        | Version identifier (e.g., 1.0, 2.0)      |
+| `title_tos`             | varchar(255) | not null                | ToS document title                       |
+| `content_tos`           | text         | not null                | Full Terms of Service text               |
+| `summary_tos`           | text         | -                       | Plain-language summary of key terms      |
+| `effective_at_tos`      | timestamp    | not null                | When this version becomes active         |
+| `superseded_at_tos`     | timestamp    | -                       | When replaced; NULL = current            |
+| `is_active_tos`         | boolean      | not null, default: true | Only one version should be active        |
+| `id_acc_created_by_tos` | int          | not null                | Admin who created this version           |
+| `created_at_tos`        | timestamp    | default: now()          | -                                        |
 
 **Indexes:**
 
@@ -1670,18 +1697,19 @@ Junction tables create the following M:M relationships:
 
 #### Account Domain
 
-| Parent (One)             | Child (Many)        | Foreign Key        | Description                       |
-|--------------------------|---------------------|--------------------|-----------------------------------|
-| `role_rol`               | `account_acc`       | `id_rol_acc`       | Role assigned to accounts         |
-| `account_status_ast`     | `account_acc`       | `id_ast_acc`       | Status of accounts                |
-| `contact_preference_cpr` | `account_acc`       | `id_cpr_acc`       | Contact preference for accounts   |
-| `zip_code_zpc`           | `account_acc`       | `zip_code_acc`     | Location of accounts              |
-| `neighborhood_nbh`       | `account_acc`       | `id_nbh_acc`       | Optional neighborhood membership  |
-| `account_acc`            | `account_image_aim` | `id_acc_aim`       | Account has profile images        |
-| `account_acc`            | `account_meta_acm`  | `id_acc_acm`       | Account has metadata (EAV)        |
-| `account_acc`            | `account_bio_abi`   | `id_acc_abi`       | Account has optional bio (0 or 1) |
-| `account_acc`            | `vector_image_vec`  | `id_acc_vec`       | Admin uploads vector images       |
-| `vector_image_vec`       | `category_cat`      | `id_vec_cat`       | Category has optional icon        |
+| Parent (One)             | Child (Many)         | Foreign Key        | Description                       |
+|--------------------------|----------------------|--------------------|-----------------------------------|
+| `role_rol`               | `account_acc`        | `id_rol_acc`       | Role assigned to accounts         |
+| `account_status_ast`     | `account_acc`        | `id_ast_acc`       | Status of accounts                |
+| `contact_preference_cpr` | `account_acc`        | `id_cpr_acc`       | Contact preference for accounts   |
+| `zip_code_zpc`           | `account_acc`        | `zip_code_acc`     | Location of accounts              |
+| `neighborhood_nbh`       | `account_acc`        | `id_nbh_acc`       | Optional neighborhood membership  |
+| `account_acc`            | `account_image_aim`  | `id_acc_aim`       | Account has profile images        |
+| `account_acc`            | `account_meta_acm`   | `id_acc_acm`       | Account has metadata (EAV)        |
+| `account_acc`            | `account_bio_abi`    | `id_acc_abi`       | Account has optional bio (0 or 1) |
+| `account_acc`            | `password_reset_pwr` | `id_acc_pwr`       | Account has password reset tokens |
+| `account_acc`            | `vector_image_vec`   | `id_acc_vec`       | Admin uploads vector images       |
+| `vector_image_vec`       | `category_cat`       | `id_vec_cat`       | Category has optional icon        |
 
 #### Neighborhood Domain
 
@@ -1842,9 +1870,9 @@ Junction tables create the following M:M relationships:
 |  +-----------------------+   +----------------+                              |
 |           |              |                                                   |
 |           v              v                                                   |
-|    +-------------+  +-------------------+                                    |
-|    | zip_code_zpc|  | account_meta_acm  |                                    |
-|    +-------------+  +-------------------+                                    |
+|    +-------------+  +-------------------+  +----------------------+          |
+|    | zip_code_zpc|  | account_meta_acm  |  | password_reset_pwr   |          |
+|    +-------------+  +-------------------+  +----------------------+          |
 |                                                                              |
 +------------------------------------------------------------------------------+
                                                   |

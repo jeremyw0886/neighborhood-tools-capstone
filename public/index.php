@@ -32,6 +32,15 @@ $appConfig = require BASE_PATH . '/config/app.php';
 $dbConfig  = require BASE_PATH . '/config/database.php';
 $routes    = require BASE_PATH . '/config/routes.php';
 
+// Error display — show details in dev, suppress in production
+if ($appConfig['debug']) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+    ini_set('display_errors', '0');
+}
+
 // Set timezone
 date_default_timezone_set($appConfig['timezone']);
 

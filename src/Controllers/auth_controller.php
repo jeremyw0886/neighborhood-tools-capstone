@@ -352,6 +352,10 @@ class AuthController extends BaseController
                 $baseUrl  = rtrim($_ENV['APP_URL'] ?? 'http://localhost', '/');
                 $resetUrl = $baseUrl . '/reset-password?token=' . $token;
 
+                if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
+                    error_log("Password reset link for {$email}: {$resetUrl}");
+                }
+
                 $this->sendResetEmail(
                     $email,
                     $account['first_name_acc'],

@@ -505,6 +505,20 @@ CREATE TABLE account_bio_abi (
 ) ENGINE=InnoDB
     COMMENT='Optional bio text stored separately to save space - only populated when user provides a bio';
 
+-- Password Reset Tokens Table
+CREATE TABLE password_reset_pwr (
+    id_pwr INT AUTO_INCREMENT PRIMARY KEY,
+    id_acc_pwr INT NOT NULL,
+    token_hash_pwr VARCHAR(64) NOT NULL,
+    expires_at_pwr TIMESTAMP NOT NULL,
+    created_at_pwr TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    used_at_pwr TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_token_hash_pwr (token_hash_pwr),
+    INDEX idx_acc_expires_pwr (id_acc_pwr, expires_at_pwr),
+    CONSTRAINT fk_pwr_acc FOREIGN KEY (id_acc_pwr)
+        REFERENCES account_acc (id_acc) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Vector Images Table
 CREATE TABLE vector_image_vec (
     id_vec INT AUTO_INCREMENT PRIMARY KEY,

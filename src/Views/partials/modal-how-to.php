@@ -23,10 +23,12 @@
   </header>
   <div>
     <?php
+      $contentHeadingLevel = 'h3';
       $contentPath = BASE_PATH . '/src/Views/partials/content-how-to.php';
       if (file_exists($contentPath)) {
           require $contentPath;
       }
+      unset($contentHeadingLevel);
     ?>
   </div>
 </dialog>

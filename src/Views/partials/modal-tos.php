@@ -35,10 +35,12 @@ $tos = $currentTos ?? null;
   <div>
     <?php if ($tos): ?>
       <?php
+        $contentHeadingLevel = 'h3';
         $contentPath = BASE_PATH . '/src/Views/partials/content-tos.php';
         if (file_exists($contentPath)) {
             require $contentPath;
         }
+        unset($contentHeadingLevel);
       ?>
     <?php else: ?>
       <p>No terms of service are currently available.</p>

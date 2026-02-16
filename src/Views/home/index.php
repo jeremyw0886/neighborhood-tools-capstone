@@ -92,6 +92,7 @@
     <section aria-labelledby="popular-heading">
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <div role="list">
+        <?php $cardHeadingLevel = 'h3'; ?>
         <?php if (!empty($featuredTools)): ?>
           <?php foreach ($featuredTools as $toolIndex => $tool): ?>
             <?php $eagerLoad = ($toolIndex === 0); ?>
@@ -100,6 +101,7 @@
         <?php else: ?>
           <p>No tools available yet. Be the first to list one!</p>
         <?php endif; ?>
+        <?php unset($cardHeadingLevel); ?>
       </div>
     </section>
 

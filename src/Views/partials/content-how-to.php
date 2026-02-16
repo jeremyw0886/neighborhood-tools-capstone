@@ -7,13 +7,14 @@
  *   - partials/modal-how-to.php  (inside <dialog>)
  *   - pages/how-to.php           (standalone page)
  *
- * Static HTML only — no DB queries, no PHP variables needed.
- * Markup relies on modal.css styling: <h3> for section titles,
- * <ol> for numbered step lists, <p> for body text.
+ * Accepts optional $contentHeadingLevel (default 'h2').
+ * Modal wrappers pass 'h3' so sections nest under the dialog's <h2> title.
+ * Standalone pages use the default 'h2' to sit directly under the page <h1>.
  */
+$contentHeadingLevel ??= 'h2';
 ?>
 <section>
-  <h3>Getting Started</h3>
+  <<?= $contentHeadingLevel ?>>Getting Started</<?= $contentHeadingLevel ?>>
   <p>Creating your account takes just a minute.</p>
   <ol>
     <li><strong>Sign up.</strong> Provide your name, a username, email address, password, and your ZIP code. If you include a street address, the platform automatically assigns you to your nearest neighborhood.</li>
@@ -23,7 +24,7 @@
 </section>
 
 <section>
-  <h3>For Borrowers</h3>
+  <<?= $contentHeadingLevel ?>>For Borrowers</<?= $contentHeadingLevel ?>>
   <p>Finding and borrowing a tool from your neighbors is straightforward.</p>
   <ol>
     <li><strong>Search for a tool.</strong> Browse the catalog or use keyword search, category filters, ZIP code, and maximum fee to find what you need nearby.</li>
@@ -36,7 +37,7 @@
 </section>
 
 <section>
-  <h3>For Lenders</h3>
+  <<?= $contentHeadingLevel ?>>For Lenders</<?= $contentHeadingLevel ?>>
   <p>Share the tools you aren&rsquo;t using and help your community.</p>
   <ol>
     <li><strong>List your tool.</strong> Add a photo, description, and the tool&rsquo;s current condition. Assign a category so borrowers can find it easily.</li>
@@ -48,7 +49,7 @@
 </section>
 
 <section>
-  <h3>Safety &amp; Trust</h3>
+  <<?= $contentHeadingLevel ?>>Safety &amp; Trust</<?= $contentHeadingLevel ?>>
   <p>NeighborhoodTools is built to keep every transaction fair and transparent.</p>
   <ol>
     <li><strong>Deposit protection.</strong> Lenders can require a refundable deposit that&rsquo;s held while the tool is on loan. Deposits are released on return, or partially/fully retained if the tool is damaged, lost, or unreturned.</li>

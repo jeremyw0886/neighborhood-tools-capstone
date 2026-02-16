@@ -159,9 +159,11 @@ $rangeEnd   = min($page * $perPage, $totalTools);
       </div>
 
       <div role="list">
+        <?php $cardHeadingLevel = 'h3'; ?>
         <?php foreach ($tools as $tool): ?>
           <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
         <?php endforeach; ?>
+        <?php unset($cardHeadingLevel); ?>
       </div>
 
       <?php if ($totalPages > 1): ?>

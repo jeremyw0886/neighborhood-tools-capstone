@@ -1,5 +1,6 @@
 <?php $isBookmarked = isset($bookmarkedIds) && in_array((int) $tool['id_tol'], $bookmarkedIds, true); ?>
 <?php $isEager = !empty($eagerLoad); $eagerLoad = false; ?>
+<?php $headingTag = $cardHeadingLevel ?? 'h2'; ?>
 <article role="listitem">
   <figure>
     <?php if (!empty($tool['primary_image'])): ?>
@@ -27,7 +28,7 @@
     <?php if (!empty($tool['category_name'])): ?>
       <span><?= htmlspecialchars($tool['category_name']) ?></span>
     <?php endif; ?>
-    <h3><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></h3>
+    <<?= $headingTag ?>><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></<?= $headingTag ?>>
     <p>$<?= number_format((float) ($tool['rental_fee_tol'] ?? 0), 2) ?><span>/day</span></p>
     <footer>
       <?php $avg = (int) round($tool['avg_rating'] ?? 0); ?>

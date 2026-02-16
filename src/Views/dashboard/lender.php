@@ -88,9 +88,11 @@
 
     <?php if (!empty($tools)): ?>
       <div role="list">
+        <?php $cardHeadingLevel = 'h3'; ?>
         <?php foreach ($tools as $tool): ?>
           <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
         <?php endforeach; ?>
+        <?php unset($cardHeadingLevel); ?>
       </div>
     <?php else: ?>
       <p>You haven&rsquo;t listed any tools yet.</p>

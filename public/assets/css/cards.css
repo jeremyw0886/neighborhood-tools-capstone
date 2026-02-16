@@ -79,7 +79,7 @@
         text-transform: uppercase;
       }
 
-      & > h3 {
+      & > :is(h2, h3) {
         -webkit-box-orient: vertical;
         color: var(--mountain-pine);
         display: -webkit-box;

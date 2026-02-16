@@ -183,6 +183,7 @@
 
   .visually-hidden {
       clip-path: inset(50%);
+      color: #000;
       height: 1px;
       overflow: hidden;
       position: absolute;

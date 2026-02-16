@@ -348,6 +348,8 @@
       }
 
       & a[aria-current="true"] {
+        background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+        border-radius: 1.75rem;
         color: #fff;
       }
     }

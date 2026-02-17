@@ -489,13 +489,15 @@ class ToolController extends BaseController
             $_SESSION['bookmark_flash'] = 'Could not update bookmark. Please try again.';
         }
 
-        // Redirect to referer path (same-origin safe) or tool detail
-        $back = '/tools/' . $toolId;
+        $back    = '/tools/' . $toolId;
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
 
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $parsed = parse_url($_SERVER['HTTP_REFERER']);
+        if ($referer !== '') {
+            $parsed  = parse_url($referer);
+            $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+            $curHost = $_SERVER['HTTP_HOST'] ?? '';
 
-            if (isset($parsed['path'])) {
+            if ($refHost === $curHost && isset($parsed['path'])) {
                 $back = $parsed['path'];
 
                 if (isset($parsed['query'])) {

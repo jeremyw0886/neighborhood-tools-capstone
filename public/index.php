@@ -48,13 +48,25 @@ date_default_timezone_set($appConfig['timezone']);
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
 
-session_cache_limiter('');
+$sessionOptions = [
+    'cookie_httponly'  => true,
+    'cookie_samesite'  => 'Lax',
+    'cookie_secure'    => $isHttps,
+    'gc_maxlifetime'   => 1800,
+    'cookie_lifetime'  => 0,
+];
 
-session_start([
-    'cookie_httponly' => true,
-    'cookie_samesite' => 'Lax',
-    'cookie_secure'   => $isHttps,
-]);
+session_cache_limiter('');
+session_start($sessionOptions);
+
+if (isset($_SESSION['last_activity'])
+    && (time() - $_SESSION['last_activity']) > 1800
+) {
+    session_unset();
+    session_destroy();
+    session_start($sessionOptions);
+}
+$_SESSION['last_activity'] = time();
 
 // Generate CSRF token if one doesn't exist
 if (empty($_SESSION['csrf_token'])) {

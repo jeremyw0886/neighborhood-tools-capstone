@@ -19,8 +19,8 @@ credentials.json
 *.pem
 
 # Database
-# *.sql
-# *.sql.gz
+*.sql
+*.sql.gz
 
 # Logs
 logs/*.log

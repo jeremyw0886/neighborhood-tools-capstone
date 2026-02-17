@@ -239,14 +239,15 @@ class ToolController extends BaseController
         $this->requireAuth();
 
         $categories = [];
+        $fuelTypes  = [];
 
         try {
             $categories = Tool::getCategories();
+            $fuelTypes  = Tool::getFuelTypes();
         } catch (\Throwable $e) {
             error_log('ToolController::create — ' . $e->getMessage());
         }
 
-        // Recover flash data from failed submission
         $errors = $_SESSION['tool_errors'] ?? [];
         $old    = $_SESSION['tool_old'] ?? [];
         unset($_SESSION['tool_errors'], $_SESSION['tool_old']);
@@ -254,7 +255,9 @@ class ToolController extends BaseController
         $this->render('tools/create', [
             'title'      => 'List a Tool — NeighborhoodTools',
             'pageCss'    => ['tools.css'],
+            'pageJs'     => ['tools.js'],
             'categories' => $categories,
+            'fuelTypes'  => $fuelTypes,
             'errors'     => $errors,
             'old'        => $old,
         ]);
@@ -295,14 +298,15 @@ class ToolController extends BaseController
         }
 
         $categories = [];
+        $fuelTypes  = [];
 
         try {
             $categories = Tool::getCategories();
+            $fuelTypes  = Tool::getFuelTypes();
         } catch (\Throwable $e) {
             error_log('ToolController::edit categories — ' . $e->getMessage());
         }
 
-        // Get current category ID for pre-selecting the dropdown
         $currentCategoryId = null;
 
         try {
@@ -311,7 +315,6 @@ class ToolController extends BaseController
             error_log('ToolController::edit categoryId — ' . $e->getMessage());
         }
 
-        // Flash data from a failed update() overrides DB values
         $errors = $_SESSION['edit_tool_errors'] ?? [];
         $old    = $_SESSION['edit_tool_old'] ?? [];
         unset($_SESSION['edit_tool_errors'], $_SESSION['edit_tool_old']);
@@ -319,8 +322,10 @@ class ToolController extends BaseController
         $this->render('tools/edit', [
             'title'             => 'Edit ' . htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
             'pageCss'           => ['tools.css'],
+            'pageJs'            => ['tools.js'],
             'tool'              => $tool,
             'categories'        => $categories,
+            'fuelTypes'         => $fuelTypes,
             'currentCategoryId' => $currentCategoryId,
             'errors'            => $errors,
             'old'               => $old,
@@ -362,18 +367,17 @@ class ToolController extends BaseController
             $this->abort(403);
         }
 
-        // Extract and sanitize POST data
         $toolName     = trim($_POST['tool_name'] ?? '');
         $description  = trim($_POST['description'] ?? '');
         $categoryId   = (int) ($_POST['category_id'] ?? 0);
         $rentalFee    = $_POST['rental_fee'] ?? '';
         $condition    = trim($_POST['condition'] ?? '');
         $loanDuration = $_POST['loan_duration'] ?? '';
+        $usesFuel     = !empty($_POST['uses_fuel']);
+        $fuelType     = trim($_POST['fuel_type'] ?? '');
 
-        // Validate fields
-        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration);
+        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration, $usesFuel, $fuelType);
 
-        // Validate image (if one was uploaded)
         $imageFilename = null;
         $hasImage = isset($_FILES['tool_image'])
             && $_FILES['tool_image']['error'] !== UPLOAD_ERR_NO_FILE;
@@ -383,7 +387,6 @@ class ToolController extends BaseController
             $errors = array_merge($errors, $imageErrors);
         }
 
-        // Build sticky flash data array
         $oldInput = [
             'tool_name'     => $toolName,
             'description'   => $description,
@@ -391,16 +394,16 @@ class ToolController extends BaseController
             'rental_fee'    => $rentalFee,
             'condition'     => $condition,
             'loan_duration' => $loanDuration,
+            'uses_fuel'     => $usesFuel,
+            'fuel_type'     => $fuelType,
         ];
 
-        // On validation failure, flash errors + old input and redirect back
         if ($errors !== []) {
             $_SESSION['edit_tool_errors'] = $errors;
             $_SESSION['edit_tool_old'] = $oldInput;
             $this->redirect('/tools/' . $toolId . '/edit');
         }
 
-        // Move uploaded file to disk (after validation passed)
         if ($hasImage) {
             $imageFilename = $this->moveToolImage($_FILES['tool_image']);
 
@@ -411,7 +414,6 @@ class ToolController extends BaseController
             }
         }
 
-        // Persist changes via model
         try {
             Tool::update($toolId, [
                 'tool_name'      => $toolName,
@@ -419,6 +421,7 @@ class ToolController extends BaseController
                 'rental_fee'     => (float) $rentalFee,
                 'condition'      => $condition,
                 'loan_duration'  => $loanDuration !== '' ? (int) $loanDuration : null,
+                'fuel_type'      => $usesFuel && $fuelType !== '' ? $fuelType : null,
                 'category_id'    => $categoryId,
                 'image_filename' => $imageFilename,
             ]);
@@ -565,18 +568,17 @@ class ToolController extends BaseController
 
         $userId = (int) $_SESSION['user_id'];
 
-        // Extract and sanitize POST data
         $toolName     = trim($_POST['tool_name'] ?? '');
         $description  = trim($_POST['description'] ?? '');
         $categoryId   = (int) ($_POST['category_id'] ?? 0);
         $rentalFee    = $_POST['rental_fee'] ?? '';
         $condition    = trim($_POST['condition'] ?? '');
         $loanDuration = $_POST['loan_duration'] ?? '';
+        $usesFuel     = !empty($_POST['uses_fuel']);
+        $fuelType     = trim($_POST['fuel_type'] ?? '');
 
-        // Validate fields
-        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration);
+        $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration, $usesFuel, $fuelType);
 
-        // Validate image (if one was uploaded)
         $imageFilename = null;
         $hasImage = isset($_FILES['tool_image'])
             && $_FILES['tool_image']['error'] !== UPLOAD_ERR_NO_FILE;
@@ -586,7 +588,6 @@ class ToolController extends BaseController
             $errors = array_merge($errors, $imageErrors);
         }
 
-        // Build sticky flash data array
         $oldInput = [
             'tool_name'     => $toolName,
             'description'   => $description,
@@ -594,16 +595,16 @@ class ToolController extends BaseController
             'rental_fee'    => $rentalFee,
             'condition'     => $condition,
             'loan_duration' => $loanDuration,
+            'uses_fuel'     => $usesFuel,
+            'fuel_type'     => $fuelType,
         ];
 
-        // On validation failure, flash errors + old input and redirect back
         if ($errors !== []) {
             $_SESSION['tool_errors'] = $errors;
             $_SESSION['tool_old'] = $oldInput;
             $this->redirect('/tools/create');
         }
 
-        // Move uploaded file to disk (after validation passed)
         if ($hasImage) {
             $imageFilename = $this->moveToolImage($_FILES['tool_image']);
 
@@ -614,7 +615,6 @@ class ToolController extends BaseController
             }
         }
 
-        // Create tool via model
         try {
             $toolId = Tool::create([
                 'tool_name'      => $toolName,
@@ -624,6 +624,7 @@ class ToolController extends BaseController
                 'category_id'    => $categoryId,
                 'condition'      => $condition,
                 'loan_duration'  => $loanDuration !== '' ? (int) $loanDuration : null,
+                'fuel_type'      => $usesFuel && $fuelType !== '' ? $fuelType : null,
                 'image_filename' => $imageFilename,
             ]);
 
@@ -651,12 +652,19 @@ class ToolController extends BaseController
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)
      */
+    private const array VALID_FUEL_TYPES = [
+        'gasoline', 'diesel', 'propane', 'two-stroke mix',
+        'electric/battery', 'kerosene', 'natural gas',
+    ];
+
     private function validateToolListing(
         string $name,
         int $categoryId,
         string $fee,
         string $condition,
         string $loanDuration,
+        bool $usesFuel = false,
+        string $fuelType = '',
     ): array {
         $errors = [];
 
@@ -683,6 +691,14 @@ class ToolController extends BaseController
 
         if ($loanDuration !== '' && (!ctype_digit($loanDuration) || (int) $loanDuration < 1 || (int) $loanDuration > 720)) {
             $errors['loan_duration'] = 'Loan duration must be between 1 and 720 hours.';
+        }
+
+        if ($usesFuel) {
+            if ($fuelType === '') {
+                $errors['fuel_type'] = 'Please select a fuel type.';
+            } elseif (!in_array($fuelType, self::VALID_FUEL_TYPES, true)) {
+                $errors['fuel_type'] = 'Please select a valid fuel type.';
+            }
         }
 
         return $errors;

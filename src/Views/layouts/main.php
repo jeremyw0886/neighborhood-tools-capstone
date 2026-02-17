@@ -53,6 +53,9 @@
   ?>
 
   <script src="/assets/js/nav.js?v=<?= ASSET_VERSION ?>" defer></script>
+  <?php foreach ($pageJs ?? [] as $jsFile): ?>
+  <script src="/assets/js/<?= htmlspecialchars($jsFile) ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <?php endforeach; ?>
 
 </body>
 </html>

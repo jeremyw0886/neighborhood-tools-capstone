@@ -104,7 +104,7 @@ class Neighborhood
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':point', "POINT({$lng} {$lat})");
+        $stmt->bindValue(':point', sprintf('POINT(%F %F)', $lng, $lat));
         $stmt->bindValue(':meters_per_mile', self::METERS_PER_MILE);
         $stmt->bindValue(':max_distance', self::MAX_MATCH_DISTANCE);
         $stmt->execute();

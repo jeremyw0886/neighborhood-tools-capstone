@@ -131,7 +131,7 @@
         const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
         const fresh = doc.getElementById('member-list');
 
-        if (fresh) memberList.innerHTML = fresh.innerHTML;
+        if (fresh) memberList.replaceChildren(...fresh.childNodes);
       } catch (err) {
         if (err.name !== 'AbortError') window.location.href = link.href;
       } finally {

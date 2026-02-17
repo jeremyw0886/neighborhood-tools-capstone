@@ -160,8 +160,6 @@ class BaseController
         if ($session === '' || !hash_equals($session, $posted)) {
             $this->abort(403);
         }
-
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     /**

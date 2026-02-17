@@ -99,6 +99,7 @@ class AuthController extends BaseController
         RateLimiter::reset(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
 
         session_regenerate_id(delete_old_session: true);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
         $this->redirect('/dashboard');
     }
@@ -269,6 +270,7 @@ class AuthController extends BaseController
         $_SESSION['user_avatar']      = null;
 
         session_regenerate_id(delete_old_session: true);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
         $this->redirect('/dashboard');
     }

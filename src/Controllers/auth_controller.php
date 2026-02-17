@@ -420,6 +420,14 @@ class AuthController extends BaseController
     public function resetPassword(): void
     {
         $this->validateCsrf();
+        $this->checkRateLimit(
+            'reset_password',
+            '/forgot-password',
+            'forgot_error',
+            'Too many reset attempts. Please request a new link in {minutes}.',
+        );
+
+        RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|reset_password');
 
         $token           = $_POST['token'] ?? '';
         $password        = $_POST['password'] ?? '';

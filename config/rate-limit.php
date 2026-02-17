@@ -19,4 +19,8 @@ return [
         'max_attempts'   => 3,
         'window_seconds' => 900,
     ],
+    'reset_password' => [
+        'max_attempts'   => 5,
+        'window_seconds' => 900,
+    ],
 ];

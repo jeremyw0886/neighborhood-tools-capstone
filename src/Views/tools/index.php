@@ -98,22 +98,22 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
       <div>
         <label for="filter-max-fee">
           <i class="fa-solid fa-dollar-sign" aria-hidden="true"></i>
-          Max Fee: <output for="filter-max-fee" id="fee-display">$<?= $sliderValue ?></output>
+          Max Fee: <output for="filter-max-fee" id="fee-display">$<?= htmlspecialchars((string) $sliderValue) ?></output>
         </label>
         <input type="range"
                id="filter-max-fee"
                name="max_fee"
                min="0"
-               max="<?= $sliderMax ?>"
+               max="<?= htmlspecialchars((string) $sliderMax) ?>"
                step="1"
-               value="<?= $sliderValue ?>"
+               value="<?= htmlspecialchars((string) $sliderValue) ?>"
                aria-valuemin="0"
-               aria-valuemax="<?= $sliderMax ?>"
-               aria-valuenow="<?= $sliderValue ?>"
-               aria-valuetext="$<?= $sliderValue ?>">
+               aria-valuemax="<?= htmlspecialchars((string) $sliderMax) ?>"
+               aria-valuenow="<?= htmlspecialchars((string) $sliderValue) ?>"
+               aria-valuetext="$<?= htmlspecialchars((string) $sliderValue) ?>">
         <span>
           <span>$0</span>
-          <span>$<?= $sliderMax ?></span>
+          <span>$<?= htmlspecialchars((string) $sliderMax) ?></span>
         </span>
       </div>
 
@@ -133,7 +133,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
       <p>
-        Showing <strong><?= $rangeStart ?>–<?= $rangeEnd ?></strong> of
+        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>–<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
         <strong><?= number_format($totalCount) ?></strong>
         tool<?= $totalCount !== 1 ? 's' : '' ?>
       </p>
@@ -192,10 +192,10 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
               <?php if ($i === $page): ?>
                 <a href="<?= $paginationUrl($i) ?>"
                    aria-current="page"
-                   aria-label="Page <?= $i ?>, current page"><?= $i ?></a>
+                   aria-label="Page <?= htmlspecialchars((string) $i) ?>, current page"><?= htmlspecialchars((string) $i) ?></a>
               <?php else: ?>
                 <a href="<?= $paginationUrl($i) ?>"
-                   aria-label="Go to page <?= $i ?>"><?= $i ?></a>
+                   aria-label="Go to page <?= htmlspecialchars((string) $i) ?>"><?= htmlspecialchars((string) $i) ?></a>
               <?php endif; ?>
             </li>
           <?php endfor; ?>
@@ -206,7 +206,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
             <?php endif; ?>
             <li>
               <a href="<?= $paginationUrl($totalPages) ?>"
-                 aria-label="Go to page <?= $totalPages ?>"><?= $totalPages ?></a>
+                 aria-label="Go to page <?= htmlspecialchars((string) $totalPages) ?>"><?= htmlspecialchars((string) $totalPages) ?></a>
             </li>
           <?php endif; ?>
 

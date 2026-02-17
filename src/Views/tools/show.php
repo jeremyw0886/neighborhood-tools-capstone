@@ -54,8 +54,8 @@
           <?php for ($i = 1; $i <= 5; $i++): ?>
             <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
           <?php endfor; ?>
-          <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
-          <span>(<?= (int) ($tool['rating_count'] ?? 0) ?> review<?= ((int) ($tool['rating_count'] ?? 0)) !== 1 ? 's' : '' ?>)</span>
+          <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
+          <span>(<?= htmlspecialchars((string) (int) ($tool['rating_count'] ?? 0)) ?> review<?= ((int) ($tool['rating_count'] ?? 0)) !== 1 ? 's' : '' ?>)</span>
         </p>
 
         <?php $status = $tool['availability_status'] ?? 'UNKNOWN'; ?>
@@ -72,7 +72,7 @@
           <?php endif; ?>
 
           <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Loan Duration</dt>
-          <dd><?= (int) ($tool['default_loan_duration_hours_tol'] ?? 24) ?> hours</dd>
+          <dd><?= htmlspecialchars((string) (int) ($tool['default_loan_duration_hours_tol'] ?? 24)) ?> hours</dd>
 
           <?php if (!empty($tool['categories'])): ?>
             <dt><i class="fa-solid fa-tags" aria-hidden="true"></i> Categories</dt>
@@ -151,8 +151,8 @@
                   }
 
                   foreach ($options as $hours): ?>
-                    <option value="<?= $hours ?>"<?= $hours === $selected ? ' selected' : '' ?>>
-                      <?= $hours ?> hours (<?= $hours < 24 ? $hours . 'h' : round($hours / 24, 1) . ' day' . (round($hours / 24, 1) !== 1.0 ? 's' : '') ?>)
+                    <option value="<?= htmlspecialchars((string) $hours) ?>"<?= $hours === $selected ? ' selected' : '' ?>>
+                      <?= htmlspecialchars((string) $hours) ?> hours (<?= $hours < 24 ? $hours . 'h' : round($hours / 24, 1) . ' day' . (round($hours / 24, 1) !== 1.0 ? 's' : '') ?>)
                     </option>
                 <?php endforeach; ?>
               </select>

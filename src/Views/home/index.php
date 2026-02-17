@@ -64,7 +64,7 @@
                   <?php for ($i = 1; $i <= 5; $i++): ?>
                     <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
                   <?php endfor; ?>
-                  <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
+                  <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
                 </p>
                 <p>
                   <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
@@ -122,7 +122,7 @@
                 <?php for ($i = 1; $i <= 5; $i++): ?>
                   <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
                 <?php endfor; ?>
-                <span class="visually-hidden"><?= $avg ?> out of 5 stars</span>
+                <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
               </p>
               <?php if (!empty($neighbor['bio'])): ?>
                 <blockquote><?= htmlspecialchars($neighbor['bio']) ?></blockquote>

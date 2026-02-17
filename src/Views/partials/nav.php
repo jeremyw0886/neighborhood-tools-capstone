@@ -78,10 +78,10 @@ $isHero = !empty($heroPage);
       </button>
 
       <a href="/notifications"
-         aria-label="Notifications<?= $unreadCount > 0 ? " ({$unreadCount} unread)" : '' ?>">
+         aria-label="Notifications<?= $unreadCount > 0 ? ' (' . htmlspecialchars((string) $unreadCount) . ' unread)' : '' ?>">
         <i class="fa-solid fa-bell" aria-hidden="true"></i>
         <?php if ($unreadCount > 0): ?>
-          <span><?= $unreadCount ?></span>
+          <span><?= htmlspecialchars((string) $unreadCount) ?></span>
         <?php endif; ?>
       </a>
 
@@ -92,7 +92,7 @@ $isHero = !empty($heroPage);
           </a>
         </li>
         <li role="menuitem">
-          <a href="/profile/<?= $authUser['id'] ?>"<?= str_starts_with($currentPage, '/profile') ? ' aria-current="page"' : '' ?>>
+          <a href="/profile/<?= htmlspecialchars((string) $authUser['id']) ?>"<?= str_starts_with($currentPage, '/profile') ? ' aria-current="page"' : '' ?>>
             <i class="fa-solid fa-id-card" aria-hidden="true"></i> My Profile
           </a>
         </li>

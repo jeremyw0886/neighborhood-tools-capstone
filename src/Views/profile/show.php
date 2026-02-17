@@ -103,7 +103,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <?php for ($i = 1; $i <= 5; $i++): ?>
               <i class="fa-<?= $i <= $lenderAvg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
             <?php endfor; ?>
-            <span class="visually-hidden"><?= $lenderAvg ?> out of 5 stars</span>
+            <span class="visually-hidden"><?= htmlspecialchars((string) $lenderAvg) ?> out of 5 stars</span>
           </p>
           <?php if ($reputation !== null): ?>
             <p><?= number_format((float) $profile['lender_rating'], 1) ?> avg
@@ -122,7 +122,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <?php for ($i = 1; $i <= 5; $i++): ?>
               <i class="fa-<?= $i <= $borrowerAvg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
             <?php endfor; ?>
-            <span class="visually-hidden"><?= $borrowerAvg ?> out of 5 stars</span>
+            <span class="visually-hidden"><?= htmlspecialchars((string) $borrowerAvg) ?> out of 5 stars</span>
           </p>
           <?php if ($reputation !== null): ?>
             <p><?= number_format((float) $profile['borrower_rating'], 1) ?> avg
@@ -152,7 +152,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
 
       <div aria-live="polite" aria-atomic="true">
         <p>
-          Showing <strong><?= $rangeStart ?>&ndash;<?= $rangeEnd ?></strong> of
+          Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>&ndash;<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
           <strong><?= number_format($totalTools) ?></strong>
           tool<?= $totalTools !== 1 ? 's' : '' ?>
         </p>
@@ -206,10 +206,10 @@ $rangeEnd   = min($page * $perPage, $totalTools);
                 <?php if ($i === $page): ?>
                   <a href="<?= $paginationUrl($i) ?>"
                      aria-current="page"
-                     aria-label="Page <?= $i ?>, current page"><?= $i ?></a>
+                     aria-label="Page <?= htmlspecialchars((string) $i) ?>, current page"><?= htmlspecialchars((string) $i) ?></a>
                 <?php else: ?>
                   <a href="<?= $paginationUrl($i) ?>"
-                     aria-label="Go to page <?= $i ?>"><?= $i ?></a>
+                     aria-label="Go to page <?= htmlspecialchars((string) $i) ?>"><?= htmlspecialchars((string) $i) ?></a>
                 <?php endif; ?>
               </li>
             <?php endfor; ?>
@@ -220,7 +220,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
               <?php endif; ?>
               <li>
                 <a href="<?= $paginationUrl($totalPages) ?>"
-                   aria-label="Go to page <?= $totalPages ?>"><?= $totalPages ?></a>
+                   aria-label="Go to page <?= htmlspecialchars((string) $totalPages) ?>"><?= htmlspecialchars((string) $totalPages) ?></a>
               </li>
             <?php endif; ?>
 

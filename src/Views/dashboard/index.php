@@ -56,7 +56,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
           <a href="/dashboard/borrower">
             <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
             <h3>Active Borrows</h3>
-            <p><?= $activeBorrowCount ?></p>
+            <p><?= htmlspecialchars((string) $activeBorrowCount) ?></p>
             <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </article>
@@ -67,7 +67,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
           <a href="/dashboard/lender">
             <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
             <h3>Pending Requests</h3>
-            <p><?= $pendingRequestCount ?></p>
+            <p><?= htmlspecialchars((string) $pendingRequestCount) ?></p>
             <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </article>
@@ -79,7 +79,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
             <a href="/dashboard/borrower">
               <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
               <h3>Overdue</h3>
-              <p><?= $overdueCount ?></p>
+              <p><?= htmlspecialchars((string) $overdueCount) ?></p>
               <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
             </a>
           </article>
@@ -91,7 +91,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
           <a href="/dashboard/lender">
             <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
             <h3>My Listed Tools</h3>
-            <p><?= $listedToolCount ?></p>
+            <p><?= htmlspecialchars((string) $listedToolCount) ?></p>
             <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </article>
@@ -103,7 +103,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
             <i class="fa-solid fa-star" aria-hidden="true"></i>
             <h3>My Rating</h3>
             <p>
-              <?= $overallRating ?><span>/5</span>
+              <?= htmlspecialchars((string) $overallRating) ?><span>/5</span>
             </p>
             <span>
               <?php for ($i = 0; $i < $starsFull; $i++): ?>
@@ -115,8 +115,8 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
               <?php for ($i = 0; $i < $starsEmpty; $i++): ?>
                 <i class="fa-regular fa-star" aria-hidden="true"></i>
               <?php endfor; ?>
-              <span class="visually-hidden"><?= $overallRating ?> out of 5 stars</span>
-              (<?= $totalRatings ?> review<?= $totalRatings !== 1 ? 's' : '' ?>)
+              <span class="visually-hidden"><?= htmlspecialchars((string) $overallRating) ?> out of 5 stars</span>
+              (<?= htmlspecialchars((string) $totalRatings) ?> review<?= $totalRatings !== 1 ? 's' : '' ?>)
             </span>
           </a>
         </article>
@@ -137,7 +137,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
             <a href="/admin/disputes">
               <i class="fa-solid fa-gavel" aria-hidden="true"></i>
               <h3>Open Disputes</h3>
-              <p><?= $adminStats['openDisputes'] ?></p>
+              <p><?= htmlspecialchars((string) $adminStats['openDisputes']) ?></p>
             </a>
           </article>
         </li>
@@ -147,7 +147,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
             <a href="/admin">
               <i class="fa-solid fa-vault" aria-hidden="true"></i>
               <h3>Pending Deposits</h3>
-              <p><?= $adminStats['pendingDeposits'] ?></p>
+              <p><?= htmlspecialchars((string) $adminStats['pendingDeposits']) ?></p>
             </a>
           </article>
         </li>
@@ -157,7 +157,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
             <a href="/admin/incidents">
               <i class="fa-solid fa-flag" aria-hidden="true"></i>
               <h3>Open Incidents</h3>
-              <p><?= $adminStats['openIncidents'] ?></p>
+              <p><?= htmlspecialchars((string) $adminStats['openIncidents']) ?></p>
             </a>
           </article>
         </li>
@@ -182,7 +182,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
         <a href="/notifications">
           <i class="fa-solid fa-bell" aria-hidden="true"></i> Notifications
           <?php if (($unreadCount ?? 0) > 0): ?>
-            <span>(<?= $unreadCount ?>)</span>
+            <span>(<?= htmlspecialchars((string) $unreadCount) ?>)</span>
           <?php endif; ?>
         </a>
       </li>

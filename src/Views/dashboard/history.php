@@ -54,7 +54,7 @@
               <td>
                 <?php $borrowerId = (int) ($row['borrower_id'] ?? $row['id_acc_bor'] ?? 0); ?>
                 <?php if ($borrowerId > 0): ?>
-                  <a href="/profile/<?= $borrowerId ?>">
+                  <a href="/profile/<?= htmlspecialchars((string) $borrowerId) ?>">
                     <?= htmlspecialchars($row['borrower_name'] ?? '—') ?>
                   </a>
                 <?php else: ?>
@@ -105,7 +105,7 @@
               <td>
                 <?php $lenderId = (int) ($row['lender_id'] ?? $row['owner_id'] ?? 0); ?>
                 <?php if ($lenderId > 0): ?>
-                  <a href="/profile/<?= $lenderId ?>">
+                  <a href="/profile/<?= htmlspecialchars((string) $lenderId) ?>">
                     <?= htmlspecialchars($row['lender_name'] ?? $row['owner_name'] ?? '—') ?>
                   </a>
                 <?php else: ?>

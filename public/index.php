@@ -79,6 +79,7 @@ header('Cache-Control: no-cache');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
 
 if ($isHttps) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');

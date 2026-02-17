@@ -332,10 +332,13 @@ class Tool
         $pdo->beginTransaction();
 
         $hasDuration = $data['loan_duration'] !== null;
+        $hasFuel     = ($data['fuel_type'] ?? null) !== null;
 
         try {
             $durationCol = $hasDuration ? ', default_loan_duration_hours_tol' : '';
             $durationVal = $hasDuration ? ', :duration' : '';
+            $fuelCol     = $hasFuel ? ', id_ftp_tol' : '';
+            $fuelVal     = $hasFuel ? ', (SELECT id_ftp FROM fuel_type_ftp WHERE fuel_name_ftp = :fuel_type)' : '';
 
             $sql = "
                 INSERT INTO tool_tol (
@@ -345,6 +348,7 @@ class Tool
                     id_acc_tol,
                     id_tcd_tol
                     {$durationCol}
+                    {$fuelCol}
                 ) VALUES (
                     :name,
                     :description,
@@ -352,6 +356,7 @@ class Tool
                     :owner,
                     (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = :condition)
                     {$durationVal}
+                    {$fuelVal}
                 )
             ";
 
@@ -364,6 +369,10 @@ class Tool
 
             if ($hasDuration) {
                 $stmt->bindValue(':duration', $data['loan_duration'], PDO::PARAM_INT);
+            }
+
+            if ($hasFuel) {
+                $stmt->bindValue(':fuel_type', $data['fuel_type'], PDO::PARAM_STR);
             }
 
             $stmt->execute();
@@ -419,10 +428,13 @@ class Tool
         $pdo->beginTransaction();
 
         $hasDuration = $data['loan_duration'] !== null;
+        $hasFuel     = ($data['fuel_type'] ?? null) !== null;
 
         try {
-            // 1. Update core tool columns
             $durationSet = $hasDuration ? ', default_loan_duration_hours_tol = :duration' : '';
+            $fuelSet     = $hasFuel
+                ? ', id_ftp_tol = (SELECT id_ftp FROM fuel_type_ftp WHERE fuel_name_ftp = :fuel_type)'
+                : ', id_ftp_tol = NULL';
 
             $stmt = $pdo->prepare("
                 UPDATE tool_tol SET
@@ -431,6 +443,7 @@ class Tool
                     rental_fee_tol       = :fee,
                     id_tcd_tol           = (SELECT id_tcd FROM tool_condition_tcd WHERE condition_name_tcd = :condition)
                     {$durationSet}
+                    {$fuelSet}
                 WHERE id_tol = :id
             ");
 
@@ -442,6 +455,10 @@ class Tool
 
             if ($hasDuration) {
                 $stmt->bindValue(':duration', $data['loan_duration'], PDO::PARAM_INT);
+            }
+
+            if ($hasFuel) {
+                $stmt->bindValue(':fuel_type', $data['fuel_type'], PDO::PARAM_STR);
             }
 
             $stmt->execute();
@@ -578,6 +595,24 @@ class Tool
         }
 
         return $map;
+    }
+
+    /**
+     * Fetch all fuel types from the lookup table.
+     *
+     * @return array<string>  Fuel type names ordered by ID
+     */
+    public static function getFuelTypes(): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->query("
+            SELECT fuel_name_ftp
+            FROM fuel_type_ftp
+            ORDER BY id_ftp
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**

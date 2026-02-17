@@ -62,10 +62,17 @@ class AuthController extends BaseController
             );
         }
 
-        // Look up account
         $account = Account::findByEmail($email);
 
-        if ($account === null || !Account::verifyPassword(input: $password, hash: $account['password_hash_acc'])) {
+        if ($account === null) {
+            password_verify('dummy', '$2y$12$00000000000000000000000000000000000000000000000000000');
+            $this->loginFailed(
+                email: $email,
+                message: 'Invalid email or password. Please try again.',
+            );
+        }
+
+        if (!Account::verifyPassword(input: $password, hash: $account['password_hash_acc'])) {
             $this->loginFailed(
                 email: $email,
                 message: 'Invalid email or password. Please try again.',

@@ -74,6 +74,11 @@
           <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Loan Duration</dt>
           <dd><?= htmlspecialchars((string) (int) ($tool['default_loan_duration_hours_tol'] ?? 24)) ?> hours</dd>
 
+          <?php if (!empty($tool['fuel_type'])): ?>
+            <dt><i class="fa-solid fa-gas-pump" aria-hidden="true"></i> Fuel Type</dt>
+            <dd><?= htmlspecialchars(ucwords($tool['fuel_type'], '-/')) ?></dd>
+          <?php endif; ?>
+
           <?php if (!empty($tool['categories'])): ?>
             <dt><i class="fa-solid fa-tags" aria-hidden="true"></i> Categories</dt>
             <dd><?= htmlspecialchars($tool['categories']) ?></dd>

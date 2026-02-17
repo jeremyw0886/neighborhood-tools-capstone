@@ -130,6 +130,35 @@
       </div>
 
       <div>
+        <label>
+          <input type="checkbox"
+                 id="uses-fuel"
+                 name="uses_fuel"
+                 value="1"
+                 <?= !empty($old['uses_fuel']) ? 'checked' : '' ?>>
+          Uses Fuel
+        </label>
+      </div>
+
+      <div id="fuel-type-group">
+        <label for="fuel-type">Fuel Type</label>
+        <select id="fuel-type"
+                name="fuel_type"
+                <?php if (isset($errors['fuel_type'])): ?>aria-invalid="true" aria-describedby="fuel-type-error"<?php endif; ?>>
+          <option value="">Select fuel type</option>
+          <?php foreach ($fuelTypes as $type): ?>
+            <option value="<?= htmlspecialchars($type) ?>"
+              <?= ($old['fuel_type'] ?? '') === $type ? 'selected' : '' ?>>
+              <?= htmlspecialchars(ucwords($type, '-/')) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+        <?php if (isset($errors['fuel_type'])): ?>
+          <p id="fuel-type-error" role="alert"><?= htmlspecialchars($errors['fuel_type']) ?></p>
+        <?php endif; ?>
+      </div>
+
+      <div>
         <label for="tool-image">Tool Photo</label>
         <input type="file"
                id="tool-image"

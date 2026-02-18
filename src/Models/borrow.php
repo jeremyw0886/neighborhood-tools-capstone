@@ -356,6 +356,35 @@ class Borrow
     }
 
     /**
+     * Complete a tool pickup via sp_complete_pickup().
+     *
+     * The SP validates the borrow is in "approved" status, transitions
+     * it to "borrowed", sets borrowed_at, calculates due_at, and creates
+     * an availability block for the tool.
+     *
+     * @return array{success: bool, error: ?string}
+     */
+    public static function completePickup(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_complete_pickup(:borrow_id, @success, @error_msg)'
+        );
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @success AS success, @error_msg AS error')->fetch();
+
+        return [
+            'success' => (bool) $out['success'],
+            'error'   => $out['error'],
+        ];
+    }
+
+    /**
      * Complete a tool return via sp_complete_return().
      *
      * The SP validates the borrow is in "borrowed" status, transitions

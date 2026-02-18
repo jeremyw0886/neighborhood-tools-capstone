@@ -21,7 +21,7 @@ use App\Controllers\ProfileController;
 // use App\Controllers\PaymentController;
 // use App\Controllers\DisputeController;
 // use App\Controllers\EventController;
-// use App\Controllers\HandoverController;
+use App\Controllers\HandoverController;
 // use App\Controllers\IncidentController;
 use App\Controllers\NotificationController;
 // use App\Controllers\WaiverController;
@@ -103,7 +103,7 @@ return [
     // 'GET /events/{id}'             => [EventController::class, 'show'],
 
     // Handover
-    // 'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],
+    'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],
     // 'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
 
     // Incidents

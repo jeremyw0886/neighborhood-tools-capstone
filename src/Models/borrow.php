@@ -191,6 +191,43 @@ class Borrow
     }
 
     /**
+     * Find a borrow record by ID regardless of status.
+     *
+     * Returns core fields needed for authorization checks and
+     * notification context. Used by actions that span multiple
+     * statuses (e.g. cancel works on "requested" + "approved").
+     */
+    public static function findById(int $borrowId): ?array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                b.id_bor,
+                b.id_acc_bor        AS borrower_id,
+                t.id_acc_tol        AS lender_id,
+                t.tool_name_tol,
+                bst.status_name_bst AS borrow_status,
+                CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)     AS lender_name
+            FROM borrow_bor b
+            JOIN tool_tol t            ON b.id_tol_bor = t.id_tol
+            JOIN borrow_status_bst bst ON b.id_bst_bor  = bst.id_bst
+            JOIN account_acc borrower  ON b.id_acc_bor   = borrower.id_acc
+            JOIN account_acc lender    ON t.id_acc_tol   = lender.id_acc
+            WHERE b.id_bor = :id
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Find a single pending borrow request by ID.
      *
      * Queries pending_request_v (filtered to "requested" status) so the

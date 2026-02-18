@@ -104,7 +104,7 @@ return [
 
     // Handover
     'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],
-    // 'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
+    'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
 
     // Incidents
     // 'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],

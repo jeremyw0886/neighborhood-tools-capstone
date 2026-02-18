@@ -183,6 +183,83 @@ class BorrowController extends BaseController
     }
 
     /**
+     * Deny a pending borrow request (lender action).
+     *
+     * Requires a reason. Delegates to Borrow::deny()
+     * (sp_deny_borrow_request), then notifies the borrower.
+     */
+    public function deny(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $borrowId = (int) $id;
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $request = Borrow::findPendingById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::deny lookup — ' . $e->getMessage());
+            $request = null;
+        }
+
+        if ($request === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $request['lender_id'] !== $userId) {
+            $this->abort(403);
+        }
+
+        $reason = trim($_POST['reason'] ?? '');
+
+        if ($reason === '') {
+            $_SESSION['borrow_errors'] = ['reason' => 'Please provide a reason for denying this request.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        if (mb_strlen($reason) > 1000) {
+            $_SESSION['borrow_errors'] = ['reason' => 'Reason must be 1,000 characters or fewer.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        try {
+            $result = Borrow::deny(borrowId: $borrowId, denierId: $userId, reason: $reason);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::deny — ' . $e->getMessage());
+            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        if (!$result['success']) {
+            $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to deny this request.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+
+        try {
+            Notification::send(
+                accountId: (int) $request['borrower_id'],
+                type: 'approval',
+                title: 'Borrow Request Denied',
+                body: $lenderName . ' denied your request to borrow ' . $request['tool_name_tol'] . '. Reason: ' . $reason,
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::deny notification — ' . $e->getMessage());
+        }
+
+        $_SESSION['borrow_success'] = 'Request denied. The borrower has been notified.';
+        $this->redirect('/dashboard/lender');
+    }
+
+    /**
      * Validate borrow request form fields.
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)

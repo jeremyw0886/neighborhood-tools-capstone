@@ -67,7 +67,7 @@ return [
     'POST /borrow/request'         => [BorrowController::class, 'request'],
     'POST /borrow/{id}/approve'    => [BorrowController::class, 'approve'],
     'POST /borrow/{id}/deny'       => [BorrowController::class, 'deny'],
-    // 'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],
+    'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],
     // 'POST /borrow/{id}/return'     => [BorrowController::class, 'return'],
     // 'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
 

@@ -191,6 +191,55 @@ class Borrow
     }
 
     /**
+     * Find a single pending borrow request by ID.
+     *
+     * Queries pending_request_v (filtered to "requested" status) so the
+     * controller can verify ownership and gather notification context
+     * before calling approve() or deny().
+     */
+    public static function findPendingById(int $borrowId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('SELECT * FROM pending_request_v WHERE id_bor = :id');
+        $stmt->bindValue(':id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Approve a borrow request via sp_approve_borrow_request().
+     *
+     * The SP validates ownership and status transitions internally.
+     * Uses MySQL user variables for OUT parameters.
+     *
+     * @return array{success: bool, error: ?string}
+     */
+    public static function approve(int $borrowId, int $approverId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_approve_borrow_request(:borrow_id, :approver_id, @success, @error_msg)'
+        );
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':approver_id', $approverId, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @success AS success, @error_msg AS error')->fetch();
+
+        return [
+            'success' => (bool) $out['success'],
+            'error'   => $out['error'],
+        ];
+    }
+
+    /**
      * Fetch borrow history for a user via sp_get_user_borrow_history().
      *
      * Returns completed, denied, and cancelled borrows for the given role.

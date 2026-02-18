@@ -218,6 +218,30 @@
           }
         }
 
+        & > input[type="text"] + label {
+          margin-block-start: 1.25rem;
+        }
+
+        & > textarea {
+          border: 1px solid var(--mountain-fog);
+          border-radius: 0.5rem;
+          min-height: 4.5rem;
+          padding: 0.75rem 1rem;
+          resize: vertical;
+          transition: border-color 0.2s;
+          width: 100%;
+
+          &:focus {
+            border-color: var(--mountain-pine-light);
+            outline: 2px solid var(--mountain-gold-light);
+            outline-offset: 1px;
+          }
+
+          &::placeholder {
+            color: var(--mountain-mist-light);
+          }
+        }
+
         & > button[type="submit"] {
           align-items: center;
           background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
@@ -321,7 +345,7 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
-    #handover-verify > form fieldset > button[type="submit"] {
+    #handover-verify > form fieldset > :is(textarea, button[type="submit"]) {
       transition: none;
     }
   }
@@ -337,6 +361,10 @@
 
       & > form fieldset {
         border-width: 3px;
+
+        & > textarea {
+          border-width: 2px;
+        }
       }
 
       & > form fieldset > button[type="submit"] {

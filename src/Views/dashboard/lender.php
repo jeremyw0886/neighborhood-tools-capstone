@@ -30,6 +30,16 @@
     </ul>
   </nav>
 
+  <?php if (!empty($_SESSION['borrow_success'])): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($_SESSION['borrow_success']) ?></p>
+    <?php unset($_SESSION['borrow_success']); ?>
+  <?php endif; ?>
+
+  <?php if (!empty($_SESSION['borrow_errors']['general'])): ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($_SESSION['borrow_errors']['general']) ?></p>
+    <?php unset($_SESSION['borrow_errors']); ?>
+  <?php endif; ?>
+
   <?php if (!empty($incomingRequests)): ?>
     <section aria-labelledby="incoming-heading">
       <h2 id="incoming-heading">
@@ -46,6 +56,7 @@
             <th scope="col">Duration</th>
             <th scope="col">Waiting</th>
             <th scope="col">Borrower Rating</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -72,6 +83,14 @@
                   $bCount = (int) ($req['borrower_rating_count'] ?? 0);
                 ?>
                 <?= $bCount > 0 ? $bAvg . '/5 (' . $bCount . ')' : 'No ratings' ?>
+              </td>
+              <td>
+                <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/approve">
+                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                  <button type="submit">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Approve
+                  </button>
+                </form>
               </td>
             </tr>
           <?php endforeach; ?>

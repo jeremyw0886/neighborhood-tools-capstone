@@ -31,6 +31,19 @@
     </ul>
   </nav>
 
+  <?php if (!empty($_SESSION['borrow_success'])): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($_SESSION['borrow_success']) ?></p>
+    <?php unset($_SESSION['borrow_success']); ?>
+  <?php endif; ?>
+
+  <?php
+    $flashError = $_SESSION['borrow_errors']['general'] ?? '';
+    if ($flashError !== ''):
+  ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
+    <?php unset($_SESSION['borrow_errors']); ?>
+  <?php endif; ?>
+
   <?php if (!empty($overdue)): ?>
     <section aria-labelledby="overdue-heading">
       <h2 id="overdue-heading" data-urgent>
@@ -147,6 +160,7 @@
             <th scope="col">Owner</th>
             <th scope="col">Requested</th>
             <th scope="col">Duration</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -164,6 +178,14 @@
                 </time>
               </td>
               <td><?= (int) $req['loan_duration_hours_bor'] ?> hrs</td>
+              <td>
+                <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/cancel">
+                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                  <button type="submit">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
+                  </button>
+                </form>
+              </td>
             </tr>
           <?php endforeach; ?>
         </tbody>

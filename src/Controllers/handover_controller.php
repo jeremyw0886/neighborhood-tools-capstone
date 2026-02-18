@@ -111,10 +111,18 @@ class HandoverController extends BaseController
             $this->redirect('/handover/' . $id);
         }
 
-        $code = trim($_POST['code'] ?? '');
+        $code           = trim($_POST['code'] ?? '');
+        $conditionNotes = trim($_POST['condition_notes'] ?? '');
 
         if ($code === '') {
             $_SESSION['handover_errors'] = ['code' => 'Please enter the verification code.'];
+            $_SESSION['handover_old'] = ['code' => $code, 'condition_notes' => $conditionNotes];
+            $this->redirect('/handover/' . $id);
+        }
+
+        if (mb_strlen($conditionNotes) > 2000) {
+            $_SESSION['handover_errors'] = ['code' => 'Condition notes must be 2,000 characters or fewer.'];
+            $_SESSION['handover_old'] = ['code' => $code, 'condition_notes' => $conditionNotes];
             $this->redirect('/handover/' . $id);
         }
 
@@ -128,14 +136,24 @@ class HandoverController extends BaseController
 
         if (!hash_equals($storedCode, str_pad($inputCode, strlen($storedCode)))) {
             $_SESSION['handover_errors'] = ['code' => 'Incorrect verification code. Please try again.'];
-            $_SESSION['handover_old'] = ['code' => $code];
+            $_SESSION['handover_old'] = ['code' => $code, 'condition_notes' => $conditionNotes];
             $this->redirect('/handover/' . $id);
+        }
+
+        $existingNotes = $handover['condition_notes_hov'] ?? '';
+        $combinedNotes = null;
+
+        if ($conditionNotes !== '') {
+            $combinedNotes = ($existingNotes !== '')
+                ? $existingNotes . "\n---\n" . $conditionNotes
+                : $conditionNotes;
         }
 
         try {
             $verified = Handover::markVerified(
                 handoverId: (int) $handover['id_hov'],
                 verifierId: $userId,
+                conditionNotes: $combinedNotes,
             );
         } catch (\Throwable $e) {
             error_log('HandoverController::confirm markVerified — ' . $e->getMessage());

@@ -40,23 +40,27 @@ class Handover
      * Mark a pending handover as verified.
      *
      * Sets verified_at_hov to NOW() and records the verifier's account ID.
+     * Optionally updates condition_notes_hov with the verifier's notes.
      * Only updates rows that have not already been verified (verified_at IS NULL).
      *
-     * @return bool  True if a row was updated, false if already verified or not found
+     * @param  ?string $conditionNotes  Verifier's condition notes (null = leave existing notes unchanged)
+     * @return bool    True if a row was updated, false if already verified or not found
      */
-    public static function markVerified(int $handoverId, int $verifierId): bool
+    public static function markVerified(int $handoverId, int $verifierId, ?string $conditionNotes = null): bool
     {
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare('
             UPDATE handover_verification_hov
             SET verified_at_hov      = NOW(),
-                id_acc_verifier_hov  = :verifier_id
+                id_acc_verifier_hov  = :verifier_id,
+                condition_notes_hov  = COALESCE(:notes, condition_notes_hov)
             WHERE id_hov = :handover_id
               AND verified_at_hov IS NULL
         ');
 
         $stmt->bindValue(':verifier_id', $verifierId, PDO::PARAM_INT);
+        $stmt->bindValue(':notes', $conditionNotes, $conditionNotes === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->bindValue(':handover_id', $handoverId, PDO::PARAM_INT);
         $stmt->execute();
 

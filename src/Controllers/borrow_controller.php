@@ -260,6 +260,78 @@ class BorrowController extends BaseController
     }
 
     /**
+     * Cancel a borrow request (borrower or lender action).
+     *
+     * Works on "requested" or "approved" borrows. Delegates to
+     * Borrow::cancel() (sp_cancel_borrow_request) and notifies
+     * the other party.
+     */
+    public function cancel(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $borrowId = (int) $id;
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::cancel lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $borrow['borrower_id'] === $userId;
+        $isLender   = (int) $borrow['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender) {
+            $this->abort(403);
+        }
+
+        $reason = 'Cancelled by ' . ($isBorrower ? 'borrower' : 'lender');
+
+        try {
+            $result = Borrow::cancel(borrowId: $borrowId, cancellerId: $userId, reason: $reason);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::cancel — ' . $e->getMessage());
+            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+        }
+
+        if (!$result['success']) {
+            $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to cancel this request.'];
+            $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+        }
+
+        $recipientId   = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];
+        $cancellerName = $_SESSION['user_first_name'] ?? 'A user';
+
+        try {
+            Notification::send(
+                accountId: $recipientId,
+                type: 'request',
+                title: 'Borrow Request Cancelled',
+                body: $cancellerName . ' cancelled the borrow request for ' . $borrow['tool_name_tol'] . '.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::cancel notification — ' . $e->getMessage());
+        }
+
+        $_SESSION['borrow_success'] = 'Request cancelled.';
+        $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+    }
+
+    /**
      * Validate borrow request form fields.
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)

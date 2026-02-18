@@ -409,6 +409,92 @@ class BorrowController extends BaseController
     }
 
     /**
+     * Extend an active loan (lender action).
+     *
+     * Validates the extension duration and reason, verifies the user
+     * is the lender, delegates to Borrow::extend() (sp_extend_loan),
+     * and notifies the borrower of the new due date.
+     */
+    public function extend(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $borrowId = (int) $id;
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findActiveById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::extend lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $borrow['lender_id'] !== $userId) {
+            $this->abort(403);
+        }
+
+        $extraHours = (int) ($_POST['extra_hours'] ?? 0);
+        $reason     = trim($_POST['reason'] ?? '');
+
+        $errors = [];
+
+        if ($extraHours < 1 || $extraHours > 720) {
+            $errors['extra_hours'] = 'Extension must be between 1 and 720 hours.';
+        }
+
+        if ($reason === '') {
+            $errors['reason'] = 'Please provide a reason for the extension.';
+        } elseif (mb_strlen($reason) > 1000) {
+            $errors['reason'] = 'Reason must be 1,000 characters or fewer.';
+        }
+
+        if ($errors !== []) {
+            $_SESSION['borrow_errors'] = $errors;
+            $this->redirect('/dashboard/lender');
+        }
+
+        try {
+            Borrow::extend(
+                borrowId: $borrowId,
+                extraHours: $extraHours,
+                reason: $reason,
+                approvedBy: $userId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::extend — ' . $e->getMessage());
+            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+
+        try {
+            Notification::send(
+                accountId: (int) $borrow['borrower_id'],
+                type: 'due',
+                title: 'Loan Extended',
+                body: $lenderName . ' extended your borrow of ' . $borrow['tool_name_tol'] . ' by ' . $extraHours . ' hours.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::extend notification — ' . $e->getMessage());
+        }
+
+        $_SESSION['borrow_success'] = 'Loan extended by ' . $extraHours . ' hours.';
+        $this->redirect('/dashboard/lender');
+    }
+
+    /**
      * Validate borrow request form fields.
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)

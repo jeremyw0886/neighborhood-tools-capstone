@@ -1,0 +1,353 @@
+/* ============================================================
+   handover.css — Handover verification page
+   Loaded conditionally via $pageCss
+   Properties alphabetized within each rule
+   ============================================================ */
+
+@layer components {
+
+  #handover-verify {
+    margin-inline: auto;
+    max-width: 640px;
+    padding-block: 2rem;
+    padding-inline: 1.5rem;
+
+    /* ── Page header ── */
+
+    & > header {
+      margin-block-end: 1.5rem;
+
+      & > h1 {
+        color: var(--mountain-pine);
+        font-family: Georgia, 'Times New Roman', serif;
+
+        & > i {
+          color: var(--mountain-gold);
+          margin-inline-end: 0.375rem;
+        }
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+        margin-block: 0.5rem 0;
+
+        & > strong {
+          color: var(--mountain-pine);
+        }
+      }
+    }
+
+    /* ── Flash messages ── */
+
+    & > p[role="status"] {
+      background: var(--mountain-cream);
+      border: 1px solid var(--mountain-gold-light);
+      border-radius: 0.5rem;
+      color: var(--mountain-pine);
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
+    & > p[role="alert"] {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 0.5rem;
+      color: #991b1b;
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
+    /* ── Handover details ── */
+
+    & > dl {
+      background: var(--mountain-cloud);
+      border: 1px solid var(--mountain-fog);
+      border-radius: 0.75rem;
+      display: grid;
+      gap: 0;
+      margin-block-end: 2rem;
+      padding: 1.25rem;
+
+      & > div {
+        align-items: baseline;
+        border-block-end: 1px solid var(--mountain-fog);
+        display: flex;
+        gap: 1rem;
+        padding-block: 0.625rem;
+
+        &:last-child {
+          border-block-end: none;
+          padding-block-end: 0;
+        }
+
+        &:first-child {
+          padding-block-start: 0;
+        }
+      }
+
+      & dt {
+        color: var(--mountain-slate);
+        flex-shrink: 0;
+        font-size: 0.813rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        min-width: 7rem;
+        text-transform: uppercase;
+      }
+
+      & dd {
+        color: var(--mountain-charcoal);
+        font-size: 0.938rem;
+
+        & > a {
+          color: var(--mountain-pine-light);
+          font-weight: 500;
+          text-decoration: none;
+
+          &:is(:hover, :focus-visible) {
+            color: var(--mountain-gold);
+            text-decoration: underline;
+          }
+        }
+
+        & > i {
+          color: var(--mountain-gold);
+          margin-inline-end: 0.25rem;
+        }
+
+        /* Status badges */
+        & > span {
+          border-radius: 1rem;
+          display: inline-block;
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          line-height: 1;
+          padding: 0.3rem 0.625rem;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+
+        & > span:not([data-urgent]):not([data-warning]) {
+          background: #f0fdf4;
+          color: #166534;
+        }
+
+        & > span[data-urgent] {
+          background: #fef2f2;
+          color: #991b1b;
+        }
+
+        & > span[data-warning] {
+          background: #fffbeb;
+          color: #92400e;
+        }
+      }
+    }
+
+    /* ── Expired code alert ── */
+
+    & > p[data-expired] {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 0.75rem;
+      color: #991b1b;
+      font-size: 0.938rem;
+      margin-block-end: 2rem;
+      padding: 1rem 1.25rem;
+
+      & > i {
+        margin-inline-end: 0.375rem;
+      }
+    }
+
+    /* ── Code entry form ── */
+
+    & > form {
+      margin-block-end: 2rem;
+
+      & fieldset {
+        border: 2px solid var(--mountain-fog);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+
+        & > legend {
+          color: var(--mountain-pine);
+          font-size: 1.125rem;
+          font-weight: 600;
+          padding-inline: 0.5rem;
+        }
+
+        & > label {
+          color: var(--mountain-slate);
+          display: block;
+          font-size: 0.875rem;
+          margin-block-end: 0.5rem;
+        }
+
+        & > input[type="text"] {
+          border: 1px solid var(--mountain-fog);
+          border-radius: 0.5rem;
+          font: inherit;
+          font-family: 'Courier New', Courier, monospace;
+          font-size: 1.5rem;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          padding: 0.75rem 1rem;
+          text-align: center;
+          text-transform: uppercase;
+          transition: border-color 0.2s;
+          width: 100%;
+
+          &:focus {
+            border-color: var(--mountain-pine-light);
+            outline: 2px solid var(--mountain-gold-light);
+            outline-offset: 1px;
+          }
+
+          &::placeholder {
+            color: var(--mountain-mist-light);
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+          }
+        }
+
+        & > button[type="submit"] {
+          align-items: center;
+          background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+          border: none;
+          border-radius: 0.5rem;
+          color: #fff;
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 1rem;
+          font-weight: 600;
+          gap: 0.5rem;
+          margin-block-start: 1rem;
+          min-height: 2.75rem;
+          padding-block: 0.625rem;
+          padding-inline: 1.5rem;
+          transition: background 0.2s, transform 0.15s;
+          width: 100%;
+
+          &:is(:hover, :focus-visible) {
+            background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+            transform: scale(1.01);
+          }
+
+          &:focus-visible {
+            outline: 2px solid var(--mountain-gold);
+            outline-offset: 2px;
+          }
+
+          & > i {
+            font-size: 0.9em;
+          }
+        }
+      }
+    }
+
+    /* ── Generator code display ── */
+
+    & > section[aria-labelledby="your-code-heading"] {
+      background: var(--mountain-cloud);
+      border: 2px solid var(--mountain-gold-light);
+      border-radius: 0.75rem;
+      margin-block-end: 2rem;
+      padding: 1.5rem;
+      text-align: center;
+
+      & > h2 {
+        color: var(--mountain-pine);
+        font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+        margin-block-end: 0.5rem;
+
+        & > i {
+          color: var(--mountain-gold);
+          margin-inline-end: 0.375rem;
+        }
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: 0.938rem;
+      }
+
+      & > p[data-code] {
+        color: var(--mountain-pine);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        margin-block: 1rem 0;
+        -webkit-user-select: all;
+        user-select: all;
+      }
+    }
+
+    /* ── Back navigation ── */
+
+    & > nav {
+      border-block-start: 1px solid var(--mountain-fog);
+      padding-block-start: 1.5rem;
+
+      & > a {
+        align-items: center;
+        color: var(--mountain-pine-light);
+        display: inline-flex;
+        font-weight: 500;
+        gap: 0.5rem;
+        text-decoration: none;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-gold);
+          text-decoration: underline;
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--mountain-gold);
+          outline-offset: 2px;
+        }
+      }
+    }
+  }
+
+  /* ── Reduced motion ── */
+
+  @media (prefers-reduced-motion: reduce) {
+    #handover-verify > form fieldset > button[type="submit"] {
+      transition: none;
+    }
+  }
+
+  /* ── High contrast mode ── */
+
+  @media (prefers-contrast: more) {
+    #handover-verify {
+
+      & > dl {
+        border-width: 2px;
+      }
+
+      & > form fieldset {
+        border-width: 3px;
+      }
+
+      & > form fieldset > button[type="submit"] {
+        outline: 1px solid #fff;
+        outline-offset: -1px;
+      }
+
+      & > section[aria-labelledby="your-code-heading"] {
+        border-width: 3px;
+      }
+    }
+  }
+
+}

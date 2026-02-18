@@ -35,4 +35,31 @@ class Handover
 
         return $row !== false ? $row : null;
     }
+
+    /**
+     * Mark a pending handover as verified.
+     *
+     * Sets verified_at_hov to NOW() and records the verifier's account ID.
+     * Only updates rows that have not already been verified (verified_at IS NULL).
+     *
+     * @return bool  True if a row was updated, false if already verified or not found
+     */
+    public static function markVerified(int $handoverId, int $verifierId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            UPDATE handover_verification_hov
+            SET verified_at_hov      = NOW(),
+                id_acc_verifier_hov  = :verifier_id
+            WHERE id_hov = :handover_id
+              AND verified_at_hov IS NULL
+        ');
+
+        $stmt->bindValue(':verifier_id', $verifierId, PDO::PARAM_INT);
+        $stmt->bindValue(':handover_id', $handoverId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0;
+    }
 }

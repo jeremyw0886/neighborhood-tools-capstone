@@ -270,6 +270,36 @@ class Borrow
     }
 
     /**
+     * Cancel a borrow request via sp_cancel_borrow_request().
+     *
+     * Either the borrower or the lender can cancel requests in
+     * "requested" or "approved" status. The SP appends the reason to notes.
+     *
+     * @return array{success: bool, error: ?string}
+     */
+    public static function cancel(int $borrowId, int $cancellerId, string $reason): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_cancel_borrow_request(:borrow_id, :canceller_id, :reason, @success, @error_msg)'
+        );
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':canceller_id', $cancellerId, PDO::PARAM_INT);
+        $stmt->bindValue(':reason', $reason, PDO::PARAM_STR);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @success AS success, @error_msg AS error')->fetch();
+
+        return [
+            'success' => (bool) $out['success'],
+            'error'   => $out['error'],
+        ];
+    }
+
+    /**
      * Fetch borrow history for a user via sp_get_user_borrow_history().
      *
      * Returns completed, denied, and cancelled borrows for the given role.

@@ -1,10 +1,11 @@
 <?php
 /**
- * Dashboard — Lender sub-page: listed tools + incoming borrow requests.
+ * Dashboard — Lender sub-page: listed tools, incoming requests, lent-out items.
  *
  * Variables from DashboardController::lender():
  *   $tools            array  Rows from tool_detail_v for this owner
  *   $incomingRequests array  Pending requests where user is lender
+ *   $lentOut          array  Active borrows where user is lender
  *
  * Shared data:
  *   $authUser  array{id, name, first_name, role, avatar}
@@ -119,6 +120,66 @@
       </table>
     </section>
   <?php endif; ?>
+
+  <section aria-labelledby="lent-out-heading">
+    <h2 id="lent-out-heading">
+      <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+      Currently Lent Out (<?= count($lentOut) ?>)
+    </h2>
+
+    <?php if (!empty($lentOut)): ?>
+      <table>
+        <caption class="visually-hidden">Tools currently lent to other members</caption>
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Borrower</th>
+            <th scope="col">Due Date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($lentOut as $row): ?>
+            <tr>
+              <td><?= htmlspecialchars($row['tool_name_tol']) ?></td>
+              <td>
+                <a href="/profile/<?= (int) $row['borrower_id'] ?>">
+                  <?= htmlspecialchars($row['borrower_name']) ?>
+                </a>
+              </td>
+              <td>
+                <time datetime="<?= htmlspecialchars($row['due_at_bor']) ?>">
+                  <?= htmlspecialchars(date('M j, g:ia', strtotime($row['due_at_bor']))) ?>
+                </time>
+              </td>
+              <td>
+                <?php
+                  $status = $row['due_status'] ?? 'ON TIME';
+                  $statusAttr = match ($status) {
+                      'OVERDUE'  => ' data-urgent',
+                      'DUE SOON' => ' data-warning',
+                      default    => '',
+                  };
+                ?>
+                <span<?= $statusAttr ?>><?= htmlspecialchars($status) ?></span>
+              </td>
+              <td>
+                <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/return">
+                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                  <button type="submit">
+                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Confirm Return
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php else: ?>
+      <p>No tools currently lent out.</p>
+    <?php endif; ?>
+  </section>
 
   <section aria-labelledby="listed-tools-heading">
     <h2 id="listed-tools-heading">

@@ -117,6 +117,72 @@ class BorrowController extends BaseController
     }
 
     /**
+     * Approve a pending borrow request (lender action).
+     *
+     * Verifies the logged-in user owns the tool, delegates to
+     * Borrow::approve() (sp_approve_borrow_request), then notifies
+     * the borrower via Notification::send().
+     */
+    public function approve(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $borrowId = (int) $id;
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $request = Borrow::findPendingById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::approve lookup — ' . $e->getMessage());
+            $request = null;
+        }
+
+        if ($request === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $request['lender_id'] !== $userId) {
+            $this->abort(403);
+        }
+
+        try {
+            $result = Borrow::approve(borrowId: $borrowId, approverId: $userId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::approve — ' . $e->getMessage());
+            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        if (!$result['success']) {
+            $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to approve this request.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+
+        try {
+            Notification::send(
+                accountId: (int) $request['borrower_id'],
+                type: 'approval',
+                title: 'Borrow Request Approved',
+                body: $lenderName . ' approved your request to borrow ' . $request['tool_name_tol'] . '.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::approve notification — ' . $e->getMessage());
+        }
+
+        $_SESSION['borrow_success'] = 'Request approved! The borrower has been notified.';
+        $this->redirect('/dashboard/lender');
+    }
+
+    /**
      * Validate borrow request form fields.
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)

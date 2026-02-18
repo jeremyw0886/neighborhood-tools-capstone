@@ -384,6 +384,38 @@ class Borrow
     }
 
     /**
+     * Extend an active loan via sp_extend_loan().
+     *
+     * The SP adds extra hours to the due date, inserts an audit record
+     * into loan_extension_lex, and updates borrow_bor.due_at_bor.
+     * Errors are raised as exceptions (RESIGNAL), not OUT params.
+     *
+     * @param  int     $borrowId    Active borrow to extend
+     * @param  int     $extraHours  Additional hours to grant (must be > 0)
+     * @param  string  $reason      Why the extension was granted
+     * @param  int     $approvedBy  Account ID of the lender approving
+     */
+    public static function extend(
+        int $borrowId,
+        int $extraHours,
+        string $reason,
+        int $approvedBy,
+    ): void {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_extend_loan(:bor_id, :extra_hours, :reason, :approved_by)'
+        );
+
+        $stmt->bindValue(':bor_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':extra_hours', $extraHours, PDO::PARAM_INT);
+        $stmt->bindValue(':reason', $reason, PDO::PARAM_STR);
+        $stmt->bindValue(':approved_by', $approvedBy, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    /**
      * Fetch borrow history for a user via sp_get_user_borrow_history().
      *
      * Returns completed, denied, and cancelled borrows for the given role.

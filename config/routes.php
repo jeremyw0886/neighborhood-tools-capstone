@@ -69,7 +69,7 @@ return [
     'POST /borrow/{id}/deny'       => [BorrowController::class, 'deny'],
     'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],
     'POST /borrow/{id}/return'     => [BorrowController::class, 'return'],
-    // 'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
+    'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
 
     // Profile
     'GET /profile/edit'            => [ProfileController::class, 'edit'],

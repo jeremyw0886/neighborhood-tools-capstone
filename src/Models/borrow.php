@@ -240,6 +240,36 @@ class Borrow
     }
 
     /**
+     * Deny a borrow request via sp_deny_borrow_request().
+     *
+     * The SP validates ownership and status transitions internally,
+     * and appends the denial reason to the borrow notes.
+     *
+     * @return array{success: bool, error: ?string}
+     */
+    public static function deny(int $borrowId, int $denierId, string $reason): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_deny_borrow_request(:borrow_id, :denier_id, :reason, @success, @error_msg)'
+        );
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':denier_id', $denierId, PDO::PARAM_INT);
+        $stmt->bindValue(':reason', $reason, PDO::PARAM_STR);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @success AS success, @error_msg AS error')->fetch();
+
+        return [
+            'success' => (bool) $out['success'],
+            'error'   => $out['error'],
+        ];
+    }
+
+    /**
      * Fetch borrow history for a user via sp_get_user_borrow_history().
      *
      * Returns completed, denied, and cancelled borrows for the given role.

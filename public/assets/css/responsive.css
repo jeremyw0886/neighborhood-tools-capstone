@@ -534,6 +534,20 @@
       padding-inline: 0.5rem;
     }
 
+    /* Action buttons — smaller on mobile */
+    main > section:is(
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"]
+    ) table td > form > button,
+    main > section:is(
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"]
+    ) table td > details > summary {
+      font-size: 0.75rem;
+      min-height: 2rem;
+      padding-inline: 0.5rem;
+    }
+
     /* Lender tool grid — 2 columns */
     section[aria-labelledby="listed-tools-heading"] > div[role="list"] {
       gap: 1rem;

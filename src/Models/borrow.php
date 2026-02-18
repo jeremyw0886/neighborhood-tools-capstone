@@ -337,6 +337,53 @@ class Borrow
     }
 
     /**
+     * Find a single active borrow by ID.
+     *
+     * Queries active_borrow_v (filtered to "borrowed" status) so the
+     * controller can verify ownership before calling completeReturn().
+     */
+    public static function findActiveById(int $borrowId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('SELECT * FROM active_borrow_v WHERE id_bor = :id');
+        $stmt->bindValue(':id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Complete a tool return via sp_complete_return().
+     *
+     * The SP validates the borrow is in "borrowed" status, transitions
+     * it to "returned", sets returned_at, and removes the availability block.
+     *
+     * @return array{success: bool, error: ?string}
+     */
+    public static function completeReturn(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            'CALL sp_complete_return(:borrow_id, @success, @error_msg)'
+        );
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $out = $pdo->query('SELECT @success AS success, @error_msg AS error')->fetch();
+
+        return [
+            'success' => (bool) $out['success'],
+            'error'   => $out['error'],
+        ];
+    }
+
+    /**
      * Fetch borrow history for a user via sp_get_user_borrow_history().
      *
      * Returns completed, denied, and cancelled borrows for the given role.

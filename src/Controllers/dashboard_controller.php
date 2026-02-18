@@ -76,17 +76,23 @@ class DashboardController extends BaseController
         $userId = (int) $_SESSION['user_id'];
 
         try {
-            $tools          = Tool::getByOwner($userId);
+            $tools           = Tool::getByOwner($userId);
             $pendingRequests = Borrow::getPendingForUser($userId);
+            $activeBorrows   = Borrow::getActiveForUser($userId);
         } catch (\Throwable $e) {
             error_log('DashboardController::lender — ' . $e->getMessage());
             $tools           = [];
             $pendingRequests = [];
+            $activeBorrows   = [];
         }
 
-        // Filter pending requests to only those where this user is the lender
         $incomingRequests = array_filter(
             $pendingRequests,
+            static fn(array $row): bool => (int) $row['lender_id'] === $userId,
+        );
+
+        $lentOut = array_filter(
+            $activeBorrows,
             static fn(array $row): bool => (int) $row['lender_id'] === $userId,
         );
 
@@ -96,6 +102,7 @@ class DashboardController extends BaseController
             'pageCss'          => ['dashboard.css'],
             'tools'            => $tools,
             'incomingRequests' => array_values($incomingRequests),
+            'lentOut'          => array_values($lentOut),
         ]);
     }
 

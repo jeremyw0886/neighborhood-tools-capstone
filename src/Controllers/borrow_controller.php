@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Core\RateLimiter;
 use App\Models\Borrow;
+use App\Models\Deposit;
 use App\Models\Notification;
 use App\Models\Tool;
 
@@ -329,6 +330,82 @@ class BorrowController extends BaseController
 
         $_SESSION['borrow_success'] = 'Request cancelled.';
         $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+    }
+
+    /**
+     * Confirm a tool has been returned (lender action).
+     *
+     * Verifies the logged-in user is the lender for this active borrow,
+     * delegates to Borrow::completeReturn() (sp_complete_return), releases
+     * any held deposit via Deposit::release(), and notifies the borrower.
+     */
+    public function return(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $borrowId = (int) $id;
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findActiveById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::return lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $borrow['lender_id'] !== $userId) {
+            $this->abort(403);
+        }
+
+        try {
+            $result = Borrow::completeReturn(borrowId: $borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::return — ' . $e->getMessage());
+            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        if (!$result['success']) {
+            $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to complete this return.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        try {
+            $depositResult = Deposit::release(borrowId: $borrowId);
+
+            if (!$depositResult['success']) {
+                error_log('BorrowController::return deposit release failed — ' . ($depositResult['error'] ?? 'unknown'));
+            }
+        } catch (\Throwable $e) {
+            error_log('BorrowController::return deposit — ' . $e->getMessage());
+        }
+
+        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+
+        try {
+            Notification::send(
+                accountId: (int) $borrow['borrower_id'],
+                type: 'return',
+                title: 'Tool Returned',
+                body: $lenderName . ' confirmed the return of ' . $borrow['tool_name_tol'] . '.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::return notification — ' . $e->getMessage());
+        }
+
+        $_SESSION['borrow_success'] = 'Return confirmed! The tool has been marked as returned.';
+        $this->redirect('/dashboard/lender');
     }
 
     /**

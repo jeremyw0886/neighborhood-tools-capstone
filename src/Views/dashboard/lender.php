@@ -37,7 +37,10 @@
   <?php endif; ?>
 
   <?php
-    $flashError = $_SESSION['borrow_errors']['general'] ?? $_SESSION['borrow_errors']['reason'] ?? '';
+    $flashError = $_SESSION['borrow_errors']['general']
+      ?? $_SESSION['borrow_errors']['reason']
+      ?? $_SESSION['borrow_errors']['extra_hours']
+      ?? '';
     if ($flashError !== ''):
   ?>
     <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
@@ -171,6 +174,34 @@
                     <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Confirm Return
                   </button>
                 </form>
+                <details>
+                  <summary>
+                    <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend
+                  </summary>
+                  <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/extend">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <label for="extra-hours-<?= (int) $row['id_bor'] ?>">Additional hours</label>
+                    <input
+                      type="number"
+                      id="extra-hours-<?= (int) $row['id_bor'] ?>"
+                      name="extra_hours"
+                      required
+                      min="1"
+                      max="720"
+                      placeholder="e.g. 24"
+                    >
+                    <label for="extend-reason-<?= (int) $row['id_bor'] ?>">Reason</label>
+                    <textarea
+                      id="extend-reason-<?= (int) $row['id_bor'] ?>"
+                      name="reason"
+                      required
+                      maxlength="1000"
+                      rows="2"
+                      placeholder="Why are you extending this loan?"
+                    ></textarea>
+                    <button type="submit">Extend Loan</button>
+                  </form>
+                </details>
               </td>
             </tr>
           <?php endforeach; ?>

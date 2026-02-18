@@ -128,6 +128,14 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
             placeholder="e.g. A1B2C3"
             value="<?= htmlspecialchars($_SESSION['handover_old']['code'] ?? '') ?>"
           >
+          <label for="condition-notes">Condition Notes</label>
+          <textarea
+            id="condition-notes"
+            name="condition_notes"
+            rows="3"
+            maxlength="2000"
+            placeholder="Describe the tool's current condition (optional)"
+          ><?= htmlspecialchars($_SESSION['handover_old']['condition_notes'] ?? '') ?></textarea>
           <?php unset($_SESSION['handover_old']); ?>
           <button type="submit">
             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>

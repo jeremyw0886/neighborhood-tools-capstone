@@ -35,8 +35,11 @@
     <?php unset($_SESSION['borrow_success']); ?>
   <?php endif; ?>
 
-  <?php if (!empty($_SESSION['borrow_errors']['general'])): ?>
-    <p role="alert" data-flash="error"><?= htmlspecialchars($_SESSION['borrow_errors']['general']) ?></p>
+  <?php
+    $flashError = $_SESSION['borrow_errors']['general'] ?? $_SESSION['borrow_errors']['reason'] ?? '';
+    if ($flashError !== ''):
+  ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
     <?php unset($_SESSION['borrow_errors']); ?>
   <?php endif; ?>
 
@@ -91,6 +94,24 @@
                     <i class="fa-solid fa-check" aria-hidden="true"></i> Approve
                   </button>
                 </form>
+                <details>
+                  <summary>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny
+                  </summary>
+                  <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/deny">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <label for="deny-reason-<?= (int) $req['id_bor'] ?>">Reason</label>
+                    <textarea
+                      id="deny-reason-<?= (int) $req['id_bor'] ?>"
+                      name="reason"
+                      required
+                      maxlength="1000"
+                      rows="2"
+                      placeholder="Why are you denying this request?"
+                    ></textarea>
+                    <button type="submit">Deny Request</button>
+                  </form>
+                </details>
               </td>
             </tr>
           <?php endforeach; ?>

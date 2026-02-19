@@ -94,7 +94,7 @@ return [
     'GET /disputes/create/{borrowId}' => [DisputeController::class, 'create'],
     'POST /disputes'               => [DisputeController::class, 'store'],
     'GET /disputes/{id}'           => [DisputeController::class, 'show'],
-    // 'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
+    'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
 
     // Events
     // 'GET /events'                  => [EventController::class, 'index'],

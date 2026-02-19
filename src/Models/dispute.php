@@ -71,4 +71,27 @@ class Dispute
 
         return $stmt->fetch();
     }
+
+    /**
+     * Check whether an open dispute already exists for a borrow.
+     *
+     * Prevents duplicate filings — the trigger allows the INSERT but
+     * the user experience is cleaner when we catch it before submission.
+     */
+    public static function hasOpenDispute(int $borrowId): bool
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT COUNT(*)
+            FROM open_dispute_v
+            WHERE id_bor_dsp = :bor_id
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':bor_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
 }

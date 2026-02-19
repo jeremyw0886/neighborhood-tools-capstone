@@ -11,7 +11,6 @@
  *   $page          int     Current page (1-based)
  *   $totalPages    int     Total pages
  *   $perPage       int     Results per page (12)
- *   $stubMessage   ?string Optional stub message (edit page placeholder)
  *
  * Shared data:
  *   $isLoggedIn  bool
@@ -44,10 +43,11 @@ $rangeStart = $totalTools > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalTools);
 ?>
 
-<?php if (!empty($stubMessage)): ?>
+<?php if (!empty($_SESSION['profile_notice'])): ?>
   <section aria-label="Notice">
-    <p><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <?= htmlspecialchars($stubMessage) ?></p>
+    <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($_SESSION['profile_notice']) ?></p>
   </section>
+  <?php unset($_SESSION['profile_notice']); ?>
 <?php endif; ?>
 
 <article aria-labelledby="profile-heading">
@@ -87,6 +87,12 @@ $rangeEnd   = min($page * $perPage, $totalTools);
           <i class="fa-solid fa-handshake" aria-hidden="true"></i>
           <?= (int) $reputation['completed_borrows'] ?> completed borrow<?= (int) $reputation['completed_borrows'] !== 1 ? 's' : '' ?>
         </p>
+      <?php endif; ?>
+
+      <?php if ($isOwnProfile): ?>
+        <a href="/profile/edit">
+          <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
+        </a>
       <?php endif; ?>
     </div>
   </header>

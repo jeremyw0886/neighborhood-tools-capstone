@@ -415,6 +415,13 @@ class Account
                 phone_number_acc   = :phone,
                 street_address_acc = :street_address,
                 zip_code_acc       = :zip_code,
+                id_nbh_acc = (
+                    SELECT id_nbh_nbhzpc
+                    FROM neighborhood_zip_nbhzpc
+                    WHERE zip_code_nbhzpc = :zip_nbh
+                      AND is_primary_nbhzpc = TRUE
+                    LIMIT 1
+                ),
                 id_cpr_acc = (
                     SELECT id_cpr
                     FROM contact_preference_cpr
@@ -428,6 +435,7 @@ class Account
         $stmt->bindValue(':phone', $data['phone'], $data['phone'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
         $stmt->bindValue(':street_address', $data['street_address'], $data['street_address'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
         $stmt->bindValue(':zip_code', $data['zip_code']);
+        $stmt->bindValue(':zip_nbh', $data['zip_code']);
         $stmt->bindValue(':preference', $data['contact_preference']);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();

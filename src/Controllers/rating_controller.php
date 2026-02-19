@@ -104,7 +104,7 @@ class RatingController extends BaseController
         }
 
         if (!in_array($role, ['lender', 'borrower'], true)) {
-            $this->abort(400);
+            $this->abort(403);
         }
 
         $errors = [];

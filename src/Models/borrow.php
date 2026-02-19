@@ -88,63 +88,57 @@ class Borrow
     }
 
     /**
-     * Count active borrows for a user (as borrower or lender).
+     * Count active borrows for a user in a specific role.
+     *
+     * @param  string $role 'borrower' or 'lender'
      */
-    public static function getActiveCountForUser(int $accountId): int
+    public static function getActiveCountForUser(int $accountId, string $role = 'borrower'): int
     {
-        $pdo = Database::connection();
+        $column = $role === 'lender' ? 'lender_id' : 'borrower_id';
+        $pdo    = Database::connection();
 
-        $sql = "
-            SELECT COUNT(*)
-            FROM active_borrow_v
-            WHERE borrower_id = :id OR lender_id = :id2
-        ";
+        $sql = "SELECT COUNT(*) FROM active_borrow_v WHERE {$column} = :id";
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
-        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
     }
 
     /**
-     * Count pending requests for a user (as borrower or lender).
+     * Count pending requests for a user in a specific role.
+     *
+     * @param  string $role 'borrower' or 'lender'
      */
-    public static function getPendingCountForUser(int $accountId): int
+    public static function getPendingCountForUser(int $accountId, string $role = 'lender'): int
     {
-        $pdo = Database::connection();
+        $column = $role === 'lender' ? 'lender_id' : 'borrower_id';
+        $pdo    = Database::connection();
 
-        $sql = "
-            SELECT COUNT(*)
-            FROM pending_request_v
-            WHERE borrower_id = :id OR lender_id = :id2
-        ";
+        $sql = "SELECT COUNT(*) FROM pending_request_v WHERE {$column} = :id";
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
-        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
     }
 
     /**
-     * Count overdue borrows for a user (as borrower or lender).
+     * Count overdue borrows for a user in a specific role.
+     *
+     * @param  string $role 'borrower' or 'lender'
      */
-    public static function getOverdueCountForUser(int $accountId): int
+    public static function getOverdueCountForUser(int $accountId, string $role = 'borrower'): int
     {
-        $pdo = Database::connection();
+        $column = $role === 'lender' ? 'lender_id' : 'borrower_id';
+        $pdo    = Database::connection();
 
-        $sql = "
-            SELECT COUNT(*)
-            FROM overdue_borrow_v
-            WHERE borrower_id = :id OR lender_id = :id2
-        ";
+        $sql = "SELECT COUNT(*) FROM overdue_borrow_v WHERE {$column} = :id";
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
-        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();

@@ -28,9 +28,9 @@ class DashboardController extends BaseController
         $userRole = Role::tryFrom($_SESSION['user_role'] ?? '');
 
         try {
-            $activeBorrowCount  = Borrow::getActiveCountForUser($userId);
-            $pendingRequestCount = Borrow::getPendingCountForUser($userId);
-            $overdueCount       = Borrow::getOverdueCountForUser($userId);
+            $activeBorrowCount   = Borrow::getActiveCountForUser($userId, 'borrower');
+            $pendingRequestCount = Borrow::getPendingCountForUser($userId, 'lender');
+            $overdueCount        = Borrow::getOverdueCountForUser($userId, 'borrower');
             $listedToolCount    = Tool::getCountByOwner($userId);
             $reputation         = Account::getReputation($userId);
         } catch (\Throwable $e) {

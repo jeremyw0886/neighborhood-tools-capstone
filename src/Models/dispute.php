@@ -181,6 +181,45 @@ class Dispute
     }
 
     /**
+     * Append a message to an existing dispute thread.
+     *
+     * Resolves the message type by name from dispute_message_type_dmt.
+     * The DB trigger trg_dispute_message_before_insert rejects deleted
+     * accounts.
+     *
+     * @param  string $typeName  One of: response, admin_note, resolution
+     */
+    public static function addMessage(
+        int $disputeId,
+        int $authorId,
+        string $typeName,
+        string $text,
+        bool $isInternal = false,
+    ): void {
+        $pdo = Database::connection();
+
+        $sql = "
+            INSERT INTO dispute_message_dsm
+                (id_dsp_dsm, id_acc_dsm, id_dmt_dsm, message_text_dsm, is_internal_dsm)
+            VALUES (
+                :dispute_id,
+                :author_id,
+                (SELECT id_dmt FROM dispute_message_type_dmt WHERE type_name_dmt = :type_name),
+                :message,
+                :is_internal
+            )
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':dispute_id', $disputeId, PDO::PARAM_INT);
+        $stmt->bindValue(':author_id', $authorId, PDO::PARAM_INT);
+        $stmt->bindValue(':type_name', $typeName, PDO::PARAM_STR);
+        $stmt->bindValue(':message', $text, PDO::PARAM_STR);
+        $stmt->bindValue(':is_internal', $isInternal, PDO::PARAM_BOOL);
+        $stmt->execute();
+    }
+
+    /**
      * Create a dispute and its initial message in a single transaction.
      *
      * Inserts into dispute_dsp (status = 'open') then into

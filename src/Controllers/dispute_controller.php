@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Role;
+use App\Models\Borrow;
 use App\Models\Dispute;
 
 class DisputeController extends BaseController
@@ -50,6 +51,66 @@ class DisputeController extends BaseController
             'page'        => $page,
             'totalPages'  => $totalPages,
             'perPage'     => self::PER_PAGE,
+        ]);
+    }
+
+    /**
+     * Display the dispute creation form for a borrow transaction.
+     *
+     * Any authenticated user who is a party (borrower or lender) to the
+     * borrow may file a dispute. The DB trigger trg_dispute_before_insert
+     * enforces this at the write layer; this method enforces it at the
+     * read layer so unauthorized users never see the form.
+     */
+    public function create(string $borrowId): void
+    {
+        $this->requireAuth();
+
+        $id = (int) $borrowId;
+
+        if ($id < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findById($id);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::create borrow lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $borrow['borrower_id'] === $userId;
+        $isLender   = (int) $borrow['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender) {
+            $this->abort(403);
+        }
+
+        try {
+            $hasExisting = Dispute::hasOpenDispute($id);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::create dispute check — ' . $e->getMessage());
+            $hasExisting = false;
+        }
+
+        $errors = $_SESSION['dispute_errors'] ?? [];
+        $old    = $_SESSION['dispute_old'] ?? [];
+        unset($_SESSION['dispute_errors'], $_SESSION['dispute_old']);
+
+        $this->render('disputes/create', [
+            'title'       => 'File a Dispute — NeighborhoodTools',
+            'description' => 'Report an issue with a borrow transaction.',
+            'pageCss'     => ['dispute.css'],
+            'borrow'      => $borrow,
+            'hasExisting'  => $hasExisting,
+            'errors'      => $errors,
+            'old'         => $old,
         ]);
     }
 }

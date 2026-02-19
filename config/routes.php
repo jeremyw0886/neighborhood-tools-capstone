@@ -17,7 +17,7 @@ use App\Controllers\ToolController;
 use App\Controllers\BorrowController;
 use App\Controllers\ProfileController;
 // use App\Controllers\SearchController;
-// use App\Controllers\RatingController;
+use App\Controllers\RatingController;
 // use App\Controllers\PaymentController;
 // use App\Controllers\DisputeController;
 // use App\Controllers\EventController;
@@ -80,9 +80,9 @@ return [
     // 'GET /search'                  => [SearchController::class, 'index'],
 
     // Ratings
-    // 'GET /rate/{borrowId}'         => [RatingController::class, 'show'],
-    // 'POST /rate/user'              => [RatingController::class, 'rateUser'],
-    // 'POST /rate/tool'              => [RatingController::class, 'rateTool'],
+    'GET /rate/{borrowId}'         => [RatingController::class, 'show'],
+    'POST /rate/user'              => [RatingController::class, 'rateUser'],
+    'POST /rate/tool'              => [RatingController::class, 'rateTool'],
 
     // Payments
     // 'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],

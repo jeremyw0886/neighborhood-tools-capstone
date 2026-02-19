@@ -73,7 +73,11 @@ $urgencyLabel = static function (int $daysOpen): string {
       ?>
         <article role="listitem" data-urgency="<?= $urgency ?>">
           <header>
-            <h2><?= htmlspecialchars($dispute['subject_text_dsp']) ?></h2>
+            <h2>
+              <a href="/disputes/<?= (int) $dispute['id_dsp'] ?>">
+                <?= htmlspecialchars($dispute['subject_text_dsp']) ?>
+              </a>
+            </h2>
             <span data-urgency="<?= $urgency ?>">
               <?= $daysOpen ?> day<?= $daysOpen !== 1 ? 's' : '' ?> open
             </span>
@@ -127,14 +131,19 @@ $urgencyLabel = static function (int $daysOpen): string {
           </dl>
 
           <footer>
-            <time datetime="<?= htmlspecialchars($dispute['created_at_dsp']) ?>">
-              Filed <?= htmlspecialchars(date('M j, Y', strtotime($dispute['created_at_dsp']))) ?>
-            </time>
-            <?php if ($dispute['last_message_at'] !== null): ?>
-              <span>
-                Last activity <?= htmlspecialchars(date('M j, Y', strtotime($dispute['last_message_at']))) ?>
-              </span>
-            <?php endif; ?>
+            <div>
+              <time datetime="<?= htmlspecialchars($dispute['created_at_dsp']) ?>">
+                Filed <?= htmlspecialchars(date('M j, Y', strtotime($dispute['created_at_dsp']))) ?>
+              </time>
+              <?php if ($dispute['last_message_at'] !== null): ?>
+                <span>
+                  Last activity <?= htmlspecialchars(date('M j, Y', strtotime($dispute['last_message_at']))) ?>
+                </span>
+              <?php endif; ?>
+            </div>
+            <a href="/disputes/<?= (int) $dispute['id_dsp'] ?>">
+              View Details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
           </footer>
         </article>
       <?php endforeach; ?>

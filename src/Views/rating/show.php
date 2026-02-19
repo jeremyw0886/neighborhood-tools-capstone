@@ -18,6 +18,9 @@
 $toolName = htmlspecialchars($borrow['tool_name_tol']);
 $borrowId = (int) $borrow['id_bor'];
 
+$errors = $_SESSION['rating_errors'] ?? [];
+unset($_SESSION['rating_errors']);
+
 $old = $_SESSION['rating_old'] ?? [];
 unset($_SESSION['rating_old']);
 
@@ -45,9 +48,8 @@ $scoreLabels = [
     <?php unset($_SESSION['rating_success']); ?>
   <?php endif; ?>
 
-  <?php if (!empty($_SESSION['rating_errors']['general'])): ?>
-    <p role="alert" data-flash="error"><?= htmlspecialchars($_SESSION['rating_errors']['general']) ?></p>
-    <?php unset($_SESSION['rating_errors']); ?>
+  <?php if (!empty($errors['general'])): ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($errors['general']) ?></p>
   <?php endif; ?>
 
   <dl aria-label="Borrow details">
@@ -86,8 +88,8 @@ $scoreLabels = [
       <fieldset>
         <legend id="user-rating-heading">Rate <?= htmlspecialchars($targetName) ?></legend>
 
-        <?php if (!empty($_SESSION['rating_errors']['user_score'])): ?>
-          <p role="alert" data-field-error><?= htmlspecialchars($_SESSION['rating_errors']['user_score']) ?></p>
+        <?php if (!empty($errors['user_score'])): ?>
+          <p role="alert" data-field-error><?= htmlspecialchars($errors['user_score']) ?></p>
         <?php endif; ?>
 
         <div role="radiogroup" aria-label="User score" data-stars>
@@ -108,8 +110,8 @@ $scoreLabels = [
           <?php endfor; ?>
         </div>
 
-        <?php if (!empty($_SESSION['rating_errors']['user_review'])): ?>
-          <p role="alert" data-field-error><?= htmlspecialchars($_SESSION['rating_errors']['user_review']) ?></p>
+        <?php if (!empty($errors['user_review'])): ?>
+          <p role="alert" data-field-error><?= htmlspecialchars($errors['user_review']) ?></p>
         <?php endif; ?>
 
         <label for="user-review">Review (optional)</label>
@@ -127,7 +129,6 @@ $scoreLabels = [
         </button>
       </fieldset>
     </form>
-    <?php unset($_SESSION['rating_errors']); ?>
   <?php else: ?>
     <section aria-labelledby="user-rated-heading" data-completed>
       <h2 id="user-rated-heading">
@@ -145,8 +146,8 @@ $scoreLabels = [
       <fieldset>
         <legend id="tool-rating-heading">Rate <?= $toolName ?></legend>
 
-        <?php if (!empty($_SESSION['rating_errors']['tool_score'])): ?>
-          <p role="alert" data-field-error><?= htmlspecialchars($_SESSION['rating_errors']['tool_score']) ?></p>
+        <?php if (!empty($errors['tool_score'])): ?>
+          <p role="alert" data-field-error><?= htmlspecialchars($errors['tool_score']) ?></p>
         <?php endif; ?>
 
         <div role="radiogroup" aria-label="Tool score" data-stars>
@@ -167,8 +168,8 @@ $scoreLabels = [
           <?php endfor; ?>
         </div>
 
-        <?php if (!empty($_SESSION['rating_errors']['tool_review'])): ?>
-          <p role="alert" data-field-error><?= htmlspecialchars($_SESSION['rating_errors']['tool_review']) ?></p>
+        <?php if (!empty($errors['tool_review'])): ?>
+          <p role="alert" data-field-error><?= htmlspecialchars($errors['tool_review']) ?></p>
         <?php endif; ?>
 
         <label for="tool-review">Review (optional)</label>

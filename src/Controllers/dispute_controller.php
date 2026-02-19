@@ -113,4 +113,89 @@ class DisputeController extends BaseController
             'old'         => $old,
         ]);
     }
+
+    /**
+     * Validate and persist a new dispute with its initial message.
+     *
+     * Expects POST fields: csrf_token, borrow_id, subject, message.
+     * On success, redirects to the dashboard with a flash notice.
+     * On validation failure, redirects back to the create form with
+     * field-keyed errors and sticky input values.
+     */
+    public function store(): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $userId   = (int) $_SESSION['user_id'];
+        $borrowId = (int) ($_POST['borrow_id'] ?? 0);
+        $subject  = trim($_POST['subject'] ?? '');
+        $message  = trim($_POST['message'] ?? '');
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $errors = [];
+
+        if ($subject === '') {
+            $errors['subject'] = 'A subject is required.';
+        } elseif (mb_strlen($subject) > 255) {
+            $errors['subject'] = 'Subject must be 255 characters or fewer.';
+        }
+
+        if ($message === '') {
+            $errors['message'] = 'Please describe the issue.';
+        } elseif (mb_strlen($message) > 5000) {
+            $errors['message'] = 'Message must be 5,000 characters or fewer.';
+        }
+
+        $oldInput = ['subject' => $subject, 'message' => $message];
+
+        if ($errors !== []) {
+            $_SESSION['dispute_errors'] = $errors;
+            $_SESSION['dispute_old']    = $oldInput;
+            $this->redirect('/disputes/create/' . $borrowId);
+        }
+
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::store borrow lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $borrow['borrower_id'] === $userId;
+        $isLender   = (int) $borrow['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender) {
+            $this->abort(403);
+        }
+
+        try {
+            if (Dispute::hasOpenDispute($borrowId)) {
+                $_SESSION['dispute_errors'] = ['general' => 'An open dispute already exists for this transaction.'];
+                $this->redirect('/disputes/create/' . $borrowId);
+            }
+        } catch (\Throwable $e) {
+            error_log('DisputeController::store duplicate check — ' . $e->getMessage());
+        }
+
+        try {
+            Dispute::create($borrowId, $userId, $subject, $message);
+
+            $_SESSION['dispute_success'] = 'Your dispute has been filed. An admin will review it shortly.';
+            $this->redirect('/dashboard');
+        } catch (\Throwable $e) {
+            error_log('DisputeController::store — ' . $e->getMessage());
+
+            $_SESSION['dispute_errors'] = ['general' => 'Something went wrong filing your dispute. Please try again.'];
+            $_SESSION['dispute_old']    = $oldInput;
+            $this->redirect('/disputes/create/' . $borrowId);
+        }
+    }
 }

@@ -271,4 +271,91 @@ class DisputeController extends BaseController
             $this->redirect('/disputes/create/' . $borrowId);
         }
     }
+
+    private const array ADMIN_MESSAGE_TYPES = ['response', 'admin_note', 'resolution'];
+
+    /**
+     * Append a message to an open dispute's thread.
+     *
+     * Borrowers and lenders may post type "response". Admins may also
+     * post "admin_note" (optionally internal) or "resolution". Only
+     * open disputes accept new messages.
+     */
+    public function addMessage(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $disputeId = (int) $id;
+
+        if ($disputeId < 1) {
+            $this->abort(404);
+        }
+
+        $userId  = (int) $_SESSION['user_id'];
+        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+        $message = trim($_POST['message'] ?? '');
+        $redirectUrl = '/disputes/' . $disputeId;
+
+        $errors = [];
+
+        if ($message === '') {
+            $errors['message'] = 'A message is required.';
+        } elseif (mb_strlen($message) > 5000) {
+            $errors['message'] = 'Message must be 5,000 characters or fewer.';
+        }
+
+        if ($errors !== []) {
+            $_SESSION['dispute_message_errors'] = $errors;
+            $_SESSION['dispute_message_old']    = ['message' => $message];
+            $this->redirect($redirectUrl);
+        }
+
+        try {
+            $dispute = Dispute::findByIdWithContext($disputeId);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::addMessage dispute lookup — ' . $e->getMessage());
+            $dispute = null;
+        }
+
+        if ($dispute === null) {
+            $this->abort(404);
+        }
+
+        if ($dispute['dispute_status'] !== 'open') {
+            $_SESSION['dispute_message_errors'] = ['general' => 'This dispute is no longer open.'];
+            $this->redirect($redirectUrl);
+        }
+
+        $isBorrower = (int) $dispute['borrower_id'] === $userId;
+        $isLender   = (int) $dispute['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender && !$isAdmin) {
+            $this->abort(403);
+        }
+
+        $typeName   = 'response';
+        $isInternal = false;
+
+        if ($isAdmin) {
+            $requestedType = trim($_POST['message_type'] ?? 'response');
+            $typeName = in_array($requestedType, self::ADMIN_MESSAGE_TYPES, true)
+                ? $requestedType
+                : 'response';
+            $isInternal = !empty($_POST['is_internal']);
+        }
+
+        try {
+            Dispute::addMessage($disputeId, $userId, $typeName, $message, $isInternal);
+
+            $_SESSION['dispute_message_success'] = 'Message posted.';
+            $this->redirect($redirectUrl);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::addMessage — ' . $e->getMessage());
+
+            $_SESSION['dispute_message_errors'] = ['general' => 'Something went wrong posting your message. Please try again.'];
+            $_SESSION['dispute_message_old']    = ['message' => $message];
+            $this->redirect($redirectUrl);
+        }
+    }
 }

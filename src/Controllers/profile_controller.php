@@ -158,6 +158,7 @@ class ProfileController extends BaseController
             'meta'        => $meta,
             'errors'      => $errors,
             'old'         => $old,
+            'backUrl'     => '/profile/' . $userId,
         ]);
     }
 

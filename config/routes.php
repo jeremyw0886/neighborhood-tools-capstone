@@ -19,7 +19,7 @@ use App\Controllers\ProfileController;
 // use App\Controllers\SearchController;
 use App\Controllers\RatingController;
 // use App\Controllers\PaymentController;
-// use App\Controllers\DisputeController;
+use App\Controllers\DisputeController;
 // use App\Controllers\EventController;
 use App\Controllers\HandoverController;
 // use App\Controllers\IncidentController;
@@ -90,7 +90,7 @@ return [
     // 'GET /payments/history'        => [PaymentController::class, 'history'],
 
     // Disputes
-    // 'GET /disputes'                => [DisputeController::class, 'index'],
+    'GET /disputes'                => [DisputeController::class, 'index'],
     // 'GET /disputes/create/{borrowId}' => [DisputeController::class, 'create'],
     // 'POST /disputes'               => [DisputeController::class, 'store'],
     // 'GET /disputes/{id}'           => [DisputeController::class, 'show'],
@@ -134,7 +134,7 @@ return [
     'GET /admin'                   => [AdminController::class, 'dashboard'],
     'GET /admin/users'             => [AdminController::class, 'users'],
     'GET /admin/tools'             => [AdminController::class, 'tools'],
-    'GET /admin/disputes'          => [AdminController::class, 'disputes'],
+    'GET /admin/disputes'          => [DisputeController::class, 'index'],
     'GET /admin/events'            => [AdminController::class, 'events'],
     'GET /admin/incidents'         => [AdminController::class, 'incidents'],
     'GET /admin/reports'           => [AdminController::class, 'reports'],

@@ -29,6 +29,11 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
     <?php unset($_SESSION['borrow_success']); ?>
   <?php endif; ?>
 
+  <?php if (!empty($_SESSION['rating_success'])): ?>
+    <p role="status"><?= htmlspecialchars($_SESSION['rating_success']) ?></p>
+    <?php unset($_SESSION['rating_success']); ?>
+  <?php endif; ?>
+
   <header>
     <h1 id="dashboard-heading">
       <i class="fa-solid fa-gauge" aria-hidden="true"></i>

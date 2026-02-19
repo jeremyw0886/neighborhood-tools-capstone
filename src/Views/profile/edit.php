@@ -94,6 +94,39 @@ $avatarAlt = $profile['image_alt_text']
       </div>
 
       <div>
+        <label for="street-address">Street Address</label>
+        <input type="text"
+               id="street-address"
+               name="street_address"
+               maxlength="255"
+               autocomplete="street-address"
+               placeholder="e.g. 123 Mountain View Dr"
+               value="<?= htmlspecialchars($old['street_address'] ?? $profile['street_address_acc'] ?? '') ?>"
+               <?php if (isset($errors['street_address'])): ?>aria-invalid="true" aria-describedby="street-address-error"<?php endif; ?>>
+        <?php if (isset($errors['street_address'])): ?>
+          <p id="street-address-error" role="alert"><?= htmlspecialchars($errors['street_address']) ?></p>
+        <?php endif; ?>
+      </div>
+
+      <div>
+        <label for="zip-code">ZIP Code <span aria-hidden="true">*</span></label>
+        <input type="text"
+               id="zip-code"
+               name="zip_code"
+               required
+               maxlength="10"
+               pattern="\d{5}(-\d{4})?"
+               inputmode="numeric"
+               autocomplete="postal-code"
+               placeholder="e.g. 28801"
+               value="<?= htmlspecialchars($old['zip_code'] ?? $profile['zip_code_acc']) ?>"
+               <?php if (isset($errors['zip_code'])): ?>aria-invalid="true" aria-describedby="zip-code-error"<?php endif; ?>>
+        <?php if (isset($errors['zip_code'])): ?>
+          <p id="zip-code-error" role="alert"><?= htmlspecialchars($errors['zip_code']) ?></p>
+        <?php endif; ?>
+      </div>
+
+      <div>
         <label for="contact-preference">Contact Preference <span aria-hidden="true">*</span></label>
         <?php $selectedPref = $old['contact_preference'] ?? $profile['preference_name_cpr']; ?>
         <select id="contact-preference"

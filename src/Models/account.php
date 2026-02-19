@@ -336,6 +336,8 @@ class Account
                 a.first_name_acc,
                 a.last_name_acc,
                 a.phone_number_acc,
+                a.street_address_acc,
+                a.zip_code_acc,
                 a.id_cpr_acc,
                 cpr.preference_name_cpr,
                 abi.bio_text_abi,
@@ -400,7 +402,7 @@ class Account
     }
 
     /**
-     * Update basic account fields (name, phone, contact preference).
+     * Update basic account fields (name, phone, address, contact preference).
      */
     public static function updateProfile(int $accountId, array $data): void
     {
@@ -408,9 +410,11 @@ class Account
 
         $stmt = $pdo->prepare("
             UPDATE account_acc
-            SET first_name_acc = :first_name,
-                last_name_acc  = :last_name,
-                phone_number_acc = :phone,
+            SET first_name_acc     = :first_name,
+                last_name_acc      = :last_name,
+                phone_number_acc   = :phone,
+                street_address_acc = :street_address,
+                zip_code_acc       = :zip_code,
                 id_cpr_acc = (
                     SELECT id_cpr
                     FROM contact_preference_cpr
@@ -422,6 +426,8 @@ class Account
         $stmt->bindValue(':first_name', $data['first_name']);
         $stmt->bindValue(':last_name', $data['last_name']);
         $stmt->bindValue(':phone', $data['phone'], $data['phone'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':street_address', $data['street_address'], $data['street_address'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':zip_code', $data['zip_code']);
         $stmt->bindValue(':preference', $data['contact_preference']);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();

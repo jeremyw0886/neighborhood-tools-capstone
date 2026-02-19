@@ -174,21 +174,25 @@ class ProfileController extends BaseController
 
         $userId = (int) $_SESSION['user_id'];
 
-        $firstName  = trim($_POST['first_name'] ?? '');
-        $lastName   = trim($_POST['last_name'] ?? '');
-        $phone      = trim($_POST['phone'] ?? '');
-        $preference = trim($_POST['contact_preference'] ?? '');
-        $bio        = trim($_POST['bio'] ?? '');
+        $firstName      = trim($_POST['first_name'] ?? '');
+        $lastName       = trim($_POST['last_name'] ?? '');
+        $phone          = trim($_POST['phone'] ?? '');
+        $streetAddress  = trim($_POST['street_address'] ?? '');
+        $zipCode        = trim($_POST['zip_code'] ?? '');
+        $preference     = trim($_POST['contact_preference'] ?? '');
+        $bio            = trim($_POST['bio'] ?? '');
 
         $oldInput = [
             'first_name'         => $firstName,
             'last_name'          => $lastName,
             'phone'              => $phone,
+            'street_address'     => $streetAddress,
+            'zip_code'           => $zipCode,
             'contact_preference' => $preference,
             'bio'                => $bio,
         ];
 
-        $errors = $this->validateProfileInput($firstName, $lastName, $phone, $preference);
+        $errors = $this->validateProfileInput($firstName, $lastName, $phone, $streetAddress, $zipCode, $preference);
 
         $hasImage = isset($_FILES['avatar'])
             && $_FILES['avatar']['error'] !== UPLOAD_ERR_NO_FILE;
@@ -221,6 +225,8 @@ class ProfileController extends BaseController
                 'first_name'         => $firstName,
                 'last_name'          => $lastName,
                 'phone'              => $phone !== '' ? $phone : null,
+                'street_address'     => $streetAddress !== '' ? $streetAddress : null,
+                'zip_code'           => $zipCode,
                 'contact_preference' => $preference,
             ]);
 
@@ -273,6 +279,8 @@ class ProfileController extends BaseController
         string $firstName,
         string $lastName,
         string $phone,
+        string $streetAddress,
+        string $zipCode,
         string $preference,
     ): array {
         $errors = [];
@@ -291,6 +299,16 @@ class ProfileController extends BaseController
 
         if ($phone !== '' && mb_strlen($phone) > 20) {
             $errors['phone'] = 'Phone number must be 20 characters or fewer.';
+        }
+
+        if ($streetAddress !== '' && mb_strlen($streetAddress) > 255) {
+            $errors['street_address'] = 'Street address must be 255 characters or fewer.';
+        }
+
+        if ($zipCode === '') {
+            $errors['zip_code'] = 'ZIP code is required.';
+        } elseif (!preg_match('/^\d{5}(-\d{4})?$/', $zipCode)) {
+            $errors['zip_code'] = 'Please enter a valid 5-digit ZIP code.';
         }
 
         if (!in_array($preference, self::VALID_PREFERENCES, true)) {

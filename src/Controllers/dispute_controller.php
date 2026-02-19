@@ -115,6 +115,67 @@ class DisputeController extends BaseController
     }
 
     /**
+     * Display a single dispute with its chronological message thread.
+     *
+     * Accessible to borrower, lender, and admins. Internal admin notes
+     * (is_internal_dsm = true) are stripped for non-admin viewers.
+     */
+    public function show(string $id): void
+    {
+        $this->requireAuth();
+
+        $disputeId = (int) $id;
+
+        if ($disputeId < 1) {
+            $this->abort(404);
+        }
+
+        $userId  = (int) $_SESSION['user_id'];
+        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+
+        try {
+            $dispute = Dispute::findByIdWithContext($disputeId);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::show dispute lookup — ' . $e->getMessage());
+            $dispute = null;
+        }
+
+        if ($dispute === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $dispute['borrower_id'] === $userId;
+        $isLender   = (int) $dispute['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender && !$isAdmin) {
+            $this->abort(403);
+        }
+
+        try {
+            $messages = Dispute::getMessages($disputeId);
+        } catch (\Throwable $e) {
+            error_log('DisputeController::show messages — ' . $e->getMessage());
+            $messages = [];
+        }
+
+        if (!$isAdmin) {
+            $messages = array_values(array_filter(
+                $messages,
+                static fn(array $msg): bool => !$msg['is_internal_dsm']
+            ));
+        }
+
+        $this->render('disputes/show', [
+            'title'       => htmlspecialchars($dispute['subject_text_dsp']) . ' — NeighborhoodTools',
+            'description' => 'Dispute details and message thread.',
+            'pageCss'     => ['dispute.css'],
+            'dispute'     => $dispute,
+            'messages'    => $messages,
+            'isAdmin'     => $isAdmin,
+        ]);
+    }
+
+    /**
      * Validate and persist a new dispute with its initial message.
      *
      * Expects POST fields: csrf_token, borrow_id, subject, message.

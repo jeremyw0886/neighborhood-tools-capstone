@@ -318,4 +318,210 @@ class Account
     {
         return password_verify(password: $input, hash: $hash);
     }
+
+    /**
+     * Fetch editable profile fields for the logged-in user.
+     *
+     * Queries account_acc directly (not the profile view) to get raw
+     * FK values needed for form pre-selection, then LEFT JOINs bio,
+     * primary image, and contact preference for display.
+     */
+    public static function getEditableProfile(int $accountId): ?array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                a.id_acc,
+                a.first_name_acc,
+                a.last_name_acc,
+                a.phone_number_acc,
+                a.id_cpr_acc,
+                cpr.preference_name_cpr,
+                abi.bio_text_abi,
+                aim.file_name_aim   AS primary_image,
+                aim.alt_text_aim    AS image_alt_text
+            FROM active_account_v a
+            JOIN contact_preference_cpr cpr ON a.id_cpr_acc = cpr.id_cpr
+            LEFT JOIN account_bio_abi abi   ON a.id_acc = abi.id_acc_abi
+            LEFT JOIN account_image_aim aim
+                ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
+            WHERE a.id_acc = :id
+            LIMIT 1
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Fetch all contact preference options for a dropdown.
+     *
+     * @return array<int, array{id_cpr: int, preference_name_cpr: string}>
+     */
+    public static function getContactPreferences(): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->query("
+            SELECT id_cpr, preference_name_cpr
+            FROM contact_preference_cpr
+            ORDER BY id_cpr
+        ");
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Fetch all account meta key/value pairs for a user.
+     *
+     * @return array<int, array{meta_key_acm: string, meta_value_acm: string}>
+     */
+    public static function getAccountMeta(int $accountId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT meta_key_acm, meta_value_acm
+            FROM account_meta_acm
+            WHERE id_acc_acm = :id
+            ORDER BY meta_key_acm
+        ");
+
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Update basic account fields (name, phone, contact preference).
+     */
+    public static function updateProfile(int $accountId, array $data): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_acc
+            SET first_name_acc = :first_name,
+                last_name_acc  = :last_name,
+                phone_number_acc = :phone,
+                id_cpr_acc = (
+                    SELECT id_cpr
+                    FROM contact_preference_cpr
+                    WHERE preference_name_cpr = :preference
+                )
+            WHERE id_acc = :id
+        ");
+
+        $stmt->bindValue(':first_name', $data['first_name']);
+        $stmt->bindValue(':last_name', $data['last_name']);
+        $stmt->bindValue(':phone', $data['phone'], $data['phone'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':preference', $data['contact_preference']);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Insert or update the user's bio text.
+     *
+     * Uses INSERT ... ON DUPLICATE KEY UPDATE since account_bio_abi
+     * has a unique constraint on id_acc_abi.
+     */
+    public static function upsertBio(int $accountId, ?string $text): void
+    {
+        $pdo = Database::connection();
+
+        if ($text === null || trim($text) === '') {
+            $stmt = $pdo->prepare("DELETE FROM account_bio_abi WHERE id_acc_abi = :id");
+            $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+            $stmt->execute();
+            return;
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO account_bio_abi (id_acc_abi, bio_text_abi)
+            VALUES (:id, :bio)
+            ON DUPLICATE KEY UPDATE bio_text_abi = VALUES(bio_text_abi)
+        ");
+
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':bio', trim($text));
+        $stmt->execute();
+    }
+
+    /**
+     * Save a profile avatar image.
+     *
+     * If a primary image already exists for this account, updates it.
+     * Otherwise inserts a new row with is_primary_aim = TRUE.
+     */
+    public static function saveProfileImage(int $accountId, string $filename, ?string $altText = null): void
+    {
+        $pdo = Database::connection();
+
+        $existing = $pdo->prepare("
+            SELECT id_aim, file_name_aim
+            FROM account_image_aim
+            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+            LIMIT 1
+        ");
+
+        $existing->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $existing->execute();
+        $current = $existing->fetch();
+
+        if ($current !== false) {
+            $stmt = $pdo->prepare("
+                UPDATE account_image_aim
+                SET file_name_aim = :filename,
+                    alt_text_aim  = :alt
+                WHERE id_aim = :aim_id
+            ");
+
+            $stmt->bindValue(':filename', $filename);
+            $stmt->bindValue(':alt', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':aim_id', (int) $current['id_aim'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            return;
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO account_image_aim (id_acc_aim, file_name_aim, alt_text_aim, is_primary_aim)
+            VALUES (:id, :filename, :alt, TRUE)
+        ");
+
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':filename', $filename);
+        $stmt->bindValue(':alt', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->execute();
+    }
+
+    /**
+     * Get the current primary image filename for an account.
+     */
+    public static function getPrimaryImage(int $accountId): ?string
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT file_name_aim
+            FROM account_image_aim
+            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row['file_name_aim'] : null;
+    }
 }

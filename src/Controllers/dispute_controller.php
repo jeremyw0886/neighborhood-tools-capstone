@@ -165,6 +165,15 @@ class DisputeController extends BaseController
             ));
         }
 
+        $msgErrors = $_SESSION['dispute_message_errors'] ?? [];
+        $msgOld    = $_SESSION['dispute_message_old'] ?? [];
+        $msgSuccess = $_SESSION['dispute_message_success'] ?? '';
+        unset(
+            $_SESSION['dispute_message_errors'],
+            $_SESSION['dispute_message_old'],
+            $_SESSION['dispute_message_success'],
+        );
+
         $this->render('disputes/show', [
             'title'       => htmlspecialchars($dispute['subject_text_dsp']) . ' — NeighborhoodTools',
             'description' => 'Dispute details and message thread.',
@@ -172,6 +181,9 @@ class DisputeController extends BaseController
             'dispute'     => $dispute,
             'messages'    => $messages,
             'isAdmin'     => $isAdmin,
+            'msgErrors'   => $msgErrors,
+            'msgOld'      => $msgOld,
+            'msgSuccess'  => $msgSuccess,
         ]);
     }
 

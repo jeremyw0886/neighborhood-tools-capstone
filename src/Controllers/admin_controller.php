@@ -77,22 +77,6 @@ class AdminController extends BaseController
     }
 
     /**
-     * Dispute management — open disputes with details.
-     *
-     * Stub — queries open_dispute_v when fully implemented.
-     */
-    public function disputes(): void
-    {
-        $this->requireRole(Role::Admin, Role::SuperAdmin);
-
-        $this->render('admin/disputes', [
-            'title'       => 'Manage Disputes — NeighborhoodTools',
-            'description' => 'Review and resolve open disputes.',
-            'pageCss'     => ['admin.css'],
-        ]);
-    }
-
-    /**
      * Event management — upcoming community events.
      *
      * Stub — queries upcoming_event_v when fully implemented.

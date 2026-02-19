@@ -92,7 +92,7 @@ return [
     // Disputes
     'GET /disputes'                => [DisputeController::class, 'index'],
     'GET /disputes/create/{borrowId}' => [DisputeController::class, 'create'],
-    // 'POST /disputes'               => [DisputeController::class, 'store'],
+    'POST /disputes'               => [DisputeController::class, 'store'],
     // 'GET /disputes/{id}'           => [DisputeController::class, 'show'],
     // 'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
 

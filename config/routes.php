@@ -99,7 +99,7 @@ return [
     // Events
     'GET /events/create'           => [EventController::class, 'create'],
     'GET /events'                  => [EventController::class, 'index'],
-    // 'POST /events'                 => [EventController::class, 'store'],
+    'POST /events'                 => [EventController::class, 'store'],
     // 'GET /events/{id}'             => [EventController::class, 'show'],
 
     // Handover

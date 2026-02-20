@@ -237,4 +237,49 @@ class EventController extends BaseController
             $this->redirect('/events/create');
         }
     }
+
+    /**
+     * Display a single event with full details and metadata.
+     *
+     * Public page — no auth required. Fetches from event_evt with
+     * neighborhood/creator joins (not limited to upcoming_event_v)
+     * so past events are still viewable.
+     */
+    public function show(string $id): void
+    {
+        $eventId = (int) $id;
+
+        if ($eventId < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $event = Event::findById($eventId);
+        } catch (\Throwable $e) {
+            error_log('EventController::show — ' . $e->getMessage());
+            $event = null;
+        }
+
+        if ($event === null) {
+            $this->abort(404);
+        }
+
+        try {
+            $meta = Event::getMeta($eventId);
+        } catch (\Throwable $e) {
+            error_log('EventController::show meta — ' . $e->getMessage());
+            $meta = [];
+        }
+
+        $isAdmin = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin'], true);
+
+        $this->render('events/show', [
+            'title'       => htmlspecialchars($event['event_name_evt']) . ' — NeighborhoodTools',
+            'description' => 'Event details for ' . htmlspecialchars($event['event_name_evt']),
+            'pageCss'     => ['event.css'],
+            'event'       => $event,
+            'meta'        => $meta,
+            'isAdmin'     => $isAdmin,
+        ]);
+    }
 }

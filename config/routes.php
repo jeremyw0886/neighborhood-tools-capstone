@@ -97,8 +97,8 @@ return [
     'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
 
     // Events
+    'GET /events/create'           => [EventController::class, 'create'],
     'GET /events'                  => [EventController::class, 'index'],
-    // 'GET /events/create'           => [EventController::class, 'create'],
     // 'POST /events'                 => [EventController::class, 'store'],
     // 'GET /events/{id}'             => [EventController::class, 'show'],
 

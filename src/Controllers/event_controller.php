@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\Role;
 use App\Models\Event;
+use App\Models\Neighborhood;
 
 class EventController extends BaseController
 {
@@ -58,6 +60,39 @@ class EventController extends BaseController
             'filterParams' => $filterParams,
             'timing'       => $timing,
             'timingCounts' => $timingCounts,
+        ]);
+    }
+
+    /**
+     * Show the event creation form.
+     *
+     * Admin-only — requires admin or super_admin role.
+     * Loads neighborhoods grouped by city for the location selector.
+     * Recovers flash data from a failed store() attempt.
+     */
+    public function create(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $neighborhoods = [];
+
+        try {
+            $neighborhoods = Neighborhood::allGroupedByCity();
+        } catch (\Throwable $e) {
+            error_log('EventController::create — ' . $e->getMessage());
+        }
+
+        $errors = $_SESSION['event_errors'] ?? [];
+        $old    = $_SESSION['event_old'] ?? [];
+        unset($_SESSION['event_errors'], $_SESSION['event_old']);
+
+        $this->render('events/create', [
+            'title'         => 'Create Event — NeighborhoodTools',
+            'description'   => 'Schedule a new community event.',
+            'pageCss'       => ['event.css'],
+            'neighborhoods' => $neighborhoods,
+            'errors'        => $errors,
+            'old'           => $old,
         ]);
     }
 }

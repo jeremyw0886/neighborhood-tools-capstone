@@ -22,15 +22,24 @@ class Deposit
         return $row !== false ? $row : null;
     }
 
-    /**
-     * Release a held security deposit via sp_release_deposit_on_return().
-     *
-     * The SP checks for a deposit linked to the borrow. If none exists,
-     * it returns success silently. If one is held, it transitions the
-     * deposit to "released" and records the timestamp.
-     *
-     * @return array{success: bool, error: ?string}
-     */
+    public static function findByIdRaw(int $id): ?array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            'SELECT id_sdp, id_bor_sdp, id_dps_sdp,
+                    dps.status_name_dps AS deposit_status
+             FROM security_deposit_sdp
+             JOIN deposit_status_dps dps ON dps.id_dps = id_dps_sdp
+             WHERE id_sdp = :id'
+        );
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
     public static function release(int $borrowId): array
     {
         $pdo = Database::connection();

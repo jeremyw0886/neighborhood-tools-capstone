@@ -86,7 +86,7 @@ return [
 
     // Payments
     'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
-    // 'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
+    'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
     // 'GET /payments/history'        => [PaymentController::class, 'history'],
 
     // Disputes

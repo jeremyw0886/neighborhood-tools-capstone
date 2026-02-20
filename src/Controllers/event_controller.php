@@ -48,6 +48,9 @@ class EventController extends BaseController
             'timing' => $timing,
         ], static fn(mixed $v): bool => $v !== null);
 
+        $eventSuccess = $_SESSION['event_success'] ?? '';
+        unset($_SESSION['event_success']);
+
         $this->render('events/index', [
             'title'        => 'Community Events — NeighborhoodTools',
             'description'  => 'Upcoming community events in the Asheville and Hendersonville areas.',
@@ -60,6 +63,7 @@ class EventController extends BaseController
             'filterParams' => $filterParams,
             'timing'       => $timing,
             'timingCounts' => $timingCounts,
+            'eventSuccess' => $eventSuccess,
         ]);
     }
 
@@ -189,7 +193,7 @@ class EventController extends BaseController
 
         $hasEnd = $endDate !== '' || $endTime !== '';
 
-        if ($hasEnd && $startAt !== null && !isset($errors['end_date'], $errors['end_time'])) {
+        if ($hasEnd && $startAt !== null && !isset($errors['end_date']) && !isset($errors['end_time'])) {
             $resolvedEndDate = $endDate !== '' ? $endDate : $startDate;
             $resolvedEndTime = $endTime !== '' ? $endTime : $startTime;
             $endAt = $resolvedEndDate . ' ' . $resolvedEndTime . ':00';

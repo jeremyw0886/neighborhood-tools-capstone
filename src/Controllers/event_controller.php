@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Event;
+use App\Models\EventAttendance;
 use App\Models\Neighborhood;
 
 class EventController extends BaseController
@@ -50,22 +51,41 @@ class EventController extends BaseController
             'timing' => $timing,
         ], static fn(mixed $v): bool => $v !== null);
 
+        $attendedIds    = [];
+        $attendeeCounts = [];
+
+        if (!empty($_SESSION['logged_in']) && $events !== []) {
+            try {
+                $eventIds       = array_column($events, 'id_evt');
+                $attendedIds    = EventAttendance::getEventIdsForUser((int) $_SESSION['user_id']);
+                $attendeeCounts = EventAttendance::getAttendeeCounts($eventIds);
+            } catch (\Throwable $e) {
+                error_log('EventController::index RSVP — ' . $e->getMessage());
+            }
+        }
+
         $eventSuccess = $_SESSION['event_success'] ?? '';
         unset($_SESSION['event_success']);
 
+        $eventFlash = $_SESSION['event_flash'] ?? '';
+        unset($_SESSION['event_flash']);
+
         $this->render('events/index', [
-            'title'        => 'Community Events — NeighborhoodTools',
-            'description'  => 'Upcoming community events in the Asheville and Hendersonville areas.',
-            'pageCss'      => ['event.css'],
-            'events'       => $events,
-            'totalCount'   => $totalCount,
-            'page'         => $page,
-            'totalPages'   => $totalPages,
-            'perPage'      => self::PER_PAGE,
-            'filterParams' => $filterParams,
-            'timing'       => $timing,
-            'timingCounts' => $timingCounts,
-            'eventSuccess' => $eventSuccess,
+            'title'          => 'Community Events — NeighborhoodTools',
+            'description'    => 'Upcoming community events in the Asheville and Hendersonville areas.',
+            'pageCss'        => ['event.css'],
+            'events'         => $events,
+            'totalCount'     => $totalCount,
+            'page'           => $page,
+            'totalPages'     => $totalPages,
+            'perPage'        => self::PER_PAGE,
+            'filterParams'   => $filterParams,
+            'timing'         => $timing,
+            'timingCounts'   => $timingCounts,
+            'eventSuccess'   => $eventSuccess,
+            'eventFlash'     => $eventFlash,
+            'attendedIds'    => $attendedIds,
+            'attendeeCounts' => $attendeeCounts,
         ]);
     }
 
@@ -118,6 +138,8 @@ class EventController extends BaseController
 
         $name           = trim($_POST['event_name'] ?? '');
         $description    = trim($_POST['event_description'] ?? '');
+        $isVirtual      = isset($_POST['is_virtual']);
+        $address        = trim($_POST['event_address'] ?? '');
         $startDate      = trim($_POST['start_date'] ?? '');
         $startTime      = trim($_POST['start_time'] ?? '');
         $endDate        = trim($_POST['end_date'] ?? '');
@@ -127,6 +149,8 @@ class EventController extends BaseController
         $old = [
             'event_name'        => $name,
             'event_description' => $description,
+            'is_virtual'        => $isVirtual,
+            'event_address'     => $address,
             'start_date'        => $startDate,
             'start_time'        => $startTime,
             'end_date'          => $endDate,
@@ -144,6 +168,12 @@ class EventController extends BaseController
 
         if ($description !== '' && mb_strlen($description) > 5000) {
             $errors['event_description'] = 'Description must be 5,000 characters or fewer.';
+        }
+
+        if (!$isVirtual && $address === '') {
+            $errors['event_address'] = 'Address is required for in-person events.';
+        } elseif ($address !== '' && mb_strlen($address) > 255) {
+            $errors['event_address'] = 'Address must be 255 characters or fewer.';
         }
 
         $validStartDate = false;
@@ -223,6 +253,7 @@ class EventController extends BaseController
             Event::create(
                 name:           $name,
                 description:    $description !== '' ? $description : null,
+                address:        $isVirtual ? null : ($address !== '' ? $address : null),
                 startAt:        $startAt,
                 endAt:          $endAt,
                 neighborhoodId: $nbhId,
@@ -275,15 +306,93 @@ class EventController extends BaseController
             $meta = [];
         }
 
-        $isAdmin = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin'], true);
+        $isAdmin       = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin'], true);
+        $isAttending   = false;
+        $attendeeCount = 0;
+
+        try {
+            $attendeeCount = EventAttendance::getAttendeeCount($eventId);
+
+            if (!empty($_SESSION['logged_in'])) {
+                $isAttending = EventAttendance::isAttending((int) $_SESSION['user_id'], $eventId);
+            }
+        } catch (\Throwable $e) {
+            error_log('EventController::show RSVP — ' . $e->getMessage());
+        }
+
+        $eventFlash = $_SESSION['event_flash'] ?? '';
+        unset($_SESSION['event_flash']);
 
         $this->render('events/show', [
-            'title'       => htmlspecialchars($event['event_name_evt']) . ' — NeighborhoodTools',
-            'description' => 'Event details for ' . htmlspecialchars($event['event_name_evt']),
-            'pageCss'     => ['event.css'],
-            'event'       => $event,
-            'meta'        => $meta,
-            'isAdmin'     => $isAdmin,
+            'title'         => htmlspecialchars($event['event_name_evt']) . ' — NeighborhoodTools',
+            'description'   => 'Event details for ' . htmlspecialchars($event['event_name_evt']),
+            'pageCss'       => ['event.css'],
+            'event'         => $event,
+            'meta'          => $meta,
+            'isAdmin'       => $isAdmin,
+            'isAttending'   => $isAttending,
+            'attendeeCount' => $attendeeCount,
+            'eventFlash'    => $eventFlash,
         ]);
+    }
+
+    public function toggleRsvp(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $eventId = (int) $id;
+
+        if ($eventId < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $event = Event::findById($eventId);
+        } catch (\Throwable $e) {
+            error_log('EventController::toggleRsvp — ' . $e->getMessage());
+            $event = null;
+        }
+
+        if ($event === null) {
+            $this->abort(404);
+        }
+
+        if ($event['event_timing'] === 'PAST') {
+            $_SESSION['event_flash'] = 'You cannot RSVP to a past event.';
+            $this->redirect('/events/' . $eventId);
+            return;
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $attending = EventAttendance::toggle($userId, $eventId);
+            $_SESSION['event_flash'] = $attending
+                ? 'You are now attending this event.'
+                : 'RSVP removed.';
+        } catch (\Throwable $e) {
+            error_log('EventController::toggleRsvp — ' . $e->getMessage());
+            $_SESSION['event_flash'] = 'Could not update RSVP. Please try again.';
+        }
+
+        $back    = '/events/' . $eventId;
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+
+        if ($referer !== '') {
+            $parsed  = parse_url($referer);
+            $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+            $curHost = $_SERVER['HTTP_HOST'] ?? '';
+
+            if ($refHost === $curHost && isset($parsed['path'])) {
+                $back = $parsed['path'];
+
+                if (isset($parsed['query'])) {
+                    $back .= '?' . $parsed['query'];
+                }
+            }
+        }
+
+        $this->redirect($back);
     }
 }

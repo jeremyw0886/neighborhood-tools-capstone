@@ -72,6 +72,10 @@ $totalAll   = array_sum($timingCounts);
     <p role="alert"><?= htmlspecialchars($eventSuccess) ?></p>
   <?php endif; ?>
 
+  <?php if ($eventFlash !== ''): ?>
+    <p role="status"><?= htmlspecialchars($eventFlash) ?></p>
+  <?php endif; ?>
+
   <nav aria-label="Filter by timing">
     <ul>
       <li>
@@ -145,6 +149,23 @@ $totalAll   = array_sum($timingCounts);
                 </time>
               </dd>
             </div>
+            <?php if ($event['event_address_evt'] !== null): ?>
+              <div>
+                <dt>
+                  <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
+                  <span class="visually-hidden">Address</span>
+                </dt>
+                <dd><?= htmlspecialchars($event['event_address_evt']) ?></dd>
+              </div>
+            <?php elseif (!$hasLocation): ?>
+              <div>
+                <dt>
+                  <i class="fa-solid fa-video" aria-hidden="true"></i>
+                  <span class="visually-hidden">Format</span>
+                </dt>
+                <dd>Virtual Event</dd>
+              </div>
+            <?php endif; ?>
             <?php if ($hasLocation): ?>
               <div>
                 <dt>
@@ -167,15 +188,37 @@ $totalAll   = array_sum($timingCounts);
             </div>
           </dl>
 
+          <?php
+            $isAttending = in_array((int) $event['id_evt'], $attendedIds, true);
+            $count = $attendeeCounts[(int) $event['id_evt']] ?? 0;
+          ?>
           <footer>
-            <?php if ($event['event_timing'] === 'HAPPENING NOW'): ?>
-              <span data-timing="happening-now">Happening now</span>
-            <?php elseif ($days === 0): ?>
-              <span data-timing="this-week">Starts today</span>
-            <?php elseif ($days === 1): ?>
-              <span data-timing="this-week">Tomorrow</span>
-            <?php else: ?>
-              <span>In <?= $days ?> day<?= $days !== 1 ? 's' : '' ?></span>
+            <div>
+              <?php if ($event['event_timing'] === 'HAPPENING NOW'): ?>
+                <span data-timing="happening-now">Happening now</span>
+              <?php elseif ($days === 0): ?>
+                <span data-timing="this-week">Starts today</span>
+              <?php elseif ($days === 1): ?>
+                <span data-timing="this-week">Tomorrow</span>
+              <?php else: ?>
+                <span>In <?= $days ?> day<?= $days !== 1 ? 's' : '' ?></span>
+              <?php endif; ?>
+              <?php if ($count > 0): ?>
+                <span>
+                  <i class="fa-solid fa-users" aria-hidden="true"></i>
+                  <?= $count ?> attending
+                </span>
+              <?php endif; ?>
+            </div>
+            <?php if (!empty($isLoggedIn)): ?>
+              <form method="post" action="/events/<?= (int) $event['id_evt'] ?>/rsvp">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                <button type="submit"
+                        aria-label="<?= $isAttending ? 'Cancel RSVP for' : 'RSVP to' ?> <?= htmlspecialchars($event['event_name_evt']) ?>">
+                  <i class="fa-<?= $isAttending ? 'solid' : 'regular' ?> fa-calendar-check" aria-hidden="true"></i>
+                  <?= $isAttending ? 'Going' : 'RSVP' ?>
+                </button>
+              </form>
             <?php endif; ?>
           </footer>
         </article>

@@ -39,6 +39,10 @@ $days = (int) $event['days_until_event'];
     </a>
   </nav>
 
+  <?php if ($eventFlash !== ''): ?>
+    <p role="status"><?= htmlspecialchars($eventFlash) ?></p>
+  <?php endif; ?>
+
   <header>
     <span data-timing="<?= htmlspecialchars($timingSlug) ?>">
       <i class="fa-solid <?= $timingIcon ?>" aria-hidden="true"></i>
@@ -70,6 +74,24 @@ $days = (int) $event['days_until_event'];
         <?php endif; ?>
       </dd>
     </div>
+
+    <?php if ($event['event_address_evt'] !== null): ?>
+      <div>
+        <dt>
+          <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
+          Address
+        </dt>
+        <dd><?= htmlspecialchars($event['event_address_evt']) ?></dd>
+      </div>
+    <?php elseif ($event['neighborhood_name_nbh'] === null): ?>
+      <div>
+        <dt>
+          <i class="fa-solid fa-video" aria-hidden="true"></i>
+          Format
+        </dt>
+        <dd>Virtual Event</dd>
+      </div>
+    <?php endif; ?>
 
     <?php if ($event['neighborhood_name_nbh'] !== null): ?>
       <div>
@@ -116,7 +138,25 @@ $days = (int) $event['days_until_event'];
         </dd>
       </div>
     <?php endif; ?>
+
+    <div>
+      <dt>
+        <i class="fa-solid fa-users" aria-hidden="true"></i>
+        Attending
+      </dt>
+      <dd><?= $attendeeCount ?> <?= $attendeeCount === 1 ? 'person' : 'people' ?></dd>
+    </div>
   </dl>
+
+  <?php if (!empty($isLoggedIn) && !$isPast): ?>
+    <form method="post" action="/events/<?= (int) $event['id_evt'] ?>/rsvp" aria-label="RSVP">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <button type="submit">
+        <i class="fa-<?= $isAttending ? 'solid' : 'regular' ?> fa-calendar-check" aria-hidden="true"></i>
+        <?= $isAttending ? 'Cancel RSVP' : 'RSVP to This Event' ?>
+      </button>
+    </form>
+  <?php endif; ?>
 
   <?php if ($event['event_description_evt'] !== null && $event['event_description_evt'] !== ''): ?>
     <section aria-label="Description">

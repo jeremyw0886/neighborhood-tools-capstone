@@ -127,6 +127,33 @@ $currentCity = '';
       <legend>Location</legend>
 
       <div>
+        <label>
+          <input type="checkbox"
+                 id="event-virtual"
+                 name="is_virtual"
+                 <?= !empty($old['is_virtual']) ? 'checked' : '' ?>>
+          This is a virtual event (no physical location)
+        </label>
+      </div>
+
+      <div>
+        <label for="event-address">Address <span aria-hidden="true">*</span></label>
+        <input type="text"
+               id="event-address"
+               name="event_address"
+               maxlength="255"
+               autocomplete="street-address"
+               placeholder="e.g. 123 Main St, Asheville, NC 28801"
+               value="<?= htmlspecialchars($old['event_address'] ?? '') ?>"
+               aria-describedby="event-address-hint<?= isset($errors['event_address']) ? ' event-address-error' : '' ?>"
+               <?php if (isset($errors['event_address'])): ?>aria-invalid="true"<?php endif; ?>>
+        <p id="event-address-hint">Required for in-person events.</p>
+        <?php if (isset($errors['event_address'])): ?>
+          <p id="event-address-error" role="alert"><?= htmlspecialchars($errors['event_address']) ?></p>
+        <?php endif; ?>
+      </div>
+
+      <div>
         <label for="event-neighborhood">Neighborhood</label>
         <select id="event-neighborhood"
                 name="neighborhood_id"

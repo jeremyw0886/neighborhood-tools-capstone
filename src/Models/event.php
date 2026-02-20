@@ -130,6 +130,7 @@ class Event
     public static function create(
         string $name,
         ?string $description,
+        ?string $address,
         string $startAt,
         ?string $endAt,
         ?int $neighborhoodId,
@@ -142,6 +143,7 @@ class Event
             INSERT INTO event_evt (
                 event_name_evt,
                 event_description_evt,
+                event_address_evt,
                 start_at_evt,
                 end_at_evt,
                 id_nbh_evt,
@@ -149,6 +151,7 @@ class Event
             ) VALUES (
                 :name,
                 :description,
+                :address,
                 :start_at,
                 :end_at,
                 :neighborhood_id,
@@ -159,6 +162,7 @@ class Event
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':description', $description, $description === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':address', $address, $address === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->bindValue(':start_at', $startAt);
         $stmt->bindValue(':end_at', $endAt, $endAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->bindValue(':neighborhood_id', $neighborhoodId, $neighborhoodId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -204,6 +208,7 @@ class Event
                 e.id_evt,
                 e.event_name_evt,
                 e.event_description_evt,
+                e.event_address_evt,
                 e.start_at_evt,
                 e.end_at_evt,
                 TIMESTAMPDIFF(DAY, NOW(), e.start_at_evt) AS days_until_event,
@@ -217,7 +222,8 @@ class Event
                         THEN 'PAST'
                     WHEN TIMESTAMPDIFF(DAY, NOW(), e.start_at_evt) <= 7
                         THEN 'THIS WEEK'
-                    WHEN TIMESTAMPDIFF(DAY, NOW(), e.start_at_evt) <= 30
+                    WHEN YEAR(e.start_at_evt) = YEAR(NOW())
+                         AND MONTH(e.start_at_evt) = MONTH(NOW())
                         THEN 'THIS MONTH'
                     ELSE 'UPCOMING'
                 END AS event_timing,

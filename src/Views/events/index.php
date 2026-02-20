@@ -68,6 +68,10 @@ $totalAll   = array_sum($timingCounts);
     <p>Discover upcoming events in the Asheville and Hendersonville neighborhoods.</p>
   </header>
 
+  <?php if ($eventSuccess !== ''): ?>
+    <p role="alert"><?= htmlspecialchars($eventSuccess) ?></p>
+  <?php endif; ?>
+
   <nav aria-label="Filter by timing">
     <ul>
       <li>

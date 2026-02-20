@@ -95,4 +95,142 @@ class EventController extends BaseController
             'old'           => $old,
         ]);
     }
+
+    /**
+     * Validate and persist a new community event.
+     *
+     * Expects POST fields: csrf_token, event_name, event_description,
+     * start_date, start_time, end_date, end_time, neighborhood_id.
+     * Combines date + time pairs into TIMESTAMP values for the DB.
+     * On success redirects to /events with a flash notice.
+     * On failure redirects back to /events/create with field-keyed errors.
+     */
+    public function store(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $name           = trim($_POST['event_name'] ?? '');
+        $description    = trim($_POST['event_description'] ?? '');
+        $startDate      = trim($_POST['start_date'] ?? '');
+        $startTime      = trim($_POST['start_time'] ?? '');
+        $endDate        = trim($_POST['end_date'] ?? '');
+        $endTime        = trim($_POST['end_time'] ?? '');
+        $neighborhoodId = trim($_POST['neighborhood_id'] ?? '');
+
+        $old = [
+            'event_name'        => $name,
+            'event_description' => $description,
+            'start_date'        => $startDate,
+            'start_time'        => $startTime,
+            'end_date'          => $endDate,
+            'end_time'          => $endTime,
+            'neighborhood_id'   => $neighborhoodId,
+        ];
+
+        $errors = [];
+
+        if ($name === '') {
+            $errors['event_name'] = 'Event name is required.';
+        } elseif (mb_strlen($name) > 255) {
+            $errors['event_name'] = 'Event name must be 255 characters or fewer.';
+        }
+
+        if ($description !== '' && mb_strlen($description) > 5000) {
+            $errors['event_description'] = 'Description must be 5,000 characters or fewer.';
+        }
+
+        $validStartDate = false;
+        if ($startDate === '') {
+            $errors['start_date'] = 'Start date is required.';
+        } else {
+            $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
+            if ($parsed === false || $parsed->format('Y-m-d') !== $startDate) {
+                $errors['start_date'] = 'Start date is not valid.';
+            } elseif ($startDate < date('Y-m-d')) {
+                $errors['start_date'] = 'Start date cannot be in the past.';
+            } else {
+                $validStartDate = true;
+            }
+        }
+
+        $validStartTime = false;
+        if ($startTime === '') {
+            $errors['start_time'] = 'Start time is required.';
+        } else {
+            $parsed = \DateTimeImmutable::createFromFormat('H:i', $startTime);
+            if ($parsed === false || $parsed->format('H:i') !== $startTime) {
+                $errors['start_time'] = 'Start time is not valid.';
+            } else {
+                $validStartTime = true;
+            }
+        }
+
+        if ($endDate !== '') {
+            $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
+            if ($parsed === false || $parsed->format('Y-m-d') !== $endDate) {
+                $errors['end_date'] = 'End date is not valid.';
+            }
+        }
+
+        if ($endTime !== '') {
+            $parsed = \DateTimeImmutable::createFromFormat('H:i', $endTime);
+            if ($parsed === false || $parsed->format('H:i') !== $endTime) {
+                $errors['end_time'] = 'End time is not valid.';
+            }
+        }
+
+        $startAt = null;
+        $endAt   = null;
+
+        if ($validStartDate && $validStartTime) {
+            $startAt = $startDate . ' ' . $startTime . ':00';
+        }
+
+        $hasEnd = $endDate !== '' || $endTime !== '';
+
+        if ($hasEnd && $startAt !== null && !isset($errors['end_date'], $errors['end_time'])) {
+            $resolvedEndDate = $endDate !== '' ? $endDate : $startDate;
+            $resolvedEndTime = $endTime !== '' ? $endTime : $startTime;
+            $endAt = $resolvedEndDate . ' ' . $resolvedEndTime . ':00';
+
+            if ($endAt <= $startAt) {
+                $errors['end_date'] = 'End date/time must be after the start.';
+                $endAt = null;
+            }
+        }
+
+        $nbhId = $neighborhoodId !== '' ? (int) $neighborhoodId : null;
+
+        if ($nbhId !== null && $nbhId < 1) {
+            $errors['neighborhood_id'] = 'Invalid neighborhood selected.';
+            $nbhId = null;
+        }
+
+        if ($errors !== []) {
+            $_SESSION['event_errors'] = $errors;
+            $_SESSION['event_old']    = $old;
+            $this->redirect('/events/create');
+        }
+
+        try {
+            Event::create(
+                name:           $name,
+                description:    $description !== '' ? $description : null,
+                startAt:        $startAt,
+                endAt:          $endAt,
+                neighborhoodId: $nbhId,
+                creatorId:      (int) $_SESSION['user_id'],
+            );
+
+            $_SESSION['event_success'] = 'Event created successfully.';
+            $this->redirect('/events');
+        } catch (\Throwable $e) {
+            error_log('EventController::store — ' . $e->getMessage());
+
+            $_SESSION['event_errors'] = ['general' => 'Something went wrong creating the event. Please try again.'];
+            $_SESSION['event_old']    = $old;
+            $this->redirect('/events/create');
+        }
+    }
 }

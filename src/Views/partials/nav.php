@@ -101,6 +101,11 @@ $isHero = !empty($heroPage);
             <i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bookmarks
           </a>
         </li>
+        <li role="menuitem">
+          <a href="/events"<?= str_starts_with($currentPage, '/events') ? ' aria-current="page"' : '' ?>>
+            <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Events
+          </a>
+        </li>
         <?php if (\App\Core\Role::tryFrom($authUser['role'])?->isAdmin()): ?>
           <li role="menuitem">
             <a href="/admin">

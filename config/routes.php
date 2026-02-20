@@ -100,7 +100,7 @@ return [
     'GET /events/create'           => [EventController::class, 'create'],
     'GET /events'                  => [EventController::class, 'index'],
     'POST /events'                 => [EventController::class, 'store'],
-    // 'GET /events/{id}'             => [EventController::class, 'show'],
+    'GET /events/{id}'             => [EventController::class, 'show'],
 
     // Handover
     'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],

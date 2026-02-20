@@ -1,15 +1,18 @@
 <?php
-/**
- * Deposit Detail — security deposit status, amount, and borrow context.
- *
- * Variables from PaymentController::deposit():
- *   $deposit   array   Row from Deposit::findById()
- *   $isAdmin   bool    Whether the current user is an admin
- *
- * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
- */
+
+$depositSuccess = $_SESSION['deposit_success'] ?? null;
+unset($_SESSION['deposit_success']);
+
+$depositErrors = $_SESSION['deposit_errors'] ?? [];
+unset($_SESSION['deposit_errors']);
+
+$old = $_SESSION['deposit_old'] ?? [];
+unset($_SESSION['deposit_old']);
+
+$errorMessages = [];
+foreach ($depositErrors as $msg) {
+    $errorMessages[] = $msg;
+}
 
 $depositId     = (int) $deposit['id_sdp'];
 $amount        = number_format((float) $deposit['amount_sdp'], 2);
@@ -44,6 +47,22 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
       </a>
     <?php endif; ?>
   </nav>
+
+  <?php if ($depositSuccess): ?>
+    <div role="alert" aria-live="polite" data-flash="success">
+      <p><?= htmlspecialchars($depositSuccess) ?></p>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($errorMessages): ?>
+    <div role="alert" aria-live="assertive" data-flash="error">
+      <ul>
+        <?php foreach ($errorMessages as $msg): ?>
+          <li><?= htmlspecialchars($msg) ?></li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
 
   <header>
     <h1 id="deposit-heading">
@@ -121,5 +140,45 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
       </div>
     </dl>
   </section>
+
+  <?php if ($isAdmin): ?>
+  <section aria-labelledby="process-heading">
+    <h2 id="process-heading">Process Deposit</h2>
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <fieldset>
+        <legend>Action</legend>
+        <label><input type="radio" name="action" value="release" checked> Release to Borrower</label>
+        <label><input type="radio" name="action" value="forfeit"> Forfeit to Lender</label>
+      </fieldset>
+      <fieldset>
+        <legend>Forfeit Details</legend>
+        <div>
+          <label for="forfeit-amount">Amount ($)</label>
+          <input id="forfeit-amount" name="forfeit_amount" type="number"
+                 step="0.01" min="0.01" max="<?= htmlspecialchars($deposit['amount_sdp']) ?>"
+                 value="<?= htmlspecialchars($old['forfeit_amount'] ?? $deposit['amount_sdp']) ?>"
+                 aria-describedby="<?= isset($depositErrors['forfeit_amount']) ? 'forfeit-amount-error' : '' ?>">
+          <?php if (isset($depositErrors['forfeit_amount'])): ?>
+            <p id="forfeit-amount-error" role="alert"><?= htmlspecialchars($depositErrors['forfeit_amount']) ?></p>
+          <?php endif; ?>
+        </div>
+        <div>
+          <label for="forfeit-reason">Reason</label>
+          <textarea id="forfeit-reason" name="reason" rows="3"
+                    maxlength="2000"
+                    aria-describedby="<?= isset($depositErrors['reason']) ? 'forfeit-reason-error' : '' ?>"
+                    ><?= htmlspecialchars($old['reason'] ?? '') ?></textarea>
+          <?php if (isset($depositErrors['reason'])): ?>
+            <p id="forfeit-reason-error" role="alert"><?= htmlspecialchars($depositErrors['reason']) ?></p>
+          <?php endif; ?>
+        </div>
+      </fieldset>
+      <footer>
+        <button type="submit">Process Deposit</button>
+      </footer>
+    </form>
+  </section>
+  <?php endif; ?>
 
 </section>

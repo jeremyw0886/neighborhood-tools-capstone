@@ -9,6 +9,19 @@ use PDO;
 
 class Deposit
 {
+    public static function findById(int $id): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('SELECT * FROM pending_deposit_v WHERE id_sdp = :id');
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
     /**
      * Release a held security deposit via sp_release_deposit_on_return().
      *

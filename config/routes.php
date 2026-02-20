@@ -18,7 +18,7 @@ use App\Controllers\BorrowController;
 use App\Controllers\ProfileController;
 // use App\Controllers\SearchController;
 use App\Controllers\RatingController;
-// use App\Controllers\PaymentController;
+use App\Controllers\PaymentController;
 use App\Controllers\DisputeController;
 use App\Controllers\EventController;
 use App\Controllers\HandoverController;
@@ -85,7 +85,7 @@ return [
     'POST /rate/tool'              => [RatingController::class, 'rateTool'],
 
     // Payments
-    // 'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
+    'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
     // 'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
     // 'GET /payments/history'        => [PaymentController::class, 'history'],
 

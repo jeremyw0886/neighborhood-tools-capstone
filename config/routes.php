@@ -20,7 +20,7 @@ use App\Controllers\ProfileController;
 use App\Controllers\RatingController;
 // use App\Controllers\PaymentController;
 use App\Controllers\DisputeController;
-// use App\Controllers\EventController;
+use App\Controllers\EventController;
 use App\Controllers\HandoverController;
 // use App\Controllers\IncidentController;
 use App\Controllers\NotificationController;
@@ -97,7 +97,7 @@ return [
     'POST /disputes/{id}/message'  => [DisputeController::class, 'addMessage'],
 
     // Events
-    // 'GET /events'                  => [EventController::class, 'index'],
+    'GET /events'                  => [EventController::class, 'index'],
     // 'GET /events/create'           => [EventController::class, 'create'],
     // 'POST /events'                 => [EventController::class, 'store'],
     // 'GET /events/{id}'             => [EventController::class, 'show'],

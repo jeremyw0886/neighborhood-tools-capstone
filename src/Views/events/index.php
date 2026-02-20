@@ -122,7 +122,11 @@ $totalAll   = array_sum($timingCounts);
               <i class="fa-solid <?= $icon ?>" aria-hidden="true"></i>
               <?= htmlspecialchars($event['event_timing']) ?>
             </span>
-            <h2><?= htmlspecialchars($event['event_name_evt']) ?></h2>
+            <h2>
+              <a href="/events/<?= (int) $event['id_evt'] ?>">
+                <?= htmlspecialchars($event['event_name_evt']) ?>
+              </a>
+            </h2>
           </header>
 
           <?php if ($event['event_description_evt'] !== null && $event['event_description_evt'] !== ''): ?>

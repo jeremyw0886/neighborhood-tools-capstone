@@ -73,20 +73,29 @@ class AdminController extends BaseController
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $page       = max(1, (int) ($_GET['page'] ?? 1));
-        $totalCount = Account::getActiveCount();
-        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-        $page       = min($page, $totalPages);
-        $offset     = ($page - 1) * self::PER_PAGE;
-
         $flash = $_SESSION['admin_users_flash'] ?? null;
         unset($_SESSION['admin_users_flash']);
+
+        try {
+            $page       = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount = Account::getActiveCount();
+            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page       = min($page, $totalPages);
+            $offset     = ($page - 1) * self::PER_PAGE;
+            $users      = Account::getAllForAdmin(self::PER_PAGE, $offset);
+        } catch (\Throwable $e) {
+            error_log('AdminController::users — ' . $e->getMessage());
+            $page       = 1;
+            $totalCount = 0;
+            $totalPages = 1;
+            $users      = [];
+        }
 
         $this->render('admin/users', [
             'title'       => 'Manage Users — NeighborhoodTools',
             'description' => 'View and manage platform members.',
             'pageCss'     => ['admin.css'],
-            'users'       => Account::getAllForAdmin(self::PER_PAGE, $offset),
+            'users'       => $users,
             'totalCount'  => $totalCount,
             'page'        => $page,
             'totalPages'  => $totalPages,
@@ -109,7 +118,12 @@ class AdminController extends BaseController
             $this->abort(404);
         }
 
-        $user = Account::findById($accountId);
+        try {
+            $user = Account::findById($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::approveUser — ' . $e->getMessage());
+            $this->abort(500);
+        }
 
         if ($user === null) {
             $this->abort(404);
@@ -145,7 +159,12 @@ class AdminController extends BaseController
             $this->abort(404);
         }
 
-        $user = Account::findById($accountId);
+        try {
+            $user = Account::findById($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::denyUser — ' . $e->getMessage());
+            $this->abort(500);
+        }
 
         if ($user === null) {
             $this->abort(404);
@@ -186,7 +205,12 @@ class AdminController extends BaseController
             $this->abort(404);
         }
 
-        $user = Account::findById($accountId);
+        try {
+            $user = Account::findById($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateUserStatus — ' . $e->getMessage());
+            $this->abort(500);
+        }
 
         if ($user === null) {
             $this->abort(404);
@@ -241,17 +265,26 @@ class AdminController extends BaseController
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $page       = max(1, (int) ($_GET['page'] ?? 1));
-        $totalCount = Tool::getAdminCount();
-        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-        $page       = min($page, $totalPages);
-        $offset     = ($page - 1) * self::PER_PAGE;
+        try {
+            $page       = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount = Tool::getAdminCount();
+            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page       = min($page, $totalPages);
+            $offset     = ($page - 1) * self::PER_PAGE;
+            $tools      = Tool::getAdminList(self::PER_PAGE, $offset);
+        } catch (\Throwable $e) {
+            error_log('AdminController::tools — ' . $e->getMessage());
+            $page       = 1;
+            $totalCount = 0;
+            $totalPages = 1;
+            $tools      = [];
+        }
 
         $this->render('admin/tools', [
             'title'       => 'Manage Tools — NeighborhoodTools',
             'description' => 'View and manage listed tools.',
             'pageCss'     => ['admin.css'],
-            'tools'       => Tool::getAdminList(self::PER_PAGE, $offset),
+            'tools'       => $tools,
             'totalCount'  => $totalCount,
             'page'        => $page,
             'totalPages'  => $totalPages,
@@ -377,17 +410,26 @@ class AdminController extends BaseController
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $page       = max(1, (int) ($_GET['page'] ?? 1));
-        $totalCount = Neighborhood::getSummaryCount();
-        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-        $page       = min($page, $totalPages);
-        $offset     = ($page - 1) * self::PER_PAGE;
+        try {
+            $page          = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount    = Neighborhood::getSummaryCount();
+            $totalPages    = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page          = min($page, $totalPages);
+            $offset        = ($page - 1) * self::PER_PAGE;
+            $neighborhoods = Neighborhood::getSummaryList(self::PER_PAGE, $offset);
+        } catch (\Throwable $e) {
+            error_log('AdminController::reports — ' . $e->getMessage());
+            $page          = 1;
+            $totalCount    = 0;
+            $totalPages    = 1;
+            $neighborhoods = [];
+        }
 
         $this->render('admin/reports', [
             'title'          => 'Reports — NeighborhoodTools',
             'description'    => 'Platform reports and statistics.',
             'pageCss'        => ['admin.css'],
-            'neighborhoods'  => Neighborhood::getSummaryList(self::PER_PAGE, $offset),
+            'neighborhoods'  => $neighborhoods,
             'totalCount'     => $totalCount,
             'page'           => $page,
             'totalPages'     => $totalPages,
@@ -424,17 +466,26 @@ class AdminController extends BaseController
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $page       = max(1, (int) ($_GET['page'] ?? 1));
-        $totalCount = Tos::getNonCompliantCount();
-        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-        $page       = min($page, $totalPages);
-        $offset     = ($page - 1) * self::PER_PAGE;
+        try {
+            $page       = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount = Tos::getNonCompliantCount();
+            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page       = min($page, $totalPages);
+            $offset     = ($page - 1) * self::PER_PAGE;
+            $users      = Tos::getNonCompliantUsers(self::PER_PAGE, $offset);
+        } catch (\Throwable $e) {
+            error_log('AdminController::tos — ' . $e->getMessage());
+            $page       = 1;
+            $totalCount = 0;
+            $totalPages = 1;
+            $users      = [];
+        }
 
         $this->render('admin/tos', [
             'title'       => 'Manage Terms of Service — NeighborhoodTools',
             'description' => 'View and manage Terms of Service versions.',
             'pageCss'     => ['admin.css'],
-            'users'       => Tos::getNonCompliantUsers(self::PER_PAGE, $offset),
+            'users'       => $users,
             'totalCount'  => $totalCount,
             'page'        => $page,
             'totalPages'  => $totalPages,

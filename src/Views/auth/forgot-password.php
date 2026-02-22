@@ -23,6 +23,11 @@
     <form method="post" action="/forgot-password" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
+      <div aria-hidden="true" style="position:absolute;left:-9999px">
+        <label for="website">Leave this empty</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
       <div class="form-group">
         <label for="email">Email Address</label>
         <input

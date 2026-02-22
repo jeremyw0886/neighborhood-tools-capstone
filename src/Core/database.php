@@ -19,12 +19,10 @@ class Database
             try {
                 self::$pdo = new PDO($cfg['dsn'], $cfg['username'], $cfg['password'], $cfg['options']);
             } catch (PDOException $e) {
-                if (Environment::isProduction()) {
-                    error_log('Database connection failed: ' . $e->getMessage());
-                    die('Database connection failed.');
-                }
-
-                die('Database connection failed: ' . $e->getMessage());
+                error_log('Database connection failed: ' . $e->getMessage());
+                http_response_code(500);
+                require BASE_PATH . '/src/Views/errors/500.php';
+                exit;
             }
         }
         return self::$pdo;

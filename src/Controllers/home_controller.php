@@ -61,6 +61,7 @@ class HomeController extends BaseController
             'title'            => 'NeighborhoodTools — Share Tools, Build Community',
             'heroPage'         => true,
             'pageCss'          => ['home.css'],
+            'pageJs'           => ['home.js'],
             'selectedCity'     => $selectedCity,
             'nearbyMembers'    => $nearbyMembers,
             'isNearbyFallback' => $isNearbyFallback,

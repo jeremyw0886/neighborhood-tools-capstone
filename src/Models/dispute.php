@@ -164,10 +164,12 @@ class Dispute
                 m.created_at_dsm,
                 m.id_acc_dsm          AS author_id,
                 CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS author_name,
-                a.avatar_filename_acc AS author_avatar,
+                aim.file_name_aim     AS author_avatar,
                 dmt.type_name_dmt     AS message_type
             FROM dispute_message_dsm m
             JOIN account_acc a                ON m.id_acc_dsm = a.id_acc
+            LEFT JOIN account_image_aim aim
+                ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
             JOIN dispute_message_type_dmt dmt ON m.id_dmt_dsm = dmt.id_dmt
             WHERE m.id_dsp_dsm = :dispute_id
             ORDER BY m.created_at_dsm ASC

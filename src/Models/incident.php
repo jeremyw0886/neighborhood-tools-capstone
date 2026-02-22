@@ -10,6 +10,16 @@ use PDO;
 class Incident
 {
     /**
+     * Count open (unresolved) incidents platform-wide.
+     */
+    public static function getOpenCount(): int
+    {
+        $pdo = Database::connection();
+
+        return (int) $pdo->query('SELECT COUNT(*) FROM open_incident_v')->fetchColumn();
+    }
+
+    /**
      * Fetch all incident type options from the lookup table.
      *
      * @return array  Rows with id_ity and type_name_ity

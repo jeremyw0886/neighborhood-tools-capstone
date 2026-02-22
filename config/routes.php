@@ -93,7 +93,6 @@ return [
     'POST /webhook/stripe'           => [PaymentController::class, 'stripeWebhook'],
 
     // Disputes
-    'GET /disputes'                => [DisputeController::class, 'index'],
     'GET /disputes/create/{borrowId}' => [DisputeController::class, 'create'],
     'POST /disputes'               => [DisputeController::class, 'store'],
     'GET /disputes/{id}'           => [DisputeController::class, 'show'],

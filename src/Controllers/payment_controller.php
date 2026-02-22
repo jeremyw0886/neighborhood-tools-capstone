@@ -30,24 +30,82 @@ class PaymentController extends BaseController
             $deposit = null;
         }
 
-        if ($deposit === null) {
+        if ($deposit !== null) {
+            $isBorrower = (int) $deposit['borrower_id'] === $userId;
+            $isLender   = (int) $deposit['lender_id'] === $userId;
+
+            if (!$isBorrower && !$isLender && !$isAdmin) {
+                $this->abort(403);
+            }
+
+            $this->render('payments/deposit', [
+                'title'       => 'Security Deposit — NeighborhoodTools',
+                'description' => 'View security deposit details and status.',
+                'pageCss'     => ['payment.css'],
+                'deposit'     => $deposit,
+                'isAdmin'     => $isAdmin,
+                'paymentMode' => false,
+            ]);
+            return;
+        }
+
+        $pending = Deposit::findPendingPayment($depositId);
+
+        if ($pending === null) {
             $this->abort(404);
         }
 
-        $isBorrower = (int) $deposit['borrower_id'] === $userId;
-        $isLender   = (int) $deposit['lender_id'] === $userId;
-
-        if (!$isBorrower && !$isLender && !$isAdmin) {
+        if ((int) $pending['borrower_id'] !== $userId && !$isAdmin) {
             $this->abort(403);
         }
 
-        $this->render('payments/deposit', [
-            'title'       => 'Security Deposit — NeighborhoodTools',
-            'description' => 'View security deposit details and status.',
-            'pageCss'     => ['payment.css'],
-            'deposit'     => $deposit,
-            'isAdmin'     => $isAdmin,
-        ]);
+        $viewData = [
+            'title'                => 'Pay Security Deposit — NeighborhoodTools',
+            'description'          => 'Complete your security deposit payment.',
+            'pageCss'              => ['payment.css'],
+            'pageJs'               => ['payment.js'],
+            'deposit'              => $pending,
+            'isAdmin'              => $isAdmin,
+            'paymentMode'          => true,
+            'stripeClientSecret'   => null,
+            'stripePublishableKey' => null,
+        ];
+
+        if ($pending['payment_provider'] === 'stripe') {
+            try {
+                $stripe      = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
+                $amountCents = (int) bcmul($pending['amount_sdp'], '100', 0);
+
+                if (!empty($pending['external_payment_id_sdp'])) {
+                    $paymentIntent = $stripe->paymentIntents->retrieve(
+                        $pending['external_payment_id_sdp']
+                    );
+                } else {
+                    $paymentIntent = $stripe->paymentIntents->create([
+                        'amount'                    => $amountCents,
+                        'currency'                  => 'usd',
+                        'capture_method'            => 'manual',
+                        'metadata'                  => [
+                            'deposit_id' => $depositId,
+                            'account_id' => $userId,
+                        ],
+                        'automatic_payment_methods' => ['enabled' => true],
+                    ]);
+
+                    Deposit::storeExternalPaymentId($depositId, $paymentIntent->id);
+                }
+
+                $viewData['stripeClientSecret']   = $paymentIntent->client_secret;
+                $viewData['stripePublishableKey'] = $_ENV['STRIPE_PUBLISHABLE_KEY'];
+                $viewData['cdnJs']                = ['https://js.stripe.com/v3/'];
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                error_log('PaymentController::deposit — Stripe API error: ' . $e->getMessage());
+            } catch (\Throwable $e) {
+                error_log('PaymentController::deposit — ' . $e->getMessage());
+            }
+        }
+
+        $this->render('payments/deposit', $viewData);
     }
 
     public function processDeposit(string $id): void

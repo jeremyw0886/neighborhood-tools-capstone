@@ -112,6 +112,18 @@ class BaseController
     }
 
     /**
+     * Read and clear a flash value from the session in one step.
+     *
+     * Controllers call this before render() so views never touch $_SESSION.
+     */
+    protected function flash(string $key, mixed $default = null): mixed
+    {
+        $value = $_SESSION[$key] ?? $default;
+        unset($_SESSION[$key]);
+        return $value;
+    }
+
+    /**
      * Redirect to a URL and halt execution.
      */
     protected function redirect(string $url): never

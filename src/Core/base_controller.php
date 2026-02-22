@@ -210,6 +210,17 @@ class BaseController
     }
 
     /**
+     * Send a JSON response and halt execution.
+     */
+    protected function jsonResponse(int $statusCode, array $data): never
+    {
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+
+    /**
      * Halt execution and display an error page.
      */
     protected function abort(int $code): never

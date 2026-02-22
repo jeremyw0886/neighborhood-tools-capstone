@@ -139,6 +139,7 @@ return [
     'GET /admin/users'                 => [AdminController::class, 'users'],
     'POST /admin/users/{id}/approve'   => [AdminController::class, 'approveUser'],
     'POST /admin/users/{id}/deny'      => [AdminController::class, 'denyUser'],
+    'POST /admin/users/{id}/status'    => [AdminController::class, 'updateUserStatus'],
     'GET /admin/tools'             => [AdminController::class, 'tools'],
     'GET /admin/disputes'          => [DisputeController::class, 'index'],
     'GET /admin/events'            => [AdminController::class, 'events'],

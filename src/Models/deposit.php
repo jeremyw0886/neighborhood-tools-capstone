@@ -163,6 +163,46 @@ class Deposit
         $stmt->execute();
     }
 
+    public static function findPendingPayment(int $depositId): ?array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            'SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                    sdp.external_payment_id_sdp,
+                    bor.id_acc_bor        AS borrower_id,
+                    tol.id_acc_tol        AS lender_id,
+                    tol.tool_name_tol,
+                    ppv.provider_name_ppv AS payment_provider
+             FROM security_deposit_sdp sdp
+             JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+             JOIN borrow_bor bor        ON bor.id_bor = sdp.id_bor_sdp
+             JOIN tool_tol tol          ON tol.id_tol = bor.id_tol_bor
+             JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
+             WHERE sdp.id_sdp = :id
+               AND dps.status_name_dps = :status'
+        );
+        $stmt->bindValue(':id', $depositId, PDO::PARAM_INT);
+        $stmt->bindValue(':status', 'pending', PDO::PARAM_STR);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    public static function storeExternalPaymentId(int $depositId, string $externalId): void
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            'UPDATE security_deposit_sdp
+             SET external_payment_id_sdp = :external_id
+             WHERE id_sdp = :id'
+        );
+        $stmt->bindValue(':external_id', $externalId, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $depositId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public static function getHistory(int $accountId, bool $isAdmin, int $limit, int $offset): array
     {
         $pdo = Database::connection();

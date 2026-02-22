@@ -12,6 +12,29 @@ class Neighborhood
     /** Maximum distance (miles) for auto-matching a neighborhood from an address. */
     private const float MAX_MATCH_DISTANCE = 10.0;
 
+    /**
+     * Aggregate platform-wide member and tool totals from materialized neighborhood data.
+     *
+     * @return array{totalMembers: int, activeMembers: int, availableTools: int}
+     */
+    public static function getPlatformTotals(): array
+    {
+        $pdo = Database::connection();
+
+        $row = $pdo->query(
+            'SELECT COALESCE(SUM(total_members), 0)   AS total_members,
+                    COALESCE(SUM(active_members), 0)   AS active_members,
+                    COALESCE(SUM(available_tools), 0)   AS available_tools
+               FROM neighborhood_summary_fast_v'
+        )->fetch(PDO::FETCH_ASSOC);
+
+        return [
+            'totalMembers'   => (int) $row['total_members'],
+            'activeMembers'  => (int) $row['active_members'],
+            'availableTools' => (int) $row['available_tools'],
+        ];
+    }
+
     /** Meters per mile — used for ST_Distance_Sphere conversion. */
     private const float METERS_PER_MILE = 1609.344;
     /**

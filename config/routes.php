@@ -121,7 +121,7 @@ return [
 
     // Waivers
     'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],
-    // 'POST /waiver/{borrowId}'      => [WaiverController::class, 'sign'],
+    'POST /waiver/{borrowId}'      => [WaiverController::class, 'sign'],
 
     // Informational pages (progressive-enhancement fallbacks for modals)
     'GET /how-to'                  => [PageController::class, 'howTo'],

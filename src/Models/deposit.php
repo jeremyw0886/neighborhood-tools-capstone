@@ -9,6 +9,35 @@ use PDO;
 
 class Deposit
 {
+    private const int PER_PAGE = 12;
+
+    /**
+     * Fetch paginated pending deposits for the admin reports page.
+     *
+     * Queries pending_deposit_v which joins security_deposit_sdp, borrow_bor,
+     * tool_tol, and account_acc to show deposit holder, tool, and borrow context.
+     *
+     * @return array  Rows from pending_deposit_v
+     */
+    public static function getPending(int $limit = self::PER_PAGE, int $offset = 0): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT *
+            FROM pending_deposit_v
+            ORDER BY created_at_sdp DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     /**
      * Count pending deposits platform-wide.
      */

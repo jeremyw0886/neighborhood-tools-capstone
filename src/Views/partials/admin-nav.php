@@ -14,6 +14,7 @@
     <li><a href="/admin/disputes"<?= $currentPage === '/admin/disputes' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-gavel" aria-hidden="true"></i> Disputes</a></li>
     <li><a href="/admin/events"<?= $currentPage === '/admin/events' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-calendar" aria-hidden="true"></i> Events</a></li>
     <li><a href="/admin/incidents"<?= $currentPage === '/admin/incidents' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-flag" aria-hidden="true"></i> Incidents</a></li>
+    <li><a href="/admin/categories"<?= $currentPage === '/admin/categories' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-tags" aria-hidden="true"></i> Categories</a></li>
     <li><a href="/admin/reports"<?= $currentPage === '/admin/reports' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-chart-bar" aria-hidden="true"></i> Reports</a></li>
     <li><a href="/admin/audit-log"<?= $currentPage === '/admin/audit-log' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Audit Log</a></li>
     <li><a href="/admin/tos"<?= $currentPage === '/admin/tos' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-file-contract" aria-hidden="true"></i> TOS</a></li>

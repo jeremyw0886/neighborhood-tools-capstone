@@ -22,7 +22,7 @@ use App\Controllers\PaymentController;
 use App\Controllers\DisputeController;
 use App\Controllers\EventController;
 use App\Controllers\HandoverController;
-// use App\Controllers\IncidentController;
+use App\Controllers\IncidentController;
 use App\Controllers\NotificationController;
 // use App\Controllers\WaiverController;
 use App\Controllers\TosController;
@@ -111,7 +111,7 @@ return [
     'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
 
     // Incidents
-    // 'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],
+    'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],
     // 'POST /incidents'              => [IncidentController::class, 'store'],
     // 'GET /incidents/{id}'          => [IncidentController::class, 'show'],
 

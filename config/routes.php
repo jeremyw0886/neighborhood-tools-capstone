@@ -27,7 +27,7 @@ use App\Controllers\NotificationController;
 use App\Controllers\WaiverController;
 use App\Controllers\TosController;
 use App\Controllers\PageController;
-// use App\Controllers\CategoryController;
+use App\Controllers\CategoryController;
 use App\Controllers\AdminController;
 
 return [
@@ -131,8 +131,8 @@ return [
     'GET /tos'                     => [TosController::class, 'show'],
     'POST /tos/accept'             => [TosController::class, 'accept'],
 
-    // Categories (API)
-    // 'GET /categories'              => [CategoryController::class, 'index'],
+    // Categories
+    'GET /categories'              => [CategoryController::class, 'index'],
 
     // Admin
     'GET /admin'                   => [AdminController::class, 'dashboard'],

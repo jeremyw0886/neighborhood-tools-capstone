@@ -1,3 +1,58 @@
+<?php if (!empty($paymentMode)): ?>
+<?php
+$depositId = (int) $deposit['id_sdp'];
+$amount    = number_format((float) $deposit['amount_sdp'], 2);
+$toolName  = htmlspecialchars($deposit['tool_name_tol']);
+$provider  = htmlspecialchars($deposit['payment_provider']);
+?>
+
+<section id="deposit-payment" aria-labelledby="payment-heading">
+
+  <nav aria-label="Back">
+    <a href="/dashboard">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
+    </a>
+  </nav>
+
+  <header>
+    <h1 id="payment-heading">
+      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+      Pay Security Deposit
+    </h1>
+  </header>
+
+  <dl aria-label="Deposit summary">
+    <div>
+      <dt>Tool</dt>
+      <dd><?= $toolName ?></dd>
+    </div>
+    <div>
+      <dt>Amount</dt>
+      <dd>$<?= $amount ?></dd>
+    </div>
+    <div>
+      <dt>Provider</dt>
+      <dd><?= $provider ?></dd>
+    </div>
+  </dl>
+
+  <?php if (!empty($stripeClientSecret)): ?>
+  <form id="payment-form"
+        data-publishable-key="<?= htmlspecialchars($stripePublishableKey) ?>"
+        data-client-secret="<?= htmlspecialchars($stripeClientSecret) ?>">
+    <div id="payment-element"></div>
+    <p id="payment-message" role="alert" hidden></p>
+    <footer>
+      <button type="submit">Pay $<?= $amount ?></button>
+    </footer>
+  </form>
+  <?php else: ?>
+  <p>Payment processing is temporarily unavailable. Please try again later.</p>
+  <?php endif; ?>
+
+</section>
+
+<?php else: ?>
 <?php
 
 $depositSuccess = $_SESSION['deposit_success'] ?? null;
@@ -182,3 +237,4 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
   <?php endif; ?>
 
 </section>
+<?php endif; ?>

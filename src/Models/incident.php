@@ -9,6 +9,36 @@ use PDO;
 
 class Incident
 {
+    private const int PER_PAGE = 12;
+
+    /**
+     * Fetch paginated open incidents for the admin incidents page.
+     *
+     * Queries open_incident_v which joins incident_report_irt, incident_type_ity,
+     * borrow_bor, tool_tol, and account_acc for reporter/borrower/lender context,
+     * deposit info, and related dispute counts.
+     *
+     * @return array  Rows from open_incident_v
+     */
+    public static function getOpen(int $limit = self::PER_PAGE, int $offset = 0): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT *
+            FROM open_incident_v
+            ORDER BY created_at_irt DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     /**
      * Count open (unresolved) incidents platform-wide.
      */

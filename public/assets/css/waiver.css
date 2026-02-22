@@ -50,6 +50,17 @@
       }
     }
 
+    & > p[role="alert"] {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 0.5rem;
+      color: #991b1b;
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
     & > dl {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);

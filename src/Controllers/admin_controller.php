@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\Deposit;
 use App\Models\Dispute;
 use App\Models\Event;
+use App\Models\EventAttendance;
 use App\Models\Incident;
 use App\Models\Neighborhood;
 use App\Models\PlatformStats;
@@ -259,18 +260,68 @@ class AdminController extends BaseController
     }
 
     /**
-     * Event management — upcoming community events.
+     * Event management — upcoming community events with timing filters.
      *
-     * Stub — queries upcoming_event_v when fully implemented.
+     * Queries upcoming_event_v with optional timing filter (HAPPENING NOW,
+     * THIS WEEK, THIS MONTH, UPCOMING). Includes attendee counts from
+     * EventAttendance for each listed event.
      */
     public function events(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $timing = trim($_GET['timing'] ?? '');
+        $timing = $timing !== '' ? strtoupper($timing) : null;
+        $page   = max(1, (int) ($_GET['page'] ?? 1));
+
+        try {
+            $totalCount   = Event::getUpcomingCount($timing);
+            $timingCounts = Event::getTimingCounts();
+        } catch (\Throwable $e) {
+            error_log('AdminController::events counts — ' . $e->getMessage());
+            $totalCount   = 0;
+            $timingCounts = [];
+        }
+
+        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * self::PER_PAGE;
+
+        try {
+            $events = Event::getUpcoming(timing: $timing, limit: self::PER_PAGE, offset: $offset);
+        } catch (\Throwable $e) {
+            error_log('AdminController::events list — ' . $e->getMessage());
+            $events = [];
+        }
+
+        $attendeeCounts = [];
+
+        if ($events !== []) {
+            try {
+                $eventIds       = array_column($events, 'id_evt');
+                $attendeeCounts = EventAttendance::getAttendeeCounts($eventIds);
+            } catch (\Throwable $e) {
+                error_log('AdminController::events attendance — ' . $e->getMessage());
+            }
+        }
+
+        $filterParams = array_filter([
+            'timing' => $timing,
+        ], static fn(mixed $v): bool => $v !== null);
+
         $this->render('admin/events', [
-            'title'       => 'Manage Events — NeighborhoodTools',
-            'description' => 'View and manage community events.',
-            'pageCss'     => ['admin.css'],
+            'title'          => 'Manage Events — NeighborhoodTools',
+            'description'    => 'View and manage community events.',
+            'pageCss'        => ['admin.css'],
+            'events'         => $events,
+            'totalCount'     => $totalCount,
+            'page'           => $page,
+            'totalPages'     => $totalPages,
+            'perPage'        => self::PER_PAGE,
+            'timing'         => $timing,
+            'timingCounts'   => $timingCounts,
+            'attendeeCounts' => $attendeeCounts,
+            'filterParams'   => $filterParams,
         ]);
     }
 

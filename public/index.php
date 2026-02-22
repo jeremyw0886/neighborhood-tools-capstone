@@ -74,12 +74,12 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Security headers
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'");
 header('Cache-Control: no-cache');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")');
 
 if ($isHttps) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');

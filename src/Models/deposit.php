@@ -190,6 +190,28 @@ class Deposit
         return $row !== false ? $row : null;
     }
 
+    public static function transitionToHeld(int $depositId, string $externalPaymentId): void
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            'UPDATE security_deposit_sdp
+             SET id_dps_sdp = fn_get_deposit_status_id(:status),
+                 external_payment_id_sdp = :external_id,
+                 held_at_sdp = NOW()
+             WHERE id_sdp = :id
+               AND id_dps_sdp = fn_get_deposit_status_id(:pending_status)'
+        );
+        $stmt->bindValue(':status', 'held', PDO::PARAM_STR);
+        $stmt->bindValue(':external_id', $externalPaymentId, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $depositId, PDO::PARAM_INT);
+        $stmt->bindValue(':pending_status', 'pending', PDO::PARAM_STR);
+        $stmt->execute();
+
+        if ($stmt->rowCount() === 0) {
+            throw new \RuntimeException("Deposit {$depositId} not in pending status or does not exist.");
+        }
+    }
+
     public static function storeExternalPaymentId(int $depositId, string $externalId): void
     {
         $pdo  = Database::connection();

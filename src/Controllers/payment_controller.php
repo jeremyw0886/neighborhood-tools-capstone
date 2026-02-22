@@ -367,6 +367,73 @@ class PaymentController extends BaseController
         }
     }
 
+    public function stripeWebhook(): void
+    {
+        header('Content-Type: application/json');
+
+        $payload   = file_get_contents('php://input');
+        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sigHeader,
+                $_ENV['STRIPE_WEBHOOK_SECRET']
+            );
+        } catch (\Throwable $e) {
+            error_log('stripeWebhook — verification failed: ' . $e->getMessage());
+            http_response_code(400);
+            echo json_encode(['error' => 'Signature verification failed.']);
+            exit;
+        }
+
+        try {
+            match ($event->type) {
+                'payment_intent.succeeded'      => $this->handlePaymentSucceeded($event->data->object),
+                'payment_intent.payment_failed' => $this->handlePaymentFailed($event->data->object),
+                default                         => error_log("stripeWebhook — unhandled event: {$event->type}"),
+            };
+        } catch (\Throwable $e) {
+            error_log('stripeWebhook — handler error: ' . $e->getMessage());
+        }
+
+        http_response_code(200);
+        echo json_encode(['status' => 'ok']);
+        exit;
+    }
+
+    private function handlePaymentSucceeded(\Stripe\PaymentIntent $paymentIntent): void
+    {
+        $depositId = (int) ($paymentIntent->metadata->deposit_id ?? 0);
+
+        if ($depositId < 1) {
+            error_log('handlePaymentSucceeded — missing deposit_id in metadata');
+            return;
+        }
+
+        $deposit = Deposit::findPendingPayment($depositId);
+
+        if ($deposit === null) {
+            error_log("handlePaymentSucceeded — deposit {$depositId} not found or already processed");
+            return;
+        }
+
+        try {
+            Deposit::transitionToHeld($depositId, $paymentIntent->id);
+            error_log("handlePaymentSucceeded — deposit {$depositId} transitioned to held");
+        } catch (\Throwable $e) {
+            error_log('handlePaymentSucceeded — ' . $e->getMessage());
+        }
+    }
+
+    private function handlePaymentFailed(\Stripe\PaymentIntent $paymentIntent): void
+    {
+        $depositId = (int) ($paymentIntent->metadata->deposit_id ?? 0);
+        $reason    = $paymentIntent->last_payment_error?->message ?? 'Unknown failure';
+
+        error_log("handlePaymentFailed — deposit {$depositId}: {$reason}");
+    }
+
     public function history(): void
     {
         $this->requireAuth();

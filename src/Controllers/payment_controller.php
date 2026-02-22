@@ -235,4 +235,33 @@ class PaymentController extends BaseController
             exit;
         }
     }
+
+    public function history(): void
+    {
+        $this->requireAuth();
+
+        $perPage    = 12;
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $offset     = ($page - 1) * $perPage;
+        $userId     = (int) $_SESSION['user_id'];
+        $isAdmin    = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+
+        $totalCount = Deposit::getHistoryCount($userId, $isAdmin);
+        $totalPages = (int) ceil($totalCount / $perPage) ?: 1;
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * $perPage;
+
+        $transactions = Deposit::getHistory($userId, $isAdmin, $perPage, $offset);
+
+        $this->render('payments/history', [
+            'title'        => 'Payment History — NeighborhoodTools',
+            'description'  => 'View your payment transaction history.',
+            'pageCss'      => ['payment.css'],
+            'transactions' => $transactions,
+            'isAdmin'      => $isAdmin,
+            'page'         => $page,
+            'totalPages'   => $totalPages,
+            'totalCount'   => $totalCount,
+        ]);
+    }
 }

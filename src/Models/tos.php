@@ -129,12 +129,15 @@ class Tos
         ";
 
         $stmt = $pdo->prepare($sql);
+        $ip        = $_SERVER['REMOTE_ADDR'] ?? null;
+        $userAgent = isset($_SERVER['HTTP_USER_AGENT'])
+            ? mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 512)
+            : null;
+
         $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
         $stmt->bindValue(':tos_id', $tosId, PDO::PARAM_INT);
-        $stmt->bindValue(':ip_address', $_SERVER['REMOTE_ADDR'] ?? null);
-        $stmt->bindValue(':user_agent', isset($_SERVER['HTTP_USER_AGENT'])
-            ? mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 512)
-            : null);
+        $stmt->bindValue(':ip_address', $ip, $ip === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':user_agent', $userAgent, $userAgent === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->execute();
     }
 }

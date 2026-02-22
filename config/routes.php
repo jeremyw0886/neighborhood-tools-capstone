@@ -113,7 +113,7 @@ return [
     // Incidents
     'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],
     'POST /incidents'              => [IncidentController::class, 'store'],
-    // 'GET /incidents/{id}'          => [IncidentController::class, 'show'],
+    'GET /incidents/{id}'          => [IncidentController::class, 'show'],
 
     // Notifications
     'GET /notifications'           => [NotificationController::class, 'index'],

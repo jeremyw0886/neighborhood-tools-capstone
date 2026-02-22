@@ -165,6 +165,70 @@ class AdminController extends BaseController
     }
 
     /**
+     * Toggle a user's status between active and suspended.
+     *
+     * Permission hierarchy:
+     *   - Admin: can toggle members only (not admins or super admins)
+     *   - Super Admin: can toggle members and admins (not other super admins)
+     *   - Nobody can modify their own account
+     */
+    public function updateUserStatus(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        $user = Account::findById($accountId);
+
+        if ($user === null) {
+            $this->abort(404);
+        }
+
+        $targetStatus = $user['account_status'];
+        $targetRole   = $user['role_name_rol'];
+        $actorRole    = Role::from($_SESSION['user_role']);
+        $actorId      = (int) $_SESSION['user_id'];
+
+        if ($actorId === $accountId) {
+            $_SESSION['admin_users_flash'] = 'You cannot modify your own account status.';
+            $this->redirect('/admin/users');
+        }
+
+        if (!in_array($targetStatus, ['active', 'suspended'], true)) {
+            $_SESSION['admin_users_flash'] = 'Only active or suspended accounts can be toggled.';
+            $this->redirect('/admin/users');
+        }
+
+        if ($targetRole === 'super_admin') {
+            $_SESSION['admin_users_flash'] = 'Super admin accounts cannot be modified.';
+            $this->redirect('/admin/users');
+        }
+
+        if ($actorRole === Role::Admin && $targetRole !== 'member') {
+            $_SESSION['admin_users_flash'] = 'Admins can only manage member accounts.';
+            $this->redirect('/admin/users');
+        }
+
+        $newStatus = $targetStatus === 'active' ? 'suspended' : 'active';
+        $action    = $newStatus === 'suspended' ? 'suspended' : 'activated';
+
+        try {
+            Account::updateStatus($accountId, $newStatus);
+            $_SESSION['admin_users_flash'] = htmlspecialchars($user['full_name']) . ' has been ' . $action . '.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateUserStatus — ' . $e->getMessage());
+            $_SESSION['admin_users_flash'] = 'Failed to update account status.';
+        }
+
+        $this->redirect('/admin/users');
+    }
+
+    /**
      * Tool management — paginated list of all tools with analytics.
      *
      * Queries tool_statistics_fast_v (materialized every 2 hours) for

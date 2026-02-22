@@ -126,8 +126,7 @@ class PaymentController extends BaseController
 
             if ($raw !== null) {
                 $_SESSION['deposit_errors'] = ['This deposit has already been processed (' . $raw['deposit_status'] . ').'];
-                header('Location: /admin');
-                exit;
+                $this->redirect('/admin');
             }
 
             $this->abort(404);
@@ -137,8 +136,7 @@ class PaymentController extends BaseController
 
         if (!in_array($action, ['release', 'forfeit'], true)) {
             $_SESSION['deposit_errors'] = ['Invalid action.'];
-            header('Location: /payments/deposit/' . $depositId);
-            exit;
+            $this->redirect('/payments/deposit/' . $depositId);
         }
 
         $providerId = Deposit::getProviderIdByName($deposit['payment_provider']);
@@ -146,8 +144,7 @@ class PaymentController extends BaseController
         if ($providerId === null) {
             error_log('processDeposit — unknown provider: ' . $deposit['payment_provider']);
             $_SESSION['deposit_errors'] = ['Unable to process: payment provider not recognized.'];
-            header('Location: /payments/deposit/' . $depositId);
-            exit;
+            $this->redirect('/payments/deposit/' . $depositId);
         }
 
         $externalStatus = $deposit['payment_provider'] === 'manual' ? 'completed' : 'simulated';
@@ -166,8 +163,7 @@ class PaymentController extends BaseController
 
             if (!$result['success']) {
                 $_SESSION['deposit_errors'] = [$result['error'] ?? 'Release failed.'];
-                header('Location: /payments/deposit/' . $depositId);
-                exit;
+                $this->redirect('/payments/deposit/' . $depositId);
             }
 
             $txResult = Deposit::createTransaction(
@@ -190,13 +186,11 @@ class PaymentController extends BaseController
 
             $formatted = number_format((float) $deposit['amount_sdp'], 2);
             $_SESSION['deposit_success'] = 'Deposit of $' . $formatted . ' released to borrower.';
-            header('Location: /admin');
-            exit;
+            $this->redirect('/admin');
         } catch (\Throwable $e) {
             error_log('PaymentController::processDeposit(release) — ' . $e->getMessage());
             $_SESSION['deposit_errors'] = ['An unexpected error occurred. Please try again.'];
-            header('Location: /payments/deposit/' . $depositId);
-            exit;
+            $this->redirect('/payments/deposit/' . $depositId);
         }
     }
 
@@ -226,8 +220,7 @@ class PaymentController extends BaseController
         if ($errors) {
             $_SESSION['deposit_errors'] = $errors;
             $_SESSION['deposit_old']    = ['forfeit_amount' => $forfeitAmount, 'reason' => $reason];
-            header('Location: /payments/deposit/' . $depositId);
-            exit;
+            $this->redirect('/payments/deposit/' . $depositId);
         }
 
         try {
@@ -235,8 +228,7 @@ class PaymentController extends BaseController
 
             if (!$result['success']) {
                 $_SESSION['deposit_errors'] = [$result['error'] ?? 'Forfeit failed.'];
-                header('Location: /payments/deposit/' . $depositId);
-                exit;
+                $this->redirect('/payments/deposit/' . $depositId);
             }
 
             $txResult = Deposit::createTransaction(
@@ -284,13 +276,11 @@ class PaymentController extends BaseController
 
             $formatted = number_format((float) $forfeitAmount, 2);
             $_SESSION['deposit_success'] = '$' . $formatted . ' forfeited to lender' . $partialMsg . '.';
-            header('Location: /admin');
-            exit;
+            $this->redirect('/admin');
         } catch (\Throwable $e) {
             error_log('PaymentController::processDeposit(forfeit) — ' . $e->getMessage());
             $_SESSION['deposit_errors'] = ['An unexpected error occurred. Please try again.'];
-            header('Location: /payments/deposit/' . $depositId);
-            exit;
+            $this->redirect('/payments/deposit/' . $depositId);
         }
     }
 
@@ -475,8 +465,7 @@ class PaymentController extends BaseController
         } catch (\Throwable $e) {
             error_log('PaymentController::complete — Stripe API error: ' . $e->getMessage());
             $_SESSION['deposit_errors'] = ['Unable to verify payment status. Please contact support.'];
-            header('Location: /dashboard');
-            exit;
+            $this->redirect('/dashboard');
         }
 
         $depositId = (int) ($paymentIntent->metadata->deposit_id ?? 0);
@@ -496,13 +485,11 @@ class PaymentController extends BaseController
             }
 
             $_SESSION['deposit_success'] = 'Payment confirmed. Your security deposit is now being held.';
-            header('Location: /payments/deposit/' . $depositId);
-            exit;
+            $this->redirect('/payments/deposit/' . $depositId);
         }
 
         $_SESSION['deposit_errors'] = ['Payment could not be completed. Please try again.'];
-        header('Location: /payments/deposit/' . $depositId);
-        exit;
+        $this->redirect('/payments/deposit/' . $depositId);
     }
 
     public function history(): void

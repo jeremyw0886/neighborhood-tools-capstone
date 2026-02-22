@@ -71,12 +71,21 @@
       padding: 0.75rem;
 
       & > span:first-child {
+        align-items: center;
         color: var(--mountain-mist);
+        display: inline-flex;
         font-size: 0.688rem;
         font-weight: 600;
+        gap: 0.25rem;
         letter-spacing: 0.04em;
         line-height: 1;
         text-transform: uppercase;
+
+        & > img {
+          height: 0.875rem;
+          object-fit: contain;
+          width: 0.875rem;
+        }
       }
 
       & > :is(h2, h3) {

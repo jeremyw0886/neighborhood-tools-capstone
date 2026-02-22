@@ -236,6 +236,79 @@ class PaymentController extends BaseController
         }
     }
 
+    public function createStripeIntent(): void
+    {
+        $this->requireAuth();
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($input)) {
+            $this->jsonResponse(400, ['error' => 'Invalid request.']);
+        }
+
+        $posted  = $input['csrf_token'] ?? '';
+        $session = $_SESSION['csrf_token'] ?? '';
+
+        if ($session === '' || !hash_equals($session, $posted)) {
+            $this->jsonResponse(403, ['error' => 'Invalid security token.']);
+        }
+
+        $depositId = (int) ($input['deposit_id'] ?? 0);
+
+        if ($depositId < 1) {
+            $this->jsonResponse(400, ['error' => 'Invalid deposit ID.']);
+        }
+
+        $deposit = Deposit::findPendingPayment($depositId);
+
+        if ($deposit === null) {
+            $this->jsonResponse(404, ['error' => 'Deposit not found or already processed.']);
+        }
+
+        if ((int) $deposit['borrower_id'] !== (int) $_SESSION['user_id']) {
+            $this->jsonResponse(403, ['error' => 'Unauthorized.']);
+        }
+
+        if ($deposit['payment_provider'] !== 'stripe') {
+            $this->jsonResponse(400, ['error' => 'This deposit does not use Stripe.']);
+        }
+
+        try {
+            $stripe      = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
+            $amountCents = (int) bcmul($deposit['amount_sdp'], '100', 0);
+
+            if (!empty($deposit['external_payment_id_sdp'])) {
+                $paymentIntent = $stripe->paymentIntents->retrieve(
+                    $deposit['external_payment_id_sdp']
+                );
+            } else {
+                $paymentIntent = $stripe->paymentIntents->create([
+                    'amount'                    => $amountCents,
+                    'currency'                  => 'usd',
+                    'capture_method'            => 'manual',
+                    'metadata'                  => [
+                        'deposit_id' => $depositId,
+                        'account_id' => $_SESSION['user_id'],
+                    ],
+                    'automatic_payment_methods' => ['enabled' => true],
+                ]);
+
+                Deposit::storeExternalPaymentId($depositId, $paymentIntent->id);
+            }
+
+            $this->jsonResponse(200, [
+                'clientSecret'   => $paymentIntent->client_secret,
+                'publishableKey' => $_ENV['STRIPE_PUBLISHABLE_KEY'],
+            ]);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            error_log('createStripeIntent — Stripe API error: ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'Payment service unavailable. Please try again.']);
+        } catch (\Throwable $e) {
+            error_log('createStripeIntent — ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'An unexpected error occurred.']);
+        }
+    }
+
     public function history(): void
     {
         $this->requireAuth();

@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Role;
+use App\Models\Account;
 use App\Models\Deposit;
 use App\Models\Dispute;
 use App\Models\Event;
@@ -62,17 +63,105 @@ class AdminController extends BaseController
     /**
      * User management — paginated list of platform members.
      *
-     * Stub — queries user_reputation_fast_v when fully implemented.
+     * Queries user_reputation_fast_v for a paginated table with ratings
+     * and activity summaries. Pending rows surface approve/deny actions.
      */
     public function users(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $totalCount = Account::getActiveCount();
+        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * self::PER_PAGE;
+
+        $flash = $_SESSION['admin_users_flash'] ?? null;
+        unset($_SESSION['admin_users_flash']);
+
         $this->render('admin/users', [
             'title'       => 'Manage Users — NeighborhoodTools',
             'description' => 'View and manage platform members.',
             'pageCss'     => ['admin.css'],
+            'users'       => Account::getAllForAdmin(self::PER_PAGE, $offset),
+            'totalCount'  => $totalCount,
+            'page'        => $page,
+            'totalPages'  => $totalPages,
+            'perPage'     => self::PER_PAGE,
+            'flash'       => $flash,
         ]);
+    }
+
+    /**
+     * Approve a pending account — sets status to 'active'.
+     */
+    public function approveUser(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        $user = Account::findById($accountId);
+
+        if ($user === null) {
+            $this->abort(404);
+        }
+
+        if ($user['account_status'] !== 'pending') {
+            $_SESSION['admin_users_flash'] = 'Account is not pending approval.';
+            $this->redirect('/admin/users');
+        }
+
+        try {
+            Account::updateStatus($accountId, 'active');
+            $_SESSION['admin_users_flash'] = htmlspecialchars($user['full_name']) . ' has been approved.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::approveUser — ' . $e->getMessage());
+            $_SESSION['admin_users_flash'] = 'Failed to approve account.';
+        }
+
+        $this->redirect('/admin/users');
+    }
+
+    /**
+     * Deny a pending account — sets status to 'suspended'.
+     */
+    public function denyUser(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        $user = Account::findById($accountId);
+
+        if ($user === null) {
+            $this->abort(404);
+        }
+
+        if ($user['account_status'] !== 'pending') {
+            $_SESSION['admin_users_flash'] = 'Account is not pending approval.';
+            $this->redirect('/admin/users');
+        }
+
+        try {
+            Account::updateStatus($accountId, 'suspended');
+            $_SESSION['admin_users_flash'] = htmlspecialchars($user['full_name']) . ' has been denied.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::denyUser — ' . $e->getMessage());
+            $_SESSION['admin_users_flash'] = 'Failed to deny account.';
+        }
+
+        $this->redirect('/admin/users');
     }
 
     /**

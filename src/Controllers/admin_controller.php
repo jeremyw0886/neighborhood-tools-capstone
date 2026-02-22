@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Account;
+use App\Models\Category;
 use App\Models\Deposit;
 use App\Models\Dispute;
 use App\Models\Event;
@@ -15,6 +16,7 @@ use App\Models\Neighborhood;
 use App\Models\PlatformStats;
 use App\Models\Tool;
 use App\Models\Tos;
+use App\Models\VectorImage;
 
 class AdminController extends BaseController
 {
@@ -373,6 +375,119 @@ class AdminController extends BaseController
      *               openDisputes: int, pendingDeposits: int, openIncidents: int,
      *               upcomingEvents: int}
      */
+    public function categories(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $flash = $_SESSION['admin_categories_flash'] ?? null;
+        unset($_SESSION['admin_categories_flash']);
+
+        try {
+            $categories = Category::getAllWithIcons();
+            $vectors    = VectorImage::getAll();
+        } catch (\Throwable $e) {
+            error_log('AdminController::categories — ' . $e->getMessage());
+            $categories = [];
+            $vectors    = [];
+        }
+
+        $this->render('admin/categories', [
+            'title'       => 'Manage Categories — NeighborhoodTools',
+            'description' => 'Manage tool categories and vector image icons.',
+            'pageCss'     => ['admin.css'],
+            'categories'  => $categories,
+            'vectors'     => $vectors,
+            'flash'       => $flash,
+        ]);
+    }
+
+    public function uploadVector(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $file        = $_FILES['vector_file'] ?? null;
+        $description = trim($_POST['description'] ?? '');
+
+        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['admin_categories_flash'] = 'No file uploaded or upload error occurred.';
+            $this->redirect('/admin/categories');
+        }
+
+        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        if ($mimeType !== 'image/svg+xml') {
+            $_SESSION['admin_categories_flash'] = 'Only SVG files are allowed.';
+            $this->redirect('/admin/categories');
+        }
+
+        if ($file['size'] > 1_048_576) {
+            $_SESSION['admin_categories_flash'] = 'File must be under 1 MB.';
+            $this->redirect('/admin/categories');
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if ($ext !== 'svg') {
+            $_SESSION['admin_categories_flash'] = 'File must have an .svg extension.';
+            $this->redirect('/admin/categories');
+        }
+
+        $fileName = uniqid('vec_', true) . '.svg';
+        $destPath = BASE_PATH . '/public/uploads/vectors/' . $fileName;
+
+        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+            $_SESSION['admin_categories_flash'] = 'Failed to save uploaded file.';
+            $this->redirect('/admin/categories');
+        }
+
+        try {
+            VectorImage::create(
+                $fileName,
+                $description !== '' ? $description : null,
+                (int) $_SESSION['user_id']
+            );
+            $_SESSION['admin_categories_flash'] = 'Vector image uploaded successfully.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::uploadVector — ' . $e->getMessage());
+            @unlink($destPath);
+            $_SESSION['admin_categories_flash'] = 'Failed to save vector image record.';
+        }
+
+        $this->redirect('/admin/categories');
+    }
+
+    public function assignCategoryIcon(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $categoryId = (int) $id;
+
+        if ($categoryId < 1) {
+            $this->abort(404);
+        }
+
+        $vectorId = trim($_POST['vector_id'] ?? '');
+        $vectorId = $vectorId !== '' ? (int) $vectorId : null;
+
+        if ($vectorId !== null && $vectorId < 1) {
+            $_SESSION['admin_categories_flash'] = 'Invalid vector image selected.';
+            $this->redirect('/admin/categories');
+        }
+
+        try {
+            Category::updateIcon($categoryId, $vectorId);
+            $_SESSION['admin_categories_flash'] = 'Category icon updated.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::assignCategoryIcon — ' . $e->getMessage());
+            $_SESSION['admin_categories_flash'] = 'Failed to update category icon.';
+        }
+
+        $this->redirect('/admin/categories');
+    }
+
     private function fetchPlatformStats(): array
     {
         $totals = Neighborhood::getPlatformTotals();

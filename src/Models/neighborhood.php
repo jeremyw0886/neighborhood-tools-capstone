@@ -35,6 +35,84 @@ class Neighborhood
         ];
     }
 
+    /**
+     * Paginated list of neighborhood summaries from the materialized cache.
+     *
+     * @return array<int, array{id_nbh: int, neighborhood_name_nbh: string,
+     *               city_name_nbh: string, state_code_sta: string,
+     *               total_members: int, active_members: int, verified_members: int,
+     *               total_tools: int, available_tools: int, active_borrows: int,
+     *               completed_borrows_30d: int, upcoming_events: int,
+     *               zip_codes: ?string, refreshed_at: string}>
+     */
+    public static function getSummaryList(int $limit, int $offset): array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            'SELECT id_nbh, neighborhood_name_nbh, city_name_nbh,
+                    state_code_sta, total_members, active_members,
+                    verified_members, total_tools, available_tools,
+                    active_borrows, completed_borrows_30d,
+                    upcoming_events, zip_codes, refreshed_at
+               FROM neighborhood_summary_fast_v
+              ORDER BY city_name_nbh, neighborhood_name_nbh
+              LIMIT :lim OFFSET :off'
+        );
+        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Total neighborhood count for pagination.
+     */
+    public static function getSummaryCount(): int
+    {
+        $pdo = Database::connection();
+
+        return (int) $pdo->query(
+            'SELECT COUNT(*) FROM neighborhood_summary_fast_v'
+        )->fetchColumn();
+    }
+
+    /**
+     * Single neighborhood with live (non-cached) statistics.
+     *
+     * Uses the real-time view for detail pages where accuracy matters
+     * more than speed.
+     *
+     * @return ?array{id_nbh: int, neighborhood_name_nbh: string,
+     *               city_name_nbh: string, state_code_sta: string,
+     *               state_name_sta: string, latitude_nbh: string,
+     *               longitude_nbh: string, total_members: int,
+     *               active_members: int, verified_members: int,
+     *               total_tools: int, available_tools: int,
+     *               active_borrows: int, completed_borrows_30d: int,
+     *               upcoming_events: int, zip_codes: ?string}
+     */
+    public static function findSummaryById(int $id): ?array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            'SELECT id_nbh, neighborhood_name_nbh, city_name_nbh,
+                    state_code_sta, state_name_sta,
+                    latitude_nbh, longitude_nbh,
+                    total_members, active_members, verified_members,
+                    total_tools, available_tools, active_borrows,
+                    completed_borrows_30d, upcoming_events, zip_codes
+               FROM neighborhood_summary_v
+              WHERE id_nbh = :id'
+        );
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row !== false ? $row : null;
+    }
+
     /** Meters per mile — used for ST_Distance_Sphere conversion. */
     private const float METERS_PER_MILE = 1609.344;
     /**

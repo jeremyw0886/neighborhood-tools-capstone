@@ -427,6 +427,11 @@ class AuthController extends BaseController
     public function resetPassword(): void
     {
         $this->validateCsrf();
+
+        if (($_POST['website'] ?? '') !== '') {
+            $this->redirect('/login');
+        }
+
         $this->checkRateLimit(
             'reset_password',
             '/forgot-password',

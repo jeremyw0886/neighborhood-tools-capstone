@@ -3,8 +3,15 @@
  * Admin dashboard — platform-wide summary stats and quick links.
  *
  * Variables from AdminController::dashboard():
- *   $stats  array{totalMembers, activeMembers, availableTools,
- *                 openDisputes, pendingDeposits, openIncidents, upcomingEvents}
+ *   $stats   array{totalMembers, activeMembers, availableTools,
+ *                  openDisputes, pendingDeposits, openIncidents, upcomingEvents}
+ *   $trends  array  Rows from PlatformStats::getRecentTrends() (14 days, newest first)
+ *
+ * Each trend row contains:
+ *   stat_date, total_accounts, active_accounts, new_accounts_today,
+ *   total_tools, available_tools, new_tools_today,
+ *   active_borrows, completed_today, new_requests_today,
+ *   open_disputes, open_incidents, overdue_borrows, deposits_held_total
  *
  * Shared data:
  *   $authUser     array{id, name, first_name, role, avatar}
@@ -107,6 +114,69 @@
 
     </div>
   </section>
+
+  <?php if (!empty($trends)): ?>
+    <section aria-labelledby="admin-trends-heading">
+      <h2 id="admin-trends-heading">
+        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+        14-Day Trends
+      </h2>
+
+      <div role="region" aria-labelledby="admin-trends-heading" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Members</th>
+              <th scope="col">New</th>
+              <th scope="col">Tools</th>
+              <th scope="col">Borrows</th>
+              <th scope="col">Completed</th>
+              <th scope="col">Requests</th>
+              <th scope="col">Disputes</th>
+              <th scope="col">Incidents</th>
+              <th scope="col">Overdue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($trends as $day):
+              $overdue  = (int) $day['overdue_borrows'];
+              $disputes = (int) $day['open_disputes'];
+            ?>
+              <tr>
+                <td>
+                  <time datetime="<?= htmlspecialchars($day['stat_date']) ?>">
+                    <?= htmlspecialchars(date('M j', strtotime($day['stat_date']))) ?>
+                  </time>
+                </td>
+                <td>
+                  <span><?= number_format((int) $day['active_accounts']) ?></span>
+                  <small>of <?= number_format((int) $day['total_accounts']) ?></small>
+                </td>
+                <td><?= number_format((int) $day['new_accounts_today']) ?></td>
+                <td>
+                  <span><?= number_format((int) $day['available_tools']) ?></span>
+                  <small>of <?= number_format((int) $day['total_tools']) ?></small>
+                </td>
+                <td><?= number_format((int) $day['active_borrows']) ?></td>
+                <td><?= number_format((int) $day['completed_today']) ?></td>
+                <td><?= number_format((int) $day['new_requests_today']) ?></td>
+                <td<?= $disputes > 0 ? ' data-warning' : '' ?>>
+                  <?= $disputes ?>
+                </td>
+                <td<?= (int) $day['open_incidents'] > 0 ? ' data-warning' : '' ?>>
+                  <?= (int) $day['open_incidents'] ?>
+                </td>
+                <td<?= $overdue > 0 ? ' data-urgent' : '' ?>>
+                  <?= $overdue ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <?php endif; ?>
 
   <section aria-labelledby="admin-actions-heading">
     <h2 id="admin-actions-heading">Quick Actions</h2>

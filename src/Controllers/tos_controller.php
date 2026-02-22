@@ -47,14 +47,14 @@ class TosController extends BaseController
         $tosId = (int) ($_POST['tos_id'] ?? 0);
 
         if ($tosId <= 0) {
-            $this->abort(400);
+            $this->abort(404);
         }
 
         $currentTos = Tos::getCurrent();
 
         // Only accept the active TOS version — reject stale form submissions
         if ($currentTos === null || (int) $currentTos['id_tos'] !== $tosId) {
-            $this->abort(400);
+            $this->abort(404);
         }
 
         $accountId = (int) $_SESSION['user_id'];

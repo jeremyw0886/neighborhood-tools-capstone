@@ -10,6 +10,14 @@ use App\Models\Incident;
 
 class IncidentController extends BaseController
 {
+    private const int MAX_PHOTOS = 5;
+    private const int MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+    private const array ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
+    private const array MIME_EXTENSIONS = [
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png',
+        'image/webp' => 'webp',
+    ];
     /**
      * Display the incident report form for a borrow transaction.
      *

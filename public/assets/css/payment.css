@@ -348,12 +348,211 @@
     }
   }
 
+  #payment-history {
+    margin-inline: auto;
+    max-width: 900px;
+    padding-block: 2rem;
+    padding-inline: 1.5rem;
+
+    & > nav[aria-label="Back"] {
+      margin-block-end: 1.5rem;
+
+      & > a {
+        color: var(--mountain-mist);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-pine);
+        }
+
+        & > i {
+          margin-inline-end: 0.25rem;
+        }
+      }
+    }
+
+    & > h1 {
+      color: var(--mountain-pine);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+      margin-block-end: 1.5rem;
+
+      & > i {
+        color: var(--mountain-gold);
+        margin-inline-end: 0.375rem;
+      }
+    }
+
+    & > p {
+      color: var(--mountain-mist);
+      font-style: italic;
+    }
+
+    & > ul[aria-label="Transactions"] {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      list-style: none;
+      padding: 0;
+
+      & > li {
+        background: var(--mountain-cloud);
+        border: 1px solid var(--mountain-fog);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+
+        & > header {
+          align-items: center;
+          display: flex;
+          gap: 0.75rem;
+          margin-block-end: 1rem;
+
+          & > span[data-badge] {
+            border-radius: 2rem;
+            display: inline-flex;
+            font-size: 0.688rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            padding: 0.25rem 0.75rem;
+            text-transform: uppercase;
+          }
+
+          & > span[data-badge="deposit_release"] {
+            background: #d1fae5;
+            color: #065f46;
+          }
+
+          & > span[data-badge="deposit_forfeit"] {
+            background: #fee2e2;
+            color: #991b1b;
+          }
+
+          & > span[data-badge="deposit_hold"] {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+
+          & > span[data-badge="rental_fee"] {
+            background: #fef3c7;
+            color: #92400e;
+          }
+
+          & > strong {
+            color: var(--mountain-charcoal);
+            font-size: 1.125rem;
+            margin-inline-start: auto;
+          }
+        }
+
+        & > dl {
+          display: grid;
+          gap: 0;
+          grid-template-columns: 1fr 1fr;
+
+          & > div {
+            display: flex;
+            gap: 0.5rem;
+            padding-block: 0.375rem;
+          }
+
+          & dt {
+            color: var(--mountain-slate);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+          }
+
+          & dd {
+            color: var(--mountain-charcoal);
+            font-size: 0.875rem;
+          }
+        }
+
+        & > footer {
+          border-block-start: 1px solid var(--mountain-fog);
+          margin-block-start: 0.75rem;
+          padding-block-start: 0.75rem;
+          text-align: end;
+
+          & > time {
+            color: var(--mountain-mist);
+            font-size: 0.813rem;
+          }
+        }
+      }
+    }
+
+    & > nav[aria-label="Pagination"] {
+      margin-block-start: 2rem;
+
+      & > ul {
+        align-items: center;
+        display: flex;
+        gap: 0.25rem;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+
+        & > li > a,
+        & > li > span[aria-disabled] {
+          align-items: center;
+          border-radius: 0.375rem;
+          display: inline-flex;
+          font-size: 0.875rem;
+          gap: 0.375rem;
+          min-height: 2.25rem;
+          min-width: 2.25rem;
+          justify-content: center;
+          padding-inline: 0.625rem;
+          text-decoration: none;
+          transition: background-color 0.2s, color 0.2s;
+        }
+
+        & > li > a {
+          color: var(--mountain-slate);
+
+          &:is(:hover, :focus-visible) {
+            background: var(--mountain-fog);
+            color: var(--mountain-pine);
+          }
+
+          &[aria-current="page"] {
+            background: var(--mountain-pine);
+            color: #fff;
+            font-weight: 600;
+          }
+        }
+
+        & > li > span[aria-disabled] {
+          color: var(--mountain-fog);
+          cursor: default;
+        }
+
+        & > li > span[aria-hidden] {
+          color: var(--mountain-mist);
+          padding-inline: 0.25rem;
+        }
+      }
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     #deposit-detail {
       & > nav a,
       & > section dl dd a,
       & > section[aria-labelledby="process-heading"] form :is(input, textarea),
       & > section[aria-labelledby="process-heading"] form > footer > button {
+        transition: none;
+      }
+    }
+
+    #payment-history {
+      & > nav a,
+      & > nav[aria-label="Pagination"] a {
         transition: none;
       }
     }
@@ -382,6 +581,17 @@
       & > section[aria-labelledby="process-heading"] form > footer > button[type="submit"] {
         outline: 1px solid #fff;
         outline-offset: -1px;
+      }
+    }
+
+    #payment-history {
+
+      & > ul > li {
+        border-width: 2px;
+      }
+
+      & > ul > li > footer {
+        border-block-start-width: 2px;
       }
     }
   }

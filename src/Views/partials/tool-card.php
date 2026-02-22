@@ -26,7 +26,13 @@
   <?php endif; ?>
   <div>
     <?php if (!empty($tool['category_name'])): ?>
-      <span><?= htmlspecialchars($tool['category_name']) ?></span>
+      <span>
+        <?php if (!empty($tool['category_icon'])): ?>
+          <img src="/uploads/vectors/<?= htmlspecialchars($tool['category_icon']) ?>"
+               alt="" width="16" height="16" loading="lazy" decoding="async">
+        <?php endif; ?>
+        <?= htmlspecialchars($tool['category_name']) ?>
+      </span>
     <?php endif; ?>
     <<?= $headingTag ?>><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></<?= $headingTag ?>>
     <p>$<?= number_format((float) ($tool['rental_fee_tol'] ?? 0), 2) ?><span>/day</span></p>

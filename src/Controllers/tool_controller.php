@@ -53,9 +53,11 @@ class ToolController extends BaseController
             if ($tools !== []) {
                 $toolIds     = array_column($tools, 'id_tol');
                 $categoryMap = Tool::getCategoryNamesForTools($toolIds);
+                $iconMap     = Tool::getCategoryIconsForTools($toolIds);
 
                 foreach ($tools as &$t) {
                     $t['category_name'] = $categoryMap[(int) $t['id_tol']] ?? null;
+                    $t['category_icon'] = $iconMap[(int) $t['id_tol']] ?? null;
                 }
                 unset($t);
             }

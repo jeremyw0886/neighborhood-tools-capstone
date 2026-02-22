@@ -41,7 +41,16 @@ class Bookmark
                 bv.avg_rating,
                 bv.rating_count,
                 bv.bookmarked_at,
-                aim.file_name_aim AS owner_avatar
+                aim.file_name_aim AS owner_avatar,
+                (SELECT MIN(c.category_name_cat)
+                 FROM tool_category_tolcat tc
+                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                 WHERE tc.id_tol_tolcat = bv.tool_id) AS category_name,
+                (SELECT MIN(vec.file_name_vec)
+                 FROM tool_category_tolcat tc
+                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                 LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+                 WHERE tc.id_tol_tolcat = bv.tool_id) AS category_icon
             FROM user_bookmarks_v bv
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = bv.owner_id AND aim.is_primary_aim = 1

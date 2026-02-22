@@ -32,7 +32,12 @@ class Tool
                 (SELECT MIN(c.category_name_cat)
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = av.id_tol) AS category_name
+                 WHERE tc.id_tol_tolcat = av.id_tol) AS category_name,
+                (SELECT MIN(vec.file_name_vec)
+                 FROM tool_category_tolcat tc
+                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                 LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+                 WHERE tc.id_tol_tolcat = av.id_tol) AS category_icon
             FROM available_tool_v av
             LEFT JOIN (
                 SELECT id_tol_trt,
@@ -273,7 +278,12 @@ class Tool
                 (SELECT MIN(c.category_name_cat)
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = td.id_tol) AS category_name
+                 WHERE tc.id_tol_tolcat = td.id_tol) AS category_name,
+                (SELECT MIN(vec.file_name_vec)
+                 FROM tool_category_tolcat tc
+                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                 LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+                 WHERE tc.id_tol_tolcat = td.id_tol) AS category_icon
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
@@ -592,6 +602,45 @@ class Tool
         $map = [];
         foreach ($stmt->fetchAll() as $row) {
             $map[(int) $row['id_tol_tolcat']] = $row['category_name'];
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param  int[] $toolIds
+     * @return array<int, string>  [id_tol => file_name_vec]
+     */
+    public static function getCategoryIconsForTools(array $toolIds): array
+    {
+        if ($toolIds === []) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+
+        $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
+
+        $stmt = $pdo->prepare("
+            SELECT tc.id_tol_tolcat, MIN(vec.file_name_vec) AS category_icon
+            FROM tool_category_tolcat tc
+            JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+            LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+            WHERE tc.id_tol_tolcat IN ({$placeholders})
+            GROUP BY tc.id_tol_tolcat
+        ");
+
+        foreach (array_values($toolIds) as $i => $id) {
+            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        $map = [];
+        foreach ($stmt->fetchAll() as $row) {
+            if ($row['category_icon'] !== null) {
+                $map[(int) $row['id_tol_tolcat']] = $row['category_icon'];
+            }
         }
 
         return $map;

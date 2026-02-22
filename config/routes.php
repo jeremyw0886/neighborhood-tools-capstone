@@ -24,7 +24,7 @@ use App\Controllers\EventController;
 use App\Controllers\HandoverController;
 use App\Controllers\IncidentController;
 use App\Controllers\NotificationController;
-// use App\Controllers\WaiverController;
+use App\Controllers\WaiverController;
 use App\Controllers\TosController;
 use App\Controllers\PageController;
 // use App\Controllers\CategoryController;
@@ -120,7 +120,7 @@ return [
     'POST /notifications/read'     => [NotificationController::class, 'markRead'],
 
     // Waivers
-    // 'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],
+    'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],
     // 'POST /waiver/{borrowId}'      => [WaiverController::class, 'sign'],
 
     // Informational pages (progressive-enhancement fallbacks for modals)

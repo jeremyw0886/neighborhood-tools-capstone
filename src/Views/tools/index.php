@@ -37,7 +37,14 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
     <h1 id="browse-heading">
       <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
     </h1>
-    <p>Find the right tool from your neighbors in the Asheville and Hendersonville areas.</p>
+    <nav aria-label="Browse mode">
+      <a href="/categories">
+        <i class="fa-solid fa-tags" aria-hidden="true"></i> Categories
+      </a>
+      <a href="/tools" aria-current="page">
+        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> All Tools
+      </a>
+    </nav>
   </header>
 
   <?php if (!empty($_SESSION['bookmark_flash'])): ?>

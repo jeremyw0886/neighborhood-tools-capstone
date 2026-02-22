@@ -13,9 +13,16 @@
 
   <header>
     <h1 id="categories-heading">
-      <i class="fa-solid fa-tags" aria-hidden="true"></i> Browse by Category
+      <i class="fa-solid fa-tags" aria-hidden="true"></i> Browse Categories
     </h1>
-    <p>Find the right tools organized by type — from power tools to garden equipment.</p>
+    <nav aria-label="Browse mode">
+      <a href="/categories" aria-current="page">
+        <i class="fa-solid fa-tags" aria-hidden="true"></i> Categories
+      </a>
+      <a href="/tools">
+        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> All Tools
+      </a>
+    </nav>
   </header>
 
   <?php if (!empty($categories)): ?>
@@ -24,8 +31,6 @@
       <?php foreach ($categories as $cat):
         $available  = (int) $cat['available_tools'];
         $total      = (int) $cat['total_tools'];
-        $avgRating  = $cat['category_avg_rating'] !== null ? round((float) $cat['category_avg_rating'], 1) : null;
-        $avgStars   = $avgRating !== null ? (int) round($avgRating) : 0;
         $minFee     = $cat['min_rental_fee'] !== null ? number_format((float) $cat['min_rental_fee'], 2) : null;
         $maxFee     = $cat['max_rental_fee'] !== null ? number_format((float) $cat['max_rental_fee'], 2) : null;
         $hasIcon    = !empty($cat['category_icon']);
@@ -49,17 +54,6 @@
             <dl>
               <dt><i class="fa-solid fa-check-circle" aria-hidden="true"></i> Available</dt>
               <dd><?= $available ?> of <?= $total ?> tool<?= $total !== 1 ? 's' : '' ?></dd>
-
-              <?php if ($avgRating !== null): ?>
-                <dt><i class="fa-solid fa-star" aria-hidden="true"></i> Rating</dt>
-                <dd>
-                  <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <i class="fa-<?= $i <= $avgStars ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
-                  <?php endfor; ?>
-                  <span class="visually-hidden"><?= htmlspecialchars((string) $avgRating) ?> out of 5</span>
-                  <span><?= htmlspecialchars((string) $avgRating) ?></span>
-                </dd>
-              <?php endif; ?>
 
               <?php if ($minFee !== null): ?>
                 <dt><i class="fa-solid fa-dollar-sign" aria-hidden="true"></i> Fee Range</dt>

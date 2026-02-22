@@ -35,6 +35,56 @@
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
         margin-block: 0.5rem 0;
       }
+
+      & > nav[aria-label="Browse mode"] {
+        align-items: center;
+        background-color: var(--mountain-cloud);
+        border-radius: 2rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        display: inline-flex;
+        margin-block-start: 1rem;
+        padding: 0.25rem;
+        position: relative;
+
+        &::before {
+          background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+          border-radius: 1.75rem;
+          box-shadow: 0 2px 8px var(--shadow-pine);
+          content: '';
+          height: calc(100% - 0.5rem);
+          inset-inline-start: 0.25rem;
+          position: absolute;
+          top: 0.25rem;
+          transition: transform 0.3s ease;
+          width: calc(50% - 0.25rem);
+        }
+
+        &:has(a:last-child[aria-current="page"])::before {
+          transform: translateX(100%);
+        }
+
+        & > a {
+          align-items: center;
+          color: var(--mountain-slate);
+          display: inline-flex;
+          flex: 1;
+          font-size: 0.875rem;
+          font-weight: 600;
+          gap: 0.375rem;
+          justify-content: center;
+          min-height: 2.75rem;
+          padding: 0.5rem 1.5rem;
+          position: relative;
+          text-decoration: none;
+          transition: color 0.3s ease;
+          white-space: nowrap;
+          z-index: 1;
+        }
+
+        & > a[aria-current="page"] {
+          color: #fff;
+        }
+      }
     }
 
     /* ── Bookmark flash message ── */
@@ -1054,6 +1104,10 @@
   @media (prefers-contrast: more) {
     :is(#browse-page, #bookmarks-page) {
 
+      & > header > nav[aria-label="Browse mode"] {
+        border: 2px solid var(--mountain-fog);
+      }
+
       & > form[role="search"] > fieldset:first-of-type {
         border-width: 3px;
       }
@@ -1107,6 +1161,17 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
+    :is(#browse-page, #bookmarks-page) > header > nav[aria-label="Browse mode"] {
+
+      &::before {
+        transition: none;
+      }
+
+      & > a {
+        transition: none;
+      }
+    }
+
     main > section[aria-labelledby="tool-detail-heading"] article > section[aria-labelledby="borrow-heading"] {
 
       & :is(select, textarea, button) {

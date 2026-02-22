@@ -9,6 +9,48 @@ use PDO;
 
 class Tos
 {
+    private const int PER_PAGE = 12;
+
+    /**
+     * Fetch paginated active users who have not accepted the current TOS.
+     *
+     * Queries tos_acceptance_required_v which filters to active accounts
+     * missing an acceptance of the current active, non-superseded TOS version.
+     * Includes each user's last accepted version and timestamp for context.
+     *
+     * @return array  Rows with id_acc, full_name, email_address_acc,
+     *                last_login_at_acc, created_at_acc,
+     *                last_tos_accepted_at, last_accepted_version
+     */
+    public static function getNonCompliantUsers(int $limit = self::PER_PAGE, int $offset = 0): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT *
+            FROM tos_acceptance_required_v
+            ORDER BY last_login_at_acc DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Count active users who have not accepted the current TOS.
+     */
+    public static function getNonCompliantCount(): int
+    {
+        $pdo = Database::connection();
+
+        return (int) $pdo->query('SELECT COUNT(*) FROM tos_acceptance_required_v')->fetchColumn();
+    }
+
     /**
      * Fetch the current active Terms of Service version.
      *

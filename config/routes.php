@@ -88,6 +88,7 @@ return [
     'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
     'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
     'GET /payments/history'        => [PaymentController::class, 'history'],
+    'POST /api/stripe/create-intent' => [PaymentController::class, 'createStripeIntent'],
 
     // Disputes
     'GET /disputes'                => [DisputeController::class, 'index'],

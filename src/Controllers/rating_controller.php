@@ -107,6 +107,31 @@ class RatingController extends BaseController
             $this->abort(403);
         }
 
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('RatingController::rateUser lookup — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $borrow['borrower_id'] === $userId;
+        $isLender   = (int) $borrow['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender) {
+            $this->abort(403);
+        }
+
+        $expectedRole   = $isBorrower ? 'borrower' : 'lender';
+        $expectedTarget = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];
+
+        if ($role !== $expectedRole || $targetId !== $expectedTarget) {
+            $this->abort(403);
+        }
+
         $errors = [];
 
         if ($score < 1 || $score > 5) {

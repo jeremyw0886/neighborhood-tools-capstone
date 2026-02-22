@@ -326,18 +326,44 @@ class AdminController extends BaseController
     }
 
     /**
-     * Incident management — open incident reports.
+     * Incident management — paginated open incident reports.
      *
-     * Stub — queries open_incident_v when fully implemented.
+     * Queries open_incident_v for unresolved incidents with full context:
+     * reporter, borrower, lender, tool, deposit, and related dispute counts.
      */
     public function incidents(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+
+        try {
+            $totalCount = Incident::getOpenCount();
+        } catch (\Throwable $e) {
+            error_log('AdminController::incidents count — ' . $e->getMessage());
+            $totalCount = 0;
+        }
+
+        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * self::PER_PAGE;
+
+        try {
+            $incidents = Incident::getOpen(self::PER_PAGE, $offset);
+        } catch (\Throwable $e) {
+            error_log('AdminController::incidents list — ' . $e->getMessage());
+            $incidents = [];
+        }
+
         $this->render('admin/incidents', [
             'title'       => 'Manage Incidents — NeighborhoodTools',
             'description' => 'Review open incident reports.',
             'pageCss'     => ['admin.css'],
+            'incidents'   => $incidents,
+            'totalCount'  => $totalCount,
+            'page'        => $page,
+            'totalPages'  => $totalPages,
+            'perPage'     => self::PER_PAGE,
         ]);
     }
 

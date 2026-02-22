@@ -43,4 +43,82 @@ class Incident
 
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    /**
+     * Create an incident report and attach photos in a single transaction.
+     *
+     * Inserts into incident_report_irt then into incident_photo_iph for
+     * each uploaded photo. The DB trigger trg_incident_report_before_insert
+     * auto-calculates is_reported_within_deadline_irt based on the 48-hour
+     * window from incident_occurred_at_irt.
+     *
+     * @param  array<string> $photoFilenames  Filenames already moved to uploads/incidents/
+     * @return int  The new incident's primary key (id_irt)
+     */
+    public static function create(
+        int $borrowId,
+        int $reporterId,
+        int $incidentTypeId,
+        string $subject,
+        string $description,
+        string $occurredAt,
+        ?string $estimatedDamageAmount,
+        array $photoFilenames = [],
+    ): int {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            $sql = "
+                INSERT INTO incident_report_irt
+                    (id_bor_irt, id_acc_irt, id_ity_irt, subject_irt,
+                     description_irt, incident_occurred_at_irt,
+                     estimated_damage_amount_irt)
+                VALUES
+                    (:borrow_id, :reporter_id, :type_id, :subject,
+                     :description, :occurred_at,
+                     :damage_amount)
+            ";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+            $stmt->bindValue(':reporter_id', $reporterId, PDO::PARAM_INT);
+            $stmt->bindValue(':type_id', $incidentTypeId, PDO::PARAM_INT);
+            $stmt->bindValue(':subject', $subject, PDO::PARAM_STR);
+            $stmt->bindValue(':description', $description, PDO::PARAM_STR);
+            $stmt->bindValue(':occurred_at', $occurredAt, PDO::PARAM_STR);
+            $stmt->bindValue(
+                ':damage_amount',
+                $estimatedDamageAmount,
+                $estimatedDamageAmount === null ? PDO::PARAM_NULL : PDO::PARAM_STR,
+            );
+            $stmt->execute();
+
+            $incidentId = (int) $pdo->lastInsertId();
+
+            if ($photoFilenames !== []) {
+                $photoSql = "
+                    INSERT INTO incident_photo_iph
+                        (id_irt_iph, file_name_iph, sort_order_iph)
+                    VALUES (:incident_id, :filename, :sort_order)
+                ";
+
+                $photoStmt = $pdo->prepare($photoSql);
+
+                foreach ($photoFilenames as $index => $filename) {
+                    $photoStmt->bindValue(':incident_id', $incidentId, PDO::PARAM_INT);
+                    $photoStmt->bindValue(':filename', $filename, PDO::PARAM_STR);
+                    $photoStmt->bindValue(':sort_order', $index, PDO::PARAM_INT);
+                    $photoStmt->execute();
+                }
+            }
+
+            $pdo->commit();
+
+            return $incidentId;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
 }

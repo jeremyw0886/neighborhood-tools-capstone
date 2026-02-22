@@ -681,6 +681,70 @@
       justify-content: center;
       width: 100%;
     }
+
+    /* Admin tables — horizontal scroll on mobile */
+    :is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    :is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) table thead,
+    :is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) table tbody,
+    :is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) table tr {
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    :is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) table th,
+    :is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) table td {
+      font-size: 0.813rem;
+      padding-block: 0.625rem;
+      padding-inline: 0.5rem;
+    }
   }
 
   @media (max-width: 400px) {

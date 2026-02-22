@@ -256,6 +256,7 @@ class DisputeController extends BaseController
             }
         } catch (\Throwable $e) {
             error_log('DisputeController::store duplicate check — ' . $e->getMessage());
+            $this->abort(500);
         }
 
         try {

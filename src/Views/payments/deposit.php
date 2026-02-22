@@ -199,7 +199,7 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
   <?php if ($isAdmin): ?>
   <section aria-labelledby="process-heading">
     <h2 id="process-heading">Process Deposit</h2>
-    <form method="post" novalidate>
+    <form method="post" action="/payments/deposit/<?= $depositId ?>" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
         <legend>Action</legend>

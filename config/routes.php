@@ -85,6 +85,7 @@ return [
     'POST /rate/tool'              => [RatingController::class, 'rateTool'],
 
     // Payments
+    'GET /payments/complete'       => [PaymentController::class, 'complete'],
     'GET /payments/deposit/{id}'   => [PaymentController::class, 'deposit'],
     'POST /payments/deposit/{id}'  => [PaymentController::class, 'processDeposit'],
     'GET /payments/history'        => [PaymentController::class, 'history'],

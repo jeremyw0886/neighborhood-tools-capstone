@@ -389,9 +389,10 @@ class PaymentController extends BaseController
 
         try {
             match ($event->type) {
-                'payment_intent.succeeded'      => $this->handlePaymentSucceeded($event->data->object),
-                'payment_intent.payment_failed' => $this->handlePaymentFailed($event->data->object),
-                default                         => error_log("stripeWebhook — unhandled event: {$event->type}"),
+                'payment_intent.amount_capturable_updated' => $this->handlePaymentAuthorized($event->data->object),
+                'payment_intent.succeeded'                 => $this->handlePaymentSucceeded($event->data->object),
+                'payment_intent.payment_failed'            => $this->handlePaymentFailed($event->data->object),
+                default                                    => error_log("stripeWebhook — unhandled event: {$event->type}"),
             };
         } catch (\Throwable $e) {
             error_log('stripeWebhook — handler error: ' . $e->getMessage());
@@ -400,6 +401,30 @@ class PaymentController extends BaseController
         http_response_code(200);
         echo json_encode(['status' => 'ok']);
         exit;
+    }
+
+    private function handlePaymentAuthorized(\Stripe\PaymentIntent $paymentIntent): void
+    {
+        $depositId = (int) ($paymentIntent->metadata->deposit_id ?? 0);
+
+        if ($depositId < 1) {
+            error_log('handlePaymentAuthorized — missing deposit_id in metadata');
+            return;
+        }
+
+        $deposit = Deposit::findPendingPayment($depositId);
+
+        if ($deposit === null) {
+            error_log("handlePaymentAuthorized — deposit {$depositId} not found or already processed");
+            return;
+        }
+
+        try {
+            Deposit::transitionToHeld($depositId, $paymentIntent->id);
+            error_log("handlePaymentAuthorized — deposit {$depositId} transitioned to held");
+        } catch (\Throwable $e) {
+            error_log('handlePaymentAuthorized — ' . $e->getMessage());
+        }
     }
 
     private function handlePaymentSucceeded(\Stripe\PaymentIntent $paymentIntent): void
@@ -432,6 +457,52 @@ class PaymentController extends BaseController
         $reason    = $paymentIntent->last_payment_error?->message ?? 'Unknown failure';
 
         error_log("handlePaymentFailed — deposit {$depositId}: {$reason}");
+    }
+
+    public function complete(): void
+    {
+        $this->requireAuth();
+
+        $paymentIntentId = $_GET['payment_intent'] ?? '';
+
+        if ($paymentIntentId === '') {
+            $this->abort(404);
+        }
+
+        try {
+            $stripe        = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
+            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId);
+        } catch (\Throwable $e) {
+            error_log('PaymentController::complete — Stripe API error: ' . $e->getMessage());
+            $_SESSION['deposit_errors'] = ['Unable to verify payment status. Please contact support.'];
+            header('Location: /dashboard');
+            exit;
+        }
+
+        $depositId = (int) ($paymentIntent->metadata->deposit_id ?? 0);
+
+        if ($depositId < 1) {
+            $this->abort(404);
+        }
+
+        $piStatus     = $paymentIntent->status;
+        $isAuthorized = in_array($piStatus, ['requires_capture', 'succeeded'], true);
+
+        if ($isAuthorized) {
+            try {
+                Deposit::transitionToHeld($depositId, $paymentIntent->id);
+            } catch (\Throwable $e) {
+                error_log('PaymentController::complete — ' . $e->getMessage());
+            }
+
+            $_SESSION['deposit_success'] = 'Payment confirmed. Your security deposit is now being held.';
+            header('Location: /payments/deposit/' . $depositId);
+            exit;
+        }
+
+        $_SESSION['deposit_errors'] = ['Payment could not be completed. Please try again.'];
+        header('Location: /payments/deposit/' . $depositId);
+        exit;
     }
 
     public function history(): void

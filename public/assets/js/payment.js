@@ -1,33 +1,33 @@
 'use strict';
 
-document.addEventListener('DOMContentLoaded', function () {
-    var form = document.getElementById('payment-form');
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('payment-form');
     if (!form) return;
 
-    var stripe = Stripe(form.dataset.publishableKey);
-    var elements = stripe.elements({ clientSecret: form.dataset.clientSecret });
-    var paymentElement = elements.create('payment');
+    const stripe = Stripe(form.dataset.publishableKey);
+    const elements = stripe.elements({ clientSecret: form.dataset.clientSecret });
+    const paymentElement = elements.create('payment');
     paymentElement.mount('#payment-element');
 
-    var submitBtn = form.querySelector('button[type="submit"]');
-    var messageEl = document.getElementById('payment-message');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const messageEl = document.getElementById('payment-message');
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();
         submitBtn.disabled = true;
         messageEl.hidden = true;
 
-        stripe.confirmPayment({
-            elements: elements,
+        const { error } = await stripe.confirmPayment({
+            elements,
             confirmParams: {
                 return_url: window.location.origin + '/payments/complete',
             },
-        }).then(function (result) {
-            if (result.error) {
-                messageEl.textContent = result.error.message;
-                messageEl.hidden = false;
-                submitBtn.disabled = false;
-            }
         });
+
+        if (error) {
+            messageEl.textContent = error.message;
+            messageEl.hidden = false;
+            submitBtn.disabled = false;
+        }
     });
 });

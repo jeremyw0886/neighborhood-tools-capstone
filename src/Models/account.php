@@ -586,7 +586,8 @@ class Account
         $pdo = Database::connection();
 
         return (int) $pdo->query(
-            "SELECT COUNT(*) FROM user_reputation_fast_v WHERE account_status = 'pending'"
+            "SELECT COUNT(*) FROM account_acc
+             WHERE id_ast_acc = fn_get_account_status_id('pending')"
         )->fetchColumn();
     }
 

@@ -557,6 +557,38 @@ class Account
     }
 
     /**
+     * Update an account's status using the lookup function.
+     *
+     * @param string $status  One of: 'pending', 'active', 'suspended', 'deleted'
+     */
+    public static function updateStatus(int $accountId, string $status): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_acc
+            SET id_ast_acc = fn_get_account_status_id(:status)
+            WHERE id_acc = :id
+        ");
+
+        $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Count accounts with 'pending' status for admin dashboard badges.
+     */
+    public static function getPendingCount(): int
+    {
+        $pdo = Database::connection();
+
+        return (int) $pdo->query(
+            "SELECT COUNT(*) FROM user_reputation_fast_v WHERE account_status = 'pending'"
+        )->fetchColumn();
+    }
+
+    /**
      * Get the current primary image filename for an account.
      */
     public static function getPrimaryImage(int $accountId): ?string

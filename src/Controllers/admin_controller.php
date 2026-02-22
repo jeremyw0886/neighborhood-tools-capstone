@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Core\Database;
 use App\Core\Role;
+use App\Models\Deposit;
+use App\Models\Dispute;
+use App\Models\Event;
+use App\Models\Incident;
+use App\Models\Neighborhood;
 
 class AdminController extends BaseController
 {
@@ -161,9 +165,8 @@ class AdminController extends BaseController
     /**
      * Fetch platform-wide summary stats for the admin dashboard.
      *
-     * Uses direct COUNT queries against admin views and an aggregate
-     * query against neighborhood_summary_fast_v (materialized) for
-     * member and tool totals.
+     * Delegates to domain models: Neighborhood for member/tool totals
+     * (materialized), Dispute/Deposit/Incident/Event for operational counts.
      *
      * @return array{totalMembers: int, activeMembers: int, availableTools: int,
      *               openDisputes: int, pendingDeposits: int, openIncidents: int,
@@ -171,30 +174,14 @@ class AdminController extends BaseController
      */
     private function fetchPlatformStats(): array
     {
-        $pdo = Database::connection();
-
-        // Aggregate member and tool totals from materialized neighborhood data
-        $row = $pdo->query(
-            'SELECT COALESCE(SUM(total_members), 0)  AS total_members,
-                    COALESCE(SUM(active_members), 0)  AS active_members,
-                    COALESCE(SUM(available_tools), 0)  AS available_tools
-               FROM neighborhood_summary_fast_v'
-        )->fetch(\PDO::FETCH_ASSOC);
-
-        // Direct counts from admin views
-        $openDisputes    = (int) $pdo->query('SELECT COUNT(*) FROM open_dispute_v')->fetchColumn();
-        $pendingDeposits = (int) $pdo->query('SELECT COUNT(*) FROM pending_deposit_v')->fetchColumn();
-        $openIncidents   = (int) $pdo->query('SELECT COUNT(*) FROM open_incident_v')->fetchColumn();
-        $upcomingEvents  = (int) $pdo->query('SELECT COUNT(*) FROM upcoming_event_v')->fetchColumn();
+        $totals = Neighborhood::getPlatformTotals();
 
         return [
-            'totalMembers'    => (int) $row['total_members'],
-            'activeMembers'   => (int) $row['active_members'],
-            'availableTools'  => (int) $row['available_tools'],
-            'openDisputes'    => $openDisputes,
-            'pendingDeposits' => $pendingDeposits,
-            'openIncidents'   => $openIncidents,
-            'upcomingEvents'  => $upcomingEvents,
+            ...$totals,
+            'openDisputes'    => Dispute::getCount(),
+            'pendingDeposits' => Deposit::getPendingCount(),
+            'openIncidents'   => Incident::getOpenCount(),
+            'upcomingEvents'  => Event::getUpcomingCount(),
         ];
     }
 }

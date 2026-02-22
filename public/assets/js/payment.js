@@ -4,13 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('payment-form');
     if (!form) return;
 
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const messageEl = document.getElementById('payment-message');
+
+    if (!submitBtn || !messageEl) return;
+
+    if (typeof Stripe === 'undefined') {
+        messageEl.textContent = 'Payment system unavailable. Please refresh.';
+        messageEl.hidden = false;
+        return;
+    }
+
     const stripe = Stripe(form.dataset.publishableKey);
     const elements = stripe.elements({ clientSecret: form.dataset.clientSecret });
     const paymentElement = elements.create('payment');
     paymentElement.mount('#payment-element');
-
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const messageEl = document.getElementById('payment-message');
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();

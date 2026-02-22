@@ -12,21 +12,23 @@ class Account
     private const int PER_PAGE = 12;
 
     /**
-     * Fetch paginated members with reputation data for the admin users page.
+     * Fetch paginated members with reputation and role data for admin users page.
      *
-     * Queries user_reputation_fast_v which includes lender/borrower ratings,
-     * tool counts, and completed borrows.
+     * JOINs user_reputation_fast_v with account_acc and role_rol to surface
+     * the user's role alongside their reputation metrics.
      *
-     * @return array  Rows from user_reputation_fast_v
+     * @return array  Rows with reputation fields plus role_name_rol
      */
     public static function getAllForAdmin(int $limit = self::PER_PAGE, int $offset = 0): array
     {
         $pdo = Database::connection();
 
         $sql = "
-            SELECT *
-            FROM user_reputation_fast_v
-            ORDER BY full_name ASC
+            SELECT r.*, rol.role_name_rol
+            FROM user_reputation_fast_v r
+            JOIN account_acc a     ON r.id_acc = a.id_acc
+            JOIN role_rol rol      ON a.id_rol_acc = rol.id_rol
+            ORDER BY r.full_name ASC
             LIMIT :limit OFFSET :offset
         ";
 

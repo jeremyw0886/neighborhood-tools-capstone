@@ -23,8 +23,6 @@ class EventController extends BaseController
      */
     public function index(): void
     {
-        $this->requireAuth();
-
         $timing = trim($_GET['timing'] ?? '');
         $timing = $timing !== '' ? strtoupper($timing) : null;
         $page   = max(1, (int) ($_GET['page'] ?? 1));

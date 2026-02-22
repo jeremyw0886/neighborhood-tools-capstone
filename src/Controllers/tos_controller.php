@@ -80,12 +80,15 @@ class TosController extends BaseController
     private function redirectBack(): never
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? '';
+        $host     = $_SERVER['HTTP_HOST'] ?? '';
 
-        // Only redirect to same-origin referrers to prevent open redirects
-        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if ($referrer !== '' && $host !== '') {
+            $parsed  = parse_url($referrer);
+            $refHost = $parsed['host'] ?? '';
 
-        if ($referrer !== '' && str_contains($referrer, $host)) {
-            $this->redirect($referrer);
+            if ($refHost === $host) {
+                $this->redirect($parsed['path'] ?? '/tos');
+            }
         }
 
         $this->redirect('/tos');

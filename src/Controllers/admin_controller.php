@@ -11,6 +11,7 @@ use App\Models\Dispute;
 use App\Models\Event;
 use App\Models\Incident;
 use App\Models\Neighborhood;
+use App\Models\PlatformStats;
 use App\Models\Tool;
 use App\Models\Tos;
 
@@ -42,11 +43,19 @@ class AdminController extends BaseController
             ];
         }
 
+        try {
+            $trends = PlatformStats::getRecentTrends();
+        } catch (\Throwable $e) {
+            error_log('AdminController::dashboard trends — ' . $e->getMessage());
+            $trends = [];
+        }
+
         $this->render('admin/dashboard', [
             'title'       => 'Admin Dashboard — NeighborhoodTools',
             'description' => 'Platform administration overview and management.',
             'pageCss'     => ['dashboard.css', 'admin.css'],
             'stats'       => $stats,
+            'trends'      => $trends,
         ]);
     }
 

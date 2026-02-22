@@ -9,6 +9,16 @@ use PDO;
 
 class Deposit
 {
+    /**
+     * Count pending deposits platform-wide.
+     */
+    public static function getPendingCount(): int
+    {
+        $pdo = Database::connection();
+
+        return (int) $pdo->query('SELECT COUNT(*) FROM pending_deposit_v')->fetchColumn();
+    }
+
     public static function findById(int $id): ?array
     {
         $pdo = Database::connection();

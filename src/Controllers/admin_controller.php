@@ -127,19 +127,30 @@ class AdminController extends BaseController
     }
 
     /**
-     * Reports — deposit status and neighborhood statistics.
+     * Reports — neighborhood statistics from materialized summaries.
      *
-     * Stub — queries pending_deposit_v and neighborhood_summary_fast_v
-     * when fully implemented.
+     * Displays a paginated table of per-neighborhood stats pulled from
+     * neighborhood_summary_fast_v via the Neighborhood model.
      */
     public function reports(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $totalCount = Neighborhood::getSummaryCount();
+        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * self::PER_PAGE;
+
         $this->render('admin/reports', [
-            'title'       => 'Reports — NeighborhoodTools',
-            'description' => 'Platform reports and statistics.',
-            'pageCss'     => ['admin.css'],
+            'title'          => 'Reports — NeighborhoodTools',
+            'description'    => 'Platform reports and statistics.',
+            'pageCss'        => ['admin.css'],
+            'neighborhoods'  => Neighborhood::getSummaryList(self::PER_PAGE, $offset),
+            'totalCount'     => $totalCount,
+            'page'           => $page,
+            'totalPages'     => $totalPages,
+            'perPage'        => self::PER_PAGE,
         ]);
     }
 

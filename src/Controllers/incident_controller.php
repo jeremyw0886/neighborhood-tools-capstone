@@ -219,6 +219,7 @@ class IncidentController extends BaseController
             }
         } catch (\Throwable $e) {
             error_log('IncidentController::store duplicate check — ' . $e->getMessage());
+            $this->abort(500);
         }
 
         $occurredAt     = $date . ' ' . $time . ':00';

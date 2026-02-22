@@ -136,7 +136,9 @@ return [
 
     // Admin
     'GET /admin'                   => [AdminController::class, 'dashboard'],
-    'GET /admin/users'             => [AdminController::class, 'users'],
+    'GET /admin/users'                 => [AdminController::class, 'users'],
+    'POST /admin/users/{id}/approve'   => [AdminController::class, 'approveUser'],
+    'POST /admin/users/{id}/deny'      => [AdminController::class, 'denyUser'],
     'GET /admin/tools'             => [AdminController::class, 'tools'],
     'GET /admin/disputes'          => [DisputeController::class, 'index'],
     'GET /admin/events'            => [AdminController::class, 'events'],

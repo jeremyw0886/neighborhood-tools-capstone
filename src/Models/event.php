@@ -138,56 +138,64 @@ class Event
         array $meta = [],
     ): int {
         $pdo = Database::connection();
+        $pdo->beginTransaction();
 
-        $sql = "
-            INSERT INTO event_evt (
-                event_name_evt,
-                event_description_evt,
-                event_address_evt,
-                start_at_evt,
-                end_at_evt,
-                id_nbh_evt,
-                id_acc_evt
-            ) VALUES (
-                :name,
-                :description,
-                :address,
-                :start_at,
-                :end_at,
-                :neighborhood_id,
-                :creator_id
-            )
-        ";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':description', $description, $description === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':address', $address, $address === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':start_at', $startAt);
-        $stmt->bindValue(':end_at', $endAt, $endAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':neighborhood_id', $neighborhoodId, $neighborhoodId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-        $stmt->bindValue(':creator_id', $creatorId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $eventId = (int) $pdo->lastInsertId();
-
-        if ($meta !== []) {
-            $metaSql = "
-                INSERT INTO event_meta_evm (id_evt_evm, meta_key_evm, meta_value_evm)
-                VALUES (:event_id, :meta_key, :meta_value)
+        try {
+            $sql = "
+                INSERT INTO event_evt (
+                    event_name_evt,
+                    event_description_evt,
+                    event_address_evt,
+                    start_at_evt,
+                    end_at_evt,
+                    id_nbh_evt,
+                    id_acc_evt
+                ) VALUES (
+                    :name,
+                    :description,
+                    :address,
+                    :start_at,
+                    :end_at,
+                    :neighborhood_id,
+                    :creator_id
+                )
             ";
 
-            $metaStmt = $pdo->prepare($metaSql);
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':description', $description, $description === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->bindValue(':address', $address, $address === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->bindValue(':start_at', $startAt);
+            $stmt->bindValue(':end_at', $endAt, $endAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->bindValue(':neighborhood_id', $neighborhoodId, $neighborhoodId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+            $stmt->bindValue(':creator_id', $creatorId, PDO::PARAM_INT);
+            $stmt->execute();
 
-            foreach ($meta as $key => $value) {
-                $metaStmt->bindValue(':event_id', $eventId, PDO::PARAM_INT);
-                $metaStmt->bindValue(':meta_key', $key);
-                $metaStmt->bindValue(':meta_value', $value);
-                $metaStmt->execute();
+            $eventId = (int) $pdo->lastInsertId();
+
+            if ($meta !== []) {
+                $metaSql = "
+                    INSERT INTO event_meta_evm (id_evt_evm, meta_key_evm, meta_value_evm)
+                    VALUES (:event_id, :meta_key, :meta_value)
+                ";
+
+                $metaStmt = $pdo->prepare($metaSql);
+
+                foreach ($meta as $key => $value) {
+                    $metaStmt->bindValue(':event_id', $eventId, PDO::PARAM_INT);
+                    $metaStmt->bindValue(':meta_key', $key);
+                    $metaStmt->bindValue(':meta_value', $value);
+                    $metaStmt->execute();
+                }
             }
-        }
 
-        return $eventId;
+            $pdo->commit();
+
+            return $eventId;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
 
     /**

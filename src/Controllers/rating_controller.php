@@ -217,6 +217,21 @@ class RatingController extends BaseController
             $this->abort(404);
         }
 
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('RatingController::rateTool lookup — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $borrow['borrower_id'] !== $userId) {
+            $this->abort(403);
+        }
+
         $errors = [];
 
         if ($score < 1 || $score > 5) {

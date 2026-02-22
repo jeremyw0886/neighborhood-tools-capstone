@@ -361,6 +361,11 @@
           border-inline-start: 3px solid var(--mountain-gold);
         }
 
+        &[data-suspended] {
+          border-inline-start: 3px solid #dc2626;
+          opacity: 0.85;
+        }
+
         & td {
           font-size: 0.875rem;
           padding-block: 0.75rem;
@@ -414,6 +419,23 @@
             color: #dc2626;
           }
 
+          & > span[data-role] {
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+
+          & > span[data-role="member"] {
+            color: var(--mountain-slate);
+          }
+
+          & > span[data-role="admin"] {
+            color: var(--mountain-pine);
+          }
+
+          & > span[data-role="super_admin"] {
+            color: #7c3aed;
+          }
+
           & > time {
             color: var(--mountain-slate);
           }
@@ -452,6 +474,26 @@
             }
 
             & button[data-deny] {
+              background: var(--mountain-fog);
+              color: var(--mountain-slate);
+
+              &:is(:hover, :focus-visible) {
+                background: #fecaca;
+                color: #dc2626;
+              }
+            }
+
+            & button[data-activate] {
+              background: #dcfce7;
+              color: #166534;
+
+              &:is(:hover, :focus-visible) {
+                background: #bbf7d0;
+                color: #14532d;
+              }
+            }
+
+            & button[data-suspend] {
               background: var(--mountain-fog);
               color: var(--mountain-slate);
 

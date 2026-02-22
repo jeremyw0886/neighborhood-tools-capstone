@@ -1,17 +1,17 @@
 <?php
 /**
- * Admin — User management with reputation data from user_reputation_fast_v.
+ * Admin — User management with reputation data and role info.
  *
  * Variables from AdminController::users():
- *   $users       array   Rows from Account::getAllForAdmin() via user_reputation_fast_v
+ *   $users       array   Rows from Account::getAllForAdmin() (reputation + role_name_rol)
  *   $totalCount  int     Total members in the system
  *   $page        int     Current page (1-based)
  *   $totalPages  int     Total pages
  *   $perPage     int     Results per page (12)
- *   $flash       ?string One-time status message (approve/deny feedback)
+ *   $flash       ?string One-time status message (approve/deny/status feedback)
  *
  * Each user row contains:
- *   id_acc, full_name, email_address_acc, account_status,
+ *   id_acc, full_name, email_address_acc, account_status, role_name_rol,
  *   member_since, lender_avg_rating, lender_rating_count,
  *   borrower_avg_rating, borrower_rating_count, overall_avg_rating,
  *   total_rating_count, tools_owned, completed_borrows, refreshed_at
@@ -19,6 +19,7 @@
  * Shared data:
  *   $csrfToken    string
  *   $currentPage  string
+ *   $authUser     array{id: int, role: string, ...}
  */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
@@ -26,6 +27,31 @@ $rangeEnd   = min($page * $perPage, $totalCount);
 
 $paginationUrl = static fn(int $pageNum): string =>
     '/admin/users' . ($pageNum > 1 ? '?page=' . $pageNum : '');
+
+$actorRole = $authUser['role'];
+$actorId   = $authUser['id'];
+
+$canToggleStatus = static function (array $user) use ($actorRole, $actorId): bool {
+    if ((int) $user['id_acc'] === $actorId) {
+        return false;
+    }
+
+    if (!in_array($user['account_status'], ['active', 'suspended'], true)) {
+        return false;
+    }
+
+    $targetRole = $user['role_name_rol'];
+
+    if ($targetRole === 'super_admin') {
+        return false;
+    }
+
+    if ($actorRole === 'admin' && $targetRole !== 'member') {
+        return false;
+    }
+
+    return true;
+};
 ?>
 
 <section aria-labelledby="admin-users-heading">
@@ -60,6 +86,7 @@ $paginationUrl = static fn(int $pageNum): string =>
       <thead>
         <tr>
           <th scope="col">Member</th>
+          <th scope="col">Role</th>
           <th scope="col">Status</th>
           <th scope="col">Rating</th>
           <th scope="col">Tools</th>
@@ -69,14 +96,26 @@ $paginationUrl = static fn(int $pageNum): string =>
       </thead>
       <tbody>
         <?php foreach ($users as $user):
-          $isPending = $user['account_status'] === 'pending';
+          $isPending   = $user['account_status'] === 'pending';
+          $isSuspended = $user['account_status'] === 'suspended';
+          $role        = $user['role_name_rol'];
+          $roleLabel   = match ($role) {
+              'super_admin' => 'Super Admin',
+              'admin'       => 'Admin',
+              default       => 'Member',
+          };
         ?>
-          <tr<?= $isPending ? ' data-pending' : '' ?>>
+          <tr<?php if ($isPending) echo ' data-pending'; elseif ($isSuspended) echo ' data-suspended'; ?>>
             <td>
               <a href="/profile/<?= (int) $user['id_acc'] ?>">
                 <?= htmlspecialchars($user['full_name']) ?>
               </a>
               <small><?= htmlspecialchars($user['email_address_acc']) ?></small>
+            </td>
+            <td>
+              <span data-role="<?= htmlspecialchars($role) ?>">
+                <?= htmlspecialchars($roleLabel) ?>
+              </span>
             </td>
             <td>
               <span data-status="<?= htmlspecialchars($user['account_status']) ?>">
@@ -112,6 +151,25 @@ $paginationUrl = static fn(int $pageNum): string =>
                       <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny
                     </button>
                   </form>
+                </div>
+              <?php elseif ($canToggleStatus($user)): ?>
+                <div data-actions>
+                  <?php if ($isSuspended): ?>
+                    <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/status">
+                      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                      <button type="submit" data-activate>
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Activate
+                      </button>
+                    </form>
+                  <?php else: ?>
+                    <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/status">
+                      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                      <button type="submit" data-suspend>
+                        <i class="fa-solid fa-ban" aria-hidden="true"></i> Suspend
+                      </button>
+                    </form>
+                  <?php endif; ?>
+                  <a href="/profile/<?= (int) $user['id_acc'] ?>">View</a>
                 </div>
               <?php else: ?>
                 <a href="/profile/<?= (int) $user['id_acc'] ?>">View Profile</a>

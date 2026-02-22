@@ -154,9 +154,9 @@ class PaymentController extends BaseController
 
         if ($action === 'release') {
             $this->processRelease($depositId, $deposit, $providerId, $externalStatus);
+        } else {
+            $this->processForfeit($depositId, $deposit, $providerId, $externalStatus);
         }
-
-        $this->processForfeit($depositId, $deposit, $providerId, $externalStatus);
     }
 
     private function processRelease(int $depositId, array $deposit, int $providerId, string $externalStatus): void

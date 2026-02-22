@@ -86,6 +86,63 @@ class IncidentController extends BaseController
     }
 
     /**
+     * Display a single incident report with photos and context.
+     *
+     * Accessible to the borrower, lender, and admins. Shows incident
+     * details, borrow context, deposit info, related disputes count,
+     * and attached evidence photos.
+     */
+    public function show(string $id): void
+    {
+        $this->requireAuth();
+
+        $incidentId = (int) $id;
+
+        if ($incidentId < 1) {
+            $this->abort(404);
+        }
+
+        $userId  = (int) $_SESSION['user_id'];
+        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+
+        try {
+            $incident = Incident::findByIdWithContext($incidentId);
+        } catch (\Throwable $e) {
+            error_log('IncidentController::show incident lookup — ' . $e->getMessage());
+            $incident = null;
+        }
+
+        if ($incident === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $incident['borrower_id'] === $userId;
+        $isLender   = (int) $incident['lender_id'] === $userId;
+        $isReporter = (int) $incident['reporter_id'] === $userId;
+
+        if (!$isBorrower && !$isLender && !$isAdmin) {
+            $this->abort(403);
+        }
+
+        try {
+            $photos = Incident::getPhotos($incidentId);
+        } catch (\Throwable $e) {
+            error_log('IncidentController::show photos — ' . $e->getMessage());
+            $photos = [];
+        }
+
+        $this->render('incidents/show', [
+            'title'       => htmlspecialchars($incident['subject_irt']) . ' — NeighborhoodTools',
+            'description' => 'Incident report details.',
+            'pageCss'     => ['incident.css'],
+            'incident'    => $incident,
+            'photos'      => $photos,
+            'isAdmin'     => $isAdmin,
+            'isReporter'  => $isReporter,
+        ]);
+    }
+
+    /**
      * Validate and persist a new incident report with optional photos.
      *
      * Expects POST fields: csrf_token, borrow_id, incident_type, subject,

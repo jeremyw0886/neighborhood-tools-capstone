@@ -11,6 +11,7 @@ use App\Models\Dispute;
 use App\Models\Event;
 use App\Models\Incident;
 use App\Models\Neighborhood;
+use App\Models\Tool;
 use App\Models\Tos;
 
 class AdminController extends BaseController
@@ -66,18 +67,30 @@ class AdminController extends BaseController
     }
 
     /**
-     * Tool management — paginated list of all tools.
+     * Tool management — paginated list of all tools with analytics.
      *
-     * Stub — queries tool_statistics_fast_v when fully implemented.
+     * Queries tool_statistics_fast_v (materialized every 2 hours) for
+     * borrow counts, ratings, incidents, and condition per tool.
      */
     public function tools(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $totalCount = Tool::getAdminCount();
+        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * self::PER_PAGE;
+
         $this->render('admin/tools', [
             'title'       => 'Manage Tools — NeighborhoodTools',
             'description' => 'View and manage listed tools.',
             'pageCss'     => ['admin.css'],
+            'tools'       => Tool::getAdminList(self::PER_PAGE, $offset),
+            'totalCount'  => $totalCount,
+            'page'        => $page,
+            'totalPages'  => $totalPages,
+            'perPage'     => self::PER_PAGE,
         ]);
     }
 

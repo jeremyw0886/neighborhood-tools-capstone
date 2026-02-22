@@ -113,7 +113,6 @@
             <th scope="col">Category</th>
             <th scope="col">Current Icon</th>
             <th scope="col">Assign Icon</th>
-            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -147,8 +146,6 @@
                       </option>
                     <?php endforeach; ?>
                   </select>
-              </td>
-              <td>
                   <button type="submit">
                     <i class="fa-solid fa-check" aria-hidden="true"></i> Save
                   </button>

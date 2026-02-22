@@ -38,6 +38,11 @@ $depositAmount = $waiver['default_deposit_amount_tol'];
     <p>Review the details below and sign the waiver to proceed with picking up <strong><?= $toolName ?></strong>.</p>
   </header>
 
+  <?php if (!empty($_SESSION['waiver_errors']['general'])): ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($_SESSION['waiver_errors']['general']) ?></p>
+    <?php unset($_SESSION['waiver_errors']); ?>
+  <?php endif; ?>
+
   <dl aria-label="Borrow details">
     <div>
       <dt>Tool</dt>

@@ -9,6 +9,45 @@ use PDO;
 
 class Account
 {
+    private const int PER_PAGE = 12;
+
+    /**
+     * Fetch paginated members with reputation data for the admin users page.
+     *
+     * Queries user_reputation_fast_v which includes lender/borrower ratings,
+     * tool counts, and completed borrows.
+     *
+     * @return array  Rows from user_reputation_fast_v
+     */
+    public static function getAllForAdmin(int $limit = self::PER_PAGE, int $offset = 0): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT *
+            FROM user_reputation_fast_v
+            ORDER BY full_name ASC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Count total members in user_reputation_fast_v for admin pagination.
+     */
+    public static function getActiveCount(): int
+    {
+        $pdo = Database::connection();
+
+        return (int) $pdo->query('SELECT COUNT(*) FROM user_reputation_fast_v')->fetchColumn();
+    }
+
     /**
      * Find a non-deleted account by email — used for login authentication.
      *

@@ -11,6 +11,7 @@ use App\Models\Dispute;
 use App\Models\Event;
 use App\Models\Incident;
 use App\Models\Neighborhood;
+use App\Models\Tos;
 
 class AdminController extends BaseController
 {
@@ -145,20 +146,34 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const int PER_PAGE = 12;
+
     /**
-     * TOS management — current version and acceptance status.
+     * TOS management — current version and non-compliant users.
      *
-     * Stub — queries current_tos_v and tos_acceptance_required_v
-     * when fully implemented.
+     * Displays the active TOS version summary alongside a paginated
+     * list of active members who have not yet accepted it, pulled
+     * from tos_acceptance_required_v via the Tos model.
      */
     public function tos(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $totalCount = Tos::getNonCompliantCount();
+        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * self::PER_PAGE;
+
         $this->render('admin/tos', [
             'title'       => 'Manage Terms of Service — NeighborhoodTools',
             'description' => 'View and manage Terms of Service versions.',
             'pageCss'     => ['admin.css'],
+            'users'       => Tos::getNonCompliantUsers(self::PER_PAGE, $offset),
+            'totalCount'  => $totalCount,
+            'page'        => $page,
+            'totalPages'  => $totalPages,
+            'perPage'     => self::PER_PAGE,
         ]);
     }
 

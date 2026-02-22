@@ -34,6 +34,11 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
     <?php unset($_SESSION['rating_success']); ?>
   <?php endif; ?>
 
+  <?php if (!empty($_SESSION['waiver_success'])): ?>
+    <p role="status"><?= htmlspecialchars($_SESSION['waiver_success']) ?></p>
+    <?php unset($_SESSION['waiver_success']); ?>
+  <?php endif; ?>
+
   <header>
     <h1 id="dashboard-heading">
       <i class="fa-solid fa-gauge" aria-hidden="true"></i>

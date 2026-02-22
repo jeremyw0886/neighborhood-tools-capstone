@@ -616,6 +616,49 @@ class Tool
     }
 
     /**
+     * Fetch a paginated list of all tools with analytics from the
+     * materialized tool_statistics_fast_v view.
+     *
+     * Returns borrow counts, ratings, incidents, and condition for
+     * every tool in the system — used on the admin tools page.
+     *
+     * @param  int   $limit   Results per page
+     * @param  int   $offset  Pagination offset
+     * @return array
+     */
+    public static function getAdminList(int $limit = 12, int $offset = 0): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM tool_statistics_fast_v
+            ORDER BY created_at_tol DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Count all tools tracked in the materialized statistics view.
+     *
+     * @return int
+     */
+    public static function getAdminCount(): int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->query('SELECT COUNT(*) FROM tool_statistics_fast_v');
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
      * Fetch full tool detail by ID, including owner avatar.
      *
      * Queries tool_detail_v (which provides all tool columns, owner info,

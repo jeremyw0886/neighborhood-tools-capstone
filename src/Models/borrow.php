@@ -600,4 +600,66 @@ class Borrow
 
         return $rows;
     }
+
+    /**
+     * Fetch loan extension history for a borrow.
+     *
+     * @return array Rows with extension hours, due dates, approver name
+     */
+    public static function getExtensions(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                lex.extended_hours_lex,
+                lex.original_due_at_lex,
+                lex.new_due_at_lex,
+                lex.reason_lex,
+                lex.created_at_lex,
+                CONCAT(acc.first_name_acc, ' ', acc.last_name_acc) AS approved_by_name
+            FROM loan_extension_lex lex
+            JOIN account_acc acc ON lex.id_acc_approved_by_lex = acc.id_acc
+            WHERE lex.id_bor_lex = :id
+            ORDER BY lex.created_at_lex ASC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Fetch handover verification records for a borrow.
+     *
+     * @return array Rows with handover type, verification timestamps, participant names
+     */
+    public static function getHandovers(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                hot.type_name_hot AS handover_type,
+                hov.condition_notes_hov,
+                hov.generated_at_hov,
+                hov.verified_at_hov,
+                CONCAT(gen.first_name_acc, ' ', gen.last_name_acc) AS generator_name,
+                CONCAT(ver.first_name_acc, ' ', ver.last_name_acc) AS verifier_name
+            FROM handover_verification_hov hov
+            JOIN handover_type_hot hot ON hov.id_hot_hov = hot.id_hot
+            JOIN account_acc gen       ON hov.id_acc_generator_hov = gen.id_acc
+            LEFT JOIN account_acc ver  ON hov.id_acc_verifier_hov = ver.id_acc
+            WHERE hov.id_bor_hov = :id
+            ORDER BY hov.generated_at_hov ASC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

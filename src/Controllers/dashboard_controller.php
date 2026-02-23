@@ -31,6 +31,7 @@ class DashboardController extends BaseController
             $activeBorrowCount   = Borrow::getActiveCountForUser($userId, 'borrower');
             $pendingRequestCount = Borrow::getPendingCountForUser($userId, 'lender');
             $overdueCount        = Borrow::getOverdueCountForUser($userId, 'borrower');
+            $approvedCount       = Borrow::getApprovedCountForUser($userId, 'borrower');
             $listedToolCount    = Tool::getCountByOwner($userId);
             $reputation         = Account::getReputation($userId);
         } catch (\Throwable $e) {
@@ -38,6 +39,7 @@ class DashboardController extends BaseController
             $activeBorrowCount   = 0;
             $pendingRequestCount = 0;
             $overdueCount        = 0;
+            $approvedCount       = 0;
             $listedToolCount     = 0;
             $reputation          = null;
         }
@@ -60,6 +62,7 @@ class DashboardController extends BaseController
             'activeBorrowCount'   => $activeBorrowCount,
             'pendingRequestCount' => $pendingRequestCount,
             'overdueCount'        => $overdueCount,
+            'approvedCount'       => $approvedCount,
             'listedToolCount'     => $listedToolCount,
             'reputation'          => $reputation,
             'adminStats'          => $adminStats,
@@ -82,11 +85,13 @@ class DashboardController extends BaseController
             $tools           = Tool::getByOwner($userId);
             $pendingRequests = Borrow::getPendingForUser($userId);
             $activeBorrows   = Borrow::getActiveForUser($userId);
+            $approvedLoans   = Borrow::getApprovedForUser($userId);
         } catch (\Throwable $e) {
             error_log('DashboardController::lender — ' . $e->getMessage());
             $tools           = [];
             $pendingRequests = [];
             $activeBorrows   = [];
+            $approvedLoans   = [];
         }
 
         $incomingRequests = array_filter(
@@ -99,12 +104,18 @@ class DashboardController extends BaseController
             static fn(array $row): bool => (int) $row['lender_id'] === $userId,
         );
 
+        $awaitingPickup = array_filter(
+            $approvedLoans,
+            static fn(array $row): bool => (int) $row['lender_id'] === $userId,
+        );
+
         $this->render('dashboard/lender', [
             'title'            => 'My Tools — NeighborhoodTools',
             'description'      => 'Manage your listed tools and incoming borrow requests.',
             'pageCss'          => ['dashboard.css'],
             'tools'            => $tools,
             'incomingRequests' => array_values($incomingRequests),
+            'awaitingPickup'   => array_values($awaitingPickup),
             'lentOut'          => array_values($lentOut),
             'borrowSuccess'    => $this->flash('borrow_success'),
             'borrowErrors'     => $this->flash('borrow_errors', []),
@@ -124,11 +135,13 @@ class DashboardController extends BaseController
             $activeBorrows   = Borrow::getActiveForUser($userId);
             $pendingRequests = Borrow::getPendingForUser($userId);
             $overdue         = Borrow::getOverdueForUser($userId);
+            $approvedLoans   = Borrow::getApprovedForUser($userId);
         } catch (\Throwable $e) {
             error_log('DashboardController::borrower — ' . $e->getMessage());
             $activeBorrows   = [];
             $pendingRequests = [];
             $overdue         = [];
+            $approvedLoans   = [];
         }
 
         // Filter to only rows where this user is the borrower
@@ -147,6 +160,11 @@ class DashboardController extends BaseController
             static fn(array $row): bool => (int) $row['borrower_id'] === $userId,
         );
 
+        $awaitingPickup = array_filter(
+            $approvedLoans,
+            static fn(array $row): bool => (int) $row['borrower_id'] === $userId,
+        );
+
         $this->render('dashboard/borrower', [
             'title'          => 'My Borrows — NeighborhoodTools',
             'description'    => 'Track your active borrows and pending requests.',
@@ -154,6 +172,7 @@ class DashboardController extends BaseController
             'borrows'        => array_values($myBorrows),
             'requests'       => array_values($myRequests),
             'overdue'        => array_values($myOverdue),
+            'awaitingPickup' => array_values($awaitingPickup),
             'borrowSuccess'  => $this->flash('borrow_success'),
             'borrowErrors'   => $this->flash('borrow_errors', []),
         ]);
@@ -187,6 +206,55 @@ class DashboardController extends BaseController
             'pageCss'         => ['dashboard.css'],
             'lenderHistory'   => $lenderHistory,
             'borrowerHistory' => $borrowerHistory,
+        ]);
+    }
+
+    /**
+     * Loan detail page — full status timeline for a single borrow.
+     */
+    public function loanStatus(string $id): void
+    {
+        $this->requireAuth();
+
+        $borrowId = (int) $id;
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('DashboardController::loanStatus — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $borrow['borrower_id'] !== $userId && (int) $borrow['lender_id'] !== $userId) {
+            $this->abort(403);
+        }
+
+        $extensions = [];
+        $handovers  = [];
+
+        try {
+            $extensions = Borrow::getExtensions($borrowId);
+            $handovers  = Borrow::getHandovers($borrowId);
+        } catch (\Throwable $e) {
+            error_log('DashboardController::loanStatus (details) — ' . $e->getMessage());
+        }
+
+        $this->render('dashboard/loan-status', [
+            'title'       => 'Loan Status — NeighborhoodTools',
+            'description' => 'Track the status of your borrow.',
+            'pageCss'     => ['dashboard.css'],
+            'borrow'      => $borrow,
+            'extensions'  => $extensions,
+            'handovers'   => $handovers,
         ]);
     }
 

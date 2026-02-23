@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\AvailabilityBlock;
 use App\Models\Bookmark;
+use App\Models\SearchLog;
 use App\Models\Tool;
 
 class ToolController extends BaseController
@@ -61,6 +62,18 @@ class ToolController extends BaseController
                     $t['category_icon'] = $iconMap[(int) $t['id_tol']] ?? null;
                 }
                 unset($t);
+            }
+            if ($term !== '') {
+                try {
+                    SearchLog::insert(
+                        term: $term,
+                        accountId: !empty($_SESSION['logged_in']) ? (int) $_SESSION['user_id'] : null,
+                        ipAddress: $_SERVER['REMOTE_ADDR'] ?? '',
+                        sessionId: session_id(),
+                    );
+                } catch (\Throwable $e) {
+                    error_log('ToolController::index search log — ' . $e->getMessage());
+                }
             }
         } catch (\Throwable $e) {
             error_log('ToolController::index — ' . $e->getMessage());

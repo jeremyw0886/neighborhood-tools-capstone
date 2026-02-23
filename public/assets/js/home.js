@@ -104,7 +104,10 @@
   toggle.removeAttribute('hidden');
 
   const links = toggle.querySelectorAll('a[data-city]');
+  const lastLink = links[links.length - 1];
   let controller = null;
+
+  toggle.dataset.active = toggle.querySelector('a:last-child[aria-current="true"]') ? 'end' : 'start';
 
   for (const link of links) {
     link.addEventListener('click', async (e) => {
@@ -114,6 +117,7 @@
 
       for (const l of links) l.removeAttribute('aria-current');
       link.setAttribute('aria-current', 'true');
+      toggle.dataset.active = link === lastLink ? 'end' : 'start';
 
       if (controller) controller.abort();
       controller = new AbortController();

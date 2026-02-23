@@ -322,7 +322,7 @@
         width: calc(50% - 0.25rem);
       }
 
-      &:has(a:last-child[aria-current="true"])::before {
+      &:is(:has(a:last-child[aria-current="true"]), [data-active="end"])::before {
         transform: translateX(100%);
       }
 

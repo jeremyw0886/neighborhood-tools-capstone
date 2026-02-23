@@ -21,6 +21,7 @@ use App\Models\VectorImage;
 
 class AdminController extends BaseController
 {
+    private const int PER_PAGE = 12;
     /**
      * Admin dashboard — platform-wide summary stats and quick links.
      *
@@ -452,8 +453,6 @@ class AdminController extends BaseController
             'pageCss'     => ['admin.css'],
         ]);
     }
-
-    private const int PER_PAGE = 12;
 
     /**
      * TOS management — current version and non-compliant users.

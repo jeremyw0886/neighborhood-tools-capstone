@@ -189,7 +189,7 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
     </dl>
   </section>
 
-  <?php if ($isAdmin): ?>
+  <?php if ($isAdmin && strtolower($deposit['deposit_status']) === 'held'): ?>
   <section aria-labelledby="process-heading">
     <h2 id="process-heading">Process Deposit</h2>
     <form method="post" action="/payments/deposit/<?= $depositId ?>" novalidate>

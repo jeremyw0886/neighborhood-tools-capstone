@@ -736,9 +736,12 @@
           }
 
           & > p[role="alert"] {
-            color: #dc2626;
+            background: #fef2f2;
+            border-radius: 0.25rem;
+            color: #991b1b;
             font-size: 0.813rem;
             margin-block: 0.25rem 0;
+            padding: 0.25rem 0.5rem;
           }
         }
       }

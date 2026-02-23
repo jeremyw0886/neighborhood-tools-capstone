@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  var checkbox = document.getElementById('uses-fuel');
-  var group = document.getElementById('fuel-type-group');
+  const checkbox = document.getElementById('uses-fuel');
+  const group = document.getElementById('fuel-type-group');
   if (!checkbox || !group) return;
 
   function toggle() {

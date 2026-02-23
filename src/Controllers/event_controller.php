@@ -357,7 +357,6 @@ class EventController extends BaseController
         if ($event['event_timing'] === 'PAST') {
             $_SESSION['event_flash'] = 'You cannot RSVP to a past event.';
             $this->redirect('/events/' . $eventId);
-            return;
         }
 
         $userId = (int) $_SESSION['user_id'];

@@ -137,7 +137,13 @@
 
         if (fresh) memberList.replaceChildren(...fresh.childNodes);
       } catch (err) {
-        if (err.name !== 'AbortError') window.location.href = link.href;
+        if (err.name !== 'AbortError') {
+          const status = document.createElement('p');
+          status.setAttribute('role', 'status');
+          status.textContent = 'Refreshing\u2026';
+          memberList.replaceChildren(status);
+          window.location.href = link.href;
+        }
       } finally {
         memberList.removeAttribute('aria-busy');
         controller = null;

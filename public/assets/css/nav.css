@@ -370,7 +370,9 @@
   /* ── Shared sub-navigation (dashboard + admin) ── */
 
   nav:is([aria-label="Dashboard sections"], [aria-label="Admin navigation"]) {
-    border-block-end: 2px solid var(--mountain-fog);
+    --subnav-border: 2px;
+
+    border-block-end: var(--subnav-border) solid var(--mountain-fog);
     margin-block-end: 2rem;
     overflow-x: auto;
     scrollbar-gutter: stable;
@@ -386,7 +388,7 @@
         display: inline-flex;
         font-weight: 600;
         gap: 0.4rem;
-        margin-block-end: -2px;
+        margin-block-end: calc(-1 * var(--subnav-border));
         min-height: 2.75rem;
         padding-block: 0.625rem;
         text-decoration: none;

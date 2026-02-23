@@ -2360,7 +2360,8 @@
 
   @media (prefers-contrast: more) {
     nav[aria-label="Admin navigation"] {
-      border-block-end-width: 3px;
+      --subnav-border: 3px;
+      border-block-end-width: var(--subnav-border);
 
       & a[aria-current="page"] {
         border-block-end-width: 4px;

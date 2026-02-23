@@ -1,23 +1,16 @@
 <?php
-/**
- * Community Events — paginated listing with timing filter.
- *
- * Variables from EventController::index():
- *   $events        array   Rows from Event::getUpcoming() via upcoming_event_v
- *   $totalCount    int     Total matching events
- *   $page          int     Current page (1-based)
- *   $totalPages    int     Total pages
- *   $perPage       int     Results per page (12)
- *   $filterParams  array   Active filter params (timing)
- *   $timing        ?string Active timing filter or null
- *   $timingCounts  array   Keyed by timing label => count
- *
- * Each event row contains:
- *   id_evt, event_name_evt, event_description_evt,
- *   start_at_evt, end_at_evt, days_until_event, event_timing,
- *   neighborhood_id, neighborhood_name_nbh, city_name_nbh, state_code_sta,
- *   creator_id, creator_name, created_at_evt, updated_at_evt, last_updated_by
- */
+$events         ??= [];
+$totalCount     ??= 0;
+$page           ??= 1;
+$totalPages     ??= 1;
+$perPage        ??= 12;
+$filterParams   ??= [];
+$timing         ??= null;
+$timingCounts   ??= [];
+$eventSuccess   ??= '';
+$eventFlash     ??= '';
+$attendedIds    ??= [];
+$attendeeCounts ??= [];
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);

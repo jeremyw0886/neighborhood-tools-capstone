@@ -1,3 +1,13 @@
+<?php
+$isNearbyFallback ??= false;
+$selectedCity     ??= 'Asheville';
+$nearbyMembers    ??= [];
+$featuredTools    ??= [];
+$topMembers       ??= [];
+$bookmarkedIds    ??= [];
+$bookmarkFlash    ??= '';
+?>
+
 <div class="home-page">
   <header>
     <section aria-label="Hero section">

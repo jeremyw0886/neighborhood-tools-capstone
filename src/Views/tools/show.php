@@ -1,14 +1,9 @@
 <?php
-/**
- * Tool Detail page — displays full info for a single tool.
- *
- * Variables from ToolController::show():
- *   $tool          array  Full row from tool_detail_v + owner_avatar
- *   $isBookmarked  bool   Whether the logged-in user has bookmarked this tool
- *   $isOwner       bool   Whether the logged-in user owns this tool
- *   $borrowErrors  array  Field-keyed errors from a failed borrow request
- *   $borrowOld     array  Sticky values (loan_duration, notes) after failure
- */
+$isBookmarked  ??= false;
+$isOwner       ??= false;
+$borrowErrors  ??= [];
+$borrowOld     ??= [];
+$bookmarkFlash ??= '';
 ?>
 
 <section aria-labelledby="tool-detail-heading">

@@ -1,16 +1,10 @@
 <?php
-/**
- * Event Detail — full information for a single community event.
- *
- * Variables from EventController::show():
- *   $event    array               Row from Event::findById()
- *   $meta     array<string,string> Key/value pairs from Event::getMeta()
- *   $isAdmin  bool                Whether the viewer is admin/super_admin
- *
- * Shared data:
- *   $csrfToken  string
- *   $backUrl    string
- */
+$meta          ??= [];
+$isAdmin       ??= false;
+$eventFlash    ??= '';
+$isAttending   ??= false;
+$attendeeCount ??= 0;
+?>
 
 $startDt  = new DateTimeImmutable($event['start_at_evt']);
 $hasEnd   = $event['end_at_evt'] !== null;

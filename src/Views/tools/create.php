@@ -1,13 +1,8 @@
 <?php
-/**
- * List a Tool — tool creation form.
- *
- * Variables from ToolController::create():
- *   $categories  array   Rows from category_summary_v
- *   $errors      array   Field-keyed validation errors (empty on first load)
- *   $old         array   Previous input values for sticky fields (empty on first load)
- *   $csrfToken   string  CSRF token from shared data
- */
+$categories ??= [];
+$errors     ??= [];
+$old        ??= [];
+$fuelTypes  ??= [];
 ?>
 
 <section aria-labelledby="create-tool-heading">

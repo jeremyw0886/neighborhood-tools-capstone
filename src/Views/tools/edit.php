@@ -1,15 +1,9 @@
 <?php
-/**
- * Edit Tool — pre-filled form for updating an existing tool listing.
- *
- * Variables from ToolController::edit():
- *   $tool              array   Full row from tool_detail_v + owner_avatar
- *   $categories        array   Rows from category_summary_v
- *   $currentCategoryId ?int    Current category ID for dropdown pre-selection
- *   $errors            array   Field-keyed validation errors (empty on first load)
- *   $old               array   Previous input values from failed update (empty on first load)
- *   $csrfToken         string  CSRF token from shared data
- */
+$categories        ??= [];
+$currentCategoryId ??= null;
+$errors            ??= [];
+$old               ??= [];
+$fuelTypes         ??= [];
 ?>
 
 <section aria-labelledby="edit-tool-heading">

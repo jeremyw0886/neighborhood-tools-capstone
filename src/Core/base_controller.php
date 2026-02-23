@@ -283,6 +283,26 @@ class BaseController
     }
 
     /**
+     * Parse and sanitize a search query from the query string.
+     *
+     * @param  string $param     GET parameter name
+     * @param  int    $maxLength Maximum allowed length
+     * @return ?string Sanitized query or null if empty
+     */
+    protected function parseSearchQuery(string $param = 'q', int $maxLength = 100): ?string
+    {
+        $raw = trim($_GET[$param] ?? '');
+
+        if ($raw === '') {
+            return null;
+        }
+
+        $clean = preg_replace('/[\x00-\x1F\x7F]/u', '', $raw);
+
+        return mb_substr($clean, 0, $maxLength) ?: null;
+    }
+
+    /**
      * Halt execution and display an error page.
      */
     protected function abort(int $code): never

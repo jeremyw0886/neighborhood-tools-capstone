@@ -14,12 +14,7 @@
  *   $authUser  array{id, name, first_name, role, avatar}
  */
 
-$sel = fn(string $a, string $b): string => $a === $b ? ' selected' : '';
-
-$ariaSortAttr = fn(string $sort, string $dir, string ...$fields): string =>
-    in_array($sort, $fields, true)
-        ? ' aria-sort="' . ($dir === 'ASC' ? 'ascending' : 'descending') . '"'
-        : '';
+use App\Core\ViewHelper;
 ?>
 
 <section aria-labelledby="lender-heading">
@@ -70,18 +65,18 @@ $ariaSortAttr = fn(string $sort, string $dir, string ...$fields): string =>
           <label>
             Sort by
             <select name="req_sort">
-              <option value="requested_at_bor"<?= $sel($reqSort['sort'], 'requested_at_bor') ?>>Date Requested</option>
-              <option value="tool_name_tol"<?= $sel($reqSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
-              <option value="borrower_name"<?= $sel($reqSort['sort'], 'borrower_name') ?>>Borrower</option>
-              <option value="hours_pending"<?= $sel($reqSort['sort'], 'hours_pending') ?>>Wait Time</option>
-              <option value="loan_duration_hours_bor"<?= $sel($reqSort['sort'], 'loan_duration_hours_bor') ?>>Duration</option>
+              <option value="requested_at_bor"<?= ViewHelper::selected($reqSort['sort'], 'requested_at_bor') ?>>Date Requested</option>
+              <option value="tool_name_tol"<?= ViewHelper::selected($reqSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
+              <option value="borrower_name"<?= ViewHelper::selected($reqSort['sort'], 'borrower_name') ?>>Borrower</option>
+              <option value="hours_pending"<?= ViewHelper::selected($reqSort['sort'], 'hours_pending') ?>>Wait Time</option>
+              <option value="loan_duration_hours_bor"<?= ViewHelper::selected($reqSort['sort'], 'loan_duration_hours_bor') ?>>Duration</option>
             </select>
           </label>
           <label>
             Direction
             <select name="req_dir">
-              <option value="desc"<?= $sel(strtolower($reqSort['dir']), 'desc') ?>>Newest First</option>
-              <option value="asc"<?= $sel(strtolower($reqSort['dir']), 'asc') ?>>Oldest First</option>
+              <option value="desc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'desc') ?>>Newest First</option>
+              <option value="asc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'asc') ?>>Oldest First</option>
             </select>
           </label>
           <button type="submit">Sort</button>
@@ -92,10 +87,10 @@ $ariaSortAttr = fn(string $sort, string $dir, string ...$fields): string =>
         <caption class="visually-hidden">Pending borrow requests for your tools</caption>
         <thead>
           <tr>
-            <th scope="col"<?= $ariaSortAttr($reqSort['sort'], $reqSort['dir'], 'tool_name_tol') ?>>Tool</th>
-            <th scope="col"<?= $ariaSortAttr($reqSort['sort'], $reqSort['dir'], 'borrower_name') ?>>Borrower</th>
-            <th scope="col"<?= $ariaSortAttr($reqSort['sort'], $reqSort['dir'], 'loan_duration_hours_bor') ?>>Duration</th>
-            <th scope="col"<?= $ariaSortAttr($reqSort['sort'], $reqSort['dir'], 'hours_pending', 'requested_at_bor') ?>>Waiting</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'tool_name_tol') ?>>Tool</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'borrower_name') ?>>Borrower</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'loan_duration_hours_bor') ?>>Duration</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'hours_pending', 'requested_at_bor') ?>>Waiting</th>
             <th scope="col">Borrower Rating</th>
             <th scope="col">Actions</th>
           </tr>
@@ -228,17 +223,17 @@ $ariaSortAttr = fn(string $sort, string $dir, string ...$fields): string =>
           <label>
             Sort by
             <select name="lent_sort">
-              <option value="due_at_bor"<?= $sel($lentSort['sort'], 'due_at_bor') ?>>Due Date</option>
-              <option value="tool_name_tol"<?= $sel($lentSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
-              <option value="borrower_name"<?= $sel($lentSort['sort'], 'borrower_name') ?>>Borrower</option>
-              <option value="hours_until_due"<?= $sel($lentSort['sort'], 'hours_until_due') ?>>Time Remaining</option>
+              <option value="due_at_bor"<?= ViewHelper::selected($lentSort['sort'], 'due_at_bor') ?>>Due Date</option>
+              <option value="tool_name_tol"<?= ViewHelper::selected($lentSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
+              <option value="borrower_name"<?= ViewHelper::selected($lentSort['sort'], 'borrower_name') ?>>Borrower</option>
+              <option value="hours_until_due"<?= ViewHelper::selected($lentSort['sort'], 'hours_until_due') ?>>Time Remaining</option>
             </select>
           </label>
           <label>
             Direction
             <select name="lent_dir">
-              <option value="asc"<?= $sel(strtolower($lentSort['dir']), 'asc') ?>>Soonest First</option>
-              <option value="desc"<?= $sel(strtolower($lentSort['dir']), 'desc') ?>>Latest First</option>
+              <option value="asc"<?= ViewHelper::selected(strtolower($lentSort['dir']), 'asc') ?>>Soonest First</option>
+              <option value="desc"<?= ViewHelper::selected(strtolower($lentSort['dir']), 'desc') ?>>Latest First</option>
             </select>
           </label>
           <button type="submit">Sort</button>
@@ -249,9 +244,9 @@ $ariaSortAttr = fn(string $sort, string $dir, string ...$fields): string =>
         <caption class="visually-hidden">Tools currently lent to other members</caption>
         <thead>
           <tr>
-            <th scope="col"<?= $ariaSortAttr($lentSort['sort'], $lentSort['dir'], 'tool_name_tol') ?>>Tool</th>
-            <th scope="col"<?= $ariaSortAttr($lentSort['sort'], $lentSort['dir'], 'borrower_name') ?>>Borrower</th>
-            <th scope="col"<?= $ariaSortAttr($lentSort['sort'], $lentSort['dir'], 'due_at_bor', 'hours_until_due') ?>>Due Date</th>
+            <th scope="col"<?= ViewHelper::ariaSort($lentSort['sort'], $lentSort['dir'], 'tool_name_tol') ?>>Tool</th>
+            <th scope="col"<?= ViewHelper::ariaSort($lentSort['sort'], $lentSort['dir'], 'borrower_name') ?>>Borrower</th>
+            <th scope="col"<?= ViewHelper::ariaSort($lentSort['sort'], $lentSort['dir'], 'due_at_bor', 'hours_until_due') ?>>Due Date</th>
             <th scope="col">Status</th>
             <th scope="col">Actions</th>
           </tr>

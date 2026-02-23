@@ -7,10 +7,15 @@
  *   $requests         array  Pending requests where user is the borrower
  *   $overdue          array  Overdue borrows where user is the borrower
  *   $awaitingPickup   array  Approved borrows awaiting pickup (borrower side)
+ *   $borrowSort       array{sort: string, dir: string}  Active borrows sort state
+ *   $borrowStatus     ?string  Active borrows status filter (on-time|due-soon|overdue|null)
+ *   $reqSort          array{sort: string, dir: string}  Pending requests sort state
  *
  * Shared data:
  *   $authUser  array{id, name, first_name, role, avatar}
  */
+
+use App\Core\ViewHelper;
 ?>
 
 <section aria-labelledby="borrower-heading">
@@ -170,13 +175,47 @@
     </h2>
 
     <?php if (!empty($borrows)): ?>
+      <form method="get" action="/dashboard/borrower" aria-label="Sort and filter active borrows">
+        <fieldset>
+          <legend class="visually-hidden">Sort and filter options</legend>
+          <input type="hidden" name="req_sort" value="<?= htmlspecialchars($reqSort['sort']) ?>">
+          <input type="hidden" name="req_dir" value="<?= htmlspecialchars(strtolower($reqSort['dir'])) ?>">
+          <label>
+            Sort by
+            <select name="borrow_sort">
+              <option value="due_at_bor"<?= ViewHelper::selected($borrowSort['sort'], 'due_at_bor') ?>>Due Date</option>
+              <option value="tool_name_tol"<?= ViewHelper::selected($borrowSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
+              <option value="lender_name"<?= ViewHelper::selected($borrowSort['sort'], 'lender_name') ?>>Lender</option>
+              <option value="hours_until_due"<?= ViewHelper::selected($borrowSort['sort'], 'hours_until_due') ?>>Time Remaining</option>
+            </select>
+          </label>
+          <label>
+            Direction
+            <select name="borrow_dir">
+              <option value="asc"<?= ViewHelper::selected(strtolower($borrowSort['dir']), 'asc') ?>>Soonest First</option>
+              <option value="desc"<?= ViewHelper::selected(strtolower($borrowSort['dir']), 'desc') ?>>Latest First</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select name="borrow_status">
+              <option value=""<?= $borrowStatus === null ? ' selected' : '' ?>>All</option>
+              <option value="on-time"<?= ViewHelper::selected($borrowStatus ?? '', 'on-time') ?>>On Time</option>
+              <option value="due-soon"<?= ViewHelper::selected($borrowStatus ?? '', 'due-soon') ?>>Due Soon</option>
+              <option value="overdue"<?= ViewHelper::selected($borrowStatus ?? '', 'overdue') ?>>Overdue</option>
+            </select>
+          </label>
+          <button type="submit">Sort</button>
+        </fieldset>
+      </form>
+
       <table>
         <caption class="visually-hidden">Currently borrowed items</caption>
         <thead>
           <tr>
-            <th scope="col">Tool</th>
-            <th scope="col">Lender</th>
-            <th scope="col">Due Date</th>
+            <th scope="col"<?= ViewHelper::ariaSort($borrowSort['sort'], $borrowSort['dir'], 'tool_name_tol') ?>>Tool</th>
+            <th scope="col"<?= ViewHelper::ariaSort($borrowSort['sort'], $borrowSort['dir'], 'lender_name') ?>>Lender</th>
+            <th scope="col"<?= ViewHelper::ariaSort($borrowSort['sort'], $borrowSort['dir'], 'due_at_bor', 'hours_until_due') ?>>Due Date</th>
             <th scope="col">Status</th>
           </tr>
         </thead>
@@ -228,14 +267,42 @@
     </h2>
 
     <?php if (!empty($requests)): ?>
+      <form method="get" action="/dashboard/borrower" aria-label="Sort pending requests">
+        <fieldset>
+          <legend class="visually-hidden">Sort options</legend>
+          <input type="hidden" name="borrow_sort" value="<?= htmlspecialchars($borrowSort['sort']) ?>">
+          <input type="hidden" name="borrow_dir" value="<?= htmlspecialchars(strtolower($borrowSort['dir'])) ?>">
+          <?php if ($borrowStatus !== null): ?>
+            <input type="hidden" name="borrow_status" value="<?= htmlspecialchars($borrowStatus) ?>">
+          <?php endif; ?>
+          <label>
+            Sort by
+            <select name="req_sort">
+              <option value="requested_at_bor"<?= ViewHelper::selected($reqSort['sort'], 'requested_at_bor') ?>>Date Requested</option>
+              <option value="tool_name_tol"<?= ViewHelper::selected($reqSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
+              <option value="lender_name"<?= ViewHelper::selected($reqSort['sort'], 'lender_name') ?>>Lender</option>
+              <option value="loan_duration_hours_bor"<?= ViewHelper::selected($reqSort['sort'], 'loan_duration_hours_bor') ?>>Duration</option>
+            </select>
+          </label>
+          <label>
+            Direction
+            <select name="req_dir">
+              <option value="desc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'desc') ?>>Newest First</option>
+              <option value="asc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'asc') ?>>Oldest First</option>
+            </select>
+          </label>
+          <button type="submit">Sort</button>
+        </fieldset>
+      </form>
+
       <table>
         <caption class="visually-hidden">Your pending borrow requests</caption>
         <thead>
           <tr>
-            <th scope="col">Tool</th>
-            <th scope="col">Owner</th>
-            <th scope="col">Requested</th>
-            <th scope="col">Duration</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'tool_name_tol') ?>>Tool</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'lender_name') ?>>Lender</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'requested_at_bor') ?>>Requested</th>
+            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'loan_duration_hours_bor') ?>>Duration</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>

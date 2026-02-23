@@ -4,7 +4,7 @@
  *
  * Variables from ToolController::index():
  *   $tools        array   Tool rows from sp_search_available_tools()
- *   $categories   array   Rows from category_summary_v
+ *   $categories   array   Rows from category_summary_fast_v
  *   $totalCount   int     Total matching tools (for pagination text)
  *   $page         int     Current page number (1-based)
  *   $totalPages   int     Total pages

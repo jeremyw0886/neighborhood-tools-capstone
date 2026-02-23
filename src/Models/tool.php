@@ -228,9 +228,8 @@ class Tool
     /**
      * Fetch all categories with tool counts and fee ranges.
      *
-     * Returns every column from category_summary_v — callers can use
-     * available_tools for counts (e.g. "Power Tools (14)") and
-     * min/max_rental_fee for dynamic slider ranges.
+     * Queries category_summary_fast_v (materialized, refreshed hourly) for
+     * performant reads on the high-traffic tool browse filter bar.
      *
      * @return array
      */
@@ -240,7 +239,7 @@ class Tool
 
         $stmt = $pdo->query("
             SELECT *
-            FROM category_summary_v
+            FROM category_summary_fast_v
             ORDER BY category_name_cat ASC
         ");
 

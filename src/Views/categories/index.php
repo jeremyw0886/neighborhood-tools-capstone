@@ -3,7 +3,7 @@
  * Browse Categories — view all tool categories with stats.
  *
  * Variables from CategoryController::index():
- *   $categories  array  Rows from category_summary_v (id_cat, category_name_cat,
+ *   $categories  array  Rows from category_summary_fast_v (id_cat, category_name_cat,
  *                       category_icon, total_tools, listed_tools, available_tools,
  *                       category_avg_rating, min_rental_fee, max_rental_fee)
  */

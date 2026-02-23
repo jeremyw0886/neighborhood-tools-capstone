@@ -9,13 +9,21 @@ use PDO;
 
 class Category
 {
+    /**
+     * Fetch all categories with tool counts, ratings, and fee ranges.
+     *
+     * Queries category_summary_fast_v (materialized, refreshed hourly) for
+     * performant reads on the high-traffic category browse page.
+     *
+     * @return array
+     */
     public static function getAll(): array
     {
         $pdo = Database::connection();
 
         return $pdo->query("
             SELECT *
-            FROM category_summary_v
+            FROM category_summary_fast_v
             ORDER BY category_name_cat ASC
         ")->fetchAll();
     }

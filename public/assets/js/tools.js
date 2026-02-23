@@ -1,6 +1,20 @@
 'use strict';
 
 (function () {
+  const nav = document.querySelector('nav[aria-label="Browse mode"]');
+  if (!nav) return;
+
+  const links = nav.querySelectorAll(':scope > a');
+  nav.dataset.active = nav.querySelector(':scope > a:nth-child(2)[aria-current="page"]') ? 'end' : 'start';
+
+  for (const link of links) {
+    link.addEventListener('click', () => {
+      nav.dataset.active = link === links[links.length - 1] ? 'end' : 'start';
+    });
+  }
+})();
+
+(function () {
   const checkbox = document.getElementById('uses-fuel');
   const group = document.getElementById('fuel-type-group');
   if (!checkbox || !group) return;

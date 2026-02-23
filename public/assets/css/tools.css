@@ -61,7 +61,7 @@
           width: calc((100% - 0.5rem) / var(--toggle-count));
         }
 
-        &:has(> a:nth-child(2)[aria-current="page"])::before {
+        &:is(:has(> a:nth-child(2)[aria-current="page"]), [data-active="end"])::before {
           transform: translateX(100%);
         }
 

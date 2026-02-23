@@ -49,8 +49,8 @@ class AuthController extends BaseController
         $password = $_POST['password'] ?? '';
         $honeypot = $_POST['website'] ?? '';
 
-        // Bot detection — honeypot field should be empty
         if ($honeypot !== '') {
+            RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
             $this->redirect('/login');
         }
 
@@ -142,6 +142,7 @@ class AuthController extends BaseController
         $honeypot = $_POST['website'] ?? '';
 
         if ($honeypot !== '') {
+            RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|register');
             $this->redirect('/register');
         }
 

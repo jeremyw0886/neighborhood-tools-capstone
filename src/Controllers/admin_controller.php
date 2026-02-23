@@ -136,7 +136,7 @@ class AdminController extends BaseController
 
         try {
             Account::updateStatus($accountId, 'active');
-            $_SESSION['admin_users_flash'] = htmlspecialchars($user['full_name']) . ' has been approved.';
+            $_SESSION['admin_users_flash'] = $user['full_name'] . ' has been approved.';
         } catch (\Throwable $e) {
             error_log('AdminController::approveUser — ' . $e->getMessage());
             $_SESSION['admin_users_flash'] = 'Failed to approve account.';
@@ -177,7 +177,7 @@ class AdminController extends BaseController
 
         try {
             Account::updateStatus($accountId, 'suspended');
-            $_SESSION['admin_users_flash'] = htmlspecialchars($user['full_name']) . ' has been denied.';
+            $_SESSION['admin_users_flash'] = $user['full_name'] . ' has been denied.';
         } catch (\Throwable $e) {
             error_log('AdminController::denyUser — ' . $e->getMessage());
             $_SESSION['admin_users_flash'] = 'Failed to deny account.';
@@ -246,7 +246,7 @@ class AdminController extends BaseController
 
         try {
             Account::updateStatus($accountId, $newStatus);
-            $_SESSION['admin_users_flash'] = htmlspecialchars($user['full_name']) . ' has been ' . $action . '.';
+            $_SESSION['admin_users_flash'] = $user['full_name'] . ' has been ' . $action . '.';
         } catch (\Throwable $e) {
             error_log('AdminController::updateUserStatus — ' . $e->getMessage());
             $_SESSION['admin_users_flash'] = 'Failed to update account status.';

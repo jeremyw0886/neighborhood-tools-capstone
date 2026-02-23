@@ -12,18 +12,20 @@ class PlatformStats
     private const int TREND_DAYS = 14;
 
     /**
-     * Fetch aggregate counts for the admin dashboard summary cards.
+     * Fetch all summary stats for the admin dashboard cards.
      *
-     * Delegates to domain models for each operational count.
-     *
-     * @return array{openDisputes: int, pendingDeposits: int, openIncidents: int}
+     * @return array{totalMembers: int, activeMembers: int, availableTools: int,
+     *               openDisputes: int, pendingDeposits: int, openIncidents: int,
+     *               upcomingEvents: int}
      */
     public static function getAdminDashboardCounts(): array
     {
         return [
+            ...Neighborhood::getPlatformTotals(),
             'openDisputes'    => Dispute::getCount(),
             'pendingDeposits' => Deposit::getPendingCount(),
             'openIncidents'   => Incident::getOpenCount(),
+            'upcomingEvents'  => Event::getUpcomingCount(),
         ];
     }
 

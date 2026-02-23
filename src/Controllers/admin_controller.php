@@ -8,8 +8,6 @@ use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Account;
 use App\Models\Category;
-use App\Models\Deposit;
-use App\Models\Dispute;
 use App\Models\Event;
 use App\Models\EventAttendance;
 use App\Models\Incident;
@@ -34,7 +32,7 @@ class AdminController extends BaseController
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
         try {
-            $stats = $this->fetchPlatformStats();
+            $stats = PlatformStats::getAdminDashboardCounts();
         } catch (\Throwable $e) {
             error_log('AdminController::dashboard — ' . $e->getMessage());
             $stats = [
@@ -581,14 +579,7 @@ class AdminController extends BaseController
     }
 
     /**
-     * Fetch platform-wide summary stats for the admin dashboard.
-     *
-     * Delegates to domain models: Neighborhood for member/tool totals
-     * (materialized), Dispute/Deposit/Incident/Event for operational counts.
-     *
-     * @return array{totalMembers: int, activeMembers: int, availableTools: int,
-     *               openDisputes: int, pendingDeposits: int, openIncidents: int,
-     *               upcomingEvents: int}
+     * Category management — icons and vector image library.
      */
     public function categories(): void
     {
@@ -703,16 +694,4 @@ class AdminController extends BaseController
         $this->redirect('/admin/categories');
     }
 
-    private function fetchPlatformStats(): array
-    {
-        $totals = Neighborhood::getPlatformTotals();
-
-        return [
-            ...$totals,
-            'openDisputes'    => Dispute::getCount(),
-            'pendingDeposits' => Deposit::getPendingCount(),
-            'openIncidents'   => Incident::getOpenCount(),
-            'upcomingEvents'  => Event::getUpcomingCount(),
-        ];
-    }
 }

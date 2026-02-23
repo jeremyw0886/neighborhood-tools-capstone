@@ -12,10 +12,9 @@ class Notification
     /**
      * Count unread notifications for a user.
      *
-     * Uses a direct COUNT on notification_ntf rather than the unread_notification_v
-     * view — avoids the view's multi-table JOINs since only the count is needed.
-     * The covering index idx_unread_timeline_type_ntf on
-     * (id_acc_ntf, is_read_ntf, created_at_ntf, id_ntt_ntf) makes this very fast.
+     * Uses a direct COUNT on notification_ntf with the covering index
+     * idx_unread_timeline_type_ntf rather than unread_notification_v to
+     * avoid multi-table JOINs when only the count is needed.
      */
     public static function getUnreadCount(int $accountId): int
     {
@@ -37,13 +36,9 @@ class Notification
     /**
      * Fetch notifications for a user (both read and unread), newest first.
      *
-     * Queries notification_ntf directly with the same JOINs that
-     * unread_notification_v uses, but WITHOUT the is_read_ntf = FALSE filter
-     * so the notifications page can display all items with read/unread styling.
-     *
-     * @return array  Each row includes: id_ntf, notification_type, title_ntf,
-     *                body_ntf, is_read_ntf, created_at_ntf, id_bor_ntf,
-     *                related_tool_name, related_borrow_status
+     * Mirrors unread_notification_v column structure (notification_type,
+     * hours_ago, related_tool_name, related_borrow_status) but omits the
+     * view's is_read_ntf = FALSE filter so both states are returned.
      */
     public static function getForUser(int $accountId, int $limit = 12, int $offset = 0): array
     {
@@ -52,18 +47,19 @@ class Notification
         $sql = "
             SELECT
                 ntf.id_ntf,
-                ntt.type_name_ntt  AS notification_type,
+                ntt.type_name_ntt AS notification_type,
                 ntf.title_ntf,
                 ntf.body_ntf,
                 ntf.is_read_ntf,
                 ntf.created_at_ntf,
+                TIMESTAMPDIFF(HOUR, ntf.created_at_ntf, NOW()) AS hours_ago,
                 ntf.id_bor_ntf,
-                t.tool_name_tol    AS related_tool_name,
+                t.tool_name_tol AS related_tool_name,
                 bst.status_name_bst AS related_borrow_status
             FROM notification_ntf ntf
             JOIN notification_type_ntt ntt ON ntf.id_ntt_ntf = ntt.id_ntt
-            LEFT JOIN borrow_bor b         ON ntf.id_bor_ntf = b.id_bor
-            LEFT JOIN tool_tol t           ON b.id_tol_bor = t.id_tol
+            LEFT JOIN borrow_bor b ON ntf.id_bor_ntf = b.id_bor
+            LEFT JOIN tool_tol t ON b.id_tol_bor = t.id_tol
             LEFT JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
             WHERE ntf.id_acc_ntf = :account_id
             ORDER BY ntf.created_at_ntf DESC
@@ -80,9 +76,33 @@ class Notification
     }
 
     /**
-     * Count total notifications for a user (read + unread).
+     * Fetch only unread notifications for a user via unread_notification_v.
      *
-     * Used for pagination on the notifications index page.
+     * Returns the view's full column set: notification_type, hours_ago,
+     * related_tool_name, related_borrow_status. Used where only unread
+     * items are needed (e.g. nav badge dropdown, AJAX polling).
+     */
+    public static function getUnreadForUser(int $accountId, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM unread_notification_v
+            WHERE user_id = :account_id
+            ORDER BY created_at_ntf DESC
+            LIMIT :limit
+        ");
+
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Count total notifications for a user (read + unread) for pagination.
      */
     public static function getCountForUser(int $accountId): int
     {
@@ -101,15 +121,9 @@ class Notification
     }
 
     /**
-     * Send a notification via sp_send_notification().
+     * Send a notification via sp_send_notification.
      *
-     * Uses MySQL user variables for the OUT parameter to stay consistent
-     * with the markRead() pattern.
-     *
-     * @param  int    $accountId        Recipient account
      * @param  string $type             Notification type name (e.g. 'request', 'approval')
-     * @param  string $title            Short title
-     * @param  string $body             Full message body
      * @param  ?int   $relatedBorrowId  Associated borrow record (null if none)
      * @return ?int   The new notification ID, or null on failure
      */
@@ -142,15 +156,7 @@ class Notification
     /**
      * Mark notifications as read via sp_mark_notifications_read.
      *
-     * Pass null for $notificationIds to mark ALL unread notifications
-     * for the user as read, or a comma-separated string of IDs
-     * (e.g. "1,5,7") to mark specific ones.
-     *
-     * Uses MySQL user variables (@count) for the OUT parameter to avoid
-     * PDO driver inconsistencies with bindParam OUT across MAMP/SiteGround.
-     *
-     * @param  int     $accountId        User whose notifications to mark
-     * @param  ?string $notificationIds  Comma-separated IDs or null for all
+     * @param  ?string $notificationIds  Comma-separated IDs, or null for all
      * @return int     Number of notifications marked as read
      */
     public static function markRead(int $accountId, ?string $notificationIds = null): int

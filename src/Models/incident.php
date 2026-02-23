@@ -50,6 +50,44 @@ class Incident
     }
 
     /**
+     * Search open incidents by party names or type for admin global search.
+     *
+     * @return array<int, array{id_irt: int, incident_type: string, reporter_name: string, borrower_name: string, lender_name: string, incident_status: string, days_open: int}>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                id_irt,
+                incident_type,
+                reporter_name,
+                borrower_name,
+                lender_name,
+                'open' AS incident_status,
+                days_open
+            FROM open_incident_v
+            WHERE reporter_name LIKE CONCAT('%', :term1, '%')
+               OR borrower_name LIKE CONCAT('%', :term2, '%')
+               OR lender_name   LIKE CONCAT('%', :term3, '%')
+               OR incident_type LIKE CONCAT('%', :term4, '%')
+            ORDER BY days_open DESC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':term3', $term);
+        $stmt->bindValue(':term4', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Fetch all incident type options from the lookup table.
      *
      * @return array  Rows with id_ity and type_name_ity

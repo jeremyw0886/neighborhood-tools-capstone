@@ -128,6 +128,12 @@ class BaseController
      */
     protected function redirect(string $url): never
     {
+        $url = str_replace(["\r", "\n"], '', $url);
+
+        if ($url === '' || $url[0] !== '/') {
+            $url = '/';
+        }
+
         header('Location: ' . $url);
         exit;
     }

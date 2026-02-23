@@ -131,5 +131,10 @@ try {
 } catch (\Throwable $e) {
     http_response_code(500);
     error_log($e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
-    require BASE_PATH . '/src/Views/errors/500.php';
+
+    try {
+        require BASE_PATH . '/src/Views/errors/500.php';
+    } catch (\Throwable) {
+        echo '<!doctype html><title>500</title><h1>500 — Internal Server Error</h1>';
+    }
 }

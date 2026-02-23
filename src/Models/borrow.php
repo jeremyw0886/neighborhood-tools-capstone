@@ -208,6 +208,71 @@ class Borrow
     }
 
     /**
+     * Fetch all non-terminal borrows for a user in a single unified query.
+     *
+     * Combines requested, approved, and borrowed statuses with urgency-based
+     * ordering: overdue > due soon > on time > approved > requested.
+     *
+     * @param string $role 'lender' or 'borrower' — filters and sets counterparty
+     * @return array Rows with status, counterparty info, due status, timestamps
+     */
+    public static function getAllActiveLoansForUser(int $accountId, string $role): array
+    {
+        $isLender         = $role === 'lender';
+        $filterColumn     = $isLender ? 't.id_acc_tol' : 'b.id_acc_bor';
+        $counterpartyId   = $isLender ? 'b.id_acc_bor' : 't.id_acc_tol';
+        $counterpartyName = $isLender
+            ? "CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc)"
+            : "CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)";
+
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                b.id_bor,
+                t.tool_name_tol,
+                b.id_tol_bor,
+                {$counterpartyId}   AS counterparty_id,
+                {$counterpartyName} AS counterparty_name,
+                bst.status_name_bst AS status_name,
+                b.requested_at_bor,
+                b.approved_at_bor,
+                b.borrowed_at_bor,
+                b.due_at_bor,
+                TIMESTAMPDIFF(HOUR, NOW(), b.due_at_bor) AS hours_until_due,
+                CASE
+                    WHEN bst.status_name_bst != 'borrowed' THEN NULL
+                    WHEN b.due_at_bor < NOW() THEN 'OVERDUE'
+                    WHEN TIMESTAMPDIFF(HOUR, NOW(), b.due_at_bor) <= 24 THEN 'DUE SOON'
+                    ELSE 'ON TIME'
+                END AS due_status,
+                b.loan_duration_hours_bor
+            FROM borrow_bor b
+            JOIN tool_tol t            ON b.id_tol_bor = t.id_tol
+            JOIN borrow_status_bst bst ON b.id_bst_bor  = bst.id_bst
+            JOIN account_acc borrower  ON b.id_acc_bor   = borrower.id_acc
+            JOIN account_acc lender    ON t.id_acc_tol   = lender.id_acc
+            WHERE bst.status_name_bst IN ('requested', 'approved', 'borrowed')
+              AND {$filterColumn} = :id
+            ORDER BY
+                CASE
+                    WHEN bst.status_name_bst = 'borrowed' AND b.due_at_bor < NOW() THEN 1
+                    WHEN bst.status_name_bst = 'borrowed'
+                         AND TIMESTAMPDIFF(HOUR, NOW(), b.due_at_bor) <= 24 THEN 2
+                    WHEN bst.status_name_bst = 'borrowed' THEN 3
+                    WHEN bst.status_name_bst = 'approved' THEN 4
+                    ELSE 5
+                END ASC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Create a borrow request via sp_create_borrow_request().
      *
      * The SP validates tool availability internally via fn_is_tool_available()

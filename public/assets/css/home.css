@@ -16,7 +16,7 @@
     grid-row: span 2;
     margin-inline: auto;
     max-width: 1400px;
-    overflow-x: hidden;
+    overflow-x: clip;
     text-align: center;
     width: 100%;
 

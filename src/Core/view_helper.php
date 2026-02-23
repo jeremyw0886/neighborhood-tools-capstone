@@ -30,4 +30,25 @@ class ViewHelper
             ? ' aria-sort="' . ($dir === 'ASC' ? 'ascending' : 'descending') . '"'
             : '';
     }
+
+    /**
+     * Build a pagination URL preserving current filter/sort params.
+     *
+     * @param  string $basePath     URL path (e.g. '/admin/users')
+     * @param  int    $pageNum      Target page number
+     * @param  array  $filterParams Current filter state (nulls are stripped)
+     * @return string Clean URL with query string
+     */
+    public static function adminPaginationUrl(string $basePath, int $pageNum, array $filterParams): string
+    {
+        $params = array_filter($filterParams, static fn(mixed $v): bool => $v !== null && $v !== '');
+
+        if ($pageNum > 1) {
+            $params['page'] = $pageNum;
+        }
+
+        $query = http_build_query($params);
+
+        return $query !== '' ? $basePath . '?' . $query : $basePath;
+    }
 }

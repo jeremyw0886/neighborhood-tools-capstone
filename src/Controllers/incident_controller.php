@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\Role;
 use App\Models\Borrow;
 use App\Models\Incident;
 
@@ -103,7 +104,7 @@ class IncidentController extends BaseController
         }
 
         $userId  = (int) $_SESSION['user_id'];
-        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+        $isAdmin = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
 
         try {
             $incident = Incident::findByIdWithContext($incidentId);

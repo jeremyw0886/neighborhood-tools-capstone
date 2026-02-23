@@ -1,22 +1,6 @@
 <?php
-/**
- * Admin dashboard — platform-wide summary stats and quick links.
- *
- * Variables from AdminController::dashboard():
- *   $stats   array{totalMembers, activeMembers, availableTools,
- *                  openDisputes, pendingDeposits, openIncidents, upcomingEvents}
- *   $trends  array  Rows from PlatformStats::getRecentTrends() (14 days, newest first)
- *
- * Each trend row contains:
- *   stat_date, total_accounts, active_accounts, new_accounts_today,
- *   total_tools, available_tools, new_tools_today,
- *   active_borrows, completed_today, new_requests_today,
- *   open_disputes, open_incidents, overdue_borrows, deposits_held_total
- *
- * Shared data:
- *   $authUser     array{id, name, first_name, role, avatar}
- *   $currentPage  string
- */
+$stats  ??= [];
+$trends ??= [];
 ?>
 
 <section aria-labelledby="admin-heading">
@@ -40,8 +24,8 @@
         <a href="/admin/users">
           <i class="fa-solid fa-users" aria-hidden="true"></i>
           <h3>Total Members</h3>
-          <p><?= $stats['totalMembers'] ?></p>
-          <span><?= $stats['activeMembers'] ?> active</span>
+          <p><?= htmlspecialchars((string) ($stats['totalMembers'] ?? 0)) ?></p>
+          <span><?= htmlspecialchars((string) ($stats['activeMembers'] ?? 0)) ?> active</span>
         </a>
       </article>
 
@@ -49,7 +33,7 @@
         <a href="/admin/tools">
           <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
           <h3>Available Tools</h3>
-          <p><?= $stats['availableTools'] ?></p>
+          <p><?= htmlspecialchars((string) ($stats['availableTools'] ?? 0)) ?></p>
           <span>View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
         </a>
       </article>
@@ -59,7 +43,7 @@
           <a href="/admin/disputes">
             <i class="fa-solid fa-gavel" aria-hidden="true"></i>
             <h3>Open Disputes</h3>
-            <p><?= $stats['openDisputes'] ?></p>
+            <p><?= htmlspecialchars((string) ($stats['openDisputes'] ?? 0)) ?></p>
             <span>Needs attention <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </article>
@@ -78,7 +62,7 @@
         <a href="/admin/reports">
           <i class="fa-solid fa-vault" aria-hidden="true"></i>
           <h3>Pending Deposits</h3>
-          <p><?= $stats['pendingDeposits'] ?></p>
+          <p><?= htmlspecialchars((string) ($stats['pendingDeposits'] ?? 0)) ?></p>
           <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
         </a>
       </article>
@@ -88,7 +72,7 @@
           <a href="/admin/incidents">
             <i class="fa-solid fa-flag" aria-hidden="true"></i>
             <h3>Open Incidents</h3>
-            <p><?= $stats['openIncidents'] ?></p>
+            <p><?= htmlspecialchars((string) ($stats['openIncidents'] ?? 0)) ?></p>
             <span>Needs attention <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </article>
@@ -107,7 +91,7 @@
         <a href="/admin/events">
           <i class="fa-solid fa-calendar" aria-hidden="true"></i>
           <h3>Upcoming Events</h3>
-          <p><?= $stats['upcomingEvents'] ?></p>
+          <p><?= htmlspecialchars((string) ($stats['upcomingEvents'] ?? 0)) ?></p>
           <span>View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
         </a>
       </article>

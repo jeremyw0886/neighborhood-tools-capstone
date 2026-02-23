@@ -10,21 +10,51 @@ use PDO;
 class Borrow
 {
     /**
+     * Validate a sort field and direction against an allowlist.
+     *
+     * @param  string[] $allowed  Permitted column names
+     * @return array{string, string}  Validated [field, direction]
+     */
+    private static function validateSort(
+        string $field,
+        string $dir,
+        array $allowed,
+        string $defaultField,
+        string $defaultDir,
+    ): array {
+        $field = in_array($field, $allowed, true) ? $field : $defaultField;
+        $dir   = strtoupper($dir) === 'DESC' ? 'DESC' : 'ASC';
+
+        return [$field, $dir === $defaultDir ? $defaultDir : $dir];
+    }
+
+    /**
      * Fetch active (currently borrowed) items where the user is borrower OR lender.
      *
-     * Queries active_borrow_v which only includes rows in "borrowed" status.
-     *
+     * @param  string $sort Allowed: due_at_bor, tool_name_tol, borrower_name, lender_name, hours_until_due
+     * @param  string $dir  ASC or DESC
      * @return array  Rows with tool name, due date, due status, counterparty info
      */
-    public static function getActiveForUser(int $accountId): array
-    {
+    public static function getActiveForUser(
+        int $accountId,
+        string $sort = 'due_at_bor',
+        string $dir = 'ASC',
+    ): array {
+        [$sort, $dir] = self::validateSort(
+            $sort,
+            $dir,
+            ['due_at_bor', 'tool_name_tol', 'borrower_name', 'lender_name', 'hours_until_due'],
+            'due_at_bor',
+            'ASC',
+        );
+
         $pdo = Database::connection();
 
         $sql = "
             SELECT *
             FROM active_borrow_v
             WHERE borrower_id = :id OR lender_id = :id2
-            ORDER BY due_at_bor ASC
+            ORDER BY {$sort} {$dir}
         ";
 
         $stmt = $pdo->prepare($sql);
@@ -42,15 +72,26 @@ class Borrow
      *
      * @return array  Rows with tool name, requester info, hours pending
      */
-    public static function getPendingForUser(int $accountId): array
-    {
+    public static function getPendingForUser(
+        int $accountId,
+        string $sort = 'requested_at_bor',
+        string $dir = 'DESC',
+    ): array {
+        [$sort, $dir] = self::validateSort(
+            $sort,
+            $dir,
+            ['requested_at_bor', 'tool_name_tol', 'borrower_name', 'lender_name', 'hours_pending', 'loan_duration_hours_bor'],
+            'requested_at_bor',
+            'DESC',
+        );
+
         $pdo = Database::connection();
 
         $sql = "
             SELECT *
             FROM pending_request_v
             WHERE borrower_id = :id OR lender_id = :id2
-            ORDER BY requested_at_bor DESC
+            ORDER BY {$sort} {$dir}
         ";
 
         $stmt = $pdo->prepare($sql);
@@ -68,15 +109,26 @@ class Borrow
      *
      * @return array  Rows with tool name, hours/days overdue, deposit info
      */
-    public static function getOverdueForUser(int $accountId): array
-    {
+    public static function getOverdueForUser(
+        int $accountId,
+        string $sort = 'hours_overdue',
+        string $dir = 'DESC',
+    ): array {
+        [$sort, $dir] = self::validateSort(
+            $sort,
+            $dir,
+            ['hours_overdue', 'due_at_bor', 'tool_name_tol', 'borrower_name', 'lender_name'],
+            'hours_overdue',
+            'DESC',
+        );
+
         $pdo = Database::connection();
 
         $sql = "
             SELECT *
             FROM overdue_borrow_v
             WHERE borrower_id = :id OR lender_id = :id2
-            ORDER BY hours_overdue DESC
+            ORDER BY {$sort} {$dir}
         ";
 
         $stmt = $pdo->prepare($sql);
@@ -592,7 +644,17 @@ class Borrow
         ?string $status = null,
         int $limit = 20,
         int $offset = 0,
+        string $sort = 'requested_at_bor',
+        string $dir = 'DESC',
     ): array {
+        [$sort, $dir] = self::validateSort(
+            $sort,
+            $dir,
+            ['requested_at_bor', 'tool_name_tol', 'borrower_name', 'lender_name', 'borrow_status'],
+            'requested_at_bor',
+            'DESC',
+        );
+
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare('CALL sp_get_user_borrow_history(:id, :role, :status, :lim, :off)');
@@ -605,6 +667,11 @@ class Borrow
 
         $rows = $stmt->fetchAll();
         $stmt->closeCursor();
+
+        usort($rows, static function (array $a, array $b) use ($sort, $dir): int {
+            $cmp = ($a[$sort] ?? '') <=> ($b[$sort] ?? '');
+            return $dir === 'DESC' ? -$cmp : $cmp;
+        });
 
         return $rows;
     }

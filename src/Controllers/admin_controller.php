@@ -298,23 +298,41 @@ class AdminController extends BaseController
         $this->redirect('/admin/users');
     }
 
+    private const array TOOLS_SORT_FIELDS        = ['tool_name_tol', 'owner_name', 'tool_condition', 'rental_fee_tol', 'avg_rating', 'total_borrows', 'incident_count', 'created_at_tol'];
+    private const array TOOLS_ALLOWED_CONDITIONS = ['new', 'good', 'fair', 'poor'];
+
     /**
-     * Tool management — paginated list of all tools with analytics.
+     * Tool management — paginated, sortable, filterable list of all tools.
      *
-     * Queries tool_statistics_fast_v (materialized every 2 hours) for
-     * borrow counts, ratings, incidents, and condition per tool.
+     * Accepts `?q`, `?condition`, `?incidents`, `?sort`, `?dir` query params.
      */
     public function tools(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
+        $search     = $this->parseSearchQuery();
+        $sortParams = $this->parseSortParams('', self::TOOLS_SORT_FIELDS, 'created_at_tol', 'DESC');
+
+        $rawCondition = $_GET['condition'] ?? '';
+        $condition    = in_array($rawCondition, self::TOOLS_ALLOWED_CONDITIONS, true) ? $rawCondition : null;
+
+        $incidentsOnly = ($_GET['incidents'] ?? '') === '1';
+
         try {
             $page       = max(1, (int) ($_GET['page'] ?? 1));
-            $totalCount = Tool::getAdminCount();
+            $totalCount = Tool::getAdminFilteredCount($condition, $incidentsOnly, $search);
             $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
             $page       = min($page, $totalPages);
             $offset     = ($page - 1) * self::PER_PAGE;
-            $tools      = Tool::getAdminList(self::PER_PAGE, $offset);
+            $tools      = Tool::getAdminList(
+                limit:         self::PER_PAGE,
+                offset:        $offset,
+                sort:          $sortParams['sort'],
+                dir:           $sortParams['dir'],
+                condition:     $condition,
+                incidentsOnly: $incidentsOnly,
+                search:        $search,
+            );
         } catch (\Throwable $e) {
             error_log('AdminController::tools — ' . $e->getMessage());
             $page       = 1;
@@ -323,15 +341,29 @@ class AdminController extends BaseController
             $tools      = [];
         }
 
+        $filterParams = array_filter([
+            'q'         => $search,
+            'condition' => $condition,
+            'incidents' => $incidentsOnly ? '1' : null,
+            'sort'      => $sortParams['sort'],
+            'dir'       => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
+
         $this->render('admin/tools', [
-            'title'       => 'Manage Tools — NeighborhoodTools',
-            'description' => 'View and manage listed tools.',
-            'pageCss'     => ['admin.css'],
-            'tools'       => $tools,
-            'totalCount'  => $totalCount,
-            'page'        => $page,
-            'totalPages'  => $totalPages,
-            'perPage'     => self::PER_PAGE,
+            'title'         => 'Manage Tools — NeighborhoodTools',
+            'description'   => 'View and manage listed tools.',
+            'pageCss'       => ['admin.css'],
+            'tools'         => $tools,
+            'totalCount'    => $totalCount,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => self::PER_PAGE,
+            'search'        => $search,
+            'condition'     => $condition,
+            'incidentsOnly' => $incidentsOnly,
+            'sort'          => $sortParams['sort'],
+            'dir'           => $sortParams['dir'],
+            'filterParams'  => $filterParams,
         ]);
     }
 

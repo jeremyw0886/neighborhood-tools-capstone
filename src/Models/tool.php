@@ -696,26 +696,60 @@ class Tool
     }
 
     /**
-     * Fetch a paginated list of all tools with analytics from the
-     * materialized tool_statistics_fast_v view.
+     * Fetch a paginated, sortable, filterable list of tools from tool_statistics_fast_v.
      *
-     * Returns borrow counts, ratings, incidents, and condition for
-     * every tool in the system — used on the admin tools page.
-     *
-     * @param  int   $limit   Results per page
-     * @param  int   $offset  Pagination offset
+     * @param  string  $sort          Pre-validated column name
+     * @param  string  $dir           Pre-validated direction (ASC|DESC)
+     * @param  ?string $condition     Filter by tool_condition value
+     * @param  bool    $incidentsOnly Only tools with incident_count > 0
+     * @param  ?string $search        LIKE on tool_name_tol and owner_name
      * @return array
      */
-    public static function getAdminList(int $limit = 12, int $offset = 0): array
-    {
+    public static function getAdminList(
+        int $limit,
+        int $offset,
+        string $sort = 'created_at_tol',
+        string $dir = 'DESC',
+        ?string $condition = null,
+        bool $incidentsOnly = false,
+        ?string $search = null,
+    ): array {
         $pdo = Database::connection();
 
-        $stmt = $pdo->prepare("
+        $where  = [];
+        $params = [];
+
+        if ($condition !== null) {
+            $where[]              = 'tool_condition = :condition';
+            $params[':condition'] = $condition;
+        }
+
+        if ($incidentsOnly) {
+            $where[] = 'incident_count > 0';
+        }
+
+        if ($search !== null) {
+            $where[]            = '(tool_name_tol LIKE CONCAT(\'%\', :search1, \'%\')
+                                 OR owner_name LIKE CONCAT(\'%\', :search2, \'%\'))';
+            $params[':search1'] = $search;
+            $params[':search2'] = $search;
+        }
+
+        $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $sql = "
             SELECT *
             FROM tool_statistics_fast_v
-            ORDER BY created_at_tol DESC
+            $whereClause
+            ORDER BY $sort $dir
             LIMIT :limit OFFSET :offset
-        ");
+        ";
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -725,15 +759,45 @@ class Tool
     }
 
     /**
-     * Count all tools tracked in the materialized statistics view.
+     * Count tools matching the given filters for admin pagination.
      *
      * @return int
      */
-    public static function getAdminCount(): int
-    {
+    public static function getAdminFilteredCount(
+        ?string $condition = null,
+        bool $incidentsOnly = false,
+        ?string $search = null,
+    ): int {
         $pdo = Database::connection();
 
-        $stmt = $pdo->query('SELECT COUNT(*) FROM tool_statistics_fast_v');
+        $where  = [];
+        $params = [];
+
+        if ($condition !== null) {
+            $where[]              = 'tool_condition = :condition';
+            $params[':condition'] = $condition;
+        }
+
+        if ($incidentsOnly) {
+            $where[] = 'incident_count > 0';
+        }
+
+        if ($search !== null) {
+            $where[]            = '(tool_name_tol LIKE CONCAT(\'%\', :search1, \'%\')
+                                 OR owner_name LIKE CONCAT(\'%\', :search2, \'%\'))';
+            $params[':search1'] = $search;
+            $params[':search2'] = $search;
+        }
+
+        $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tool_statistics_fast_v $whereClause");
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->execute();
 
         return (int) $stmt->fetchColumn();
     }

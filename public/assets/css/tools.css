@@ -161,6 +161,11 @@
             background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
             transform: scale(1.02);
           }
+
+          &:focus-visible {
+            outline: 2px solid var(--mountain-gold);
+            outline-offset: 2px;
+          }
         }
       }
 

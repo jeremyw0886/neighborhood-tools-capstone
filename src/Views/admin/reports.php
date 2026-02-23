@@ -23,8 +23,8 @@
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-$paginationUrl = static fn(int $pageNum): string =>
-    '/admin/reports' . ($pageNum > 1 ? '?page=' . $pageNum : '');
+$basePath     = '/admin/reports';
+$filterParams = [];
 ?>
 
 <section aria-labelledby="admin-reports-heading">
@@ -122,84 +122,7 @@ $paginationUrl = static fn(int $pageNum): string =>
         </p>
       <?php endif; ?>
 
-      <?php if ($totalPages > 1): ?>
-        <nav aria-label="Pagination">
-          <ul>
-
-            <?php if ($page > 1): ?>
-              <li>
-                <a href="<?= $paginationUrl($page - 1) ?>"
-                   aria-label="Go to previous page">
-                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                  <span>Previous</span>
-                </a>
-              </li>
-            <?php else: ?>
-              <li>
-                <span aria-disabled="true" aria-label="No previous page">
-                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                  <span>Previous</span>
-                </span>
-              </li>
-            <?php endif; ?>
-
-            <?php
-            $windowSize = 2;
-            $startPage  = max(1, $page - $windowSize);
-            $endPage    = min($totalPages, $page + $windowSize);
-
-            if ($startPage > 1): ?>
-              <li>
-                <a href="<?= $paginationUrl(1) ?>" aria-label="Go to page 1">1</a>
-              </li>
-              <?php if ($startPage > 2): ?>
-                <li><span aria-hidden="true">&hellip;</span></li>
-              <?php endif; ?>
-            <?php endif; ?>
-
-            <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-              <li>
-                <?php if ($i === $page): ?>
-                  <a href="<?= $paginationUrl($i) ?>"
-                     aria-current="page"
-                     aria-label="Page <?= htmlspecialchars((string) $i) ?>, current page"><?= htmlspecialchars((string) $i) ?></a>
-                <?php else: ?>
-                  <a href="<?= $paginationUrl($i) ?>"
-                     aria-label="Go to page <?= htmlspecialchars((string) $i) ?>"><?= htmlspecialchars((string) $i) ?></a>
-                <?php endif; ?>
-              </li>
-            <?php endfor; ?>
-
-            <?php if ($endPage < $totalPages): ?>
-              <?php if ($endPage < $totalPages - 1): ?>
-                <li><span aria-hidden="true">&hellip;</span></li>
-              <?php endif; ?>
-              <li>
-                <a href="<?= $paginationUrl($totalPages) ?>"
-                   aria-label="Go to page <?= htmlspecialchars((string) $totalPages) ?>"><?= htmlspecialchars((string) $totalPages) ?></a>
-              </li>
-            <?php endif; ?>
-
-            <?php if ($page < $totalPages): ?>
-              <li>
-                <a href="<?= $paginationUrl($page + 1) ?>"
-                   aria-label="Go to next page">
-                  <span>Next</span>
-                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </a>
-              </li>
-            <?php else: ?>
-              <li>
-                <span aria-disabled="true" aria-label="No next page">
-                  <span>Next</span>
-                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </span>
-              </li>
-            <?php endif; ?>
-
-          </ul>
-        </nav>
-      <?php endif; ?>
+      <?php require BASE_PATH . '/src/Views/partials/pagination.php'; ?>
 
     <?php else: ?>
 

@@ -145,6 +145,69 @@ class Borrow
     }
 
     /**
+     * Fetch approved borrows awaiting pickup where the user is borrower or lender.
+     *
+     * @return array Rows with tool name, counterparty info, approval timestamp
+     */
+    public static function getApprovedForUser(int $accountId): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                b.id_bor,
+                t.tool_name_tol,
+                b.id_tol_bor,
+                b.id_acc_bor                                                 AS borrower_id,
+                CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                t.id_acc_tol                                                 AS lender_id,
+                CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)     AS lender_name,
+                b.approved_at_bor,
+                b.loan_duration_hours_bor,
+                b.notes_text_bor
+            FROM borrow_bor b
+            JOIN tool_tol t           ON b.id_tol_bor = t.id_tol
+            JOIN account_acc borrower ON b.id_acc_bor  = borrower.id_acc
+            JOIN account_acc lender   ON t.id_acc_tol  = lender.id_acc
+            WHERE b.id_bst_bor = fn_get_borrow_status_id('approved')
+              AND (b.id_acc_bor = :id OR t.id_acc_tol = :id2)
+            ORDER BY b.approved_at_bor ASC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Count approved borrows awaiting pickup for a user in a specific role.
+     *
+     * @param string $role 'borrower' or 'lender'
+     */
+    public static function getApprovedCountForUser(int $accountId, string $role = 'borrower'): int
+    {
+        $column = $role === 'lender' ? 't.id_acc_tol' : 'b.id_acc_bor';
+        $pdo    = Database::connection();
+
+        $sql = "
+            SELECT COUNT(*)
+            FROM borrow_bor b
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            WHERE b.id_bst_bor = fn_get_borrow_status_id('approved')
+              AND {$column} = :id
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
      * Create a borrow request via sp_create_borrow_request().
      *
      * The SP validates tool availability internally via fn_is_tool_available()

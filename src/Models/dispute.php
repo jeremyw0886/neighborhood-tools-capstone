@@ -51,6 +51,41 @@ class Dispute
     }
 
     /**
+     * Search open disputes by disputant names for admin global search.
+     *
+     * @return array<int, array{id_dsp: int, reporter_name: string, borrower_name: string, lender_name: string, dispute_status: string, days_open: int}>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                id_dsp,
+                reporter_name,
+                borrower_name,
+                lender_name,
+                'open' AS dispute_status,
+                days_open
+            FROM open_dispute_v
+            WHERE reporter_name LIKE CONCAT('%', :term1, '%')
+               OR borrower_name LIKE CONCAT('%', :term2, '%')
+               OR lender_name   LIKE CONCAT('%', :term3, '%')
+            ORDER BY days_open DESC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':term3', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Find a single open dispute by its primary key.
      *
      * @return array|false  Dispute row or false if not found / not open

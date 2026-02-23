@@ -245,6 +245,44 @@ class BaseController
     }
 
     /**
+     * Parse and validate sort parameters from the query string.
+     *
+     * @param  string   $prefix        Param prefix (e.g. 'req_' reads 'req_sort', 'req_dir')
+     * @param  string[] $allowedFields Permitted column names
+     * @param  string   $defaultSort   Fallback sort field
+     * @param  string   $defaultDir    Fallback direction (ASC or DESC)
+     * @return array{sort: string, dir: string}
+     */
+    protected function parseSortParams(
+        string $prefix,
+        array $allowedFields,
+        string $defaultSort,
+        string $defaultDir,
+    ): array {
+        $sort = $_GET[$prefix . 'sort'] ?? '';
+        $dir  = strtolower(trim($_GET[$prefix . 'dir'] ?? ''));
+
+        return [
+            'sort' => in_array($sort, $allowedFields, true) ? $sort : $defaultSort,
+            'dir'  => in_array($dir, ['asc', 'desc'], true) ? strtoupper($dir) : $defaultDir,
+        ];
+    }
+
+    /**
+     * Parse and validate a status filter from the query string.
+     *
+     * @param  string   $prefix          Param prefix (e.g. 'borrow_' reads 'borrow_status')
+     * @param  string[] $allowedStatuses Permitted status values
+     * @return ?string  Validated status or null (show all)
+     */
+    protected function parseStatusFilter(string $prefix, array $allowedStatuses): ?string
+    {
+        $status = $_GET[$prefix . 'status'] ?? '';
+
+        return in_array($status, $allowedStatuses, true) ? $status : null;
+    }
+
+    /**
      * Halt execution and display an error page.
      */
     protected function abort(int $code): never

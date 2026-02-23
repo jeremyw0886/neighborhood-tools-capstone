@@ -81,10 +81,19 @@ class DashboardController extends BaseController
 
         $userId = (int) $_SESSION['user_id'];
 
+        $reqSort = $this->parseSortParams('req_', [
+            'requested_at_bor', 'tool_name_tol', 'borrower_name',
+            'hours_pending', 'loan_duration_hours_bor',
+        ], 'requested_at_bor', 'DESC');
+
+        $lentSort = $this->parseSortParams('lent_', [
+            'due_at_bor', 'tool_name_tol', 'borrower_name', 'hours_until_due',
+        ], 'due_at_bor', 'ASC');
+
         try {
             $tools           = Tool::getByOwner($userId);
-            $pendingRequests = Borrow::getPendingForUser($userId);
-            $activeBorrows   = Borrow::getActiveForUser($userId);
+            $pendingRequests = Borrow::getPendingForUser($userId, $reqSort['sort'], $reqSort['dir']);
+            $activeBorrows   = Borrow::getActiveForUser($userId, $lentSort['sort'], $lentSort['dir']);
             $approvedLoans   = Borrow::getApprovedForUser($userId);
         } catch (\Throwable $e) {
             error_log('DashboardController::lender — ' . $e->getMessage());
@@ -117,6 +126,8 @@ class DashboardController extends BaseController
             'incomingRequests' => array_values($incomingRequests),
             'awaitingPickup'   => array_values($awaitingPickup),
             'lentOut'          => array_values($lentOut),
+            'reqSort'          => $reqSort,
+            'lentSort'         => $lentSort,
             'borrowSuccess'    => $this->flash('borrow_success'),
             'borrowErrors'     => $this->flash('borrow_errors', []),
         ]);
@@ -131,9 +142,19 @@ class DashboardController extends BaseController
 
         $userId = (int) $_SESSION['user_id'];
 
+        $borrowSort = $this->parseSortParams('borrow_', [
+            'due_at_bor', 'tool_name_tol', 'lender_name', 'hours_until_due',
+        ], 'due_at_bor', 'ASC');
+
+        $reqSort = $this->parseSortParams('req_', [
+            'requested_at_bor', 'tool_name_tol', 'lender_name', 'loan_duration_hours_bor',
+        ], 'requested_at_bor', 'DESC');
+
+        $borrowStatus = $this->parseStatusFilter('borrow_', ['on-time', 'due-soon', 'overdue']);
+
         try {
-            $activeBorrows   = Borrow::getActiveForUser($userId);
-            $pendingRequests = Borrow::getPendingForUser($userId);
+            $activeBorrows   = Borrow::getActiveForUser($userId, $borrowSort['sort'], $borrowSort['dir']);
+            $pendingRequests = Borrow::getPendingForUser($userId, $reqSort['sort'], $reqSort['dir']);
             $overdue         = Borrow::getOverdueForUser($userId);
             $approvedLoans   = Borrow::getApprovedForUser($userId);
         } catch (\Throwable $e) {
@@ -144,11 +165,19 @@ class DashboardController extends BaseController
             $approvedLoans   = [];
         }
 
-        // Filter to only rows where this user is the borrower
         $myBorrows = array_filter(
             $activeBorrows,
             static fn(array $row): bool => (int) $row['borrower_id'] === $userId,
         );
+
+        if ($borrowStatus !== null) {
+            $statusMap = ['on-time' => 'ON TIME', 'due-soon' => 'DUE SOON', 'overdue' => 'OVERDUE'];
+            $dbStatus  = $statusMap[$borrowStatus];
+            $myBorrows = array_filter(
+                $myBorrows,
+                static fn(array $row): bool => ($row['due_status'] ?? '') === $dbStatus,
+            );
+        }
 
         $myRequests = array_filter(
             $pendingRequests,
@@ -173,6 +202,9 @@ class DashboardController extends BaseController
             'requests'       => array_values($myRequests),
             'overdue'        => array_values($myOverdue),
             'awaitingPickup' => array_values($awaitingPickup),
+            'borrowSort'     => $borrowSort,
+            'borrowStatus'   => $borrowStatus,
+            'reqSort'        => $reqSort,
             'borrowSuccess'  => $this->flash('borrow_success'),
             'borrowErrors'   => $this->flash('borrow_errors', []),
         ]);
@@ -190,12 +222,29 @@ class DashboardController extends BaseController
 
         $userId = (int) $_SESSION['user_id'];
 
+        $lendSort = $this->parseSortParams('lend_', [
+            'requested_at_bor', 'tool_name_tol', 'borrower_name', 'borrow_status',
+        ], 'requested_at_bor', 'DESC');
+
+        $borrowSort = $this->parseSortParams('borrow_', [
+            'requested_at_bor', 'tool_name_tol', 'lender_name', 'borrow_status',
+        ], 'requested_at_bor', 'DESC');
+
+        $lendStatus   = $this->parseStatusFilter('lend_', ['returned', 'denied', 'cancelled']);
+        $borrowStatus = $this->parseStatusFilter('borrow_', ['returned', 'denied', 'cancelled']);
+
         $lenderHistory   = [];
         $borrowerHistory = [];
 
         try {
-            $lenderHistory   = Borrow::getUserHistory($userId, 'lender');
-            $borrowerHistory = Borrow::getUserHistory($userId, 'borrower');
+            $lenderHistory = Borrow::getUserHistory(
+                $userId, 'lender', $lendStatus, 20, 0,
+                $lendSort['sort'], $lendSort['dir'],
+            );
+            $borrowerHistory = Borrow::getUserHistory(
+                $userId, 'borrower', $borrowStatus, 20, 0,
+                $borrowSort['sort'], $borrowSort['dir'],
+            );
         } catch (\Throwable $e) {
             error_log('DashboardController::history — ' . $e->getMessage());
         }
@@ -206,6 +255,10 @@ class DashboardController extends BaseController
             'pageCss'         => ['dashboard.css'],
             'lenderHistory'   => $lenderHistory,
             'borrowerHistory' => $borrowerHistory,
+            'lendSort'        => $lendSort,
+            'lendStatus'      => $lendStatus,
+            'borrowSort'      => $borrowSort,
+            'borrowStatus'    => $borrowStatus,
         ]);
     }
 
@@ -256,6 +309,44 @@ class DashboardController extends BaseController
             'extensions'  => $extensions,
             'handovers'   => $handovers,
         ]);
+    }
+
+    /**
+     * Parse and validate sort parameters from the query string.
+     *
+     * @param  string   $prefix        Param prefix (e.g. 'req_' reads 'req_sort', 'req_dir')
+     * @param  string[] $allowedFields Permitted column names
+     * @param  string   $defaultSort   Fallback sort field
+     * @param  string   $defaultDir    Fallback direction (ASC or DESC)
+     * @return array{sort: string, dir: string}
+     */
+    private function parseSortParams(
+        string $prefix,
+        array $allowedFields,
+        string $defaultSort,
+        string $defaultDir,
+    ): array {
+        $sort = $_GET[$prefix . 'sort'] ?? '';
+        $dir  = strtolower(trim($_GET[$prefix . 'dir'] ?? ''));
+
+        return [
+            'sort' => in_array($sort, $allowedFields, true) ? $sort : $defaultSort,
+            'dir'  => in_array($dir, ['asc', 'desc'], true) ? strtoupper($dir) : $defaultDir,
+        ];
+    }
+
+    /**
+     * Parse and validate a status filter from the query string.
+     *
+     * @param  string   $prefix          Param prefix (e.g. 'borrow_' reads 'borrow_status')
+     * @param  string[] $allowedStatuses Permitted status values
+     * @return ?string  Validated status or null (show all)
+     */
+    private function parseStatusFilter(string $prefix, array $allowedStatuses): ?string
+    {
+        $status = $_GET[$prefix . 'status'] ?? '';
+
+        return in_array($status, $allowedStatuses, true) ? $status : null;
     }
 
     /**

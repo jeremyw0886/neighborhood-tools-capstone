@@ -122,7 +122,7 @@
 
       try {
         const res = await fetch(`/?location=${encodeURIComponent(city)}`, {
-          signal: controller.signal,
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]),
           headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
 

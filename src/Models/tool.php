@@ -646,6 +646,38 @@ class Tool
     }
 
     /**
+     * Search tools by name or owner for admin global search.
+     *
+     * @return array<int, array{id_tol: int, tool_name_tol: string, owner_name: string, tool_condition: string, rental_fee_tol: string}>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                id_tol,
+                tool_name_tol,
+                owner_name,
+                tool_condition,
+                rental_fee_tol
+            FROM tool_detail_v
+            WHERE tool_name_tol LIKE CONCAT('%', :term1, '%')
+               OR owner_name LIKE CONCAT('%', :term2, '%')
+            ORDER BY tool_name_tol ASC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Fetch all fuel types from the lookup table.
      *
      * @return array<string>  Fuel type names ordered by ID

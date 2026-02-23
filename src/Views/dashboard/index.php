@@ -7,7 +7,7 @@
  *   $pendingRequestCount int     Pending borrow requests
  *   $overdueCount        int     Overdue borrows
  *   $listedToolCount     int     Tools this user has listed
- *   $reputation          ?array  Row from user_reputation_fast_v
+ *   $reputation          ?array  Row from user_reputation_v (live)
  *   $adminStats          ?array  {openDisputes, pendingDeposits, openIncidents} — admin only
  *
  * Shared data:

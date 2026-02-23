@@ -4,7 +4,7 @@
  *
  * Variables from ProfileController::show():
  *   $profile       array   Public-safe fields from account_profile_v
- *   $reputation    ?array  Detail from user_reputation_fast_v (counts, overall avg)
+ *   $reputation    ?array  Detail from user_reputation_v (live, counts, overall avg)
  *   $isOwnProfile  bool    Whether the logged-in user is viewing their own profile
  *   $tools         array   Tool rows from Tool::getByOwner()
  *   $totalTools    int     Total tools owned (for pagination)

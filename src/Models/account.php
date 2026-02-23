@@ -191,9 +191,11 @@ class Account
     }
 
     /**
-     * Fetch reputation data for a user from the fast (materialized) view.
+     * Fetch real-time reputation data for a single user.
      *
-     * Returns lender/borrower/overall ratings, tool counts, and completed borrows.
+     * Queries user_reputation_v (live aggregation) instead of the materialized
+     * _fast_v so that ratings, tool counts, and borrow totals reflect the
+     * latest state — important for profile pages and dashboards.
      *
      * @return ?array{id_acc: int, full_name: string, lender_avg_rating: float,
      *               lender_rating_count: int, borrower_avg_rating: float,
@@ -206,7 +208,7 @@ class Account
 
         $sql = "
             SELECT *
-            FROM user_reputation_fast_v
+            FROM user_reputation_v
             WHERE id_acc = :id
             LIMIT 1
         ";

@@ -65,54 +65,11 @@
       }
     }
 
-    /* ── Dashboard sub-navigation ── */
+    /* ── Dashboard sub-navigation (shared base in nav.css) ── */
 
-    & > nav[aria-label="Dashboard sections"] {
-      border-block-end: 2px solid var(--mountain-fog);
-      margin-block-end: 2rem;
-      overflow-x: auto;
-      scrollbar-gutter: stable;
-
-      & > ul {
-        display: flex;
-        gap: 0;
-
-        & > li > a {
-          align-items: center;
-          border-block-end: 3px solid transparent;
-          color: var(--mountain-mist);
-          display: inline-flex;
-          font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
-          font-weight: 600;
-          gap: 0.4rem;
-          margin-block-end: -2px;
-          min-height: 2.75rem;
-          padding-block: 0.625rem;
-          padding-inline: 1rem;
-          text-decoration: none;
-          transition: border-color 0.25s, color 0.25s;
-          white-space: nowrap;
-
-          & > i {
-            font-size: 0.85em;
-            opacity: 0.7;
-          }
-
-          &:is(:hover, :focus-visible) {
-            border-color: var(--mountain-gold);
-            color: var(--mountain-pine);
-          }
-
-          &[aria-current="page"] {
-            border-color: var(--mountain-gold-light);
-            color: var(--mountain-pine);
-
-            & > i {
-              opacity: 1;
-            }
-          }
-        }
-      }
+    & > nav[aria-label="Dashboard sections"] > ul > li > a {
+      font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
+      padding-inline: 1rem;
     }
 
     /* ── Section headings (h2s within sub-sections) ── */

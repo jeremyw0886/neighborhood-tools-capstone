@@ -367,6 +367,54 @@
 
   /* ── High contrast mode ── */
 
+  /* ── Shared sub-navigation (dashboard + admin) ── */
+
+  nav:is([aria-label="Dashboard sections"], [aria-label="Admin navigation"]) {
+    border-block-end: 2px solid var(--mountain-fog);
+    margin-block-end: 2rem;
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+
+    & > ul {
+      display: flex;
+      gap: 0;
+
+      & > li > a {
+        align-items: center;
+        border-block-end: 3px solid transparent;
+        color: var(--mountain-mist);
+        display: inline-flex;
+        font-weight: 600;
+        gap: 0.4rem;
+        margin-block-end: -2px;
+        min-height: 2.75rem;
+        padding-block: 0.625rem;
+        text-decoration: none;
+        transition: border-color 0.25s, color 0.25s;
+        white-space: nowrap;
+
+        & > i {
+          font-size: 0.85em;
+          opacity: 0.7;
+        }
+
+        &:is(:hover, :focus-visible) {
+          border-color: var(--mountain-gold);
+          color: var(--mountain-pine);
+        }
+
+        &[aria-current="page"] {
+          border-color: var(--mountain-gold-light);
+          color: var(--mountain-pine);
+
+          & > i {
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+
   @media (prefers-contrast: more) {
     nav:not([data-hero]) {
       border-block-end: 2px solid var(--mountain-cream);

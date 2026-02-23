@@ -36,7 +36,7 @@ if (form) {
                 });
 
                 if (error) {
-                    messageEl.textContent = error.message;
+                    messageEl.textContent = error?.message ?? 'Payment failed. Please try again.';
                     messageEl.hidden = false;
                     submitBtn.textContent = btnLabel;
                     submitBtn.disabled = false;

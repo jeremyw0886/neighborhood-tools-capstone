@@ -99,12 +99,12 @@
           }
 
           &:is(:hover, :focus-visible) {
-            border-color: var(--mountain-gold-light);
+            border-color: var(--mountain-gold);
             color: var(--mountain-pine);
           }
 
           &[aria-current="page"] {
-            border-color: var(--mountain-gold);
+            border-color: var(--mountain-gold-light);
             color: var(--mountain-pine);
 
             & > i {

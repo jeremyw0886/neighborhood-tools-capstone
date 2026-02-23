@@ -77,7 +77,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
       <?php if ($profile['active_tool_count'] > 0): ?>
         <p>
           <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
-          <?= $profile['active_tool_count'] ?> tool<?= $profile['active_tool_count'] !== 1 ? 's' : '' ?> listed
+          <?= htmlspecialchars((string) $profile['active_tool_count']) ?> tool<?= $profile['active_tool_count'] !== 1 ? 's' : '' ?> listed
         </p>
       <?php endif; ?>
 

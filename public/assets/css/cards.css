@@ -29,6 +29,10 @@
       transform: translateY(-4px);
     }
 
+    &:active {
+      transform: scale(0.98);
+    }
+
     & > figure {
       background: linear-gradient(135deg, var(--mountain-fog) 0%, var(--mountain-cream) 100%);
       height: 180px;

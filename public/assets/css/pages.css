@@ -158,14 +158,15 @@
       }
 
       &::after {
-        color: var(--mountain-mist);
-        content: '\f078';
+        background-color: var(--mountain-mist);
+        content: '';
         flex-shrink: 0;
-        font-family: 'Font Awesome 6 Free';
-        font-size: 0.75rem;
-        font-weight: 900;
+        height: 8px;
         margin-inline-start: auto;
-        transition: transform 0.25s ease, color 0.25s ease;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 12px 8px;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 12px 8px;
+        transition: transform 0.25s ease, background-color 0.25s ease;
+        width: 12px;
       }
 
       &:is(:hover, :focus-visible) {
@@ -175,7 +176,7 @@
     }
 
     &[open] > summary::after {
-      color: var(--mountain-gold);
+      background-color: var(--mountain-gold);
       transform: rotate(180deg);
     }
 

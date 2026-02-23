@@ -383,7 +383,7 @@
 
     /* ── Table action cells ── */
 
-    & td:last-child {
+    & td[data-actions] {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;

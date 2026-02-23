@@ -89,7 +89,7 @@
                 ?>
                 <?= $bCount > 0 ? $bAvg . '/5 (' . $bCount . ')' : 'No ratings' ?>
               </td>
-              <td>
+              <td data-actions>
                 <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/approve">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                   <button type="submit">
@@ -165,7 +165,7 @@
                 ?>
                 <span<?= $statusAttr ?>><?= htmlspecialchars($status) ?></span>
               </td>
-              <td>
+              <td data-actions>
                 <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/return">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                   <button type="submit">

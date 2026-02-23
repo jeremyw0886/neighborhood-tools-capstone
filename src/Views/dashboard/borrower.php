@@ -176,7 +176,7 @@
                 </time>
               </td>
               <td><?= (int) $req['loan_duration_hours_bor'] ?> hrs</td>
-              <td>
+              <td data-actions>
                 <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/cancel">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                   <button type="submit">

@@ -16,7 +16,6 @@
     <form method="post" action="/register" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
-      <!-- Honeypot -->
       <div aria-hidden="true" style="position:absolute;left:-9999px">
         <label for="reg-website">Leave this empty</label>
         <input type="text" id="reg-website" name="website" tabindex="-1" autocomplete="off">

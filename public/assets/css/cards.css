@@ -95,7 +95,9 @@
         font-size: 0.95rem;
         font-weight: 600;
         -webkit-line-clamp: 2;
+        max-height: 3em;
         overflow: hidden;
+        text-overflow: ellipsis;
 
         & a {
           color: var(--mountain-pine);

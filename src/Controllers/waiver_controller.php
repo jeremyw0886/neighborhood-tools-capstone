@@ -52,11 +52,12 @@ class WaiverController extends BaseController
         }
 
         $this->render('waivers/show', [
-            'title'       => 'Borrow Waiver — NeighborhoodTools',
-            'description' => 'Review and sign the borrow waiver before picking up your tool.',
-            'pageCss'     => ['waiver.css'],
-            'waiver'      => $waiver,
-            'waiverTypes' => $waiverTypes,
+            'title'        => 'Borrow Waiver — NeighborhoodTools',
+            'description'  => 'Review and sign the borrow waiver before picking up your tool.',
+            'pageCss'      => ['waiver.css'],
+            'waiver'       => $waiver,
+            'waiverTypes'  => $waiverTypes,
+            'waiverErrors' => $this->flash('waiver_errors', []),
         ]);
     }
 

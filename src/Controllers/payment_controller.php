@@ -39,12 +39,15 @@ class PaymentController extends BaseController
             }
 
             $this->render('payments/deposit', [
-                'title'       => 'Security Deposit — NeighborhoodTools',
-                'description' => 'View security deposit details and status.',
-                'pageCss'     => ['payment.css'],
-                'deposit'     => $deposit,
-                'isAdmin'     => $isAdmin,
-                'paymentMode' => false,
+                'title'          => 'Security Deposit — NeighborhoodTools',
+                'description'    => 'View security deposit details and status.',
+                'pageCss'        => ['payment.css'],
+                'deposit'        => $deposit,
+                'isAdmin'        => $isAdmin,
+                'paymentMode'    => false,
+                'depositSuccess' => $this->flash('deposit_success'),
+                'depositErrors'  => $this->flash('deposit_errors', []),
+                'depositOld'     => $this->flash('deposit_old', []),
             ]);
             return;
         }

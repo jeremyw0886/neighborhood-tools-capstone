@@ -37,17 +37,15 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
     <p>Confirm the <?= strtolower($typeLabel) ?> of <strong><?= $toolName ?></strong> by entering the verification code.</p>
   </header>
 
-  <?php if (!empty($_SESSION['handover_success'])): ?>
-    <p role="status" data-flash="success"><?= htmlspecialchars($_SESSION['handover_success']) ?></p>
-    <?php unset($_SESSION['handover_success']); ?>
+  <?php if (!empty($handoverSuccess)): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($handoverSuccess) ?></p>
   <?php endif; ?>
 
   <?php
-    $flashError = $_SESSION['handover_errors']['general'] ?? $_SESSION['handover_errors']['code'] ?? '';
+    $flashError = $handoverErrors['general'] ?? $handoverErrors['code'] ?? '';
     if ($flashError !== ''):
   ?>
     <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
-    <?php unset($_SESSION['handover_errors']); ?>
   <?php endif; ?>
 
   <dl aria-label="Handover details">
@@ -126,7 +124,7 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
             autocomplete="off"
             spellcheck="false"
             placeholder="e.g. A1B2C3"
-            value="<?= htmlspecialchars($_SESSION['handover_old']['code'] ?? '') ?>"
+            value="<?= htmlspecialchars($handoverOld['code'] ?? '') ?>"
           >
           <label for="condition-notes">Condition Notes</label>
           <textarea
@@ -135,8 +133,7 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
             rows="3"
             maxlength="2000"
             placeholder="Describe the tool's current condition (optional)"
-          ><?= htmlspecialchars($_SESSION['handover_old']['condition_notes'] ?? '') ?></textarea>
-          <?php unset($_SESSION['handover_old']); ?>
+          ><?= htmlspecialchars($handoverOld['condition_notes'] ?? '') ?></textarea>
           <button type="submit">
             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
             Confirm <?= $typeLabel ?>

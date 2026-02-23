@@ -18,11 +18,8 @@
 $toolName = htmlspecialchars($borrow['tool_name_tol']);
 $borrowId = (int) $borrow['id_bor'];
 
-$errors = $_SESSION['rating_errors'] ?? [];
-unset($_SESSION['rating_errors']);
-
-$old = $_SESSION['rating_old'] ?? [];
-unset($_SESSION['rating_old']);
+$errors = $ratingErrors;
+$old = $ratingOld;
 
 $scoreLabels = [
     1 => 'Poor',
@@ -43,9 +40,8 @@ $scoreLabels = [
     <p>Leave your rating for the borrow of <strong><?= $toolName ?></strong>.</p>
   </header>
 
-  <?php if (!empty($_SESSION['rating_success'])): ?>
-    <p role="status" data-flash="success"><?= htmlspecialchars($_SESSION['rating_success']) ?></p>
-    <?php unset($_SESSION['rating_success']); ?>
+  <?php if (!empty($ratingSuccess)): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($ratingSuccess) ?></p>
   <?php endif; ?>
 
   <?php if (!empty($errors['general'])): ?>

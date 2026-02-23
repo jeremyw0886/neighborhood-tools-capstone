@@ -24,19 +24,16 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
 
 <section aria-labelledby="dashboard-heading">
 
-  <?php if (!empty($_SESSION['borrow_success'])): ?>
-    <p role="status"><?= htmlspecialchars($_SESSION['borrow_success']) ?></p>
-    <?php unset($_SESSION['borrow_success']); ?>
+  <?php if (!empty($borrowSuccess)): ?>
+    <p role="status"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
 
-  <?php if (!empty($_SESSION['rating_success'])): ?>
-    <p role="status"><?= htmlspecialchars($_SESSION['rating_success']) ?></p>
-    <?php unset($_SESSION['rating_success']); ?>
+  <?php if (!empty($ratingSuccess)): ?>
+    <p role="status"><?= htmlspecialchars($ratingSuccess) ?></p>
   <?php endif; ?>
 
-  <?php if (!empty($_SESSION['waiver_success'])): ?>
-    <p role="status"><?= htmlspecialchars($_SESSION['waiver_success']) ?></p>
-    <?php unset($_SESSION['waiver_success']); ?>
+  <?php if (!empty($waiverSuccess)): ?>
+    <p role="status"><?= htmlspecialchars($waiverSuccess) ?></p>
   <?php endif; ?>
 
   <header>

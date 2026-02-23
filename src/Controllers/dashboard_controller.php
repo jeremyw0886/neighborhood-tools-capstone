@@ -54,15 +54,18 @@ class DashboardController extends BaseController
         }
 
         $this->render('dashboard/index', [
-            'title'              => 'Dashboard — NeighborhoodTools',
-            'description'        => 'Your NeighborhoodTools dashboard — manage borrows, tools, and activity.',
-            'pageCss'            => ['dashboard.css'],
-            'activeBorrowCount'  => $activeBorrowCount,
+            'title'               => 'Dashboard — NeighborhoodTools',
+            'description'         => 'Your NeighborhoodTools dashboard — manage borrows, tools, and activity.',
+            'pageCss'             => ['dashboard.css'],
+            'activeBorrowCount'   => $activeBorrowCount,
             'pendingRequestCount' => $pendingRequestCount,
-            'overdueCount'       => $overdueCount,
-            'listedToolCount'    => $listedToolCount,
-            'reputation'         => $reputation,
-            'adminStats'         => $adminStats,
+            'overdueCount'        => $overdueCount,
+            'listedToolCount'     => $listedToolCount,
+            'reputation'          => $reputation,
+            'adminStats'          => $adminStats,
+            'borrowSuccess'       => $this->flash('borrow_success'),
+            'ratingSuccess'       => $this->flash('rating_success'),
+            'waiverSuccess'       => $this->flash('waiver_success'),
         ]);
     }
 
@@ -103,6 +106,8 @@ class DashboardController extends BaseController
             'tools'            => $tools,
             'incomingRequests' => array_values($incomingRequests),
             'lentOut'          => array_values($lentOut),
+            'borrowSuccess'    => $this->flash('borrow_success'),
+            'borrowErrors'     => $this->flash('borrow_errors', []),
         ]);
     }
 
@@ -143,12 +148,14 @@ class DashboardController extends BaseController
         );
 
         $this->render('dashboard/borrower', [
-            'title'       => 'My Borrows — NeighborhoodTools',
-            'description' => 'Track your active borrows and pending requests.',
-            'pageCss'     => ['dashboard.css'],
-            'borrows'     => array_values($myBorrows),
-            'requests'    => array_values($myRequests),
-            'overdue'     => array_values($myOverdue),
+            'title'          => 'My Borrows — NeighborhoodTools',
+            'description'    => 'Track your active borrows and pending requests.',
+            'pageCss'        => ['dashboard.css'],
+            'borrows'        => array_values($myBorrows),
+            'requests'       => array_values($myRequests),
+            'overdue'        => array_values($myOverdue),
+            'borrowSuccess'  => $this->flash('borrow_success'),
+            'borrowErrors'   => $this->flash('borrow_errors', []),
         ]);
     }
 

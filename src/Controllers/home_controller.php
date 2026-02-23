@@ -68,6 +68,7 @@ class HomeController extends BaseController
             'featuredTools'    => $featuredTools,
             'topMembers'       => $topMembers,
             'bookmarkedIds'    => $bookmarkedIds,
+            'bookmarkFlash'    => $this->flash('bookmark_flash'),
         ]);
     }
 }

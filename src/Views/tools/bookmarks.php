@@ -27,9 +27,8 @@ $paginationUrl = static function (int $pageNum): string {
     <p>Tools you've saved for later.</p>
   </header>
 
-  <?php if (!empty($_SESSION['bookmark_flash'])): ?>
-    <p role="status"><?= htmlspecialchars($_SESSION['bookmark_flash']) ?></p>
-    <?php unset($_SESSION['bookmark_flash']); ?>
+  <?php if (!empty($bookmarkFlash)): ?>
+    <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
   <?php endif; ?>
 
   <div aria-live="polite" aria-atomic="true">

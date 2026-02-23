@@ -122,6 +122,7 @@ class ToolController extends BaseController
             'sliderMax'     => $sliderMax,
             'sliderValue'   => $sliderValue,
             'bookmarkedIds' => $bookmarkedIds,
+            'bookmarkFlash' => $this->flash('bookmark_flash'),
         ]);
     }
 
@@ -168,6 +169,7 @@ class ToolController extends BaseController
             'totalPages'    => $totalPages,
             'perPage'       => self::PER_PAGE,
             'bookmarkedIds' => $bookmarkedIds,
+            'bookmarkFlash' => $this->flash('bookmark_flash'),
         ]);
     }
 
@@ -215,18 +217,15 @@ class ToolController extends BaseController
 
         $isOwner = !empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id'];
 
-        $borrowErrors = $_SESSION['borrow_errors'] ?? [];
-        $borrowOld    = $_SESSION['borrow_old'] ?? [];
-        unset($_SESSION['borrow_errors'], $_SESSION['borrow_old']);
-
         $this->render('tools/show', [
-            'title'        => htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
-            'pageCss'      => ['tools.css'],
-            'tool'         => $tool,
-            'isBookmarked' => $isBookmarked,
-            'isOwner'      => $isOwner,
-            'borrowErrors' => $borrowErrors,
-            'borrowOld'    => $borrowOld,
+            'title'         => htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
+            'pageCss'       => ['tools.css'],
+            'tool'          => $tool,
+            'isBookmarked'  => $isBookmarked,
+            'isOwner'       => $isOwner,
+            'borrowErrors'  => $this->flash('borrow_errors', []),
+            'borrowOld'     => $this->flash('borrow_old', []),
+            'bookmarkFlash' => $this->flash('bookmark_flash'),
         ]);
     }
 

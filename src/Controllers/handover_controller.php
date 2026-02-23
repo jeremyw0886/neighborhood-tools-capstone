@@ -55,11 +55,14 @@ class HandoverController extends BaseController
         $isVerifier = (int) $handover['generator_id'] !== $userId;
 
         $this->render('handover/verify', [
-            'title'       => 'Verify Handover — NeighborhoodTools',
-            'description' => 'Enter the handover verification code to confirm tool ' . $handover['handover_type'] . '.',
-            'pageCss'     => ['handover.css'],
-            'handover'    => $handover,
-            'isVerifier'  => $isVerifier,
+            'title'           => 'Verify Handover — NeighborhoodTools',
+            'description'     => 'Enter the handover verification code to confirm tool ' . $handover['handover_type'] . '.',
+            'pageCss'         => ['handover.css'],
+            'handover'        => $handover,
+            'isVerifier'      => $isVerifier,
+            'handoverSuccess' => $this->flash('handover_success'),
+            'handoverErrors'  => $this->flash('handover_errors', []),
+            'handoverOld'     => $this->flash('handover_old', []),
         ]);
     }
 

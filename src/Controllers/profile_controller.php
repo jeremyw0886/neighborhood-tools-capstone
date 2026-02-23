@@ -106,17 +106,18 @@ class ProfileController extends BaseController
         }
 
         $this->render('profile/show', [
-            'title'        => htmlspecialchars($profile['full_name']) . ' — NeighborhoodTools',
-            'description'  => 'View ' . htmlspecialchars($profile['first_name']) . "'s profile, tools, and ratings on NeighborhoodTools.",
-            'pageCss'      => ['profile.css'],
-            'profile'      => $profile,
-            'reputation'   => $reputation,
-            'isOwnProfile' => $isOwnProfile,
-            'tools'        => $tools,
-            'totalTools'   => $totalTools,
-            'page'         => $page,
-            'totalPages'   => $totalPages,
-            'perPage'      => self::PER_PAGE,
+            'title'         => htmlspecialchars($profile['full_name']) . ' — NeighborhoodTools',
+            'description'   => 'View ' . htmlspecialchars($profile['first_name']) . "'s profile, tools, and ratings on NeighborhoodTools.",
+            'pageCss'       => ['profile.css'],
+            'profile'       => $profile,
+            'reputation'    => $reputation,
+            'isOwnProfile'  => $isOwnProfile,
+            'tools'         => $tools,
+            'totalTools'    => $totalTools,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => self::PER_PAGE,
+            'profileNotice' => $this->flash('profile_notice'),
         ]);
     }
 

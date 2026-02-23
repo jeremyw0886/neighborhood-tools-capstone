@@ -43,11 +43,10 @@ $rangeStart = $totalTools > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalTools);
 ?>
 
-<?php if (!empty($_SESSION['profile_notice'])): ?>
+<?php if (!empty($profileNotice)): ?>
   <section aria-label="Notice">
-    <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($_SESSION['profile_notice']) ?></p>
+    <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($profileNotice) ?></p>
   </section>
-  <?php unset($_SESSION['profile_notice']); ?>
 <?php endif; ?>
 
 <article aria-labelledby="profile-heading">

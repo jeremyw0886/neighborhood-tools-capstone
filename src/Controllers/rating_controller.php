@@ -66,16 +66,19 @@ class RatingController extends BaseController
         $raterRole  = $isBorrower ? 'borrower' : 'lender';
 
         $this->render('rating/show', [
-            'title'        => 'Rate Your Experience — NeighborhoodTools',
-            'description'  => 'Submit a rating for your borrow of ' . $borrow['tool_name_tol'] . '.',
-            'pageCss'      => ['rating.css'],
-            'borrow'       => $borrow,
-            'isBorrower'   => $isBorrower,
-            'targetId'     => $targetId,
-            'targetName'   => $targetName,
-            'raterRole'    => $raterRole,
-            'hasRatedUser' => $hasRatedUser,
-            'hasRatedTool' => $hasRatedTool,
+            'title'         => 'Rate Your Experience — NeighborhoodTools',
+            'description'   => 'Submit a rating for your borrow of ' . $borrow['tool_name_tol'] . '.',
+            'pageCss'       => ['rating.css'],
+            'borrow'        => $borrow,
+            'isBorrower'    => $isBorrower,
+            'targetId'      => $targetId,
+            'targetName'    => $targetName,
+            'raterRole'     => $raterRole,
+            'hasRatedUser'  => $hasRatedUser,
+            'hasRatedTool'  => $hasRatedTool,
+            'ratingErrors'  => $this->flash('rating_errors', []),
+            'ratingOld'     => $this->flash('rating_old', []),
+            'ratingSuccess' => $this->flash('rating_success'),
         ]);
     }
 

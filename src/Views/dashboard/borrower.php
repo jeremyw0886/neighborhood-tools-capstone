@@ -31,17 +31,15 @@
     </ul>
   </nav>
 
-  <?php if (!empty($_SESSION['borrow_success'])): ?>
-    <p role="status" data-flash="success"><?= htmlspecialchars($_SESSION['borrow_success']) ?></p>
-    <?php unset($_SESSION['borrow_success']); ?>
+  <?php if (!empty($borrowSuccess)): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
 
   <?php
-    $flashError = $_SESSION['borrow_errors']['general'] ?? '';
+    $flashError = $borrowErrors['general'] ?? '';
     if ($flashError !== ''):
   ?>
     <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
-    <?php unset($_SESSION['borrow_errors']); ?>
   <?php endif; ?>
 
   <?php if (!empty($overdue)): ?>

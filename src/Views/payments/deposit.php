@@ -55,14 +55,7 @@ $provider  = htmlspecialchars($deposit['payment_provider']);
 <?php else: ?>
 <?php
 
-$depositSuccess = $_SESSION['deposit_success'] ?? null;
-unset($_SESSION['deposit_success']);
-
-$depositErrors = $_SESSION['deposit_errors'] ?? [];
-unset($_SESSION['deposit_errors']);
-
-$old = $_SESSION['deposit_old'] ?? [];
-unset($_SESSION['deposit_old']);
+$old = $depositOld;
 
 $errorMessages = [];
 foreach ($depositErrors as $msg) {

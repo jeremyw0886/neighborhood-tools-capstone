@@ -20,17 +20,24 @@ use App\Models\VectorImage;
 
 class AdminController extends BaseController
 {
-    private const int PER_PAGE = 12;
+    private const int PER_PAGE             = 12;
+    private const array ALLOWED_RANGES     = [7, 14, 30];
+    private const int DEFAULT_RANGE        = 14;
+
     /**
-     * Admin dashboard — platform-wide summary stats and quick links.
+     * Admin dashboard — platform-wide summary stats and recent trends.
      *
-     * Displays total members, available tools, open disputes, pending deposits,
-     * open incidents, and upcoming events. Stats are fetched from materialized
-     * views and admin-specific views for fast dashboard performance.
+     * Accepts `?range=7|14|30` to control the trends table lookback window.
      */
     public function dashboard(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $range = (int) ($_GET['range'] ?? self::DEFAULT_RANGE);
+
+        if (!in_array($range, self::ALLOWED_RANGES, true)) {
+            $range = self::DEFAULT_RANGE;
+        }
 
         try {
             $stats = PlatformStats::getAdminDashboardCounts();
@@ -48,18 +55,20 @@ class AdminController extends BaseController
         }
 
         try {
-            $trends = PlatformStats::getRecentTrends();
+            $trends = PlatformStats::getRecentTrends($range);
         } catch (\Throwable $e) {
             error_log('AdminController::dashboard trends — ' . $e->getMessage());
             $trends = [];
         }
 
         $this->render('admin/dashboard', [
-            'title'       => 'Admin Dashboard — NeighborhoodTools',
-            'description' => 'Platform administration overview and management.',
-            'pageCss'     => ['dashboard.css', 'admin.css'],
-            'stats'       => $stats,
-            'trends'      => $trends,
+            'title'         => 'Admin Dashboard — NeighborhoodTools',
+            'description'   => 'Platform administration overview and management.',
+            'pageCss'       => ['dashboard.css', 'admin.css'],
+            'stats'         => $stats,
+            'trends'        => $trends,
+            'range'         => $range,
+            'allowedRanges' => self::ALLOWED_RANGES,
         ]);
     }
 

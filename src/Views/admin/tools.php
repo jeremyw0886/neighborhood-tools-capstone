@@ -54,6 +54,7 @@ $paginationUrl = static fn(int $pageNum): string =>
   <?php if (!empty($tools)): ?>
 
     <table>
+      <caption class="visually-hidden">Listed tools and their status</caption>
       <thead>
         <tr>
           <th scope="col">Tool</th>

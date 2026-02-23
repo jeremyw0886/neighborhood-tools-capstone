@@ -83,6 +83,7 @@ $canToggleStatus = static function (array $user) use ($actorRole, $actorId): boo
   <?php if (!empty($users)): ?>
 
     <table>
+      <caption class="visually-hidden">Platform member accounts</caption>
       <thead>
         <tr>
           <th scope="col">Member</th>

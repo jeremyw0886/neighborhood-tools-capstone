@@ -91,6 +91,7 @@ $totalAll   = array_sum($timingCounts);
     </div>
 
     <table>
+      <caption class="visually-hidden">Community events</caption>
       <thead>
         <tr>
           <th scope="col">Event</th>

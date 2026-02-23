@@ -97,6 +97,7 @@ $paginationUrl = static fn(int $pageNum): string =>
     <?php if (!empty($users)): ?>
 
       <table>
+        <caption class="visually-hidden">Members who have not accepted the current terms of service</caption>
         <thead>
           <tr>
             <th scope="col">Member</th>

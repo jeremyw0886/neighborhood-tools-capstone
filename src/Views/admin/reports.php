@@ -58,6 +58,7 @@ $paginationUrl = static fn(int $pageNum): string =>
     <?php if (!empty($neighborhoods)): ?>
 
       <table>
+        <caption class="visually-hidden">Neighborhood activity statistics</caption>
         <thead>
           <tr>
             <th scope="col">Neighborhood</th>

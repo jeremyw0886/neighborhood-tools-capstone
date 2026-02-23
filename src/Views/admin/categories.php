@@ -108,6 +108,7 @@
 
     <?php if (!empty($categories)): ?>
       <table>
+        <caption class="visually-hidden">Tool categories with icon assignments</caption>
         <thead>
           <tr>
             <th scope="col">Category</th>

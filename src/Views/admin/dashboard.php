@@ -108,6 +108,7 @@ $trends ??= [];
 
       <div role="region" aria-labelledby="admin-trends-heading" tabindex="0">
         <table>
+          <caption class="visually-hidden">Daily platform activity trends</caption>
           <thead>
             <tr>
               <th scope="col">Date</th>

@@ -505,10 +505,11 @@
 
   /* ── POPULAR PICKS ── */
   .home-page > main > section:first-of-type {
+    --section-pad-block: 3rem;
     margin-inline: auto;
     max-width: 1400px;
     overflow-x: clip;
-    padding-block: 3rem;
+    padding-block: var(--section-pad-block);
     padding-inline: 1.5rem;
     position: relative;
     -webkit-overflow-scrolling: touch;
@@ -554,7 +555,7 @@
     &::after {
       background: transparent;
       content: '';
-      height: calc(100% - 3rem);
+      height: calc(100% - var(--section-pad-block));
       inset-block-end: 0;
       inset-inline-end: 0;
       pointer-events: none;

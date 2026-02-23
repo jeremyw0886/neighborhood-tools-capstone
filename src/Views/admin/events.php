@@ -108,8 +108,8 @@ $totalAll   = array_sum($timingCounts);
           $eventId   = (int) $event['id_evt'];
           $attendees = $attendeeCounts[$eventId] ?? 0;
           $location  = $event['event_address_evt'] !== null
-              ? htmlspecialchars($event['neighborhood_name_nbh'] ?? '') .
-                ($event['city_name_nbh'] ? ', ' . htmlspecialchars($event['city_name_nbh']) : '')
+              ? ($event['neighborhood_name_nbh'] ?? '') .
+                ($event['city_name_nbh'] ? ', ' . $event['city_name_nbh'] : '')
               : 'Virtual';
           $timingKey = strtolower(str_replace(' ', '-', $event['event_timing']));
         ?>
@@ -119,7 +119,7 @@ $totalAll   = array_sum($timingCounts);
                 <?= htmlspecialchars($event['event_name_evt']) ?>
               </a>
             </td>
-            <td><?= $location ?></td>
+            <td><?= htmlspecialchars($location) ?></td>
             <td>
               <time datetime="<?= htmlspecialchars($event['start_at_evt']) ?>">
                 <?= htmlspecialchars(date('M j, Y g:iA', strtotime($event['start_at_evt']))) ?>

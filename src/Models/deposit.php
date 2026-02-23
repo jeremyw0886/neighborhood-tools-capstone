@@ -213,6 +213,7 @@ class Deposit
                     tol.tool_name_tol,
                     ppv.provider_name_ppv AS payment_provider
              FROM security_deposit_sdp sdp
+             /* All FKs are NOT NULL per schema — INNER JOIN is safe */
              JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
              JOIN borrow_bor bor        ON bor.id_bor = sdp.id_bor_sdp
              JOIN tool_tol tol          ON tol.id_tol = bor.id_tol_bor

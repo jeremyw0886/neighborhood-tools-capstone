@@ -12,7 +12,8 @@
     [aria-labelledby="dashboard-heading"],
     [aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]
+    [aria-labelledby="history-heading"],
+    #loan-status
   ) {
     margin-inline: auto;
     max-width: 1100px;
@@ -258,7 +259,8 @@
   main > section:is(
     [aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]
+    [aria-labelledby="history-heading"],
+    #loan-status
   ) table {
     border-collapse: collapse;
     width: 100%;
@@ -294,7 +296,6 @@
         vertical-align: middle;
 
         & > a {
-          color: var(--mountain-pine-light);
           font-weight: 500;
           text-decoration: none;
 
@@ -309,7 +310,9 @@
         }
 
         /* Status badges */
-        & > span {
+        & > span[data-status],
+        & > span[data-urgent],
+        & > span[data-warning] {
           border-radius: 1rem;
           display: inline-block;
           font-size: 0.75rem;
@@ -321,19 +324,36 @@
           white-space: nowrap;
         }
 
-        & > span:not([data-urgent]):not([data-warning]) {
+        & > span[data-status="on-time"],
+        & > span:not([data-urgent]):not([data-warning]):not([data-status]) {
           background: #f0fdf4;
           color: #166534;
         }
 
+        & > span[data-status="due-soon"],
+        & > span[data-warning] {
+          background: #fffbeb;
+          color: #92400e;
+        }
+
+        & > span[data-status="overdue"],
+        & > span[data-status="denied"],
+        & > span[data-status="cancelled"],
         & > span[data-urgent] {
           background: #fef2f2;
           color: #991b1b;
         }
 
-        & > span[data-warning] {
-          background: #fffbeb;
-          color: #92400e;
+        & > span[data-status="approved"] {
+          background: #eff6ff;
+          color: #1e40af;
+        }
+
+        & > small {
+          color: var(--mountain-mist);
+          display: block;
+          font-size: 0.75rem;
+          margin-block-start: 0.125rem;
         }
       }
     }
@@ -487,6 +507,393 @@
     }
   }
 
+  /* ── Awaiting-pickup handover link ── */
+
+  td[data-actions] > a[role="button"] {
+    align-items: center;
+    background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+    border-radius: 0.375rem;
+    color: #fff;
+    display: inline-flex;
+    font-size: 0.813rem;
+    font-weight: 600;
+    gap: 0.35rem;
+    min-height: 2.25rem;
+    padding-block: 0.375rem;
+    padding-inline: 0.75rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+
+    &:is(:hover, :focus-visible) {
+      background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+      color: #fff;
+      transform: scale(1.02);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--mountain-gold);
+      outline-offset: 2px;
+    }
+  }
+
+  /* ── Loan status — lifecycle progress indicator ── */
+
+  #loan-status > section[aria-labelledby="lifecycle-heading"] > ol {
+    counter-reset: step;
+    display: flex;
+    gap: 0;
+    list-style: none;
+    margin-block: 1.5rem;
+    padding: 0;
+
+    & > li {
+      align-items: center;
+      counter-increment: step;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+      text-align: center;
+
+      &::before {
+        align-items: center;
+        background: var(--mountain-fog);
+        border: 2px solid var(--mountain-fog);
+        border-radius: 50%;
+        color: var(--mountain-mist);
+        content: counter(step);
+        display: flex;
+        font-size: 0.75rem;
+        font-weight: 700;
+        height: 2.25rem;
+        justify-content: center;
+        transition: background 0.3s, border-color 0.3s, color 0.3s;
+        width: 2.25rem;
+        z-index: 1;
+      }
+
+      &::after {
+        background: var(--mountain-fog);
+        content: '';
+        height: 2px;
+        left: calc(50% + 1.125rem);
+        position: absolute;
+        top: 1.125rem;
+        width: calc(100% - 2.25rem);
+      }
+
+      &:last-child::after {
+        display: none;
+      }
+
+      & > span {
+        color: var(--mountain-mist);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+    }
+
+    /* Completed steps */
+    & > li[data-completed] {
+
+      &::before {
+        background: var(--mountain-pine);
+        border-color: var(--mountain-pine);
+        color: #fff;
+        content: '\2713';
+        font-size: 0.875rem;
+      }
+
+      &::after {
+        background: var(--mountain-pine);
+      }
+
+      & > span {
+        color: var(--mountain-pine);
+      }
+    }
+
+    /* Current step */
+    & > li[aria-current="step"] {
+
+      &::before {
+        background: #fff;
+        border-color: var(--mountain-pine);
+        box-shadow: 0 0 0 3px rgba(45, 80, 60, 0.2);
+        color: var(--mountain-pine);
+      }
+
+      & > span {
+        color: var(--mountain-pine);
+        font-weight: 700;
+      }
+    }
+
+    /* Due-soon current step */
+    & > li[aria-current="step"][data-warning] {
+
+      &::before {
+        border-color: #92400e;
+        box-shadow: 0 0 0 3px rgba(146, 64, 14, 0.2);
+        color: #92400e;
+      }
+
+      & > span {
+        color: #92400e;
+      }
+    }
+
+    /* Overdue current step */
+    & > li[aria-current="step"][data-urgent] {
+
+      &::before {
+        border-color: #991b1b;
+        box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.2);
+        color: #991b1b;
+      }
+
+      & > span {
+        color: #991b1b;
+      }
+    }
+
+    /* Terminal states (denied / cancelled) */
+    & > li[data-status="denied"]::before,
+    & > li[data-status="cancelled"]::before {
+      background: #fef2f2;
+      border-color: #991b1b;
+      color: #991b1b;
+      content: '\2717';
+      font-size: 0.875rem;
+    }
+
+    & > li[data-status="denied"] > span,
+    & > li[data-status="cancelled"] > span {
+      color: #991b1b;
+      font-weight: 700;
+    }
+  }
+
+  /* ── Loan status — detail definition list ── */
+
+  #loan-status > section[aria-labelledby="details-heading"] > dl {
+    column-gap: 1.5rem;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    row-gap: 0.625rem;
+
+    & > dt {
+      color: var(--mountain-slate);
+      font-size: 0.813rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding-block-start: 0.125rem;
+      text-transform: uppercase;
+    }
+
+    & > dd {
+      color: var(--mountain-charcoal);
+      font-size: 0.938rem;
+
+      & > a {
+        color: var(--mountain-pine-light);
+        font-weight: 500;
+        text-decoration: none;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-gold);
+          text-decoration: underline;
+        }
+      }
+
+      & > time {
+        white-space: nowrap;
+      }
+
+      & > span[data-status] {
+        border-radius: 1rem;
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1;
+        padding: 0.3rem 0.625rem;
+        text-transform: uppercase;
+      }
+
+      & > span[data-status="on-time"] {
+        background: #f0fdf4;
+        color: #166534;
+      }
+
+      & > span[data-status="due-soon"] {
+        background: #fffbeb;
+        color: #92400e;
+      }
+
+      & > span[data-status="overdue"],
+      & > span[data-status="denied"],
+      & > span[data-status="cancelled"] {
+        background: #fef2f2;
+        color: #991b1b;
+      }
+
+      & > span[data-status="approved"] {
+        background: #eff6ff;
+        color: #1e40af;
+      }
+    }
+  }
+
+  /* ── Loan status — actions section ── */
+
+  #loan-status > section[aria-labelledby="actions-heading"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    & > h2 {
+      flex-basis: 100%;
+    }
+
+    & > form > button {
+      align-items: center;
+      background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+      border: none;
+      border-radius: 0.375rem;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      font-size: 0.875rem;
+      font-weight: 600;
+      gap: 0.4rem;
+      min-height: 2.5rem;
+      padding-block: 0.5rem;
+      padding-inline: 1rem;
+      transition: background 0.2s, transform 0.15s;
+
+      &:is(:hover, :focus-visible) {
+        background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+        transform: scale(1.02);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--mountain-gold);
+        outline-offset: 2px;
+      }
+    }
+
+    & > details {
+      & > summary {
+        align-items: center;
+        background: transparent;
+        border: 1px solid var(--mountain-fog);
+        border-radius: 0.375rem;
+        color: var(--mountain-slate);
+        cursor: pointer;
+        display: inline-flex;
+        font-size: 0.875rem;
+        font-weight: 600;
+        gap: 0.4rem;
+        list-style: none;
+        min-height: 2.5rem;
+        padding-block: 0.5rem;
+        padding-inline: 1rem;
+        transition: border-color 0.2s, color 0.2s;
+
+        &::-webkit-details-marker {
+          display: none;
+        }
+
+        &:is(:hover, :focus-visible) {
+          border-color: var(--mountain-pine-light);
+          color: var(--mountain-pine);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--mountain-gold);
+          outline-offset: 2px;
+        }
+      }
+
+      &[open] > summary {
+        border-color: var(--mountain-pine-light);
+        color: var(--mountain-pine);
+        margin-block-end: 0.5rem;
+      }
+
+      & > form {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 100%;
+        gap: 0.375rem;
+        max-width: 28rem;
+
+        & > label {
+          color: var(--mountain-slate);
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+        }
+
+        & > textarea,
+        & > input[type="number"] {
+          border: 1px solid var(--mountain-fog);
+          border-radius: 0.375rem;
+          font: inherit;
+          font-size: 0.875rem;
+          padding: 0.5rem 0.625rem;
+          transition: border-color 0.2s;
+          width: 100%;
+
+          &:focus {
+            border-color: var(--mountain-pine-light);
+            outline: 2px solid var(--mountain-gold-light);
+            outline-offset: 1px;
+          }
+
+          &::placeholder {
+            color: var(--mountain-mist-light);
+          }
+        }
+
+        & > input[type="number"] {
+          max-width: 8rem;
+        }
+
+        & > button[type="submit"] {
+          align-self: flex-start;
+          background: var(--mountain-pine-light);
+          border: none;
+          border-radius: 0.375rem;
+          color: #fff;
+          cursor: pointer;
+          font-size: 0.813rem;
+          font-weight: 600;
+          margin-block-start: 0.25rem;
+          min-height: 2rem;
+          padding-block: 0.375rem;
+          padding-inline: 0.75rem;
+          transition: background 0.2s;
+
+          &:is(:hover, :focus-visible) {
+            background: var(--mountain-pine);
+          }
+
+          &:focus-visible {
+            outline: 2px solid var(--mountain-gold);
+            outline-offset: 2px;
+          }
+        }
+      }
+    }
+  }
+
   /* ── Lender page tool grid ── */
 
   section[aria-labelledby="listed-tools-heading"] > div[role="list"] {
@@ -506,7 +913,8 @@
   main > section:is(
     [aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]
+    [aria-labelledby="history-heading"],
+    #loan-status
   ) section > p:last-child {
     color: var(--mountain-mist);
   }
@@ -539,12 +947,23 @@
   @media (prefers-reduced-motion: reduce) {
     main > section:is(
       [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"]
+      [aria-labelledby="borrower-heading"],
+      #loan-status
     ) table td > form > button,
     main > section:is(
       [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"]
+      [aria-labelledby="borrower-heading"],
+      #loan-status
     ) table td > details > summary {
+      transition: none;
+    }
+
+    #loan-status > section[aria-labelledby="lifecycle-heading"] > ol > li::before {
+      transition: none;
+    }
+
+    #loan-status > section[aria-labelledby="actions-heading"] > form > button,
+    #loan-status > section[aria-labelledby="actions-heading"] > details > summary {
       transition: none;
     }
   }
@@ -560,14 +979,16 @@
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table thead {
       border-block-end-width: 3px;
     }
 
     main > section:is(
       [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"]
+      [aria-labelledby="borrower-heading"],
+      #loan-status
     ) table td > form > button {
       outline: 1px solid #fff;
       outline-offset: -1px;
@@ -575,7 +996,8 @@
 
     main > section:is(
       [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"]
+      [aria-labelledby="borrower-heading"],
+      #loan-status
     ) table td > details > summary {
       border-width: 2px;
     }
@@ -584,7 +1006,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) > nav[aria-label="Dashboard sections"] {
       border-block-end-width: 3px;
 

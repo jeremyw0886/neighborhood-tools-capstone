@@ -430,7 +430,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) {
       padding-block: 1.25rem;
       padding-inline: 1rem;
@@ -440,7 +441,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) > header > h1 {
       font-size: 1.5rem;
     }
@@ -450,7 +452,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) > nav[aria-label="Dashboard sections"] > ul {
       gap: 0;
     }
@@ -459,7 +462,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) > nav[aria-label="Dashboard sections"] > ul > li > a {
       font-size: 0.813rem;
       padding-inline: 0.625rem;
@@ -492,7 +496,8 @@
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table {
       display: block;
       overflow-x: auto;
@@ -501,17 +506,20 @@
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table thead,
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table tbody,
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table tr {
       display: table;
       table-layout: fixed;
@@ -521,12 +529,14 @@
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table th,
     main > section:is(
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) table td {
       font-size: 0.813rem;
       padding-block: 0.625rem;
@@ -536,15 +546,79 @@
     /* Action buttons — smaller on mobile */
     main > section:is(
       [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"]
+      [aria-labelledby="borrower-heading"],
+      #loan-status
     ) table td > form > button,
     main > section:is(
       [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"]
+      [aria-labelledby="borrower-heading"],
+      #loan-status
     ) table td > details > summary {
       font-size: 0.75rem;
       min-height: 2rem;
       padding-inline: 0.5rem;
+    }
+
+    /* Lifecycle progress — stack vertically on mobile */
+    #loan-status > section[aria-labelledby="lifecycle-heading"] > ol {
+      flex-direction: column;
+      gap: 0;
+
+      & > li {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 0.75rem;
+        padding-block: 0.75rem;
+        text-align: start;
+
+        &::after {
+          background: var(--mountain-fog);
+          height: calc(100% - 2.25rem);
+          left: calc(1.125rem - 1px);
+          top: 2.25rem;
+          width: 2px;
+        }
+
+        &:last-child::after {
+          display: none;
+        }
+      }
+
+      & > li[data-completed]::after {
+        background: var(--mountain-pine);
+      }
+    }
+
+    /* Loan detail dl — single column on mobile */
+    #loan-status > section[aria-labelledby="details-heading"] > dl {
+      grid-template-columns: 1fr;
+      row-gap: 0.25rem;
+
+      & > dt {
+        margin-block-start: 0.5rem;
+      }
+
+      & > dt:first-child {
+        margin-block-start: 0;
+      }
+    }
+
+    /* Loan actions — full width on mobile */
+    #loan-status > section[aria-labelledby="actions-heading"] {
+      flex-direction: column;
+
+      & > form {
+        width: 100%;
+      }
+
+      & > form > button {
+        justify-content: center;
+        width: 100%;
+      }
+
+      & > details {
+        width: 100%;
+      }
     }
 
     /* Lender tool grid — 2 columns */
@@ -559,7 +633,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) {
       padding-inline: 0.75rem;
     }
@@ -575,7 +650,8 @@
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
+      [aria-labelledby="history-heading"],
+      #loan-status
     ) > nav[aria-label="Dashboard sections"] > ul > li > a > i {
       display: none;
     }

@@ -16,7 +16,6 @@ use App\Controllers\DashboardController;
 use App\Controllers\ToolController;
 use App\Controllers\BorrowController;
 use App\Controllers\ProfileController;
-// use App\Controllers\SearchController;
 use App\Controllers\RatingController;
 use App\Controllers\PaymentController;
 use App\Controllers\DisputeController;

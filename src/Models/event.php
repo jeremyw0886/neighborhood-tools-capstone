@@ -119,6 +119,38 @@ class Event
     }
 
     /**
+     * Search upcoming events by name or location for admin global search.
+     *
+     * @return array<int, array{id_evt: int, event_name_evt: string, start_at_evt: string, event_address_evt: ?string, event_timing: string}>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                id_evt,
+                event_name_evt,
+                start_at_evt,
+                event_address_evt,
+                event_timing
+            FROM upcoming_event_v
+            WHERE event_name_evt LIKE CONCAT('%', :term1, '%')
+               OR event_address_evt LIKE CONCAT('%', :term2, '%')
+            ORDER BY start_at_evt ASC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Insert a new event into event_evt with optional key/value metadata.
      *
      * Combines separate date + time inputs into TIMESTAMP columns.

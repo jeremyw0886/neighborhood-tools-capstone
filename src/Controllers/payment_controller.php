@@ -31,24 +31,7 @@ class PaymentController extends BaseController
         }
 
         if ($deposit !== null) {
-            $isBorrower = (int) $deposit['borrower_id'] === $userId;
-            $isLender   = (int) $deposit['lender_id'] === $userId;
-
-            if (!$isBorrower && !$isLender && !$isAdmin) {
-                $this->abort(403);
-            }
-
-            $this->render('payments/deposit', [
-                'title'          => 'Security Deposit — NeighborhoodTools',
-                'description'    => 'View security deposit details and status.',
-                'pageCss'        => ['payment.css'],
-                'deposit'        => $deposit,
-                'isAdmin'        => $isAdmin,
-                'paymentMode'    => false,
-                'depositSuccess' => $this->flash('deposit_success'),
-                'depositErrors'  => $this->flash('deposit_errors', []),
-                'depositOld'     => $this->flash('deposit_old', []),
-            ]);
+            $this->renderDepositView($deposit, $userId, $isAdmin);
             return;
         }
 
@@ -58,6 +41,33 @@ class PaymentController extends BaseController
             $this->abort(404);
         }
 
+        $this->renderPaymentForm($pending, $depositId, $userId, $isAdmin);
+    }
+
+    private function renderDepositView(array $deposit, int $userId, bool $isAdmin): void
+    {
+        $isBorrower = (int) $deposit['borrower_id'] === $userId;
+        $isLender   = (int) $deposit['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender && !$isAdmin) {
+            $this->abort(403);
+        }
+
+        $this->render('payments/deposit', [
+            'title'          => 'Security Deposit — NeighborhoodTools',
+            'description'    => 'View security deposit details and status.',
+            'pageCss'        => ['payment.css'],
+            'deposit'        => $deposit,
+            'isAdmin'        => $isAdmin,
+            'paymentMode'    => false,
+            'depositSuccess' => $this->flash('deposit_success'),
+            'depositErrors'  => $this->flash('deposit_errors', []),
+            'depositOld'     => $this->flash('deposit_old', []),
+        ]);
+    }
+
+    private function renderPaymentForm(array $pending, int $depositId, int $userId, bool $isAdmin): void
+    {
         if ((int) $pending['borrower_id'] !== $userId && !$isAdmin) {
             $this->abort(403);
         }
@@ -102,9 +112,9 @@ class PaymentController extends BaseController
                 $viewData['stripePublishableKey'] = $_ENV['STRIPE_PUBLISHABLE_KEY'];
                 $viewData['cdnJs']                = ['https://js.stripe.com/v3/'];
             } catch (\Stripe\Exception\ApiErrorException $e) {
-                error_log('PaymentController::deposit — Stripe API error: ' . $e->getMessage());
+                error_log('PaymentController::renderPaymentForm — Stripe API error: ' . $e->getMessage());
             } catch (\Throwable $e) {
-                error_log('PaymentController::deposit — ' . $e->getMessage());
+                error_log('PaymentController::renderPaymentForm — ' . $e->getMessage());
             }
         }
 

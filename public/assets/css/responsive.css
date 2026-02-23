@@ -496,7 +496,6 @@
     ) table {
       display: block;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     main > section:is(
@@ -693,7 +692,6 @@
     ) table {
       display: block;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     :is(

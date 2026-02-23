@@ -492,6 +492,24 @@
       width: 100%;
     }
 
+    /* Sort/filter forms — stack vertically */
+    main > section:is(
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]
+    ) form[aria-label*="Sort"] > fieldset {
+      flex-direction: column;
+      align-items: stretch;
+
+      & > label > select {
+        width: 100%;
+      }
+
+      & > button[type="submit"] {
+        align-self: flex-start;
+      }
+    }
+
     /* Tables — horizontal scroll wrapper */
     main > section:is(
       [aria-labelledby="lender-heading"],

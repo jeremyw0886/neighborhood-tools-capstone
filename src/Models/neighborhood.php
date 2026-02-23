@@ -66,6 +66,40 @@ class Neighborhood
     }
 
     /**
+     * Search neighborhoods by name, city, or state for admin global search.
+     *
+     * @return array<int, array{id_nbh: int, neighborhood_name_nbh: string, city_name_nbh: string, state_code_sta: string, active_members: int}>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                id_nbh,
+                neighborhood_name_nbh,
+                city_name_nbh,
+                state_code_sta,
+                active_members
+            FROM neighborhood_summary_fast_v
+            WHERE neighborhood_name_nbh LIKE CONCAT('%', :term1, '%')
+               OR city_name_nbh         LIKE CONCAT('%', :term2, '%')
+               OR state_code_sta        LIKE CONCAT('%', :term3, '%')
+            ORDER BY neighborhood_name_nbh ASC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':term3', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Total neighborhood count for pagination.
      */
     public static function getSummaryCount(): int

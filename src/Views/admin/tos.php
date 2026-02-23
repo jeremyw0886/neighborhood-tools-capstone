@@ -44,6 +44,19 @@ $paginationUrl = static fn(int $pageNum): string =>
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
+  <?php if ($flash !== null): ?>
+    <p data-flash role="status"><?= htmlspecialchars($flash) ?></p>
+  <?php endif; ?>
+
+  <?php if ($isSuperAdmin): ?>
+    <div data-actions>
+      <a href="/admin/tos/create">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Create New Version
+      </a>
+    </div>
+  <?php endif; ?>
+
   <?php if ($currentTos !== null): ?>
     <section aria-labelledby="tos-version-heading">
       <h2 id="tos-version-heading">

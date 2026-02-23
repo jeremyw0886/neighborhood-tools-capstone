@@ -162,10 +162,10 @@ class Event
             ";
 
             $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':name', $name, PDO::PARAM_STR);
             $stmt->bindValue(':description', $description, $description === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->bindValue(':address', $address, $address === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            $stmt->bindValue(':start_at', $startAt);
+            $stmt->bindValue(':start_at', $startAt, PDO::PARAM_STR);
             $stmt->bindValue(':end_at', $endAt, $endAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->bindValue(':neighborhood_id', $neighborhoodId, $neighborhoodId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue(':creator_id', $creatorId, PDO::PARAM_INT);

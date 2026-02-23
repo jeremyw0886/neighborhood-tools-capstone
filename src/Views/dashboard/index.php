@@ -6,6 +6,7 @@
  *   $activeBorrowCount   int     Active borrows (as borrower or lender)
  *   $pendingRequestCount int     Pending borrow requests
  *   $overdueCount        int     Overdue borrows
+ *   $approvedCount       int     Approved borrows awaiting pickup
  *   $listedToolCount     int     Tools this user has listed
  *   $reputation          ?array  Row from user_reputation_v (live)
  *   $adminStats          ?array  {openDisputes, pendingDeposits, openIncidents} — admin only
@@ -92,6 +93,17 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
           </article>
         </li>
       <?php endif; ?>
+
+      <li>
+        <article<?= $approvedCount > 0 ? ' data-warning' : '' ?>>
+          <a href="/dashboard/borrower">
+            <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
+            <h3>Awaiting Pickup</h3>
+            <p><?= htmlspecialchars((string) $approvedCount) ?></p>
+            <span>View details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+        </article>
+      </li>
 
       <li>
         <article>

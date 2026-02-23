@@ -15,9 +15,17 @@ if (form) {
             const paymentElement = elements.create('payment');
             paymentElement.mount('#payment-element');
 
+            let submitting = false;
+            const btnLabel = submitBtn.textContent;
+
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
+
+                if (submitting) return;
+                submitting = true;
+
                 submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing\u2026';
                 messageEl.hidden = true;
 
                 const { error } = await stripe.confirmPayment({
@@ -30,7 +38,9 @@ if (form) {
                 if (error) {
                     messageEl.textContent = error.message;
                     messageEl.hidden = false;
+                    submitBtn.textContent = btnLabel;
                     submitBtn.disabled = false;
+                    submitting = false;
                 }
             });
         }

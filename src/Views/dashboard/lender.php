@@ -5,6 +5,7 @@
  * Variables from DashboardController::lender():
  *   $tools            array  Rows from tool_detail_v for this owner
  *   $incomingRequests array  Pending requests where user is lender
+ *   $awaitingPickup   array  Approved borrows awaiting pickup (lender side)
  *   $lentOut          array  Active borrows where user is lender
  *
  * Shared data:
@@ -67,7 +68,11 @@
         <tbody>
           <?php foreach ($incomingRequests as $req): ?>
             <tr>
-              <td><?= htmlspecialchars($req['tool_name_tol']) ?></td>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $req['id_bor'] ?>">
+                  <?= htmlspecialchars($req['tool_name_tol']) ?>
+                </a>
+              </td>
               <td>
                 <a href="/profile/<?= (int) $req['borrower_id'] ?>">
                   <?= htmlspecialchars($req['borrower_name']) ?>
@@ -122,6 +127,57 @@
     </section>
   <?php endif; ?>
 
+  <?php if (!empty($awaitingPickup)): ?>
+    <section aria-labelledby="awaiting-pickup-heading">
+      <h2 id="awaiting-pickup-heading">
+        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+        Awaiting Pickup (<?= count($awaitingPickup) ?>)
+      </h2>
+
+      <table>
+        <caption class="visually-hidden">Approved borrows awaiting pickup</caption>
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Borrower</th>
+            <th scope="col">Approved</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($awaitingPickup as $pickup): ?>
+            <tr>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $pickup['id_bor'] ?>">
+                  <?= htmlspecialchars($pickup['tool_name_tol']) ?>
+                </a>
+              </td>
+              <td>
+                <a href="/profile/<?= (int) $pickup['borrower_id'] ?>">
+                  <?= htmlspecialchars($pickup['borrower_name']) ?>
+                </a>
+              </td>
+              <td>
+                <time datetime="<?= htmlspecialchars($pickup['approved_at_bor']) ?>">
+                  <?= htmlspecialchars(date('M j, g:ia', strtotime($pickup['approved_at_bor']))) ?>
+                </time>
+              </td>
+              <td><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</td>
+              <td><span data-status="approved">Approved &mdash; awaiting pickup</span></td>
+              <td data-actions>
+                <a href="/handover/<?= (int) $pickup['id_bor'] ?>" role="button">
+                  <i class="fa-solid fa-qrcode" aria-hidden="true"></i> Handover
+                </a>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </section>
+  <?php endif; ?>
+
   <section aria-labelledby="lent-out-heading">
     <h2 id="lent-out-heading">
       <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
@@ -142,8 +198,27 @@
         </thead>
         <tbody>
           <?php foreach ($lentOut as $row): ?>
+            <?php
+              $dueStatus    = $row['due_status'] ?? 'ON TIME';
+              $statusSlug   = match ($dueStatus) {
+                  'OVERDUE'  => 'overdue',
+                  'DUE SOON' => 'due-soon',
+                  default    => 'on-time',
+              };
+              $hoursUntilDue = (int) ($row['hours_until_due'] ?? 0);
+              $dueLabel      = match (true) {
+                  $dueStatus === 'OVERDUE'   => abs($hoursUntilDue) . 'h overdue',
+                  $hoursUntilDue >= 24        => (int) floor($hoursUntilDue / 24) . 'd ' . ($hoursUntilDue % 24) . 'h left',
+                  $hoursUntilDue > 0          => $hoursUntilDue . 'h left',
+                  default                     => 'Due now',
+              };
+            ?>
             <tr>
-              <td><?= htmlspecialchars($row['tool_name_tol']) ?></td>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $row['id_bor'] ?>">
+                  <?= htmlspecialchars($row['tool_name_tol']) ?>
+                </a>
+              </td>
               <td>
                 <a href="/profile/<?= (int) $row['borrower_id'] ?>">
                   <?= htmlspecialchars($row['borrower_name']) ?>
@@ -153,17 +228,10 @@
                 <time datetime="<?= htmlspecialchars($row['due_at_bor']) ?>">
                   <?= htmlspecialchars(date('M j, g:ia', strtotime($row['due_at_bor']))) ?>
                 </time>
+                <small><?= htmlspecialchars($dueLabel) ?></small>
               </td>
               <td>
-                <?php
-                  $status = $row['due_status'] ?? 'ON TIME';
-                  $statusAttr = match ($status) {
-                      'OVERDUE'  => ' data-urgent',
-                      'DUE SOON' => ' data-warning',
-                      default    => '',
-                  };
-                ?>
-                <span<?= $statusAttr ?>><?= htmlspecialchars($status) ?></span>
+                <span data-status="<?= $statusSlug ?>"><?= htmlspecialchars($dueStatus) ?></span>
               </td>
               <td data-actions>
                 <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/return">

@@ -23,7 +23,6 @@
     <form method="post" action="/login" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
-      <!-- Honeypot — hidden from real users, attracts bots -->
       <div aria-hidden="true" style="position:absolute;left:-9999px">
         <label for="website">Leave this empty</label>
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">

@@ -131,7 +131,7 @@ class DisputeController extends BaseController
         }
 
         $userId  = (int) $_SESSION['user_id'];
-        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+        $isAdmin = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
 
         try {
             $dispute = Dispute::findByIdWithContext($disputeId);
@@ -294,7 +294,7 @@ class DisputeController extends BaseController
         }
 
         $userId  = (int) $_SESSION['user_id'];
-        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+        $isAdmin = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
         $message = trim($_POST['message'] ?? '');
         $redirectUrl = '/disputes/' . $disputeId;
 

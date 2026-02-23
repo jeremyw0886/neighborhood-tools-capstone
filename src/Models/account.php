@@ -9,30 +9,67 @@ use PDO;
 
 class Account
 {
-    private const int PER_PAGE = 12;
-
     /**
      * Fetch paginated members with reputation and role data for admin users page.
      *
-     * JOINs user_reputation_fast_v with account_acc and role_rol to surface
-     * the user's role alongside their reputation metrics.
-     *
-     * @return array  Rows with reputation fields plus role_name_rol
+     * @param  string  $sort   Pre-validated column name
+     * @param  string  $dir    Pre-validated direction (ASC|DESC)
+     * @return array   Rows with reputation fields plus role_name_rol
      */
-    public static function getAllForAdmin(int $limit = self::PER_PAGE, int $offset = 0): array
-    {
+    public static function getAllForAdmin(
+        int $limit,
+        int $offset,
+        string $sort = 'full_name',
+        string $dir = 'ASC',
+        ?string $role = null,
+        ?string $status = null,
+        ?string $search = null,
+    ): array {
         $pdo = Database::connection();
+
+        $where  = [];
+        $params = [];
+
+        if ($role !== null) {
+            $where[]        = 'rol.role_name_rol = :role';
+            $params[':role'] = $role;
+        }
+
+        if ($status !== null) {
+            $where[]          = 'r.account_status = :status';
+            $params[':status'] = $status;
+        }
+
+        if ($search !== null) {
+            $where[]            = '(r.full_name LIKE CONCAT(\'%\', :search1, \'%\')
+                                 OR r.email_address_acc LIKE CONCAT(\'%\', :search2, \'%\'))';
+            $params[':search1'] = $search;
+            $params[':search2'] = $search;
+        }
+
+        $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $qualified = match ($sort) {
+            'role_name_rol' => 'rol.role_name_rol',
+            default         => 'r.' . $sort,
+        };
 
         $sql = "
             SELECT r.*, rol.role_name_rol
             FROM user_reputation_fast_v r
             JOIN account_acc a     ON r.id_acc = a.id_acc
             JOIN role_rol rol      ON a.id_rol_acc = rol.id_rol
-            ORDER BY r.full_name ASC
+            $whereClause
+            ORDER BY $qualified $dir
             LIMIT :limit OFFSET :offset
         ";
 
         $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -75,13 +112,51 @@ class Account
     }
 
     /**
-     * Count total members in user_reputation_fast_v for admin pagination.
+     * Count members matching the given filters for admin pagination.
+     *
+     * @return int
      */
-    public static function getActiveCount(): int
-    {
+    public static function getFilteredCount(
+        ?string $role = null,
+        ?string $status = null,
+        ?string $search = null,
+    ): int {
         $pdo = Database::connection();
 
-        return (int) $pdo->query('SELECT COUNT(*) FROM user_reputation_fast_v')->fetchColumn();
+        $joins  = '';
+        $where  = [];
+        $params = [];
+
+        if ($role !== null) {
+            $joins = 'JOIN account_acc a ON r.id_acc = a.id_acc
+                      JOIN role_rol rol  ON a.id_rol_acc = rol.id_rol';
+            $where[]        = 'rol.role_name_rol = :role';
+            $params[':role'] = $role;
+        }
+
+        if ($status !== null) {
+            $where[]          = 'r.account_status = :status';
+            $params[':status'] = $status;
+        }
+
+        if ($search !== null) {
+            $where[]            = '(r.full_name LIKE CONCAT(\'%\', :search1, \'%\')
+                                 OR r.email_address_acc LIKE CONCAT(\'%\', :search2, \'%\'))';
+            $params[':search1'] = $search;
+            $params[':search2'] = $search;
+        }
+
+        $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_reputation_fast_v r $joins $whereClause");
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
     }
 
     /**

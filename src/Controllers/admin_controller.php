@@ -72,11 +72,14 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const array USERS_SORT_FIELDS     = ['full_name', 'role_name_rol', 'account_status', 'overall_avg_rating', 'tools_owned', 'member_since'];
+    private const array USERS_ALLOWED_ROLES    = ['member', 'admin', 'super_admin'];
+    private const array USERS_ALLOWED_STATUSES = ['active', 'suspended', 'pending'];
+
     /**
-     * User management — paginated list of platform members.
+     * User management — paginated, sortable, filterable list of platform members.
      *
-     * Queries user_reputation_fast_v for a paginated table with ratings
-     * and activity summaries. Pending rows surface approve/deny actions.
+     * Accepts `?q`, `?role`, `?status`, `?sort`, `?dir` query params.
      */
     public function users(): void
     {
@@ -85,13 +88,30 @@ class AdminController extends BaseController
         $flash = $_SESSION['admin_users_flash'] ?? null;
         unset($_SESSION['admin_users_flash']);
 
+        $search     = $this->parseSearchQuery();
+        $sortParams = $this->parseSortParams('', self::USERS_SORT_FIELDS, 'full_name', 'ASC');
+
+        $rawRole = $_GET['role'] ?? '';
+        $role    = in_array($rawRole, self::USERS_ALLOWED_ROLES, true) ? $rawRole : null;
+
+        $rawStatus = $_GET['status'] ?? '';
+        $status    = in_array($rawStatus, self::USERS_ALLOWED_STATUSES, true) ? $rawStatus : null;
+
         try {
             $page       = max(1, (int) ($_GET['page'] ?? 1));
-            $totalCount = Account::getActiveCount();
+            $totalCount = Account::getFilteredCount($role, $status, $search);
             $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
             $page       = min($page, $totalPages);
             $offset     = ($page - 1) * self::PER_PAGE;
-            $users      = Account::getAllForAdmin(self::PER_PAGE, $offset);
+            $users      = Account::getAllForAdmin(
+                limit:  self::PER_PAGE,
+                offset: $offset,
+                sort:   $sortParams['sort'],
+                dir:    $sortParams['dir'],
+                role:   $role,
+                status: $status,
+                search: $search,
+            );
         } catch (\Throwable $e) {
             error_log('AdminController::users — ' . $e->getMessage());
             $page       = 1;
@@ -100,16 +120,30 @@ class AdminController extends BaseController
             $users      = [];
         }
 
+        $filterParams = array_filter([
+            'q'      => $search,
+            'role'   => $role,
+            'status' => $status,
+            'sort'   => $sortParams['sort'],
+            'dir'    => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
+
         $this->render('admin/users', [
-            'title'       => 'Manage Users — NeighborhoodTools',
-            'description' => 'View and manage platform members.',
-            'pageCss'     => ['admin.css'],
-            'users'       => $users,
-            'totalCount'  => $totalCount,
-            'page'        => $page,
-            'totalPages'  => $totalPages,
-            'perPage'     => self::PER_PAGE,
-            'flash'       => $flash,
+            'title'        => 'Manage Users — NeighborhoodTools',
+            'description'  => 'View and manage platform members.',
+            'pageCss'      => ['admin.css'],
+            'users'        => $users,
+            'totalCount'   => $totalCount,
+            'page'         => $page,
+            'totalPages'   => $totalPages,
+            'perPage'      => self::PER_PAGE,
+            'flash'        => $flash,
+            'search'       => $search,
+            'role'         => $role,
+            'status'       => $status,
+            'sort'         => $sortParams['sort'],
+            'dir'          => $sortParams['dir'],
+            'filterParams' => $filterParams,
         ]);
     }
 

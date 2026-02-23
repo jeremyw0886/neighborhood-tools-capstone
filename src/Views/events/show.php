@@ -138,7 +138,7 @@ $days = (int) $event['days_until_event'];
         <i class="fa-solid fa-users" aria-hidden="true"></i>
         Attending
       </dt>
-      <dd><?= $attendeeCount ?> <?= $attendeeCount === 1 ? 'person' : 'people' ?></dd>
+      <dd><?= htmlspecialchars((string) $attendeeCount) ?> <?= $attendeeCount === 1 ? 'person' : 'people' ?></dd>
     </div>
   </dl>
 

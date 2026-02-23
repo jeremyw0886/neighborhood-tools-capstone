@@ -177,6 +177,11 @@ class BaseController
         $session = $_SESSION['csrf_token'] ?? '';
 
         if ($session === '' || !hash_equals($session, $posted)) {
+            if (empty($_SESSION['logged_in'])) {
+                $_SESSION['auth_error'] = 'Your session has expired. Please log in again.';
+                $this->redirect('/login');
+            }
+
             $this->abort(403);
         }
     }

@@ -91,6 +91,10 @@
         &[data-unread] {
           border-inline-start: 3px solid var(--mountain-gold);
 
+          & > article {
+            padding-inline-start: calc(1rem - 3px);
+          }
+
           & article > div > a > h2,
           & article > div > h2 {
             font-weight: 700;

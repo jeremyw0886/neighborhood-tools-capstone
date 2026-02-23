@@ -246,6 +246,8 @@ class BaseController
     {
         http_response_code($code);
 
+        extract($this->getSharedData());
+
         $errorPage = match ($code) {
             403 => BASE_PATH . '/src/Views/errors/403.php',
             404 => BASE_PATH . '/src/Views/errors/404.php',

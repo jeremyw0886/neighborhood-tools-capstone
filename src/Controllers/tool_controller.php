@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Models\AvailabilityBlock;
 use App\Models\Bookmark;
 use App\Models\Tool;
 
@@ -766,5 +767,211 @@ class ToolController extends BaseController
         }
 
         return null;
+    }
+
+    /**
+     * Show availability blocks for a tool (owner-only).
+     */
+    public function availability(string $id): void
+    {
+        $this->requireAuth();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::availability — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        $blocks = [];
+
+        try {
+            $blocks = AvailabilityBlock::getForTool($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::availability blocks — ' . $e->getMessage());
+        }
+
+        $this->render('tools/availability', [
+            'title'   => 'Manage Availability — ' . $tool['tool_name_tol'],
+            'pageCss' => ['tools.css'],
+            'tool'    => $tool,
+            'blocks'  => $blocks,
+            'errors'  => $this->flash('avb_errors', []),
+            'old'     => $this->flash('avb_old', []),
+            'success' => $this->flash('avb_success', ''),
+        ]);
+    }
+
+    /**
+     * Add an admin availability block to a tool.
+     */
+    public function addBlock(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::addBlock fetch — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        $startAt = trim($_POST['start_at'] ?? '');
+        $endAt   = trim($_POST['end_at'] ?? '');
+        $notes   = trim($_POST['notes'] ?? '');
+
+        $errors = [];
+
+        if ($startAt === '') {
+            $errors['start_at'] = 'Start date is required.';
+        } elseif (strtotime($startAt) === false) {
+            $errors['start_at'] = 'Start date is not a valid date.';
+        }
+
+        if ($endAt === '') {
+            $errors['end_at'] = 'End date is required.';
+        } elseif (strtotime($endAt) === false) {
+            $errors['end_at'] = 'End date is not a valid date.';
+        }
+
+        if ($errors === [] && strtotime($endAt) <= strtotime($startAt)) {
+            $errors['end_at'] = 'End date must be after the start date.';
+        }
+
+        if (!isset($errors['start_at']) && $startAt !== '' && strtotime($startAt) < strtotime('today')) {
+            $errors['start_at'] = 'Start date cannot be in the past.';
+        }
+
+        if (mb_strlen($notes) > 500) {
+            $errors['notes'] = 'Notes must be 500 characters or fewer.';
+        }
+
+        $oldInput = [
+            'start_at' => $startAt,
+            'end_at'   => $endAt,
+            'notes'    => $notes,
+        ];
+
+        if ($errors !== []) {
+            $_SESSION['avb_errors'] = $errors;
+            $_SESSION['avb_old'] = $oldInput;
+            $this->redirect('/tools/' . $toolId . '/availability');
+        }
+
+        try {
+            AvailabilityBlock::create(
+                toolId: $toolId,
+                startAt: date('Y-m-d 00:00:00', strtotime($startAt)),
+                endAt: date('Y-m-d 23:59:59', strtotime($endAt)),
+                notes: $notes !== '' ? $notes : null,
+            );
+
+            $_SESSION['avb_success'] = 'Availability block added.';
+        } catch (\Throwable $e) {
+            error_log('ToolController::addBlock — ' . $e->getMessage());
+            $_SESSION['avb_errors'] = ['general' => 'Something went wrong adding the block. Please try again.'];
+            $_SESSION['avb_old'] = $oldInput;
+        }
+
+        $this->redirect('/tools/' . $toolId . '/availability');
+    }
+
+    /**
+     * Remove an admin availability block from a tool.
+     */
+    public function removeBlock(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::removeBlock fetch — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        $blockId = (int) ($_POST['block_id'] ?? 0);
+
+        if ($blockId < 1) {
+            $this->abort(404);
+        }
+
+        $block = null;
+
+        try {
+            $block = AvailabilityBlock::findById($blockId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::removeBlock block — ' . $e->getMessage());
+        }
+
+        if ($block === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $block['id_tol_avb'] !== $toolId) {
+            $this->abort(403);
+        }
+
+        if ($block['block_type'] !== 'admin') {
+            $_SESSION['avb_errors'] = ['general' => 'System-managed borrow blocks cannot be removed.'];
+            $this->redirect('/tools/' . $toolId . '/availability');
+        }
+
+        try {
+            AvailabilityBlock::delete($blockId);
+            $_SESSION['avb_success'] = 'Availability block removed.';
+        } catch (\Throwable $e) {
+            error_log('ToolController::removeBlock — ' . $e->getMessage());
+            $_SESSION['avb_errors'] = ['general' => 'Something went wrong removing the block. Please try again.'];
+        }
+
+        $this->redirect('/tools/' . $toolId . '/availability');
     }
 }

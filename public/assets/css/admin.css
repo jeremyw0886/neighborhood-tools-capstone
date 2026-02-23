@@ -2310,28 +2310,48 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
-    main > section[aria-labelledby="admin-heading"] a,
-    main > section[aria-labelledby="admin-users-heading"] a,
-    main > section[aria-labelledby="admin-disputes-heading"] a,
-    main > section[aria-labelledby="admin-events-heading"] a,
-    main > section[aria-labelledby="admin-incidents-heading"] a,
-    main > section[aria-labelledby="admin-tools-heading"] a,
-    main > section[aria-labelledby="admin-categories-heading"] a,
-    main > section[aria-labelledby="admin-tos-heading"] a,
-    main > section[aria-labelledby="admin-reports-heading"] a,
+    main > section:is(
+      [aria-labelledby="admin-heading"],
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-incidents-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-reports-heading"]
+    ) a,
     nav[aria-label="Admin navigation"] a {
       transition: none;
     }
 
-    main > section[aria-labelledby="admin-users-heading"] :is(tbody tr, button),
-    main > section[aria-labelledby="admin-disputes-heading"] > div[role="list"] > article,
-    main > section[aria-labelledby="admin-events-heading"] tbody tr,
-    main > section[aria-labelledby="admin-incidents-heading"] > div[role="list"] > article,
-    main > section[aria-labelledby="admin-tools-heading"] tbody tr,
-    main > section[aria-labelledby="admin-categories-heading"] :is(tbody tr, button, div[data-vector-grid] > article),
-    main > section[aria-labelledby="admin-tos-heading"] tbody tr,
-    main > section[aria-labelledby="admin-reports-heading"] tbody tr,
+    main > section:is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-reports-heading"]
+    ) tbody tr,
     section[aria-labelledby="admin-trends-heading"] tbody tr {
+      transition: none;
+    }
+
+    main > section:is(
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-categories-heading"]
+    ) button {
+      transition: none;
+    }
+
+    main > section:is(
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-incidents-heading"]
+    ) > div[role="list"] > article {
+      transition: none;
+    }
+
+    main > section[aria-labelledby="admin-categories-heading"] div[data-vector-grid] > article {
       transition: none;
     }
   }
@@ -2351,8 +2371,10 @@
       border-width: 2px;
     }
 
-    main > section[aria-labelledby="admin-disputes-heading"] > div[role="list"] > article,
-    main > section[aria-labelledby="admin-incidents-heading"] > div[role="list"] > article {
+    main > section:is(
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-incidents-heading"]
+    ) > div[role="list"] > article {
       border-width: 2px;
     }
 

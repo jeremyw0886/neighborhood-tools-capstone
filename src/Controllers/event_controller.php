@@ -302,7 +302,7 @@ class EventController extends BaseController
             $meta = [];
         }
 
-        $isAdmin       = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin'], true);
+        $isAdmin       = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
         $isAttending   = false;
         $attendeeCount = 0;
 

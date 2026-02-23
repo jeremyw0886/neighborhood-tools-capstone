@@ -3,9 +3,10 @@
  * Dashboard — Borrower sub-page: active borrows, outgoing requests, overdue items.
  *
  * Variables from DashboardController::borrower():
- *   $borrows   array  Active borrows where user is the borrower
- *   $requests  array  Pending requests where user is the borrower
- *   $overdue   array  Overdue borrows where user is the borrower
+ *   $borrows          array  Active borrows where user is the borrower
+ *   $requests         array  Pending requests where user is the borrower
+ *   $overdue          array  Overdue borrows where user is the borrower
+ *   $awaitingPickup   array  Approved borrows awaiting pickup (borrower side)
  *
  * Shared data:
  *   $authUser  array{id, name, first_name, role, avatar}
@@ -62,7 +63,11 @@
         <tbody>
           <?php foreach ($overdue as $row): ?>
             <tr>
-              <td><?= htmlspecialchars($row['tool_name_tol']) ?></td>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $row['id_bor'] ?>">
+                  <?= htmlspecialchars($row['tool_name_tol']) ?>
+                </a>
+              </td>
               <td>
                 <a href="/profile/<?= (int) $row['lender_id'] ?>">
                   <?= htmlspecialchars($row['lender_name']) ?>
@@ -81,6 +86,75 @@
                     ? $daysOverdue . ' day' . ($daysOverdue !== 1 ? 's' : '')
                     : $hoursOverdue . ' hour' . ($hoursOverdue !== 1 ? 's' : '');
                 ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </section>
+  <?php endif; ?>
+
+  <?php if (!empty($awaitingPickup)): ?>
+    <section aria-labelledby="awaiting-pickup-heading">
+      <h2 id="awaiting-pickup-heading">
+        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+        Awaiting Pickup (<?= count($awaitingPickup) ?>)
+      </h2>
+
+      <table>
+        <caption class="visually-hidden">Approved borrows ready for pickup</caption>
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Lender</th>
+            <th scope="col">Approved</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($awaitingPickup as $pickup): ?>
+            <tr>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $pickup['id_bor'] ?>">
+                  <?= htmlspecialchars($pickup['tool_name_tol']) ?>
+                </a>
+              </td>
+              <td>
+                <a href="/profile/<?= (int) $pickup['lender_id'] ?>">
+                  <?= htmlspecialchars($pickup['lender_name']) ?>
+                </a>
+              </td>
+              <td>
+                <time datetime="<?= htmlspecialchars($pickup['approved_at_bor']) ?>">
+                  <?= htmlspecialchars(date('M j, g:ia', strtotime($pickup['approved_at_bor']))) ?>
+                </time>
+              </td>
+              <td><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</td>
+              <td><span data-status="approved">Approved &mdash; ready for pickup</span></td>
+              <td data-actions>
+                <a href="/handover/<?= (int) $pickup['id_bor'] ?>" role="button">
+                  <i class="fa-solid fa-qrcode" aria-hidden="true"></i> Handover
+                </a>
+                <details>
+                  <summary>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
+                  </summary>
+                  <form method="post" action="/borrow/<?= (int) $pickup['id_bor'] ?>/cancel">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <label for="cancel-reason-<?= (int) $pickup['id_bor'] ?>">Reason</label>
+                    <textarea
+                      id="cancel-reason-<?= (int) $pickup['id_bor'] ?>"
+                      name="reason"
+                      required
+                      maxlength="1000"
+                      rows="2"
+                      placeholder="Why are you cancelling?"
+                    ></textarea>
+                    <button type="submit">Cancel Request</button>
+                  </form>
+                </details>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -109,7 +183,11 @@
         <tbody>
           <?php foreach ($borrows as $row): ?>
             <tr>
-              <td><?= htmlspecialchars($row['tool_name_tol']) ?></td>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $row['id_bor'] ?>">
+                  <?= htmlspecialchars($row['tool_name_tol']) ?>
+                </a>
+              </td>
               <td>
                 <a href="/profile/<?= (int) $row['lender_id'] ?>">
                   <?= htmlspecialchars($row['lender_name']) ?>
@@ -164,7 +242,11 @@
         <tbody>
           <?php foreach ($requests as $req): ?>
             <tr>
-              <td><?= htmlspecialchars($req['tool_name_tol']) ?></td>
+              <td>
+                <a href="/dashboard/loan/<?= (int) $req['id_bor'] ?>">
+                  <?= htmlspecialchars($req['tool_name_tol']) ?>
+                </a>
+              </td>
               <td>
                 <a href="/profile/<?= (int) $req['lender_id'] ?>">
                   <?= htmlspecialchars($req['lender_name']) ?>

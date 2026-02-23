@@ -21,7 +21,7 @@ class PaymentController extends BaseController
         }
 
         $userId  = (int) $_SESSION['user_id'];
-        $isAdmin = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+        $isAdmin = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
 
         try {
             $deposit = Deposit::findById($depositId);
@@ -503,7 +503,7 @@ class PaymentController extends BaseController
         $page       = max(1, (int) ($_GET['page'] ?? 1));
         $offset     = ($page - 1) * $perPage;
         $userId     = (int) $_SESSION['user_id'];
-        $isAdmin    = in_array($_SESSION['user_role'], ['admin', 'super_admin'], true);
+        $isAdmin    = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
 
         $totalCount = Deposit::getHistoryCount($userId, $isAdmin);
         $totalPages = (int) ceil($totalCount / $perPage) ?: 1;

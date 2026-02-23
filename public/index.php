@@ -48,11 +48,13 @@ date_default_timezone_set($appConfig['timezone']);
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
 
+$sessionLifetime = (int) ($_ENV['SESSION_LIFETIME'] ?? 1800);
+
 $sessionOptions = [
     'cookie_httponly'  => true,
     'cookie_samesite'  => 'Lax',
     'cookie_secure'    => $isHttps,
-    'gc_maxlifetime'   => 1800,
+    'gc_maxlifetime'   => $sessionLifetime,
     'cookie_lifetime'  => 0,
 ];
 
@@ -60,7 +62,7 @@ session_cache_limiter('');
 session_start($sessionOptions);
 
 if (isset($_SESSION['last_activity'])
-    && (time() - $_SESSION['last_activity']) > 1800
+    && (time() - $_SESSION['last_activity']) > $sessionLifetime
 ) {
     session_unset();
     session_destroy();

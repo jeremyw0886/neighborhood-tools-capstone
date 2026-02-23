@@ -20,3 +20,4 @@
     <li><a href="/admin/tos"<?= $currentPage === '/admin/tos' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-file-contract" aria-hidden="true"></i> TOS</a></li>
   </ul>
 </nav>
+<?php require BASE_PATH . '/src/Views/partials/admin-search.php'; ?>

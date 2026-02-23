@@ -83,9 +83,8 @@ class ProfileController extends BaseController
             $reputation = null;
         }
 
-        $shared = $this->getSharedData();
-        $isOwnProfile = $shared['isLoggedIn']
-            && $shared['authUser']['id'] === $id;
+        $isOwnProfile = !empty($_SESSION['logged_in'])
+            && (int) $_SESSION['user_id'] === $id;
 
         $page   = max(1, (int) ($_GET['page'] ?? 1));
         $offset = ($page - 1) * self::PER_PAGE;

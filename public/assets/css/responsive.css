@@ -389,23 +389,23 @@
     }
   }
 
-  /* ── Tool create/edit forms ── */
+  /* ── Tool create/edit/availability forms ── */
 
   @media (max-width: 640px) {
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
       padding-block: 1.25rem;
       padding-inline: 1rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) > header > h1 {
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) > header > h1 {
       font-size: 1.5rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) fieldset {
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
       padding: 1rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) form > button[type="submit"] {
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) form > button[type="submit"] {
       align-self: stretch;
       justify-content: center;
       width: 100%;
@@ -413,11 +413,11 @@
   }
 
   @media (max-width: 400px) {
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
       padding-inline: 0.75rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) fieldset {
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
       border-radius: 0.75rem;
       padding: 0.75rem;
     }

@@ -480,7 +480,6 @@ class ToolController extends BaseController
         if ((int) $tool['owner_id'] === $userId) {
             $_SESSION['bookmark_flash'] = 'You cannot bookmark your own tool.';
             $this->redirect('/tools/' . $toolId);
-            return;
         }
 
         try {

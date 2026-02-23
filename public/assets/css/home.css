@@ -24,8 +24,6 @@
       align-items: stretch;
       display: flex;
       flex-direction: row;
-      max-width: 1400px;
-      width: 100%;
     }
 
     & > main {
@@ -33,7 +31,7 @@
       flex: 1;
       margin-inline: auto;
       max-width: 1275px;
-      overflow: hidden;
+      overflow: clip;
       padding-inline: 1.5rem;
     }
   }
@@ -44,16 +42,17 @@
         var(--mountain-pine-dark) 0%,
         var(--mountain-pine) 40%,
         var(--mountain-pine-light) 100%);
-    border-radius: 0 0 2rem 0;
+    border-end-end-radius: 2rem;
     color: #fff;
     display: flex;
     flex: 2.8;
     flex-direction: column;
     gap: 0.5rem;
+    max-width: 70%;
+    min-width: 0;
     padding-block-end: 2rem;
     padding-inline: 1.5rem;
     position: relative;
-    max-width: 70%;
 
     & a {
       color: var(--mountain-cream);
@@ -139,7 +138,7 @@
     & > h1 {
       color: #fff;
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 2.75rem;
+      font-size: clamp(1.35rem, 0.75rem + 2.3vw, 2.75rem);
       font-weight: 700;
       letter-spacing: -0.02em;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
@@ -147,7 +146,7 @@
 
     & > p {
       color: var(--mountain-cream);
-      font-size: 1.1rem;
+      font-size: clamp(0.85rem, 0.73rem + 0.5vw, 1.1rem);
       opacity: 0.95;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     }
@@ -278,7 +277,7 @@
       color: var(--mountain-pine);
       display: flex;
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.75rem;
+      font-size: clamp(1rem, 0.325rem + 2.7vw, 1.75rem);
       font-weight: 700;
       gap: 0.375rem;
       justify-content: center;
@@ -512,12 +511,11 @@
     padding-block: var(--section-pad-block);
     padding-inline: 1.5rem;
     position: relative;
-    -webkit-overflow-scrolling: touch;
 
     & > h2 {
       color: var(--mountain-pine);
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 2rem;
+      font-size: clamp(1.25rem, 0.8rem + 1.6vw, 2rem);
       font-weight: 700;
       margin-block-end: 1.25rem;
       text-align: center;
@@ -536,10 +534,10 @@
       overflow-x: auto;
       overscroll-behavior-x: contain;
       padding-block: 0.5rem 0.75rem;
+      scroll-padding-inline: 1rem;
       scroll-snap-type: x mandatory;
       scrollbar-gutter: stable both-edges;
       scrollbar-width: thin;
-      -webkit-overflow-scrolling: touch;
     }
 
     /* Keep carousel cards at desktop proportions across all breakpoints */
@@ -550,17 +548,6 @@
 
     & > div > article > figure {
       height: 180px;
-    }
-
-    &::after {
-      background: transparent;
-      content: '';
-      height: calc(100% - var(--section-pad-block));
-      inset-block-end: 0;
-      inset-inline-end: 0;
-      pointer-events: none;
-      position: absolute;
-      width: 3rem;
     }
   }
 
@@ -578,7 +565,7 @@
     & > h2 {
       color: var(--mountain-pine);
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 2rem;
+      font-size: clamp(1.25rem, 0.8rem + 1.6vw, 2rem);
       font-weight: 700;
       margin-block-end: 1.25rem;
       text-align: center;
@@ -603,14 +590,15 @@
     align-items: center;
     background: var(--mountain-cloud);
     border: 1px solid rgba(139, 133, 120, 0.2);
-    position: relative;
-    border-radius: 1.5rem 0 1.5rem 0;
+    border-end-end-radius: 1.5rem;
+    border-start-start-radius: 1.5rem;
     color: inherit;
     display: flex;
     flex: 1;
     flex-direction: column;
     padding-block: 1.5rem;
     padding-inline: 1rem;
+    position: relative;
     text-align: center;
     text-decoration: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
@@ -618,7 +606,12 @@
     &:hover {
       border-color: var(--mountain-gold);
       box-shadow: 0 8px 24px var(--shadow-mountain);
-      transform: translateY(-6px);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        transform: translateY(-6px);
+      }
     }
 
     & > span {
@@ -720,7 +713,7 @@
     }
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     .carousel-dots:not([hidden]) {
       display: flex;
     }
@@ -746,15 +739,15 @@
   /* Tablet / narrow desktop */
   @media (max-width: 1024px) {
     .home-page {
+      display: flex;
+      flex-direction: column;
       max-width: 100%;
       width: auto;
     }
 
-    .home-page > header {
-      flex-direction: column;
-      gap: 1.5rem;
-      max-width: 100%;
-      width: 100%;
+    .home-page > header,
+    .home-page > main {
+      display: contents;
     }
 
     .home-page > header > section {
@@ -772,12 +765,6 @@
       height: 280px;
       max-height: 280px;
       max-width: 100%;
-      width: 100%;
-    }
-
-    .home-page > main {
-      max-width: 100%;
-      padding: 1.25rem 1rem;
       width: 100%;
     }
 
@@ -801,16 +788,6 @@
     }
 
     /* Reorder: hero → picks → members → neighbors */
-    .home-page {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .home-page > header,
-    .home-page > main {
-      display: contents;
-    }
-
     .home-page > header > section[aria-label="Hero section"] {
       order: 1;
     }
@@ -867,14 +844,6 @@
       inset-inline: -1rem;
     }
 
-    .home-page > header > section > section > h1 {
-      font-size: 1.75rem;
-    }
-
-    .home-page > header > section > section > p {
-      font-size: 0.95rem;
-    }
-
     .home-page > header > section > section > div {
       align-items: center;
       flex-direction: column;
@@ -899,8 +868,7 @@
     .home-page > header > aside > h2,
     .home-page > main > section:first-of-type > h2,
     .home-page > main > section:last-of-type > h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
+      margin-block-end: 1rem;
     }
 
     .home-page > main > section:first-of-type > div {
@@ -913,9 +881,9 @@
       overflow-x: auto;
       overscroll-behavior-x: contain;
       padding-block-start: 0.5rem;
+      scroll-padding-inline: 1rem;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
     }
 
     .home-page > main > section:last-of-type > div::-webkit-scrollbar {
@@ -982,21 +950,13 @@
   /* Small phone */
   @media (max-width: 400px) {
     .home-page > header > section {
-      border-radius: 0 0 1rem 0;
+      border-end-end-radius: 1rem;
       gap: 1rem;
       padding: 0.75rem 0.75rem 1.25rem;
     }
 
     .home-page > header > section > nav.js-nav > #top-links {
       inset-inline: -0.75rem;
-    }
-
-    .home-page > header > section > section > h1 {
-      font-size: 1.35rem;
-    }
-
-    .home-page > header > section > section > p {
-      font-size: 0.85rem;
     }
 
     .home-page > header > section > section > div > a {
@@ -1018,11 +978,6 @@
       padding: 0.5rem 0.875rem;
     }
 
-    .home-page > main > section:first-of-type > h2,
-    .home-page > main > section:last-of-type > h2 {
-      font-size: 1.25rem;
-    }
-
     .home-page > main > section:last-of-type > div > a {
       padding: 1rem 0.75rem;
     }
@@ -1036,10 +991,6 @@
       height: 240px;
       max-height: 240px;
       padding: 0.75rem;
-    }
-
-    .home-page > header > aside > h2 {
-      font-size: 1rem;
     }
 
     .home-page > header > aside article img {
@@ -1065,6 +1016,37 @@
 
     .home-page > header > aside article a[role="button"] > i {
       font-size: 0.9rem;
+    }
+  }
+
+  /* ── HIGH CONTRAST ── */
+  @media (prefers-contrast: more) {
+    .home-page > header > section {
+      background: var(--mountain-pine-dark);
+    }
+
+    .home-page > header > section > section > h1 {
+      text-shadow: none;
+    }
+
+    .home-page > header > section > section > p {
+      opacity: 1;
+      text-shadow: none;
+    }
+
+    .home-page > header > aside article {
+      border-color: var(--mountain-slate);
+    }
+
+    .home-page > main > section:last-of-type > div > a {
+      border-color: var(--mountain-slate);
+    }
+  }
+
+  /* ── REDUCED MOTION — disable hover lifts ── */
+  @media (prefers-reduced-motion: reduce) {
+    .home-page > main > section:last-of-type > div > a:hover {
+      transform: none;
     }
   }
 

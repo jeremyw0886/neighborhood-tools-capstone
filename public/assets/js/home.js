@@ -3,17 +3,17 @@
 /**
  * Neighbor carousel — progressive enhancement for mobile.
  *
- * At ≤640px the CSS makes the neighbor grid a horizontal scroll-snap
+ * At ≤700px the CSS makes the neighbor grid a horizontal scroll-snap
  * container showing one card at a time. This script adds clickable dot
  * indicators and keeps them in sync via IntersectionObserver.
  *
- * The dot nav is only inserted into the DOM at ≤640px and removed
+ * The dot nav is only inserted into the DOM at ≤700px and removed
  * above that breakpoint — no CSS hide/show needed.
  *
  * Without JS the cards still scroll and snap — dots simply won't appear.
  */
 (function () {
-  const MQ = window.matchMedia('(max-width: 640px)');
+  const MQ = window.matchMedia('(max-width: 700px)');
   const section = document.querySelector('[aria-labelledby="neighbors-heading"]');
   if (!section) return;
 

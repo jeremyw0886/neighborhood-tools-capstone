@@ -9,7 +9,7 @@ $bookmarkFlash    ??= '';
 ?>
 
 <div class="home-page">
-  <header>
+  <header role="banner">
     <section aria-label="Hero section">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
       <section aria-labelledby="hero-heading">
@@ -93,7 +93,7 @@ $bookmarkFlash    ??= '';
     </aside>
   </header>
 
-  <main id="main-content">
+  <main id="main-content" role="main">
     <?php if (!empty($bookmarkFlash)): ?>
       <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
     <?php endif; ?>

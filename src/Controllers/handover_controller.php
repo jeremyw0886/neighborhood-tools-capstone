@@ -137,7 +137,7 @@ class HandoverController extends BaseController
         $storedCode = strtoupper($handover['verification_code_hov']);
         $inputCode  = strtoupper($code);
 
-        if (!hash_equals($storedCode, str_pad($inputCode, strlen($storedCode)))) {
+        if (!hash_equals($storedCode, $inputCode)) {
             $_SESSION['handover_errors'] = ['code' => 'Incorrect verification code. Please try again.'];
             $_SESSION['handover_old'] = ['code' => $code, 'condition_notes' => $conditionNotes];
             $this->redirect('/handover/' . $id);

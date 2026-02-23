@@ -192,4 +192,10 @@ $fuelTypes         ??= [];
     </button>
   </form>
 
+  <nav aria-label="Related actions">
+    <a href="/tools/<?= (int) $tool['id_tol'] ?>/availability">
+      <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i> Manage Availability
+    </a>
+  </nav>
+
 </section>

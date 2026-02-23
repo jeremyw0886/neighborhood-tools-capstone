@@ -540,10 +540,15 @@ class AuthController extends BaseController
             'X-Mailer: PHP/' . PHP_VERSION,
         ]);
 
-        $sent = @mail($to, $subject, $body, $headers);
+        try {
+            $sent = mail($to, $subject, $body, $headers);
+        } catch (\Throwable $e) {
+            error_log("Password reset email exception for {$to}: {$e->getMessage()}");
+            return;
+        }
 
         if (!$sent) {
-            error_log("Password reset email failed for {$to} — link: {$resetUrl}");
+            error_log("Password reset email failed for {$to}");
         }
     }
 

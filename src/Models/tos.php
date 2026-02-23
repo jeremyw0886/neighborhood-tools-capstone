@@ -104,6 +104,37 @@ class Tos
     }
 
     /**
+     * Create a new TOS version, superseding the current active one.
+     *
+     * @param string  $version     Version identifier (e.g. "2.0")
+     * @param string  $title       Document title
+     * @param string  $content     Full TOS text
+     * @param ?string $summary     Plain-language summary
+     * @param string  $effectiveAt MySQL TIMESTAMP string
+     * @param int     $createdBy   Account ID of the creating admin
+     */
+    public static function createVersion(
+        string $version,
+        string $title,
+        string $content,
+        ?string $summary,
+        string $effectiveAt,
+        int $createdBy,
+    ): void {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('CALL sp_create_tos_version(:version, :title, :content, :summary, :effective_at, :created_by)');
+        $stmt->bindValue(':version', $version);
+        $stmt->bindValue(':title', $title);
+        $stmt->bindValue(':content', $content);
+        $stmt->bindValue(':summary', $summary, $summary === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':effective_at', $effectiveAt);
+        $stmt->bindValue(':created_by', $createdBy, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    /**
      * Record a user's acceptance of a TOS version.
      *
      * Captures IP address and user agent for the audit trail.

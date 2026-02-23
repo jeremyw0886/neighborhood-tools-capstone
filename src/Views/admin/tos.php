@@ -20,6 +20,11 @@
  *   $backUrl      string
  */
 
+$flash      = $_SESSION['admin_tos_flash'] ?? null;
+unset($_SESSION['admin_tos_flash']);
+
+$isSuperAdmin = ($authUser['role'] ?? '') === 'super_admin';
+
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 

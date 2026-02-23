@@ -41,6 +41,40 @@ class Account
     }
 
     /**
+     * Search accounts by name or email for admin global search.
+     *
+     * @return array<int, array{id_acc: int, full_name: string, email_address_acc: string, role_name_rol: string, account_status: string}>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                a.id_acc,
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
+                a.email_address_acc,
+                r.role_name_rol,
+                ast.status_name_ast AS account_status
+            FROM active_account_v a
+            JOIN role_rol r             ON a.id_rol_acc = r.id_rol
+            JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+            WHERE CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :term1, '%')
+               OR a.email_address_acc LIKE CONCAT('%', :term2, '%')
+            ORDER BY CONCAT(a.first_name_acc, ' ', a.last_name_acc) ASC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Count total members in user_reputation_fast_v for admin pagination.
      */
     public static function getActiveCount(): int

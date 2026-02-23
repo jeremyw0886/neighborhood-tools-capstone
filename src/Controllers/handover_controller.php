@@ -215,7 +215,7 @@ class HandoverController extends BaseController
             error_log('HandoverController::confirm notification — ' . $e->getMessage());
         }
 
-        $_SESSION['handover_success'] = ucfirst($typeLabel) . ' confirmed! The ' . htmlspecialchars($toolName) . ' handover is complete.';
+        $_SESSION['handover_success'] = ucfirst($typeLabel) . ' confirmed! The ' . $toolName . ' handover is complete.';
         $this->redirect('/handover/' . $id);
     }
 }

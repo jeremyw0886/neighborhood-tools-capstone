@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Account;
 use App\Models\Category;
+use App\Models\Dispute;
 use App\Models\Event;
 use App\Models\EventAttendance;
 use App\Models\Incident;
@@ -662,6 +663,82 @@ class AdminController extends BaseController
         }
 
         $this->redirect('/admin/categories');
+    }
+
+    /**
+     * Global admin search — queries all entity models for a search term.
+     *
+     * @return void
+     */
+    public function search(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $term = trim($_GET['q'] ?? '');
+
+        $results = [
+            'users'         => [],
+            'tools'         => [],
+            'disputes'      => [],
+            'events'        => [],
+            'incidents'     => [],
+            'neighborhoods' => [],
+        ];
+
+        if ($term !== '') {
+            try {
+                $results['users'] = Account::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search users — ' . $e->getMessage());
+            }
+
+            try {
+                $results['tools'] = Tool::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search tools — ' . $e->getMessage());
+            }
+
+            try {
+                $results['disputes'] = Dispute::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search disputes — ' . $e->getMessage());
+            }
+
+            try {
+                $results['events'] = Event::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search events — ' . $e->getMessage());
+            }
+
+            try {
+                $results['incidents'] = Incident::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search incidents — ' . $e->getMessage());
+            }
+
+            try {
+                $results['neighborhoods'] = Neighborhood::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search neighborhoods — ' . $e->getMessage());
+            }
+        }
+
+        if (($_GET['format'] ?? '') === 'json') {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($results, JSON_THROW_ON_ERROR);
+            exit;
+        }
+
+        $totalCount = array_sum(array_map('count', $results));
+
+        $this->render('admin/search', [
+            'title'       => 'Search Results — NeighborhoodTools',
+            'description' => 'Admin search results.',
+            'pageCss'     => ['admin.css'],
+            'term'        => $term,
+            'results'     => $results,
+            'totalCount'  => $totalCount,
+        ]);
     }
 
     public function assignCategoryIcon(string $id): void

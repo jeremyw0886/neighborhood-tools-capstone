@@ -17,7 +17,7 @@
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
-      <div aria-hidden="true" style="position:absolute;left:-9999px">
+      <div aria-hidden="true">
         <label for="website">Leave this empty</label>
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
       </div>

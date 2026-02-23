@@ -493,6 +493,94 @@ class AdminController extends BaseController
     }
 
     /**
+     * Show the create-TOS-version form (Super Admin only).
+     */
+    public function showCreateTos(): void
+    {
+        $this->requireRole(Role::SuperAdmin);
+
+        $errors = $_SESSION['tos_create_errors'] ?? [];
+        $old    = $_SESSION['tos_create_old'] ?? [];
+        unset($_SESSION['tos_create_errors'], $_SESSION['tos_create_old']);
+
+        $this->render('admin/tos-create', [
+            'title'       => 'Create TOS Version — NeighborhoodTools',
+            'description' => 'Publish a new Terms of Service version.',
+            'pageCss'     => ['admin.css'],
+            'errors'      => $errors,
+            'old'         => $old,
+        ]);
+    }
+
+    /**
+     * Process the create-TOS-version form (Super Admin only).
+     */
+    public function createTosVersion(): void
+    {
+        $this->requireRole(Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $version     = trim($_POST['version'] ?? '');
+        $title       = trim($_POST['title'] ?? '');
+        $content     = trim($_POST['content'] ?? '');
+        $summary     = trim($_POST['summary'] ?? '');
+        $effectiveAt = trim($_POST['effective_at'] ?? '');
+
+        $old = compact('version', 'title', 'content', 'summary', 'effectiveAt');
+
+        $errors = [];
+
+        if ($version === '' || mb_strlen($version) > 20) {
+            $errors['version'] = 'Version is required (max 20 characters).';
+        }
+
+        if ($title === '' || mb_strlen($title) > 255) {
+            $errors['title'] = 'Title is required (max 255 characters).';
+        }
+
+        if ($content === '') {
+            $errors['content'] = 'Content is required.';
+        }
+
+        if ($effectiveAt === '') {
+            $errors['effective_at'] = 'Effective date is required.';
+        }
+
+        if ($errors !== []) {
+            $_SESSION['tos_create_errors'] = $errors;
+            $_SESSION['tos_create_old']    = $old;
+            $this->redirect('/admin/tos/create');
+        }
+
+        $effectiveTimestamp = $effectiveAt . ' 00:00:00';
+
+        try {
+            Tos::createVersion(
+                version: $version,
+                title: $title,
+                content: $content,
+                summary: $summary !== '' ? $summary : null,
+                effectiveAt: $effectiveTimestamp,
+                createdBy: (int) $_SESSION['user_id'],
+            );
+            $_SESSION['admin_tos_flash'] = 'TOS version ' . $version . ' created successfully.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::createTosVersion — ' . $e->getMessage());
+
+            if (str_contains($e->getMessage(), 'Duplicate entry')) {
+                $errors['version'] = 'This version already exists.';
+                $_SESSION['tos_create_errors'] = $errors;
+                $_SESSION['tos_create_old']    = $old;
+                $this->redirect('/admin/tos/create');
+            }
+
+            $_SESSION['admin_tos_flash'] = 'Failed to create TOS version.';
+        }
+
+        $this->redirect('/admin/tos');
+    }
+
+    /**
      * Fetch platform-wide summary stats for the admin dashboard.
      *
      * Delegates to domain models: Neighborhood for member/tool totals

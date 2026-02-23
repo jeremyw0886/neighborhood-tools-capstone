@@ -76,6 +76,9 @@
     /* ── Notification list ── */
 
     & > ol {
+      --notif-approval: #16a34a;
+      --notif-due: #b45309;
+
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -194,11 +197,11 @@
 
         /* Type-specific icon colors */
         &[data-type="approval"] > article > span:first-child {
-          color: #16a34a;
+          color: var(--notif-approval);
         }
 
         &[data-type="due"] > article > span:first-child {
-          color: #b45309;
+          color: var(--notif-due);
         }
 
         &[data-type="return"] > article > span:first-child {

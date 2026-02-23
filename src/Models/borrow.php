@@ -326,12 +326,20 @@ class Borrow
         $sql = "
             SELECT
                 b.id_bor,
-                b.id_acc_bor        AS borrower_id,
-                t.id_acc_tol        AS lender_id,
+                b.id_tol_bor,
+                b.id_acc_bor                                                 AS borrower_id,
+                t.id_acc_tol                                                 AS lender_id,
                 t.tool_name_tol,
-                bst.status_name_bst AS borrow_status,
+                bst.status_name_bst                                          AS borrow_status,
                 CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
-                CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)     AS lender_name
+                CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)     AS lender_name,
+                b.requested_at_bor,
+                b.approved_at_bor,
+                b.borrowed_at_bor,
+                b.due_at_bor,
+                b.returned_at_bor,
+                b.loan_duration_hours_bor,
+                b.notes_text_bor
             FROM borrow_bor b
             JOIN tool_tol t            ON b.id_tol_bor = t.id_tol
             JOIN borrow_status_bst bst ON b.id_bst_bor  = bst.id_bst

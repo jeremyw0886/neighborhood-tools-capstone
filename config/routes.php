@@ -150,5 +150,7 @@ return [
     'GET /admin/incidents'         => [AdminController::class, 'incidents'],
     'GET /admin/reports'           => [AdminController::class, 'reports'],
     'GET /admin/audit-log'         => [AdminController::class, 'auditLog'],
+    'GET /admin/tos/create'        => [AdminController::class, 'showCreateTos'],
+    'POST /admin/tos'              => [AdminController::class, 'createTosVersion'],
     'GET /admin/tos'               => [AdminController::class, 'tos'],
 ];

@@ -75,7 +75,7 @@ $totalAll   = array_sum($timingCounts);
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
       <p>
-        Showing <strong><?= $rangeStart ?>–<?= $rangeEnd ?></strong> of
+        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>–<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
         <strong><?= number_format($totalCount) ?></strong>
         event<?= $totalCount !== 1 ? 's' : '' ?>
       </p>
@@ -185,10 +185,10 @@ $totalAll   = array_sum($timingCounts);
               <?php if ($i === $page): ?>
                 <a href="<?= $paginationUrl($i) ?>"
                    aria-current="page"
-                   aria-label="Page <?= $i ?>, current page"><?= $i ?></a>
+                   aria-label="Page <?= htmlspecialchars((string) $i) ?>, current page"><?= htmlspecialchars((string) $i) ?></a>
               <?php else: ?>
                 <a href="<?= $paginationUrl($i) ?>"
-                   aria-label="Go to page <?= $i ?>"><?= $i ?></a>
+                   aria-label="Go to page <?= htmlspecialchars((string) $i) ?>"><?= htmlspecialchars((string) $i) ?></a>
               <?php endif; ?>
             </li>
           <?php endfor; ?>
@@ -199,7 +199,7 @@ $totalAll   = array_sum($timingCounts);
             <?php endif; ?>
             <li>
               <a href="<?= $paginationUrl($totalPages) ?>"
-                 aria-label="Go to page <?= $totalPages ?>"><?= $totalPages ?></a>
+                 aria-label="Go to page <?= htmlspecialchars((string) $totalPages) ?>"><?= htmlspecialchars((string) $totalPages) ?></a>
             </li>
           <?php endif; ?>
 

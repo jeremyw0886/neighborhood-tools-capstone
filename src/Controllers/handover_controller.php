@@ -52,6 +52,15 @@ class HandoverController extends BaseController
             $this->abort(403);
         }
 
+        if ($handover['handover_type'] === 'pickup') {
+            $deposit = Deposit::findByBorrowId($id);
+
+            if ($deposit !== null && $deposit['deposit_status'] === 'pending') {
+                $_SESSION['deposit_errors'] = ['You must pay the security deposit before pickup.'];
+                $this->redirect('/payments/deposit/' . $deposit['id_sdp']);
+            }
+        }
+
         $isVerifier = (int) $handover['generator_id'] !== $userId;
 
         $this->render('handover/verify', [

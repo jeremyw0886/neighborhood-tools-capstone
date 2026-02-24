@@ -183,14 +183,20 @@ class BorrowController extends BaseController
             }
         }
 
-        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+        $lenderName  = $_SESSION['user_first_name'] ?? 'The lender';
+        $noticeBody  = $lenderName . ' approved your request to borrow ' . $request['tool_name_tol'] . '.';
+
+        if ($request['is_deposit_required_tol'] && $request['default_deposit_amount_tol'] > 0) {
+            $formatted   = number_format((float) $request['default_deposit_amount_tol'], 2);
+            $noticeBody .= ' A $' . $formatted . ' security deposit is required before pickup.';
+        }
 
         try {
             Notification::send(
                 accountId: (int) $request['borrower_id'],
                 type: 'approval',
                 title: 'Borrow Request Approved',
-                body: $lenderName . ' approved your request to borrow ' . $request['tool_name_tol'] . '.',
+                body: $noticeBody,
                 relatedBorrowId: $borrowId,
             );
         } catch (\Throwable $e) {
@@ -383,6 +389,13 @@ class BorrowController extends BaseController
 
         if ((int) $borrow['lender_id'] !== $userId) {
             $this->abort(403);
+        }
+
+        $deposit = Deposit::findByBorrowId($borrowId);
+
+        if ($deposit !== null && $deposit['deposit_status'] !== 'held') {
+            $_SESSION['borrow_errors'] = ['general' => 'The security deposit must be held before completing a return.'];
+            $this->redirect('/dashboard/lender');
         }
 
         try {

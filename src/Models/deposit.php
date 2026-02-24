@@ -75,6 +75,32 @@ class Deposit
     }
 
     /**
+     * Find the deposit for a borrow regardless of status.
+     */
+    public static function findByBorrowId(int $borrowId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                   sdp.external_payment_id_sdp,
+                   dps.status_name_dps AS deposit_status,
+                   ppv.provider_name_ppv AS payment_provider
+            FROM security_deposit_sdp sdp
+            JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+            JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
+            WHERE sdp.id_bor_sdp = :borrow_id
+        ');
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Find a held deposit for a borrow, including payment provider and external ID.
      */
     public static function findHeldByBorrowId(int $borrowId): ?array

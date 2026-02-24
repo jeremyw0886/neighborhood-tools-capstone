@@ -38,6 +38,14 @@ $sortLabels = [
     'last_login_at_acc'      => 'Last Login',
     'last_accepted_version'  => 'Last Accepted Version',
 ];
+
+$sortToColumn = [
+    'full_name'             => 0,
+    'last_login_at_acc'     => 1,
+    'last_accepted_version' => 2,
+];
+
+$ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 ?>
 
 <section aria-labelledby="admin-tos-heading">
@@ -155,22 +163,25 @@ $sortLabels = [
         <caption class="visually-hidden">Members who have not accepted the current terms of service</caption>
         <thead>
           <tr>
-            <th scope="col">Member</th>
-            <th scope="col">Last Login</th>
-            <th scope="col">Last Accepted</th>
-            <th scope="col">Actions</th>
+            <?php
+            $columns = ['Member', 'Last Login', 'Accepted', 'Actions'];
+            foreach ($columns as $i => $label):
+              $isSorted = isset($sortToColumn[$sort]) && $sortToColumn[$sort] === $i;
+            ?>
+              <th scope="col"<?= $isSorted ? ' aria-sort="' . $ariaSortDir . '"' : '' ?>><?= $label ?></th>
+            <?php endforeach; ?>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($users as $user): ?>
             <tr>
-              <td>
+              <td data-label="Member">
                 <a href="/profile/<?= (int) $user['id_acc'] ?>">
                   <?= htmlspecialchars($user['full_name']) ?>
                 </a>
                 <small><?= htmlspecialchars($user['email_address_acc']) ?></small>
               </td>
-              <td>
+              <td data-label="Last Login">
                 <?php if ($user['last_login_at_acc'] !== null): ?>
                   <time datetime="<?= htmlspecialchars($user['last_login_at_acc']) ?>">
                     <?= htmlspecialchars(date('M j, Y', strtotime($user['last_login_at_acc']))) ?>
@@ -179,7 +190,7 @@ $sortLabels = [
                   <span>Never</span>
                 <?php endif; ?>
               </td>
-              <td>
+              <td data-label="Accepted">
                 <?php if ($user['last_accepted_version'] !== null): ?>
                   <span>v<?= htmlspecialchars($user['last_accepted_version']) ?></span>
                   <small>

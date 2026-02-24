@@ -155,7 +155,7 @@
 
   /* ── Standard nav — visual overrides ── */
 
-  nav:not([data-hero]) {
+  body > header > nav:not([data-hero]) {
 
     & > a:first-child {
       color: var(--mountain-cream);
@@ -373,7 +373,6 @@
     --subnav-border: 2px;
 
     border-block-end: var(--subnav-border) solid var(--mountain-fog);
-    margin-block-end: 2rem;
     overflow-x: auto;
     scrollbar-gutter: stable;
 
@@ -418,7 +417,7 @@
   }
 
   @media (prefers-contrast: more) {
-    nav:not([data-hero]) {
+    body > header > nav:not([data-hero]) {
       border-block-end: 2px solid var(--mountain-cream);
 
       & > #top-links a[aria-current="page"] {

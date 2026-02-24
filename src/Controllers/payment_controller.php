@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Deposit;
+use App\Models\Notification;
 
 class PaymentController extends BaseController
 {
@@ -198,6 +199,33 @@ class PaymentController extends BaseController
             }
 
             $formatted = number_format((float) $deposit['amount_sdp'], 2);
+            $toolName  = $deposit['tool_name_tol'] ?? 'a tool';
+            $borrowId  = (int) $deposit['id_bor_sdp'];
+
+            try {
+                Notification::send(
+                    accountId: (int) $deposit['borrower_id'],
+                    type: 'approval',
+                    title: 'Deposit Released',
+                    body: 'Your security deposit of $' . $formatted . ' for ' . $toolName . ' has been released.',
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('PaymentController::processRelease notification — ' . $e->getMessage());
+            }
+
+            try {
+                Notification::send(
+                    accountId: (int) $deposit['lender_id'],
+                    type: 'approval',
+                    title: 'Deposit Released',
+                    body: 'The security deposit of $' . $formatted . ' for ' . $toolName . ' has been released to the borrower.',
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('PaymentController::processRelease lender notification — ' . $e->getMessage());
+            }
+
             $_SESSION['deposit_success'] = 'Deposit of $' . $formatted . ' released to borrower.';
             $this->redirect('/admin');
         } catch (\Throwable $e) {
@@ -288,6 +316,37 @@ class PaymentController extends BaseController
             }
 
             $formatted = number_format((float) $forfeitAmount, 2);
+            $toolName  = $deposit['tool_name_tol'] ?? 'a tool';
+            $borrowId  = (int) $deposit['id_bor_sdp'];
+
+            $borrowerBody = $isPartial
+                ? '$' . $formatted . ' of your security deposit for ' . $toolName . ' has been forfeited. $' . number_format((float) $remainder, 2) . ' has been released.'
+                : 'Your security deposit of $' . $formatted . ' for ' . $toolName . ' has been forfeited.';
+
+            try {
+                Notification::send(
+                    accountId: (int) $deposit['borrower_id'],
+                    type: 'approval',
+                    title: 'Deposit Forfeited',
+                    body: $borrowerBody,
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('PaymentController::processForfeit borrower notification — ' . $e->getMessage());
+            }
+
+            try {
+                Notification::send(
+                    accountId: (int) $deposit['lender_id'],
+                    type: 'approval',
+                    title: 'Deposit Forfeited',
+                    body: '$' . $formatted . ' from a security deposit for ' . $toolName . ' has been forfeited in your favor.',
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('PaymentController::processForfeit lender notification — ' . $e->getMessage());
+            }
+
             $_SESSION['deposit_success'] = '$' . $formatted . ' forfeited to lender' . $partialMsg . '.';
             $this->redirect('/admin');
         } catch (\Throwable $e) {
@@ -424,6 +483,7 @@ class PaymentController extends BaseController
 
         try {
             Deposit::transitionToHeld($depositId, $paymentIntent->id);
+            $this->notifyDepositHeld($deposit);
             error_log("handlePaymentAuthorized — deposit {$depositId} transitioned to held");
         } catch (\Throwable $e) {
             error_log('handlePaymentAuthorized — ' . $e->getMessage());
@@ -448,6 +508,7 @@ class PaymentController extends BaseController
 
         try {
             Deposit::transitionToHeld($depositId, $paymentIntent->id);
+            $this->notifyDepositHeld($deposit);
             error_log("handlePaymentSucceeded — deposit {$depositId} transitioned to held");
         } catch (\Throwable $e) {
             error_log('handlePaymentSucceeded — ' . $e->getMessage());
@@ -487,12 +548,17 @@ class PaymentController extends BaseController
             $this->abort(404);
         }
 
+        $pending      = Deposit::findPendingPayment($depositId);
         $piStatus     = $paymentIntent->status;
         $isAuthorized = in_array($piStatus, ['requires_capture', 'succeeded'], true);
 
         if ($isAuthorized) {
             try {
                 Deposit::transitionToHeld($depositId, $paymentIntent->id);
+
+                if ($pending !== null) {
+                    $this->notifyDepositHeld($pending);
+                }
             } catch (\Throwable $e) {
                 error_log('PaymentController::complete — ' . $e->getMessage());
             }
@@ -532,5 +598,39 @@ class PaymentController extends BaseController
             'totalPages'   => $totalPages,
             'totalCount'   => $totalCount,
         ]);
+    }
+
+    /**
+     * Notify borrower and lender that a security deposit is now held.
+     */
+    private function notifyDepositHeld(array $deposit): void
+    {
+        $toolName = $deposit['tool_name_tol'] ?? 'a tool';
+        $amount   = number_format((float) $deposit['amount_sdp'], 2);
+        $borrowId = (int) $deposit['id_bor_sdp'];
+
+        try {
+            Notification::send(
+                accountId: (int) $deposit['lender_id'],
+                type: 'approval',
+                title: 'Deposit Held',
+                body: 'A security deposit of $' . $amount . ' for ' . $toolName . ' is now being held.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('PaymentController::notifyDepositHeld lender — ' . $e->getMessage());
+        }
+
+        try {
+            Notification::send(
+                accountId: (int) $deposit['borrower_id'],
+                type: 'approval',
+                title: 'Deposit Confirmed',
+                body: 'Your security deposit of $' . $amount . ' for ' . $toolName . ' has been confirmed and is being held.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('PaymentController::notifyDepositHeld borrower — ' . $e->getMessage());
+        }
     }
 }

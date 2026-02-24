@@ -80,8 +80,20 @@ $borrowStatus  = htmlspecialchars($deposit['borrow_status']);
 $dueDate       = $deposit['due_at_bor']
     ? date('M j, Y \a\t g:i A', strtotime($deposit['due_at_bor']))
     : '—';
-$incidentCount = (int) $deposit['incident_count'];
-$estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
+$incidentCount   = (int) $deposit['incident_count'];
+$estimatedVal    = number_format((float) $deposit['estimated_value_tol'], 2);
+$releasedDate    = $deposit['released_at_sdp'] !== null
+    ? date('M j, Y \a\t g:i A', strtotime($deposit['released_at_sdp']))
+    : null;
+$forfeitedDate   = $deposit['forfeited_at_sdp'] !== null
+    ? date('M j, Y \a\t g:i A', strtotime($deposit['forfeited_at_sdp']))
+    : null;
+$forfeitedAmount = $deposit['forfeited_amount_sdp'] !== null
+    ? number_format((float) $deposit['forfeited_amount_sdp'], 2)
+    : null;
+$forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
+    ? htmlspecialchars($deposit['forfeiture_reason_sdp'])
+    : null;
 ?>
 
 <section id="deposit-detail" aria-labelledby="deposit-heading">
@@ -153,6 +165,30 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
       <dt>Tool Value</dt>
       <dd>$<?= $estimatedVal ?></dd>
     </div>
+    <?php if ($releasedDate): ?>
+    <div>
+      <dt>Released</dt>
+      <dd><time datetime="<?= htmlspecialchars($deposit['released_at_sdp']) ?>"><?= $releasedDate ?></time></dd>
+    </div>
+    <?php endif; ?>
+    <?php if ($forfeitedDate): ?>
+    <div>
+      <dt>Forfeited</dt>
+      <dd><time datetime="<?= htmlspecialchars($deposit['forfeited_at_sdp']) ?>"><?= $forfeitedDate ?></time></dd>
+    </div>
+    <?php endif; ?>
+    <?php if ($forfeitedAmount): ?>
+    <div>
+      <dt>Forfeited Amount</dt>
+      <dd>$<?= $forfeitedAmount ?></dd>
+    </div>
+    <?php endif; ?>
+    <?php if ($forfeitReason): ?>
+    <div>
+      <dt>Forfeiture Reason</dt>
+      <dd><?= $forfeitReason ?></dd>
+    </div>
+    <?php endif; ?>
   </dl>
 
   <section aria-labelledby="borrow-context-heading">

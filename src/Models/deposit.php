@@ -12,6 +12,32 @@ class Deposit
     private const int PER_PAGE = 12;
 
     /**
+     * Create a pending security deposit for a borrow.
+     *
+     * @param  string $provider  Payment provider name ('stripe', 'paypal', 'manual')
+     * @return int    The new deposit ID
+     */
+    public static function create(int $borrowId, string $amount, string $provider = 'stripe'): int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            INSERT INTO security_deposit_sdp (id_bor_sdp, id_dps_sdp, amount_sdp, id_ppv_sdp)
+            VALUES (:borrow_id, fn_get_deposit_status_id(:status), :amount, (
+                SELECT id_ppv FROM payment_provider_ppv WHERE provider_name_ppv = :provider
+            ))
+        ');
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':status', 'pending', PDO::PARAM_STR);
+        $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
+        $stmt->bindValue(':provider', $provider, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return (int) $pdo->lastInsertId();
+    }
+
+    /**
      * Fetch paginated pending deposits for the admin reports page.
      *
      * Queries pending_deposit_v which joins security_deposit_sdp, borrow_bor,

@@ -172,6 +172,17 @@ class BorrowController extends BaseController
             error_log('BorrowController::approve handover creation — ' . $e->getMessage());
         }
 
+        if ($request['is_deposit_required_tol'] && $request['default_deposit_amount_tol'] > 0) {
+            try {
+                Deposit::create(
+                    borrowId: $borrowId,
+                    amount: (string) $request['default_deposit_amount_tol'],
+                );
+            } catch (\Throwable $e) {
+                error_log('BorrowController::approve deposit creation — ' . $e->getMessage());
+            }
+        }
+
         $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
 
         try {

@@ -62,6 +62,20 @@
       text-align: center;
     }
 
+    & > p[data-flash="info"] {
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      border-radius: 0.5rem;
+      color: #1e40af;
+      font-size: 0.938rem;
+      margin-block-end: 1.5rem;
+      padding: 0.75rem 1rem;
+
+      & > i {
+        margin-inline-end: 0.375rem;
+      }
+    }
+
     /* ── Handover details ── */
 
     & > dl {

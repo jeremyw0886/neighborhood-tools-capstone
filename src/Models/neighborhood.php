@@ -35,6 +35,14 @@ class Neighborhood
         ];
     }
 
+    private const array SUMMARY_SORT_FIELDS = [
+        'neighborhood_name_nbh',
+        'active_members',
+        'available_tools',
+        'active_borrows',
+        'upcoming_events',
+    ];
+
     /**
      * Paginated list of neighborhood summaries from the materialized cache.
      *
@@ -45,18 +53,21 @@ class Neighborhood
      *               completed_borrows_30d: int, upcoming_events: int,
      *               zip_codes: ?string, refreshed_at: string}>
      */
-    public static function getSummaryList(int $limit, int $offset): array
+    public static function getSummaryList(int $limit, int $offset, string $sort = 'neighborhood_name_nbh', string $dir = 'ASC'): array
     {
+        $sortCol  = in_array($sort, self::SUMMARY_SORT_FIELDS, true) ? $sort : 'neighborhood_name_nbh';
+        $sortDir  = strtoupper($dir) === 'DESC' ? 'DESC' : 'ASC';
+
         $pdo  = Database::connection();
         $stmt = $pdo->prepare(
-            'SELECT id_nbh, neighborhood_name_nbh, city_name_nbh,
+            "SELECT id_nbh, neighborhood_name_nbh, city_name_nbh,
                     state_code_sta, total_members, active_members,
                     verified_members, total_tools, available_tools,
                     active_borrows, completed_borrows_30d,
                     upcoming_events, zip_codes, refreshed_at
                FROM neighborhood_summary_fast_v
-              ORDER BY city_name_nbh, neighborhood_name_nbh
-              LIMIT :lim OFFSET :off'
+              ORDER BY {$sortCol} {$sortDir}, neighborhood_name_nbh ASC
+              LIMIT :lim OFFSET :off"
         );
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);

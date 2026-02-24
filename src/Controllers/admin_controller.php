@@ -499,15 +499,18 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const array REPORTS_SORT_FIELDS = ['neighborhood_name_nbh', 'active_members', 'available_tools', 'active_borrows', 'upcoming_events'];
+
     /**
-     * Reports — neighborhood statistics from materialized summaries.
+     * Reports — sortable neighborhood statistics from materialized summaries.
      *
-     * Displays a paginated table of per-neighborhood stats pulled from
-     * neighborhood_summary_fast_v via the Neighborhood model.
+     * Accepts `?sort`, `?dir` query params.
      */
     public function reports(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $sortParams = $this->parseSortParams('', self::REPORTS_SORT_FIELDS, 'neighborhood_name_nbh', 'ASC');
 
         try {
             $page          = max(1, (int) ($_GET['page'] ?? 1));
@@ -515,7 +518,12 @@ class AdminController extends BaseController
             $totalPages    = max(1, (int) ceil($totalCount / self::PER_PAGE));
             $page          = min($page, $totalPages);
             $offset        = ($page - 1) * self::PER_PAGE;
-            $neighborhoods = Neighborhood::getSummaryList(self::PER_PAGE, $offset);
+            $neighborhoods = Neighborhood::getSummaryList(
+                limit:  self::PER_PAGE,
+                offset: $offset,
+                sort:   $sortParams['sort'],
+                dir:    $sortParams['dir'],
+            );
         } catch (\Throwable $e) {
             error_log('AdminController::reports — ' . $e->getMessage());
             $page          = 1;
@@ -523,6 +531,11 @@ class AdminController extends BaseController
             $totalPages    = 1;
             $neighborhoods = [];
         }
+
+        $filterParams = array_filter([
+            'sort' => $sortParams['sort'],
+            'dir'  => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
 
         $this->render('admin/reports', [
             'title'          => 'Reports — NeighborhoodTools',
@@ -533,6 +546,9 @@ class AdminController extends BaseController
             'page'           => $page,
             'totalPages'     => $totalPages,
             'perPage'        => self::PER_PAGE,
+            'sort'           => $sortParams['sort'],
+            'dir'            => $sortParams['dir'],
+            'filterParams'   => $filterParams,
         ]);
     }
 

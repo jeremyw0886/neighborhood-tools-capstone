@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin — Reports with neighborhood statistics from neighborhood_summary_fast_v.
+ * Admin — Reports with sortable neighborhood statistics from neighborhood_summary_fast_v.
  *
  * Variables from AdminController::reports():
  *   $neighborhoods  array   Rows from Neighborhood::getSummaryList()
@@ -8,6 +8,9 @@
  *   $page           int     Current page (1-based)
  *   $totalPages     int     Total pages
  *   $perPage        int     Results per page (12)
+ *   $sort           string  Active sort column
+ *   $dir            string  Active sort direction (ASC|DESC)
+ *   $filterParams   array   Non-null filter params for pagination URLs
  *
  * Each neighborhood row contains:
  *   id_nbh, neighborhood_name_nbh, city_name_nbh, state_code_sta,
@@ -23,8 +26,15 @@
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-$basePath     = '/admin/reports';
-$filterParams = [];
+$basePath = '/admin/reports';
+
+$sortLabels = [
+    'neighborhood_name_nbh' => 'Neighborhood',
+    'active_members'        => 'Members',
+    'available_tools'       => 'Tools',
+    'active_borrows'        => 'Borrows',
+    'upcoming_events'       => 'Events',
+];
 ?>
 
 <section aria-labelledby="admin-reports-heading">
@@ -38,6 +48,35 @@ $filterParams = [];
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
+
+  <form method="get" action="/admin/reports" role="search" aria-label="Sort neighborhood reports" data-admin-filters>
+    <fieldset>
+      <legend class="visually-hidden">Sort neighborhood reports</legend>
+
+      <div>
+        <label for="reports-sort">Sort By</label>
+        <select id="reports-sort" name="sort">
+          <?php foreach ($sortLabels as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="reports-dir">Direction</label>
+        <select id="reports-dir" name="dir">
+          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+        </select>
+      </div>
+
+      <button type="submit">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+      </button>
+    </fieldset>
+  </form>
 
   <section aria-labelledby="neighborhood-stats-heading">
     <h2 id="neighborhood-stats-heading">

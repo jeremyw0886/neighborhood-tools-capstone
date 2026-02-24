@@ -8,6 +8,9 @@ use App\Core\Database;
 
 class ZipCode
 {
+    private const float SENTINEL_LAT = 0.0;
+    private const float SENTINEL_LNG = 0.0;
+
     /**
      * Check whether a ZIP code already exists in the lookup table.
      *
@@ -33,7 +36,8 @@ class ZipCode
      * Slow path: resolves coordinates via Google Geocoding API, inserts the row,
      * so the FK constraint on account_acc.zip_code_acc is satisfied.
      *
-     * @throws \RuntimeException If the API key is missing or geocoding fails
+     * If the API key is missing or geocoding fails, inserts the ZIP with sentinel
+     * coordinates (0, 0) so registration can proceed with degraded spatial features.
      */
     public static function ensureExists(string $zipCode): void
     {
@@ -42,15 +46,12 @@ class ZipCode
         }
 
         $apiKey = $_ENV['GOOGLE_GEOCODING_API_KEY'] ?? '';
-
-        if ($apiKey === '') {
-            throw new \RuntimeException('Google Geocoding API key is not configured');
-        }
-
-        $coords = self::geocode($zipCode, $apiKey);
+        $coords = ($apiKey !== '') ? self::geocode($zipCode, $apiKey) : null;
 
         if ($coords === null) {
-            throw new \RuntimeException("Unable to geocode ZIP code: {$zipCode}");
+            error_log("ZipCode::ensureExists — geocoding unavailable for ZIP {$zipCode}; inserting with sentinel coordinates");
+            self::insert($zipCode, self::SENTINEL_LAT, self::SENTINEL_LNG);
+            return;
         }
 
         self::insert($zipCode, $coords['lat'], $coords['lng']);

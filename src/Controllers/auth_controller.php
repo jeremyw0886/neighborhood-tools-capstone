@@ -205,14 +205,13 @@ class AuthController extends BaseController
             $this->redirect('/register');
         }
 
-        // Ensure ZIP code exists in database (geocode via Google API if necessary)
         try {
             ZipCode::ensureExists($data['zip_code']);
         } catch (\Throwable $e) {
-            error_log('AuthController::register — ZIP geocoding failed: ' . $e->getMessage());
+            error_log('AuthController::register — ZIP insertion failed: ' . $e->getMessage());
 
             $_SESSION['register_errors'] = [
-                'zip_code' => 'Unable to validate ZIP code. Please verify it is a valid US ZIP code and try again.',
+                'zip_code' => 'Unable to save ZIP code. Please try again.',
             ];
             $_SESSION['register_old'] = [
                 'first_name'      => $data['first_name'],

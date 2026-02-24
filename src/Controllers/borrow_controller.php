@@ -8,7 +8,6 @@ use App\Core\BaseController;
 use App\Core\RateLimiter;
 use App\Models\Borrow;
 use App\Models\Deposit;
-use App\Models\Handover;
 use App\Models\Notification;
 use App\Models\Tool;
 
@@ -122,8 +121,9 @@ class BorrowController extends BaseController
      * Approve a pending borrow request (lender action).
      *
      * Verifies the logged-in user owns the tool, delegates to
-     * Borrow::approve() (sp_approve_borrow_request), then notifies
-     * the borrower via Notification::send().
+     * Borrow::approve() (sp_approve_borrow_request), creates a
+     * deposit record if required, then notifies the borrower to
+     * initiate pickup from their dashboard.
      */
     public function approve(string $id): void
     {
@@ -166,12 +166,6 @@ class BorrowController extends BaseController
             $this->redirect('/dashboard/lender');
         }
 
-        try {
-            Handover::create(borrowId: $borrowId, generatorId: $userId, type: 'pickup');
-        } catch (\Throwable $e) {
-            error_log('BorrowController::approve handover creation — ' . $e->getMessage());
-        }
-
         if ($request['is_deposit_required_tol'] && $request['default_deposit_amount_tol'] > 0) {
             try {
                 Deposit::create(
@@ -190,6 +184,8 @@ class BorrowController extends BaseController
             $formatted   = number_format((float) $request['default_deposit_amount_tol'], 2);
             $noticeBody .= ' A $' . $formatted . ' security deposit is required before pickup.';
         }
+
+        $noticeBody .= ' Head to your dashboard and click "Pickup Tool" to start the handover.';
 
         try {
             Notification::send(

@@ -52,7 +52,7 @@ class Deposit
         $sql = "
             SELECT *
             FROM pending_deposit_v
-            ORDER BY created_at_sdp DESC
+            ORDER BY id_sdp DESC
             LIMIT :limit OFFSET :offset
         ";
 
@@ -101,6 +101,38 @@ class Deposit
     }
 
     /**
+     * Find deposits for multiple borrows in a single query.
+     *
+     * @param  array<int> $ids  Borrow IDs
+     * @return array<int, array>  Deposit rows keyed by borrow ID
+     */
+    public static function findByBorrowIds(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+
+        $safe = implode(',', array_map('intval', $ids));
+
+        $stmt = $pdo->query("
+            SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                   dps.status_name_dps AS deposit_status
+            FROM security_deposit_sdp sdp
+            JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+            WHERE sdp.id_bor_sdp IN ({$safe})
+        ");
+
+        $result = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $result[(int) $row['id_bor_sdp']] = $row;
+        }
+
+        return $result;
+    }
+
+    /**
      * Find a held deposit for a borrow, including payment provider and external ID.
      */
     public static function findHeldByBorrowId(int $borrowId): ?array
@@ -128,11 +160,94 @@ class Deposit
         return $row !== false ? $row : null;
     }
 
+    /**
+     * Find a held deposit by ID via pending_deposit_v (held status only).
+     *
+     * @see findDetailById() for all-status lookup with full context
+     */
     public static function findById(int $id): ?array
     {
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare('SELECT * FROM pending_deposit_v WHERE id_sdp = :id');
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Fetch full deposit detail by ID, regardless of status.
+     *
+     * @return ?array  Deposit row with borrow, tool, and account context
+     */
+    public static function findDetailById(int $id): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT sdp.id_sdp,
+                   sdp.amount_sdp,
+                   dps.status_name_dps AS deposit_status,
+                   ppv.provider_name_ppv AS payment_provider,
+                   sdp.external_payment_id_sdp,
+                   sdp.held_at_sdp,
+                   CASE WHEN sdp.held_at_sdp IS NOT NULL
+                        THEN TIMESTAMPDIFF(DAY, sdp.held_at_sdp, NOW())
+                        ELSE NULL
+                   END AS days_held,
+                   sdp.released_at_sdp,
+                   sdp.forfeited_at_sdp,
+                   sdp.forfeited_amount_sdp,
+                   sdp.forfeiture_reason_sdp,
+                   sdp.id_bor_sdp,
+                   bst.status_name_bst AS borrow_status,
+                   b.due_at_bor,
+                   CASE
+                       WHEN dps.status_name_dps = 'released' THEN 'RELEASED'
+                       WHEN dps.status_name_dps = 'forfeited' THEN 'FORFEITED'
+                       WHEN dps.status_name_dps = 'pending' THEN 'PAYMENT PENDING'
+                       WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                            WHERE status_name_bst = 'returned')
+                            THEN 'READY FOR RELEASE'
+                       WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                            WHERE status_name_bst = 'borrowed')
+                            AND b.due_at_bor < NOW()
+                            THEN 'OVERDUE - REVIEW NEEDED'
+                       WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                            WHERE status_name_bst = 'borrowed')
+                            THEN 'ACTIVE BORROW'
+                       ELSE 'REVIEW NEEDED'
+                   END AS action_required,
+                   t.id_tol,
+                   t.tool_name_tol,
+                   t.estimated_value_tol,
+                   b.id_acc_bor AS borrower_id,
+                   CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                   borrower.email_address_acc AS borrower_email,
+                   t.id_acc_tol AS lender_id,
+                   CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+                   lender.email_address_acc AS lender_email,
+                   COALESCE(incident_stats.incident_count, 0) AS incident_count,
+                   sdp.id_irt_sdp AS linked_incident_id
+            FROM security_deposit_sdp sdp
+            JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+            JOIN payment_provider_ppv ppv ON sdp.id_ppv_sdp = ppv.id_ppv
+            JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
+            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+            JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+            LEFT JOIN (
+                SELECT id_bor_irt, COUNT(*) AS incident_count
+                FROM incident_report_irt
+                GROUP BY id_bor_irt
+            ) incident_stats ON sdp.id_bor_sdp = incident_stats.id_bor_irt
+            WHERE sdp.id_sdp = :id
+        ");
+
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 

@@ -6,8 +6,10 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Role;
+use App\Models\Account;
 use App\Models\Borrow;
 use App\Models\Incident;
+use App\Models\Notification;
 
 class IncidentController extends BaseController
 {
@@ -249,6 +251,14 @@ class IncidentController extends BaseController
                 photoFilenames: $photoFilenames,
             );
 
+            $this->sendIncidentNotifications(
+                borrowId: $borrowId,
+                reporterId: $userId,
+                isBorrower: $isBorrower,
+                borrow: $borrow,
+                subject: $subject,
+            );
+
             $_SESSION['incident_success'] = 'Your incident report has been filed. An admin will review it shortly.';
             $this->redirect('/dashboard');
         } catch (\Throwable $e) {
@@ -416,6 +426,65 @@ class IncidentController extends BaseController
             $path = BASE_PATH . '/public/uploads/incidents/' . $filename;
             if (file_exists($path)) {
                 unlink($path);
+            }
+        }
+    }
+
+    /**
+     * Notify the other party and all admins about a new incident report.
+     */
+    private function sendIncidentNotifications(
+        int $borrowId,
+        int $reporterId,
+        bool $isBorrower,
+        array $borrow,
+        string $subject,
+    ): void {
+        $filerName    = $_SESSION['user_first_name'] ?? 'A user';
+        $toolName     = $borrow['tool_name_tol'] ?? 'a tool';
+        $otherPartyId = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];
+
+        $partyTitle = 'Incident Reported';
+        $partyBody  = $filerName . ' filed an incident report for ' . $toolName . ': ' . $subject;
+
+        try {
+            Notification::send(
+                accountId: $otherPartyId,
+                type: 'request',
+                title: $partyTitle,
+                body: $partyBody,
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('IncidentController::store party notification — ' . $e->getMessage());
+        }
+
+        try {
+            $adminIds = Account::getAdminIds();
+        } catch (\Throwable $e) {
+            error_log('IncidentController::store admin lookup — ' . $e->getMessage());
+            return;
+        }
+
+        $adminBody = $filerName . ' filed an incident report for ' . $toolName . ' (borrow #' . $borrowId . '): ' . $subject;
+
+        foreach ($adminIds as $adminId) {
+            $adminId = (int) $adminId;
+
+            if ($adminId === $reporterId) {
+                continue;
+            }
+
+            try {
+                Notification::send(
+                    accountId: $adminId,
+                    type: 'request',
+                    title: 'New Incident Report',
+                    body: $adminBody,
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('IncidentController::store admin notification — ' . $e->getMessage());
             }
         }
     }

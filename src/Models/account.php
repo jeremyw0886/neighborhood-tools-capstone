@@ -690,6 +690,25 @@ class Account
     }
 
     /**
+     * Fetch account IDs for all active admins and super admins.
+     *
+     * @return array<int>
+     */
+    public static function getAdminIds(): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->query("
+            SELECT a.id_acc
+            FROM active_account_v a
+            JOIN role_rol r ON a.id_rol_acc = r.id_rol
+            WHERE r.role_name_rol IN ('admin', 'super_admin')
+        ");
+
+        return array_column($stmt->fetchAll(), 'id_acc');
+    }
+
+    /**
      * Count accounts with 'pending' status for admin dashboard badges.
      */
     public static function getPendingCount(): int

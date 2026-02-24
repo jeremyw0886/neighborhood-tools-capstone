@@ -24,25 +24,21 @@ class PaymentController extends BaseController
         $userId  = (int) $_SESSION['user_id'];
         $isAdmin = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
 
-        try {
-            $deposit = Deposit::findById($depositId);
-        } catch (\Throwable $e) {
-            error_log('PaymentController::deposit — ' . $e->getMessage());
-            $deposit = null;
+        $pending = Deposit::findPendingPayment($depositId);
+
+        if ($pending !== null) {
+            $this->renderPaymentForm($pending, $depositId, $userId, $isAdmin);
+            return;
         }
+
+        $deposit = Deposit::findDetailById($depositId);
 
         if ($deposit !== null) {
             $this->renderDepositView($deposit, $userId, $isAdmin);
             return;
         }
 
-        $pending = Deposit::findPendingPayment($depositId);
-
-        if ($pending === null) {
-            $this->abort(404);
-        }
-
-        $this->renderPaymentForm($pending, $depositId, $userId, $isAdmin);
+        $this->abort(404);
     }
 
     private function renderDepositView(array $deposit, int $userId, bool $isAdmin): void

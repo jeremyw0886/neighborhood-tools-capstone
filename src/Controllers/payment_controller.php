@@ -96,14 +96,14 @@ class PaymentController extends BaseController
                     );
                 } else {
                     $paymentIntent = $stripe->paymentIntents->create([
-                        'amount'                    => $amountCents,
-                        'currency'                  => 'usd',
-                        'capture_method'            => 'manual',
-                        'metadata'                  => [
+                        'amount'               => $amountCents,
+                        'currency'             => 'usd',
+                        'capture_method'       => 'manual',
+                        'payment_method_types' => ['card'],
+                        'metadata'             => [
                             'deposit_id' => $depositId,
                             'account_id' => $userId,
                         ],
-                        'automatic_payment_methods' => ['enabled' => true],
                     ]);
 
                     Deposit::storeExternalPaymentId($depositId, $paymentIntent->id);
@@ -403,14 +403,14 @@ class PaymentController extends BaseController
                 );
             } else {
                 $paymentIntent = $stripe->paymentIntents->create([
-                    'amount'                    => $amountCents,
-                    'currency'                  => 'usd',
-                    'capture_method'            => 'manual',
-                    'metadata'                  => [
+                    'amount'               => $amountCents,
+                    'currency'             => 'usd',
+                    'capture_method'       => 'manual',
+                    'payment_method_types' => ['card'],
+                    'metadata'             => [
                         'deposit_id' => $depositId,
                         'account_id' => $_SESSION['user_id'],
                     ],
-                    'automatic_payment_methods' => ['enabled' => true],
                 ]);
 
                 Deposit::storeExternalPaymentId($depositId, $paymentIntent->id);

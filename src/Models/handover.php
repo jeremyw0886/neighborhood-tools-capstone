@@ -10,6 +10,29 @@ use PDO;
 class Handover
 {
     /**
+     * Create a handover record for a borrow.
+     *
+     * @param  string $type  Handover type name ('pickup' or 'return')
+     * @return int    The new handover ID
+     */
+    public static function create(int $borrowId, int $generatorId, string $type): int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            INSERT INTO handover_verification_hov (id_bor_hov, id_hot_hov, id_acc_generator_hov)
+            VALUES (:borrow_id, fn_get_handover_type_id(:type), :generator_id)
+        ');
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        $stmt->bindValue(':generator_id', $generatorId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $pdo->lastInsertId();
+    }
+
+    /**
      * Find a pending (unverified) handover for a borrow by querying pending_handover_v.
      *
      * Returns the most recent pending handover for the given borrow,

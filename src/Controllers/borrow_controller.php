@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\RateLimiter;
 use App\Models\Borrow;
 use App\Models\Deposit;
+use App\Models\Handover;
 use App\Models\Notification;
 use App\Models\Tool;
 
@@ -163,6 +164,12 @@ class BorrowController extends BaseController
         if (!$result['success']) {
             $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to approve this request.'];
             $this->redirect('/dashboard/lender');
+        }
+
+        try {
+            Handover::create(borrowId: $borrowId, generatorId: $userId, type: 'pickup');
+        } catch (\Throwable $e) {
+            error_log('BorrowController::approve handover creation — ' . $e->getMessage());
         }
 
         $lenderName = $_SESSION['user_first_name'] ?? 'The lender';

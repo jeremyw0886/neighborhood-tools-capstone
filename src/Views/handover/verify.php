@@ -3,14 +3,67 @@
  * Handover verification — code entry form for pickup/return confirmation.
  *
  * Variables from HandoverController::verify():
- *   $handover    array  Row from pending_handover_v (code, status, parties, tool)
- *   $isVerifier  bool   Whether the current user is the one who verifies (not the generator)
+ *   $handover          array  Row from pending_handover_v (code, status, parties, tool)
+ *   $isVerifier        bool   Whether the current user is the one who verifies (not the generator)
+ *   $awaitingBorrower  bool   (optional) True when lender visits before borrower initiates pickup
+ *   $borrow            array  (optional) Row from Borrow::findById() — present with $awaitingBorrower
  *
  * Shared data:
  *   $authUser   array{id, name, first_name, role, avatar}
  *   $csrfToken  string
  */
 
+if (!empty($awaitingBorrower)):
+  $toolName     = htmlspecialchars($borrow['tool_name_tol']);
+  $borrowerName = htmlspecialchars($borrow['borrower_name']);
+?>
+
+<section id="handover-verify" aria-labelledby="handover-heading">
+
+  <header>
+    <h1 id="handover-heading">
+      <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
+      Pickup Verification
+    </h1>
+    <p>Awaiting pickup initiation for <strong><?= $toolName ?></strong>.</p>
+  </header>
+
+  <dl aria-label="Borrow details">
+    <div>
+      <dt>Tool</dt>
+      <dd><?= $toolName ?></dd>
+    </div>
+    <div>
+      <dt>Borrower</dt>
+      <dd>
+        <a href="/profile/<?= (int) $borrow['borrower_id'] ?>">
+          <?= $borrowerName ?>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd><span data-status="approved">Approved</span></dd>
+    </div>
+  </dl>
+
+  <p data-flash="info">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <?= $borrowerName ?> hasn't initiated pickup yet. Once they do, you'll receive a notification with the verification code.
+  </p>
+
+  <nav aria-label="Navigation">
+    <a href="/dashboard/lender">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Back to Dashboard
+    </a>
+  </nav>
+
+</section>
+
+<?php return; endif; ?>
+
+<?php
 $type       = $handover['handover_type'];
 $codeStatus = $handover['code_status'];
 $toolName   = htmlspecialchars($handover['tool_name_tol']);

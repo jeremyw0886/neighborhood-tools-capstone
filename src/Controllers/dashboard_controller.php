@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Account;
 use App\Models\Borrow;
+use App\Models\Deposit;
 use App\Models\PlatformStats;
 use App\Models\Tool;
 
@@ -194,19 +195,23 @@ class DashboardController extends BaseController
             static fn(array $row): bool => (int) $row['borrower_id'] === $userId,
         );
 
+        $pickupBorrowIds   = array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup);
+        $depositsByBorrow  = Deposit::findByBorrowIds($pickupBorrowIds);
+
         $this->render('dashboard/borrower', [
-            'title'          => 'My Borrows — NeighborhoodTools',
-            'description'    => 'Track your active borrows and pending requests.',
-            'pageCss'        => ['dashboard.css'],
-            'borrows'        => array_values($myBorrows),
-            'requests'       => array_values($myRequests),
-            'overdue'        => array_values($myOverdue),
-            'awaitingPickup' => array_values($awaitingPickup),
-            'borrowSort'     => $borrowSort,
-            'borrowStatus'   => $borrowStatus,
-            'reqSort'        => $reqSort,
-            'borrowSuccess'  => $this->flash('borrow_success'),
-            'borrowErrors'   => $this->flash('borrow_errors', []),
+            'title'            => 'My Borrows — NeighborhoodTools',
+            'description'      => 'Track your active borrows and pending requests.',
+            'pageCss'          => ['dashboard.css'],
+            'borrows'          => array_values($myBorrows),
+            'requests'         => array_values($myRequests),
+            'overdue'          => array_values($myOverdue),
+            'awaitingPickup'   => array_values($awaitingPickup),
+            'depositsByBorrow' => $depositsByBorrow,
+            'borrowSort'       => $borrowSort,
+            'borrowStatus'     => $borrowStatus,
+            'reqSort'          => $reqSort,
+            'borrowSuccess'    => $this->flash('borrow_success'),
+            'borrowErrors'     => $this->flash('borrow_errors', []),
         ]);
     }
 

@@ -50,10 +50,14 @@ class PaymentController extends BaseController
             $this->abort(403);
         }
 
+        $isHeld  = strtolower($deposit['deposit_status']) === 'held';
+        $pageJs  = $isAdmin && $isHeld ? ['deposit.js'] : [];
+
         $this->render('payments/deposit', [
             'title'          => 'Security Deposit — NeighborhoodTools',
             'description'    => 'View security deposit details and status.',
             'pageCss'        => ['payment.css'],
+            'pageJs'         => $pageJs,
             'deposit'        => $deposit,
             'isAdmin'        => $isAdmin,
             'paymentMode'    => false,

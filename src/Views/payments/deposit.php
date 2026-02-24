@@ -67,9 +67,11 @@ $amount        = number_format((float) $deposit['amount_sdp'], 2);
 $status        = htmlspecialchars($deposit['deposit_status']);
 $action        = htmlspecialchars($deposit['action_required']);
 $actionKey     = strtolower($deposit['action_required']);
-$daysHeld      = (int) $deposit['days_held'];
+$daysHeld      = $deposit['days_held'] !== null ? (int) $deposit['days_held'] : null;
 $provider      = htmlspecialchars($deposit['payment_provider']);
-$heldDate      = date('M j, Y \a\t g:i A', strtotime($deposit['held_at_sdp']));
+$heldDate      = $deposit['held_at_sdp'] !== null
+    ? date('M j, Y \a\t g:i A', strtotime($deposit['held_at_sdp']))
+    : null;
 $toolName      = htmlspecialchars($deposit['tool_name_tol']);
 $toolId        = (int) $deposit['id_tol'];
 $borrowerName  = htmlspecialchars($deposit['borrower_name']);
@@ -131,18 +133,22 @@ $estimatedVal  = number_format((float) $deposit['estimated_value_tol'], 2);
       <dt>Status</dt>
       <dd><?= $status ?></dd>
     </div>
+    <?php if ($heldDate): ?>
     <div>
       <dt>Days Held</dt>
       <dd><?= $daysHeld ?> day<?= $daysHeld !== 1 ? 's' : '' ?></dd>
     </div>
+    <?php endif; ?>
     <div>
       <dt>Provider</dt>
       <dd><?= $provider ?></dd>
     </div>
+    <?php if ($heldDate): ?>
     <div>
       <dt>Held Since</dt>
       <dd><time datetime="<?= htmlspecialchars($deposit['held_at_sdp']) ?>"><?= $heldDate ?></time></dd>
     </div>
+    <?php endif; ?>
     <div>
       <dt>Tool Value</dt>
       <dd>$<?= $estimatedVal ?></dd>

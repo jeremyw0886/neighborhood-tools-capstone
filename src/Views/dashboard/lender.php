@@ -289,12 +289,9 @@ use App\Core\ViewHelper;
                 <span data-status="<?= $statusSlug ?>"><?= htmlspecialchars($dueStatus) ?></span>
               </td>
               <td data-actions>
-                <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/return">
-                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                  <button type="submit">
-                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Confirm Return
-                  </button>
-                </form>
+                <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
+                  <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Return Tool
+                </a>
                 <details>
                   <summary>
                     <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend

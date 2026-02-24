@@ -200,6 +200,32 @@ class HandoverController extends BaseController
             } catch (\Throwable $e) {
                 error_log('HandoverController::confirm stripe capture — ' . $e->getMessage());
             }
+
+            try {
+                $borrow = Borrow::findById($id);
+
+                if ($borrow !== null && (float) $borrow['rental_fee_tol'] > 0) {
+                    $days      = (int) ceil((int) $borrow['loan_duration_hours_bor'] / 24);
+                    $totalFee  = bcmul($borrow['rental_fee_tol'], (string) max($days, 1), 2);
+                    $providerId = Deposit::getProviderIdByName('stripe');
+
+                    if ($providerId !== null) {
+                        Deposit::createTransaction(
+                            depositId: null,
+                            borrowId: $id,
+                            providerId: $providerId,
+                            type: 'rental_fee',
+                            amount: $totalFee,
+                            externalId: 'fee_' . uniqid('', true),
+                            externalStatus: 'pending',
+                            fromAccountId: (int) $borrow['borrower_id'],
+                            toAccountId: (int) $borrow['lender_id'],
+                        );
+                    }
+                }
+            } catch (\Throwable $e) {
+                error_log('HandoverController::confirm rental fee — ' . $e->getMessage());
+            }
         } else {
             try {
                 $depositResult = Deposit::release(borrowId: $id);

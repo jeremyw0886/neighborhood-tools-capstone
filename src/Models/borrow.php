@@ -391,7 +391,8 @@ class Borrow
                 b.due_at_bor,
                 b.returned_at_bor,
                 b.loan_duration_hours_bor,
-                b.notes_text_bor
+                b.notes_text_bor,
+                t.rental_fee_tol
             FROM borrow_bor b
             JOIN tool_tol t            ON b.id_tol_bor = t.id_tol
             JOIN borrow_status_bst bst ON b.id_bst_bor  = bst.id_bst

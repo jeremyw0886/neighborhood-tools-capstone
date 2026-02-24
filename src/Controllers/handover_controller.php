@@ -195,7 +195,82 @@ class HandoverController extends BaseController
      */
     private function initiateReturn(array $borrow, int $userId): array
     {
-        $this->abort(404);
+        $borrowId = (int) $borrow['id_bor'];
+
+        if ((int) $borrow['lender_id'] !== $userId) {
+            $this->render('handover/verify', [
+                'title'          => 'Awaiting Return — NeighborhoodTools',
+                'description'    => 'Waiting for the lender to initiate return.',
+                'pageCss'        => ['handover.css'],
+                'awaitingLender' => true,
+                'borrow'         => $borrow,
+            ]);
+            exit;
+        }
+
+        $deposit = Deposit::findByBorrowId($borrowId);
+
+        if ($deposit !== null && $deposit['deposit_status'] !== 'held') {
+            $_SESSION['handover_errors'] = ['general' => 'The security deposit must be held before completing a return.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        try {
+            $handover = Handover::findPendingByBorrowId($borrowId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiateReturn race-check — ' . $e->getMessage());
+            $handover = null;
+        }
+
+        if ($handover !== null) {
+            return $handover;
+        }
+
+        try {
+            $handoverId = Handover::create(
+                borrowId: $borrowId,
+                generatorId: (int) $borrow['borrower_id'],
+                type: 'return',
+            );
+            $returnCode = Handover::getCodeById($handoverId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiateReturn handover creation — ' . $e->getMessage());
+            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        if ($returnCode !== null) {
+            $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+
+            try {
+                Notification::send(
+                    accountId: (int) $borrow['borrower_id'],
+                    type: 'return',
+                    title: 'Return Verification Code',
+                    body: $lenderName . ' is ready to receive '
+                        . $borrow['tool_name_tol']
+                        . ' back. Your verification code is: ' . $returnCode
+                        . '. Share this code at return to confirm the handover.',
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('HandoverController::initiateReturn borrower notification — ' . $e->getMessage());
+            }
+        }
+
+        try {
+            $handover = Handover::findPendingByBorrowId($borrowId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiateReturn re-fetch — ' . $e->getMessage());
+            $handover = null;
+        }
+
+        if ($handover === null) {
+            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        return $handover;
     }
 
     /**

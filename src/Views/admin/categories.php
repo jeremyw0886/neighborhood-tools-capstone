@@ -119,8 +119,8 @@
         <tbody>
           <?php foreach ($categories as $cat): ?>
             <tr>
-              <td><?= htmlspecialchars($cat['category_name_cat']) ?></td>
-              <td>
+              <td data-label="Category"><?= htmlspecialchars($cat['category_name_cat']) ?></td>
+              <td data-label="Current Icon">
                 <?php if (!empty($cat['file_name_vec'])): ?>
                   <figure data-icon-preview>
                     <img src="/uploads/vectors/<?= htmlspecialchars($cat['file_name_vec']) ?>"
@@ -132,7 +132,7 @@
                   <span data-none>None</span>
                 <?php endif; ?>
               </td>
-              <td>
+              <td data-label="Assign Icon">
                 <form method="post"
                       action="/admin/categories/<?= (int) $cat['id_cat'] ?>/icon"
                       data-icon-form>

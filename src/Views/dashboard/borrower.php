@@ -225,6 +225,7 @@ use App\Core\ViewHelper;
             <th scope="col"<?= ViewHelper::ariaSort($borrowSort['sort'], $borrowSort['dir'], 'lender_name') ?>>Lender</th>
             <th scope="col"<?= ViewHelper::ariaSort($borrowSort['sort'], $borrowSort['dir'], 'due_at_bor', 'hours_until_due') ?>>Due Date</th>
             <th scope="col">Status</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -255,6 +256,11 @@ use App\Core\ViewHelper;
                   };
                 ?>
                 <span<?= $statusAttr ?>><?= htmlspecialchars($status) ?></span>
+              </td>
+              <td data-actions>
+                <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
+                  <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> View Return
+                </a>
               </td>
             </tr>
           <?php endforeach; ?>

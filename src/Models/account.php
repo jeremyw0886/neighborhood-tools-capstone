@@ -278,7 +278,14 @@ class Account
                 :password_hash,
                 :street_address,
                 :zip_code,
-                :neighborhood_id,
+                COALESCE(
+                    :neighborhood_id,
+                    (SELECT id_nbh_nbhzpc
+                     FROM neighborhood_zip_nbhzpc
+                     WHERE zip_code_nbhzpc = :zip_nbh
+                       AND is_primary_nbhzpc = TRUE
+                     LIMIT 1)
+                ),
                 (SELECT id_rol FROM role_rol WHERE role_name_rol = 'member'),
                 fn_get_account_status_id('active'),
                 (SELECT id_cpr FROM contact_preference_cpr WHERE preference_name_cpr = 'email')
@@ -293,6 +300,7 @@ class Account
         $stmt->bindValue(':password_hash', $data['password_hash']);
         $stmt->bindValue(':street_address', $data['street_address'], $data['street_address'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
         $stmt->bindValue(':zip_code', $data['zip_code']);
+        $stmt->bindValue(':zip_nbh', $data['zip_code']);
         $stmt->bindValue(':neighborhood_id', $data['neighborhood_id'], $data['neighborhood_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
         $stmt->execute();
 

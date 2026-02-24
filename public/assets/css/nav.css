@@ -373,6 +373,8 @@
     --subnav-border: 2px;
 
     border-block-end: var(--subnav-border) solid var(--mountain-fog);
+    display: flex;
+    justify-content: center;
     overflow-x: auto;
     scrollbar-gutter: stable;
 

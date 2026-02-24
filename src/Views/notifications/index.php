@@ -21,6 +21,7 @@
 $typeIcon = static fn(string $type): string => match ($type) {
     'request'  => 'fa-hand',
     'approval' => 'fa-circle-check',
+    'denial'   => 'fa-circle-xmark',
     'due'      => 'fa-clock',
     'return'   => 'fa-rotate-left',
     'rating'   => 'fa-star',

@@ -271,7 +271,7 @@ class BorrowController extends BaseController
         try {
             Notification::send(
                 accountId: (int) $request['borrower_id'],
-                type: 'approval',
+                type: 'denial',
                 title: 'Borrow Request Denied',
                 body: $lenderName . ' denied your request to borrow ' . $request['tool_name_tol'] . '. Reason: ' . $reason,
                 relatedBorrowId: $borrowId,

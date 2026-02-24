@@ -43,6 +43,12 @@
           <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
         <?php endfor; ?>
       </span>
+      <?php if (isset($tool['distance_miles'])): ?>
+        <span aria-label="<?= htmlspecialchars($tool['distance_miles']) ?> miles away">
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <?= htmlspecialchars($tool['distance_miles']) ?> mi
+        </span>
+      <?php endif; ?>
       <img src="<?= htmlspecialchars(($tool['owner_avatar'] ?? null) ? '/uploads/profiles/' . $tool['owner_avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
            alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
            width="28" height="28"

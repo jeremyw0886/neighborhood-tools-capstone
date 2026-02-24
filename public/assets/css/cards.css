@@ -147,6 +147,15 @@
         font-size: 0.75rem;
       }
 
+      & > span[aria-label$="miles away"] {
+        color: var(--mountain-mist);
+        font-size: 0.688rem;
+        font-weight: 600;
+        white-space: nowrap;
+
+        & > i { margin-inline-end: 0.15em; }
+      }
+
       & > img {
         border: 2px solid var(--mountain-pine-light);
         border-radius: 50%;

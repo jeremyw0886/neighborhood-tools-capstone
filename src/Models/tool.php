@@ -58,19 +58,23 @@ class Tool
         return $stmt->fetchAll();
     }
 
+    /** Meters per mile for ST_Distance_Sphere conversion. */
+    private const float METERS_PER_MILE = 1609.344;
+
     /**
-     * Search available tools via the stored procedure.
+     * Search available tools via stored procedure or spatial query.
      *
-     * Calls sp_search_available_tools() which applies FULLTEXT search,
-     * zip/category/fee filters, and availability checks (no active borrow,
-     * no availability block, owner not deleted).
+     * When $radius is null the SP handles all filtering. When a radius is
+     * provided (and $zip is set), a direct spatial query replaces the SP
+     * so tools within the given mile radius are returned.
      *
      * @param  string  $term        Search term (FULLTEXT against name + description)
      * @param  ?int    $categoryId  Filter by category, or null for all
      * @param  ?string $zip         Filter by owner zip code, or null for all
      * @param  ?float  $maxFee      Maximum rental fee, or null for no cap
-     * @param  int     $limit       Results per page (SP caps at 100, defaults to 20)
+     * @param  int     $limit       Results per page
      * @param  int     $offset      Pagination offset
+     * @param  ?int    $radius      Search radius in miles, or null for exact ZIP
      * @return array
      */
     public static function search(
@@ -80,12 +84,16 @@ class Tool
         ?float $maxFee = null,
         int $limit = 12,
         int $offset = 0,
+        ?int $radius = null,
     ): array {
+        if ($radius !== null && $zip !== null) {
+            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius);
+        }
+
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare('CALL sp_search_available_tools(:term, :zip, :category, :maxFee, :limit, :offset)');
 
-        // Bind NULL explicitly with PDO::PARAM_NULL when a filter is inactive
         $searchTerm = $term !== '' ? $term : null;
 
         $stmt->bindValue(':term', $searchTerm, $searchTerm === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -101,29 +109,183 @@ class Tool
 
         $stmt->closeCursor();
 
-        // SP doesn't return owner_id — look it up so views can check ownership
-        if ($results !== []) {
-            $toolIds = array_column($results, 'id_tol');
-            $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
+        return self::enrichResults($pdo, $results);
+    }
 
-            $ownerStmt = $pdo->prepare("
-                SELECT id_tol, id_acc_tol AS owner_id
-                FROM tool_tol
-                WHERE id_tol IN ({$placeholders})
-            ");
+    /**
+     * Spatial search returning tools within $radius miles of $originZip.
+     *
+     * Mirrors the SP's availability/status checks but replaces exact ZIP
+     * match with ST_Distance_Sphere against zip_code_zpc spatial indexes.
+     *
+     * @return array
+     */
+    private static function searchByDistance(
+        string $term,
+        ?int $categoryId,
+        string $originZip,
+        ?float $maxFee,
+        int $limit,
+        int $offset,
+        int $radius,
+    ): array {
+        $pdo = Database::connection();
 
-            foreach ($toolIds as $i => $tid) {
-                $ownerStmt->bindValue($i + 1, $tid, PDO::PARAM_INT);
-            }
+        $searchTerm = $term !== '' ? $term : null;
 
-            $ownerStmt->execute();
-            $ownerMap = array_column($ownerStmt->fetchAll(), 'owner_id', 'id_tol');
+        $select = "
+            SELECT
+                t.id_tol,
+                t.tool_name_tol,
+                t.tool_description_tol,
+                t.rental_fee_tol,
+                t.default_loan_duration_hours_tol,
+                t.is_deposit_required_tol,
+                t.default_deposit_amount_tol,
+                t.id_acc_tol AS owner_id,
+                tcd.condition_name_tcd AS tool_condition,
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
+                a.zip_code_acc AS owner_zip,
+                aim.file_name_aim AS owner_avatar,
+                tim.file_name_tim AS primary_image,
+                (SELECT COALESCE(AVG(trt.score_trt), 0)
+                   FROM tool_rating_trt trt
+                  WHERE trt.id_tol_trt = t.id_tol) AS avg_rating,
+                (SELECT COUNT(*)
+                   FROM tool_rating_trt trt
+                  WHERE trt.id_tol_trt = t.id_tol) AS rating_count,
+                ROUND(
+                    ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc)
+                    / :mpm_select,
+                    1
+                ) AS distance_miles
+        ";
 
-            foreach ($results as &$row) {
-                $row['owner_id'] = $ownerMap[(int) $row['id_tol']] ?? null;
-            }
-            unset($row);
+        $joins = "
+            FROM tool_tol t
+            JOIN account_acc a ON t.id_acc_tol = a.id_acc
+            JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+            JOIN zip_code_zpc z ON z.zip_code_zpc = a.zip_code_acc
+            CROSS JOIN zip_code_zpc origin
+            LEFT JOIN tool_image_tim tim
+                   ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+            LEFT JOIN account_image_aim aim
+                   ON aim.id_acc_aim = t.id_acc_tol AND aim.is_primary_aim = 1
+        ";
+
+        if ($categoryId !== null) {
+            $joins .= " JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat";
         }
+
+        $where = "
+            WHERE origin.zip_code_zpc = :origin_zip
+              AND t.is_available_tol = TRUE
+              AND a.id_ast_acc != fn_get_account_status_id(:deleted_status)
+              AND NOT EXISTS (
+                  SELECT 1 FROM borrow_bor b
+                   WHERE b.id_tol_bor = t.id_tol
+                     AND b.id_bst_bor IN (
+                         fn_get_borrow_status_id(:bs_requested),
+                         fn_get_borrow_status_id(:bs_approved),
+                         fn_get_borrow_status_id(:bs_borrowed)
+                     )
+              )
+              AND NOT EXISTS (
+                  SELECT 1 FROM availability_block_avb avb
+                   WHERE avb.id_tol_avb = t.id_tol
+                     AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
+              )
+        ";
+
+        if ($searchTerm !== null) {
+            $where .= " AND MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(:term IN NATURAL LANGUAGE MODE)";
+        }
+
+        if ($categoryId !== null) {
+            $where .= " AND tc.id_cat_tolcat = :category";
+        }
+
+        if ($maxFee !== null) {
+            $where .= " AND t.rental_fee_tol <= :maxFee";
+        }
+
+        $where .= " AND ROUND(ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter, 1) <= :radius";
+
+        $sql = $select . $joins . $where
+             . " ORDER BY distance_miles ASC"
+             . " LIMIT :limit OFFSET :offset";
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':mpm_select', self::METERS_PER_MILE);
+        $stmt->bindValue(':mpm_filter', self::METERS_PER_MILE);
+        $stmt->bindValue(':origin_zip', $originZip);
+        $stmt->bindValue(':deleted_status', 'deleted');
+        $stmt->bindValue(':bs_requested', 'requested');
+        $stmt->bindValue(':bs_approved', 'approved');
+        $stmt->bindValue(':bs_borrowed', 'borrowed');
+        $stmt->bindValue(':radius', $radius, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        if ($searchTerm !== null) {
+            $stmt->bindValue(':term', $searchTerm);
+        }
+
+        if ($categoryId !== null) {
+            $stmt->bindValue(':category', $categoryId, PDO::PARAM_INT);
+        }
+
+        if ($maxFee !== null) {
+            $stmt->bindValue(':maxFee', $maxFee);
+        }
+
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Enrich SP search results with owner_id and avatar (not returned by the SP).
+     *
+     * @return array
+     */
+    private static function enrichResults(\PDO $pdo, array $results): array
+    {
+        if ($results === []) {
+            return $results;
+        }
+
+        $toolIds = array_column($results, 'id_tol');
+        $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
+
+        $stmt = $pdo->prepare("
+            SELECT t.id_tol,
+                   t.id_acc_tol AS owner_id,
+                   aim.file_name_aim AS owner_avatar
+            FROM tool_tol t
+            LEFT JOIN account_image_aim aim
+                ON aim.id_acc_aim = t.id_acc_tol AND aim.is_primary_aim = 1
+            WHERE t.id_tol IN ({$placeholders})
+        ");
+
+        foreach ($toolIds as $i => $tid) {
+            $stmt->bindValue($i + 1, $tid, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        $enrichMap = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $enrichMap[(int) $row['id_tol']] = $row;
+        }
+
+        foreach ($results as &$row) {
+            $extra = $enrichMap[(int) $row['id_tol']] ?? [];
+            $row['owner_id']     = $extra['owner_id'] ?? null;
+            $row['owner_avatar'] = $extra['owner_avatar'] ?? null;
+        }
+        unset($row);
 
         return $results;
     }
@@ -131,14 +293,15 @@ class Tool
     /**
      * Count total matching tools for the same filters search() uses.
      *
-     * The SP doesn't return a total count, so this mirrors its WHERE logic
-     * against the base tables for accurate pagination. Uses FULLTEXT MATCH
-     * for search-term filtering to stay consistent with the SP.
+     * Mirrors the SP's WHERE logic against the base tables for accurate
+     * pagination. When $radius is set, replaces exact ZIP match with
+     * spatial distance filtering.
      *
      * @param  string  $term        Search term (FULLTEXT against name + description)
      * @param  ?int    $categoryId  Filter by category, or null for all
      * @param  ?string $zip         Filter by owner zip code, or null for all
      * @param  ?float  $maxFee      Maximum rental fee, or null for no cap
+     * @param  ?int    $radius      Search radius in miles, or null for exact ZIP
      * @return int
      */
     public static function searchCount(
@@ -146,8 +309,10 @@ class Tool
         ?int $categoryId = null,
         ?string $zip = null,
         ?float $maxFee = null,
+        ?int $radius = null,
     ): int {
         $pdo = Database::connection();
+        $useDistance = $radius !== null && $zip !== null;
 
         $where = [
             't.is_available_tol = TRUE',
@@ -172,13 +337,20 @@ class Tool
             'JOIN account_acc a ON t.id_acc_tol = a.id_acc',
         ];
 
+        if ($useDistance) {
+            $joins[] = 'JOIN zip_code_zpc z ON z.zip_code_zpc = a.zip_code_acc';
+            $joins[] = 'CROSS JOIN zip_code_zpc origin';
+            $where[] = 'origin.zip_code_zpc = :origin_zip';
+            $where[] = 'ROUND(ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :meters_per_mile, 1) <= :radius';
+        }
+
         $searchTerm = $term !== '' ? $term : null;
 
         if ($searchTerm !== null) {
             $where[] = 'MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(:term IN NATURAL LANGUAGE MODE)';
         }
 
-        if ($zip !== null) {
+        if ($zip !== null && !$useDistance) {
             $where[] = 'a.zip_code_acc = :zip';
         }
 
@@ -198,17 +370,22 @@ class Tool
 
         $stmt = $pdo->prepare($sql);
 
-        // Always-bound status-name parameters for the helper functions
         $stmt->bindValue(':deleted_status', 'deleted', PDO::PARAM_STR);
         $stmt->bindValue(':bs_requested', 'requested', PDO::PARAM_STR);
         $stmt->bindValue(':bs_approved', 'approved', PDO::PARAM_STR);
         $stmt->bindValue(':bs_borrowed', 'borrowed', PDO::PARAM_STR);
 
+        if ($useDistance) {
+            $stmt->bindValue(':origin_zip', $zip);
+            $stmt->bindValue(':meters_per_mile', self::METERS_PER_MILE);
+            $stmt->bindValue(':radius', $radius, PDO::PARAM_INT);
+        }
+
         if ($searchTerm !== null) {
             $stmt->bindValue(':term', $searchTerm, PDO::PARAM_STR);
         }
 
-        if ($zip !== null) {
+        if ($zip !== null && !$useDistance) {
             $stmt->bindValue(':zip', $zip, PDO::PARAM_STR);
         }
 

@@ -9,6 +9,7 @@ use App\Models\AvailabilityBlock;
 use App\Models\Bookmark;
 use App\Models\SearchLog;
 use App\Models\Tool;
+use App\Models\ZipCode;
 
 class ToolController extends BaseController
 {
@@ -24,12 +25,35 @@ class ToolController extends BaseController
      */
     public function index(): void
     {
-        // Read and sanitize filter params from query string
+        $allowedRadii = [5, 10, 25, 50];
+
         $term       = trim($_GET['q'] ?? '');
         $categoryId = ($_GET['category'] ?? '') !== '' ? (int) $_GET['category'] : null;
         $zip        = trim($_GET['zip'] ?? '') !== '' ? trim($_GET['zip']) : null;
         $maxFee     = ($_GET['max_fee'] ?? '') !== '' ? (float) $_GET['max_fee'] : null;
+        $rawRadius  = (int) ($_GET['radius'] ?? 0);
+        $radius     = in_array($rawRadius, $allowedRadii, true) ? $rawRadius : null;
         $page       = max(1, (int) ($_GET['page'] ?? 1));
+
+        if ($zip !== null && !preg_match('/^\d{5}$/', $zip)) {
+            $zip = null;
+        }
+
+        if ($zip === null) {
+            $radius = null;
+        }
+
+        $zipWarning = '';
+        if ($zip !== null) {
+            try {
+                if (!ZipCode::exists($zip)) {
+                    $zipWarning = 'ZIP code ' . $zip . ' is not in our service area. Try a nearby ZIP.';
+                }
+            } catch (\Throwable $e) {
+                error_log('ToolController::index ZIP check — ' . $e->getMessage());
+            }
+        }
+
         $offset     = ($page - 1) * self::PER_PAGE;
 
         try {
@@ -40,6 +64,7 @@ class ToolController extends BaseController
                 maxFee: $maxFee,
                 limit: self::PER_PAGE,
                 offset: $offset,
+                radius: $radius,
             );
 
             $totalCount = Tool::searchCount(
@@ -47,6 +72,7 @@ class ToolController extends BaseController
                 categoryId: $categoryId,
                 zip: $zip,
                 maxFee: $maxFee,
+                radius: $radius,
             );
 
             $categories = Tool::getCategories();
@@ -94,6 +120,7 @@ class ToolController extends BaseController
             'q'        => $term !== '' ? $term : null,
             'category' => $categoryId,
             'zip'      => $zip,
+            'radius'   => $radius,
             'max_fee'  => $maxFee,
         ], static fn(mixed $v): bool => $v !== null);
 
@@ -133,10 +160,12 @@ class ToolController extends BaseController
             'term'          => $term,
             'categoryId'    => $categoryId,
             'zip'           => $zip,
+            'radius'        => $radius,
             'maxFee'        => $maxFee,
             'sliderMax'     => $sliderMax,
             'sliderValue'   => $sliderValue,
             'bookmarkedIds' => $bookmarkedIds,
+            'zipWarning'    => $zipWarning,
             'bookmarkFlash' => $this->flash('bookmark_flash'),
         ]);
     }

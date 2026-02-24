@@ -179,7 +179,7 @@
         border-radius: 1rem;
         display: grid;
         gap: 1rem;
-        grid-template-columns: repeat(3, 1fr) auto;
+        grid-template-columns: repeat(4, 1fr) auto;
         padding: 1.25rem;
 
         /* Filter groups */
@@ -291,10 +291,6 @@
 
         @media (max-width: 1024px) {
           grid-template-columns: 1fr 1fr;
-
-          & > div:last-of-type {
-            grid-column: 1 / -1;
-          }
 
           & > button[type="submit"] {
             grid-column: 1 / -1;

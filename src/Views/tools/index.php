@@ -9,10 +9,11 @@
  *   $page         int     Current page number (1-based)
  *   $totalPages   int     Total pages
  *   $perPage      int     Results per page (12)
- *   $filterParams array   Active filters (q, category, zip, max_fee) — nulls stripped
+ *   $filterParams array   Active filters (q, category, zip, radius, max_fee) — nulls stripped
  *   $term         string  Current search term (may be '')
  *   $categoryId   ?int    Selected category ID or null
  *   $zip          ?string Zip code filter or null
+ *   $radius       ?int    Search radius in miles or null for exact ZIP
  *   $maxFee       ?float  Max rental fee or null
  *   $sliderMax    int     Rounded ceiling for the fee range slider
  *   $sliderValue  int     Current slider position (user-set or sliderMax)
@@ -49,6 +50,13 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
 
   <?php if (!empty($bookmarkFlash)): ?>
     <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
+  <?php endif; ?>
+
+  <?php if (!empty($zipWarning)): ?>
+    <p role="alert">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <?= htmlspecialchars($zipWarning) ?>
+    </p>
   <?php endif; ?>
 
   <form role="search" action="/tools" method="get" aria-label="Search and filter tools">
@@ -99,6 +107,19 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
                maxlength="5"
                inputmode="numeric"
                autocomplete="postal-code">
+      </div>
+
+      <div>
+        <label for="filter-radius">
+          <i class="fa-solid fa-circle-dot" aria-hidden="true"></i> Distance
+        </label>
+        <select id="filter-radius" name="radius">
+          <option value="">Exact ZIP</option>
+          <option value="5" <?= $radius === 5 ? 'selected' : '' ?>>5 miles</option>
+          <option value="10" <?= $radius === 10 ? 'selected' : '' ?>>10 miles</option>
+          <option value="25" <?= $radius === 25 ? 'selected' : '' ?>>25 miles</option>
+          <option value="50" <?= $radius === 50 ? 'selected' : '' ?>>50 miles</option>
+        </select>
       </div>
 
       <div>

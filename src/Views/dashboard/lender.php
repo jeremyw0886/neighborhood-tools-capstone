@@ -198,7 +198,7 @@ use App\Core\ViewHelper;
               <td><span data-status="approved">Approved &mdash; awaiting pickup</span></td>
               <td data-actions>
                 <a href="/handover/<?= (int) $pickup['id_bor'] ?>" role="button">
-                  <i class="fa-solid fa-qrcode" aria-hidden="true"></i> Handover
+                  <i class="fa-solid fa-key" aria-hidden="true"></i> View Pickup
                 </a>
               </td>
             </tr>

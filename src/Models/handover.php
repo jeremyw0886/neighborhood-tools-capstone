@@ -33,6 +33,27 @@ class Handover
     }
 
     /**
+     * Retrieve the verification code for a handover by its ID.
+     */
+    public static function getCodeById(int $handoverId): ?string
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            SELECT verification_code_hov
+            FROM handover_verification_hov
+            WHERE id_hov = :id
+        ');
+
+        $stmt->bindValue(':id', $handoverId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $code = $stmt->fetchColumn();
+
+        return $code !== false ? $code : null;
+    }
+
+    /**
      * Find a pending (unverified) handover for a borrow by querying pending_handover_v.
      *
      * Returns the most recent pending handover for the given borrow,

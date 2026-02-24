@@ -186,7 +186,21 @@ class HandoverController extends BaseController
             $this->redirect('/handover/' . $id);
         }
 
-        if (!$isPickup) {
+        if ($isPickup) {
+            try {
+                $deposit = Deposit::findHeldByBorrowId($id);
+
+                if ($deposit !== null
+                    && $deposit['payment_provider'] === 'stripe'
+                    && !empty($deposit['external_payment_id_sdp'])
+                ) {
+                    $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
+                    $stripe->paymentIntents->capture($deposit['external_payment_id_sdp']);
+                }
+            } catch (\Throwable $e) {
+                error_log('HandoverController::confirm stripe capture — ' . $e->getMessage());
+            }
+        } else {
             try {
                 $depositResult = Deposit::release(borrowId: $id);
 

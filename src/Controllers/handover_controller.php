@@ -462,7 +462,12 @@ class HandoverController extends BaseController
             error_log('HandoverController::confirm notification — ' . $e->getMessage());
         }
 
-        $_SESSION['handover_success'] = ucfirst($typeLabel) . ' confirmed! The ' . $toolName . ' handover is complete.';
-        $this->redirect('/handover/' . $id);
+        if ($isPickup) {
+            $_SESSION['handover_success'] = 'Pickup confirmed! The ' . $toolName . ' handover is complete.';
+            $this->redirect('/handover/' . $id);
+        }
+
+        $_SESSION['rating_success'] = 'Return confirmed! Rate your experience below.';
+        $this->redirect('/rate/' . $id);
     }
 }

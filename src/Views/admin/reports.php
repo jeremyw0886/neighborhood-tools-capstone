@@ -35,6 +35,16 @@ $sortLabels = [
     'active_borrows'        => 'Borrows',
     'upcoming_events'       => 'Events',
 ];
+
+$sortToColumn = [
+    'neighborhood_name_nbh' => 0,
+    'active_members'        => 1,
+    'available_tools'       => 2,
+    'active_borrows'        => 3,
+    'upcoming_events'       => 4,
+];
+
+$ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 ?>
 
 <section aria-labelledby="admin-reports-heading">
@@ -100,12 +110,13 @@ $sortLabels = [
         <caption class="visually-hidden">Neighborhood activity statistics</caption>
         <thead>
           <tr>
-            <th scope="col">Neighborhood</th>
-            <th scope="col">Members</th>
-            <th scope="col">Tools</th>
-            <th scope="col">Borrows</th>
-            <th scope="col">Events</th>
-            <th scope="col">ZIP Codes</th>
+            <?php
+            $columns = ['Neighborhood', 'Members', 'Tools', 'Borrows', 'Events', 'ZIP Codes'];
+            foreach ($columns as $i => $label):
+              $isSorted = isset($sortToColumn[$sort]) && $sortToColumn[$sort] === $i;
+            ?>
+              <th scope="col"<?= $isSorted ? ' aria-sort="' . $ariaSortDir . '"' : '' ?>><?= $label ?></th>
+            <?php endforeach; ?>
           </tr>
         </thead>
         <tbody>
@@ -117,30 +128,30 @@ $sortLabels = [
             $borrows = (int) $nbh['active_borrows'];
           ?>
             <tr<?= $borrows > 0 ? ' data-has-activity' : '' ?>>
-              <td>
+              <td data-label="Neighborhood">
                 <strong><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></strong>
                 <small><?= htmlspecialchars($nbh['city_name_nbh']) ?>, <?= htmlspecialchars($nbh['state_code_sta']) ?></small>
               </td>
-              <td>
+              <td data-label="Members">
                 <span><?= number_format($active) ?></span>
                 <small>of <?= number_format($total) ?> total</small>
               </td>
-              <td>
+              <td data-label="Tools">
                 <span><?= number_format($avail) ?></span>
                 <small>of <?= number_format($tools) ?> listed</small>
               </td>
-              <td>
+              <td data-label="Borrows">
                 <span><?= number_format($borrows) ?></span>
                 <small><?= number_format((int) $nbh['completed_borrows_30d']) ?> completed (30d)</small>
               </td>
-              <td>
+              <td data-label="Events">
                 <?php if ((int) $nbh['upcoming_events'] > 0): ?>
                   <span><?= number_format((int) $nbh['upcoming_events']) ?></span>
                 <?php else: ?>
                   <span>0</span>
                 <?php endif; ?>
               </td>
-              <td>
+              <td data-label="ZIP Codes">
                 <?php if ($nbh['zip_codes'] !== null): ?>
                   <span><?= htmlspecialchars($nbh['zip_codes']) ?></span>
                 <?php else: ?>

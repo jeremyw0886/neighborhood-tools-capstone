@@ -91,7 +91,9 @@ use App\Core\ViewHelper;
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($lenderHistory as $row): ?>
+          <?php foreach ($lenderHistory as $row):
+            $statusText = $row['borrow_status'] ?? $row['status_name_bst'] ?? $row['status'] ?? '—';
+          ?>
             <tr>
               <td><?= htmlspecialchars($row['tool_name_tol'] ?? $row['tool_name'] ?? '—') ?></td>
               <td>
@@ -104,7 +106,14 @@ use App\Core\ViewHelper;
                   <?= htmlspecialchars($row['borrower_name'] ?? '—') ?>
                 <?php endif; ?>
               </td>
-              <td><?= htmlspecialchars($row['borrow_status'] ?? $row['status_name_bst'] ?? '—') ?></td>
+              <td>
+                <?= htmlspecialchars($statusText) ?>
+                <?php if ($statusText === 'returned'): ?>
+                  <a href="/rate/<?= (int) $row['id_bor'] ?>" data-rate-link>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i> Rate
+                  </a>
+                <?php endif; ?>
+              </td>
               <td>
                 <?php $date = $row['returned_at_bor'] ?? $row['requested_at_bor'] ?? $row['created_at_bor'] ?? null; ?>
                 <?php if ($date): ?>
@@ -179,7 +188,9 @@ use App\Core\ViewHelper;
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($borrowerHistory as $row): ?>
+          <?php foreach ($borrowerHistory as $row):
+            $statusText = $row['borrow_status'] ?? $row['status_name_bst'] ?? $row['status'] ?? '—';
+          ?>
             <tr>
               <td><?= htmlspecialchars($row['tool_name_tol'] ?? $row['tool_name'] ?? '—') ?></td>
               <td>
@@ -192,7 +203,14 @@ use App\Core\ViewHelper;
                   <?= htmlspecialchars($row['lender_name'] ?? $row['owner_name'] ?? '—') ?>
                 <?php endif; ?>
               </td>
-              <td><?= htmlspecialchars($row['borrow_status'] ?? $row['status_name_bst'] ?? '—') ?></td>
+              <td>
+                <?= htmlspecialchars($statusText) ?>
+                <?php if ($statusText === 'returned'): ?>
+                  <a href="/rate/<?= (int) $row['id_bor'] ?>" data-rate-link>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i> Rate
+                  </a>
+                <?php endif; ?>
+              </td>
               <td>
                 <?php $date = $row['returned_at_bor'] ?? $row['requested_at_bor'] ?? $row['created_at_bor'] ?? null; ?>
                 <?php if ($date): ?>

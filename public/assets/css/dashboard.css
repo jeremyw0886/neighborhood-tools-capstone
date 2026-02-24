@@ -994,6 +994,69 @@
     }
   }
 
+  /* ── History table — inline rate link ── */
+
+  [data-rate-link] {
+    color: var(--mountain-gold-dark);
+    font-size: 0.813rem;
+    font-weight: 600;
+    margin-inline-start: 0.5rem;
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+
+    &:is(:hover, :focus-visible) {
+      color: var(--mountain-pine);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--mountain-gold);
+      outline-offset: 2px;
+      border-radius: 0.25rem;
+    }
+
+    & > i {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* ── Loan status — rate CTA ── */
+
+  #loan-status > section[aria-labelledby="rate-heading"] {
+
+    & > p {
+      color: var(--mountain-slate);
+      font-size: 0.875rem;
+      margin-block-end: 0.75rem;
+    }
+
+    & > [data-rate-cta] {
+      align-items: center;
+      background: linear-gradient(135deg, var(--mountain-gold) 0%, var(--mountain-gold-dark) 100%);
+      border-radius: 0.375rem;
+      color: #fff;
+      display: inline-flex;
+      font-size: 0.875rem;
+      font-weight: 600;
+      gap: 0.4rem;
+      min-height: 2.75rem;
+      padding-block: 0.5rem;
+      padding-inline: 1.25rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+
+      &:is(:hover, :focus-visible) {
+        background: linear-gradient(135deg, var(--mountain-gold-dark) 0%, var(--mountain-pine) 100%);
+        transform: scale(1.02);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--mountain-pine);
+        outline-offset: 2px;
+      }
+    }
+  }
+
   /* ── Lender page tool grid ── */
 
   section[aria-labelledby="listed-tools-heading"] > div[role="list"] {

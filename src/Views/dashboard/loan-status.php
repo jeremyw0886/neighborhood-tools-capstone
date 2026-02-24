@@ -356,4 +356,14 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
     </section>
   <?php endif; ?>
 
+  <?php if ($status === 'returned'): ?>
+    <section aria-labelledby="rate-heading">
+      <h2 id="rate-heading">Rate This Borrow</h2>
+      <p>Share your experience to help the community.</p>
+      <a href="/rate/<?= (int) $borrow['id_bor'] ?>" data-rate-cta>
+        <i class="fa-solid fa-star" aria-hidden="true"></i> Leave a Rating
+      </a>
+    </section>
+  <?php endif; ?>
+
 </section>

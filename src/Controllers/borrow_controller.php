@@ -435,8 +435,8 @@ class BorrowController extends BaseController
             error_log('BorrowController::return notification — ' . $e->getMessage());
         }
 
-        $_SESSION['borrow_success'] = 'Return confirmed! The tool has been marked as returned.';
-        $this->redirect('/dashboard/lender');
+        $_SESSION['rating_success'] = 'Return confirmed! Rate your experience below.';
+        $this->redirect('/rate/' . $borrowId);
     }
 
     /**

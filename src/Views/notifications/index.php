@@ -112,7 +112,13 @@ $paginationUrl = static fn(int $pageNum): string =>
         $isRead = !empty($ntf['is_read_ntf']);
         $type   = $ntf['notification_type'] ?? 'request';
         $icon   = $typeIcon($type);
-        $link   = ($ntf['id_bor_ntf'] ?? null) !== null ? '/dashboard' : null;
+        $borrowLinkId = $ntf['id_bor_ntf'] ?? null;
+        $link = match (true) {
+            $borrowLinkId !== null && in_array($type, ['return', 'rating'], true)
+                => '/rate/' . (int) $borrowLinkId,
+            $borrowLinkId !== null => '/dashboard',
+            default => null,
+        };
       ?>
         <li data-type="<?= htmlspecialchars($type) ?>"<?= $isRead ? '' : ' data-unread' ?>>
           <article>

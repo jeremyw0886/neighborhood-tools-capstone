@@ -183,6 +183,31 @@ class Neighborhood
     }
 
     /**
+     * Fetch neighborhoods linked to a ZIP code via the junction table.
+     *
+     * @return array<int, array{id_nbh: int, neighborhood_name_nbh: string, city_name_nbh: string, is_primary: int}>
+     */
+    public static function getByZipCode(string $zip): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT n.id_nbh,
+                   n.neighborhood_name_nbh,
+                   n.city_name_nbh,
+                   j.is_primary_nbhzpc AS is_primary
+            FROM neighborhood_zip_nbhzpc j
+            JOIN neighborhood_nbh n ON n.id_nbh = j.id_nbh_nbhzpc
+            WHERE j.zip_code_nbhzpc = :zip
+            ORDER BY j.is_primary_nbhzpc DESC, n.neighborhood_name_nbh
+        ");
+        $stmt->bindValue(':zip', $zip);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Fetch distinct city names for the location toggle radio buttons.
      *
      * @return array<int, array{city: string}>

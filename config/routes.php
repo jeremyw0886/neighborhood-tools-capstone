@@ -40,6 +40,7 @@ return [
     'GET /register'                => [AuthController::class, 'showRegister'],
     'POST /register'               => [AuthController::class, 'register'],
     'POST /logout'                 => [AuthController::class, 'logout'],
+    'GET /api/neighborhoods/{zip}' => [AuthController::class, 'neighborhoodsByZip'],
     'GET /forgot-password'         => [AuthController::class, 'showForgotPassword'],
     'POST /forgot-password'        => [AuthController::class, 'forgotPassword'],
     'GET /reset-password'          => [AuthController::class, 'showResetPassword'],

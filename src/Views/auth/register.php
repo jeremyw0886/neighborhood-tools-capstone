@@ -192,6 +192,31 @@
             <span id="zip-error" role="alert"><?= htmlspecialchars($errors['zip_code']) ?></span>
           <?php endif; ?>
         </div>
+
+        <?php
+          $selectedNbh = (int) ($old['neighborhood_id'] ?? 0);
+          $grouped = [];
+          foreach ($neighborhoods as $nbh) {
+              $grouped[$nbh['city_name_nbh']][] = $nbh;
+          }
+        ?>
+        <div class="form-group">
+          <label for="neighborhood_id">Neighborhood</label>
+          <select id="neighborhood_id" name="neighborhood_id" aria-describedby="neighborhood-hint">
+            <option value="">Select a neighborhood</option>
+            <?php foreach ($grouped as $city => $nbhs): ?>
+              <optgroup label="<?= htmlspecialchars($city) ?>">
+                <?php foreach ($nbhs as $nbh): ?>
+                  <option
+                    value="<?= (int) $nbh['id_nbh'] ?>"
+                    <?= $selectedNbh === (int) $nbh['id_nbh'] ? 'selected' : '' ?>
+                  ><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+            <?php endforeach; ?>
+          </select>
+          <span id="neighborhood-hint" class="form-hint">Auto-assigned from your ZIP code if not chosen</span>
+        </div>
       </fieldset>
 
       <button type="submit">

@@ -139,6 +139,14 @@ use App\Core\ViewHelper;
               <td><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</td>
               <td><span data-status="approved">Approved &mdash; ready for pickup</span></td>
               <td data-actions>
+                <?php
+                  $borrowDeposit = $depositsByBorrow[(int) $pickup['id_bor']] ?? null;
+                  if ($borrowDeposit !== null && strtolower($borrowDeposit['deposit_status']) === 'pending'):
+                ?>
+                <a href="/payments/deposit/<?= (int) $borrowDeposit['id_sdp'] ?>" role="button">
+                  <i class="fa-solid fa-credit-card" aria-hidden="true"></i> Pay Deposit
+                </a>
+                <?php endif; ?>
                 <a href="/handover/<?= (int) $pickup['id_bor'] ?>" role="button">
                   <i class="fa-solid fa-qrcode" aria-hidden="true"></i> Handover
                 </a>

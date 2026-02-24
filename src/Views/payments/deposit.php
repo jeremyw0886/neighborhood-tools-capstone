@@ -36,6 +36,8 @@ $provider  = htmlspecialchars($deposit['payment_provider']);
     </div>
   </dl>
 
+  <p data-deposit-terms>Your deposit is fully refundable upon safe return of the tool. If damage or loss occurs, part or all of the deposit may be forfeited.</p>
+
   <?php if (!empty($stripeClientSecret)): ?>
   <form id="payment-form"
         data-publishable-key="<?= htmlspecialchars($stripePublishableKey) ?>"
@@ -190,6 +192,10 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
     </div>
     <?php endif; ?>
   </dl>
+
+  <?php if (in_array(strtolower($deposit['deposit_status']), ['pending', 'held'], true)): ?>
+  <p data-deposit-terms>Your deposit is fully refundable upon safe return of the tool. If damage or loss occurs, part or all of the deposit may be forfeited.</p>
+  <?php endif; ?>
 
   <section aria-labelledby="borrow-context-heading">
     <h2 id="borrow-context-heading">

@@ -6,7 +6,8 @@
  *   $handover          array  Row from pending_handover_v (code, status, parties, tool)
  *   $isVerifier        bool   Whether the current user is the one who verifies (not the generator)
  *   $awaitingBorrower  bool   (optional) True when lender visits before borrower initiates pickup
- *   $borrow            array  (optional) Row from Borrow::findById() — present with $awaitingBorrower
+ *   $awaitingLender    bool   (optional) True when borrower visits before lender initiates return
+ *   $borrow            array  (optional) Row from Borrow::findById() — present with awaiting flags
  *
  * Shared data:
  *   $authUser   array{id, name, first_name, role, avatar}
@@ -54,6 +55,57 @@ if (!empty($awaitingBorrower)):
 
   <nav aria-label="Navigation">
     <a href="/dashboard/lender">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Back to Dashboard
+    </a>
+  </nav>
+
+</section>
+
+<?php return; endif; ?>
+
+<?php
+if (!empty($awaitingLender)):
+  $toolName   = htmlspecialchars($borrow['tool_name_tol']);
+  $lenderName = htmlspecialchars($borrow['lender_name']);
+?>
+
+<section id="handover-verify" aria-labelledby="handover-heading">
+
+  <header>
+    <h1 id="handover-heading">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+      Return Verification
+    </h1>
+    <p>Awaiting return initiation for <strong><?= $toolName ?></strong>.</p>
+  </header>
+
+  <dl aria-label="Borrow details">
+    <div>
+      <dt>Tool</dt>
+      <dd><?= $toolName ?></dd>
+    </div>
+    <div>
+      <dt>Lender</dt>
+      <dd>
+        <a href="/profile/<?= (int) $borrow['lender_id'] ?>">
+          <?= $lenderName ?>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd><span data-status="borrowed">Borrowed</span></dd>
+    </div>
+  </dl>
+
+  <p data-flash="info">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <?= $lenderName ?> hasn't initiated the return yet. Once they do, you'll receive a notification with your verification code.
+  </p>
+
+  <nav aria-label="Navigation">
+    <a href="/dashboard/borrower">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       Back to Dashboard
     </a>

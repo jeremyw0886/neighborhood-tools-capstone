@@ -6,6 +6,7 @@ $isAttending   ??= false;
 $attendeeCount ??= 0;
 ?>
 
+<?php
 $startDt  = new DateTimeImmutable($event['start_at_evt']);
 $hasEnd   = $event['end_at_evt'] !== null;
 $endDt    = $hasEnd ? new DateTimeImmutable($event['end_at_evt']) : null;

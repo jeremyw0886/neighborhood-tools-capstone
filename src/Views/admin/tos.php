@@ -1,13 +1,16 @@
 <?php
 /**
- * Admin — TOS management with non-compliant user listing.
+ * Admin — TOS management with sortable non-compliant user listing.
  *
  * Variables from AdminController::tos():
- *   $users       array   Rows from Tos::getNonCompliantUsers() via tos_acceptance_required_v
- *   $totalCount  int     Total non-compliant users
- *   $page        int     Current page (1-based)
- *   $totalPages  int     Total pages
- *   $perPage     int     Results per page (12)
+ *   $users        array   Rows from Tos::getNonCompliantUsers() via tos_acceptance_required_v
+ *   $totalCount   int     Total non-compliant users
+ *   $page         int     Current page (1-based)
+ *   $totalPages   int     Total pages
+ *   $perPage      int     Results per page (12)
+ *   $sort         string  Active sort column
+ *   $dir          string  Active sort direction (ASC|DESC)
+ *   $filterParams array   Non-null filter params for pagination URLs
  *
  * Each user row contains:
  *   id_acc, full_name, email_address_acc, account_status,
@@ -28,8 +31,13 @@ $isSuperAdmin = ($authUser['role'] ?? '') === 'super_admin';
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-$basePath     = '/admin/tos';
-$filterParams = [];
+$basePath = '/admin/tos';
+
+$sortLabels = [
+    'full_name'              => 'Name',
+    'last_login_at_acc'      => 'Last Login',
+    'last_accepted_version'  => 'Last Accepted Version',
+];
 ?>
 
 <section aria-labelledby="admin-tos-heading">
@@ -56,6 +64,35 @@ $filterParams = [];
       </a>
     </div>
   <?php endif; ?>
+
+  <form method="get" action="/admin/tos" role="search" aria-label="Sort non-compliant members" data-admin-filters>
+    <fieldset>
+      <legend class="visually-hidden">Sort non-compliant members</legend>
+
+      <div>
+        <label for="tos-sort">Sort By</label>
+        <select id="tos-sort" name="sort">
+          <?php foreach ($sortLabels as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="tos-dir">Direction</label>
+        <select id="tos-dir" name="dir">
+          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+        </select>
+      </div>
+
+      <button type="submit">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+      </button>
+    </fieldset>
+  </form>
 
   <?php if ($currentTos !== null): ?>
     <section aria-labelledby="tos-version-heading">

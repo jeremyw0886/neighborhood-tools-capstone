@@ -568,16 +568,18 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const array TOS_SORT_FIELDS = ['full_name', 'last_login_at_acc', 'last_accepted_version'];
+
     /**
-     * TOS management — current version and non-compliant users.
+     * TOS management — current version and sortable non-compliant user listing.
      *
-     * Displays the active TOS version summary alongside a paginated
-     * list of active members who have not yet accepted it, pulled
-     * from tos_acceptance_required_v via the Tos model.
+     * Accepts `?sort`, `?dir` query params.
      */
     public function tos(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $sortParams = $this->parseSortParams('', self::TOS_SORT_FIELDS, 'last_login_at_acc', 'DESC');
 
         try {
             $page       = max(1, (int) ($_GET['page'] ?? 1));
@@ -585,7 +587,12 @@ class AdminController extends BaseController
             $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
             $page       = min($page, $totalPages);
             $offset     = ($page - 1) * self::PER_PAGE;
-            $users      = Tos::getNonCompliantUsers(self::PER_PAGE, $offset);
+            $users      = Tos::getNonCompliantUsers(
+                limit:  self::PER_PAGE,
+                offset: $offset,
+                sort:   $sortParams['sort'],
+                dir:    $sortParams['dir'],
+            );
         } catch (\Throwable $e) {
             error_log('AdminController::tos — ' . $e->getMessage());
             $page       = 1;
@@ -594,15 +601,23 @@ class AdminController extends BaseController
             $users      = [];
         }
 
+        $filterParams = array_filter([
+            'sort' => $sortParams['sort'],
+            'dir'  => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
+
         $this->render('admin/tos', [
-            'title'       => 'Manage Terms of Service — NeighborhoodTools',
-            'description' => 'View and manage Terms of Service versions.',
-            'pageCss'     => ['admin.css'],
-            'users'       => $users,
-            'totalCount'  => $totalCount,
-            'page'        => $page,
-            'totalPages'  => $totalPages,
-            'perPage'     => self::PER_PAGE,
+            'title'        => 'Manage Terms of Service — NeighborhoodTools',
+            'description'  => 'View and manage Terms of Service versions.',
+            'pageCss'      => ['admin.css'],
+            'users'        => $users,
+            'totalCount'   => $totalCount,
+            'page'         => $page,
+            'totalPages'   => $totalPages,
+            'perPage'      => self::PER_PAGE,
+            'sort'         => $sortParams['sort'],
+            'dir'          => $sortParams['dir'],
+            'filterParams' => $filterParams,
         ]);
     }
 

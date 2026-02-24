@@ -11,29 +11,31 @@ class Tos
 {
     private const int PER_PAGE = 12;
 
+    private const array NON_COMPLIANT_SORT_FIELDS = [
+        'full_name',
+        'last_login_at_acc',
+        'last_accepted_version',
+    ];
+
     /**
      * Fetch paginated active users who have not accepted the current TOS.
-     *
-     * Queries tos_acceptance_required_v which filters to active accounts
-     * missing an acceptance of the current active, non-superseded TOS version.
-     * Includes each user's last accepted version and timestamp for context.
      *
      * @return array  Rows with id_acc, full_name, email_address_acc,
      *                last_login_at_acc, created_at_acc,
      *                last_tos_accepted_at, last_accepted_version
      */
-    public static function getNonCompliantUsers(int $limit = self::PER_PAGE, int $offset = 0): array
+    public static function getNonCompliantUsers(int $limit = self::PER_PAGE, int $offset = 0, string $sort = 'last_login_at_acc', string $dir = 'DESC'): array
     {
-        $pdo = Database::connection();
+        $sortCol = in_array($sort, self::NON_COMPLIANT_SORT_FIELDS, true) ? $sort : 'last_login_at_acc';
+        $sortDir = strtoupper($dir) === 'ASC' ? 'ASC' : 'DESC';
 
-        $sql = "
-            SELECT *
-            FROM tos_acceptance_required_v
-            ORDER BY last_login_at_acc DESC
-            LIMIT :limit OFFSET :offset
-        ";
-
-        $stmt = $pdo->prepare($sql);
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare(
+            "SELECT *
+               FROM tos_acceptance_required_v
+              ORDER BY {$sortCol} {$sortDir}, full_name ASC
+              LIMIT :limit OFFSET :offset"
+        );
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();

@@ -1,26 +1,25 @@
 <?php
 /**
- * Admin — Event management with timing filters and attendee counts.
+ * Admin — Event management with timing filter and sortable columns.
  *
  * Variables from AdminController::events():
- *   $events          array   Rows from Event::getUpcoming() via upcoming_event_v
- *   $totalCount      int     Total events matching current filter
- *   $page            int     Current page (1-based)
- *   $totalPages      int     Total pages
- *   $perPage         int     Results per page (12)
- *   $timing          ?string Active timing filter (uppercase) or null
- *   $timingCounts    array   Timing label => count for filter bar
- *   $attendeeCounts  array   id_evt => attendee count
- *   $filterParams    array   Non-null filter params for pagination URLs
+ *   $events         array   Rows from Event::getUpcoming() with attendee_count
+ *   $totalCount     int     Total events matching current filter
+ *   $page           int     Current page (1-based)
+ *   $totalPages     int     Total pages
+ *   $perPage        int     Results per page (12)
+ *   $timing         ?string Active timing filter (uppercase) or null
+ *   $timingCounts   array   Timing label => count for filter options
+ *   $sort           string  Active sort column
+ *   $dir            string  Active sort direction (ASC|DESC)
+ *   $filterParams   array   Non-null filter params for pagination URLs
  *
  * Each event row contains:
  *   id_evt, event_name_evt, event_description_evt, event_address_evt,
  *   start_at_evt, end_at_evt, days_until_event, event_timing,
  *   neighborhood_id, neighborhood_name_nbh, city_name_nbh, state_code_sta,
- *   creator_id, creator_name, created_at_evt, updated_at_evt, last_updated_by
- *
- * Shared data:
- *   $currentPage  string
+ *   creator_id, creator_name, created_at_evt, updated_at_evt, last_updated_by,
+ *   attendee_count
  */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
@@ -30,6 +29,20 @@ $basePath = '/admin/events';
 
 $allTimings = ['HAPPENING NOW', 'THIS WEEK', 'THIS MONTH', 'UPCOMING'];
 $totalAll   = array_sum($timingCounts);
+
+$sortLabels = [
+    'start_at_evt'   => 'Start Date',
+    'attendee_count' => 'Attendees',
+    'created_at_evt' => 'Date Created',
+    'event_name_evt' => 'Event Name',
+];
+
+$ariaSortFor = static function (string $col) use ($sort, $dir): string {
+    if ($sort !== $col) {
+        return '';
+    }
+    return ' aria-sort="' . ($dir === 'ASC' ? 'ascending' : 'descending') . '"';
+};
 ?>
 
 <section aria-labelledby="admin-events-heading">
@@ -44,26 +57,48 @@ $totalAll   = array_sum($timingCounts);
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
-  <nav aria-label="Filter by timing" data-timing-filters>
-    <ul>
-      <li>
-        <a href="/admin/events"<?= $timing === null ? ' aria-current="true"' : '' ?>>
-          All <span>(<?= number_format($totalAll) ?>)</span>
-        </a>
-      </li>
-      <?php foreach ($allTimings as $label):
-        $count    = $timingCounts[$label] ?? 0;
-        $slug     = urlencode($label);
-        $isActive = $timing === $label;
-      ?>
-        <li>
-          <a href="/admin/events?timing=<?= $slug ?>"<?= $isActive ? ' aria-current="true"' : '' ?>>
-            <?= htmlspecialchars(ucwords(strtolower($label))) ?> <span>(<?= number_format($count) ?>)</span>
-          </a>
-        </li>
-      <?php endforeach; ?>
-    </ul>
-  </nav>
+  <form method="get" action="/admin/events" role="search" aria-label="Filter and sort events" data-admin-filters>
+    <fieldset>
+      <legend class="visually-hidden">Filter and sort events</legend>
+
+      <div>
+        <label for="events-timing">Timing</label>
+        <select id="events-timing" name="timing">
+          <option value="">All (<?= number_format($totalAll) ?>)</option>
+          <?php foreach ($allTimings as $label):
+            $count = $timingCounts[$label] ?? 0;
+          ?>
+            <option value="<?= htmlspecialchars($label) ?>"<?= $timing === $label ? ' selected' : '' ?>>
+              <?= htmlspecialchars(ucwords(strtolower($label))) ?> (<?= number_format($count) ?>)
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="events-sort">Sort By</label>
+        <select id="events-sort" name="sort">
+          <?php foreach ($sortLabels as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="events-dir">Direction</label>
+        <select id="events-dir" name="dir">
+          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+        </select>
+      </div>
+
+      <button type="submit">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+      </button>
+    </fieldset>
+  </form>
 
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
@@ -87,19 +122,19 @@ $totalAll   = array_sum($timingCounts);
       <caption class="visually-hidden">Community events</caption>
       <thead>
         <tr>
-          <th scope="col">Event</th>
+          <th scope="col"<?= $ariaSortFor('event_name_evt') ?>>Event</th>
           <th scope="col">Location</th>
-          <th scope="col">Start</th>
+          <th scope="col"<?= $ariaSortFor('start_at_evt') ?>>Start</th>
           <th scope="col">Timing</th>
-          <th scope="col">Attendees</th>
+          <th scope="col"<?= $ariaSortFor('attendee_count') ?>>Attendees</th>
           <th scope="col">Creator</th>
-          <th scope="col">Created</th>
+          <th scope="col"<?= $ariaSortFor('created_at_evt') ?>>Created</th>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($events as $event):
           $eventId   = (int) $event['id_evt'];
-          $attendees = $attendeeCounts[$eventId] ?? 0;
+          $attendees = (int) $event['attendee_count'];
           $location  = $event['event_address_evt'] !== null
               ? ($event['neighborhood_name_nbh'] ?? '') .
                 ($event['city_name_nbh'] ? ', ' . $event['city_name_nbh'] : '')
@@ -107,29 +142,29 @@ $totalAll   = array_sum($timingCounts);
           $timingKey = strtolower(str_replace(' ', '-', $event['event_timing']));
         ?>
           <tr>
-            <td>
+            <td data-label="Event">
               <a href="/events/<?= $eventId ?>">
                 <?= htmlspecialchars($event['event_name_evt']) ?>
               </a>
             </td>
-            <td><?= htmlspecialchars($location) ?></td>
-            <td>
+            <td data-label="Location"><?= htmlspecialchars($location) ?></td>
+            <td data-label="Start">
               <time datetime="<?= htmlspecialchars($event['start_at_evt']) ?>">
                 <?= htmlspecialchars(date('M j, Y g:iA', strtotime($event['start_at_evt']))) ?>
               </time>
             </td>
-            <td>
+            <td data-label="Timing">
               <span data-timing="<?= $timingKey ?>">
                 <?= htmlspecialchars(ucwords(strtolower($event['event_timing']))) ?>
               </span>
             </td>
-            <td><?= number_format($attendees) ?></td>
-            <td>
+            <td data-label="Attendees"><?= number_format($attendees) ?></td>
+            <td data-label="Creator">
               <a href="/profile/<?= (int) $event['creator_id'] ?>">
                 <?= htmlspecialchars($event['creator_name']) ?>
               </a>
             </td>
-            <td>
+            <td data-label="Created">
               <time datetime="<?= htmlspecialchars($event['created_at_evt']) ?>">
                 <?= htmlspecialchars(date('M j, Y', strtotime($event['created_at_evt']))) ?>
               </time>

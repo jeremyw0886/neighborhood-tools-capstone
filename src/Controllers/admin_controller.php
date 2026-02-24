@@ -10,7 +10,6 @@ use App\Models\Account;
 use App\Models\Category;
 use App\Models\Dispute;
 use App\Models\Event;
-use App\Models\EventAttendance;
 use App\Models\Incident;
 use App\Models\Neighborhood;
 use App\Models\PlatformStats;
@@ -367,69 +366,66 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const array EVENTS_SORT_FIELDS    = ['start_at_evt', 'attendee_count', 'created_at_evt', 'event_name_evt'];
+    private const array EVENTS_ALLOWED_TIMINGS = ['HAPPENING NOW', 'THIS WEEK', 'THIS MONTH', 'UPCOMING'];
+
     /**
-     * Event management — upcoming community events with timing filters.
+     * Event management — sortable, filterable list of upcoming community events.
      *
-     * Queries upcoming_event_v with optional timing filter (HAPPENING NOW,
-     * THIS WEEK, THIS MONTH, UPCOMING). Includes attendee counts from
-     * EventAttendance for each listed event.
+     * Accepts `?timing`, `?sort`, `?dir` query params.
      */
     public function events(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $timing = trim($_GET['timing'] ?? '');
-        $timing = $timing !== '' ? strtoupper($timing) : null;
-        $page   = max(1, (int) ($_GET['page'] ?? 1));
+        $sortParams = $this->parseSortParams('', self::EVENTS_SORT_FIELDS, 'start_at_evt', 'ASC');
+
+        $rawTiming = strtoupper(trim($_GET['timing'] ?? ''));
+        $timing    = in_array($rawTiming, self::EVENTS_ALLOWED_TIMINGS, true) ? $rawTiming : null;
 
         try {
+            $page         = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount   = Event::getUpcomingCount($timing);
             $timingCounts = Event::getTimingCounts();
+            $totalPages   = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page         = min($page, $totalPages);
+            $offset       = ($page - 1) * self::PER_PAGE;
+            $events       = Event::getUpcoming(
+                sort:   $sortParams['sort'],
+                dir:    $sortParams['dir'],
+                timing: $timing,
+                limit:  self::PER_PAGE,
+                offset: $offset,
+            );
         } catch (\Throwable $e) {
-            error_log('AdminController::events counts — ' . $e->getMessage());
+            error_log('AdminController::events — ' . $e->getMessage());
+            $page         = 1;
             $totalCount   = 0;
+            $totalPages   = 1;
             $timingCounts = [];
-        }
-
-        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-        $page       = min($page, $totalPages);
-        $offset     = ($page - 1) * self::PER_PAGE;
-
-        try {
-            $events = Event::getUpcoming(timing: $timing, limit: self::PER_PAGE, offset: $offset);
-        } catch (\Throwable $e) {
-            error_log('AdminController::events list — ' . $e->getMessage());
-            $events = [];
-        }
-
-        $attendeeCounts = [];
-
-        if ($events !== []) {
-            try {
-                $eventIds       = array_column($events, 'id_evt');
-                $attendeeCounts = EventAttendance::getAttendeeCounts($eventIds);
-            } catch (\Throwable $e) {
-                error_log('AdminController::events attendance — ' . $e->getMessage());
-            }
+            $events       = [];
         }
 
         $filterParams = array_filter([
             'timing' => $timing,
+            'sort'   => $sortParams['sort'],
+            'dir'    => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->render('admin/events', [
-            'title'          => 'Manage Events — NeighborhoodTools',
-            'description'    => 'View and manage community events.',
-            'pageCss'        => ['admin.css'],
-            'events'         => $events,
-            'totalCount'     => $totalCount,
-            'page'           => $page,
-            'totalPages'     => $totalPages,
-            'perPage'        => self::PER_PAGE,
-            'timing'         => $timing,
-            'timingCounts'   => $timingCounts,
-            'attendeeCounts' => $attendeeCounts,
-            'filterParams'   => $filterParams,
+            'title'         => 'Manage Events — NeighborhoodTools',
+            'description'   => 'View and manage community events.',
+            'pageCss'       => ['admin.css'],
+            'events'        => $events,
+            'totalCount'    => $totalCount,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => self::PER_PAGE,
+            'timing'        => $timing,
+            'timingCounts'  => $timingCounts,
+            'sort'          => $sortParams['sort'],
+            'dir'           => $sortParams['dir'],
+            'filterParams'  => $filterParams,
         ]);
     }
 

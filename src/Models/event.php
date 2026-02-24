@@ -18,17 +18,24 @@ class Event
         'UPCOMING',
     ];
 
+    private const array VALID_SORT_FIELDS = [
+        'start_at_evt',
+        'attendee_count',
+        'created_at_evt',
+        'event_name_evt',
+    ];
+
     /**
-     * Fetch upcoming events with optional timing filter and pagination.
+     * Fetch upcoming events with optional timing filter, sorting, and pagination.
      *
-     * Queries upcoming_event_v which computes days_until_event and
-     * event_timing (HAPPENING NOW / THIS WEEK / THIS MONTH / UPCOMING).
-     * Events are ordered by proximity: happening now first, then soonest.
-     *
-     * @param  ?string $timing  One of the VALID_TIMINGS constants, or null for all
-     * @return array            Rows from upcoming_event_v
+     * @param  string  $sort   Pre-validated column name from VALID_SORT_FIELDS
+     * @param  string  $dir    Pre-validated direction (ASC|DESC)
+     * @param  ?string $timing One of the VALID_TIMINGS constants, or null for all
+     * @return array           Rows from upcoming_event_v with attendee_count
      */
     public static function getUpcoming(
+        string $sort = 'start_at_evt',
+        string $dir = 'ASC',
         ?string $timing = null,
         int $limit = self::PER_PAGE,
         int $offset = 0,
@@ -37,16 +44,24 @@ class Event
 
         $where = '';
         if ($timing !== null && in_array($timing, self::VALID_TIMINGS, true)) {
-            $where = 'WHERE event_timing = :timing';
+            $where = 'WHERE e.event_timing = :timing';
         }
 
+        $sortCol = in_array($sort, self::VALID_SORT_FIELDS, true) ? $sort : 'start_at_evt';
+        $sortDir = in_array($dir, ['ASC', 'DESC'], true) ? $dir : 'ASC';
+
         $sql = "
-            SELECT *
-            FROM upcoming_event_v
+            SELECT
+                e.*,
+                COALESCE(a.attendee_count, 0) AS attendee_count
+            FROM upcoming_event_v e
+            LEFT JOIN (
+                SELECT id_evt_eya, COUNT(*) AS attendee_count
+                FROM event_attendee_eya
+                GROUP BY id_evt_eya
+            ) a ON a.id_evt_eya = e.id_evt
             {$where}
-            ORDER BY
-                FIELD(event_timing, 'HAPPENING NOW', 'THIS WEEK', 'THIS MONTH', 'UPCOMING'),
-                start_at_evt ASC
+            ORDER BY {$sortCol} {$sortDir}
             LIMIT :limit OFFSET :offset
         ";
 

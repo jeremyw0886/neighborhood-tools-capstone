@@ -22,7 +22,7 @@ class PlatformStats
     {
         return [
             ...Neighborhood::getPlatformTotals(),
-            'openDisputes'    => Dispute::getCount(),
+            'openDisputes'    => Dispute::getFilteredCount(),
             'pendingDeposits' => Deposit::getPendingCount(),
             'openIncidents'   => Incident::getOpenCount(),
             'upcomingEvents'  => Event::getUpcomingCount(),

@@ -11,46 +11,64 @@ use App\Models\Dispute;
 
 class DisputeController extends BaseController
 {
-    private const int PER_PAGE = 12;
+    private const int PER_PAGE                  = 12;
+    private const array DISPUTES_SORT_FIELDS    = ['created_at_dsp', 'days_open', 'last_message_at', 'message_count'];
+    private const array DISPUTES_ALLOWED_URGENCY = ['critical', 'high', 'moderate', 'new'];
 
     /**
-     * List open disputes with pagination.
+     * List open disputes — paginated, sortable, with urgency filter.
      *
-     * Admin-only — queries open_dispute_v for all open disputes
-     * with reporter, borrower, lender details, message counts,
-     * related incidents, and deposit information.
+     * Accepts `?urgency`, `?sort`, `?dir` query params.
      */
     public function index(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $page   = max(1, (int) ($_GET['page'] ?? 1));
-        $offset = ($page - 1) * self::PER_PAGE;
+        $sortParams = $this->parseSortParams('', self::DISPUTES_SORT_FIELDS, 'created_at_dsp', 'DESC');
+
+        $rawUrgency = $_GET['urgency'] ?? '';
+        $urgency    = in_array($rawUrgency, self::DISPUTES_ALLOWED_URGENCY, true) ? $rawUrgency : null;
 
         try {
-            $disputes   = Dispute::getAll(limit: self::PER_PAGE, offset: $offset);
-            $totalCount = Dispute::getCount();
+            $page       = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount = Dispute::getFilteredCount($urgency);
+            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page       = min($page, $totalPages);
+            $offset     = ($page - 1) * self::PER_PAGE;
+            $disputes   = Dispute::getAll(
+                limit:   self::PER_PAGE,
+                offset:  $offset,
+                sort:    $sortParams['sort'],
+                dir:     $sortParams['dir'],
+                urgency: $urgency,
+            );
         } catch (\Throwable $e) {
             error_log('DisputeController::index — ' . $e->getMessage());
-            $disputes   = [];
+            $page       = 1;
             $totalCount = 0;
+            $totalPages = 1;
+            $disputes   = [];
         }
 
-        $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
-
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
+        $filterParams = array_filter([
+            'urgency' => $urgency,
+            'sort'    => $sortParams['sort'],
+            'dir'     => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
 
         $this->render('admin/disputes', [
-            'title'       => 'Manage Disputes — NeighborhoodTools',
-            'description' => 'Review and resolve open disputes.',
-            'pageCss'     => ['admin.css'],
-            'disputes'    => $disputes,
-            'totalCount'  => $totalCount,
-            'page'        => $page,
-            'totalPages'  => $totalPages,
-            'perPage'     => self::PER_PAGE,
+            'title'        => 'Manage Disputes — NeighborhoodTools',
+            'description'  => 'Review and resolve open disputes.',
+            'pageCss'      => ['admin.css'],
+            'disputes'     => $disputes,
+            'totalCount'   => $totalCount,
+            'page'         => $page,
+            'totalPages'   => $totalPages,
+            'perPage'      => self::PER_PAGE,
+            'urgency'      => $urgency,
+            'sort'         => $sortParams['sort'],
+            'dir'          => $sortParams['dir'],
+            'filterParams' => $filterParams,
         ]);
     }
 

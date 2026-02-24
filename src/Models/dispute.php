@@ -9,26 +9,41 @@ use PDO;
 
 class Dispute
 {
-    private const int PER_PAGE = 12;
+    private const array URGENCY_CONDITIONS = [
+        'critical' => 'days_open >= 14',
+        'high'     => 'days_open BETWEEN 7 AND 13',
+        'moderate' => 'days_open BETWEEN 3 AND 6',
+        'new'      => 'days_open <= 2',
+    ];
 
     /**
-     * Fetch open disputes with pagination.
+     * Fetch open disputes with pagination, sorting, and urgency filter.
      *
-     * Queries open_dispute_v which joins dispute_dsp, account_acc (reporter,
-     * borrower, lender), borrow_bor, tool_tol, dispute_message_dsm,
-     * incident_report_irt, and security_deposit_sdp.
-     *
-     * @return array Rows with subject, reporter/borrower/lender info,
-     *               message count, related incidents, deposit details
+     * @param  string  $sort    Pre-validated column name
+     * @param  string  $dir     Pre-validated direction (ASC|DESC)
+     * @param  ?string $urgency Urgency tier: critical|high|moderate|new
+     * @return array
      */
-    public static function getAll(int $limit = self::PER_PAGE, int $offset = 0): array
-    {
+    public static function getAll(
+        int $limit,
+        int $offset,
+        string $sort = 'created_at_dsp',
+        string $dir = 'DESC',
+        ?string $urgency = null,
+    ): array {
         $pdo = Database::connection();
+
+        $whereClause = '';
+
+        if ($urgency !== null && isset(self::URGENCY_CONDITIONS[$urgency])) {
+            $whereClause = 'WHERE ' . self::URGENCY_CONDITIONS[$urgency];
+        }
 
         $sql = "
             SELECT *
             FROM open_dispute_v
-            ORDER BY created_at_dsp DESC
+            $whereClause
+            ORDER BY $sort $dir
             LIMIT :limit OFFSET :offset
         ";
 
@@ -41,13 +56,21 @@ class Dispute
     }
 
     /**
-     * Count total open disputes for pagination.
+     * Count open disputes matching the given urgency filter.
+     *
+     * @return int
      */
-    public static function getCount(): int
+    public static function getFilteredCount(?string $urgency = null): int
     {
         $pdo = Database::connection();
 
-        return (int) $pdo->query('SELECT COUNT(*) FROM open_dispute_v')->fetchColumn();
+        $whereClause = '';
+
+        if ($urgency !== null && isset(self::URGENCY_CONDITIONS[$urgency])) {
+            $whereClause = 'WHERE ' . self::URGENCY_CONDITIONS[$urgency];
+        }
+
+        return (int) $pdo->query("SELECT COUNT(*) FROM open_dispute_v $whereClause")->fetchColumn();
     }
 
     /**

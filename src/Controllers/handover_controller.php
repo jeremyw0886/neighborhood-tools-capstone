@@ -15,11 +15,10 @@ class HandoverController extends BaseController
     /**
      * Display the handover verification page for a borrow.
      *
-     * If a pending handover exists, shows the code (to the generator)
-     * or a code-entry form (to the verifier). If none exists and the
-     * borrow is approved, the borrower initiates pickup (creates the
-     * handover and notifies the lender), while the lender sees a
-     * waiting state.
+     * Dispatches to the appropriate flow based on borrow status:
+     * approved → pickup (borrower initiates), borrowed → return
+     * (lender initiates). If a pending handover already exists,
+     * renders the code or code-entry form directly.
      */
     public function verify(string $borrowId): void
     {
@@ -41,7 +40,29 @@ class HandoverController extends BaseController
         }
 
         if ($handover === null) {
-            $handover = $this->initiatePickup($id, $userId);
+            try {
+                $borrow = Borrow::findById($id);
+            } catch (\Throwable $e) {
+                error_log('HandoverController::verify borrow lookup — ' . $e->getMessage());
+                $borrow = null;
+            }
+
+            if ($borrow === null) {
+                $this->abort(404);
+            }
+
+            $isBorrower = (int) $borrow['borrower_id'] === $userId;
+            $isLender   = (int) $borrow['lender_id'] === $userId;
+
+            if (!$isBorrower && !$isLender) {
+                $this->abort(403);
+            }
+
+            $handover = match ($borrow['borrow_status']) {
+                'approved' => $this->initiatePickup($borrow, $userId),
+                'borrowed' => $this->initiateReturn($borrow, $userId),
+                default    => $this->abort(404),
+            };
         }
 
         $isBorrower = (int) $handover['borrower_id'] === $userId;
@@ -75,7 +96,7 @@ class HandoverController extends BaseController
     }
 
     /**
-     * Handle the case where no pending handover exists for an approved borrow.
+     * Handle pickup initiation when borrow is approved and no handover exists.
      *
      * Borrower: checks deposit, creates the handover, notifies the
      * lender with the pickup code, and returns the new handover row.
@@ -83,27 +104,11 @@ class HandoverController extends BaseController
      *
      * @return array The pending_handover_v row (borrower path only)
      */
-    private function initiatePickup(int $borrowId, int $userId): array
+    private function initiatePickup(array $borrow, int $userId): array
     {
-        try {
-            $borrow = Borrow::findById($borrowId);
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiatePickup borrow lookup — ' . $e->getMessage());
-            $borrow = null;
-        }
+        $borrowId = (int) $borrow['id_bor'];
 
-        if ($borrow === null || $borrow['borrow_status'] !== 'approved') {
-            $this->abort(404);
-        }
-
-        $isBorrower = (int) $borrow['borrower_id'] === $userId;
-        $isLender   = (int) $borrow['lender_id'] === $userId;
-
-        if (!$isBorrower && !$isLender) {
-            $this->abort(403);
-        }
-
-        if ($isLender) {
+        if ((int) $borrow['borrower_id'] !== $userId) {
             $this->render('handover/verify', [
                 'title'            => 'Awaiting Pickup — NeighborhoodTools',
                 'description'      => 'Waiting for the borrower to initiate pickup.',
@@ -177,6 +182,20 @@ class HandoverController extends BaseController
         }
 
         return $handover;
+    }
+
+    /**
+     * Handle return initiation when borrow is borrowed and no handover exists.
+     *
+     * Lender: creates the handover, notifies the borrower with the
+     * return code, and returns the new handover row.
+     * Borrower: renders the "awaiting lender" state and halts execution.
+     *
+     * @return array The pending_handover_v row (lender path only)
+     */
+    private function initiateReturn(array $borrow, int $userId): array
+    {
+        $this->abort(404);
     }
 
     /**

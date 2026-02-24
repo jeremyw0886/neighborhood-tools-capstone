@@ -148,7 +148,7 @@ use App\Core\ViewHelper;
                 </a>
                 <?php endif; ?>
                 <a href="/handover/<?= (int) $pickup['id_bor'] ?>" role="button">
-                  <i class="fa-solid fa-qrcode" aria-hidden="true"></i> Handover
+                  <i class="fa-solid fa-hand-holding" aria-hidden="true"></i> Pickup Tool
                 </a>
                 <details>
                   <summary>

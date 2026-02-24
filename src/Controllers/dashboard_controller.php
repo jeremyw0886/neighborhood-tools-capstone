@@ -298,10 +298,12 @@ class DashboardController extends BaseController
 
         $extensions = [];
         $handovers  = [];
+        $deposit    = null;
 
         try {
             $extensions = Borrow::getExtensions($borrowId);
             $handovers  = Borrow::getHandovers($borrowId);
+            $deposit    = Deposit::findByBorrowId($borrowId);
         } catch (\Throwable $e) {
             error_log('DashboardController::loanStatus (details) — ' . $e->getMessage());
         }
@@ -313,6 +315,7 @@ class DashboardController extends BaseController
             'borrow'      => $borrow,
             'extensions'  => $extensions,
             'handovers'   => $handovers,
+            'deposit'     => $deposit,
         ]);
     }
 

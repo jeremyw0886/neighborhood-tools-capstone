@@ -209,6 +209,22 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
     </dl>
   </section>
 
+  <?php if ($deposit !== null): ?>
+  <section aria-labelledby="deposit-heading">
+    <h2 id="deposit-heading">
+      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+      Security Deposit
+    </h2>
+    <dl>
+      <dt>Status</dt>
+      <dd><?= htmlspecialchars(ucfirst($deposit['deposit_status'])) ?></dd>
+      <dt>Amount</dt>
+      <dd>$<?= number_format((float) $deposit['amount_sdp'], 2) ?></dd>
+    </dl>
+    <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">View Deposit Details</a>
+  </section>
+  <?php endif; ?>
+
   <?php if (!empty($extensions)): ?>
     <section aria-labelledby="extensions-heading">
       <h2 id="extensions-heading">Extension History</h2>

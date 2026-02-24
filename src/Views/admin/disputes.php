@@ -1,13 +1,17 @@
 <?php
 /**
- * Admin — Open dispute listing with pagination.
+ * Admin — Open dispute listing with urgency filter and sort.
  *
  * Variables from DisputeController::index():
- *   $disputes    array   Rows from Dispute::getAll() via open_dispute_v
- *   $totalCount  int     Total open disputes
- *   $page        int     Current page (1-based)
- *   $totalPages  int     Total pages
- *   $perPage     int     Results per page (12)
+ *   $disputes     array   Rows from Dispute::getAll() via open_dispute_v
+ *   $totalCount   int     Total open disputes matching current filters
+ *   $page         int     Current page (1-based)
+ *   $totalPages   int     Total pages
+ *   $perPage      int     Results per page (12)
+ *   $urgency      ?string Active urgency filter or null
+ *   $sort         string  Active sort column
+ *   $dir          string  Active sort direction (ASC|DESC)
+ *   $filterParams array   Non-null filter params for pagination URLs
  *
  * Each dispute row contains:
  *   id_dsp, subject_text_dsp, created_at_dsp, days_open,
@@ -25,8 +29,7 @@
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-$basePath     = '/admin/disputes';
-$filterParams = [];
+$basePath = '/admin/disputes';
 
 $urgencyLabel = static function (int $daysOpen): string {
     if ($daysOpen >= 14) {
@@ -40,6 +43,13 @@ $urgencyLabel = static function (int $daysOpen): string {
     }
     return 'new';
 };
+
+$sortLabels = [
+    'created_at_dsp'  => 'Date Filed',
+    'days_open'       => 'Days Open',
+    'last_message_at' => 'Last Activity',
+    'message_count'   => 'Messages',
+];
 ?>
 
 <section aria-labelledby="admin-disputes-heading">
@@ -53,6 +63,46 @@ $urgencyLabel = static function (int $daysOpen): string {
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
+
+  <form method="get" action="/admin/disputes" aria-label="Filter and sort disputes" data-admin-filters>
+    <fieldset>
+      <legend class="visually-hidden">Filter and sort disputes</legend>
+
+      <div>
+        <label for="disputes-urgency">Urgency</label>
+        <select id="disputes-urgency" name="urgency">
+          <option value="">All Urgencies</option>
+          <option value="critical"<?= $urgency === 'critical' ? ' selected' : '' ?>>Critical (14+ days)</option>
+          <option value="high"<?= $urgency === 'high' ? ' selected' : '' ?>>High (7–13 days)</option>
+          <option value="moderate"<?= $urgency === 'moderate' ? ' selected' : '' ?>>Moderate (3–6 days)</option>
+          <option value="new"<?= $urgency === 'new' ? ' selected' : '' ?>>New (0–2 days)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="disputes-sort">Sort By</label>
+        <select id="disputes-sort" name="sort">
+          <?php foreach ($sortLabels as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="disputes-dir">Direction</label>
+        <select id="disputes-dir" name="dir">
+          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+        </select>
+      </div>
+
+      <button type="submit">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+      </button>
+    </fieldset>
+  </form>
 
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
@@ -69,16 +119,16 @@ $urgencyLabel = static function (int $daysOpen): string {
     <div role="list">
       <?php foreach ($disputes as $dispute):
         $daysOpen = (int) $dispute['days_open'];
-        $urgency  = $urgencyLabel($daysOpen);
+        $urgencyLevel = $urgencyLabel($daysOpen);
       ?>
-        <article role="listitem" data-urgency="<?= $urgency ?>">
+        <article role="listitem" data-urgency="<?= $urgencyLevel ?>">
           <header>
             <h2>
               <a href="/disputes/<?= (int) $dispute['id_dsp'] ?>">
                 <?= htmlspecialchars($dispute['subject_text_dsp']) ?>
               </a>
             </h2>
-            <span data-urgency="<?= $urgency ?>">
+            <span data-urgency="<?= $urgencyLevel ?>">
               <?= $daysOpen ?> day<?= $daysOpen !== 1 ? 's' : '' ?> open
             </span>
           </header>
@@ -156,10 +206,17 @@ $urgencyLabel = static function (int $daysOpen): string {
     <section aria-label="No disputes">
       <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
       <h2>No Open Disputes</h2>
-      <p>All disputes have been resolved. The community is in good standing.</p>
-      <a href="/admin" role="button">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
-      </a>
+      <?php if ($urgency !== null): ?>
+        <p>No disputes match the selected urgency level.</p>
+        <a href="/admin/disputes" role="button">
+          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+        </a>
+      <?php else: ?>
+        <p>All disputes have been resolved. The community is in good standing.</p>
+        <a href="/admin" role="button">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+        </a>
+      <?php endif; ?>
     </section>
 
   <?php endif; ?>

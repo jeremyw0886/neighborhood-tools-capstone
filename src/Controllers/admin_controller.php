@@ -429,45 +429,73 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const array INCIDENTS_SORT_FIELDS   = ['created_at_irt', 'days_open', 'incident_type', 'estimated_damage_amount_irt'];
+    private const array INCIDENTS_ALLOWED_TYPES  = ['damage', 'theft', 'loss', 'injury', 'late_return', 'condition_dispute', 'other'];
+
     /**
-     * Incident management — paginated open incident reports.
+     * Incident management — sortable, filterable list of open incident reports.
      *
-     * Queries open_incident_v for unresolved incidents with full context:
-     * reporter, borrower, lender, tool, deposit, and related dispute counts.
+     * Accepts `?type`, `?deadline`, `?sort`, `?dir` query params.
      */
     public function incidents(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $sortParams = $this->parseSortParams('', self::INCIDENTS_SORT_FIELDS, 'created_at_irt', 'DESC');
+
+        $rawType = $_GET['type'] ?? '';
+        $type    = in_array($rawType, self::INCIDENTS_ALLOWED_TYPES, true) ? $rawType : null;
+
+        $rawDeadline = $_GET['deadline'] ?? '';
+        $deadlineMet = match ($rawDeadline) {
+            'met'    => true,
+            'missed' => false,
+            default  => null,
+        };
 
         try {
-            $totalCount = Incident::getOpenCount();
+            $page       = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount = Incident::getFilteredOpenCount($type, $deadlineMet);
+            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page       = min($page, $totalPages);
+            $offset     = ($page - 1) * self::PER_PAGE;
+            $incidents  = Incident::getOpen(
+                limit:       self::PER_PAGE,
+                offset:      $offset,
+                sort:        $sortParams['sort'],
+                dir:         $sortParams['dir'],
+                type:        $type,
+                deadlineMet: $deadlineMet,
+            );
         } catch (\Throwable $e) {
-            error_log('AdminController::incidents count — ' . $e->getMessage());
+            error_log('AdminController::incidents — ' . $e->getMessage());
+            $page       = 1;
             $totalCount = 0;
+            $totalPages = 1;
+            $incidents  = [];
         }
 
-        $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-        $page       = min($page, $totalPages);
-        $offset     = ($page - 1) * self::PER_PAGE;
-
-        try {
-            $incidents = Incident::getOpen(self::PER_PAGE, $offset);
-        } catch (\Throwable $e) {
-            error_log('AdminController::incidents list — ' . $e->getMessage());
-            $incidents = [];
-        }
+        $filterParams = array_filter([
+            'type'     => $type,
+            'deadline' => $rawDeadline !== '' && $deadlineMet !== null ? $rawDeadline : null,
+            'sort'     => $sortParams['sort'],
+            'dir'      => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
 
         $this->render('admin/incidents', [
-            'title'       => 'Manage Incidents — NeighborhoodTools',
-            'description' => 'Review open incident reports.',
-            'pageCss'     => ['admin.css'],
-            'incidents'   => $incidents,
-            'totalCount'  => $totalCount,
-            'page'        => $page,
-            'totalPages'  => $totalPages,
-            'perPage'     => self::PER_PAGE,
+            'title'        => 'Manage Incidents — NeighborhoodTools',
+            'description'  => 'Review open incident reports.',
+            'pageCss'      => ['admin.css'],
+            'incidents'    => $incidents,
+            'totalCount'   => $totalCount,
+            'page'         => $page,
+            'totalPages'   => $totalPages,
+            'perPage'      => self::PER_PAGE,
+            'type'         => $type,
+            'deadlineMet'  => $deadlineMet,
+            'sort'         => $sortParams['sort'],
+            'dir'          => $sortParams['dir'],
+            'filterParams' => $filterParams,
         ]);
     }
 

@@ -11,27 +11,75 @@ class Incident
 {
     private const int PER_PAGE = 12;
 
+    private const array VALID_SORT_FIELDS = [
+        'created_at_irt',
+        'days_open',
+        'incident_type',
+        'estimated_damage_amount_irt',
+    ];
+
+    private const array ALLOWED_TYPES = [
+        'damage',
+        'theft',
+        'loss',
+        'injury',
+        'late_return',
+        'condition_dispute',
+        'other',
+    ];
+
     /**
-     * Fetch paginated open incidents for the admin incidents page.
+     * Fetch open incidents with sorting and optional type/deadline filters.
      *
-     * Queries open_incident_v which joins incident_report_irt, incident_type_ity,
-     * borrow_bor, tool_tol, and account_acc for reporter/borrower/lender context,
-     * deposit info, and related dispute counts.
-     *
-     * @return array  Rows from open_incident_v
+     * @param  string  $sort        Pre-validated column name
+     * @param  string  $dir         Pre-validated direction (ASC|DESC)
+     * @param  ?string $type        Incident type slug, or null for all
+     * @param  ?bool   $deadlineMet True = met, false = missed, null = all
+     * @return array
      */
-    public static function getOpen(int $limit = self::PER_PAGE, int $offset = 0): array
-    {
+    public static function getOpen(
+        int $limit = self::PER_PAGE,
+        int $offset = 0,
+        string $sort = 'created_at_irt',
+        string $dir = 'DESC',
+        ?string $type = null,
+        ?bool $deadlineMet = null,
+    ): array {
         $pdo = Database::connection();
+
+        $conditions = [];
+
+        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
+            $conditions[] = 'incident_type = :type';
+        }
+
+        if ($deadlineMet !== null) {
+            $conditions[] = 'is_reported_within_deadline_irt = :deadline';
+        }
+
+        $whereClause = $conditions !== [] ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        $sortCol = in_array($sort, self::VALID_SORT_FIELDS, true) ? $sort : 'created_at_irt';
+        $sortDir = in_array($dir, ['ASC', 'DESC'], true) ? $dir : 'DESC';
 
         $sql = "
             SELECT *
             FROM open_incident_v
-            ORDER BY created_at_irt DESC
+            {$whereClause}
+            ORDER BY {$sortCol} {$sortDir}
             LIMIT :limit OFFSET :offset
         ";
 
         $stmt = $pdo->prepare($sql);
+
+        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
+            $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        }
+
+        if ($deadlineMet !== null) {
+            $stmt->bindValue(':deadline', $deadlineMet ? 1 : 0, PDO::PARAM_INT);
+        }
+
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -40,13 +88,41 @@ class Incident
     }
 
     /**
-     * Count open (unresolved) incidents platform-wide.
+     * Count open incidents matching optional type and deadline filters.
+     *
+     * @param  ?string $type        Incident type slug, or null for all
+     * @param  ?bool   $deadlineMet True = met, false = missed, null = all
+     * @return int
      */
-    public static function getOpenCount(): int
+    public static function getFilteredOpenCount(?string $type = null, ?bool $deadlineMet = null): int
     {
         $pdo = Database::connection();
 
-        return (int) $pdo->query('SELECT COUNT(*) FROM open_incident_v')->fetchColumn();
+        $conditions = [];
+
+        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
+            $conditions[] = 'incident_type = :type';
+        }
+
+        if ($deadlineMet !== null) {
+            $conditions[] = 'is_reported_within_deadline_irt = :deadline';
+        }
+
+        $whereClause = $conditions !== [] ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM open_incident_v {$whereClause}");
+
+        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
+            $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        }
+
+        if ($deadlineMet !== null) {
+            $stmt->bindValue(':deadline', $deadlineMet ? 1 : 0, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
     }
 
     /**

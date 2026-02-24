@@ -1,13 +1,18 @@
 <?php
 /**
- * Admin — Open incident listing with urgency badges and pagination.
+ * Admin — Open incident listing with sorting, type/deadline filters, and urgency badges.
  *
  * Variables from AdminController::incidents():
- *   $incidents   array   Rows from Incident::getOpen() via open_incident_v
- *   $totalCount  int     Total open incidents
- *   $page        int     Current page (1-based)
- *   $totalPages  int     Total pages
- *   $perPage     int     Results per page (12)
+ *   $incidents    array   Rows from Incident::getOpen() via open_incident_v
+ *   $totalCount   int     Total open incidents matching filters
+ *   $page         int     Current page (1-based)
+ *   $totalPages   int     Total pages
+ *   $perPage      int     Results per page (12)
+ *   $type         ?string Active incident type filter, or null
+ *   $deadlineMet  ?bool   Deadline filter: true = met, false = missed, null = all
+ *   $sort         string  Active sort column
+ *   $dir          string  Active sort direction (ASC|DESC)
+ *   $filterParams array   Non-null filter params for pagination URLs
  *
  * Each incident row contains:
  *   id_irt, subject_irt, description_irt, incident_type, incident_occurred_at_irt,
@@ -16,16 +21,12 @@
  *   id_bor_irt, tool_name_tol, borrower_id, borrower_name,
  *   lender_id, lender_name, related_disputes,
  *   deposit_amount, deposit_status
- *
- * Shared data:
- *   $currentPage  string
  */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-$basePath     = '/admin/incidents';
-$filterParams = [];
+$basePath = '/admin/incidents';
 
 $urgencyLabel = static function (int $daysOpen): string {
     if ($daysOpen >= 14) {
@@ -49,6 +50,29 @@ $typeIcons = [
     'condition_dispute'  => 'fa-scale-unbalanced',
     'other'              => 'fa-circle-question',
 ];
+
+$allTypes = [
+    'damage'            => 'Damage',
+    'theft'             => 'Theft',
+    'loss'              => 'Loss',
+    'injury'            => 'Injury',
+    'late_return'       => 'Late Return',
+    'condition_dispute' => 'Condition Dispute',
+    'other'             => 'Other',
+];
+
+$sortLabels = [
+    'created_at_irt'              => 'Date Filed',
+    'days_open'                   => 'Days Open',
+    'incident_type'               => 'Type',
+    'estimated_damage_amount_irt' => 'Damage Estimate',
+];
+
+$deadlineValue = match ($deadlineMet) {
+    true    => 'met',
+    false   => 'missed',
+    default => '',
+};
 ?>
 
 <section aria-labelledby="admin-incidents-heading">
@@ -62,6 +86,56 @@ $typeIcons = [
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
+
+  <form method="get" action="/admin/incidents" role="search" aria-label="Filter and sort incidents" data-admin-filters>
+    <fieldset>
+      <legend class="visually-hidden">Filter and sort incidents</legend>
+
+      <div>
+        <label for="incidents-type">Type</label>
+        <select id="incidents-type" name="type">
+          <option value="">All Types</option>
+          <?php foreach ($allTypes as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $type === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="incidents-deadline">48h Deadline</label>
+        <select id="incidents-deadline" name="deadline">
+          <option value="">All</option>
+          <option value="met"<?= $deadlineValue === 'met' ? ' selected' : '' ?>>Met</option>
+          <option value="missed"<?= $deadlineValue === 'missed' ? ' selected' : '' ?>>Missed</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="incidents-sort">Sort By</label>
+        <select id="incidents-sort" name="sort">
+          <?php foreach ($sortLabels as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="incidents-dir">Direction</label>
+        <select id="incidents-dir" name="dir">
+          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+        </select>
+      </div>
+
+      <button type="submit">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+      </button>
+    </fieldset>
+  </form>
 
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
@@ -79,8 +153,8 @@ $typeIcons = [
       <?php foreach ($incidents as $incident):
         $daysOpen = (int) $incident['days_open'];
         $urgency  = $urgencyLabel($daysOpen);
-        $type     = $incident['incident_type'];
-        $icon     = $typeIcons[$type] ?? 'fa-circle-question';
+        $incType  = $incident['incident_type'];
+        $icon     = $typeIcons[$incType] ?? 'fa-circle-question';
         $withinDeadline = (bool) $incident['is_reported_within_deadline_irt'];
       ?>
         <article role="listitem" data-urgency="<?= $urgency ?>">
@@ -99,9 +173,9 @@ $typeIcons = [
             <div>
               <dt>Type</dt>
               <dd>
-                <span data-incident-type="<?= htmlspecialchars($type) ?>">
+                <span data-incident-type="<?= htmlspecialchars($incType) ?>">
                   <i class="fa-solid <?= $icon ?>" aria-hidden="true"></i>
-                  <?= htmlspecialchars(ucwords(str_replace('_', ' ', $type))) ?>
+                  <?= htmlspecialchars(ucwords(str_replace('_', ' ', $incType))) ?>
                 </span>
               </dd>
             </div>

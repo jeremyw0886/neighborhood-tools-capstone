@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\Role;
 use App\Models\Borrow;
 use App\Models\Dispute;
+use App\Models\Notification;
 
 class DisputeController extends BaseController
 {
@@ -279,9 +280,6 @@ class DisputeController extends BaseController
 
         try {
             Dispute::create($borrowId, $userId, $subject, $message);
-
-            $_SESSION['dispute_success'] = 'Your dispute has been filed. An admin will review it shortly.';
-            $this->redirect('/dashboard');
         } catch (\Throwable $e) {
             error_log('DisputeController::store — ' . $e->getMessage());
 
@@ -289,6 +287,24 @@ class DisputeController extends BaseController
             $_SESSION['dispute_old']    = $oldInput;
             $this->redirect('/disputes/create/' . $borrowId);
         }
+
+        $filerName   = $_SESSION['user_first_name'] ?? 'A user';
+        $otherPartyId = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];
+
+        try {
+            Notification::send(
+                accountId: $otherPartyId,
+                type: 'request',
+                title: 'Dispute Filed',
+                body: $filerName . ' filed a dispute regarding ' . $borrow['tool_name_tol'] . ': ' . $subject,
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('DisputeController::store notification — ' . $e->getMessage());
+        }
+
+        $_SESSION['dispute_success'] = 'Your dispute has been filed. An admin will review it shortly.';
+        $this->redirect('/dashboard');
     }
 
     private const array ADMIN_MESSAGE_TYPES = ['response', 'admin_note', 'resolution'];
@@ -366,9 +382,6 @@ class DisputeController extends BaseController
 
         try {
             Dispute::addMessage($disputeId, $userId, $typeName, $message, $isInternal);
-
-            $_SESSION['dispute_message_success'] = 'Message posted.';
-            $this->redirect($redirectUrl);
         } catch (\Throwable $e) {
             error_log('DisputeController::addMessage — ' . $e->getMessage());
 
@@ -376,5 +389,46 @@ class DisputeController extends BaseController
             $_SESSION['dispute_message_old']    = ['message' => $message];
             $this->redirect($redirectUrl);
         }
+
+        $borrowId    = (int) $dispute['id_bor_dsp'];
+        $borrowerId  = (int) $dispute['borrower_id'];
+        $lenderId    = (int) $dispute['lender_id'];
+        $senderName  = $_SESSION['user_first_name'] ?? 'A user';
+        $toolName    = $dispute['tool_name_tol'];
+
+        if (!$isInternal) {
+            $isResolution = $typeName === 'resolution';
+            $title        = $isResolution ? 'Dispute Resolved' : 'New Dispute Message';
+            $body         = $isResolution
+                ? 'An admin resolved the dispute regarding ' . $toolName . '.'
+                : $senderName . ' posted a message in the dispute regarding ' . $toolName . '.';
+
+            $recipientIds = [];
+
+            if ($isAdmin) {
+                $recipientIds = [$borrowerId, $lenderId];
+            } elseif ($isBorrower) {
+                $recipientIds = [$lenderId];
+            } elseif ($isLender) {
+                $recipientIds = [$borrowerId];
+            }
+
+            foreach ($recipientIds as $recipientId) {
+                try {
+                    Notification::send(
+                        accountId: $recipientId,
+                        type: 'request',
+                        title: $title,
+                        body: $body,
+                        relatedBorrowId: $borrowId,
+                    );
+                } catch (\Throwable $e) {
+                    error_log('DisputeController::addMessage notification — ' . $e->getMessage());
+                }
+            }
+        }
+
+        $_SESSION['dispute_message_success'] = 'Message posted.';
+        $this->redirect($redirectUrl);
     }
 }

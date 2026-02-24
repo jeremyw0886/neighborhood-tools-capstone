@@ -3,12 +3,18 @@
  * Admin — User management with reputation data and role info.
  *
  * Variables from AdminController::users():
- *   $users       array   Rows from Account::getAllForAdmin() (reputation + role_name_rol)
- *   $totalCount  int     Total members in the system
- *   $page        int     Current page (1-based)
- *   $totalPages  int     Total pages
- *   $perPage     int     Results per page (12)
- *   $flash       ?string One-time status message (approve/deny/status feedback)
+ *   $users        array   Rows from Account::getAllForAdmin() (reputation + role_name_rol)
+ *   $totalCount   int     Total members matching current filters
+ *   $page         int     Current page (1-based)
+ *   $totalPages   int     Total pages
+ *   $perPage      int     Results per page (12)
+ *   $flash        ?string One-time status message (approve/deny/status feedback)
+ *   $search       ?string Active search query or null
+ *   $role         ?string Active role filter or null
+ *   $status       ?string Active status filter or null
+ *   $sort         string  Active sort column
+ *   $dir          string  Active sort direction (ASC|DESC)
+ *   $filterParams array   Non-null filter params for pagination URLs
  *
  * Each user row contains:
  *   id_acc, full_name, email_address_acc, account_status, role_name_rol,
@@ -25,8 +31,7 @@
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-$basePath     = '/admin/users';
-$filterParams = [];
+$basePath = '/admin/users';
 
 $actorRole = $authUser['role'];
 $actorId   = $authUser['id'];
@@ -52,6 +57,26 @@ $canToggleStatus = static function (array $user) use ($actorRole, $actorId): boo
 
     return true;
 };
+
+$sortLabels = [
+    'full_name'          => 'Name',
+    'role_name_rol'      => 'Role',
+    'account_status'     => 'Status',
+    'overall_avg_rating' => 'Rating',
+    'tools_owned'        => 'Tools Owned',
+    'member_since'       => 'Joined',
+];
+
+$sortToColumn = [
+    'full_name'          => 0,
+    'role_name_rol'      => 1,
+    'account_status'     => 2,
+    'overall_avg_rating' => 3,
+    'tools_owned'        => 4,
+    'member_since'       => 5,
+];
+
+$ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 ?>
 
 <section aria-labelledby="admin-users-heading">
@@ -70,6 +95,63 @@ $canToggleStatus = static function (array $user) use ($actorRole, $actorId): boo
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
 
+  <form method="get" action="/admin/users" role="search" aria-label="Filter and sort users" data-admin-filters>
+    <fieldset>
+      <legend class="visually-hidden">Filter and sort users</legend>
+
+      <div>
+        <label for="users-search">Search</label>
+        <input type="search" id="users-search" name="q"
+               value="<?= htmlspecialchars($search ?? '') ?>"
+               placeholder="Name or email…"
+               autocomplete="off">
+      </div>
+
+      <div>
+        <label for="users-role">Role</label>
+        <select id="users-role" name="role">
+          <option value="">All Roles</option>
+          <option value="member"<?= $role === 'member' ? ' selected' : '' ?>>Member</option>
+          <option value="admin"<?= $role === 'admin' ? ' selected' : '' ?>>Admin</option>
+          <option value="super_admin"<?= $role === 'super_admin' ? ' selected' : '' ?>>Super Admin</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="users-status">Status</label>
+        <select id="users-status" name="status">
+          <option value="">All Statuses</option>
+          <option value="active"<?= $status === 'active' ? ' selected' : '' ?>>Active</option>
+          <option value="suspended"<?= $status === 'suspended' ? ' selected' : '' ?>>Suspended</option>
+          <option value="pending"<?= $status === 'pending' ? ' selected' : '' ?>>Pending</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="users-sort">Sort By</label>
+        <select id="users-sort" name="sort">
+          <?php foreach ($sortLabels as $value => $label): ?>
+            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+              <?= htmlspecialchars($label) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div>
+        <label for="users-dir">Direction</label>
+        <select id="users-dir" name="dir">
+          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+        </select>
+      </div>
+
+      <button type="submit">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+      </button>
+    </fieldset>
+  </form>
+
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
       <p>
@@ -86,44 +168,44 @@ $canToggleStatus = static function (array $user) use ($actorRole, $actorId): boo
       <caption class="visually-hidden">Platform member accounts</caption>
       <thead>
         <tr>
-          <th scope="col">Member</th>
-          <th scope="col">Role</th>
-          <th scope="col">Status</th>
-          <th scope="col">Rating</th>
-          <th scope="col">Tools</th>
-          <th scope="col">Joined</th>
-          <th scope="col">Actions</th>
+          <?php
+          $columns = ['Member', 'Role', 'Status', 'Rating', 'Tools', 'Joined', 'Actions'];
+          foreach ($columns as $i => $label):
+            $isSorted = isset($sortToColumn[$sort]) && $sortToColumn[$sort] === $i;
+          ?>
+            <th scope="col"<?= $isSorted ? ' aria-sort="' . $ariaSortDir . '"' : '' ?>><?= $label ?></th>
+          <?php endforeach; ?>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($users as $user):
           $isPending   = $user['account_status'] === 'pending';
           $isSuspended = $user['account_status'] === 'suspended';
-          $role        = $user['role_name_rol'];
-          $roleLabel   = match ($role) {
+          $userRole    = $user['role_name_rol'];
+          $roleLabel   = match ($userRole) {
               'super_admin' => 'Super Admin',
               'admin'       => 'Admin',
               default       => 'Member',
           };
         ?>
           <tr<?php if ($isPending) echo ' data-pending'; elseif ($isSuspended) echo ' data-suspended'; ?>>
-            <td>
+            <td data-label="Member">
               <a href="/profile/<?= (int) $user['id_acc'] ?>">
                 <?= htmlspecialchars($user['full_name']) ?>
               </a>
               <small><?= htmlspecialchars($user['email_address_acc']) ?></small>
             </td>
-            <td>
-              <span data-role="<?= htmlspecialchars($role) ?>">
+            <td data-label="Role">
+              <span data-role="<?= htmlspecialchars($userRole) ?>">
                 <?= htmlspecialchars($roleLabel) ?>
               </span>
             </td>
-            <td>
+            <td data-label="Status">
               <span data-status="<?= htmlspecialchars($user['account_status']) ?>">
                 <?= htmlspecialchars(ucfirst($user['account_status'])) ?>
               </span>
             </td>
-            <td>
+            <td data-label="Rating">
               <?php if ((int) $user['total_rating_count'] > 0): ?>
                 <span><?= htmlspecialchars($user['overall_avg_rating']) ?></span>
                 <small>(<?= number_format((int) $user['total_rating_count']) ?>)</small>
@@ -131,8 +213,8 @@ $canToggleStatus = static function (array $user) use ($actorRole, $actorId): boo
                 <span>—</span>
               <?php endif; ?>
             </td>
-            <td><?= number_format((int) $user['tools_owned']) ?></td>
-            <td>
+            <td data-label="Tools"><?= number_format((int) $user['tools_owned']) ?></td>
+            <td data-label="Joined">
               <time datetime="<?= htmlspecialchars($user['member_since']) ?>">
                 <?= htmlspecialchars(date('M j, Y', strtotime($user['member_since']))) ?>
               </time>
@@ -189,9 +271,15 @@ $canToggleStatus = static function (array $user) use ($actorRole, $actorId): boo
       <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
       <h2>No Members Found</h2>
       <p>No platform members match the current criteria.</p>
-      <a href="/admin" role="button">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
-      </a>
+      <?php if ($search !== null || $role !== null || $status !== null): ?>
+        <a href="/admin/users" role="button">
+          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+        </a>
+      <?php else: ?>
+        <a href="/admin" role="button">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+        </a>
+      <?php endif; ?>
     </section>
 
   <?php endif; ?>

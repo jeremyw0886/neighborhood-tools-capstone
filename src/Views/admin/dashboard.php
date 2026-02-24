@@ -1,6 +1,8 @@
 <?php
-$stats  ??= [];
-$trends ??= [];
+$stats         ??= [];
+$trends        ??= [];
+$range         ??= 14;
+$allowedRanges ??= [7, 14, 30];
 ?>
 
 <section aria-labelledby="admin-heading">
@@ -101,10 +103,19 @@ $trends ??= [];
 
   <?php if (!empty($trends)): ?>
     <section aria-labelledby="admin-trends-heading">
-      <h2 id="admin-trends-heading">
-        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-        14-Day Trends
-      </h2>
+      <header>
+        <h2 id="admin-trends-heading">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+          <?= $range ?>-Day Trends
+        </h2>
+        <nav aria-label="Trend date range">
+          <?php foreach ($allowedRanges as $days): ?>
+            <a href="/admin?range=<?= $days ?>"<?= $days === $range ? ' aria-current="true"' : '' ?>>
+              <?= $days ?> Days
+            </a>
+          <?php endforeach; ?>
+        </nav>
+      </header>
 
       <div role="region" aria-labelledby="admin-trends-heading" tabindex="0">
         <table>

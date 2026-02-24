@@ -280,6 +280,19 @@ class RatingController extends BaseController
             $this->redirect('/rate/' . $borrowId);
         }
 
+        try {
+            $userName = $_SESSION['user_first_name'] ?? 'A user';
+            Notification::send(
+                accountId: (int) $borrow['lender_id'],
+                type: 'rating',
+                title: 'New Tool Rating',
+                body: $userName . ' rated ' . $borrow['tool_name_tol'] . ' ' . $score . '/5.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('RatingController::rateTool notification — ' . $e->getMessage());
+        }
+
         $_SESSION['rating_success'] = 'Tool rating submitted.';
         $this->redirect('/rate/' . $borrowId);
     }

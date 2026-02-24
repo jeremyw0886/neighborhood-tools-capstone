@@ -15,12 +15,11 @@ class HandoverController extends BaseController
     /**
      * Display the handover verification page for a borrow.
      *
-     * Shows the pending verification code, its status (ACTIVE,
-     * EXPIRING SOON, EXPIRED), the handover type (pickup/return),
-     * and a form for the verifier to enter the code.
-     *
-     * Both the borrower and lender involved in the borrow may
-     * access this page — one generated the code, the other verifies it.
+     * If a pending handover exists, shows the code (to the generator)
+     * or a code-entry form (to the verifier). If none exists and the
+     * borrow is approved, the borrower initiates pickup (creates the
+     * handover and notifies the lender), while the lender sees a
+     * waiting state.
      */
     public function verify(string $borrowId): void
     {
@@ -42,7 +41,7 @@ class HandoverController extends BaseController
         }
 
         if ($handover === null) {
-            $this->abort(404);
+            $handover = $this->initiatePickup($id, $userId);
         }
 
         $isBorrower = (int) $handover['borrower_id'] === $userId;
@@ -73,6 +72,111 @@ class HandoverController extends BaseController
             'handoverErrors'  => $this->flash('handover_errors', []),
             'handoverOld'     => $this->flash('handover_old', []),
         ]);
+    }
+
+    /**
+     * Handle the case where no pending handover exists for an approved borrow.
+     *
+     * Borrower: checks deposit, creates the handover, notifies the
+     * lender with the pickup code, and returns the new handover row.
+     * Lender: renders the "awaiting borrower" state and halts execution.
+     *
+     * @return array The pending_handover_v row (borrower path only)
+     */
+    private function initiatePickup(int $borrowId, int $userId): array
+    {
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiatePickup borrow lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null || $borrow['borrow_status'] !== 'approved') {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $borrow['borrower_id'] === $userId;
+        $isLender   = (int) $borrow['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender) {
+            $this->abort(403);
+        }
+
+        if ($isLender) {
+            $this->render('handover/verify', [
+                'title'            => 'Awaiting Pickup — NeighborhoodTools',
+                'description'      => 'Waiting for the borrower to initiate pickup.',
+                'pageCss'          => ['handover.css'],
+                'awaitingBorrower' => true,
+                'borrow'           => $borrow,
+            ]);
+            exit;
+        }
+
+        $deposit = Deposit::findByBorrowId($borrowId);
+
+        if ($deposit !== null && $deposit['deposit_status'] === 'pending') {
+            $_SESSION['deposit_errors'] = ['You must pay the security deposit before pickup.'];
+            $this->redirect('/payments/deposit/' . $deposit['id_sdp']);
+        }
+
+        try {
+            $handover = Handover::findPendingByBorrowId($borrowId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiatePickup race-check — ' . $e->getMessage());
+            $handover = null;
+        }
+
+        if ($handover !== null) {
+            return $handover;
+        }
+
+        try {
+            $handoverId = Handover::create(
+                borrowId: $borrowId,
+                generatorId: (int) $borrow['lender_id'],
+                type: 'pickup',
+            );
+            $pickupCode = Handover::getCodeById($handoverId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiatePickup handover creation — ' . $e->getMessage());
+            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/borrower');
+        }
+
+        if ($pickupCode !== null) {
+            $borrowerName = $_SESSION['user_first_name'] ?? 'The borrower';
+
+            try {
+                Notification::send(
+                    accountId: (int) $borrow['lender_id'],
+                    type: 'approval',
+                    title: 'Pickup Verification Code',
+                    body: $borrowerName . ' is ready to pick up '
+                        . $borrow['tool_name_tol']
+                        . '. Your verification code is: ' . $pickupCode
+                        . '. Share this code at pickup to confirm the handover.',
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('HandoverController::initiatePickup lender notification — ' . $e->getMessage());
+            }
+        }
+
+        try {
+            $handover = Handover::findPendingByBorrowId($borrowId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::initiatePickup re-fetch — ' . $e->getMessage());
+            $handover = null;
+        }
+
+        if ($handover === null) {
+            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/borrower');
+        }
+
+        return $handover;
     }
 
     /**

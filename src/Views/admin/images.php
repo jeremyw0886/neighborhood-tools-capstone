@@ -68,29 +68,19 @@
             <figure>
               <img src="/uploads/vectors/<?= htmlspecialchars($vec['file_name_vec']) ?>"
                    alt="<?= htmlspecialchars($vec['description_text_vec'] ?? $vec['file_name_vec']) ?>"
-                   width="48" height="48"
+                   width="80" height="80"
                    loading="lazy" decoding="async">
             </figure>
-            <dl>
-              <dt>File</dt>
-              <dd><?= htmlspecialchars($vec['file_name_vec']) ?></dd>
-              <?php if (!empty($vec['description_text_vec'])): ?>
-                <dt>Description</dt>
-                <dd><?= htmlspecialchars($vec['description_text_vec']) ?></dd>
-              <?php endif; ?>
-              <dt>Uploaded</dt>
-              <dd>
-                <time datetime="<?= htmlspecialchars($vec['uploaded_at_vec']) ?>">
-                  <?= htmlspecialchars(date('M j, Y', strtotime($vec['uploaded_at_vec']))) ?>
-                </time>
-              </dd>
-              <dt>By</dt>
-              <dd><?= htmlspecialchars($vec['first_name_acc'] . ' ' . $vec['last_name_acc']) ?></dd>
-              <?php if (!empty($vec['assigned_category'])): ?>
-                <dt>Assigned to</dt>
-                <dd data-assigned><?= htmlspecialchars($vec['assigned_category']) ?></dd>
-              <?php endif; ?>
-            </dl>
+            <p data-filename><?= htmlspecialchars($vec['file_name_vec']) ?></p>
+            <p data-meta>
+              <time datetime="<?= htmlspecialchars($vec['uploaded_at_vec']) ?>">
+                <?= htmlspecialchars(date('M j, Y', strtotime($vec['uploaded_at_vec']))) ?>
+              </time>
+              by <?= htmlspecialchars($vec['first_name_acc'] . ' ' . $vec['last_name_acc']) ?>
+            </p>
+            <?php if (!empty($vec['assigned_category'])): ?>
+              <p data-assigned><?= htmlspecialchars($vec['assigned_category']) ?></p>
+            <?php endif; ?>
             <form method="post"
                   action="/admin/vectors/<?= (int) $vec['id_vec'] ?>/description"
                   data-inline-form>
@@ -107,17 +97,19 @@
                 <span class="visually-hidden">Save description</span>
               </button>
             </form>
-            <form method="post"
-                  action="/admin/vectors/<?= (int) $vec['id_vec'] ?>/delete"
-                  data-delete-form>
-              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-              <button type="submit"
-                <?php if (!empty($vec['assigned_category'])): ?>
-                  disabled aria-disabled="true" title="Assigned to <?= htmlspecialchars($vec['assigned_category']) ?>"
-                <?php endif; ?>>
-                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
-              </button>
-            </form>
+            <div data-card-actions>
+              <form method="post"
+                    action="/admin/vectors/<?= (int) $vec['id_vec'] ?>/delete"
+                    data-delete-form>
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                <button type="submit"
+                  <?php if (!empty($vec['assigned_category'])): ?>
+                    disabled aria-disabled="true" title="Assigned to <?= htmlspecialchars($vec['assigned_category']) ?>"
+                  <?php endif; ?>>
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
+                </button>
+              </form>
+            </div>
           </article>
         <?php endforeach; ?>
       </div>
@@ -170,31 +162,27 @@
             <figure>
               <img src="/uploads/vectors/<?= htmlspecialchars($avt['file_name_avv']) ?>"
                    alt="<?= htmlspecialchars($avt['description_text_avv'] ?? $avt['file_name_avv']) ?>"
-                   width="48" height="48"
+                   width="80" height="80"
                    loading="lazy" decoding="async">
             </figure>
-            <dl>
-              <dt>File</dt>
-              <dd><?= htmlspecialchars($avt['file_name_avv']) ?></dd>
-              <?php if (!empty($avt['description_text_avv'])): ?>
-                <dt>Description</dt>
-                <dd><?= htmlspecialchars($avt['description_text_avv']) ?></dd>
+            <p data-filename>
+              <?= htmlspecialchars($avt['file_name_avv']) ?>
+              <?php if (!(int) $avt['is_active_avv']): ?>
+                <span data-badge="inactive">Inactive</span>
               <?php endif; ?>
-              <dt>Uploaded</dt>
-              <dd>
-                <time datetime="<?= htmlspecialchars($avt['uploaded_at_avv']) ?>">
-                  <?= htmlspecialchars(date('M j, Y', strtotime($avt['uploaded_at_avv']))) ?>
-                </time>
-              </dd>
-              <dt>By</dt>
-              <dd><?= htmlspecialchars($avt['first_name_acc'] . ' ' . $avt['last_name_acc']) ?></dd>
-              <dt>Status</dt>
-              <dd data-status="<?= (int) $avt['is_active_avv'] ? 'active' : 'inactive' ?>">
+            </p>
+            <p data-meta>
+              <time datetime="<?= htmlspecialchars($avt['uploaded_at_avv']) ?>">
+                <?= htmlspecialchars(date('M j, Y', strtotime($avt['uploaded_at_avv']))) ?>
+              </time>
+              by <?= htmlspecialchars($avt['first_name_acc'] . ' ' . $avt['last_name_acc']) ?>
+            </p>
+            <div data-stats>
+              <span data-status="<?= (int) $avt['is_active_avv'] ? 'active' : 'inactive' ?>">
                 <?= (int) $avt['is_active_avv'] ? 'Active' : 'Inactive' ?>
-              </dd>
-              <dt>Users</dt>
-              <dd><?= (int) $avt['user_count'] ?></dd>
-            </dl>
+              </span>
+              <span data-users><?= (int) $avt['user_count'] ?> user<?= (int) $avt['user_count'] !== 1 ? 's' : '' ?></span>
+            </div>
             <form method="post"
                   action="/admin/avatar-vectors/<?= (int) $avt['id_avv'] ?>/description"
                   data-inline-form>
@@ -211,31 +199,33 @@
                 <span class="visually-hidden">Save description</span>
               </button>
             </form>
-            <form method="post"
-                  action="/admin/avatar-vectors/<?= (int) $avt['id_avv'] ?>/toggle"
-                  data-toggle-form>
-              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-              <?php if ((int) $avt['is_active_avv']): ?>
-                <button type="submit">
-                  <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Deactivate
+            <div data-card-actions>
+              <form method="post"
+                    action="/admin/avatar-vectors/<?= (int) $avt['id_avv'] ?>/toggle"
+                    data-toggle-form>
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                <?php if ((int) $avt['is_active_avv']): ?>
+                  <button type="submit">
+                    <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Deactivate
+                  </button>
+                <?php else: ?>
+                  <button type="submit">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i> Activate
+                  </button>
+                <?php endif; ?>
+              </form>
+              <form method="post"
+                    action="/admin/avatar-vectors/<?= (int) $avt['id_avv'] ?>/delete"
+                    data-delete-form>
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                <button type="submit"
+                  <?php if ((int) $avt['user_count'] > 0): ?>
+                    disabled aria-disabled="true" title="Selected by <?= (int) $avt['user_count'] ?> user(s)"
+                  <?php endif; ?>>
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
                 </button>
-              <?php else: ?>
-                <button type="submit">
-                  <i class="fa-solid fa-eye" aria-hidden="true"></i> Activate
-                </button>
-              <?php endif; ?>
-            </form>
-            <form method="post"
-                  action="/admin/avatar-vectors/<?= (int) $avt['id_avv'] ?>/delete"
-                  data-delete-form>
-              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-              <button type="submit"
-                <?php if ((int) $avt['user_count'] > 0): ?>
-                  disabled aria-disabled="true" title="Selected by <?= (int) $avt['user_count'] ?> user(s)"
-                <?php endif; ?>>
-                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
-              </button>
-            </form>
+              </form>
+            </div>
           </article>
         <?php endforeach; ?>
       </div>

@@ -156,4 +156,97 @@ class Category
         $stmt->bindValue(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    /**
+     * Fetch a single category by primary key.
+     *
+     * @param  int $id
+     * @return ?array
+     */
+    public static function findById(int $id): ?array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("SELECT * FROM category_cat WHERE id_cat = :id");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Insert a new category.
+     *
+     * @param  string $name
+     * @param  ?int   $vectorId
+     * @return int    Inserted primary key
+     */
+    public static function create(string $name, ?int $vectorId): int
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            INSERT INTO category_cat (category_name_cat, id_vec_cat)
+            VALUES (:name, :vectorId)
+        ");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':vectorId', $vectorId, $vectorId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $pdo->lastInsertId();
+    }
+
+    /**
+     * Update a category's name and icon.
+     *
+     * @param  int    $id
+     * @param  string $name
+     * @param  ?int   $vectorId
+     * @return void
+     */
+    public static function update(int $id, string $name, ?int $vectorId): void
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            UPDATE category_cat
+            SET category_name_cat = :name,
+                id_vec_cat        = :vectorId
+            WHERE id_cat = :id
+        ");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':vectorId', $vectorId, $vectorId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Delete a category by primary key.
+     *
+     * @param  int $id
+     * @return void
+     */
+    public static function delete(int $id): void
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("DELETE FROM category_cat WHERE id_cat = :id");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Count tools assigned to a category.
+     *
+     * @param  int $id
+     * @return int
+     */
+    public static function getToolCount(int $id): int
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM tool_category_tolcat WHERE id_cat_tolcat = :id
+        ");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
 }

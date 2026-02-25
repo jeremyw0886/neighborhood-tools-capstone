@@ -5,18 +5,18 @@
  * Variables from HandoverController::verify():
  *   $handover          array  Row from pending_handover_v (code, status, parties, tool)
  *   $isVerifier        bool   Whether the current user is the one who verifies (not the generator)
- *   $awaitingBorrower  bool   (optional) True when lender visits before borrower initiates pickup
- *   $awaitingLender    bool   (optional) True when borrower visits before lender initiates return
- *   $borrow            array  (optional) Row from Borrow::findById() — present with awaiting flags
+ *   $awaitingLender    bool   (optional) True when borrower visits before lender generates pickup code
+ *   $awaitingBorrower  bool   (optional) True when lender visits before borrower generates return code
+ *   $depositPending    bool   (optional) True when lender visits but borrower hasn't paid deposit
+ *   $borrow            array  (optional) Row from Borrow::findById() — present with awaiting/deposit flags
  *
  * Shared data:
  *   $authUser   array{id, name, first_name, role, avatar}
  *   $csrfToken  string
  */
 
-if (!empty($awaitingBorrower)):
-  $toolName     = htmlspecialchars($borrow['tool_name_tol']);
-  $borrowerName = htmlspecialchars($borrow['borrower_name']);
+if (!empty($depositPending)):
+  $toolName = htmlspecialchars($borrow['tool_name_tol']);
 ?>
 
 <section id="handover-verify" aria-labelledby="handover-heading">
@@ -26,7 +26,7 @@ if (!empty($awaitingBorrower)):
       <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
       Pickup Verification
     </h1>
-    <p>Awaiting pickup initiation for <strong><?= $toolName ?></strong>.</p>
+    <p>Awaiting deposit for <strong><?= $toolName ?></strong>.</p>
   </header>
 
   <dl aria-label="Borrow details">
@@ -38,7 +38,7 @@ if (!empty($awaitingBorrower)):
       <dt>Borrower</dt>
       <dd>
         <a href="/profile/<?= (int) $borrow['borrower_id'] ?>">
-          <?= $borrowerName ?>
+          <?= htmlspecialchars($borrow['borrower_name']) ?>
         </a>
       </dd>
     </div>
@@ -50,7 +50,7 @@ if (!empty($awaitingBorrower)):
 
   <p data-flash="info">
     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-    <?= $borrowerName ?> hasn't initiated pickup yet. Once they do, you'll receive a notification with the verification code.
+    The borrower hasn't paid the security deposit yet. The pickup code can be generated once the deposit is confirmed.
   </p>
 
   <nav aria-label="Navigation">
@@ -74,10 +74,10 @@ if (!empty($awaitingLender)):
 
   <header>
     <h1 id="handover-heading">
-      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
-      Return Verification
+      <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
+      Pickup Verification
     </h1>
-    <p>Awaiting return initiation for <strong><?= $toolName ?></strong>.</p>
+    <p>Awaiting pickup code for <strong><?= $toolName ?></strong>.</p>
   </header>
 
   <dl aria-label="Borrow details">
@@ -95,17 +95,68 @@ if (!empty($awaitingLender)):
     </div>
     <div>
       <dt>Status</dt>
+      <dd><span data-status="approved">Approved</span></dd>
+    </div>
+  </dl>
+
+  <p data-flash="info">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <?= $lenderName ?> hasn't generated the pickup code yet. Once they do, you'll receive a notification.
+  </p>
+
+  <nav aria-label="Navigation">
+    <a href="/dashboard/borrower">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Back to Dashboard
+    </a>
+  </nav>
+
+</section>
+
+<?php return; endif; ?>
+
+<?php
+if (!empty($awaitingBorrower)):
+  $toolName     = htmlspecialchars($borrow['tool_name_tol']);
+  $borrowerName = htmlspecialchars($borrow['borrower_name']);
+?>
+
+<section id="handover-verify" aria-labelledby="handover-heading">
+
+  <header>
+    <h1 id="handover-heading">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+      Return Verification
+    </h1>
+    <p>Awaiting return code for <strong><?= $toolName ?></strong>.</p>
+  </header>
+
+  <dl aria-label="Borrow details">
+    <div>
+      <dt>Tool</dt>
+      <dd><?= $toolName ?></dd>
+    </div>
+    <div>
+      <dt>Borrower</dt>
+      <dd>
+        <a href="/profile/<?= (int) $borrow['borrower_id'] ?>">
+          <?= $borrowerName ?>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>Status</dt>
       <dd><span data-status="borrowed">Borrowed</span></dd>
     </div>
   </dl>
 
   <p data-flash="info">
     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-    <?= $lenderName ?> hasn't initiated the return yet. Once they do, you'll receive a notification with your verification code.
+    <?= $borrowerName ?> hasn't generated the return code yet. Once they do, you'll receive a notification.
   </p>
 
   <nav aria-label="Navigation">
-    <a href="/dashboard/borrower">
+    <a href="/dashboard/lender">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       Back to Dashboard
     </a>

@@ -55,6 +55,100 @@ class VectorImage
         ")->fetchColumn();
     }
 
+    /**
+     * Count category icons matching optional search and assignment filter.
+     *
+     * @param  ?string $search    Filename or description substring
+     * @param  ?bool   $assigned  true = assigned only, false = unassigned only, null = all
+     * @return int
+     */
+    public static function getFilteredCount(?string $search, ?bool $assigned): int
+    {
+        $pdo = Database::connection();
+
+        $sql    = "SELECT COUNT(*) FROM vector_image_vec v LEFT JOIN category_cat c ON c.id_vec_cat = v.id_vec WHERE 1=1";
+        $params = [];
+
+        if ($search !== null) {
+            $sql .= " AND (v.file_name_vec LIKE :search OR v.description_text_vec LIKE :search)";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($assigned === true) {
+            $sql .= " AND c.id_cat IS NOT NULL";
+        } elseif ($assigned === false) {
+            $sql .= " AND c.id_cat IS NULL";
+        }
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Paginated, sortable, filterable category icon listing.
+     *
+     * @param  int     $limit
+     * @param  int     $offset
+     * @param  string  $sort      Validated column name
+     * @param  string  $dir       ASC or DESC
+     * @param  ?string $search    Filename or description substring
+     * @param  ?bool   $assigned  true = assigned only, false = unassigned only, null = all
+     * @return array
+     */
+    public static function getFiltered(
+        int $limit,
+        int $offset,
+        string $sort,
+        string $dir,
+        ?string $search,
+        ?bool $assigned,
+    ): array {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT v.*,
+                   a.first_name_acc, a.last_name_acc,
+                   c.category_name_cat AS assigned_category
+            FROM vector_image_vec v
+            JOIN account_acc a ON v.id_acc_vec = a.id_acc
+            LEFT JOIN category_cat c ON c.id_vec_cat = v.id_vec
+            WHERE 1=1
+        ";
+        $params = [];
+
+        if ($search !== null) {
+            $sql .= " AND (v.file_name_vec LIKE :search OR v.description_text_vec LIKE :search)";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($assigned === true) {
+            $sql .= " AND c.id_cat IS NOT NULL";
+        } elseif ($assigned === false) {
+            $sql .= " AND c.id_cat IS NULL";
+        }
+
+        $sql .= " ORDER BY {$sort} {$dir} LIMIT :limit OFFSET :offset";
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     public static function findById(int $id): ?array
     {
         $pdo = Database::connection();

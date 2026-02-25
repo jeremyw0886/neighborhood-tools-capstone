@@ -24,6 +24,28 @@ class VectorImage
         ")->fetchAll();
     }
 
+    /** @return array Paginated rows with uploader name and assigned category. */
+    public static function getPaged(int $limit, int $offset): array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            SELECT v.*,
+                   a.first_name_acc, a.last_name_acc,
+                   c.category_name_cat AS assigned_category
+            FROM vector_image_vec v
+            JOIN account_acc a ON v.id_acc_vec = a.id_acc
+            LEFT JOIN category_cat c ON c.id_vec_cat = v.id_vec
+            ORDER BY v.uploaded_at_vec DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     public static function getCount(): int
     {
         $pdo = Database::connection();

@@ -182,12 +182,15 @@ class Account
                 a.password_hash_acc,
                 r.role_name_rol,
                 ast.status_name_ast AS account_status,
-                aim.file_name_aim  AS avatar
+                aim.file_name_aim      AS avatar,
+                avv.file_name_avv      AS vector_avatar
             FROM active_account_v a
             JOIN role_rol r            ON a.id_rol_acc = r.id_rol
             JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
             LEFT JOIN account_image_aim aim
                 ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
+            LEFT JOIN avatar_vector_avv avv
+                ON a.id_avv_acc = avv.id_avv
             WHERE a.email_address_acc = :email
             LIMIT 1
         ";
@@ -501,13 +504,18 @@ class Account
                 a.id_cpr_acc,
                 cpr.preference_name_cpr,
                 abi.bio_text_abi,
-                aim.file_name_aim   AS primary_image,
-                aim.alt_text_aim    AS image_alt_text
+                aim.file_name_aim           AS primary_image,
+                aim.alt_text_aim            AS image_alt_text,
+                a.id_avv_acc,
+                avv.file_name_avv           AS vector_avatar,
+                avv.description_text_avv    AS vector_avatar_alt
             FROM active_account_v a
             JOIN contact_preference_cpr cpr ON a.id_cpr_acc = cpr.id_cpr
             LEFT JOIN account_bio_abi abi   ON a.id_acc = abi.id_acc_abi
             LEFT JOIN account_image_aim aim
                 ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
+            LEFT JOIN avatar_vector_avv avv
+                ON a.id_avv_acc = avv.id_avv
             WHERE a.id_acc = :id
             LIMIT 1
         ";
@@ -626,6 +634,22 @@ class Account
 
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->bindValue(':bio', trim($text));
+        $stmt->execute();
+    }
+
+    /** Set or clear the user's chosen avatar vector. */
+    public static function setVectorAvatar(int $accountId, ?int $avatarVectorId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_acc
+            SET id_avv_acc = :vectorId
+            WHERE id_acc = :id
+        ");
+
+        $stmt->bindValue(':vectorId', $avatarVectorId, $avatarVectorId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();
     }
 

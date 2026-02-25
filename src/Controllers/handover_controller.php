@@ -210,13 +210,6 @@ class HandoverController extends BaseController
             exit;
         }
 
-        $deposit = Deposit::findByBorrowId($borrowId);
-
-        if ($deposit !== null && $deposit['deposit_status'] !== 'held') {
-            $_SESSION['handover_errors'] = ['general' => 'The security deposit must be held before completing a return.'];
-            $this->redirect('/dashboard/borrower');
-        }
-
         try {
             $handover = Handover::findPendingByBorrowId($borrowId);
         } catch (\Throwable $e) {

@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\Account;
+use App\Models\AvatarVector;
 use App\Models\Tool;
 
 class ProfileController extends BaseController
@@ -133,9 +134,10 @@ class ProfileController extends BaseController
         $userId = (int) $_SESSION['user_id'];
 
         try {
-            $profile     = Account::getEditableProfile($userId);
-            $preferences = Account::getContactPreferences();
-            $meta        = Account::getAccountMeta($userId);
+            $profile       = Account::getEditableProfile($userId);
+            $preferences   = Account::getContactPreferences();
+            $meta          = Account::getAccountMeta($userId);
+            $avatarVectors = AvatarVector::getActive();
         } catch (\Throwable $e) {
             error_log('ProfileController::edit — ' . $e->getMessage());
             $this->abort(500);
@@ -150,15 +152,16 @@ class ProfileController extends BaseController
         unset($_SESSION['profile_errors'], $_SESSION['profile_old']);
 
         $this->render('profile/edit', [
-            'title'       => 'Edit Profile — NeighborhoodTools',
-            'description' => 'Edit your NeighborhoodTools profile.',
-            'pageCss'     => ['profile.css'],
-            'profile'     => $profile,
-            'preferences' => $preferences,
-            'meta'        => $meta,
-            'errors'      => $errors,
-            'old'         => $old,
-            'backUrl'     => '/profile/' . $userId,
+            'title'         => 'Edit Profile — NeighborhoodTools',
+            'description'   => 'Edit your NeighborhoodTools profile.',
+            'pageCss'       => ['profile.css'],
+            'profile'       => $profile,
+            'preferences'   => $preferences,
+            'meta'          => $meta,
+            'avatarVectors' => $avatarVectors,
+            'errors'        => $errors,
+            'old'           => $old,
+            'backUrl'       => '/profile/' . $userId,
         ]);
     }
 
@@ -248,6 +251,24 @@ class ProfileController extends BaseController
                 }
 
                 $_SESSION['user_avatar'] = $imageFilename;
+            }
+
+            $avatarChoice = $_POST['avatar_vector'] ?? '';
+
+            if ($avatarChoice === '' || $avatarChoice === 'none') {
+                Account::setVectorAvatar($userId, null);
+                $_SESSION['user_vector_avatar'] = null;
+            } else {
+                $avatarVectorId = (int) $avatarChoice;
+
+                if ($avatarVectorId > 0) {
+                    $vector = AvatarVector::findById($avatarVectorId);
+
+                    if ($vector !== null) {
+                        Account::setVectorAvatar($userId, $avatarVectorId);
+                        $_SESSION['user_vector_avatar'] = $vector['file_name_avv'];
+                    }
+                }
             }
 
             $_SESSION['user_name']       = $firstName . ' ' . $lastName;

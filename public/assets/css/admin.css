@@ -2705,6 +2705,16 @@
               color: var(--mountain-pine);
               font-weight: 500;
             }
+
+            &[data-status="active"] {
+              color: var(--mountain-pine);
+              font-weight: 600;
+            }
+
+            &[data-status="inactive"] {
+              color: var(--mountain-mist);
+              font-style: italic;
+            }
           }
         }
 
@@ -2779,6 +2789,40 @@
               border-color: var(--mountain-fog);
               color: var(--mountain-slate);
             }
+          }
+        }
+
+        & > form[data-toggle-form] > button {
+          align-items: center;
+          background: transparent;
+          border: 1px solid var(--mountain-fog);
+          border-radius: 2rem;
+          color: var(--mountain-slate);
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 0.75rem;
+          font-weight: 500;
+          gap: 0.25rem;
+          min-height: 1.75rem;
+          padding-inline: 0.75rem;
+          transition: border-color 0.2s, color 0.2s;
+
+          &:is(:hover, :focus-visible) {
+            border-color: var(--mountain-pine);
+            color: var(--mountain-pine);
+          }
+
+          &:focus-visible {
+            outline: 2px solid var(--mountain-pine);
+            outline-offset: 2px;
+          }
+        }
+
+        &[data-inactive] {
+          opacity: 0.6;
+
+          &:is(:hover, :focus-within) {
+            opacity: 1;
           }
         }
       }
@@ -3195,8 +3239,13 @@
 
     main > section[aria-labelledby="admin-images-heading"] div[data-vector-grid] :is(
       form[data-inline-form] > button,
-      form[data-delete-form] > button
+      form[data-delete-form] > button,
+      form[data-toggle-form] > button
     ) {
+      transition: none;
+    }
+
+    main > section[aria-labelledby="admin-images-heading"] div[data-vector-grid] > article[data-inactive] {
       transition: none;
     }
 

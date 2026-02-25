@@ -21,6 +21,7 @@ use App\Models\AvatarVector;
 class AdminController extends BaseController
 {
     private const int PER_PAGE             = 12;
+    private const int IMAGES_PER_PAGE      = 4;
     private const array ALLOWED_RANGES     = [7, 14, 30];
     private const int DEFAULT_RANGE        = 14;
 
@@ -902,7 +903,7 @@ class AdminController extends BaseController
         $this->redirect('/admin/categories');
     }
 
-    /** Images tab — category icons and avatar vectors. */
+    /** Images tab — category icons and avatar vectors (paginated). */
     public function images(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -910,22 +911,52 @@ class AdminController extends BaseController
         $flash = $_SESSION['admin_images_flash'] ?? null;
         unset($_SESSION['admin_images_flash']);
 
+        $perPage = self::IMAGES_PER_PAGE;
+
         try {
-            $categoryVectors = VectorImage::getAll();
-            $avatarVectors   = AvatarVector::getAll();
+            $iconsPage       = max(1, (int) ($_GET['icons_page'] ?? 1));
+            $iconsTotalCount = VectorImage::getCount();
+            $iconsTotalPages = max(1, (int) ceil($iconsTotalCount / $perPage));
+            $iconsPage       = min($iconsPage, $iconsTotalPages);
+            $iconsOffset     = ($iconsPage - 1) * $perPage;
+            $categoryVectors = VectorImage::getPaged($perPage, $iconsOffset);
+
+            $avatarsPage       = max(1, (int) ($_GET['avatars_page'] ?? 1));
+            $avatarsTotalCount = AvatarVector::getCount();
+            $avatarsTotalPages = max(1, (int) ceil($avatarsTotalCount / $perPage));
+            $avatarsPage       = min($avatarsPage, $avatarsTotalPages);
+            $avatarsOffset     = ($avatarsPage - 1) * $perPage;
+            $avatarVectors     = AvatarVector::getPaged($perPage, $avatarsOffset);
         } catch (\Throwable $e) {
             error_log('AdminController::images — ' . $e->getMessage());
-            $categoryVectors = [];
-            $avatarVectors   = [];
+            $categoryVectors   = [];
+            $avatarVectors     = [];
+            $iconsPage         = 1;
+            $iconsTotalPages   = 1;
+            $iconsTotalCount   = 0;
+            $avatarsPage       = 1;
+            $avatarsTotalPages = 1;
+            $avatarsTotalCount = 0;
         }
 
+        $iconsFilterParams   = array_filter(['avatars_page' => $avatarsPage > 1 ? $avatarsPage : null]);
+        $avatarsFilterParams = array_filter(['icons_page' => $iconsPage > 1 ? $iconsPage : null]);
+
         $this->render('admin/images', [
-            'title'           => 'Manage Images — NeighborhoodTools',
-            'description'     => 'Manage category icons and profile avatar vectors.',
-            'pageCss'         => ['admin.css'],
-            'categoryVectors' => $categoryVectors,
-            'avatarVectors'   => $avatarVectors,
-            'flash'           => $flash,
+            'title'              => 'Manage Images — NeighborhoodTools',
+            'description'        => 'Manage category icons and profile avatar vectors.',
+            'pageCss'            => ['admin.css'],
+            'categoryVectors'    => $categoryVectors,
+            'avatarVectors'      => $avatarVectors,
+            'flash'              => $flash,
+            'iconsPage'          => $iconsPage,
+            'iconsTotalPages'    => $iconsTotalPages,
+            'iconsTotalCount'    => $iconsTotalCount,
+            'avatarsPage'        => $avatarsPage,
+            'avatarsTotalPages'  => $avatarsTotalPages,
+            'avatarsTotalCount'  => $avatarsTotalCount,
+            'iconsFilterParams'  => $iconsFilterParams,
+            'avatarsFilterParams' => $avatarsFilterParams,
         ]);
     }
 

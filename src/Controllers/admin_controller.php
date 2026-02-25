@@ -16,6 +16,7 @@ use App\Models\PlatformStats;
 use App\Models\Tool;
 use App\Models\Tos;
 use App\Models\VectorImage;
+use App\Models\AvatarVector;
 
 class AdminController extends BaseController
 {
@@ -747,36 +748,36 @@ class AdminController extends BaseController
         $description = trim($_POST['description'] ?? '');
 
         if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['admin_categories_flash'] = 'No file uploaded or upload error occurred.';
-            $this->redirect('/admin/categories');
+            $_SESSION['admin_images_flash'] = 'No file uploaded or upload error occurred.';
+            $this->redirect('/admin/images');
         }
 
         $finfo    = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($file['tmp_name']);
 
         if ($mimeType !== 'image/svg+xml') {
-            $_SESSION['admin_categories_flash'] = 'Only SVG files are allowed.';
-            $this->redirect('/admin/categories');
+            $_SESSION['admin_images_flash'] = 'Only SVG files are allowed.';
+            $this->redirect('/admin/images');
         }
 
         if ($file['size'] > 1_048_576) {
-            $_SESSION['admin_categories_flash'] = 'File must be under 1 MB.';
-            $this->redirect('/admin/categories');
+            $_SESSION['admin_images_flash'] = 'File must be under 1 MB.';
+            $this->redirect('/admin/images');
         }
 
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
         if ($ext !== 'svg') {
-            $_SESSION['admin_categories_flash'] = 'File must have an .svg extension.';
-            $this->redirect('/admin/categories');
+            $_SESSION['admin_images_flash'] = 'File must have an .svg extension.';
+            $this->redirect('/admin/images');
         }
 
         $fileName = uniqid('vec_', true) . '.svg';
         $destPath = BASE_PATH . '/public/uploads/vectors/' . $fileName;
 
         if (!move_uploaded_file($file['tmp_name'], $destPath)) {
-            $_SESSION['admin_categories_flash'] = 'Failed to save uploaded file.';
-            $this->redirect('/admin/categories');
+            $_SESSION['admin_images_flash'] = 'Failed to save uploaded file.';
+            $this->redirect('/admin/images');
         }
 
         try {
@@ -785,14 +786,14 @@ class AdminController extends BaseController
                 $description !== '' ? $description : null,
                 (int) $_SESSION['user_id']
             );
-            $_SESSION['admin_categories_flash'] = 'Vector image uploaded successfully.';
+            $_SESSION['admin_images_flash'] = 'Category icon uploaded successfully.';
         } catch (\Throwable $e) {
             error_log('AdminController::uploadVector — ' . $e->getMessage());
             @unlink($destPath);
-            $_SESSION['admin_categories_flash'] = 'Failed to save vector image record.';
+            $_SESSION['admin_images_flash'] = 'Failed to save vector image record.';
         }
 
-        $this->redirect('/admin/categories');
+        $this->redirect('/admin/images');
     }
 
     /**
@@ -899,6 +900,240 @@ class AdminController extends BaseController
         }
 
         $this->redirect('/admin/categories');
+    }
+
+    /** Images tab — category icons and avatar vectors. */
+    public function images(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $flash = $_SESSION['admin_images_flash'] ?? null;
+        unset($_SESSION['admin_images_flash']);
+
+        try {
+            $categoryVectors = VectorImage::getAll();
+            $avatarVectors   = AvatarVector::getAll();
+        } catch (\Throwable $e) {
+            error_log('AdminController::images — ' . $e->getMessage());
+            $categoryVectors = [];
+            $avatarVectors   = [];
+        }
+
+        $this->render('admin/images', [
+            'title'           => 'Manage Images — NeighborhoodTools',
+            'description'     => 'Manage category icons and profile avatar vectors.',
+            'pageCss'         => ['admin.css'],
+            'categoryVectors' => $categoryVectors,
+            'avatarVectors'   => $avatarVectors,
+            'flash'           => $flash,
+        ]);
+    }
+
+    /** Update a category vector's description. */
+    public function updateVectorDescription(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $vectorId = (int) $id;
+
+        if ($vectorId < 1) {
+            $this->abort(404);
+        }
+
+        $description = trim($_POST['description'] ?? '');
+
+        try {
+            VectorImage::updateDescription($vectorId, $description !== '' ? $description : null);
+            $_SESSION['admin_images_flash'] = 'Description updated.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateVectorDescription — ' . $e->getMessage());
+            $_SESSION['admin_images_flash'] = 'Failed to update description.';
+        }
+
+        $this->redirect('/admin/images');
+    }
+
+    /** Delete a category vector (blocked if assigned to a category). */
+    public function deleteVector(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $vectorId = (int) $id;
+
+        if ($vectorId < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $vector = VectorImage::findById($vectorId);
+
+            if ($vector === null) {
+                $this->abort(404);
+            }
+
+            if (!VectorImage::delete($vectorId)) {
+                $_SESSION['admin_images_flash'] = 'Cannot delete — icon is assigned to a category.';
+                $this->redirect('/admin/images');
+            }
+
+            $filePath = BASE_PATH . '/public/uploads/vectors/' . $vector['file_name_vec'];
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+
+            $_SESSION['admin_images_flash'] = 'Category icon deleted.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::deleteVector — ' . $e->getMessage());
+            $_SESSION['admin_images_flash'] = 'Failed to delete category icon.';
+        }
+
+        $this->redirect('/admin/images');
+    }
+
+    /** Upload a new avatar vector SVG. */
+    public function uploadAvatarVector(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $file        = $_FILES['vector_file'] ?? null;
+        $description = trim($_POST['description'] ?? '');
+
+        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['admin_images_flash'] = 'No file uploaded or upload error occurred.';
+            $this->redirect('/admin/images');
+        }
+
+        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        if ($mimeType !== 'image/svg+xml') {
+            $_SESSION['admin_images_flash'] = 'Only SVG files are allowed.';
+            $this->redirect('/admin/images');
+        }
+
+        if ($file['size'] > 1_048_576) {
+            $_SESSION['admin_images_flash'] = 'File must be under 1 MB.';
+            $this->redirect('/admin/images');
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if ($ext !== 'svg') {
+            $_SESSION['admin_images_flash'] = 'File must have an .svg extension.';
+            $this->redirect('/admin/images');
+        }
+
+        $fileName = uniqid('avt_', true) . '.svg';
+        $destPath = BASE_PATH . '/public/uploads/vectors/' . $fileName;
+
+        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+            $_SESSION['admin_images_flash'] = 'Failed to save uploaded file.';
+            $this->redirect('/admin/images');
+        }
+
+        try {
+            AvatarVector::create(
+                $fileName,
+                $description !== '' ? $description : null,
+                (int) $_SESSION['user_id']
+            );
+            $_SESSION['admin_images_flash'] = 'Avatar vector uploaded successfully.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::uploadAvatarVector — ' . $e->getMessage());
+            @unlink($destPath);
+            $_SESSION['admin_images_flash'] = 'Failed to save avatar vector record.';
+        }
+
+        $this->redirect('/admin/images');
+    }
+
+    /** Update an avatar vector's description. */
+    public function updateAvatarVectorDescription(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $vectorId = (int) $id;
+
+        if ($vectorId < 1) {
+            $this->abort(404);
+        }
+
+        $description = trim($_POST['description'] ?? '');
+
+        try {
+            AvatarVector::updateDescription($vectorId, $description !== '' ? $description : null);
+            $_SESSION['admin_images_flash'] = 'Description updated.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateAvatarVectorDescription — ' . $e->getMessage());
+            $_SESSION['admin_images_flash'] = 'Failed to update description.';
+        }
+
+        $this->redirect('/admin/images');
+    }
+
+    /** Toggle an avatar vector's active status. */
+    public function toggleAvatarVector(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $vectorId = (int) $id;
+
+        if ($vectorId < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            AvatarVector::toggleActive($vectorId);
+            $_SESSION['admin_images_flash'] = 'Avatar vector status toggled.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::toggleAvatarVector — ' . $e->getMessage());
+            $_SESSION['admin_images_flash'] = 'Failed to toggle avatar vector status.';
+        }
+
+        $this->redirect('/admin/images');
+    }
+
+    /** Delete an avatar vector (blocked if any user has it selected). */
+    public function deleteAvatarVector(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $vectorId = (int) $id;
+
+        if ($vectorId < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $vector = AvatarVector::findById($vectorId);
+
+            if ($vector === null) {
+                $this->abort(404);
+            }
+
+            if (!AvatarVector::delete($vectorId)) {
+                $_SESSION['admin_images_flash'] = 'Cannot delete — avatar is selected by one or more users.';
+                $this->redirect('/admin/images');
+            }
+
+            $filePath = BASE_PATH . '/public/uploads/vectors/' . $vector['file_name_avv'];
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+
+            $_SESSION['admin_images_flash'] = 'Avatar vector deleted.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::deleteAvatarVector — ' . $e->getMessage());
+            $_SESSION['admin_images_flash'] = 'Failed to delete avatar vector.';
+        }
+
+        $this->redirect('/admin/images');
     }
 
 }

@@ -2968,6 +2968,83 @@
     }
   }
 
+  /* ── Admin sidebar navigation layout ── */
+
+  @media (min-width: 48rem) {
+    main > section:is(
+      [aria-labelledby="admin-heading"],
+      [aria-labelledby="admin-users-heading"],
+      [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"],
+      [aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-events-heading"],
+      [aria-labelledby="admin-incidents-heading"],
+      [aria-labelledby="admin-reports-heading"],
+      [aria-labelledby="admin-audit-heading"],
+      [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-tos-create-heading"],
+      [aria-labelledby="admin-search-heading"]
+    ) {
+      column-gap: 2rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      position: relative;
+
+      & > header {
+        grid-column: 1 / -1;
+      }
+
+      & > nav[aria-label="Admin navigation"] {
+        align-self: start;
+        border-block-end: none;
+        border-inline-end: 2px solid var(--mountain-fog);
+        flex-direction: column;
+        grid-column: 1;
+        grid-row: 2 / 20;
+        justify-content: flex-start;
+        overflow-x: visible;
+        padding-inline-end: 1.25rem;
+        position: sticky;
+        top: 5rem;
+
+        & > ul {
+          flex-direction: column;
+          gap: 0.125rem;
+
+          & > li > a {
+            border-block-end: none;
+            border-inline-start: 3px solid transparent;
+            font-size: 0.8125rem;
+            margin-block-end: 0;
+            padding-block: 0.5rem;
+            padding-inline: 0.75rem;
+
+            &:is(:hover, :focus-visible) {
+              border-block-end: none;
+              border-inline-start-color: var(--mountain-gold);
+            }
+
+            &[aria-current="page"] {
+              border-block-end: none;
+              border-inline-start-color: var(--mountain-gold-light);
+            }
+          }
+        }
+      }
+
+      & > search {
+        grid-column: 2;
+        padding-inline: 0;
+        position: static;
+      }
+
+      & > :not(header, nav[aria-label="Admin navigation"], search) {
+        grid-column: 2;
+      }
+    }
+  }
+
   /* ── Search results page ── */
 
   #admin-search-page {

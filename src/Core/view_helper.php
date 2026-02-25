@@ -37,14 +37,19 @@ class ViewHelper
      * @param  string $basePath     URL path (e.g. '/admin/users')
      * @param  int    $pageNum      Target page number
      * @param  array  $filterParams Current filter state (nulls are stripped)
+     * @param  string $pageParam    Query-string key for the page number
      * @return string Clean URL with query string
      */
-    public static function adminPaginationUrl(string $basePath, int $pageNum, array $filterParams): string
-    {
+    public static function adminPaginationUrl(
+        string $basePath,
+        int    $pageNum,
+        array  $filterParams,
+        string $pageParam = 'page',
+    ): string {
         $params = array_filter($filterParams, static fn(mixed $v): bool => $v !== null && $v !== '');
 
         if ($pageNum > 1) {
-            $params['page'] = $pageNum;
+            $params[$pageParam] = $pageNum;
         }
 
         $query = http_build_query($params);

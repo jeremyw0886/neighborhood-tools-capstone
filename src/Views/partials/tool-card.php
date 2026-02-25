@@ -3,10 +3,15 @@
 <?php $headingTag = $cardHeadingLevel ?? 'h2'; ?>
 <article role="listitem">
   <figure>
-    <?php if (!empty($tool['primary_image'])): ?>
-      <img src="/uploads/tools/<?= htmlspecialchars($tool['primary_image']) ?>"
+    <?php if (!empty($tool['primary_image'])):
+      $imgFile = htmlspecialchars($tool['primary_image']);
+      $imgSmall = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image']));
+    ?>
+      <img src="/uploads/tools/<?= $imgSmall ?>"
+           srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 800w"
+           sizes="(max-width: 640px) 47vw, 220px"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-           width="220" height="180"
+           width="400" height="268"
            <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?>>
     <?php else: ?>
       <img src="/assets/images/tool-placeholder.svg"

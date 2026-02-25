@@ -27,10 +27,15 @@ $bookmarkFlash ??= '';
   <article>
     <header>
       <figure>
-        <?php if (!empty($tool['primary_image'])): ?>
-          <img src="/uploads/tools/<?= htmlspecialchars($tool['primary_image']) ?>"
+        <?php if (!empty($tool['primary_image'])):
+          $imgFile = htmlspecialchars($tool['primary_image']);
+          $imgSmall = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image']));
+        ?>
+          <img src="/uploads/tools/<?= $imgFile ?>"
+               srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 800w"
+               sizes="(max-width: 768px) 100vw, 600px"
                alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-               width="600" height="400"
+               width="800" height="536"
                decoding="async">
         <?php else: ?>
           <img src="/assets/images/tool-placeholder.svg"

@@ -169,9 +169,9 @@ $fuelTypes         ??= [];
         <label for="tool-image">Tool Photo</label>
         <?php if (!empty($tool['primary_image'])): ?>
           <figure>
-            <img src="/uploads/tools/<?= htmlspecialchars($tool['primary_image']) ?>"
+            <img src="/uploads/tools/<?= htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image'])) ?>"
                  alt="Current photo of <?= htmlspecialchars($tool['tool_name_tol']) ?>"
-                 width="200" height="133"
+                 width="400" height="268"
                  decoding="async">
             <figcaption>Current photo — upload a new file to replace it.</figcaption>
           </figure>

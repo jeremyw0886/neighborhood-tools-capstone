@@ -471,12 +471,8 @@ class ToolController extends BaseController
                 'image_filename' => $imageFilename,
             ]);
 
-            // Delete old image file after successful DB commit
             if ($imageFilename !== null && !empty($tool['primary_image'])) {
-                $oldPath = BASE_PATH . '/public/uploads/tools/' . $tool['primary_image'];
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
+                $this->deleteToolImageFiles($tool['primary_image']);
             }
 
             $_SESSION['tool_saved'] = true;
@@ -484,12 +480,8 @@ class ToolController extends BaseController
         } catch (\Throwable $e) {
             error_log('ToolController::update — ' . $e->getMessage());
 
-            // Clean up orphaned new image on DB failure
             if ($imageFilename !== null) {
-                $path = BASE_PATH . '/public/uploads/tools/' . $imageFilename;
-                if (file_exists($path)) {
-                    unlink($path);
-                }
+                $this->deleteToolImageFiles($imageFilename);
             }
 
             $_SESSION['edit_tool_errors'] = ['general' => 'Something went wrong updating your listing. Please try again.'];
@@ -677,12 +669,8 @@ class ToolController extends BaseController
         } catch (\Throwable $e) {
             error_log('ToolController::store — ' . $e->getMessage());
 
-            // Clean up orphaned image file on DB failure
             if ($imageFilename !== null) {
-                $path = BASE_PATH . '/public/uploads/tools/' . $imageFilename;
-                if (file_exists($path)) {
-                    unlink($path);
-                }
+                $this->deleteToolImageFiles($imageFilename);
             }
 
             $_SESSION['tool_errors'] = ['general' => 'Something went wrong creating your listing. Please try again.'];
@@ -786,8 +774,8 @@ class ToolController extends BaseController
     /**
      * Move a validated tool image to the uploads directory.
      *
-     * Generates a unique filename to prevent collisions. Returns the
-     * filename on success, null on failure.
+     * Generates a unique filename, resizes to 800w max, and creates a
+     * 400w card variant. Returns the filename on success, null on failure.
      */
     private function moveToolImage(array $file): ?string
     {
@@ -804,11 +792,72 @@ class ToolController extends BaseController
         $filename = uniqid('tool_', true) . '.' . $ext;
         $destination = BASE_PATH . '/public/uploads/tools/' . $filename;
 
-        if (move_uploaded_file($file['tmp_name'], $destination)) {
-            return $filename;
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            return null;
         }
 
-        return null;
+        $this->resizeImage($destination, 800);
+        $cardVariant = preg_replace('/\.(\w+)$/', '-400w.$1', $destination);
+        copy($destination, $cardVariant);
+        $this->resizeImage($cardVariant, 400);
+
+        return $filename;
+    }
+
+    /**
+     * Resize an image file in-place to a maximum width.
+     *
+     * @param non-empty-string $path Absolute path to the image file
+     */
+    private function resizeImage(string $path, int $maxWidth): void
+    {
+        [$origW, $origH, $type] = getimagesize($path);
+
+        if ($origW <= $maxWidth) {
+            return;
+        }
+
+        $newW = $maxWidth;
+        $newH = (int) round($origH * ($maxWidth / $origW));
+
+        $source = match ($type) {
+            IMAGETYPE_JPEG => imagecreatefromjpeg($path),
+            IMAGETYPE_PNG  => imagecreatefrompng($path),
+            IMAGETYPE_WEBP => imagecreatefromwebp($path),
+            default        => null,
+        };
+
+        if ($source === null) {
+            return;
+        }
+
+        $canvas = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+        match ($type) {
+            IMAGETYPE_JPEG => imagejpeg($canvas, $path, 82),
+            IMAGETYPE_PNG  => imagepng($canvas, $path, 6),
+            IMAGETYPE_WEBP => imagewebp($canvas, $path, 82),
+        };
+
+        imagedestroy($source);
+        imagedestroy($canvas);
+    }
+
+    /**
+     * Delete a tool image and its 400w card variant from disk.
+     */
+    private function deleteToolImageFiles(string $filename): void
+    {
+        $base = BASE_PATH . '/public/uploads/tools/' . $filename;
+        $card = preg_replace('/\.(\w+)$/', '-400w.$1', $base);
+
+        if (file_exists($base)) {
+            unlink($base);
+        }
+        if (file_exists($card)) {
+            unlink($card);
+        }
     }
 
     /**

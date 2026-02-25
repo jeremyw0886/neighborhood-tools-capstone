@@ -45,6 +45,7 @@ storage/rate-limits/*.json
 
 # Local test files
 local_testing/
+seed_images/
 
 # Claude
 .claude

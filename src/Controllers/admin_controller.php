@@ -501,6 +501,10 @@ class AdminController extends BaseController
         ]);
     }
 
+    private const array ICONS_SORT_FIELDS   = ['file_name_vec', 'uploaded_at_vec', 'assigned_category'];
+    private const array AVATARS_SORT_FIELDS = ['file_name_avv', 'uploaded_at_avv', 'is_active_avv', 'user_count'];
+    private const array CATS_SORT_FIELDS    = ['category_name_cat', 'file_name_vec'];
+
     private const array REPORTS_SORT_FIELDS = ['neighborhood_name_nbh', 'active_members', 'available_tools', 'active_borrows', 'upcoming_events'];
 
     /**
@@ -712,7 +716,9 @@ class AdminController extends BaseController
     }
 
     /**
-     * Category management — icons and vector image library.
+     * Category management — sortable, filterable icon assignment table.
+     *
+     * Accepts `?q`, `?icon`, `?sort`, `?dir` query params.
      */
     public function categories(): void
     {
@@ -721,22 +727,52 @@ class AdminController extends BaseController
         $flash = $_SESSION['admin_categories_flash'] ?? null;
         unset($_SESSION['admin_categories_flash']);
 
+        $search    = $this->parseSearchQuery();
+        $sortParams = $this->parseSortParams('', self::CATS_SORT_FIELDS, 'category_name_cat', 'ASC');
+
+        $rawIcon = $_GET['icon'] ?? '';
+        $hasIcon = match ($rawIcon) {
+            'yes' => true,
+            'no'  => false,
+            default => null,
+        };
+
         try {
-            $categories = Category::getAllWithIcons();
-            $vectors    = VectorImage::getAll();
+            $totalCount = Category::getFilteredCount($search, $hasIcon);
+            $categories = Category::getAllWithIconsFiltered(
+                sort:    $sortParams['sort'],
+                dir:     $sortParams['dir'],
+                search:  $search,
+                hasIcon: $hasIcon,
+            );
+            $vectors = VectorImage::getAll();
         } catch (\Throwable $e) {
             error_log('AdminController::categories — ' . $e->getMessage());
             $categories = [];
             $vectors    = [];
+            $totalCount = 0;
         }
 
+        $filterParams = array_filter([
+            'q'    => $search,
+            'icon' => $rawIcon !== '' && $hasIcon !== null ? $rawIcon : null,
+            'sort' => $sortParams['sort'],
+            'dir'  => $sortParams['dir'],
+        ], static fn(mixed $v): bool => $v !== null);
+
         $this->render('admin/categories', [
-            'title'       => 'Manage Categories — NeighborhoodTools',
-            'description' => 'Manage tool categories and vector image icons.',
-            'pageCss'     => ['admin.css'],
-            'categories'  => $categories,
-            'vectors'     => $vectors,
-            'flash'       => $flash,
+            'title'        => 'Manage Categories — NeighborhoodTools',
+            'description'  => 'Manage tool categories and vector image icons.',
+            'pageCss'      => ['admin.css'],
+            'categories'   => $categories,
+            'vectors'      => $vectors,
+            'flash'        => $flash,
+            'totalCount'   => $totalCount,
+            'search'       => $search,
+            'hasIcon'      => $rawIcon !== '' && $hasIcon !== null ? $rawIcon : null,
+            'sort'         => $sortParams['sort'],
+            'dir'          => $sortParams['dir'],
+            'filterParams' => $filterParams,
         ]);
     }
 
@@ -903,7 +939,12 @@ class AdminController extends BaseController
         $this->redirect('/admin/categories');
     }
 
-    /** Images tab — category icons and avatar vectors (paginated). */
+    /**
+     * Images tab — category icons and avatar vectors (paginated, sortable, filterable).
+     *
+     * Icons accept `?icons_q`, `?icons_assigned`, `?icons_sort`, `?icons_dir`, `?icons_page`.
+     * Avatars accept `?avatars_q`, `?avatars_status`, `?avatars_sort`, `?avatars_dir`, `?avatars_page`.
+     */
     public function images(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -913,20 +954,54 @@ class AdminController extends BaseController
 
         $perPage = self::IMAGES_PER_PAGE;
 
+        $iconsSearch = $this->parseSearchQuery('icons_q');
+        $iconsSortP  = $this->parseSortParams('icons_', self::ICONS_SORT_FIELDS, 'uploaded_at_vec', 'DESC');
+
+        $rawIconsAssigned = $_GET['icons_assigned'] ?? '';
+        $iconsAssigned    = match ($rawIconsAssigned) {
+            'yes' => true,
+            'no'  => false,
+            default => null,
+        };
+
+        $avatarsSearch = $this->parseSearchQuery('avatars_q');
+        $avatarsSortP  = $this->parseSortParams('avatars_', self::AVATARS_SORT_FIELDS, 'uploaded_at_avv', 'DESC');
+
+        $rawAvatarsStatus = $_GET['avatars_status'] ?? '';
+        $avatarsActive    = match ($rawAvatarsStatus) {
+            'active'   => true,
+            'inactive' => false,
+            default    => null,
+        };
+
         try {
             $iconsPage       = max(1, (int) ($_GET['icons_page'] ?? 1));
-            $iconsTotalCount = VectorImage::getCount();
+            $iconsTotalCount = VectorImage::getFilteredCount($iconsSearch, $iconsAssigned);
             $iconsTotalPages = max(1, (int) ceil($iconsTotalCount / $perPage));
             $iconsPage       = min($iconsPage, $iconsTotalPages);
             $iconsOffset     = ($iconsPage - 1) * $perPage;
-            $categoryVectors = VectorImage::getPaged($perPage, $iconsOffset);
+            $categoryVectors = VectorImage::getFiltered(
+                limit:    $perPage,
+                offset:   $iconsOffset,
+                sort:     $iconsSortP['sort'],
+                dir:      $iconsSortP['dir'],
+                search:   $iconsSearch,
+                assigned: $iconsAssigned,
+            );
 
             $avatarsPage       = max(1, (int) ($_GET['avatars_page'] ?? 1));
-            $avatarsTotalCount = AvatarVector::getCount();
+            $avatarsTotalCount = AvatarVector::getFilteredCount($avatarsSearch, $avatarsActive);
             $avatarsTotalPages = max(1, (int) ceil($avatarsTotalCount / $perPage));
             $avatarsPage       = min($avatarsPage, $avatarsTotalPages);
             $avatarsOffset     = ($avatarsPage - 1) * $perPage;
-            $avatarVectors     = AvatarVector::getPaged($perPage, $avatarsOffset);
+            $avatarVectors     = AvatarVector::getFiltered(
+                limit:  $perPage,
+                offset: $avatarsOffset,
+                sort:   $avatarsSortP['sort'],
+                dir:    $avatarsSortP['dir'],
+                search: $avatarsSearch,
+                active: $avatarsActive,
+            );
         } catch (\Throwable $e) {
             error_log('AdminController::images — ' . $e->getMessage());
             $categoryVectors   = [];
@@ -939,23 +1014,44 @@ class AdminController extends BaseController
             $avatarsTotalCount = 0;
         }
 
-        $iconsFilterParams   = array_filter(['avatars_page' => $avatarsPage > 1 ? $avatarsPage : null]);
-        $avatarsFilterParams = array_filter(['icons_page' => $iconsPage > 1 ? $iconsPage : null]);
+        $iconsFilterParams = array_filter([
+            'icons_q'        => $iconsSearch,
+            'icons_assigned' => $rawIconsAssigned !== '' && $iconsAssigned !== null ? $rawIconsAssigned : null,
+            'icons_sort'     => $iconsSortP['sort'],
+            'icons_dir'      => $iconsSortP['dir'],
+            'avatars_page'   => $avatarsPage > 1 ? $avatarsPage : null,
+        ], static fn(mixed $v): bool => $v !== null);
+
+        $avatarsFilterParams = array_filter([
+            'avatars_q'      => $avatarsSearch,
+            'avatars_status' => $rawAvatarsStatus !== '' && $avatarsActive !== null ? $rawAvatarsStatus : null,
+            'avatars_sort'   => $avatarsSortP['sort'],
+            'avatars_dir'    => $avatarsSortP['dir'],
+            'icons_page'     => $iconsPage > 1 ? $iconsPage : null,
+        ], static fn(mixed $v): bool => $v !== null);
 
         $this->render('admin/images', [
-            'title'              => 'Manage Images — NeighborhoodTools',
-            'description'        => 'Manage category icons and profile avatar vectors.',
-            'pageCss'            => ['admin.css'],
-            'categoryVectors'    => $categoryVectors,
-            'avatarVectors'      => $avatarVectors,
-            'flash'              => $flash,
-            'iconsPage'          => $iconsPage,
-            'iconsTotalPages'    => $iconsTotalPages,
-            'iconsTotalCount'    => $iconsTotalCount,
-            'avatarsPage'        => $avatarsPage,
-            'avatarsTotalPages'  => $avatarsTotalPages,
-            'avatarsTotalCount'  => $avatarsTotalCount,
-            'iconsFilterParams'  => $iconsFilterParams,
+            'title'               => 'Manage Images — NeighborhoodTools',
+            'description'         => 'Manage category icons and profile avatar vectors.',
+            'pageCss'             => ['admin.css'],
+            'categoryVectors'     => $categoryVectors,
+            'avatarVectors'       => $avatarVectors,
+            'flash'               => $flash,
+            'iconsPage'           => $iconsPage,
+            'iconsTotalPages'     => $iconsTotalPages,
+            'iconsTotalCount'     => $iconsTotalCount,
+            'iconsSearch'         => $iconsSearch,
+            'iconsAssigned'       => $rawIconsAssigned !== '' && $iconsAssigned !== null ? $rawIconsAssigned : null,
+            'iconsSort'           => $iconsSortP['sort'],
+            'iconsDir'            => $iconsSortP['dir'],
+            'iconsFilterParams'   => $iconsFilterParams,
+            'avatarsPage'         => $avatarsPage,
+            'avatarsTotalPages'   => $avatarsTotalPages,
+            'avatarsTotalCount'   => $avatarsTotalCount,
+            'avatarsSearch'       => $avatarsSearch,
+            'avatarsStatus'       => $rawAvatarsStatus !== '' && $avatarsActive !== null ? $rawAvatarsStatus : null,
+            'avatarsSort'         => $avatarsSortP['sort'],
+            'avatarsDir'          => $avatarsSortP['dir'],
             'avatarsFilterParams' => $avatarsFilterParams,
         ]);
     }

@@ -154,6 +154,32 @@ class Notification
     }
 
     /**
+     * Check whether a notification with a given title already exists for a borrow.
+     *
+     * @return bool True if a matching notification exists
+     */
+    public static function existsForBorrow(int $accountId, string $title, int $borrowId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT 1
+            FROM notification_ntf
+            WHERE id_acc_ntf = :account_id
+              AND title_ntf  = :title
+              AND id_bor_ntf = :borrow_id
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':title', $title, PDO::PARAM_STR);
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * Mark notifications as read via sp_mark_notifications_read.
      *
      * @param  ?string $notificationIds  Comma-separated IDs, or null for all

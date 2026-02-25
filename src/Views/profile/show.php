@@ -18,13 +18,16 @@
  *   $csrfToken   string
  */
 
-// Avatar path with fallback
-$avatarSrc = $profile['primary_image']
-    ? '/uploads/profiles/' . $profile['primary_image']
-    : '/assets/images/avatar-placeholder.svg';
-
-$avatarAlt = $profile['image_alt_text']
-    ?? $profile['full_name'];
+if (!empty($profile['vector_avatar'])) {
+    $avatarSrc = '/uploads/vectors/' . $profile['vector_avatar'];
+    $avatarAlt = $profile['vector_avatar_alt'] ?? $profile['full_name'];
+} elseif (!empty($profile['primary_image'])) {
+    $avatarSrc = '/uploads/profiles/' . $profile['primary_image'];
+    $avatarAlt = $profile['image_alt_text'] ?? $profile['full_name'];
+} else {
+    $avatarSrc = '/assets/images/avatar-placeholder.svg';
+    $avatarAlt = $profile['full_name'];
+}
 
 // Location string — "neighborhood, city, state" (omit missing segments)
 $locationParts = array_filter([

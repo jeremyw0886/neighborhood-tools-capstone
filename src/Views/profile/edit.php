@@ -11,12 +11,16 @@
  *   $csrfToken    string  CSRF token from shared data
  */
 
-$avatarSrc = $profile['primary_image']
-    ? '/uploads/profiles/' . $profile['primary_image']
-    : '/assets/images/avatar-placeholder.svg';
-
-$avatarAlt = $profile['image_alt_text']
-    ?? $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
+if (!empty($profile['vector_avatar'])) {
+    $avatarSrc = '/uploads/vectors/' . $profile['vector_avatar'];
+    $avatarAlt = $profile['vector_avatar_alt'] ?? $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
+} elseif (!empty($profile['primary_image'])) {
+    $avatarSrc = '/uploads/profiles/' . $profile['primary_image'];
+    $avatarAlt = $profile['image_alt_text'] ?? $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
+} else {
+    $avatarSrc = '/assets/images/avatar-placeholder.svg';
+    $avatarAlt = $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
+}
 ?>
 
 <section id="profile-edit" aria-labelledby="edit-profile-heading">

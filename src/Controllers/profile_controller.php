@@ -67,6 +67,8 @@ class ProfileController extends BaseController
             'first_name'         => $account['first_name_acc'],
             'primary_image'      => $account['primary_image'],
             'image_alt_text'     => $account['image_alt_text'],
+            'vector_avatar'      => $account['vector_avatar'] ?? null,
+            'vector_avatar_alt'  => $account['vector_avatar_alt'] ?? null,
             'bio'                => $account['bio_text_abi'],
             'neighborhood'       => $account['neighborhood_name_nbh'],
             'city'               => $account['city_name_nbh'],

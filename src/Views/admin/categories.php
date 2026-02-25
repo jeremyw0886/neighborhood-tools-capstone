@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin — Category & vector image management.
+ * Admin — Category icon assignment.
  *
  * Variables from AdminController::categories():
  *   $categories  array  Rows from Category::getAllWithIcons()
@@ -16,7 +16,7 @@
       <i class="fa-solid fa-tags" aria-hidden="true"></i>
       Manage Categories
     </h1>
-    <p>Upload SVG icons and assign them to tool categories.</p>
+    <p>Assign icons to tool categories. <a href="/admin/images">Manage images</a></p>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
@@ -24,81 +24,6 @@
   <?php if ($flash): ?>
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
-
-  <section aria-labelledby="vector-library-heading">
-    <h2 id="vector-library-heading">
-      <i class="fa-solid fa-image" aria-hidden="true"></i>
-      Vector Image Library
-    </h2>
-
-    <form method="post"
-          action="/admin/vectors"
-          enctype="multipart/form-data"
-          data-upload-form>
-      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-      <fieldset>
-        <legend>Upload New Icon</legend>
-        <div>
-          <label for="vector-file">SVG File</label>
-          <input type="file"
-                 id="vector-file"
-                 name="vector_file"
-                 accept=".svg"
-                 required>
-          <small>SVG only, max 1 MB</small>
-        </div>
-        <div>
-          <label for="vector-desc">Description</label>
-          <input type="text"
-                 id="vector-desc"
-                 name="description"
-                 maxlength="255"
-                 placeholder="e.g. Hammer tool icon">
-        </div>
-        <button type="submit">
-          <i class="fa-solid fa-upload" aria-hidden="true"></i> Upload
-        </button>
-      </fieldset>
-    </form>
-
-    <?php if (!empty($vectors)): ?>
-      <div data-vector-grid role="list" aria-label="Uploaded vector images">
-        <?php foreach ($vectors as $vec): ?>
-          <article role="listitem">
-            <figure>
-              <img src="/uploads/vectors/<?= htmlspecialchars($vec['file_name_vec']) ?>"
-                   alt="<?= htmlspecialchars($vec['description_text_vec'] ?? $vec['file_name_vec']) ?>"
-                   width="48" height="48"
-                   loading="lazy" decoding="async">
-            </figure>
-            <dl>
-              <dt>File</dt>
-              <dd><?= htmlspecialchars($vec['file_name_vec']) ?></dd>
-              <?php if (!empty($vec['description_text_vec'])): ?>
-                <dt>Description</dt>
-                <dd><?= htmlspecialchars($vec['description_text_vec']) ?></dd>
-              <?php endif; ?>
-              <dt>Uploaded</dt>
-              <dd>
-                <time datetime="<?= htmlspecialchars($vec['uploaded_at_vec']) ?>">
-                  <?= htmlspecialchars(date('M j, Y', strtotime($vec['uploaded_at_vec']))) ?>
-                </time>
-              </dd>
-              <dt>By</dt>
-              <dd><?= htmlspecialchars($vec['first_name_acc'] . ' ' . $vec['last_name_acc']) ?></dd>
-              <?php if (!empty($vec['assigned_category'])): ?>
-                <dt>Assigned to</dt>
-                <dd data-assigned><?= htmlspecialchars($vec['assigned_category']) ?></dd>
-              <?php endif; ?>
-            </dl>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    <?php else: ?>
-      <p data-empty>No vector images uploaded yet.</p>
-    <?php endif; ?>
-
-  </section>
 
   <section aria-labelledby="category-icons-heading">
     <h2 id="category-icons-heading">

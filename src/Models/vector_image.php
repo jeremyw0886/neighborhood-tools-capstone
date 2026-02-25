@@ -66,6 +66,22 @@ class VectorImage
         return (int) $pdo->lastInsertId();
     }
 
+    /** Update description text. */
+    public static function updateDescription(int $id, ?string $description): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE vector_image_vec
+            SET description_text_vec = :description
+            WHERE id_vec = :id
+        ");
+
+        $stmt->bindValue(':description', $description, $description === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public static function delete(int $id): bool
     {
         $pdo = Database::connection();

@@ -9,14 +9,17 @@ use App\Core\ViewHelper;
  * @var array  $filterParams Current filter/sort state
  * @var int    $page         Current page number
  * @var int    $totalPages   Total number of pages
+ * @var string $pageParam    Query-string key for page number (default 'page')
  */
 
 if ($totalPages <= 1) {
     return;
 }
 
+$pageParam ??= 'page';
+
 $url = static fn(int $pageNum): string =>
-    ViewHelper::adminPaginationUrl($basePath, $pageNum, $filterParams);
+    ViewHelper::adminPaginationUrl($basePath, $pageNum, $filterParams, $pageParam);
 ?>
 
 <nav aria-label="Pagination">

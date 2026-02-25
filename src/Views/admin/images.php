@@ -3,9 +3,17 @@
  * Admin — Image management (category icons + avatar vectors).
  *
  * Variables from AdminController::images():
- *   $categoryVectors  array   Rows from VectorImage::getAll()
- *   $avatarVectors    array   Rows from AvatarVector::getAll()
- *   $flash            ?string
+ *   $categoryVectors     array   Paginated category icon rows
+ *   $avatarVectors       array   Paginated avatar vector rows
+ *   $flash               ?string
+ *   $iconsPage           int     Current category icons page
+ *   $iconsTotalPages     int     Total category icons pages
+ *   $iconsTotalCount     int     Total category icon count
+ *   $iconsFilterParams   array   Filter params for icon pagination links
+ *   $avatarsPage         int     Current avatar vectors page
+ *   $avatarsTotalPages   int     Total avatar vectors pages
+ *   $avatarsTotalCount   int     Total avatar vector count
+ *   $avatarsFilterParams array   Filter params for avatar pagination links
  */
 ?>
 
@@ -113,6 +121,16 @@
           </article>
         <?php endforeach; ?>
       </div>
+
+      <?php
+        $basePath     = '/admin/images';
+        $filterParams = $iconsFilterParams;
+        $page         = $iconsPage;
+        $totalPages   = $iconsTotalPages;
+        $pageParam    = 'icons_page';
+        require BASE_PATH . '/src/Views/partials/pagination.php';
+      ?>
+
     <?php else: ?>
       <p data-empty>No category icons uploaded yet.</p>
     <?php endif; ?>
@@ -229,6 +247,16 @@
           </article>
         <?php endforeach; ?>
       </div>
+
+      <?php
+        $basePath     = '/admin/images';
+        $filterParams = $avatarsFilterParams;
+        $page         = $avatarsPage;
+        $totalPages   = $avatarsTotalPages;
+        $pageParam    = 'avatars_page';
+        require BASE_PATH . '/src/Views/partials/pagination.php';
+      ?>
+
     <?php else: ?>
       <p data-empty>No avatar vectors uploaded yet.</p>
     <?php endif; ?>

@@ -727,6 +727,17 @@ class AdminController extends BaseController
         $flash = $_SESSION['admin_categories_flash'] ?? null;
         unset($_SESSION['admin_categories_flash']);
 
+        $createErrors = $_SESSION['category_create_errors'] ?? [];
+        $createOld    = $_SESSION['category_create_old'] ?? [];
+        $editErrors   = $_SESSION['category_edit_errors'] ?? [];
+        $editOld      = $_SESSION['category_edit_old'] ?? [];
+        unset(
+            $_SESSION['category_create_errors'],
+            $_SESSION['category_create_old'],
+            $_SESSION['category_edit_errors'],
+            $_SESSION['category_edit_old'],
+        );
+
         $search    = $this->parseSearchQuery();
         $sortParams = $this->parseSortParams('', self::CATS_SORT_FIELDS, 'category_name_cat', 'ASC');
 
@@ -746,6 +757,11 @@ class AdminController extends BaseController
                 hasIcon: $hasIcon,
             );
             $vectors = VectorImage::getAll();
+
+            foreach ($categories as &$cat) {
+                $cat['tool_count'] = Category::getToolCount((int) $cat['id_cat']);
+            }
+            unset($cat);
         } catch (\Throwable $e) {
             error_log('AdminController::categories — ' . $e->getMessage());
             $categories = [];
@@ -773,6 +789,10 @@ class AdminController extends BaseController
             'sort'         => $sortParams['sort'],
             'dir'          => $sortParams['dir'],
             'filterParams' => $filterParams,
+            'createErrors' => $createErrors,
+            'createOld'    => $createOld,
+            'editErrors'   => $editErrors,
+            'editOld'      => $editOld,
         ]);
     }
 
@@ -934,6 +954,138 @@ class AdminController extends BaseController
         } catch (\Throwable $e) {
             error_log('AdminController::assignCategoryIcon — ' . $e->getMessage());
             $_SESSION['admin_categories_flash'] = 'Failed to update category icon.';
+        }
+
+        $this->redirect('/admin/categories');
+    }
+
+    /**
+     * Create a new category.
+     */
+    public function createCategory(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $name     = trim($_POST['category_name'] ?? '');
+        $vectorId = trim($_POST['vector_id'] ?? '');
+        $vectorId = $vectorId !== '' ? (int) $vectorId : null;
+        $errors   = [];
+
+        if ($name === '') {
+            $errors['category_name'] = 'Category name is required.';
+        } elseif (mb_strlen($name) > 100) {
+            $errors['category_name'] = 'Category name must be 100 characters or fewer.';
+        }
+
+        if ($vectorId !== null && $vectorId < 1) {
+            $errors['vector_id'] = 'Invalid icon selected.';
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['category_create_errors'] = $errors;
+            $_SESSION['category_create_old']    = ['category_name' => $name];
+            $this->redirect('/admin/categories');
+        }
+
+        try {
+            Category::create($name, $vectorId);
+            $_SESSION['admin_categories_flash'] = 'Category "' . $name . '" created.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::createCategory — ' . $e->getMessage());
+
+            if (str_contains($e->getMessage(), 'Duplicate entry')) {
+                $_SESSION['category_create_errors'] = ['category_name' => 'A category with this name already exists.'];
+                $_SESSION['category_create_old']    = ['category_name' => $name];
+            } else {
+                $_SESSION['admin_categories_flash'] = 'Failed to create category.';
+            }
+        }
+
+        $this->redirect('/admin/categories');
+    }
+
+    /**
+     * Update a category's name and icon.
+     */
+    public function updateCategory(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $categoryId = (int) $id;
+
+        if ($categoryId < 1) {
+            $this->abort(404);
+        }
+
+        $name     = trim($_POST['category_name'] ?? '');
+        $vectorId = trim($_POST['vector_id'] ?? '');
+        $vectorId = $vectorId !== '' ? (int) $vectorId : null;
+        $errors   = [];
+
+        if ($name === '') {
+            $errors['category_name'] = 'Category name is required.';
+        } elseif (mb_strlen($name) > 100) {
+            $errors['category_name'] = 'Category name must be 100 characters or fewer.';
+        }
+
+        if ($vectorId !== null && $vectorId < 1) {
+            $errors['vector_id'] = 'Invalid icon selected.';
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['category_edit_errors'] = [$categoryId => $errors];
+            $_SESSION['category_edit_old']    = [$categoryId => ['category_name' => $name]];
+            $this->redirect('/admin/categories');
+        }
+
+        try {
+            Category::update($categoryId, $name, $vectorId);
+            $_SESSION['admin_categories_flash'] = 'Category updated.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateCategory — ' . $e->getMessage());
+
+            if (str_contains($e->getMessage(), 'Duplicate entry')) {
+                $_SESSION['category_edit_errors'] = [$categoryId => ['category_name' => 'A category with this name already exists.']];
+                $_SESSION['category_edit_old']    = [$categoryId => ['category_name' => $name]];
+            } else {
+                $_SESSION['admin_categories_flash'] = 'Failed to update category.';
+            }
+        }
+
+        $this->redirect('/admin/categories');
+    }
+
+    /**
+     * Delete a category (only if no tools reference it).
+     */
+    public function deleteCategory(string $id): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $categoryId = (int) $id;
+
+        if ($categoryId < 1) {
+            $this->abort(404);
+        }
+
+        $toolCount = Category::getToolCount($categoryId);
+
+        if ($toolCount > 0) {
+            $_SESSION['admin_categories_flash'] = 'Cannot delete — '
+                . $toolCount . ' tool' . ($toolCount !== 1 ? 's' : '')
+                . ' still use this category.';
+            $this->redirect('/admin/categories');
+        }
+
+        try {
+            Category::delete($categoryId);
+            $_SESSION['admin_categories_flash'] = 'Category deleted.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::deleteCategory — ' . $e->getMessage());
+            $_SESSION['admin_categories_flash'] = 'Failed to delete category.';
         }
 
         $this->redirect('/admin/categories');

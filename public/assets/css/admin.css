@@ -2550,9 +2550,12 @@
     }
   }
 
-  /* ── Categories management page ── */
+  /* ── Categories / Images management pages ── */
 
-  main > section[aria-labelledby="admin-categories-heading"] {
+  main > section:is(
+    [aria-labelledby="admin-categories-heading"],
+    [aria-labelledby="admin-images-heading"]
+  ) {
 
     & > p[data-flash] {
       background: var(--mountain-cloud);
@@ -2701,6 +2704,80 @@
             &[data-assigned] {
               color: var(--mountain-pine);
               font-weight: 500;
+            }
+          }
+        }
+
+        & > form[data-inline-form] {
+          align-items: center;
+          display: flex;
+          gap: 0.375rem;
+
+          & > input[type="text"] {
+            border: 1px solid var(--mountain-fog);
+            border-radius: 0.375rem;
+            flex: 1;
+            font-size: 0.813rem;
+            min-width: 0;
+            padding: 0.375rem 0.5rem;
+          }
+
+          & > button {
+            align-items: center;
+            background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+            border: none;
+            border-radius: 2rem;
+            color: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            font-size: 0.75rem;
+            min-height: 1.75rem;
+            padding-inline: 0.5rem;
+            transition: background 0.2s;
+
+            &:is(:hover, :focus-visible) {
+              background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+            }
+
+            &:focus-visible {
+              outline: 2px solid var(--mountain-pine);
+              outline-offset: 2px;
+            }
+          }
+        }
+
+        & > form[data-delete-form] > button {
+          align-items: center;
+          background: transparent;
+          border: 1px solid var(--mountain-fog);
+          border-radius: 2rem;
+          color: var(--mountain-slate);
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 0.75rem;
+          font-weight: 500;
+          gap: 0.25rem;
+          min-height: 1.75rem;
+          padding-inline: 0.75rem;
+          transition: border-color 0.2s, color 0.2s;
+
+          &:is(:hover, :focus-visible) {
+            border-color: var(--mountain-pine);
+            color: var(--mountain-pine);
+          }
+
+          &:focus-visible {
+            outline: 2px solid var(--mountain-pine);
+            outline-offset: 2px;
+          }
+
+          &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+
+            &:is(:hover, :focus-visible) {
+              border-color: var(--mountain-fog);
+              color: var(--mountain-slate);
             }
           }
         }
@@ -3109,7 +3186,17 @@
       transition: none;
     }
 
-    main > section[aria-labelledby="admin-categories-heading"] div[data-vector-grid] > article {
+    main > section:is(
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"]
+    ) div[data-vector-grid] > article {
+      transition: none;
+    }
+
+    main > section[aria-labelledby="admin-images-heading"] div[data-vector-grid] :is(
+      form[data-inline-form] > button,
+      form[data-delete-form] > button
+    ) {
       transition: none;
     }
 
@@ -3157,7 +3244,10 @@
       border-width: 2px;
     }
 
-    main > section[aria-labelledby="admin-categories-heading"] {
+    main > section:is(
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"]
+    ) {
 
       & div[data-vector-grid] > article {
         border-width: 2px;

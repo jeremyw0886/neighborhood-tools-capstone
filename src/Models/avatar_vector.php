@@ -70,6 +70,100 @@ class AvatarVector
         ")->fetchColumn();
     }
 
+    /**
+     * Count avatar vectors matching optional search and active-status filter.
+     *
+     * @param  ?string $search Filename or description substring
+     * @param  ?bool   $active true = active only, false = inactive only, null = all
+     * @return int
+     */
+    public static function getFilteredCount(?string $search, ?bool $active): int
+    {
+        $pdo = Database::connection();
+
+        $sql    = "SELECT COUNT(*) FROM avatar_vector_avv v WHERE 1=1";
+        $params = [];
+
+        if ($search !== null) {
+            $sql .= " AND (v.file_name_avv LIKE :search OR v.description_text_avv LIKE :search)";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($active === true) {
+            $sql .= " AND v.is_active_avv = TRUE";
+        } elseif ($active === false) {
+            $sql .= " AND v.is_active_avv = FALSE";
+        }
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Paginated, sortable, filterable avatar vector listing.
+     *
+     * @param  int     $limit
+     * @param  int     $offset
+     * @param  string  $sort   Validated column name
+     * @param  string  $dir    ASC or DESC
+     * @param  ?string $search Filename or description substring
+     * @param  ?bool   $active true = active only, false = inactive only, null = all
+     * @return array
+     */
+    public static function getFiltered(
+        int $limit,
+        int $offset,
+        string $sort,
+        string $dir,
+        ?string $search,
+        ?bool $active,
+    ): array {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT v.*,
+                   a.first_name_acc, a.last_name_acc,
+                   (SELECT COUNT(*) FROM account_acc
+                    WHERE id_avv_acc = v.id_avv) AS user_count
+            FROM avatar_vector_avv v
+            JOIN account_acc a ON v.id_acc_avv = a.id_acc
+            WHERE 1=1
+        ";
+        $params = [];
+
+        if ($search !== null) {
+            $sql .= " AND (v.file_name_avv LIKE :search OR v.description_text_avv LIKE :search)";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($active === true) {
+            $sql .= " AND v.is_active_avv = TRUE";
+        } elseif ($active === false) {
+            $sql .= " AND v.is_active_avv = FALSE";
+        }
+
+        $sql .= " ORDER BY {$sort} {$dir} LIMIT :limit OFFSET :offset";
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     /** @return ?array Single row or null. */
     public static function findById(int $id): ?array
     {

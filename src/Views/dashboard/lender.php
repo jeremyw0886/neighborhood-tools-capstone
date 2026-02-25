@@ -3,12 +3,14 @@
  * Dashboard — Lender sub-page: listed tools, incoming requests, lent-out items.
  *
  * Variables from DashboardController::lender():
- *   $tools            array  Rows from tool_detail_v for this owner
- *   $incomingRequests array  Pending requests where user is lender
- *   $awaitingPickup   array  Approved borrows awaiting pickup (lender side)
- *   $lentOut          array  Active borrows where user is lender
- *   $reqSort          array{sort: string, dir: string}  Incoming requests sort state
- *   $lentSort         array{sort: string, dir: string}  Lent-out table sort state
+ *   $tools              array  Rows from tool_detail_v for this owner
+ *   $incomingRequests   array  Pending requests where user is lender
+ *   $awaitingPickup     array  Approved borrows awaiting pickup (lender side)
+ *   $lentOut            array  Active borrows where user is lender
+ *   $depositsByBorrow   array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
+ *   $handoversByBorrow  array<int, array>  Keyed by borrow ID — pending handover rows
+ *   $reqSort            array{sort: string, dir: string}  Incoming requests sort state
+ *   $lentSort           array{sort: string, dir: string}  Lent-out table sort state
  *
  * Shared data:
  *   $authUser  array{id, name, first_name, role, avatar}
@@ -197,9 +199,25 @@ use App\Core\ViewHelper;
               <td><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</td>
               <td><span data-status="approved">Approved &mdash; awaiting pickup</span></td>
               <td data-actions>
-                <a href="/handover/<?= (int) $pickup['id_bor'] ?>" role="button">
-                  <i class="fa-solid fa-key" aria-hidden="true"></i> View Pickup
-                </a>
+                <?php
+                  $pickupId  = (int) $pickup['id_bor'];
+                  $deposit   = $depositsByBorrow[$pickupId] ?? null;
+                  $handover  = $handoversByBorrow[$pickupId] ?? null;
+                  $depositPaid = $deposit === null || $deposit['deposit_status'] !== 'pending';
+                ?>
+                <?php if (!$depositPaid): ?>
+                  <span role="button" aria-disabled="true">
+                    <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Deposit
+                  </span>
+                <?php elseif ($handover !== null): ?>
+                  <a href="/handover/<?= $pickupId ?>" role="button">
+                    <i class="fa-solid fa-key" aria-hidden="true"></i> Your Code
+                  </a>
+                <?php else: ?>
+                  <a href="/handover/<?= $pickupId ?>" role="button">
+                    <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Code
+                  </a>
+                <?php endif; ?>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -289,9 +307,16 @@ use App\Core\ViewHelper;
                 <span data-status="<?= $statusSlug ?>"><?= htmlspecialchars($dueStatus) ?></span>
               </td>
               <td data-actions>
-                <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
-                  <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Return Tool
-                </a>
+                <?php $handover = $handoversByBorrow[(int) $row['id_bor']] ?? null; ?>
+                <?php if ($handover !== null): ?>
+                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
+                    <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Code
+                  </a>
+                <?php else: ?>
+                  <span role="button" aria-disabled="true">
+                    <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Code
+                  </span>
+                <?php endif; ?>
                 <details>
                   <summary>
                     <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend

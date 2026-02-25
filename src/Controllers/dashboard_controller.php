@@ -120,8 +120,11 @@ class DashboardController extends BaseController
             static fn(array $row): bool => (int) $row['lender_id'] === $userId,
         );
 
+        $pickupBorrowIds = array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup);
+        $depositsByBorrow = Deposit::findByBorrowIds($pickupBorrowIds);
+
         $allBorrowIds = array_merge(
-            array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup),
+            $pickupBorrowIds,
             array_map(static fn(array $row): int => (int) $row['id_bor'], $lentOut),
         );
         $handoversByBorrow = Handover::findPendingByBorrowIds($allBorrowIds);
@@ -134,6 +137,7 @@ class DashboardController extends BaseController
             'incomingRequests'   => array_values($incomingRequests),
             'awaitingPickup'     => array_values($awaitingPickup),
             'lentOut'            => array_values($lentOut),
+            'depositsByBorrow'   => $depositsByBorrow,
             'handoversByBorrow'  => $handoversByBorrow,
             'reqSort'            => $reqSort,
             'lentSort'           => $lentSort,

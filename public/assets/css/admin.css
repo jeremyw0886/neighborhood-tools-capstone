@@ -66,19 +66,43 @@
 
     /* ── Section headings ── */
 
-    & > section > h2 {
+    & > section > h2,
+    & > details > summary > h2 {
       color: var(--mountain-pine);
       margin-block-end: 1rem;
 
-      & > i {
+      & > i:not([data-chevron]) {
         color: var(--mountain-gold);
         margin-inline-end: 0.375rem;
       }
     }
 
+    /* ── Collapsible sections ── */
+
+    & > details > summary {
+      cursor: pointer;
+      list-style: none;
+      margin-block-end: 1rem;
+
+      &::marker,
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      & > h2 > [data-chevron] {
+        font-size: 0.75em;
+        margin-inline-start: 0.5rem;
+        transition: rotate 0.3s ease;
+      }
+    }
+
+    & > details[open] > summary > h2 > [data-chevron] {
+      rotate: 180deg;
+    }
+
     /* ── Section spacing ── */
 
-    & > section + section {
+    & > :is(section, details) + :is(section, details) {
       margin-block-start: 2.5rem;
     }
   }
@@ -90,6 +114,7 @@
     padding-block: 0.75rem;
     padding-inline: 1.5rem;
     position: sticky;
+    margin-block-end: 1rem;
     top: 0;
     z-index: 90;
 
@@ -2864,7 +2889,7 @@
       }
     }
 
-    & section[aria-labelledby="avatar-vectors-heading"] div[data-vector-grid] > article > figure {
+    & :is(section, details)[aria-labelledby="avatar-vectors-heading"] div[data-vector-grid] > article > figure {
       border-radius: 50%;
     }
 
@@ -3459,14 +3484,14 @@
       transition: none;
     }
 
-    main > section:is(
+    main > :is(section, details):is(
       [aria-labelledby="admin-categories-heading"],
       [aria-labelledby="admin-images-heading"]
     ) div[data-vector-grid] > article {
       transition: none;
     }
 
-    main > section[aria-labelledby="admin-images-heading"] div[data-vector-grid] :is(
+    main > :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid] :is(
       form[data-inline-form] > button,
       form[data-delete-form] > button,
       form[data-toggle-form] > button
@@ -3474,12 +3499,16 @@
       transition: none;
     }
 
-    main > section[aria-labelledby="admin-images-heading"] div[data-vector-grid] > article[data-inactive] {
+    main > :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid] > article[data-inactive] {
       transition: none;
 
       & > figure {
         transition: none;
       }
+    }
+
+    main > :is(section, details)[aria-labelledby="admin-images-heading"] > summary > h2 > [data-chevron] {
+      transition: none;
     }
 
     search[aria-label="Search all admin data"] :is(input, button) {
@@ -3526,7 +3555,7 @@
       border-width: 2px;
     }
 
-    main > section:is(
+    main > :is(section, details):is(
       [aria-labelledby="admin-categories-heading"],
       [aria-labelledby="admin-images-heading"]
     ) {

@@ -33,11 +33,14 @@
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
 
-  <section aria-labelledby="category-icons-heading">
-    <h2 id="category-icons-heading">
-      <i class="fa-solid fa-tags" aria-hidden="true"></i>
-      Category Icons
-    </h2>
+  <details open aria-labelledby="category-icons-heading">
+    <summary>
+      <h2 id="category-icons-heading">
+        <i class="fa-solid fa-tags" aria-hidden="true"></i>
+        Category Icons
+        <i class="fa-solid fa-chevron-down" aria-hidden="true" data-chevron></i>
+      </h2>
+    </summary>
 
     <form method="post"
           action="/admin/vectors"
@@ -135,13 +138,16 @@
       <p data-empty>No category icons uploaded yet.</p>
     <?php endif; ?>
 
-  </section>
+  </details>
 
-  <section aria-labelledby="avatar-vectors-heading">
-    <h2 id="avatar-vectors-heading">
-      <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
-      Profile Avatars
-    </h2>
+  <details open aria-labelledby="avatar-vectors-heading">
+    <summary>
+      <h2 id="avatar-vectors-heading">
+        <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+        Profile Avatars
+        <i class="fa-solid fa-chevron-down" aria-hidden="true" data-chevron></i>
+      </h2>
+    </summary>
 
     <form method="post"
           action="/admin/avatar-vectors"
@@ -261,6 +267,6 @@
       <p data-empty>No avatar vectors uploaded yet.</p>
     <?php endif; ?>
 
-  </section>
+  </details>
 
 </section>

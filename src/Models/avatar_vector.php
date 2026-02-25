@@ -25,6 +25,28 @@ class AvatarVector
         ")->fetchAll();
     }
 
+    /** @return array Paginated rows with uploader name and user count. */
+    public static function getPaged(int $limit, int $offset): array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            SELECT v.*,
+                   a.first_name_acc, a.last_name_acc,
+                   (SELECT COUNT(*) FROM account_acc
+                    WHERE id_avv_acc = v.id_avv) AS user_count
+            FROM avatar_vector_avv v
+            JOIN account_acc a ON v.id_acc_avv = a.id_acc
+            ORDER BY v.uploaded_at_avv DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     /** Only active vectors (user picker). */
     public static function getActive(): array
     {

@@ -33,11 +33,12 @@ class BaseController
 
         $authUser = $isLoggedIn
             ? [
-                'id'         => (int) $_SESSION['user_id'],
-                'name'       => $_SESSION['user_name'] ?? '',
-                'first_name' => $_SESSION['user_first_name'] ?? '',
-                'role'       => $_SESSION['user_role'] ?? 'member',
-                'avatar'     => $_SESSION['user_avatar'] ?? null,
+                'id'            => (int) $_SESSION['user_id'],
+                'name'          => $_SESSION['user_name'] ?? '',
+                'first_name'    => $_SESSION['user_first_name'] ?? '',
+                'role'          => $_SESSION['user_role'] ?? 'member',
+                'avatar'        => $_SESSION['user_avatar'] ?? null,
+                'vector_avatar' => $_SESSION['user_vector_avatar'] ?? null,
             ]
             : null;
 

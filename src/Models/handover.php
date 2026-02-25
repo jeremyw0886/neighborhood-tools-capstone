@@ -81,6 +81,46 @@ class Handover
     }
 
     /**
+     * Find pending handovers for multiple borrows in one query.
+     *
+     * @param  int[] $borrowIds
+     * @return array<int, array> Keyed by borrow ID
+     */
+    public static function findPendingByBorrowIds(array $borrowIds): array
+    {
+        if ($borrowIds === []) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+
+        $placeholders = implode(',', array_fill(0, count($borrowIds), '?'));
+
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM pending_handover_v
+            WHERE id_bor_hov IN ({$placeholders})
+            ORDER BY generated_at_hov DESC
+        ");
+
+        foreach (array_values($borrowIds) as $i => $id) {
+            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        $result = [];
+        while ($row = $stmt->fetch()) {
+            $borrowId = (int) $row['id_bor_hov'];
+            if (!isset($result[$borrowId])) {
+                $result[$borrowId] = $row;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Mark a pending handover as verified.
      *
      * Sets verified_at_hov to NOW() and records the verifier's account ID.

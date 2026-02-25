@@ -245,4 +245,5 @@ $sections = [
 
   <?php endif; ?>
 
+</div>
 </section>

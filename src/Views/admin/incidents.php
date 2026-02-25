@@ -273,4 +273,5 @@ $deadlineValue = match ($deadlineMet) {
 
   <?php endif; ?>
 
+</div>
 </section>

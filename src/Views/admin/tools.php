@@ -221,4 +221,5 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
 
   <?php endif; ?>
 
+</div>
 </section>

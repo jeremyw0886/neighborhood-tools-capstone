@@ -4,8 +4,11 @@
  *
  * Uses $currentPage (from getSharedData()) to set aria-current="page"
  * on the active link. Included via require in each admin view.
+ * Opens a data-admin-body wrapper that each view must close.
  */
 ?>
+<?php require BASE_PATH . '/src/Views/partials/admin-search.php'; ?>
+<div data-admin-body>
 <nav aria-label="Admin navigation">
   <ul>
     <li><a href="/admin"<?= $currentPage === '/admin' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Dashboard</a></li>
@@ -21,4 +24,3 @@
     <li><a href="/admin/tos"<?= $currentPage === '/admin/tos' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-file-contract" aria-hidden="true"></i> TOS</a></li>
   </ul>
 </nav>
-<?php require BASE_PATH . '/src/Views/partials/admin-search.php'; ?>

@@ -228,4 +228,5 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
     <?php endif; ?>
   </section>
 
+</div>
 </section>

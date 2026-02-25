@@ -189,4 +189,5 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
 
   <?php endif; ?>
 
+</div>
 </section>

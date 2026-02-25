@@ -205,4 +205,5 @@ $allowedRanges ??= [7, 14, 30];
     </ul>
   </section>
 
+</div>
 </section>

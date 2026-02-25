@@ -800,12 +800,15 @@
       [aria-labelledby="admin-heading"],
       [aria-labelledby="admin-users-heading"],
       [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"],
       [aria-labelledby="admin-disputes-heading"],
       [aria-labelledby="admin-events-heading"],
       [aria-labelledby="admin-incidents-heading"],
       [aria-labelledby="admin-reports-heading"],
       [aria-labelledby="admin-audit-heading"],
       [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"]
     ) {
       padding-block: 1.25rem;
@@ -816,12 +819,15 @@
       [aria-labelledby="admin-heading"],
       [aria-labelledby="admin-users-heading"],
       [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"],
       [aria-labelledby="admin-disputes-heading"],
       [aria-labelledby="admin-events-heading"],
       [aria-labelledby="admin-incidents-heading"],
       [aria-labelledby="admin-reports-heading"],
       [aria-labelledby="admin-audit-heading"],
       [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"]
     ) > header > h1 {
       font-size: 1.5rem;
@@ -851,12 +857,8 @@
     search[aria-label="Search all admin data"] {
       padding: 0.5rem 1rem;
 
-      & > form[role="search"] > input[type="search"] {
+      & > form[role="search"] {
         max-width: 100%;
-      }
-
-      & > form[role="search"] > ul[role="listbox"] {
-        border-radius: 0 0 0.75rem 0.75rem;
       }
     }
 
@@ -896,12 +898,15 @@
       [aria-labelledby="admin-heading"],
       [aria-labelledby="admin-users-heading"],
       [aria-labelledby="admin-tools-heading"],
+      [aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"],
       [aria-labelledby="admin-disputes-heading"],
       [aria-labelledby="admin-events-heading"],
       [aria-labelledby="admin-incidents-heading"],
       [aria-labelledby="admin-reports-heading"],
       [aria-labelledby="admin-audit-heading"],
       [aria-labelledby="admin-tos-heading"],
+      [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"]
     ) {
       padding-inline: 0.75rem;

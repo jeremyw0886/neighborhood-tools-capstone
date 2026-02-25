@@ -55,19 +55,10 @@
       }
     }
 
-    /* ── Admin sub-navigation (shared base in nav.css) ── */
-    /* 9 links — tighter sizing than dashboard */
-
-    & > nav[aria-label="Admin navigation"] > ul > li > a {
-      font-size: clamp(0.75rem, 0.688rem + 0.25vw, 0.875rem);
-      padding-inline: 0.75rem;
-      width: 100%;
-    }
-
     /* ── Section headings ── */
 
-    & > section > h2,
-    & > details > summary > h2 {
+    & > [data-admin-body] > section > h2,
+    & > [data-admin-body] > details > summary > h2 {
       color: var(--mountain-pine);
       margin-block-end: 1rem;
 
@@ -79,7 +70,7 @@
 
     /* ── Collapsible sections ── */
 
-    & > details > summary {
+    & > [data-admin-body] > details > summary {
       cursor: pointer;
       list-style: none;
       margin-block-end: 1rem;
@@ -96,130 +87,133 @@
       }
     }
 
-    & > details[open] > summary > h2 > [data-chevron] {
+    & > [data-admin-body] > details[open] > summary > h2 > [data-chevron] {
       rotate: 180deg;
     }
 
     /* ── Section spacing ── */
 
-    & > :is(section, details) + :is(section, details) {
+    & > [data-admin-body] > :is(section, details) + :is(section, details) {
       margin-block-start: 2.5rem;
+    }
+  }
+
+  /* ── Desktop sidebar layout ── */
+
+  @media (min-width: 769px) {
+    [data-admin-body] {
+      column-gap: 1.5rem;
+      display: grid;
+      grid-template-columns: max-content 1fr;
+
+      & > nav[aria-label="Admin navigation"] {
+        align-self: start;
+        border-block-end: none;
+        border-inline-end: 2px solid var(--mountain-fog);
+        flex-direction: column;
+        grid-column: 1;
+        grid-row: 1 / span 20;
+        justify-content: flex-start;
+        overflow-x: visible;
+        padding-inline-end: 1rem;
+        position: sticky;
+        scrollbar-gutter: auto;
+        top: 5rem;
+
+        & > ul {
+          flex-direction: column;
+          gap: 0.125rem;
+
+          & > li > a {
+            border-block-end: none;
+            border-inline-start: 3px solid transparent;
+            font-size: 0.8125rem;
+            margin-block-end: 0;
+            padding-block: 0.4375rem;
+            padding-inline: 0.75rem;
+
+            &:is(:hover, :focus-visible) {
+              border-inline-start-color: var(--mountain-gold);
+            }
+
+            &[aria-current="page"] {
+              border-inline-start-color: var(--mountain-gold-light);
+            }
+          }
+        }
+      }
+
+      & > :not(nav[aria-label="Admin navigation"]) {
+        grid-column: 2;
+      }
     }
   }
 
   /* ── Global admin search bar ── */
 
   search[aria-label="Search all admin data"] {
-    border-block-end: 1px solid var(--mountain-fog);
     padding-block: 0.75rem;
     padding-inline: 1.5rem;
-    position: sticky;
     margin-block-end: 1rem;
-    top: 0;
-    z-index: 90;
 
     & > form[role="search"] {
+      align-items: center;
+      background-color: var(--mountain-cloud);
+      border: 2px solid transparent;
+      border-radius: 2rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      display: flex;
       margin-inline: auto;
-      max-width: 600px;
+      max-width: 480px;
+      padding-block: 0.25rem;
+      padding-inline: 1rem 0.25rem;
       position: relative;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
 
-      & > i:first-of-type {
+      &:focus-within {
+        border-color: var(--mountain-gold);
+        box-shadow: 0 4px 20px rgba(212, 168, 75, 0.25);
+      }
+
+      & > span {
         color: var(--mountain-mist);
-        font-size: 0.875rem;
-        left: 0.875rem;
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+        flex-shrink: 0;
+        font-size: 1rem;
       }
 
       & > input[type="search"] {
-        background: #fff;
-        border: 1px solid var(--mountain-fog);
-        border-radius: 999px;
-        font-size: 0.875rem;
-        padding: 0.5rem 2.5rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        background: transparent;
+        border: none;
+        color: var(--mountain-charcoal);
+        flex: 1;
+        font-size: 1rem;
+        outline: none;
+        padding: 0.625rem 0.75rem;
         width: 100%;
 
-        &:focus {
-          border-color: var(--mountain-pine);
-          box-shadow: 0 0 0 3px var(--shadow-pine);
-        }
-
         &::placeholder {
-          color: var(--mountain-mist-light);
+          color: var(--mountain-stone);
         }
       }
 
-      & > button[aria-label="Clear search"] {
-        color: var(--mountain-mist);
-        display: none;
-        font-size: 0.875rem;
-        position: absolute;
-        right: 0.875rem;
-        top: 50%;
-        transform: translateY(-50%);
+      & > button[type="submit"] {
+        background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+        border: none;
+        border-radius: 1.5rem;
+        color: #fff;
+        flex-shrink: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.625rem 1.25rem;
+        transition: background 0.3s ease, transform 0.3s ease;
 
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-pine);
+        &:hover {
+          background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+          transform: scale(1.02);
         }
       }
-
-      & > input[type="search"]:not(:placeholder-shown) ~ button[aria-label="Clear search"] {
-        display: block;
-      }
     }
-  }
-
-  /* ── Search dropdown preview ── */
-
-  search[aria-label="Search all admin data"] > form[role="search"] > ul[role="listbox"] {
-    background: #fff;
-    border: 1px solid var(--mountain-fog);
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 16px var(--shadow-pine);
-    display: none;
-    left: 0;
-    max-height: 60vh;
-    overflow-y: auto;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.375rem);
-    z-index: 91;
-
-    & > li[role="group"] > strong {
-      color: var(--mountain-slate);
-      display: block;
-      font-size: 0.688rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      padding: 0.625rem 1rem 0.25rem;
-      text-transform: uppercase;
-    }
-
-    & > li[role="group"] > ul > li > a {
-      border-block-end: 1px solid var(--mountain-fog);
-      color: var(--mountain-charcoal);
-      display: flex;
-      font-size: 0.813rem;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      text-decoration: none;
-      transition: background-color 0.15s;
-
-      &:is(:hover, :focus-visible) {
-        background: var(--mountain-cloud);
-      }
-    }
-
-    & > li[role="group"]:last-child > ul > li:last-child > a {
-      border-block-end: none;
-    }
-  }
-
-  search[data-search-open] > form[role="search"] > ul[role="listbox"] {
-    display: block;
   }
 
   /* ── Sort / filter form bar ── */
@@ -590,7 +584,7 @@
   /* ── Stub page content ── */
 
   main > section[aria-labelledby="admin-audit-heading"] {
-    & > p {
+    & p:not(header p) {
       color: var(--mountain-mist);
       font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
       line-height: 1.6;
@@ -598,7 +592,7 @@
       max-width: 65ch;
     }
 
-    & > a[role="button"] {
+    & a[role="button"] {
       align-items: center;
       background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
       border-radius: 2rem;
@@ -621,7 +615,7 @@
 
   main > section[aria-labelledby="admin-events-heading"] {
 
-    & > nav[data-timing-filters] {
+    & nav[data-timing-filters] {
       margin-block-end: 1.5rem;
 
       & > ul {
@@ -665,7 +659,7 @@
       }
     }
 
-    & > div[aria-live] {
+    & div[aria-live] {
       margin-block-end: 1rem;
 
       & > p {
@@ -678,7 +672,7 @@
       }
     }
 
-    & > div[data-actions] {
+    & div[data-actions] {
       margin-block-end: 1rem;
 
       & > a {
@@ -853,7 +847,7 @@
       }
     }
 
-    & > section[aria-label="No events"] {
+    & section[aria-label="No events"] {
       padding-block: 4rem;
       text-align: center;
 
@@ -897,7 +891,7 @@
 
   main > section[aria-labelledby="admin-incidents-heading"] {
 
-    & > div[aria-live] {
+    & div[aria-live] {
       margin-block-end: 1rem;
 
       & > p {
@@ -910,7 +904,7 @@
       }
     }
 
-    & > div[role="list"] {
+    & div[role="list"] {
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -1083,7 +1077,7 @@
       }
     }
 
-    & > nav[aria-label="Pagination"] {
+    & nav[aria-label="Pagination"] {
       margin-block-start: 2rem;
 
       & > ul {
@@ -1151,7 +1145,7 @@
       }
     }
 
-    & > section[aria-label="No incidents"] {
+    & section[aria-label="No incidents"] {
       padding-block: 4rem;
       text-align: center;
 
@@ -1195,7 +1189,7 @@
 
   main > section[aria-labelledby="admin-users-heading"] {
 
-    & > p[data-flash] {
+    & p[data-flash] {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.5rem;
@@ -1206,7 +1200,7 @@
       padding: 0.75rem 1rem;
     }
 
-    & > div[aria-live] {
+    & div[aria-live] {
       margin-block-end: 1rem;
 
       & > p {
@@ -1465,7 +1459,7 @@
       }
     }
 
-    & > section[aria-label="No users"] {
+    & section[aria-label="No users"] {
       padding-block: 4rem;
       text-align: center;
 
@@ -1509,7 +1503,7 @@
 
   main > section[aria-labelledby="admin-disputes-heading"] {
 
-    & > div[aria-live] {
+    & div[aria-live] {
       margin-block-end: 1rem;
 
       & > p {
@@ -1522,7 +1516,7 @@
       }
     }
 
-    & > div[role="list"] {
+    & div[role="list"] {
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -1657,7 +1651,7 @@
       }
     }
 
-    & > nav[aria-label="Pagination"] {
+    & nav[aria-label="Pagination"] {
       margin-block-start: 2rem;
 
       & > ul {
@@ -1725,7 +1719,7 @@
       }
     }
 
-    & > section[aria-label="No disputes"] {
+    & section[aria-label="No disputes"] {
       padding-block: 4rem;
       text-align: center;
 
@@ -1771,7 +1765,7 @@
 
     /* ── Current version summary ── */
 
-    & > section[aria-labelledby="tos-version-heading"] > dl {
+    & section[aria-labelledby="tos-version-heading"] > dl {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.75rem;
@@ -1803,7 +1797,7 @@
       }
     }
 
-    & > p {
+    & p:not(header p) {
       color: var(--mountain-mist);
       font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
       line-height: 1.6;
@@ -1811,7 +1805,7 @@
       max-width: 65ch;
     }
 
-    & > p[data-flash] {
+    & p[data-flash] {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.5rem;
@@ -1822,7 +1816,7 @@
       padding: 0.75rem 1rem;
     }
 
-    & > div[data-actions] {
+    & div[data-actions] {
       margin-block: 1rem;
 
       & > a {
@@ -1848,7 +1842,7 @@
 
     /* ── Non-compliant users section ── */
 
-    & > section[aria-labelledby="tos-noncompliant-heading"] {
+    & section[aria-labelledby="tos-noncompliant-heading"] {
 
       & > div[aria-live] {
         margin-block-end: 1rem;
@@ -2044,7 +2038,7 @@
 
   main > section[aria-labelledby="admin-tos-create-heading"] {
 
-    & > form {
+    & form {
       max-width: 48rem;
 
       & > fieldset {
@@ -2172,7 +2166,7 @@
 
   main > section[aria-labelledby="admin-tools-heading"] {
 
-    & > div[aria-live] {
+    & div[aria-live] {
       margin-block-end: 1rem;
 
       & > p {
@@ -2343,7 +2337,7 @@
       }
     }
 
-    & > section[aria-label="No tools"] {
+    & section[aria-label="No tools"] {
       padding-block: 4rem;
       text-align: center;
 
@@ -2387,7 +2381,7 @@
 
   main > section[aria-labelledby="admin-reports-heading"] {
 
-    & > section[aria-labelledby="neighborhood-stats-heading"] {
+    & section[aria-labelledby="neighborhood-stats-heading"] {
 
       & > div[aria-live] {
         margin-block-end: 1rem;
@@ -2583,7 +2577,7 @@
     [aria-labelledby="admin-images-heading"]
   ) {
 
-    & > p[data-flash] {
+    & p[data-flash] {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.5rem;
@@ -3061,88 +3055,12 @@
     }
   }
 
-  /* ── Admin sidebar navigation layout ── */
-
-  @media (min-width: 48rem) {
-    main > section:is(
-      [aria-labelledby="admin-heading"],
-      [aria-labelledby="admin-users-heading"],
-      [aria-labelledby="admin-tools-heading"],
-      [aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"],
-      [aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-events-heading"],
-      [aria-labelledby="admin-incidents-heading"],
-      [aria-labelledby="admin-reports-heading"],
-      [aria-labelledby="admin-audit-heading"],
-      [aria-labelledby="admin-tos-heading"],
-      [aria-labelledby="admin-tos-create-heading"],
-      [aria-labelledby="admin-search-heading"]
-    ) {
-      column-gap: 2rem;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      position: relative;
-
-      & > header {
-        grid-column: 1 / -1;
-      }
-
-      & > nav[aria-label="Admin navigation"] {
-        align-self: start;
-        border-block-end: none;
-        border-inline-end: 2px solid var(--mountain-fog);
-        flex-direction: column;
-        grid-column: 1;
-        grid-row: 2 / 20;
-        justify-content: flex-start;
-        overflow-x: visible;
-        padding-inline-end: 1.25rem;
-        position: sticky;
-        top: 5rem;
-
-        & > ul {
-          flex-direction: column;
-          gap: 0.125rem;
-
-          & > li > a {
-            border-block-end: none;
-            border-inline-start: 3px solid transparent;
-            font-size: 0.8125rem;
-            margin-block-end: 0;
-            padding-block: 0.5rem;
-            padding-inline: 0.75rem;
-
-            &:is(:hover, :focus-visible) {
-              border-block-end: none;
-              border-inline-start-color: var(--mountain-gold);
-            }
-
-            &[aria-current="page"] {
-              border-block-end: none;
-              border-inline-start-color: var(--mountain-gold-light);
-            }
-          }
-        }
-      }
-
-      & > search {
-        grid-column: 2;
-        padding-inline: 0;
-        position: static;
-      }
-
-      & > :not(header, nav[aria-label="Admin navigation"], search) {
-        grid-column: 2;
-      }
-    }
-  }
 
   /* ── Search results page ── */
 
   #admin-search-page {
 
-    & > section[aria-label="No results"] {
+    & section[aria-label="No results"] {
       padding-block: 4rem;
       text-align: center;
 
@@ -3181,7 +3099,7 @@
       }
     }
 
-    & > section[aria-labelledby^="search-"] {
+    & section[aria-labelledby^="search-"] {
       margin-block-start: 2rem;
 
       & > h2 {

@@ -28,4 +28,5 @@
     <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
   </a>
 
+</div>
 </section>

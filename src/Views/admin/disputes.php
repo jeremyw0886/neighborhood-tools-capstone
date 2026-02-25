@@ -221,4 +221,5 @@ $sortLabels = [
 
   <?php endif; ?>
 
+</div>
 </section>

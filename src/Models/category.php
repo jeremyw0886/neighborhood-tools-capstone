@@ -53,6 +53,95 @@ class Category
         ")->fetchAll();
     }
 
+    /**
+     * Count categories matching optional search and icon-assignment filter.
+     *
+     * @param  ?string $search  Category name substring
+     * @param  ?bool   $hasIcon true = with icon, false = without icon, null = all
+     * @return int
+     */
+    public static function getFilteredCount(?string $search, ?bool $hasIcon): int
+    {
+        $pdo = Database::connection();
+
+        $sql    = "SELECT COUNT(*) FROM category_cat c LEFT JOIN vector_image_vec v ON c.id_vec_cat = v.id_vec WHERE 1=1";
+        $params = [];
+
+        if ($search !== null) {
+            $sql .= " AND c.category_name_cat LIKE :search";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($hasIcon === true) {
+            $sql .= " AND c.id_vec_cat IS NOT NULL";
+        } elseif ($hasIcon === false) {
+            $sql .= " AND c.id_vec_cat IS NULL";
+        }
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Sortable, filterable category listing with icon data.
+     *
+     * @param  string  $sort    Validated column name
+     * @param  string  $dir     ASC or DESC
+     * @param  ?string $search  Category name substring
+     * @param  ?bool   $hasIcon true = with icon, false = without icon, null = all
+     * @return array
+     */
+    public static function getAllWithIconsFiltered(
+        string $sort,
+        string $dir,
+        ?string $search,
+        ?bool $hasIcon,
+    ): array {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT c.id_cat,
+                   c.category_name_cat,
+                   c.id_vec_cat,
+                   v.file_name_vec,
+                   v.description_text_vec
+            FROM category_cat c
+            LEFT JOIN vector_image_vec v ON c.id_vec_cat = v.id_vec
+            WHERE 1=1
+        ";
+        $params = [];
+
+        if ($search !== null) {
+            $sql .= " AND c.category_name_cat LIKE :search";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($hasIcon === true) {
+            $sql .= " AND c.id_vec_cat IS NOT NULL";
+        } elseif ($hasIcon === false) {
+            $sql .= " AND c.id_vec_cat IS NULL";
+        }
+
+        $sql .= " ORDER BY {$sort} {$dir}";
+
+        $stmt = $pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     public static function updateIcon(int $categoryId, ?int $vectorId): void
     {
         $pdo = Database::connection();

@@ -180,6 +180,43 @@ $avatarAlt = $profile['image_alt_text']
       </div>
     </fieldset>
 
+    <?php if ($avatarVectors !== []): ?>
+      <fieldset>
+        <legend>Choose an Avatar</legend>
+        <div data-avatar-grid role="radiogroup" aria-label="Avatar selection">
+
+          <label>
+            <input type="radio"
+                   name="avatar_vector"
+                   value="none"
+                   <?= empty($profile['id_avv_acc']) ? 'checked' : '' ?>>
+            <span>
+              <img src="/assets/images/avatar-placeholder.svg"
+                   alt="No avatar"
+                   width="64" height="64"
+                   decoding="async">
+            </span>
+          </label>
+
+          <?php foreach ($avatarVectors as $av): ?>
+            <label>
+              <input type="radio"
+                     name="avatar_vector"
+                     value="<?= (int) $av['id_avv'] ?>"
+                     <?= (int) ($profile['id_avv_acc'] ?? 0) === (int) $av['id_avv'] ? 'checked' : '' ?>>
+              <span>
+                <img src="/uploads/vectors/<?= htmlspecialchars($av['file_name_avv']) ?>"
+                     alt="<?= htmlspecialchars($av['description_text_avv'] ?? 'Avatar option') ?>"
+                     width="64" height="64"
+                     decoding="async">
+              </span>
+            </label>
+          <?php endforeach; ?>
+
+        </div>
+      </fieldset>
+    <?php endif; ?>
+
     <?php if ($meta !== []): ?>
       <fieldset>
         <legend>Additional Details</legend>

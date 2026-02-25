@@ -9,12 +9,36 @@
  *   $iconsPage           int     Current category icons page
  *   $iconsTotalPages     int     Total category icons pages
  *   $iconsTotalCount     int     Total category icon count
+ *   $iconsSearch         ?string Active search query for icons
+ *   $iconsAssigned       ?string Active assignment filter ('yes'|'no'|null)
+ *   $iconsSort           string  Active sort column for icons
+ *   $iconsDir            string  Active sort direction for icons (ASC|DESC)
  *   $iconsFilterParams   array   Filter params for icon pagination links
  *   $avatarsPage         int     Current avatar vectors page
  *   $avatarsTotalPages   int     Total avatar vectors pages
  *   $avatarsTotalCount   int     Total avatar vector count
+ *   $avatarsSearch       ?string Active search query for avatars
+ *   $avatarsStatus       ?string Active status filter ('active'|'inactive'|null)
+ *   $avatarsSort         string  Active sort column for avatars
+ *   $avatarsDir          string  Active sort direction for avatars (ASC|DESC)
  *   $avatarsFilterParams array   Filter params for avatar pagination links
  */
+
+$iconsSortLabels = [
+    'file_name_vec'     => 'Filename',
+    'uploaded_at_vec'   => 'Date',
+    'assigned_category' => 'Assignment',
+];
+
+$avatarsSortLabels = [
+    'file_name_avv'   => 'Filename',
+    'uploaded_at_avv'  => 'Date',
+    'is_active_avv'    => 'Status',
+    'user_count'       => 'Users',
+];
+
+$iconsHasFilters   = $iconsSearch !== null || $iconsAssigned !== null;
+$avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 ?>
 
 <section aria-labelledby="admin-images-heading">
@@ -71,6 +95,71 @@
         </button>
       </fieldset>
     </form>
+
+    <form method="get" action="/admin/images" role="search" aria-label="Filter and sort category icons" data-admin-filters>
+      <?php if ($avatarsPage > 1): ?>
+        <input type="hidden" name="avatars_page" value="<?= $avatarsPage ?>">
+      <?php endif; ?>
+      <?php if ($avatarsSearch !== null): ?>
+        <input type="hidden" name="avatars_q" value="<?= htmlspecialchars($avatarsSearch) ?>">
+      <?php endif; ?>
+      <?php if ($avatarsStatus !== null): ?>
+        <input type="hidden" name="avatars_status" value="<?= htmlspecialchars($avatarsStatus) ?>">
+      <?php endif; ?>
+      <input type="hidden" name="avatars_sort" value="<?= htmlspecialchars($avatarsSort) ?>">
+      <input type="hidden" name="avatars_dir" value="<?= htmlspecialchars(strtolower($avatarsDir)) ?>">
+      <fieldset>
+        <legend class="visually-hidden">Filter and sort category icons</legend>
+
+        <div>
+          <label for="icons-search">Search</label>
+          <input type="search" id="icons-search" name="icons_q"
+                 value="<?= htmlspecialchars($iconsSearch ?? '') ?>"
+                 placeholder="Filename or description…"
+                 autocomplete="off">
+        </div>
+
+        <div>
+          <label for="icons-assigned">Assignment</label>
+          <select id="icons-assigned" name="icons_assigned">
+            <option value="">All</option>
+            <option value="yes"<?= $iconsAssigned === 'yes' ? ' selected' : '' ?>>Assigned</option>
+            <option value="no"<?= $iconsAssigned === 'no' ? ' selected' : '' ?>>Unassigned</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="icons-sort">Sort By</label>
+          <select id="icons-sort" name="icons_sort">
+            <?php foreach ($iconsSortLabels as $value => $label): ?>
+              <option value="<?= htmlspecialchars($value) ?>"<?= $iconsSort === $value ? ' selected' : '' ?>>
+                <?= htmlspecialchars($label) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div>
+          <label for="icons-dir">Direction</label>
+          <select id="icons-dir" name="icons_dir">
+            <option value="asc"<?= $iconsDir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+            <option value="desc"<?= $iconsDir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+          </select>
+        </div>
+
+        <button type="submit">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+        </button>
+      </fieldset>
+    </form>
+
+    <div aria-live="polite" aria-atomic="true">
+      <p>
+        <strong><?= number_format($iconsTotalCount) ?></strong>
+        icon<?= $iconsTotalCount !== 1 ? 's' : '' ?>
+        <?php if ($iconsHasFilters): ?> matching filters<?php endif; ?>
+      </p>
+    </div>
 
     <?php if (!empty($categoryVectors)): ?>
       <div data-vector-grid role="list" aria-label="Category icon vectors">
@@ -134,6 +223,15 @@
         require BASE_PATH . '/src/Views/partials/pagination.php';
       ?>
 
+    <?php elseif ($iconsHasFilters): ?>
+      <section aria-label="No icons">
+        <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
+        <h3>No Icons Found</h3>
+        <p>No category icons match the current filters.</p>
+        <a href="/admin/images" role="button">
+          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+        </a>
+      </section>
     <?php else: ?>
       <p data-empty>No category icons uploaded yet.</p>
     <?php endif; ?>
@@ -178,6 +276,71 @@
         </button>
       </fieldset>
     </form>
+
+    <form method="get" action="/admin/images" role="search" aria-label="Filter and sort avatar vectors" data-admin-filters>
+      <?php if ($iconsPage > 1): ?>
+        <input type="hidden" name="icons_page" value="<?= $iconsPage ?>">
+      <?php endif; ?>
+      <?php if ($iconsSearch !== null): ?>
+        <input type="hidden" name="icons_q" value="<?= htmlspecialchars($iconsSearch) ?>">
+      <?php endif; ?>
+      <?php if ($iconsAssigned !== null): ?>
+        <input type="hidden" name="icons_assigned" value="<?= htmlspecialchars($iconsAssigned) ?>">
+      <?php endif; ?>
+      <input type="hidden" name="icons_sort" value="<?= htmlspecialchars($iconsSort) ?>">
+      <input type="hidden" name="icons_dir" value="<?= htmlspecialchars(strtolower($iconsDir)) ?>">
+      <fieldset>
+        <legend class="visually-hidden">Filter and sort avatar vectors</legend>
+
+        <div>
+          <label for="avatars-search">Search</label>
+          <input type="search" id="avatars-search" name="avatars_q"
+                 value="<?= htmlspecialchars($avatarsSearch ?? '') ?>"
+                 placeholder="Filename or description…"
+                 autocomplete="off">
+        </div>
+
+        <div>
+          <label for="avatars-status">Status</label>
+          <select id="avatars-status" name="avatars_status">
+            <option value="">All</option>
+            <option value="active"<?= $avatarsStatus === 'active' ? ' selected' : '' ?>>Active</option>
+            <option value="inactive"<?= $avatarsStatus === 'inactive' ? ' selected' : '' ?>>Inactive</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="avatars-sort">Sort By</label>
+          <select id="avatars-sort" name="avatars_sort">
+            <?php foreach ($avatarsSortLabels as $value => $label): ?>
+              <option value="<?= htmlspecialchars($value) ?>"<?= $avatarsSort === $value ? ' selected' : '' ?>>
+                <?= htmlspecialchars($label) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div>
+          <label for="avatars-dir">Direction</label>
+          <select id="avatars-dir" name="avatars_dir">
+            <option value="asc"<?= $avatarsDir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+            <option value="desc"<?= $avatarsDir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+          </select>
+        </div>
+
+        <button type="submit">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+        </button>
+      </fieldset>
+    </form>
+
+    <div aria-live="polite" aria-atomic="true">
+      <p>
+        <strong><?= number_format($avatarsTotalCount) ?></strong>
+        avatar<?= $avatarsTotalCount !== 1 ? 's' : '' ?>
+        <?php if ($avatarsHasFilters): ?> matching filters<?php endif; ?>
+      </p>
+    </div>
 
     <?php if (!empty($avatarVectors)): ?>
       <div data-vector-grid role="list" aria-label="Profile avatar vectors">
@@ -263,6 +426,15 @@
         require BASE_PATH . '/src/Views/partials/pagination.php';
       ?>
 
+    <?php elseif ($avatarsHasFilters): ?>
+      <section aria-label="No avatars">
+        <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
+        <h3>No Avatars Found</h3>
+        <p>No avatar vectors match the current filters.</p>
+        <a href="/admin/images" role="button">
+          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+        </a>
+      </section>
     <?php else: ?>
       <p data-empty>No avatar vectors uploaded yet.</p>
     <?php endif; ?>

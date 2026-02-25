@@ -9,6 +9,7 @@ use App\Core\Role;
 use App\Models\Account;
 use App\Models\Borrow;
 use App\Models\Deposit;
+use App\Models\Handover;
 use App\Models\PlatformStats;
 use App\Models\Tool;
 
@@ -119,18 +120,25 @@ class DashboardController extends BaseController
             static fn(array $row): bool => (int) $row['lender_id'] === $userId,
         );
 
+        $allBorrowIds = array_merge(
+            array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup),
+            array_map(static fn(array $row): int => (int) $row['id_bor'], $lentOut),
+        );
+        $handoversByBorrow = Handover::findPendingByBorrowIds($allBorrowIds);
+
         $this->render('dashboard/lender', [
-            'title'            => 'My Tools — NeighborhoodTools',
-            'description'      => 'Manage your listed tools and incoming borrow requests.',
-            'pageCss'          => ['dashboard.css'],
-            'tools'            => $tools,
-            'incomingRequests' => array_values($incomingRequests),
-            'awaitingPickup'   => array_values($awaitingPickup),
-            'lentOut'          => array_values($lentOut),
-            'reqSort'          => $reqSort,
-            'lentSort'         => $lentSort,
-            'borrowSuccess'    => $this->flash('borrow_success'),
-            'borrowErrors'     => $this->flash('borrow_errors', []),
+            'title'              => 'My Tools — NeighborhoodTools',
+            'description'        => 'Manage your listed tools and incoming borrow requests.',
+            'pageCss'            => ['dashboard.css'],
+            'tools'              => $tools,
+            'incomingRequests'   => array_values($incomingRequests),
+            'awaitingPickup'     => array_values($awaitingPickup),
+            'lentOut'            => array_values($lentOut),
+            'handoversByBorrow'  => $handoversByBorrow,
+            'reqSort'            => $reqSort,
+            'lentSort'           => $lentSort,
+            'borrowSuccess'      => $this->flash('borrow_success'),
+            'borrowErrors'       => $this->flash('borrow_errors', []),
         ]);
     }
 
@@ -198,20 +206,27 @@ class DashboardController extends BaseController
         $pickupBorrowIds   = array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup);
         $depositsByBorrow  = Deposit::findByBorrowIds($pickupBorrowIds);
 
+        $allBorrowIds = array_merge(
+            $pickupBorrowIds,
+            array_map(static fn(array $row): int => (int) $row['id_bor'], $myBorrows),
+        );
+        $handoversByBorrow = Handover::findPendingByBorrowIds($allBorrowIds);
+
         $this->render('dashboard/borrower', [
-            'title'            => 'My Borrows — NeighborhoodTools',
-            'description'      => 'Track your active borrows and pending requests.',
-            'pageCss'          => ['dashboard.css'],
-            'borrows'          => array_values($myBorrows),
-            'requests'         => array_values($myRequests),
-            'overdue'          => array_values($myOverdue),
-            'awaitingPickup'   => array_values($awaitingPickup),
-            'depositsByBorrow' => $depositsByBorrow,
-            'borrowSort'       => $borrowSort,
-            'borrowStatus'     => $borrowStatus,
-            'reqSort'          => $reqSort,
-            'borrowSuccess'    => $this->flash('borrow_success'),
-            'borrowErrors'     => $this->flash('borrow_errors', []),
+            'title'              => 'My Borrows — NeighborhoodTools',
+            'description'        => 'Track your active borrows and pending requests.',
+            'pageCss'            => ['dashboard.css'],
+            'borrows'            => array_values($myBorrows),
+            'requests'           => array_values($myRequests),
+            'overdue'            => array_values($myOverdue),
+            'awaitingPickup'     => array_values($awaitingPickup),
+            'depositsByBorrow'   => $depositsByBorrow,
+            'handoversByBorrow'  => $handoversByBorrow,
+            'borrowSort'         => $borrowSort,
+            'borrowStatus'       => $borrowStatus,
+            'reqSort'            => $reqSort,
+            'borrowSuccess'      => $this->flash('borrow_success'),
+            'borrowErrors'       => $this->flash('borrow_errors', []),
         ]);
     }
 

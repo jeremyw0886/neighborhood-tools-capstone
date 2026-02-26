@@ -30,14 +30,7 @@ use App\Core\ViewHelper;
     <p>Track your active borrows, pending requests, and overdue items.</p>
   </header>
 
-  <nav aria-label="Dashboard sections">
-    <ul>
-      <li><a href="/dashboard"         ><i class="fa-solid fa-gauge" aria-hidden="true"></i> Overview</a></li>
-      <li><a href="/dashboard/lender"  ><i class="fa-solid fa-hand-holding" aria-hidden="true"></i> My Tools</a></li>
-      <li><a href="/dashboard/borrower" aria-current="page"><i class="fa-solid fa-hand" aria-hidden="true"></i> My Borrows</a></li>
-      <li><a href="/dashboard/history" ><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History</a></li>
-    </ul>
-  </nav>
+  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
 
   <?php if (!empty($borrowSuccess)): ?>
     <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
@@ -373,4 +366,5 @@ use App\Core\ViewHelper;
     <?php endif; ?>
   </section>
 
+</div>
 </section>

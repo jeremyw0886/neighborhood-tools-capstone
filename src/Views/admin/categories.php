@@ -1,9 +1,9 @@
 <?php
 /**
- * Admin — Category icon assignment (sortable, filterable).
+ * Admin — Category management (create, edit, delete, icon assignment).
  *
  * Variables from AdminController::categories():
- *   $categories   array   Rows from Category::getAllWithIconsFiltered()
+ *   $categories   array   Rows from Category::getAllWithIconsFiltered() + tool_count
  *   $vectors      array   Rows from VectorImage::getAll()
  *   $flash        ?string
  *   $totalCount   int     Total categories matching filters
@@ -12,6 +12,10 @@
  *   $sort         string  Active sort column
  *   $dir          string  Active sort direction (ASC|DESC)
  *   $filterParams array   Non-null filter params for pagination links
+ *   $createErrors array   Validation errors for create form
+ *   $createOld    array   Old input for create form
+ *   $editErrors   array   Validation errors for edit form (keyed by category ID)
+ *   $editOld      array   Old input for edit form (keyed by category ID)
  */
 
 $sortLabels = [
@@ -21,7 +25,7 @@ $sortLabels = [
 
 $sortToColumn = [
     'category_name_cat' => 0,
-    'file_name_vec'     => 1,
+    'file_name_vec'     => 2,
 ];
 
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
@@ -35,7 +39,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
       <i class="fa-solid fa-tags" aria-hidden="true"></i>
       Manage Categories
     </h1>
-    <p>Assign icons to tool categories. <a href="/admin/images">Manage images</a></p>
+    <p>Create, edit, and delete tool categories. <a href="/admin/images">Manage images</a></p>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
@@ -43,6 +47,49 @@ $hasFilters  = $search !== null || $hasIcon !== null;
   <?php if ($flash): ?>
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
+
+  <section aria-labelledby="add-category-heading" data-category-create>
+    <h2 id="add-category-heading">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Add Category
+    </h2>
+
+    <form method="post" action="/admin/categories">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <fieldset>
+        <legend class="visually-hidden">New category</legend>
+
+        <div>
+          <label for="new-cat-name">Name</label>
+          <input type="text" id="new-cat-name" name="category_name"
+                 value="<?= htmlspecialchars($createOld['category_name'] ?? '') ?>"
+                 maxlength="100"
+                 required
+                 autocomplete="off"
+                 aria-describedby="<?= !empty($createErrors['category_name']) ? 'new-cat-name-error' : '' ?>">
+          <?php if (!empty($createErrors['category_name'])): ?>
+            <p id="new-cat-name-error" data-field-error><?= htmlspecialchars($createErrors['category_name']) ?></p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="new-cat-icon">Icon</label>
+          <select id="new-cat-icon" name="vector_id">
+            <option value="">None</option>
+            <?php foreach ($vectors as $vec): ?>
+              <option value="<?= (int) $vec['id_vec'] ?>">
+                <?= htmlspecialchars($vec['description_text_vec'] ?? $vec['file_name_vec']) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <button type="submit">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Add
+        </button>
+      </fieldset>
+    </form>
+  </section>
 
   <form method="get" action="/admin/categories" role="search" aria-label="Filter and sort categories" data-admin-filters>
     <fieldset>
@@ -98,16 +145,16 @@ $hasFilters  = $search !== null || $hasIcon !== null;
     </p>
   </div>
 
-  <section aria-labelledby="category-icons-heading">
-    <h2 id="category-icons-heading" class="visually-hidden">Category Icon Assignment</h2>
+  <section aria-labelledby="category-list-heading">
+    <h2 id="category-list-heading" class="visually-hidden">Category List</h2>
 
     <?php if (!empty($categories)): ?>
       <table>
-        <caption class="visually-hidden">Tool categories with icon assignments</caption>
+        <caption class="visually-hidden">Tool categories with management actions</caption>
         <thead>
           <tr>
             <?php
-            $columns = ['Category', 'Current Icon', 'Assign Icon'];
+            $columns = ['Category', 'Tools', 'Current Icon', 'Assign Icon', 'Actions'];
             foreach ($columns as $i => $label):
               $isSorted = isset($sortToColumn[$sort]) && $sortToColumn[$sort] === $i;
             ?>
@@ -116,9 +163,15 @@ $hasFilters  = $search !== null || $hasIcon !== null;
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($categories as $cat): ?>
+          <?php foreach ($categories as $cat):
+            $catId      = (int) $cat['id_cat'];
+            $catErrors  = $editErrors[$catId] ?? [];
+            $catOld     = $editOld[$catId] ?? [];
+            $toolCount  = (int) ($cat['tool_count'] ?? 0);
+          ?>
             <tr>
               <td data-label="Category"><?= htmlspecialchars($cat['category_name_cat']) ?></td>
+              <td data-label="Tools"><?= $toolCount ?></td>
               <td data-label="Current Icon">
                 <?php if (!empty($cat['file_name_vec'])): ?>
                   <figure data-icon-preview>
@@ -133,7 +186,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
               </td>
               <td data-label="Assign Icon">
                 <form method="post"
-                      action="/admin/categories/<?= (int) $cat['id_cat'] ?>/icon"
+                      action="/admin/categories/<?= $catId ?>/icon"
                       data-icon-form>
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                   <select name="vector_id"
@@ -147,9 +200,63 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                     <?php endforeach; ?>
                   </select>
                   <button type="submit">
-                    <i class="fa-solid fa-check" aria-hidden="true"></i> Save
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                    <span class="visually-hidden">Save icon</span>
                   </button>
                 </form>
+              </td>
+              <td data-label="Actions" data-category-actions>
+                <details<?= !empty($catErrors) ? ' open' : '' ?>>
+                  <summary>
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Edit
+                  </summary>
+                  <form method="post"
+                        action="/admin/categories/<?= $catId ?>/edit"
+                        data-category-edit>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <div>
+                      <label for="edit-cat-<?= $catId ?>">Name</label>
+                      <input type="text" id="edit-cat-<?= $catId ?>" name="category_name"
+                             value="<?= htmlspecialchars($catOld['category_name'] ?? $cat['category_name_cat']) ?>"
+                             maxlength="100"
+                             required
+                             aria-describedby="<?= !empty($catErrors['category_name']) ? 'edit-cat-error-' . $catId : '' ?>">
+                      <?php if (!empty($catErrors['category_name'])): ?>
+                        <p id="edit-cat-error-<?= $catId ?>" data-field-error><?= htmlspecialchars($catErrors['category_name']) ?></p>
+                      <?php endif; ?>
+                    </div>
+                    <div>
+                      <label for="edit-cat-icon-<?= $catId ?>">Icon</label>
+                      <select id="edit-cat-icon-<?= $catId ?>" name="vector_id">
+                        <option value="">None</option>
+                        <?php foreach ($vectors as $vec): ?>
+                          <option value="<?= (int) $vec['id_vec'] ?>"
+                            <?= (int) ($cat['id_vec_cat'] ?? 0) === (int) $vec['id_vec'] ? ' selected' : '' ?>>
+                            <?= htmlspecialchars($vec['description_text_vec'] ?? $vec['file_name_vec']) ?>
+                          </option>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <button type="submit">
+                      <i class="fa-solid fa-check" aria-hidden="true"></i> Save
+                    </button>
+                  </form>
+                </details>
+
+                <?php if ($toolCount === 0): ?>
+                  <form method="post"
+                        action="/admin/categories/<?= $catId ?>/delete"
+                        data-category-delete>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <button type="submit">
+                      <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
+                    </button>
+                  </form>
+                <?php else: ?>
+                  <span data-delete-disabled title="<?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> use this category">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
+                  </span>
+                <?php endif; ?>
               </td>
             </tr>
           <?php endforeach; ?>

@@ -243,20 +243,17 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                   </form>
                 </details>
 
-                <?php if ($toolCount === 0): ?>
-                  <form method="post"
-                        action="/admin/categories/<?= $catId ?>/delete"
-                        data-category-delete>
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <button type="submit">
-                      <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
-                    </button>
-                  </form>
-                <?php else: ?>
-                  <span data-delete-disabled title="<?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> use this category">
+                <form method="post"
+                      action="/admin/categories/<?= $catId ?>/delete"
+                      data-category-delete>
+                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                  <button type="submit"
+                    <?php if ($toolCount > 0): ?>
+                      title="<?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> use this category — reassign tools first"
+                    <?php endif; ?>>
                     <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
-                  </span>
-                <?php endif; ?>
+                  </button>
+                </form>
               </td>
             </tr>
           <?php endforeach; ?>

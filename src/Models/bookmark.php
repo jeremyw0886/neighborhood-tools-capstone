@@ -42,6 +42,7 @@ class Bookmark
                 bv.rating_count,
                 bv.bookmarked_at,
                 aim.file_name_aim AS owner_avatar,
+                avv.file_name_avv AS owner_vector_avatar,
                 (SELECT MIN(c.category_name_cat)
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
@@ -54,6 +55,8 @@ class Bookmark
             FROM user_bookmarks_v bv
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = bv.owner_id AND aim.is_primary_aim = 1
+            LEFT JOIN account_acc acc_avv ON bv.owner_id = acc_avv.id_acc
+            LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
             WHERE bv.user_id = :userId
             ORDER BY bv.bookmarked_at DESC
             LIMIT :limit OFFSET :offset

@@ -42,14 +42,7 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
     </p>
   </header>
 
-  <nav aria-label="Dashboard sections">
-    <ul>
-      <li><a href="/dashboard"         ><i class="fa-solid fa-gauge" aria-hidden="true"></i> Overview</a></li>
-      <li><a href="/dashboard/lender"  ><i class="fa-solid fa-hand-holding" aria-hidden="true"></i> My Tools</a></li>
-      <li><a href="/dashboard/borrower"><i class="fa-solid fa-hand" aria-hidden="true"></i> My Borrows</a></li>
-      <li><a href="/dashboard/history" ><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History</a></li>
-    </ul>
-  </nav>
+  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
 
   <section aria-labelledby="lifecycle-heading">
     <h2 id="lifecycle-heading" class="visually-hidden">Lifecycle Progress</h2>
@@ -382,4 +375,5 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
     </section>
   <?php endif; ?>
 
+</div>
 </section>

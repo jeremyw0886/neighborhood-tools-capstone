@@ -70,8 +70,9 @@ class VectorImage
         $params = [];
 
         if ($search !== null) {
-            $sql .= " AND (v.file_name_vec LIKE :search OR v.description_text_vec LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (v.file_name_vec LIKE :search1 OR v.description_text_vec LIKE :search2)";
+            $params[':search1'] = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
         }
 
         if ($assigned === true) {
@@ -124,8 +125,9 @@ class VectorImage
         $params = [];
 
         if ($search !== null) {
-            $sql .= " AND (v.file_name_vec LIKE :search OR v.description_text_vec LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (v.file_name_vec LIKE :search1 OR v.description_text_vec LIKE :search2)";
+            $params[':search1'] = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
         }
 
         if ($assigned === true) {

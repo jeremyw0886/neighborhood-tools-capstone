@@ -85,8 +85,9 @@ class AvatarVector
         $params = [];
 
         if ($search !== null) {
-            $sql .= " AND (v.file_name_avv LIKE :search OR v.description_text_avv LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (v.file_name_avv LIKE :search1 OR v.description_text_avv LIKE :search2)";
+            $params[':search1'] = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
         }
 
         if ($active === true) {
@@ -139,8 +140,9 @@ class AvatarVector
         $params = [];
 
         if ($search !== null) {
-            $sql .= " AND (v.file_name_avv LIKE :search OR v.description_text_avv LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (v.file_name_avv LIKE :search1 OR v.description_text_avv LIKE :search2)";
+            $params[':search1'] = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
         }
 
         if ($active === true) {

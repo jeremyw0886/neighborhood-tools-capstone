@@ -863,7 +863,7 @@ class AdminController extends BaseController
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $term = trim($_GET['q'] ?? '');
+        $term = $this->parseSearchQuery() ?? '';
 
         $results = [
             'users'         => [],

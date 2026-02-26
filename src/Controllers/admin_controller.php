@@ -1378,7 +1378,7 @@ class AdminController extends BaseController
         } catch (\Throwable $e) {
             error_log('AdminController::uploadAvatarVector — ' . $e->getMessage());
             @unlink($destPath);
-            $_SESSION['admin_images_flash'] = 'Failed to save avatar vector record: ' . $e->getMessage();
+            $_SESSION['admin_images_flash'] = 'Failed to save avatar vector record.';
         }
 
         $this->redirect('/admin/images');

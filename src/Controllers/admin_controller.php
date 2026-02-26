@@ -21,7 +21,7 @@ use App\Models\AvatarVector;
 class AdminController extends BaseController
 {
     private const int PER_PAGE             = 12;
-    private const int IMAGES_PER_PAGE      = 4;
+    private const int IMAGES_PER_PAGE      = 6;
     private const array ALLOWED_RANGES     = [7, 14, 30];
     private const int DEFAULT_RANGE        = 14;
 

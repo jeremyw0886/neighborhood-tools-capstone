@@ -60,6 +60,7 @@ return [
     'GET /tools/{id}/availability'        => [ToolController::class, 'availability'],
     'POST /tools/{id}/availability'       => [ToolController::class, 'addBlock'],
     'POST /tools/{id}/availability/delete' => [ToolController::class, 'removeBlock'],
+    'POST /tools/{id}/toggle-listing'     => [ToolController::class, 'toggleListing'],
     'GET /tools/{id}'              => [ToolController::class, 'show'],
     'GET /tools/{id}/edit'         => [ToolController::class, 'edit'],
     'POST /tools/{id}'             => [ToolController::class, 'update'],

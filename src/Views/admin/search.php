@@ -4,13 +4,15 @@
  *
  * Variables from AdminController::search():
  *   $term        string  The search query
- *   $results     array   Keyed by entity: users, tools, categories, disputes, events, incidents, neighborhoods
+ *   $results     array   Keyed by entity: users, tools, categories, icons, avatars, disputes, events, incidents, neighborhoods
  *   $totalCount  int     Sum of all result counts
  *
  * Return shapes per entity:
  *   users:         id_acc, full_name, email_address_acc, role_name_rol, account_status
  *   tools:         id_tol, tool_name_tol, owner_name, tool_condition, rental_fee_tol
  *   categories:    id_cat, category_name_cat, total_tools, available_tools
+ *   icons:         id_vec, file_name_vec, description_text_vec, assigned_category
+ *   avatars:       id_avv, file_name_avv, description_text_avv, is_active_avv
  *   disputes:      id_dsp, tool_name_tol, reporter_name, borrower_name, lender_name, dispute_status, days_open
  *   events:        id_evt, event_name_evt, start_at_evt, event_address_evt, event_timing
  *   incidents:     id_irt, incident_type, tool_name_tol, reporter_name, borrower_name, lender_name, incident_status, days_open
@@ -35,6 +37,16 @@ $sections = [
         'icon'  => 'fa-tags',
         'label' => 'Categories',
         'page'  => '/admin/categories',
+    ],
+    'icons' => [
+        'icon'  => 'fa-icons',
+        'label' => 'Category Icons',
+        'page'  => '/admin/images',
+    ],
+    'avatars' => [
+        'icon'  => 'fa-circle-user',
+        'label' => 'Profile Avatars',
+        'page'  => '/admin/images',
     ],
     'disputes' => [
         'icon'  => 'fa-gavel',
@@ -72,7 +84,7 @@ $sections = [
         for &#8220;<?= htmlspecialchars($term) ?>&#8221;
       </p>
     <?php else: ?>
-      <p>Enter a search term to find users, tools, categories, disputes, events, incidents, and neighborhoods.</p>
+      <p>Enter a search term to find users, tools, categories, images, disputes, events, incidents, and neighborhoods.</p>
     <?php endif; ?>
   </header>
 
@@ -158,6 +170,44 @@ $sections = [
                   <div>
                     <dt>Available</dt>
                     <dd><?= number_format((int) $cat['available_tools']) ?></dd>
+                  </div>
+                </dl>
+              </article>
+            <?php endforeach;
+
+          elseif ($key === 'icons'):
+            foreach ($items as $icon): ?>
+              <article role="listitem">
+                <h3><a href="/admin/images"><?= htmlspecialchars($icon['file_name_vec']) ?></a></h3>
+                <dl>
+                  <?php if ($icon['description_text_vec'] !== null): ?>
+                    <div>
+                      <dt>Description</dt>
+                      <dd><?= htmlspecialchars($icon['description_text_vec']) ?></dd>
+                    </div>
+                  <?php endif; ?>
+                  <div>
+                    <dt>Category</dt>
+                    <dd><?= $icon['assigned_category'] !== null ? htmlspecialchars($icon['assigned_category']) : 'Unassigned' ?></dd>
+                  </div>
+                </dl>
+              </article>
+            <?php endforeach;
+
+          elseif ($key === 'avatars'):
+            foreach ($items as $avatar): ?>
+              <article role="listitem">
+                <h3><a href="/admin/images"><?= htmlspecialchars($avatar['file_name_avv']) ?></a></h3>
+                <dl>
+                  <?php if ($avatar['description_text_avv'] !== null): ?>
+                    <div>
+                      <dt>Description</dt>
+                      <dd><?= htmlspecialchars($avatar['description_text_avv']) ?></dd>
+                    </div>
+                  <?php endif; ?>
+                  <div>
+                    <dt>Status</dt>
+                    <dd><span data-status="<?= (int) $avatar['is_active_avv'] ? 'active' : 'inactive' ?>"><?= (int) $avatar['is_active_avv'] ? 'Active' : 'Inactive' ?></span></dd>
                   </div>
                 </dl>
               </article>

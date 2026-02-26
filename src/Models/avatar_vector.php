@@ -60,6 +60,32 @@ class AvatarVector
         ")->fetchAll();
     }
 
+    /** @return array Avatar vectors matching the search term by filename or description. */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT
+                v.id_avv,
+                v.file_name_avv,
+                v.description_text_avv,
+                v.is_active_avv
+            FROM avatar_vector_avv v
+            WHERE v.file_name_avv LIKE CONCAT('%', :term1, '%')
+               OR v.description_text_avv LIKE CONCAT('%', :term2, '%')
+            ORDER BY v.file_name_avv ASC
+            LIMIT :limit
+        ");
+
+        $stmt->bindValue(':term1', $term);
+        $stmt->bindValue(':term2', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     /** @return int Total avatar vector count. */
     public static function getCount(): int
     {

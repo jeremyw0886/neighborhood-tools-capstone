@@ -869,6 +869,8 @@ class AdminController extends BaseController
             'users'         => [],
             'tools'         => [],
             'categories'    => [],
+            'icons'         => [],
+            'avatars'       => [],
             'disputes'      => [],
             'events'        => [],
             'incidents'     => [],
@@ -892,6 +894,18 @@ class AdminController extends BaseController
                 $results['categories'] = Category::adminSearch($term);
             } catch (\Throwable $e) {
                 error_log('AdminController::search categories — ' . $e->getMessage());
+            }
+
+            try {
+                $results['icons'] = VectorImage::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search icons — ' . $e->getMessage());
+            }
+
+            try {
+                $results['avatars'] = AvatarVector::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search avatars — ' . $e->getMessage());
             }
 
             try {

@@ -52,4 +52,4 @@ seed_images/
 CLAUDE.md
 
 # Build tools (not needed on server — output is committed)
-build-css.php
+build-assets.php

@@ -47,6 +47,36 @@ $toolId  = (int) $tool['id_tol'];
     </ul>
   <?php endif; ?>
 
+  <?php $isListed = (bool) $tool['is_available_tol']; ?>
+  <section aria-labelledby="listing-status-heading">
+    <h2 id="listing-status-heading">
+      <?php if ($isListed): ?>
+        <i class="fa-solid fa-eye" aria-hidden="true"></i> Listed
+      <?php else: ?>
+        <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Unlisted
+      <?php endif; ?>
+    </h2>
+    <p>
+      <?php if ($isListed): ?>
+        This tool appears in browse and search results. Unlisting hides it from other members without deleting it.
+      <?php else: ?>
+        This tool is hidden from browse and search results. Re-list it to make it visible again.
+      <?php endif; ?>
+    </p>
+    <form method="post" action="/tools/<?= $toolId ?>/toggle-listing">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <?php if ($isListed): ?>
+        <button type="submit" data-action="unlist">
+          <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Unlist Tool
+        </button>
+      <?php else: ?>
+        <button type="submit" data-action="relist">
+          <i class="fa-solid fa-eye" aria-hidden="true"></i> Re-list Tool
+        </button>
+      <?php endif; ?>
+    </form>
+  </section>
+
   <?php if ($blocks !== []): ?>
     <section aria-labelledby="blocks-heading">
       <h2 id="blocks-heading">Current Blocks</h2>

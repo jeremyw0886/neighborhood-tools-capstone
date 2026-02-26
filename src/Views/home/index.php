@@ -56,7 +56,16 @@ $bookmarkFlash    ??= '';
             <?php $displayName = $member['username'] ?? $member['name'] ?? 'Member'; ?>
             <article aria-label="<?= htmlspecialchars($displayName) ?> member card">
               <a href="/profile/<?= (int) $member['id_acc'] ?>" tabindex="-1" aria-hidden="true">
-                <img src="<?= htmlspecialchars($member['avatar'] ? '/uploads/profiles/' . $member['avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
+                <?php
+                  if (!empty($member['vector_avatar'])) {
+                      $memberAvatarSrc = '/uploads/vectors/' . $member['vector_avatar'];
+                  } elseif (!empty($member['avatar'])) {
+                      $memberAvatarSrc = '/uploads/profiles/' . $member['avatar'];
+                  } else {
+                      $memberAvatarSrc = '/assets/images/avatar-placeholder.svg';
+                  }
+                ?>
+                <img src="<?= htmlspecialchars($memberAvatarSrc) ?>"
                      alt="<?= htmlspecialchars($displayName) ?>"
                      width="60" height="60"
                      loading="lazy"
@@ -121,7 +130,16 @@ $bookmarkFlash    ??= '';
           <?php foreach (array_slice($topMembers, 0, 3) as $neighbor): ?>
             <a href="/profile/<?= (int) $neighbor['id_acc'] ?>">
               <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
-              <img src="<?= htmlspecialchars($neighbor['avatar'] ? '/uploads/profiles/' . $neighbor['avatar'] : '/assets/images/avatar-placeholder.svg') ?>"
+              <?php
+                if (!empty($neighbor['vector_avatar'])) {
+                    $neighborAvatarSrc = '/uploads/vectors/' . $neighbor['vector_avatar'];
+                } elseif (!empty($neighbor['avatar'])) {
+                    $neighborAvatarSrc = '/uploads/profiles/' . $neighbor['avatar'];
+                } else {
+                    $neighborAvatarSrc = '/assets/images/avatar-placeholder.svg';
+                }
+              ?>
+              <img src="<?= htmlspecialchars($neighborAvatarSrc) ?>"
                    alt="<?= htmlspecialchars($neighbor['username']) ?>"
                    width="80" height="80"
                    loading="lazy" decoding="async">

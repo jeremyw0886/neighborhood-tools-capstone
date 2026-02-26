@@ -868,6 +868,7 @@ class AdminController extends BaseController
         $results = [
             'users'         => [],
             'tools'         => [],
+            'categories'    => [],
             'disputes'      => [],
             'events'        => [],
             'incidents'     => [],
@@ -885,6 +886,12 @@ class AdminController extends BaseController
                 $results['tools'] = Tool::adminSearch($term);
             } catch (\Throwable $e) {
                 error_log('AdminController::search tools — ' . $e->getMessage());
+            }
+
+            try {
+                $results['categories'] = Category::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search categories — ' . $e->getMessage());
             }
 
             try {

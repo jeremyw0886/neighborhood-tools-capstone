@@ -204,7 +204,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                 <button type="submit"
                   <?php if (!empty($vec['assigned_category'])): ?>
-                    disabled aria-disabled="true" title="Assigned to <?= htmlspecialchars($vec['assigned_category']) ?>"
+                    data-confirm="This icon is assigned to &quot;<?= htmlspecialchars($vec['assigned_category']) ?>&quot;. It will be unassigned before deletion."
                   <?php endif; ?>>
                   <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
                 </button>
@@ -407,7 +407,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                 <button type="submit"
                   <?php if ((int) $avt['user_count'] > 0): ?>
-                    disabled aria-disabled="true" title="Selected by <?= (int) $avt['user_count'] ?> user(s)"
+                    data-confirm="This avatar is selected by <?= (int) $avt['user_count'] ?> user<?= (int) $avt['user_count'] !== 1 ? 's' : '' ?>. It will be unassigned before deletion."
                   <?php endif; ?>>
                   <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
                 </button>

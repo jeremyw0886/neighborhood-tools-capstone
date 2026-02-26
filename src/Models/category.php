@@ -28,6 +28,30 @@ class Category
         ")->fetchAll();
     }
 
+    /** @return array Categories matching the search term by name. */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT
+                id_cat,
+                category_name_cat,
+                total_tools,
+                available_tools
+            FROM category_summary_fast_v
+            WHERE category_name_cat LIKE CONCAT('%', :term, '%')
+            ORDER BY category_name_cat ASC
+            LIMIT :limit
+        ");
+
+        $stmt->bindValue(':term', $term);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     public static function getCount(): int
     {
         $pdo = Database::connection();

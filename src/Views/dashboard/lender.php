@@ -3,7 +3,11 @@
  * Dashboard — Lender sub-page: listed tools, incoming requests, lent-out items.
  *
  * Variables from DashboardController::lender():
- *   $tools              array  Rows from tool_detail_v for this owner
+ *   $tools              array  Rows from tool_detail_v for this owner (paginated)
+ *   $toolsPage          int    Current page number
+ *   $toolsCount         int    Total tools owned
+ *   $toolsPages         int    Total pages
+ *   $perPage            int    Items per page
  *   $incomingRequests   array  Pending requests where user is lender
  *   $awaitingPickup     array  Approved borrows awaiting pickup (lender side)
  *   $lentOut            array  Active borrows where user is lender
@@ -348,13 +352,41 @@ use App\Core\ViewHelper;
     <?php endif; ?>
   </section>
 
+  <?php
+    $rangeStart = $toolsCount > 0 ? (($toolsPage - 1) * $perPage) + 1 : 0;
+    $rangeEnd   = min($toolsPage * $perPage, $toolsCount);
+
+    $paginationUrl = static function (int $pageNum) use ($reqSort, $lentSort): string {
+        $params = array_filter([
+            'page'      => $pageNum > 1 ? $pageNum : null,
+            'req_sort'  => $reqSort['sort'],
+            'req_dir'   => strtolower($reqSort['dir']),
+            'lent_sort' => $lentSort['sort'],
+            'lent_dir'  => strtolower($lentSort['dir']),
+        ]);
+
+        return '/dashboard/lender?' . http_build_query($params);
+    };
+  ?>
+
   <section aria-labelledby="listed-tools-heading">
     <h2 id="listed-tools-heading">
       <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
-      Listed Tools (<?= count($tools) ?>)
+      Listed Tools (<?= htmlspecialchars((string) $toolsCount) ?>)
     </h2>
 
     <?php if (!empty($tools)): ?>
+
+      <div aria-live="polite" aria-atomic="true">
+        <?php if ($toolsCount > $perPage): ?>
+          <p>
+            Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>&ndash;<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
+            <strong><?= number_format($toolsCount) ?></strong>
+            tool<?= $toolsCount !== 1 ? 's' : '' ?>
+          </p>
+        <?php endif; ?>
+      </div>
+
       <div role="list">
         <?php $cardHeadingLevel = 'h3'; ?>
         <?php foreach ($tools as $tool): ?>
@@ -362,6 +394,86 @@ use App\Core\ViewHelper;
         <?php endforeach; ?>
         <?php unset($cardHeadingLevel); ?>
       </div>
+
+      <?php if ($toolsPages > 1): ?>
+        <nav aria-label="Pagination">
+          <ul>
+
+            <?php if ($toolsPage > 1): ?>
+              <li>
+                <a href="<?= $paginationUrl($toolsPage - 1) ?>"
+                   aria-label="Go to previous page">
+                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                  <span>Previous</span>
+                </a>
+              </li>
+            <?php else: ?>
+              <li>
+                <span aria-disabled="true" aria-label="No previous page">
+                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                  <span>Previous</span>
+                </span>
+              </li>
+            <?php endif; ?>
+
+            <?php
+            $windowSize = 2;
+            $startPage  = max(1, $toolsPage - $windowSize);
+            $endPage    = min($toolsPages, $toolsPage + $windowSize);
+
+            if ($startPage > 1): ?>
+              <li>
+                <a href="<?= $paginationUrl(1) ?>" aria-label="Go to page 1">1</a>
+              </li>
+              <?php if ($startPage > 2): ?>
+                <li><span aria-hidden="true">&hellip;</span></li>
+              <?php endif; ?>
+            <?php endif; ?>
+
+            <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+              <li>
+                <?php if ($i === $toolsPage): ?>
+                  <a href="<?= $paginationUrl($i) ?>"
+                     aria-current="page"
+                     aria-label="Page <?= htmlspecialchars((string) $i) ?>, current page"><?= htmlspecialchars((string) $i) ?></a>
+                <?php else: ?>
+                  <a href="<?= $paginationUrl($i) ?>"
+                     aria-label="Go to page <?= htmlspecialchars((string) $i) ?>"><?= htmlspecialchars((string) $i) ?></a>
+                <?php endif; ?>
+              </li>
+            <?php endfor; ?>
+
+            <?php if ($endPage < $toolsPages): ?>
+              <?php if ($endPage < $toolsPages - 1): ?>
+                <li><span aria-hidden="true">&hellip;</span></li>
+              <?php endif; ?>
+              <li>
+                <a href="<?= $paginationUrl($toolsPages) ?>"
+                   aria-label="Go to page <?= htmlspecialchars((string) $toolsPages) ?>"><?= htmlspecialchars((string) $toolsPages) ?></a>
+              </li>
+            <?php endif; ?>
+
+            <?php if ($toolsPage < $toolsPages): ?>
+              <li>
+                <a href="<?= $paginationUrl($toolsPage + 1) ?>"
+                   aria-label="Go to next page">
+                  <span>Next</span>
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a>
+              </li>
+            <?php else: ?>
+              <li>
+                <span aria-disabled="true" aria-label="No next page">
+                  <span>Next</span>
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </span>
+              </li>
+            <?php endif; ?>
+
+          </ul>
+        </nav>
+      <?php endif; ?>
+
     <?php else: ?>
       <p>You haven&rsquo;t listed any tools yet.</p>
       <a href="/tools/create" role="button">

@@ -92,8 +92,19 @@ class DashboardController extends BaseController
             'due_at_bor', 'tool_name_tol', 'borrower_name', 'hours_until_due',
         ], 'due_at_bor', 'ASC');
 
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage    = 3;
+        $toolsCount = Tool::getCountByOwner($userId);
+        $toolsPages = (int) ceil($toolsCount / $perPage) ?: 1;
+
+        if ($page > $toolsPages) {
+            $page = $toolsPages;
+        }
+
+        $offset = ($page - 1) * $perPage;
+
         try {
-            $tools           = Tool::getByOwner($userId);
+            $tools           = Tool::getByOwner($userId, $perPage, $offset);
             $pendingRequests = Borrow::getPendingForUser($userId, $reqSort['sort'], $reqSort['dir']);
             $activeBorrows   = Borrow::getActiveForUser($userId, $lentSort['sort'], $lentSort['dir']);
             $approvedLoans   = Borrow::getApprovedForUser($userId);
@@ -134,6 +145,10 @@ class DashboardController extends BaseController
             'description'        => 'Manage your listed tools and incoming borrow requests.',
             'pageCss'            => ['dashboard.css'],
             'tools'              => $tools,
+            'toolsPage'          => $page,
+            'toolsCount'         => $toolsCount,
+            'toolsPages'         => $toolsPages,
+            'perPage'            => $perPage,
             'incomingRequests'   => array_values($incomingRequests),
             'awaitingPickup'     => array_values($awaitingPickup),
             'lentOut'            => array_values($lentOut),

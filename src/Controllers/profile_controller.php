@@ -11,8 +11,8 @@ use App\Models\Tool;
 
 class ProfileController extends BaseController
 {
-    /** Results per page — divisible by 2, 3, and 4 for grid layouts. */
-    private const int PER_PAGE = 12;
+    /** Results per page for profile tool listings. */
+    private const int PER_PAGE = 3;
 
     private const int MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 

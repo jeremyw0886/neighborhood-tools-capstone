@@ -469,6 +469,12 @@
       padding-inline: 0.625rem;
     }
 
+    /* Pagination — hide Previous/Next text on mobile */
+    section[aria-labelledby="listed-tools-heading"] > nav[aria-label="Pagination"] > ul > li > a > span,
+    section[aria-labelledby="listed-tools-heading"] > nav[aria-label="Pagination"] > ul > li > span[aria-disabled] > span {
+      display: none;
+    }
+
     /* Summary cards — 2 columns on mobile */
     section[aria-labelledby="summary-heading"] > ul,
     section[aria-labelledby="admin-summary-heading"] > ul {

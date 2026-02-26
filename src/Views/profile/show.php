@@ -159,11 +159,13 @@ $rangeEnd   = min($page * $perPage, $totalTools);
     <?php if ($totalTools > 0): ?>
 
       <div aria-live="polite" aria-atomic="true">
-        <p>
-          Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>&ndash;<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
-          <strong><?= number_format($totalTools) ?></strong>
-          tool<?= $totalTools !== 1 ? 's' : '' ?>
-        </p>
+        <?php if ($totalTools > $perPage): ?>
+          <p>
+            Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>&ndash;<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
+            <strong><?= number_format($totalTools) ?></strong>
+            tool<?= $totalTools !== 1 ? 's' : '' ?>
+          </p>
+        <?php endif; ?>
       </div>
 
       <div role="list">

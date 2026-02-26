@@ -138,6 +138,7 @@ class Incident
             SELECT
                 id_irt,
                 incident_type,
+                tool_name_tol,
                 reporter_name,
                 borrower_name,
                 lender_name,
@@ -148,6 +149,7 @@ class Incident
                OR borrower_name LIKE CONCAT('%', :term2, '%')
                OR lender_name   LIKE CONCAT('%', :term3, '%')
                OR incident_type LIKE CONCAT('%', :term4, '%')
+               OR tool_name_tol LIKE CONCAT('%', :term5, '%')
             ORDER BY days_open DESC
             LIMIT :limit
         ";
@@ -157,6 +159,7 @@ class Incident
         $stmt->bindValue(':term2', $term);
         $stmt->bindValue(':term3', $term);
         $stmt->bindValue(':term4', $term);
+        $stmt->bindValue(':term5', $term);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

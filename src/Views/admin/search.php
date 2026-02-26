@@ -4,15 +4,16 @@
  *
  * Variables from AdminController::search():
  *   $term        string  The search query
- *   $results     array   Keyed by entity: users, tools, disputes, events, incidents, neighborhoods
+ *   $results     array   Keyed by entity: users, tools, categories, disputes, events, incidents, neighborhoods
  *   $totalCount  int     Sum of all result counts
  *
  * Return shapes per entity:
  *   users:         id_acc, full_name, email_address_acc, role_name_rol, account_status
  *   tools:         id_tol, tool_name_tol, owner_name, tool_condition, rental_fee_tol
- *   disputes:      id_dsp, reporter_name, borrower_name, lender_name, dispute_status, days_open
+ *   categories:    id_cat, category_name_cat, total_tools, available_tools
+ *   disputes:      id_dsp, tool_name_tol, reporter_name, borrower_name, lender_name, dispute_status, days_open
  *   events:        id_evt, event_name_evt, start_at_evt, event_address_evt, event_timing
- *   incidents:     id_irt, incident_type, reporter_name, borrower_name, lender_name, incident_status, days_open
+ *   incidents:     id_irt, incident_type, tool_name_tol, reporter_name, borrower_name, lender_name, incident_status, days_open
  *   neighborhoods: id_nbh, neighborhood_name_nbh, city_name_nbh, state_code_sta, active_members
  *
  * Shared data:
@@ -29,6 +30,11 @@ $sections = [
         'icon'  => 'fa-screwdriver-wrench',
         'label' => 'Tools',
         'page'  => '/admin/tools',
+    ],
+    'categories' => [
+        'icon'  => 'fa-tags',
+        'label' => 'Categories',
+        'page'  => '/admin/categories',
     ],
     'disputes' => [
         'icon'  => 'fa-gavel',
@@ -66,7 +72,7 @@ $sections = [
         for &#8220;<?= htmlspecialchars($term) ?>&#8221;
       </p>
     <?php else: ?>
-      <p>Enter a search term to find users, tools, disputes, events, incidents, and neighborhoods.</p>
+      <p>Enter a search term to find users, tools, categories, disputes, events, incidents, and neighborhoods.</p>
     <?php endif; ?>
   </header>
 
@@ -140,11 +146,32 @@ $sections = [
               </article>
             <?php endforeach;
 
+          elseif ($key === 'categories'):
+            foreach ($items as $cat): ?>
+              <article role="listitem">
+                <h3><a href="/admin/categories"><?= htmlspecialchars($cat['category_name_cat']) ?></a></h3>
+                <dl>
+                  <div>
+                    <dt>Total Tools</dt>
+                    <dd><?= number_format((int) $cat['total_tools']) ?></dd>
+                  </div>
+                  <div>
+                    <dt>Available</dt>
+                    <dd><?= number_format((int) $cat['available_tools']) ?></dd>
+                  </div>
+                </dl>
+              </article>
+            <?php endforeach;
+
           elseif ($key === 'disputes'):
             foreach ($items as $dispute): ?>
               <article role="listitem">
                 <h3><a href="/disputes/<?= (int) $dispute['id_dsp'] ?>">Dispute #<?= (int) $dispute['id_dsp'] ?></a></h3>
                 <dl>
+                  <div>
+                    <dt>Tool</dt>
+                    <dd><?= htmlspecialchars($dispute['tool_name_tol']) ?></dd>
+                  </div>
                   <div>
                     <dt>Reporter</dt>
                     <dd><?= htmlspecialchars($dispute['reporter_name']) ?></dd>
@@ -197,6 +224,10 @@ $sections = [
               <article role="listitem">
                 <h3><a href="/incidents/<?= (int) $incident['id_irt'] ?>"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $incident['incident_type']))) ?> #<?= (int) $incident['id_irt'] ?></a></h3>
                 <dl>
+                  <div>
+                    <dt>Tool</dt>
+                    <dd><?= htmlspecialchars($incident['tool_name_tol']) ?></dd>
+                  </div>
                   <div>
                     <dt>Reporter</dt>
                     <dd><?= htmlspecialchars($incident['reporter_name']) ?></dd>

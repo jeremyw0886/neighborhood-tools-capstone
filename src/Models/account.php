@@ -363,6 +363,7 @@ class Account
                 p.id_acc,
                 p.username_acc               AS username,
                 p.primary_image              AS avatar,
+                p.vector_avatar,
                 r.overall_avg_rating         AS avg_rating,
                 p.bio_text_abi               AS bio,
                 r.tools_owned,
@@ -417,6 +418,7 @@ class Account
                 p.id_acc,
                 p.username_acc                    AS username,
                 p.primary_image                   AS avatar,
+                p.vector_avatar,
                 COALESCE(r.overall_avg_rating, 0) AS avg_rating,
                 COALESCE(r.total_rating_count, 0) AS total_rating_count,
                 COALESCE(

@@ -115,7 +115,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           <label for="icons-search">Search</label>
           <input type="search" id="icons-search" name="icons_q"
                  value="<?= htmlspecialchars($iconsSearch ?? '') ?>"
-                 placeholder="Filename or description…"
+                 placeholder="Filename, description, or category…"
                  autocomplete="off">
         </div>
 

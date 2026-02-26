@@ -298,6 +298,27 @@
           outline-offset: 2px;
         }
       }
+
+      & > a:has(> .fa-xmark) {
+        align-items: center;
+        align-self: center;
+        color: var(--mountain-slate);
+        display: inline-flex;
+        font-size: 0.813rem;
+        font-weight: 600;
+        gap: 0.25rem;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-pine-dark);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--mountain-pine);
+          outline-offset: 2px;
+        }
+      }
     }
   }
 

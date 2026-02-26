@@ -150,6 +150,19 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
         <button type="submit">
           <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
         </button>
+        <?php if ($iconsHasFilters):
+          $iconsClearParams = array_filter([
+              'avatars_page'   => $avatarsPage > 1 ? (string) $avatarsPage : null,
+              'avatars_q'      => $avatarsSearch,
+              'avatars_status' => $avatarsStatus,
+              'avatars_sort'   => $avatarsSort,
+              'avatars_dir'    => strtolower($avatarsDir),
+          ], static fn(?string $v): bool => $v !== null);
+        ?>
+          <a href="/admin/images<?= $iconsClearParams !== [] ? '?' . http_build_query($iconsClearParams) : '' ?>">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+          </a>
+        <?php endif; ?>
       </fieldset>
     </form>
 
@@ -331,6 +344,19 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
         <button type="submit">
           <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
         </button>
+        <?php if ($avatarsHasFilters):
+          $avatarsClearParams = array_filter([
+              'icons_page'     => $iconsPage > 1 ? (string) $iconsPage : null,
+              'icons_q'        => $iconsSearch,
+              'icons_assigned' => $iconsAssigned,
+              'icons_sort'     => $iconsSort,
+              'icons_dir'      => strtolower($iconsDir),
+          ], static fn(?string $v): bool => $v !== null);
+        ?>
+          <a href="/admin/images<?= $avatarsClearParams !== [] ? '?' . http_build_query($avatarsClearParams) : '' ?>">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+          </a>
+        <?php endif; ?>
       </fieldset>
     </form>
 

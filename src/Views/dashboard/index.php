@@ -45,14 +45,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
     <p>Here&rsquo;s a snapshot of your NeighborhoodTools activity.</p>
   </header>
 
-  <nav aria-label="Dashboard sections">
-    <ul>
-      <li><a href="/dashboard"         aria-current="page"><i class="fa-solid fa-gauge" aria-hidden="true"></i> Overview</a></li>
-      <li><a href="/dashboard/lender"  ><i class="fa-solid fa-hand-holding" aria-hidden="true"></i> My Tools</a></li>
-      <li><a href="/dashboard/borrower"><i class="fa-solid fa-hand" aria-hidden="true"></i> My Borrows</a></li>
-      <li><a href="/dashboard/history" ><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History</a></li>
-    </ul>
-  </nav>
+  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
 
   <section aria-labelledby="summary-heading">
     <h2 id="summary-heading" class="visually-hidden">Activity Summary</h2>
@@ -208,4 +201,5 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
     </ul>
   </section>
 
+</div>
 </section>

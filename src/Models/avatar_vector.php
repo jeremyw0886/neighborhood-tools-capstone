@@ -253,4 +253,32 @@ class AvatarVector
 
         return true;
     }
+
+    /**
+     * Unassign from all users then delete the record.
+     *
+     * @param  int $id
+     * @return void
+     */
+    public static function forceDelete(int $id): void
+    {
+        $pdo = Database::connection();
+
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare("UPDATE account_acc SET id_avv_acc = NULL WHERE id_avv_acc = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $stmt = $pdo->prepare("DELETE FROM avatar_vector_avv WHERE id_avv = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
 }

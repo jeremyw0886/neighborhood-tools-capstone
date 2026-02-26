@@ -1058,7 +1058,7 @@ class AdminController extends BaseController
     }
 
     /**
-     * Delete a category (only if no tools reference it).
+     * Delete a category; force-delete cascades through tool junctions.
      */
     public function deleteCategory(string $id): void
     {
@@ -1071,9 +1071,10 @@ class AdminController extends BaseController
             $this->abort(404);
         }
 
+        $force     = ($_POST['force'] ?? '') === '1';
         $toolCount = Category::getToolCount($categoryId);
 
-        if ($toolCount > 0) {
+        if ($toolCount > 0 && !$force) {
             $_SESSION['admin_categories_flash'] = 'Cannot delete — '
                 . $toolCount . ' tool' . ($toolCount !== 1 ? 's' : '')
                 . ' still use this category.';
@@ -1081,7 +1082,11 @@ class AdminController extends BaseController
         }
 
         try {
-            Category::delete($categoryId);
+            if ($toolCount > 0) {
+                Category::forceDelete($categoryId);
+            } else {
+                Category::delete($categoryId);
+            }
             $_SESSION['admin_categories_flash'] = 'Category deleted.';
         } catch (\Throwable $e) {
             error_log('AdminController::deleteCategory — ' . $e->getMessage());
@@ -1252,9 +1257,15 @@ class AdminController extends BaseController
                 $this->abort(404);
             }
 
-            if (!VectorImage::delete($vectorId)) {
+            $force = ($_POST['force'] ?? '') === '1';
+
+            if (!$force && !VectorImage::delete($vectorId)) {
                 $_SESSION['admin_images_flash'] = 'Cannot delete — icon is assigned to a category.';
                 $this->redirect('/admin/images');
+            }
+
+            if ($force) {
+                VectorImage::forceDelete($vectorId);
             }
 
             $filePath = BASE_PATH . '/public/uploads/vectors/' . $vector['file_name_vec'];
@@ -1396,9 +1407,15 @@ class AdminController extends BaseController
                 $this->abort(404);
             }
 
-            if (!AvatarVector::delete($vectorId)) {
+            $force = ($_POST['force'] ?? '') === '1';
+
+            if (!$force && !AvatarVector::delete($vectorId)) {
                 $_SESSION['admin_images_flash'] = 'Cannot delete — avatar is selected by one or more users.';
                 $this->redirect('/admin/images');
+            }
+
+            if ($force) {
+                AvatarVector::forceDelete($vectorId);
             }
 
             $filePath = BASE_PATH . '/public/uploads/vectors/' . $vector['file_name_avv'];

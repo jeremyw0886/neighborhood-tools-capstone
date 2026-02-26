@@ -220,4 +220,32 @@ class VectorImage
 
         return true;
     }
+
+    /**
+     * Unassign from all categories then delete the record.
+     *
+     * @param  int $id
+     * @return void
+     */
+    public static function forceDelete(int $id): void
+    {
+        $pdo = Database::connection();
+
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare("UPDATE category_cat SET id_vec_cat = NULL WHERE id_vec_cat = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $stmt = $pdo->prepare("DELETE FROM vector_image_vec WHERE id_vec = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
 }

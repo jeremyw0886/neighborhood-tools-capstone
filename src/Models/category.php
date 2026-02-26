@@ -233,6 +233,34 @@ class Category
     }
 
     /**
+     * Remove tool junction rows then delete the category.
+     *
+     * @param  int $id
+     * @return void
+     */
+    public static function forceDelete(int $id): void
+    {
+        $pdo = Database::connection();
+
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare("DELETE FROM tool_category_tolcat WHERE id_cat_tolcat = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $stmt = $pdo->prepare("DELETE FROM category_cat WHERE id_cat = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Count tools assigned to a category.
      *
      * @param  int $id

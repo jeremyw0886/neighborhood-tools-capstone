@@ -2852,16 +2852,6 @@
             outline: 2px solid var(--mountain-pine);
             outline-offset: 2px;
           }
-
-          &:disabled {
-            cursor: not-allowed;
-            opacity: 0.5;
-
-            &:is(:hover, :focus-visible) {
-              border-color: var(--mountain-fog);
-              color: var(--mountain-slate);
-            }
-          }
         }
 
         &[data-inactive] {

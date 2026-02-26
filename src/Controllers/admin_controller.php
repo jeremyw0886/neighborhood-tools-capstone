@@ -24,6 +24,16 @@ class AdminController extends BaseController
     private const int IMAGES_PER_PAGE      = 6;
     private const array ALLOWED_RANGES     = [7, 14, 30];
     private const int DEFAULT_RANGE        = 14;
+    private const int MAX_SVG_BYTES        = 1_048_576;
+
+    private const array SVG_MIMES = [
+        'image/svg+xml',
+        'image/svg',
+        'text/xml',
+        'application/xml',
+        'text/html',
+        'text/plain',
+    ];
 
     /**
      * Admin dashboard — platform-wide summary stats and recent trends.
@@ -797,6 +807,43 @@ class AdminController extends BaseController
         ]);
     }
 
+    /**
+     * Validate an SVG upload via extension, MIME type, size, and content inspection.
+     *
+     * @return ?string Error message, or null when valid
+     */
+    private function validateSvgUpload(array $file): ?string
+    {
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            return 'No file uploaded or upload error occurred.';
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if ($ext !== 'svg') {
+            return 'File must have an .svg extension.';
+        }
+
+        if ($file['size'] > self::MAX_SVG_BYTES) {
+            return 'File must be under 1 MB.';
+        }
+
+        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mimeType, self::SVG_MIMES, true)) {
+            return 'Only SVG files are allowed.';
+        }
+
+        $head = file_get_contents($file['tmp_name'], false, null, 0, 4096);
+
+        if ($head === false || !preg_match('/<svg[\s>]/i', $head)) {
+            return 'File does not appear to be a valid SVG.';
+        }
+
+        return null;
+    }
+
     public function uploadVector(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -805,28 +852,15 @@ class AdminController extends BaseController
         $file        = $_FILES['vector_file'] ?? null;
         $description = trim($_POST['description'] ?? '');
 
-        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['admin_images_flash'] = 'No file uploaded or upload error occurred.';
+        if ($file === null) {
+            $_SESSION['admin_images_flash'] = 'No file uploaded.';
             $this->redirect('/admin/images');
         }
 
-        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($file['tmp_name']);
+        $error = $this->validateSvgUpload($file);
 
-        if ($mimeType !== 'image/svg+xml') {
-            $_SESSION['admin_images_flash'] = 'Only SVG files are allowed.';
-            $this->redirect('/admin/images');
-        }
-
-        if ($file['size'] > 1_048_576) {
-            $_SESSION['admin_images_flash'] = 'File must be under 1 MB.';
-            $this->redirect('/admin/images');
-        }
-
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-        if ($ext !== 'svg') {
-            $_SESSION['admin_images_flash'] = 'File must have an .svg extension.';
+        if ($error !== null) {
+            $_SESSION['admin_images_flash'] = $error;
             $this->redirect('/admin/images');
         }
 
@@ -1314,28 +1348,15 @@ class AdminController extends BaseController
         $file        = $_FILES['vector_file'] ?? null;
         $description = trim($_POST['description'] ?? '');
 
-        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['admin_images_flash'] = 'No file uploaded or upload error occurred.';
+        if ($file === null) {
+            $_SESSION['admin_images_flash'] = 'No file uploaded.';
             $this->redirect('/admin/images');
         }
 
-        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($file['tmp_name']);
+        $error = $this->validateSvgUpload($file);
 
-        if ($mimeType !== 'image/svg+xml') {
-            $_SESSION['admin_images_flash'] = 'Only SVG files are allowed.';
-            $this->redirect('/admin/images');
-        }
-
-        if ($file['size'] > 1_048_576) {
-            $_SESSION['admin_images_flash'] = 'File must be under 1 MB.';
-            $this->redirect('/admin/images');
-        }
-
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-        if ($ext !== 'svg') {
-            $_SESSION['admin_images_flash'] = 'File must have an .svg extension.';
+        if ($error !== null) {
+            $_SESSION['admin_images_flash'] = $error;
             $this->redirect('/admin/images');
         }
 

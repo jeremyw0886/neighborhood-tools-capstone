@@ -44,6 +44,10 @@ storage/rate-limits/*.json
 !storage/rate-limits/.gitkeep
 !storage/rate-limits/.htaccess
 
+# Session files
+storage/sessions/*
+!storage/sessions/.gitkeep
+
 # Local test files
 local_testing/
 seed_images/

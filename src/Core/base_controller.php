@@ -80,6 +80,9 @@ class BaseController
             }
         }
 
+        $flashError = $_SESSION['_flash_error'] ?? null;
+        unset($_SESSION['_flash_error']);
+
         return [
             'isLoggedIn'  => $isLoggedIn,
             'authUser'    => $authUser,
@@ -89,6 +92,7 @@ class BaseController
             'tosAccepted' => $tosAccepted,
             'unreadCount' => self::$cachedUnreadCount,
             'backUrl'     => $backUrl,
+            'flashError'  => $flashError,
         ];
     }
 
@@ -174,6 +178,18 @@ class BaseController
      */
     protected function validateCsrf(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST'
+            && empty($_POST)
+            && isset($_SERVER['CONTENT_LENGTH'])
+            && (int) $_SERVER['CONTENT_LENGTH'] > 0
+        ) {
+            $maxSize = ini_get('post_max_size') ?: '8M';
+            $_SESSION['_flash_error'] = "Upload too large (server limit: {$maxSize}). Please choose a smaller file.";
+            $referer = $_SERVER['HTTP_REFERER'] ?? '';
+            $path = parse_url($referer, PHP_URL_PATH);
+            $this->redirect(is_string($path) && $path !== '' ? $path : '/');
+        }
+
         $posted  = $_POST['csrf_token'] ?? '';
         $session = $_SESSION['csrf_token'] ?? '';
 

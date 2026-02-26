@@ -58,6 +58,12 @@ $sessionOptions = [
     'cookie_lifetime'  => 0,
 ];
 
+$sessionSavePath = BASE_PATH . '/storage/sessions';
+
+if (is_dir($sessionSavePath) && is_writable($sessionSavePath)) {
+    session_save_path($sessionSavePath);
+}
+
 session_cache_limiter('');
 session_start($sessionOptions);
 

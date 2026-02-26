@@ -221,7 +221,8 @@ function minifyCss(string $css): string
 
     $css = preg_replace('#/\*.*?\*/#s', '', $css);
     $css = preg_replace('#\s+#', ' ', $css);
-    $css = preg_replace('#\s*([{}:;,>~])\s*#', '$1', $css);
+    $css = preg_replace('#\s*([{};,>~])\s*#', '$1', $css);
+    $css = preg_replace('#:\s+#', ':', $css);
     $css = str_replace(';}', '}', $css);
     $css = preg_replace('#\s*!\s*important#', '!important', $css);
     $css = preg_replace('#(?<![a-zA-Z0-9.\-])0(?:px|em|rem|%|pt|ex|ch|vw|vh|vmin|vmax)#', '0', $css);

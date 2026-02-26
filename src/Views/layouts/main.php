@@ -16,8 +16,9 @@
     <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
     <?php endif; ?>
     <?php foreach ($pageCss ?? [] as $cssFile): ?>
-    <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>" as="style">
-    <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>">
+    <?php $cssHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $cssFile : str_replace('.css', '.min.css', $cssFile); ?>
+    <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>" as="style">
+    <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
     <?php endforeach; ?>
 </head>
 <body>
@@ -55,9 +56,11 @@
   <?php foreach ($cdnJs ?? [] as $cdnUrl): ?>
   <script src="<?= htmlspecialchars($cdnUrl) ?>" defer></script>
   <?php endforeach; ?>
-  <script src="/assets/js/nav.js?v=<?= ASSET_VERSION ?>" defer></script>
+  <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
+  <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
-  <script src="/assets/js/<?= htmlspecialchars($jsFile) ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>
+  <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer></script>
   <?php endforeach; ?>
 
 </body>

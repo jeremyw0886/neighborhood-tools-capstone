@@ -33,10 +33,11 @@ error_log
 *.swp
 
 # User uploads (keep directory structure via .gitkeep)
-uploads/incidents/*
-uploads/profiles/*
-uploads/tools/*
-!uploads/**/.gitkeep
+public/uploads/incidents/*
+public/uploads/profiles/*
+public/uploads/tools/*
+public/uploads/vectors/*
+!public/uploads/**/.gitkeep
 
 # Rate limit data files
 storage/rate-limits/*.json

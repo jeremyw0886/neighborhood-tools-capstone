@@ -249,7 +249,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                   <button type="submit"
                     <?php if ($toolCount > 0): ?>
-                      title="<?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> use this category — reassign tools first"
+                      data-confirm="<?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> use this category. They will be uncategorized after deletion."
                     <?php endif; ?>>
                     <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
                   </button>

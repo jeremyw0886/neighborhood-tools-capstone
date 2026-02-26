@@ -85,6 +85,7 @@ class Dispute
         $sql = "
             SELECT
                 id_dsp,
+                tool_name_tol,
                 reporter_name,
                 borrower_name,
                 lender_name,
@@ -94,6 +95,7 @@ class Dispute
             WHERE reporter_name LIKE CONCAT('%', :term1, '%')
                OR borrower_name LIKE CONCAT('%', :term2, '%')
                OR lender_name   LIKE CONCAT('%', :term3, '%')
+               OR tool_name_tol LIKE CONCAT('%', :term4, '%')
             ORDER BY days_open DESC
             LIMIT :limit
         ";
@@ -102,6 +104,7 @@ class Dispute
         $stmt->bindValue(':term1', $term);
         $stmt->bindValue(':term2', $term);
         $stmt->bindValue(':term3', $term);
+        $stmt->bindValue(':term4', $term);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

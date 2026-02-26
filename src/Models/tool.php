@@ -29,6 +29,7 @@ class Tool
                 COALESCE(rs.avg_rating, 0) AS avg_rating,
                 av.owner_name,
                 aim.file_name_aim AS owner_avatar,
+                avv.file_name_avv AS owner_vector_avatar,
                 (SELECT MIN(c.category_name_cat)
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
@@ -47,6 +48,8 @@ class Tool
             ) rs ON av.id_tol = rs.id_tol_trt
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = av.owner_id AND aim.is_primary_aim = 1
+            LEFT JOIN account_acc acc_avv ON av.owner_id = acc_avv.id_acc
+            LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
             ORDER BY avg_rating DESC, av.created_at_tol DESC
             LIMIT :limit
         ";
@@ -147,6 +150,7 @@ class Tool
                 CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
                 a.zip_code_acc AS owner_zip,
                 aim.file_name_aim AS owner_avatar,
+                avv.file_name_avv AS owner_vector_avatar,
                 tim.file_name_tim AS primary_image,
                 (SELECT COALESCE(AVG(trt.score_trt), 0)
                    FROM tool_rating_trt trt
@@ -171,6 +175,7 @@ class Tool
                    ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
             LEFT JOIN account_image_aim aim
                    ON aim.id_acc_aim = t.id_acc_tol AND aim.is_primary_aim = 1
+            LEFT JOIN avatar_vector_avv avv ON a.id_avv_acc = avv.id_avv
         ";
 
         if ($categoryId !== null) {
@@ -262,10 +267,13 @@ class Tool
         $stmt = $pdo->prepare("
             SELECT t.id_tol,
                    t.id_acc_tol AS owner_id,
-                   aim.file_name_aim AS owner_avatar
+                   aim.file_name_aim AS owner_avatar,
+                   avv.file_name_avv AS owner_vector_avatar
             FROM tool_tol t
+            JOIN account_acc a ON t.id_acc_tol = a.id_acc
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = t.id_acc_tol AND aim.is_primary_aim = 1
+            LEFT JOIN avatar_vector_avv avv ON a.id_avv_acc = avv.id_avv
             WHERE t.id_tol IN ({$placeholders})
         ");
 
@@ -282,8 +290,9 @@ class Tool
 
         foreach ($results as &$row) {
             $extra = $enrichMap[(int) $row['id_tol']] ?? [];
-            $row['owner_id']     = $extra['owner_id'] ?? null;
-            $row['owner_avatar'] = $extra['owner_avatar'] ?? null;
+            $row['owner_id']             = $extra['owner_id'] ?? null;
+            $row['owner_avatar']         = $extra['owner_avatar'] ?? null;
+            $row['owner_vector_avatar']  = $extra['owner_vector_avatar'] ?? null;
         }
         unset($row);
 
@@ -451,6 +460,7 @@ class Tool
                 td.tool_condition,
                 td.owner_name,
                 aim.file_name_aim AS owner_avatar,
+                avv.file_name_avv AS owner_vector_avatar,
                 (SELECT MIN(c.category_name_cat)
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
@@ -463,6 +473,8 @@ class Tool
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
+            LEFT JOIN account_acc acc_avv ON td.owner_id = acc_avv.id_acc
+            LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
             WHERE td.owner_id = :ownerId
             ORDER BY td.created_at_tol DESC
             LIMIT :limit OFFSET :offset
@@ -997,10 +1009,13 @@ class Tool
         $sql = "
             SELECT
                 td.*,
-                aim.file_name_aim AS owner_avatar
+                aim.file_name_aim AS owner_avatar,
+                avv.file_name_avv AS owner_vector_avatar
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
+            LEFT JOIN account_acc acc_avv ON td.owner_id = acc_avv.id_acc
+            LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
             WHERE td.id_tol = :id
         ";
 

@@ -592,6 +592,49 @@ class ToolController extends BaseController
     }
 
     /**
+     * Toggle a tool's listing status between listed and unlisted.
+     */
+    public function toggleListing(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->abort(404);
+        }
+
+        $tool = null;
+
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::toggleListing fetch — ' . $e->getMessage());
+        }
+
+        if ($tool === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            $this->abort(403);
+        }
+
+        try {
+            Tool::toggleAvailability($toolId);
+
+            $newState = $tool['is_available_tol'] ? 'unlisted' : 're-listed';
+            $_SESSION['avb_success'] = 'Tool ' . $newState . ' successfully.';
+
+            $this->redirect('/tools/' . $toolId . '/availability');
+        } catch (\Throwable $e) {
+            error_log('ToolController::toggleListing — ' . $e->getMessage());
+            $this->abort(500);
+        }
+    }
+
+    /**
      * Handle tool listing form submission.
      *
      * Validates input, processes optional image upload, creates the tool

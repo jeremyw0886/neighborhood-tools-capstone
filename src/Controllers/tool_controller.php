@@ -839,9 +839,6 @@ class ToolController extends BaseController
             IMAGETYPE_PNG  => imagepng($canvas, $path, 6),
             IMAGETYPE_WEBP => imagewebp($canvas, $path, 82),
         };
-
-        imagedestroy($source);
-        imagedestroy($canvas);
     }
 
     /**

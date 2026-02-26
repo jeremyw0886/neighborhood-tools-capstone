@@ -369,7 +369,7 @@
 
   /* ── Shared sub-navigation (dashboard + admin) ── */
 
-  nav:is([aria-label="Dashboard sections"], [aria-label="Admin navigation"]) {
+  nav:is([aria-label="Dashboard navigation"], [aria-label="Admin navigation"]) {
     --subnav-border: 2px;
 
     border-block-end: var(--subnav-border) solid var(--mountain-fog);

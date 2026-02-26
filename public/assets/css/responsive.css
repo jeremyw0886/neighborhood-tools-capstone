@@ -454,7 +454,7 @@
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
       #loan-status
-    ) > nav[aria-label="Dashboard sections"] > ul {
+    ) > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] > ul {
       gap: 0;
     }
 
@@ -464,7 +464,7 @@
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
       #loan-status
-    ) > nav[aria-label="Dashboard sections"] > ul > li > a {
+    ) > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] > ul > li > a {
       font-size: 0.813rem;
       padding-inline: 0.625rem;
     }
@@ -685,7 +685,7 @@
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
       #loan-status
-    ) > nav[aria-label="Dashboard sections"] > ul > li > a > i {
+    ) > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] > ul > li > a > i {
       display: none;
     }
   }

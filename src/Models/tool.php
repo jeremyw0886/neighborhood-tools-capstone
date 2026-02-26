@@ -726,11 +726,26 @@ class Tool
     }
 
     /**
-     * Fetch the primary category ID for a tool.
+     * Flip a tool's listing flag between listed and unlisted.
      *
-     * The tool_detail_v view returns category names as a GROUP_CONCAT string,
-     * which isn't useful for pre-selecting a <select>. This queries the
-     * junction table directly for the first assigned category ID.
+     * @param int $toolId Tool primary key
+     */
+    public static function toggleAvailability(int $toolId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE tool_tol
+            SET is_available_tol = NOT is_available_tol
+            WHERE id_tol = :id
+        ");
+
+        $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Fetch the primary category ID for a tool.
      *
      * @param  int  $toolId  Tool primary key
      * @return ?int          Category ID, or null if none assigned

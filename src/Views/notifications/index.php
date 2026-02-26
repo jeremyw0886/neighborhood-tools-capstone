@@ -107,7 +107,7 @@ $paginationUrl = static fn(int $pageNum): string =>
 
   <?php if (!empty($notifications)): ?>
 
-    <ol>
+    <ol start="<?= $rangeStart ?>">
       <?php foreach ($notifications as $ntf):
         $isRead = !empty($ntf['is_read_ntf']);
         $type   = $ntf['notification_type'] ?? 'request';

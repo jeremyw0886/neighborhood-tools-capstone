@@ -110,7 +110,7 @@ class ProfileController extends BaseController
         $this->render('profile/show', [
             'title'         => htmlspecialchars($profile['full_name']) . ' — NeighborhoodTools',
             'description'   => 'View ' . htmlspecialchars($profile['first_name']) . "'s profile, tools, and ratings on NeighborhoodTools.",
-            'pageCss'       => ['profile.css'],
+            'pageCss'       => ['dashboard.css', 'profile.css'],
             'profile'       => $profile,
             'reputation'    => $reputation,
             'isOwnProfile'  => $isOwnProfile,
@@ -156,7 +156,7 @@ class ProfileController extends BaseController
         $this->render('profile/edit', [
             'title'         => 'Edit Profile — NeighborhoodTools',
             'description'   => 'Edit your NeighborhoodTools profile.',
-            'pageCss'       => ['profile.css'],
+            'pageCss'       => ['dashboard.css', 'profile.css'],
             'profile'       => $profile,
             'preferences'   => $preferences,
             'meta'          => $meta,

@@ -46,64 +46,68 @@ $rangeStart = $totalTools > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalTools);
 ?>
 
-<?php if (!empty($profileNotice)): ?>
-  <section aria-label="Notice">
-    <p><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($profileNotice) ?></p>
-  </section>
-<?php endif; ?>
-
 <article aria-labelledby="profile-heading">
-
+  
   <header>
     <img src="<?= htmlspecialchars($avatarSrc) ?>"
-         alt="<?= htmlspecialchars($avatarAlt) ?>"
-         width="150" height="150"
-         decoding="async">
-
+    alt="<?= htmlspecialchars($avatarAlt) ?>"
+    width="150" height="150"
+    decoding="async">
+    
     <div>
       <h1 id="profile-heading"><?= htmlspecialchars($profile['full_name']) ?></h1>
-
+      
       <?php if ($locationStr !== ''): ?>
         <p>
           <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
           <?= htmlspecialchars($locationStr) ?>
         </p>
-      <?php endif; ?>
-
-      <p>
-        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-        <time datetime="<?= htmlspecialchars($profile['member_since']) ?>">
-          Member since <?= date('F Y', strtotime($profile['member_since'])) ?>
-        </time>
-      </p>
-
-      <?php if ($profile['active_tool_count'] > 0): ?>
+        <?php endif; ?>
+        
         <p>
-          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
-          <?= htmlspecialchars((string) $profile['active_tool_count']) ?> tool<?= $profile['active_tool_count'] !== 1 ? 's' : '' ?> listed
+          <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+          <time datetime="<?= htmlspecialchars($profile['member_since']) ?>">
+            Member since <?= date('F Y', strtotime($profile['member_since'])) ?>
+          </time>
         </p>
-      <?php endif; ?>
-
-      <?php if ($reputation !== null && (int) ($reputation['completed_borrows'] ?? 0) > 0): ?>
-        <p>
-          <i class="fa-solid fa-handshake" aria-hidden="true"></i>
-          <?= (int) $reputation['completed_borrows'] ?> completed borrow<?= (int) $reputation['completed_borrows'] !== 1 ? 's' : '' ?>
-        </p>
-      <?php endif; ?>
-
-      <?php if ($isOwnProfile): ?>
-        <a href="/profile/edit">
-          <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
-        </a>
-      <?php endif; ?>
-    </div>
-  </header>
-
-  <section aria-labelledby="ratings-heading">
-    <h2 id="ratings-heading"><i class="fa-solid fa-star" aria-hidden="true"></i> Ratings</h2>
-
-    <div>
-      <div>
+        
+        <?php if ($profile['active_tool_count'] > 0): ?>
+          <p>
+            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
+            <?= htmlspecialchars((string) $profile['active_tool_count']) ?> tool<?= $profile['active_tool_count'] !== 1 ? 's' : '' ?> listed
+          </p>
+          <?php endif; ?>
+          
+          <?php if ($reputation !== null && (int) ($reputation['completed_borrows'] ?? 0) > 0): ?>
+            <p>
+              <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+              <?= (int) $reputation['completed_borrows'] ?> completed borrow<?= (int) $reputation['completed_borrows'] !== 1 ? 's' : '' ?>
+            </p>
+            <?php endif; ?>
+            
+            <?php if ($isOwnProfile): ?>
+              <a href="/profile/edit">
+                <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
+              </a>
+              <?php endif; ?>
+            </div>
+          </header>
+          
+            <?php if ($isLoggedIn): ?>
+              <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
+            <?php else: ?>
+              <div data-dashboard-body>
+            <?php endif; ?>
+          
+            <?php if (!empty($profileNotice)): ?>
+              <p role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($profileNotice) ?></p>
+            <?php endif; ?>
+          
+          <section aria-labelledby="ratings-heading">
+            <h2 id="ratings-heading"><i class="fa-solid fa-star" aria-hidden="true"></i> Ratings</h2>
+            
+            <div>
+              <div>
         <h3>As a Lender</h3>
         <?php if ($profile['lender_rating'] !== null): ?>
           <p>
@@ -273,4 +277,5 @@ $rangeEnd   = min($page * $perPage, $totalTools);
     <?php endif; ?>
   </section>
 
+  </div>
 </article>

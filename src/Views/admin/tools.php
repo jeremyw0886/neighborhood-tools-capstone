@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin — Tool management with analytics from tool_statistics_fast_v.
  *
@@ -34,25 +35,25 @@ $rangeEnd   = min($page * $perPage, $totalCount);
 $basePath = '/admin/tools';
 
 $sortLabels = [
-    'tool_name_tol'  => 'Name',
-    'owner_name'     => 'Owner',
-    'tool_condition'  => 'Condition',
-    'rental_fee_tol' => 'Fee',
-    'avg_rating'     => 'Rating',
-    'total_borrows'  => 'Borrows',
-    'incident_count' => 'Incidents',
-    'created_at_tol' => 'Listed',
+  'tool_name_tol'  => 'Name',
+  'owner_name'     => 'Owner',
+  'tool_condition'  => 'Condition',
+  'rental_fee_tol' => 'Fee',
+  'avg_rating'     => 'Rating',
+  'total_borrows'  => 'Borrows',
+  'incident_count' => 'Incidents',
+  'created_at_tol' => 'Listed',
 ];
 
 $sortToColumn = [
-    'tool_name_tol'  => 0,
-    'owner_name'     => 1,
-    'tool_condition'  => 2,
-    'rental_fee_tol' => 3,
-    'avg_rating'     => 4,
-    'total_borrows'  => 5,
-    'incident_count' => 6,
-    'created_at_tol' => 7,
+  'tool_name_tol'  => 0,
+  'owner_name'     => 1,
+  'tool_condition'  => 2,
+  'rental_fee_tol' => 3,
+  'avg_rating'     => 4,
+  'total_borrows'  => 5,
+  'incident_count' => 6,
+  'created_at_tol' => 7,
 ];
 
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
@@ -78,32 +79,27 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
       <div>
         <label for="tools-search">Search</label>
         <input type="search" id="tools-search" name="q"
-               value="<?= htmlspecialchars($search ?? '') ?>"
-               placeholder="Tool name or owner…"
-               autocomplete="off">
+          value="<?= htmlspecialchars($search ?? '') ?>"
+          placeholder="Tool name or owner…"
+          autocomplete="off">
       </div>
 
       <div>
         <label for="tools-condition">Condition</label>
         <select id="tools-condition" name="condition">
           <option value="">All Conditions</option>
-          <option value="new"<?= $condition === 'new' ? ' selected' : '' ?>>New</option>
-          <option value="good"<?= $condition === 'good' ? ' selected' : '' ?>>Good</option>
-          <option value="fair"<?= $condition === 'fair' ? ' selected' : '' ?>>Fair</option>
-          <option value="poor"<?= $condition === 'poor' ? ' selected' : '' ?>>Poor</option>
+          <option value="new" <?= $condition === 'new' ? ' selected' : '' ?>>New</option>
+          <option value="good" <?= $condition === 'good' ? ' selected' : '' ?>>Good</option>
+          <option value="fair" <?= $condition === 'fair' ? ' selected' : '' ?>>Fair</option>
+          <option value="poor" <?= $condition === 'poor' ? ' selected' : '' ?>>Poor</option>
         </select>
-      </div>
-
-      <div>
-        <input type="checkbox" id="tools-incidents" name="incidents" value="1"<?= $incidentsOnly ? ' checked' : '' ?>>
-        <label for="tools-incidents">Incidents only</label>
       </div>
 
       <div>
         <label for="tools-sort">Sort By</label>
         <select id="tools-sort" name="sort">
           <?php foreach ($sortLabels as $value => $label): ?>
-            <option value="<?= htmlspecialchars($value) ?>"<?= $sort === $value ? ' selected' : '' ?>>
+            <option value="<?= htmlspecialchars($value) ?>" <?= $sort === $value ? ' selected' : '' ?>>
               <?= htmlspecialchars($label) ?>
             </option>
           <?php endforeach; ?>
@@ -113,9 +109,14 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
       <div>
         <label for="tools-dir">Direction</label>
         <select id="tools-dir" name="dir">
-          <option value="asc"<?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
-          <option value="desc"<?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
+          <option value="asc" <?= $dir === 'ASC' ? ' selected' : '' ?>>Ascending</option>
+          <option value="desc" <?= $dir === 'DESC' ? ' selected' : '' ?>>Descending</option>
         </select>
+      </div>
+
+      <div>
+        <input type="checkbox" id="tools-incidents" name="incidents" value="1" <?= $incidentsOnly ? ' checked' : '' ?>>
+        <label for="tools-incidents">Incidents only</label>
       </div>
 
       <button type="submit">
@@ -145,7 +146,7 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
           foreach ($columns as $i => $label):
             $isSorted = isset($sortToColumn[$sort]) && $sortToColumn[$sort] === $i;
           ?>
-            <th scope="col"<?= $isSorted ? ' aria-sort="' . $ariaSortDir . '"' : '' ?>><?= $label ?></th>
+            <th scope="col" <?= $isSorted ? ' aria-sort="' . $ariaSortDir . '"' : '' ?>><?= $label ?></th>
           <?php endforeach; ?>
         </tr>
       </thead>
@@ -195,8 +196,8 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
                 <?= htmlspecialchars(date('M j, Y', strtotime($tool['created_at_tol']))) ?>
               </time>
             </td>
-          </tr>
-        <?php endforeach; ?>
+            </tr>
+          <?php endforeach; ?>
       </tbody>
     </table>
 
@@ -221,5 +222,5 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
 
   <?php endif; ?>
 
-</div>
+  </div>
 </section>

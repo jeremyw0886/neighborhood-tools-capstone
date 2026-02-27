@@ -150,7 +150,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
   <?php if (!empty($profile['bio'])): ?>
     <section aria-labelledby="bio-heading">
       <h2 id="bio-heading"><i class="fa-solid fa-user" aria-hidden="true"></i> About</h2>
-      <p><?= nl2br(htmlspecialchars($profile['bio'])) ?></p>
+      <p><?= nl2br(htmlspecialchars($profile['bio']), false) ?></p>
     </section>
   <?php endif; ?>
 

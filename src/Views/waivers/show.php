@@ -77,7 +77,7 @@ $depositAmount = $waiver['default_deposit_amount_tol'];
         Pre-existing Conditions
       </h2>
       <blockquote>
-        <?= nl2br(htmlspecialchars($conditions)) ?>
+        <?= nl2br(htmlspecialchars($conditions), false) ?>
       </blockquote>
     </section>
   <?php endif; ?>

@@ -171,7 +171,7 @@ $typeIcon  = $typeIcons[$incident['incident_type']] ?? 'fa-circle-question';
       Description
     </h2>
     <div>
-      <?= nl2br(htmlspecialchars($description)) ?>
+      <?= nl2br(htmlspecialchars($description), false) ?>
     </div>
   </section>
 
@@ -182,7 +182,7 @@ $typeIcon  = $typeIcons[$incident['incident_type']] ?? 'fa-circle-question';
         Resolution
       </h2>
       <div>
-        <?= nl2br(htmlspecialchars($incident['resolution_notes_irt'])) ?>
+        <?= nl2br(htmlspecialchars($incident['resolution_notes_irt']), false) ?>
       </div>
     </section>
   <?php endif; ?>

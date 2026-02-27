@@ -23,7 +23,7 @@
         padding-inline: 1rem;
       }
 
-      & > ul > li[role="separator"] {
+      & > ul > li[data-separator] {
         display: none;
       }
     }
@@ -360,7 +360,7 @@
         padding-inline: 1rem;
       }
 
-      & > ul > li[role="separator"] {
+      & > ul > li[data-separator] {
         display: none;
       }
     }

@@ -33,7 +33,7 @@ $isHero = !empty($heroPage);
     <span aria-hidden="true"></span>
   </button>
 
-  <ul id="top-links" role="list">
+  <ul id="top-links">
     <li>
       <a href="/"<?= $currentPage === '/' ? ' aria-current="page"' : '' ?>>
         <i class="fa-solid fa-house" aria-hidden="true"></i> Home
@@ -44,7 +44,7 @@ $isHero = !empty($heroPage);
         <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Tools
       </a>
     </li>
-    <li role="separator" aria-hidden="true"></li>
+    <li data-separator aria-hidden="true"></li>
     <li>
       <a href="/how-to"
          data-modal="how-to"<?= $currentPage === '/how-to' ? ' aria-current="page"' : '' ?>>

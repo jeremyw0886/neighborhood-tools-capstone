@@ -156,7 +156,7 @@ $days = (int) $event['days_until_event'];
   <?php if ($event['event_description_evt'] !== null && $event['event_description_evt'] !== ''): ?>
     <section aria-label="Description">
       <h2>About This Event</h2>
-      <p><?= nl2br(htmlspecialchars($event['event_description_evt'])) ?></p>
+      <p><?= nl2br(htmlspecialchars($event['event_description_evt']), false) ?></p>
     </section>
   <?php endif; ?>
 

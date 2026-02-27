@@ -16,7 +16,7 @@
  * Standalone pages use the default 'h2' to sit directly under the page <h1>.
  *
  * Content is stored as plain text with \n line breaks — rendered
- * via nl2br(htmlspecialchars()) for safety. The data-legal attribute
+ * via nl2br(htmlspecialchars(), false) for safety. The data-legal attribute
  * hooks into modal.css's legal document formatting rules.
  */
 $contentHeadingLevel ??= 'h2';
@@ -32,12 +32,12 @@ $contentHeadingLevel ??= 'h2';
   <?php if (!empty($tos['summary_tos'])): ?>
   <section>
     <<?= $contentHeadingLevel ?>>Summary</<?= $contentHeadingLevel ?>>
-    <p><?= nl2br(htmlspecialchars($tos['summary_tos'])) ?></p>
+    <p><?= nl2br(htmlspecialchars($tos['summary_tos']), false) ?></p>
   </section>
   <?php endif; ?>
 
   <section>
     <<?= $contentHeadingLevel ?>>Full Terms</<?= $contentHeadingLevel ?>>
-    <?= nl2br(htmlspecialchars($tos['content_tos'])) ?>
+    <?= nl2br(htmlspecialchars($tos['content_tos']), false) ?>
   </section>
 </div>

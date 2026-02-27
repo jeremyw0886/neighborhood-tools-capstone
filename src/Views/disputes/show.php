@@ -147,7 +147,7 @@ $typeIcons = [
               <time datetime="<?= htmlspecialchars($msg['created_at_dsm']) ?>"><?= $timestamp ?></time>
             </header>
             <div>
-              <?= nl2br(htmlspecialchars($msg['message_text_dsm'])) ?>
+              <?= nl2br(htmlspecialchars($msg['message_text_dsm']), false) ?>
             </div>
           </li>
         <?php endforeach; ?>

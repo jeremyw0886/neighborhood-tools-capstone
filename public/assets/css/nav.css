@@ -138,7 +138,7 @@
       }
 
       /* Visual separator between link groups */
-      & > li[role="separator"] {
+      & > li[data-separator] {
         background: rgba(255, 255, 255, 0.2);
         height: 1rem;
         width: 1px;

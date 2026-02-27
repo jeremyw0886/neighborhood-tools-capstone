@@ -14,7 +14,7 @@
     <li><a href="/dashboard/lender"<?= $currentPage === '/dashboard/lender' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-hand-holding" aria-hidden="true"></i> My Tools</a></li>
     <li><a href="/dashboard/borrower"<?= $currentPage === '/dashboard/borrower' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-hand" aria-hidden="true"></i> My Borrows</a></li>
     <li><a href="/dashboard/history"<?= $currentPage === '/dashboard/history' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History</a></li>
-    <li role="separator"></li>
+    <li data-separator aria-hidden="true"></li>
     <li><a href="/profile/<?= htmlspecialchars((string) $authUser['id']) ?>"<?= str_starts_with($currentPage, '/profile') ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-id-card" aria-hidden="true"></i> My Profile</a></li>
     <li><a href="/bookmarks"<?= $currentPage === '/bookmarks' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bookmarks</a></li>
     <li><a href="/events"<?= str_starts_with($currentPage, '/events') ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Events</a></li>

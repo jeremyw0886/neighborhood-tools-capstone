@@ -213,7 +213,7 @@
       padding: 0;
     }
 
-    nav > #top-links > li[role="separator"] {
+    nav > #top-links > li[data-separator] {
       background: none;
       border-block-end: none;
       border-block-start: 1px solid rgba(255, 255, 255, 0.2);

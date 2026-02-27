@@ -103,14 +103,14 @@ $bookmarkFlash ??= '';
     <?php if (!empty($tool['tool_description_tol'])): ?>
       <section aria-label="Description">
         <h2>About This Tool</h2>
-        <p><?= nl2br(htmlspecialchars($tool['tool_description_tol'])) ?></p>
+        <p><?= nl2br(htmlspecialchars($tool['tool_description_tol']), false) ?></p>
       </section>
     <?php endif; ?>
 
     <?php if (!empty($tool['preexisting_conditions_tol'])): ?>
       <section aria-label="Known conditions">
         <h2>Known Conditions</h2>
-        <p><?= nl2br(htmlspecialchars($tool['preexisting_conditions_tol'])) ?></p>
+        <p><?= nl2br(htmlspecialchars($tool['preexisting_conditions_tol']), false) ?></p>
       </section>
     <?php endif; ?>
 

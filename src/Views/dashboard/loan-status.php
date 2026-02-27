@@ -197,7 +197,7 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
 
       <?php if ($borrow['notes_text_bor'] !== null && $borrow['notes_text_bor'] !== ''): ?>
         <dt>Notes</dt>
-        <dd><?= nl2br(htmlspecialchars($borrow['notes_text_bor'])) ?></dd>
+        <dd><?= nl2br(htmlspecialchars($borrow['notes_text_bor']), false) ?></dd>
       <?php endif; ?>
     </dl>
   </section>

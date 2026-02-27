@@ -129,7 +129,7 @@
   }
 
   /* ── HERO CONTENT ── */
-  .home-page > header > section > section {
+  .home-page > header > section > div {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -800,12 +800,12 @@
   }
 
   @media (orientation: portrait) and (max-width: 1000px) {
-    .home-page > header > section > section > div {
+    .home-page > header > section > div > div {
       align-items: center;
       flex-direction: column;
     }
 
-    .home-page > header > section > section > div > a {
+    .home-page > header > section > div > div > a {
       max-width: 280px;
       width: 100%;
     }
@@ -828,12 +828,12 @@
       inset-inline: -1rem;
     }
 
-    .home-page > header > section > section > div {
+    .home-page > header > section > div > div {
       align-items: center;
       flex-direction: column;
     }
 
-    .home-page > header > section > section > div > a {
+    .home-page > header > section > div > div > a {
       max-width: 280px;
       width: 100%;
     }
@@ -943,7 +943,7 @@
       inset-inline: -0.75rem;
     }
 
-    .home-page > header > section > section > div > a {
+    .home-page > header > section > div > div > a {
       font-size: 0.9rem;
       padding: 0.625rem 1.25rem;
     }
@@ -1004,11 +1004,11 @@
       background: var(--mountain-pine-dark);
     }
 
-    .home-page > header > section > section > h1 {
+    .home-page > header > section > div > h1 {
       text-shadow: none;
     }
 
-    .home-page > header > section > section > p {
+    .home-page > header > section > div > p {
       opacity: 1;
       text-shadow: none;
     }

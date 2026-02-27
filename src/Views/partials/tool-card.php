@@ -1,7 +1,7 @@
 <?php $isBookmarked = isset($bookmarkedIds) && in_array((int) $tool['id_tol'], $bookmarkedIds, true); ?>
 <?php $isEager = !empty($eagerLoad); $eagerLoad = false; ?>
 <?php $headingTag = $cardHeadingLevel ?? 'h2'; ?>
-<article role="listitem">
+<article>
   <figure>
     <?php if (!empty($tool['primary_image'])):
       $imgFile = htmlspecialchars($tool['primary_image']);

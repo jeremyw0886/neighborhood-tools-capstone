@@ -76,7 +76,7 @@
         padding-inline: 1rem;
       }
 
-      & > ul > li[role="separator"] {
+      & > ul > li[data-separator] {
         display: none;
       }
     }
@@ -151,7 +151,7 @@
             }
           }
 
-          & > li[role="separator"] {
+          & > li[data-separator] {
             border-block-start: 1px solid var(--mountain-fog);
             display: block;
             margin-block: 0.5rem;

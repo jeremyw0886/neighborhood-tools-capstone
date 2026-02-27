@@ -9,11 +9,11 @@ $bookmarkFlash    ??= '';
 ?>
 
 <div class="home-page">
-  <header role="banner">
+  <header>
     <section aria-label="Hero section">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
-      <section aria-labelledby="hero-heading">
-        <h1 id="hero-heading">Share Tools,<br> 
+      <div>
+        <h1 id="hero-heading">Share Tools,<br>
           Build Community</h1>
         <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
         <div>
@@ -30,7 +30,7 @@ $bookmarkFlash    ??= '';
           <input type="search" id="search-tools" name="q" placeholder="Search tools near you ...">
           <button type="submit"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
         </form>
-      </section>
+      </div>
     </section>
     <aside aria-labelledby="sidebar-heading">
       <?php if ($isNearbyFallback): ?>
@@ -102,7 +102,7 @@ $bookmarkFlash    ??= '';
     </aside>
   </header>
 
-  <main id="main-content" role="main">
+  <main id="main-content">
     <?php if (!empty($bookmarkFlash)): ?>
       <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
     <?php endif; ?>

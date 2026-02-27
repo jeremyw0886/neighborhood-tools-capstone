@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
     <?php endforeach; ?>
 </head>
-<body>
+<body id="top">
 
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -43,9 +43,7 @@
   </main>
   <?php endif; ?>
 
-  <footer>
-    <p>&copy; <?= date('Y') ?> NeighborhoodTools. Share tools, build community.</p>
-  </footer>
+  <?php require BASE_PATH . '/src/Views/partials/footer.php'; ?>
 
   <?php
     $modalPartials = ['modal-how-to.php', 'modal-faq.php', 'modal-tos.php'];

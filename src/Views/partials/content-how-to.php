@@ -17,9 +17,10 @@ $contentHeadingLevel ??= 'h2';
   <<?= $contentHeadingLevel ?>>Getting Started</<?= $contentHeadingLevel ?>>
   <p>Creating your account takes just a minute.</p>
   <ol>
-    <li><strong>Sign up.</strong> Provide your name, a username, email address, password, and your ZIP code. If you include a street address, the platform automatically assigns you to your nearest neighborhood.</li>
+    <li><strong>Sign up.</strong> Provide your first and last name, a username, email address, password, and your ZIP code. Optionally add a street address to be assigned to your nearest neighborhood automatically.</li>
     <li><strong>Accept the Terms of Service.</strong> Review and accept the current terms before borrowing or lending. When terms are updated, you&rsquo;ll be prompted to accept the new version.</li>
-    <li><strong>Explore.</strong> Browse available tools in your area, bookmark anything you&rsquo;re interested in, and list your own tools to share with the community.</li>
+    <li><strong>Set up your profile.</strong> Choose an avatar, add a short bio, and set your contact preferences so neighbors know a bit about you.</li>
+    <li><strong>Explore.</strong> Browse available tools by category or location, bookmark anything you&rsquo;re interested in, and list your own tools to share with the community.</li>
   </ol>
 </section>
 
@@ -27,12 +28,14 @@ $contentHeadingLevel ??= 'h2';
   <<?= $contentHeadingLevel ?>>For Borrowers</<?= $contentHeadingLevel ?>>
   <p>Finding and borrowing a tool from your neighbors is straightforward.</p>
   <ol>
-    <li><strong>Search for a tool.</strong> Browse the catalog or use keyword search, category filters, ZIP code, and maximum fee to find what you need nearby.</li>
+    <li><strong>Search for a tool.</strong> Browse the catalog or use keyword search, category filters, ZIP code, distance radius, and maximum fee to find what you need nearby.</li>
     <li><strong>Submit a borrow request.</strong> Choose your loan duration and send a request to the tool&rsquo;s owner. The tool is temporarily held while the lender reviews your request.</li>
     <li><strong>Wait for approval.</strong> The lender reviews your request and reputation, then approves or denies it. You&rsquo;ll receive a notification either way.</li>
     <li><strong>Sign the waiver.</strong> Once approved, acknowledge the tool&rsquo;s current condition and accept a liability waiver before pickup. All three acknowledgments&mdash;borrow terms, condition, and liability&mdash;must be completed.</li>
+    <li><strong>Pay the deposit.</strong> If the lender requires a refundable deposit, complete payment before picking up the tool. Your deposit is held securely and returned once the tool comes back in good condition.</li>
     <li><strong>Pick up the tool.</strong> Coordinate a pickup with the lender. You&rsquo;ll each receive a unique six-character handover code&mdash;exchange codes at the handoff to officially start the loan period.</li>
     <li><strong>Return when done.</strong> Bring the tool back in the same condition. Exchange handover codes again to confirm the return. Any deposit held is released once the lender confirms the tool&rsquo;s condition.</li>
+    <li><strong>Rate the lender.</strong> After the return is confirmed, leave a rating to help build trust across the community.</li>
   </ol>
 </section>
 
@@ -42,9 +45,12 @@ $contentHeadingLevel ??= 'h2';
   <ol>
     <li><strong>List your tool.</strong> Add a photo, description, and the tool&rsquo;s current condition. Assign a category so borrowers can find it easily.</li>
     <li><strong>Set your terms.</strong> Set a rental fee, a suggested loan duration, and optionally require a refundable deposit. These details are displayed on the tool&rsquo;s listing page so borrowers know what to expect.</li>
+    <li><strong>Manage availability.</strong> Block out dates when a tool isn&rsquo;t available, or toggle a listing on and off as needed from your dashboard.</li>
     <li><strong>Review requests.</strong> When someone requests your tool, you&rsquo;ll be notified and can see their profile and reputation on your lender dashboard. Approve or deny each request at your discretion.</li>
     <li><strong>Confirm pickup.</strong> Exchange six-character handover codes with the borrower at pickup to officially start the loan period. Codes expire after 24 hours if unused.</li>
+    <li><strong>Manage the loan.</strong> Track active loans from your dashboard. If the borrower needs more time, you can extend the loan duration.</li>
     <li><strong>Verify the return.</strong> When the tool comes back, inspect its condition and exchange return codes to confirm. If everything checks out, any deposit is released automatically.</li>
+    <li><strong>Rate the borrower.</strong> After the return is confirmed, leave a rating to help the community identify reliable neighbors.</li>
   </ol>
 </section>
 
@@ -58,5 +64,15 @@ $contentHeadingLevel ??= 'h2';
     <li><strong>Ratings &amp; reputation.</strong> After each completed borrow, both lender and borrower can rate each other on a five-star scale. Ratings are averaged and displayed on profiles, building trust across the community.</li>
     <li><strong>Incident reporting.</strong> If something goes wrong&mdash;damage, theft, loss, injury, a late return, or a condition disagreement&mdash;either party can file an incident report within 48 hours of the return.</li>
     <li><strong>Dispute resolution.</strong> When an incident can&rsquo;t be resolved between the parties, a formal dispute can be opened. Both sides and administrators can exchange messages until the issue is resolved or dismissed.</li>
+  </ol>
+</section>
+
+<section>
+  <<?= $contentHeadingLevel ?>>Community</<?= $contentHeadingLevel ?>>
+  <p>NeighborhoodTools is more than borrowing and lending&mdash;it&rsquo;s about building connections with your neighbors.</p>
+  <ol>
+    <li><strong>Neighborhood events.</strong> Members can create and browse local events&mdash;tool workshops, repair meetups, community clean-ups, and more. RSVP to join and meet people nearby.</li>
+    <li><strong>Notifications.</strong> Stay up to date with real-time notifications for borrow requests, approvals, due dates, returns, and more.</li>
+    <li><strong>Your dashboard.</strong> Track everything in one place&mdash;active borrows, pending requests, listed tools, and your reputation score. Separate lender and borrower views keep things organized.</li>
   </ol>
 </section>

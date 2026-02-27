@@ -168,7 +168,7 @@
 
   /* ── TOOL CARD — responsive ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     div[role="list"]:not([data-vector-grid]) > article:has(> figure) {
       height: auto;
       min-height: 200px;

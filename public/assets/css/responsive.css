@@ -4,7 +4,7 @@
 
   /* ── Auth pages ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     .auth-page {
       padding: 1rem;
     }
@@ -38,7 +38,7 @@
 
   /* ── Standalone pages (How To, FAQs, TOS) ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     article[aria-labelledby$="-heading"] > header {
       margin-block-end: 1.5rem;
     }
@@ -281,7 +281,7 @@
 
   /* ── Modals — viewport-level responsive ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     dialog {
       border-radius: 0.75rem;
       height: 90vh;
@@ -350,7 +350,7 @@
 
   /* ── Browse tools page ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     main > section[aria-labelledby="browse-heading"] {
       padding-block: 1.25rem;
       padding-inline: 1rem;
@@ -391,7 +391,7 @@
 
   /* ── Tool create/edit/availability forms ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
       padding-block: 1.25rem;
       padding-inline: 1rem;
@@ -425,7 +425,7 @@
 
   /* ── Dashboard pages ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     main > section:is(
       [aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
@@ -698,7 +698,7 @@
 
   /* ── Deposit pages (detail + payment) ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     #deposit-detail,
     #deposit-payment {
       padding-block: 1.25rem;
@@ -749,7 +749,7 @@
 
   /* ── Notifications page ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     main > section[aria-labelledby="notifications-heading"] {
       padding-block: 1.25rem;
       padding-inline: 1rem;
@@ -801,7 +801,7 @@
 
   /* ── Admin pages ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     main > section:is(
       [aria-labelledby="admin-heading"],
       [aria-labelledby="admin-users-heading"],
@@ -932,7 +932,7 @@
 
   /* ── Profile page ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     main > article[aria-labelledby="profile-heading"] {
       padding-block: 1.25rem;
       padding-inline: 1rem;
@@ -986,7 +986,7 @@
 
   /* ── Site footer ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     body > footer {
       padding: 2rem 1.25rem 1rem;
     }

@@ -908,7 +908,7 @@
   }
 
   /* Phone landscape — very limited vertical space */
-  @media (max-width: 640px) and (orientation: landscape) {
+  @media (max-width: 700px) and (orientation: landscape) {
     .home-page > header > aside {
       height: 200px;
       max-height: 200px;

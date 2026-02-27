@@ -3465,7 +3465,7 @@
 
   /* ── Admin tables — mobile card transformation ── */
 
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
 
     :is(main > section:is([aria-labelledby="admin-users-heading"],
         [aria-labelledby="admin-tools-heading"],

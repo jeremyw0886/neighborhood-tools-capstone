@@ -1,8 +1,7 @@
 @layer components {
 
   #incident-create {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 700px;
     padding: 2rem 1.5rem;
 
@@ -22,8 +21,7 @@
       & > p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-        margin-top: 0.5rem;
-        margin-bottom: 0;
+        margin: 0.5rem 0 0;
 
         & > strong {
           color: var(--mountain-pine);
@@ -46,8 +44,7 @@
     }
 
     & > section[aria-label="Existing incident"] {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
+      padding: 2rem 0;
 
       & > p[role="alert"] {
         background: #fef2f2;
@@ -96,8 +93,7 @@
         border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-top: 0.625rem;
-        padding-bottom: 0.625rem;
+        padding: 0.625rem 0;
 
         &:last-child {
           border-bottom: none;
@@ -142,8 +138,7 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding-left: 0.5rem;
-          padding-right: 0.5rem;
+          padding: 0 0.5rem;
         }
 
         & > div {
@@ -357,8 +352,7 @@
      ============================================================ */
 
   #incident-show {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 800px;
     padding: 2rem 1.5rem;
 
@@ -441,8 +435,7 @@
         border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-top: 0.625rem;
-        padding-bottom: 0.625rem;
+        padding: 0.625rem 0;
 
         &:last-child {
           border-bottom: none;

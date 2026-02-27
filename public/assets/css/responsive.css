@@ -68,8 +68,7 @@
 
   @media (max-width: 700px) {
     nav {
-      padding-left: 0;
-      padding-right: 0;
+      padding: 0;
       position: relative;
     }
 
@@ -221,8 +220,7 @@
       border-bottom: none;
       border-top: 1px solid rgba(255, 255, 255, 0.2);
       height: auto;
-      margin-top: 0.25rem;
-      margin-bottom: 0.25rem;
+      margin: 0.25rem 0;
       padding: 0;
       width: auto;
     }
@@ -312,8 +310,7 @@
     }
 
     dialog details > div {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
   }
 
@@ -373,13 +370,11 @@
 
   @media (max-width: 400px) {
     main > section[aria-labelledby="browse-heading"] {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type {
-      padding-left: 0.75rem;
-      padding-right: 0.1875rem;
+      padding: 0 0.1875rem 0 0.75rem;
     }
 
     main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type > button > span {
@@ -415,8 +410,7 @@
 
   @media (max-width: 400px) {
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
@@ -467,8 +461,7 @@
       #loan-status
     ) > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] > ul > li > a {
       font-size: 0.813rem;
-      padding-left: 0.625rem;
-      padding-right: 0.625rem;
+      padding: 0 0.625rem;
     }
 
     /* Pagination — hide Previous/Next text on mobile */
@@ -592,8 +585,7 @@
     ) table td > details > summary {
       font-size: 0.75rem;
       min-height: 2rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
+      padding: 0 0.5rem;
     }
 
     /* Lifecycle progress — stack vertically on mobile */
@@ -605,8 +597,7 @@
         align-items: flex-start;
         flex-direction: row;
         gap: 0.75rem;
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
+        padding: 0.75rem 0;
         text-align: start;
 
         &::after {
@@ -674,8 +665,7 @@
       [aria-labelledby="history-heading"],
       #loan-status
     ) {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     /* Summary cards — single column on very small screens */
@@ -746,8 +736,7 @@
   @media (max-width: 400px) {
     #deposit-detail,
     #deposit-payment {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
   }
 
@@ -774,8 +763,7 @@
 
     main > section[aria-labelledby="notifications-heading"] > ol > li > article {
       gap: 0.75rem;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     /* Hide prev/next text labels, keep chevron icons */
@@ -787,8 +775,7 @@
 
   @media (max-width: 400px) {
     main > section[aria-labelledby="notifications-heading"] {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     /* Hide type icon on very small screens */
@@ -922,8 +909,7 @@
       [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"]
     ) {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     nav[aria-label="Admin navigation"] > ul > li > a {
@@ -975,8 +961,7 @@
 
   @media (max-width: 400px) {
     main > article[aria-labelledby="profile-heading"] {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     /* Rating cards — stack on very small screens */

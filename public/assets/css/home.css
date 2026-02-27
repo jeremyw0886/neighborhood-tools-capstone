@@ -14,8 +14,7 @@
   /* ── Home wrapper ── */
   .home-page {
     grid-row: span 2;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 1400px;
     overflow-x: clip;
     text-align: center;
@@ -30,12 +29,10 @@
     & > main {
       box-sizing: border-box;
       flex: 1;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto;
       max-width: 1275px;
       overflow: clip;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
+      padding: 0 1.5rem;
     }
   }
 
@@ -53,9 +50,7 @@
     gap: 0.5rem;
     max-width: 70%;
     min-width: 0;
-    padding-bottom: 2rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding: 0 1.5rem 2rem;
     position: relative;
 
     & a {
@@ -208,15 +203,9 @@
     border-radius: 2rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     display: flex;
-    margin-top: 0.25rem;
-    margin-bottom: 0;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0.25rem auto 0;
     max-width: 480px;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-    padding-left: 1rem;
-    padding-right: 0.25rem;
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
 
@@ -512,8 +501,7 @@
   /* ── POPULAR PICKS ── */
   .home-page > main > section:first-of-type {
     --section-pad-block: 3rem;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 1400px;
     overflow-x: clip;
     padding: var(--section-pad-block) 1.5rem;
@@ -540,8 +528,7 @@
       min-width: 0;
       overflow-x: auto;
       overscroll-behavior-x: contain;
-      padding-top: 0.5rem;
-      padding-bottom: 0.75rem;
+      padding: 0.5rem 0 0.75rem;
       scroll-padding-left: 1rem;
       scroll-padding-right: 1rem;
       scroll-snap-type: x mandatory;
@@ -566,8 +553,7 @@
         transparent 0%,
         rgba(232, 228, 220, 0.5) 50%,
         transparent 100%);
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 1400px;
     padding: 3rem 1.5rem;
 
@@ -590,8 +576,7 @@
       container-type: inline-size;
       display: flex;
       gap: 1.25rem;
-      padding-top: 0.5rem;
-      padding-bottom: 0.75rem;
+      padding: 0.5rem 0 0.75rem;
     }
   }
 
@@ -769,8 +754,7 @@
 
     .home-page > main > section:first-of-type > div {
       gap: 1.5rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
+      padding: 0 0.5rem;
     }
 
     .home-page > main > section:last-of-type > div {
@@ -805,8 +789,7 @@
 
     .home-page > main > section:first-of-type,
     .home-page > main > section:last-of-type {
-      margin-left: 0;
-      margin-right: 0;
+      margin: 0;
       width: 100%;
     }
   }
@@ -857,8 +840,7 @@
 
     .home-page > main > section:first-of-type,
     .home-page > main > section:last-of-type {
-      margin-left: 0;
-      margin-right: 0;
+      margin: 0;
       padding: 1.5rem 1rem;
       width: 100%;
     }

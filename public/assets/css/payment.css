@@ -1,8 +1,7 @@
 @layer components {
 
   #deposit-detail {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 800px;
     padding: 2rem 1.5rem;
 
@@ -90,8 +89,7 @@
         border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-top: 0.625rem;
-        padding-bottom: 0.625rem;
+        padding: 0.625rem 0;
 
         &:last-child {
           border-bottom: none;
@@ -184,8 +182,7 @@
           font-size: 0.813rem;
           font-weight: 600;
           letter-spacing: 0.02em;
-          padding-left: 0.5rem;
-          padding-right: 0.5rem;
+          padding: 0 0.5rem;
           text-transform: uppercase;
         }
 
@@ -307,8 +304,7 @@
           border-bottom: 1px solid var(--mountain-fog);
           display: flex;
           gap: 1rem;
-          padding-top: 0.625rem;
-          padding-bottom: 0.625rem;
+          padding: 0.625rem 0;
 
           &:last-child {
             border-bottom: none;
@@ -363,8 +359,7 @@
   }
 
   #deposit-payment {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 800px;
     padding: 2rem 1.5rem;
 
@@ -417,8 +412,7 @@
         border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-top: 0.625rem;
-        padding-bottom: 0.625rem;
+        padding: 0.625rem 0;
 
         &:last-child {
           border-bottom: none;
@@ -515,8 +509,7 @@
   }
 
   #payment-history {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     max-width: 900px;
     padding: 2rem 1.5rem;
 
@@ -621,8 +614,7 @@
           & > div {
             display: flex;
             gap: 0.5rem;
-            padding-top: 0.375rem;
-            padding-bottom: 0.375rem;
+            padding: 0.375rem 0;
           }
 
           & dt {
@@ -674,8 +666,7 @@
           min-height: 2.25rem;
           min-width: 2.25rem;
           justify-content: center;
-          padding-left: 0.625rem;
-          padding-right: 0.625rem;
+          padding: 0 0.625rem;
           text-decoration: none;
           transition: background-color 0.2s, color 0.2s;
         }
@@ -702,8 +693,7 @@
 
         & > li > span[aria-hidden] {
           color: var(--mountain-mist);
-          padding-left: 0.25rem;
-          padding-right: 0.25rem;
+          padding: 0 0.25rem;
         }
       }
     }

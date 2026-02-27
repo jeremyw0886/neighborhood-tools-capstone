@@ -119,8 +119,7 @@
         font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem);
         font-weight: 600;
         line-height: 1.3;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
+        margin: 1.5rem 0 0.75rem;
 
         &:first-child {
           margin-top: 0;
@@ -131,8 +130,7 @@
         color: var(--mountain-pine-light);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
         font-weight: 600;
-        margin-top: 1.25rem;
-        margin-bottom: 0.5rem;
+        margin: 1.25rem 0 0.5rem;
       }
 
       & p {
@@ -265,8 +263,7 @@
   dialog ol {
     counter-reset: step;
     list-style: none;
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
+    margin: 0.75rem 0;
     padding-left: 0;
 
     & > li {
@@ -331,8 +328,7 @@
       /* Nested sub-clauses */
       & ol {
         counter-reset: sub-clause;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin: 0.5rem 0;
         padding-left: 0;
 
         & > li {
@@ -366,8 +362,7 @@
 
     dialog details > summary {
       font-size: 0.875rem;
-      padding-top: 0.625rem;
-      padding-bottom: 0.625rem;
+      padding: 0.625rem 0;
     }
 
     dialog ol > li {
@@ -381,14 +376,12 @@
     }
 
     dialog > div {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     dialog > footer {
       flex-direction: column;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
+      padding: 0 0.75rem;
 
       & button[type="submit"] {
         width: 100%;

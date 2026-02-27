@@ -22,7 +22,7 @@ $allowedRanges ??= [7, 14, 30];
 
     <div role="list">
 
-      <article role="listitem">
+      <article>
         <a href="/admin/users">
           <i class="fa-solid fa-users" aria-hidden="true"></i>
           <h3>Total Members</h3>
@@ -31,7 +31,7 @@ $allowedRanges ??= [7, 14, 30];
         </a>
       </article>
 
-      <article role="listitem">
+      <article>
         <a href="/admin/tools">
           <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
           <h3>Available Tools</h3>
@@ -41,7 +41,7 @@ $allowedRanges ??= [7, 14, 30];
       </article>
 
       <?php if ($stats['openDisputes'] > 0): ?>
-        <article role="listitem" data-urgent>
+        <article data-urgent>
           <a href="/admin/disputes">
             <i class="fa-solid fa-gavel" aria-hidden="true"></i>
             <h3>Open Disputes</h3>
@@ -50,7 +50,7 @@ $allowedRanges ??= [7, 14, 30];
           </a>
         </article>
       <?php else: ?>
-        <article role="listitem">
+        <article>
           <a href="/admin/disputes">
             <i class="fa-solid fa-gavel" aria-hidden="true"></i>
             <h3>Open Disputes</h3>
@@ -60,7 +60,7 @@ $allowedRanges ??= [7, 14, 30];
         </article>
       <?php endif; ?>
 
-      <article role="listitem"<?= $stats['pendingDeposits'] > 0 ? ' data-warning' : '' ?>>
+      <article<?= $stats['pendingDeposits'] > 0 ? ' data-warning' : '' ?>>
         <a href="/admin/reports">
           <i class="fa-solid fa-vault" aria-hidden="true"></i>
           <h3>Pending Deposits</h3>
@@ -70,7 +70,7 @@ $allowedRanges ??= [7, 14, 30];
       </article>
 
       <?php if ($stats['openIncidents'] > 0): ?>
-        <article role="listitem" data-urgent>
+        <article data-urgent>
           <a href="/admin/incidents">
             <i class="fa-solid fa-flag" aria-hidden="true"></i>
             <h3>Open Incidents</h3>
@@ -79,7 +79,7 @@ $allowedRanges ??= [7, 14, 30];
           </a>
         </article>
       <?php else: ?>
-        <article role="listitem">
+        <article>
           <a href="/admin/incidents">
             <i class="fa-solid fa-flag" aria-hidden="true"></i>
             <h3>Open Incidents</h3>
@@ -89,7 +89,7 @@ $allowedRanges ??= [7, 14, 30];
         </article>
       <?php endif; ?>
 
-      <article role="listitem">
+      <article>
         <a href="/admin/events">
           <i class="fa-solid fa-calendar" aria-hidden="true"></i>
           <h3>Upcoming Events</h3>

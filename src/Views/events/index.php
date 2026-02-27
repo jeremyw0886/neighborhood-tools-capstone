@@ -113,7 +113,7 @@ $totalAll   = array_sum($timingCounts);
         $hasEnd  = $event['end_at_evt'] !== null;
         $hasLocation = $event['neighborhood_name_nbh'] !== null;
       ?>
-        <article role="listitem" data-timing="<?= htmlspecialchars($slug) ?>">
+        <article data-timing="<?= htmlspecialchars($slug) ?>">
           <header>
             <span data-timing="<?= htmlspecialchars($slug) ?>">
               <i class="fa-solid <?= $icon ?>" aria-hidden="true"></i>

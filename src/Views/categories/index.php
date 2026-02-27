@@ -35,7 +35,7 @@
         $maxFee     = $cat['max_rental_fee'] !== null ? number_format((float) $cat['max_rental_fee'], 2) : null;
         $hasIcon    = !empty($cat['category_icon']);
       ?>
-        <article role="listitem">
+        <article>
           <a href="/tools?category=<?= (int) $cat['id_cat'] ?>">
 
             <figure aria-hidden="true">

@@ -177,7 +177,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
     <?php if (!empty($categoryVectors)): ?>
       <div data-vector-grid role="list" aria-label="Category icon vectors">
         <?php foreach ($categoryVectors as $vec): ?>
-          <article role="listitem">
+          <article>
             <figure>
               <img src="/uploads/vectors/<?= htmlspecialchars($vec['file_name_vec']) ?>"
                    alt="<?= htmlspecialchars($vec['description_text_vec'] ?? $vec['file_name_vec']) ?>"
@@ -371,7 +371,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
     <?php if (!empty($avatarVectors)): ?>
       <div data-vector-grid role="list" aria-label="Profile avatar vectors">
         <?php foreach ($avatarVectors as $avt): ?>
-          <article role="listitem" <?php if (!(int) $avt['is_active_avv']): ?>data-inactive<?php endif; ?>>
+          <article <?php if (!(int) $avt['is_active_avv']): ?>data-inactive<?php endif; ?>>
             <figure>
               <img src="/uploads/vectors/<?= htmlspecialchars($avt['file_name_avv']) ?>"
                    alt="<?= htmlspecialchars($avt['description_text_avv'] ?? $avt['file_name_avv']) ?>"

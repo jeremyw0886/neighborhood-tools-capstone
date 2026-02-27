@@ -157,7 +157,7 @@ $deadlineValue = match ($deadlineMet) {
         $icon     = $typeIcons[$incType] ?? 'fa-circle-question';
         $withinDeadline = (bool) $incident['is_reported_within_deadline_irt'];
       ?>
-        <article role="listitem" data-urgency="<?= $urgency ?>">
+        <article data-urgency="<?= $urgency ?>">
           <header>
             <h2>
               <a href="/incidents/<?= (int) $incident['id_irt'] ?>">

@@ -118,7 +118,7 @@ $sections = [
         <div role="list">
           <?php if ($key === 'users'):
             foreach ($items as $user): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/profile/<?= (int) $user['id_acc'] ?>"><?= htmlspecialchars($user['full_name']) ?></a></h3>
                 <dl>
                   <div>
@@ -139,7 +139,7 @@ $sections = [
 
           elseif ($key === 'tools'):
             foreach ($items as $tool): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></h3>
                 <dl>
                   <div>
@@ -160,7 +160,7 @@ $sections = [
 
           elseif ($key === 'categories'):
             foreach ($items as $cat): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/admin/categories"><?= htmlspecialchars($cat['category_name_cat']) ?></a></h3>
                 <dl>
                   <div>
@@ -177,7 +177,7 @@ $sections = [
 
           elseif ($key === 'icons'):
             foreach ($items as $icon): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/admin/images"><?= htmlspecialchars($icon['file_name_vec']) ?></a></h3>
                 <dl>
                   <?php if ($icon['description_text_vec'] !== null): ?>
@@ -196,7 +196,7 @@ $sections = [
 
           elseif ($key === 'avatars'):
             foreach ($items as $avatar): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/admin/images"><?= htmlspecialchars($avatar['file_name_avv']) ?></a></h3>
                 <dl>
                   <?php if ($avatar['description_text_avv'] !== null): ?>
@@ -215,7 +215,7 @@ $sections = [
 
           elseif ($key === 'disputes'):
             foreach ($items as $dispute): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/disputes/<?= (int) $dispute['id_dsp'] ?>">Dispute #<?= (int) $dispute['id_dsp'] ?></a></h3>
                 <dl>
                   <div>
@@ -244,7 +244,7 @@ $sections = [
 
           elseif ($key === 'events'):
             foreach ($items as $event): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/events/<?= (int) $event['id_evt'] ?>"><?= htmlspecialchars($event['event_name_evt']) ?></a></h3>
                 <dl>
                   <div>
@@ -271,7 +271,7 @@ $sections = [
 
           elseif ($key === 'incidents'):
             foreach ($items as $incident): ?>
-              <article role="listitem">
+              <article>
                 <h3><a href="/incidents/<?= (int) $incident['id_irt'] ?>"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $incident['incident_type']))) ?> #<?= (int) $incident['id_irt'] ?></a></h3>
                 <dl>
                   <div>
@@ -300,7 +300,7 @@ $sections = [
 
           elseif ($key === 'neighborhoods'):
             foreach ($items as $neighborhood): ?>
-              <article role="listitem">
+              <article>
                 <h3><?= htmlspecialchars($neighborhood['neighborhood_name_nbh']) ?></h3>
                 <dl>
                   <div>

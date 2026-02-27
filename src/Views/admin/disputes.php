@@ -121,7 +121,7 @@ $sortLabels = [
         $daysOpen = (int) $dispute['days_open'];
         $urgencyLevel = $urgencyLabel($daysOpen);
       ?>
-        <article role="listitem" data-urgency="<?= $urgencyLevel ?>">
+        <article data-urgency="<?= $urgencyLevel ?>">
           <header>
             <h2>
               <a href="/disputes/<?= (int) $dispute['id_dsp'] ?>">

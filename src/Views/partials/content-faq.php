@@ -27,16 +27,23 @@
 </details>
 
 <details>
+  <summary>How do I update my profile?</summary>
+  <div>
+    <p>Visit your profile page and select the edit option. You can update your name, phone number, street address, ZIP code, bio, contact preference, and avatar. Your avatar can be chosen from the platform&rsquo;s curated illustration library or uploaded as a custom image.</p>
+  </div>
+</details>
+
+<details>
   <summary>How do I find a tool?</summary>
   <div>
-    <p>Use the search bar on the homepage or the browse page to search by keyword. You can also filter by category, ZIP code, and maximum rental fee. Results show only tools that are currently available&mdash;anything with an active loan or an availability block is automatically excluded.</p>
+    <p>Use the search bar on the homepage or the browse page to search by keyword. You can also filter by category, ZIP code, distance radius, and maximum rental fee. Results show only tools that are currently available&mdash;anything with an active loan or an availability block is automatically excluded.</p>
   </div>
 </details>
 
 <details>
   <summary>How does the borrow process work?</summary>
   <div>
-    <p>Select a tool, choose a loan duration, and submit a request. The lender is notified and can review your profile and reputation before approving or denying. Once approved, you sign a waiver acknowledging the tool&rsquo;s condition and accepting liability, then coordinate a pickup using handover codes to confirm the transfer. The same code exchange happens at return.</p>
+    <p>Select a tool, choose a loan duration, and submit a request. The lender is notified and can review your profile and reputation before approving or denying. Once approved, you sign a waiver acknowledging the tool&rsquo;s condition and accepting liability, pay any required deposit, then coordinate a pickup using handover codes to confirm the transfer. The same code exchange happens at return. After the loan is complete, both parties can rate each other.</p>
   </div>
 </details>
 
@@ -76,9 +83,16 @@
 </details>
 
 <details>
-  <summary>Can I extend a loan?</summary>
+  <summary>Can a loan be extended?</summary>
   <div>
-    <p>If you need more time with a tool, you can request an extension through your dashboard. The original due date is preserved in the system&mdash;extensions are tracked separately so there&rsquo;s always a clear record of the original terms and any changes.</p>
+    <p>Yes. The lender can grant an extension from their dashboard by specifying additional hours and a reason. The original due date is preserved in the system&mdash;extensions are tracked separately so there&rsquo;s always a clear record of the original terms and any changes.</p>
+  </div>
+</details>
+
+<details>
+  <summary>How do I manage when my tool is available?</summary>
+  <div>
+    <p>From your tool&rsquo;s detail page, you can add availability blocks for dates when the tool isn&rsquo;t available. You can also toggle a listing on or off entirely from your lender dashboard. Blocked or unlisted tools won&rsquo;t appear in search results.</p>
   </div>
 </details>
 
@@ -93,6 +107,20 @@
   <summary>What do the tool conditions mean?</summary>
   <div>
     <p>Every tool is assigned a condition when listed: <strong>new</strong> (unused or like-new), <strong>good</strong> (fully functional with minor cosmetic wear), <strong>fair</strong> (functional but shows noticeable wear), or <strong>poor</strong> (works but has significant wear or limitations). Borrowers acknowledge the stated condition through a waiver before each loan.</p>
+  </div>
+</details>
+
+<details>
+  <summary>What are community events?</summary>
+  <div>
+    <p>Members can create and browse local events such as tool workshops, repair meetups, and community clean-ups. Events are listed with timing labels&mdash;happening now, this week, this month, or upcoming&mdash;so you can find something nearby. RSVP to any event to let the organizer know you&rsquo;re coming.</p>
+  </div>
+</details>
+
+<details>
+  <summary>How do notifications work?</summary>
+  <div>
+    <p>You&rsquo;ll receive notifications for key actions&mdash;borrow requests, approvals, denials, upcoming due dates, returns, ratings, and more. The notification bell in the navigation bar shows your unread count. You can mark notifications as read individually or all at once from the notifications page.</p>
   </div>
 </details>
 

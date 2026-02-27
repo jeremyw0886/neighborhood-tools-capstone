@@ -92,7 +92,8 @@
           box-shadow: 0 4px 12px rgba(200, 155, 60, 0.35);
           color: var(--mountain-pine-dark);
 
-          &:hover, &:focus-visible {
+          &:hover,
+          &:focus-visible {
             background: linear-gradient(135deg, var(--mountain-gold-light) 0%, var(--mountain-gold) 100%);
             transform: translateY(-2px);
           }
@@ -102,7 +103,8 @@
           border: 2px solid var(--mountain-cream);
           color: var(--mountain-cream);
 
-          &:hover, &:focus-visible {
+          &:hover,
+          &:focus-visible {
             background: rgba(255, 255, 255, 0.1);
             border-color: var(--mountain-gold);
             color: var(--mountain-gold);

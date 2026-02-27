@@ -23,7 +23,8 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     width: 220px;
 
-    &:hover, &:has(:focus-visible) {
+    &:hover,
+    &:has(:focus-visible) {
       border-color: var(--mountain-gold);
       box-shadow: 0 8px 24px var(--shadow-mountain);
       transform: translateY(-4px);
@@ -113,7 +114,8 @@
             position: absolute;
           }
 
-          &:hover, &:focus-visible {
+          &:hover,
+          &:focus-visible {
             color: var(--mountain-pine-light);
           }
 

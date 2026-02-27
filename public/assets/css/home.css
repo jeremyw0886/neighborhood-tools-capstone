@@ -718,21 +718,6 @@
     }
   }
 
-  /* ── HOME FOOTER OVERRIDE ── */
-  body:has(.home-page) > footer {
-    background: linear-gradient(135deg, var(--mountain-pine-dark) 0%, var(--mountain-pine) 100%);
-    color: var(--mountain-cream);
-    margin-block-start: auto;
-    padding: 1.5rem;
-    text-align: center;
-
-    & p {
-      font-size: 0.9rem;
-      margin-block-end: 0;
-      opacity: 0.9;
-    }
-  }
-
   /* ── RESPONSIVE — Home page breakpoints ── */
 
   /* Tablet / narrow desktop */
@@ -979,11 +964,6 @@
 
     .home-page > main > section:last-of-type > div > a {
       padding: 1rem 0.75rem;
-    }
-
-    body:has(.home-page) > footer {
-      font-size: 0.85rem;
-      padding: 1rem;
     }
 
     .home-page > header > aside {

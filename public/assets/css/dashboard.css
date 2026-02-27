@@ -319,96 +319,79 @@
     [aria-labelledby="history-heading"],
     #loan-status
   ) table {
-    border-collapse: collapse;
-    width: 100%;
 
-    & thead {
-      border-bottom: 2px solid var(--mountain-fog);
-
-      & th {
-        color: var(--mountain-slate);
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-        padding: 0.75rem;
-        text-align: start;
-        text-transform: uppercase;
-      }
+    & thead th {
+      color: var(--mountain-slate);
+      letter-spacing: 0.03em;
+      padding: 0.75rem;
     }
 
-    & tbody tr {
-      border-bottom: 1px solid var(--mountain-fog);
-      transition: background-color 0.15s;
+    & tbody tr:is(:hover, :focus-within) {
+      background: rgba(244, 239, 231, 0.5);
+    }
 
-      &:is(:hover, :focus-within) {
-        background: rgba(244, 239, 231, 0.5);
+    & tbody td {
+      color: var(--mountain-charcoal);
+      vertical-align: middle;
+
+      & > a {
+        font-weight: 500;
+        text-decoration: none;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-gold);
+          text-decoration: underline;
+        }
       }
 
-      & td {
-        color: var(--mountain-charcoal);
-        font-size: 0.875rem;
-        padding: 0.75rem;
-        vertical-align: middle;
+      & > time {
+        white-space: nowrap;
+      }
 
-        & > a {
-          font-weight: 500;
-          text-decoration: none;
+      & > span[data-status],
+      & > span[data-urgent],
+      & > span[data-warning] {
+        border-radius: 1rem;
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1;
+        padding: 0.3rem 0.625rem;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
 
-          &:is(:hover, :focus-visible) {
-            color: var(--mountain-gold);
-            text-decoration: underline;
-          }
-        }
+      & > span[data-status="on-time"],
+      & > span:not([data-urgent]):not([data-warning]):not([data-status]) {
+        background: #f0fdf4;
+        color: #166534;
+      }
 
-        & > time {
-          white-space: nowrap;
-        }
+      & > span[data-status="due-soon"],
+      & > span[data-warning] {
+        background: #fffbeb;
+        color: #92400e;
+      }
 
-        & > span[data-status],
-        & > span[data-urgent],
-        & > span[data-warning] {
-          border-radius: 1rem;
-          display: inline-block;
-          font-size: 0.75rem;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-          line-height: 1;
-          padding: 0.3rem 0.625rem;
-          text-transform: uppercase;
-          white-space: nowrap;
-        }
+      & > span[data-status="overdue"],
+      & > span[data-status="denied"],
+      & > span[data-status="cancelled"],
+      & > span[data-urgent] {
+        background: #fef2f2;
+        color: #991b1b;
+      }
 
-        & > span[data-status="on-time"],
-        & > span:not([data-urgent]):not([data-warning]):not([data-status]) {
-          background: #f0fdf4;
-          color: #166534;
-        }
+      & > span[data-status="approved"] {
+        background: #eff6ff;
+        color: #1e40af;
+      }
 
-        & > span[data-status="due-soon"],
-        & > span[data-warning] {
-          background: #fffbeb;
-          color: #92400e;
-        }
-
-        & > span[data-status="overdue"],
-        & > span[data-status="denied"],
-        & > span[data-status="cancelled"],
-        & > span[data-urgent] {
-          background: #fef2f2;
-          color: #991b1b;
-        }
-
-        & > span[data-status="approved"] {
-          background: #eff6ff;
-          color: #1e40af;
-        }
-
-        & > small {
-          color: var(--mountain-mist);
-          display: block;
-          font-size: 0.75rem;
-          margin-top: 0.125rem;
-        }
+      & > small {
+        color: var(--mountain-mist);
+        display: block;
+        font-size: 0.75rem;
+        margin-top: 0.125rem;
       }
     }
 

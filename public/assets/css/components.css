@@ -1600,4 +1600,41 @@
     }
   }
 
+  /* --- Tables ---------------------------------------------- */
+
+  main table {
+    border-collapse: collapse;
+    width: 100%;
+
+    & thead {
+      border-bottom: 2px solid var(--mountain-fog);
+
+      & th {
+        color: var(--mountain-mist);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 0.625rem 0.75rem;
+        text-align: start;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+    }
+
+    & tbody tr {
+      border-bottom: 1px solid var(--mountain-fog);
+      transition: background-color 0.15s;
+
+      &:is(:hover, :focus-within) {
+        background: var(--mountain-cloud);
+      }
+
+      & td {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+        vertical-align: top;
+      }
+    }
+  }
+
 }

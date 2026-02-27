@@ -116,7 +116,7 @@
         padding-inline-end: 1rem;
         position: sticky;
         scrollbar-gutter: auto;
-        top: 5rem;
+        top: 6.5rem;
 
         &>ul {
           flex-direction: column;

@@ -11,7 +11,7 @@
 <div data-admin-body>
 <nav aria-label="Admin navigation">
   <ul>
-    <li><a href="/admin"<?= $currentPage === '/admin' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Dashboard</a></li>
+    <li><a href="/admin"<?= $currentPage === '/admin' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Admin Home</a></li>
     <li><a href="/admin/users"<?= $currentPage === '/admin/users' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-users" aria-hidden="true"></i> Users</a></li>
     <li><a href="/admin/tools"<?= $currentPage === '/admin/tools' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Tools</a></li>
     <li><a href="/admin/disputes"<?= $currentPage === '/admin/disputes' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-gavel" aria-hidden="true"></i> Disputes</a></li>

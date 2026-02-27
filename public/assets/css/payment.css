@@ -129,31 +129,17 @@
     }
 
     & > [data-flash] {
-      border-radius: 0.5rem;
       font-size: 0.875rem;
-      margin-bottom: 1.5rem;
       padding: 0.875rem 1.25rem;
     }
 
-    & > [data-flash="success"] {
-      background: #ecfdf5;
-      border: 1px solid #6ee7b7;
-      color: #065f46;
-    }
+    & > [data-flash="error"] ul {
+      list-style: disc;
+      margin: 0;
+      padding-left: 1.25rem;
 
-    & > [data-flash="error"] {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      color: #991b1b;
-
-      & ul {
-        list-style: disc;
-        margin: 0;
-        padding-left: 1.25rem;
-
-        & > li + li {
-          margin-top: 0.25rem;
-        }
+      & > li + li {
+        margin-top: 0.25rem;
       }
     }
 

@@ -1204,17 +1204,6 @@
 
   main>section[aria-labelledby="admin-users-heading"] {
 
-    & p[data-flash] {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.5rem;
-      color: var(--mountain-pine);
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-    }
-
     & div[aria-live] {
       margin-bottom: 1rem;
 
@@ -1814,17 +1803,6 @@
       line-height: 1.6;
       margin: 1rem 0 1.5rem;
       max-width: 65ch;
-    }
-
-    & p[data-flash] {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.5rem;
-      color: var(--mountain-pine);
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
     }
 
     & div[data-actions] {
@@ -2576,17 +2554,6 @@
 
   main>section:is([aria-labelledby="admin-categories-heading"],
     [aria-labelledby="admin-images-heading"]) {
-
-    & p[data-flash] {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.5rem;
-      color: var(--mountain-pine);
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-    }
 
     & form[data-upload-form] {
       margin-bottom: 2rem;

@@ -64,7 +64,7 @@
     }
 
     & button {
-      background-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.35);
       border-radius: 1.5rem;
       color: #fff;
@@ -73,7 +73,7 @@
       transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 
       &:hover {
-        background-color: var(--mountain-gold);
+        background: var(--mountain-gold);
         border-color: var(--mountain-gold-dark);
         color: var(--mountain-pine-dark);
       }
@@ -82,7 +82,6 @@
     & > nav[data-hero] {
       width: 100%;
 
-      /* Logo — hero-only drop-shadow */
       & > a:first-child svg {
         display: block;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
@@ -115,7 +114,7 @@
         padding: 0;
 
         &:hover {
-          background-color: transparent;
+          background: transparent;
           border-color: transparent;
           color: var(--mountain-gold);
         }
@@ -198,7 +197,7 @@
   /* ── HERO SEARCH ── */
   .home-page form[role="search"] {
     align-items: center;
-    background-color: var(--mountain-cloud);
+    background: var(--mountain-cloud);
     border: 2px solid transparent;
     border-radius: 2rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -293,7 +292,7 @@
     /* City toggle — hidden without JS, slides between cities */
     & > #location-toggle {
       align-items: center;
-      background-color: var(--mountain-cloud);
+      background: var(--mountain-cloud);
       border-radius: 2rem;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
       display: flex;
@@ -350,7 +349,6 @@
       }
     }
 
-    /* Member list — vertical scroll */
     & > section {
       display: flex;
       flex: 1;
@@ -364,7 +362,6 @@
       scrollbar-width: thin;
     }
 
-    /* Scroll indicator gradient */
     & > section::after {
       background: linear-gradient(transparent, var(--mountain-cream));
       content: '';
@@ -381,7 +378,6 @@
       opacity: 0;
     }
 
-    /* Loading state (AJAX) */
     & > section[aria-busy="true"] {
       opacity: 0.5;
       pointer-events: none;

@@ -1,9 +1,3 @@
-/* ============================================================
-   event.css — Community events listing + creation pages
-   Loaded conditionally via $pageCss
-   Properties alphabetized within each rule
-   ============================================================ */
-
 @layer components {
 
   /* ── Page wrapper ── */
@@ -307,7 +301,6 @@
           }
         }
 
-        /* Left accent on happening-now cards */
         &[data-timing="happening-now"] {
           border-left: 3px solid #dc2626;
         }

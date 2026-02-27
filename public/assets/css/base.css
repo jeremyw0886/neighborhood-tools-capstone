@@ -58,7 +58,7 @@
   }
 
   body {
-      background-color: var(--mountain-cream);
+      background: var(--mountain-cream);
       color: var(--mountain-charcoal);
       display: grid;
       font: clamp(0.938rem, 0.75rem + 0.5vw, 1.125rem) / 1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -209,7 +209,6 @@
       outline-offset: 2px;
   }
 
-  /* Search bars use the parent form's :focus-within as their focus indicator */
   form[role="search"] input:focus-visible {
       outline: none;
   }

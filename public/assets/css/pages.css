@@ -21,10 +21,7 @@
 
       & > h1 {
         color: var(--mountain-pine);
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: clamp(1.5rem, 1.25rem + 0.75vw, 2rem);
-        font-weight: 700;
-        line-height: 1.2;
+        font: 700 clamp(1.5rem, 1.25rem + 0.75vw, 2rem)/1.2 Georgia, 'Times New Roman', serif;
 
         & > i {
           color: var(--mountain-pine-light);
@@ -67,8 +64,7 @@
 
     & a {
       color: var(--mountain-pine-light);
-      text-decoration: underline;
-      text-decoration-color: var(--mountain-gold-light);
+      text-decoration: underline var(--mountain-gold-light);
       text-underline-offset: 0.15em;
 
       &:is(:hover, :focus-visible) {
@@ -155,7 +151,7 @@
       }
 
       &::after {
-        background-color: var(--mountain-mist);
+        background: var(--mountain-mist);
         content: '';
         flex-shrink: 0;
         height: 8px;
@@ -173,7 +169,7 @@
     }
 
     &[open] > summary::after {
-      background-color: var(--mountain-gold);
+      background: var(--mountain-gold);
       transform: rotate(180deg);
     }
 

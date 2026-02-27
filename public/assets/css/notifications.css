@@ -33,7 +33,6 @@
         }
       }
 
-      /* Mark all as read button */
       & > form > button {
         align-items: center;
         background: var(--mountain-cloud);
@@ -89,7 +88,6 @@
           border-top: 1px solid var(--mountain-fog);
         }
 
-        /* Unread indicator — gold left border + bolder text */
         &[data-unread] {
           border-left: 3px solid var(--mountain-gold);
 
@@ -110,10 +108,9 @@
           transition: background-color 0.15s;
 
           &:is(:hover, :focus-within) {
-            background-color: rgba(244, 239, 231, 0.4);
+            background: rgba(244, 239, 231, 0.4);
           }
 
-          /* Type icon */
           & > span:first-child {
             align-items: center;
             background: var(--mountain-cloud);
@@ -127,12 +124,10 @@
             width: 2.5rem;
           }
 
-          /* Content area */
           & > div {
             flex: 1;
             min-width: 0;
 
-            /* Title — linked or plain */
             & > a {
               text-decoration: none;
 
@@ -140,8 +135,7 @@
                 color: var(--mountain-pine);
                 font-size: 0.938rem;
                 font-weight: 600;
-                text-decoration: underline;
-                text-decoration-color: var(--mountain-fog);
+                text-decoration: underline var(--mountain-fog);
                 text-underline-offset: 2px;
                 transition: color 0.15s, text-decoration-color 0.15s;
               }
@@ -158,7 +152,6 @@
               font-weight: 600;
             }
 
-            /* Body text */
             & > p {
               color: var(--mountain-mist);
               font-size: 0.875rem;
@@ -166,7 +159,6 @@
               margin: 0.25rem 0 0;
             }
 
-            /* Footer — time + tool name */
             & > footer {
               align-items: center;
               display: flex;
@@ -193,7 +185,6 @@
           }
         }
 
-        /* Type-specific icon colors */
         &[data-type="approval"] > article > span:first-child {
           color: var(--notif-approval);
         }

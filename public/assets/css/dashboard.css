@@ -193,13 +193,11 @@
           transform: translateY(-2px);
         }
 
-        /* Card icon */
         & > i:first-child {
           color: var(--mountain-pine-light);
           font-size: 1.25rem;
         }
 
-        /* Card title */
         & > h3 {
           color: var(--mountain-slate);
           font-size: 0.813rem;
@@ -208,7 +206,6 @@
           text-transform: uppercase;
         }
 
-        /* Card count */
         & > p {
           color: var(--mountain-pine);
           font-family: Georgia, 'Times New Roman', serif;
@@ -224,7 +221,6 @@
           }
         }
 
-        /* Card footer text / stars */
         & > span:last-child {
           color: var(--mountain-mist);
           font-size: 0.813rem;
@@ -237,7 +233,6 @@
         }
       }
 
-      /* Urgent card (overdue) */
       &[data-urgent] > a {
         border-color: #fca5a5;
 
@@ -261,7 +256,6 @@
     }
   }
 
-  /* Admin section heading */
   section[aria-labelledby="admin-summary-heading"] > h2 {
     color: var(--mountain-pine);
     margin-bottom: 1rem;
@@ -347,7 +341,7 @@
       transition: background-color 0.15s;
 
       &:is(:hover, :focus-within) {
-        background-color: rgba(244, 239, 231, 0.5);
+        background: rgba(244, 239, 231, 0.5);
       }
 
       & td {
@@ -370,7 +364,6 @@
           white-space: nowrap;
         }
 
-        /* Status badges */
         & > span[data-status],
         & > span[data-urgent],
         & > span[data-warning] {

@@ -330,7 +330,7 @@
           width: 100%;
 
           &:is(:hover, :focus-visible) {
-            background-color: var(--mountain-fog);
+            background: var(--mountain-fog);
             color: var(--mountain-pine-dark);
           }
         }
@@ -439,8 +439,6 @@
       }
     }
   }
-
-  /* ── High contrast mode ── */
 
   /* ── Shared sub-navigation (dashboard + admin) ── */
 

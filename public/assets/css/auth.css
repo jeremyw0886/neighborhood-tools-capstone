@@ -66,8 +66,7 @@
       & a {
         color: var(--mountain-pine-light);
         font-weight: 600;
-        text-decoration: underline;
-        text-decoration-color: var(--mountain-gold-light);
+        text-decoration: underline var(--mountain-gold-light);
         text-decoration-thickness: 2px;
         text-underline-offset: 3px;
 
@@ -113,8 +112,7 @@
     display: inline-block;
     font-size: 0.813rem;
     margin-top: 0.375rem;
-    text-decoration: underline;
-    text-decoration-color: var(--mountain-fog);
+    text-decoration: underline var(--mountain-fog);
     text-underline-offset: 2px;
 
     &:is(:hover, :focus-visible) {

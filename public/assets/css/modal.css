@@ -75,10 +75,7 @@
       /* Title */
       & > h2 {
         color: var(--mountain-pine);
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
-        font-weight: 700;
-        line-height: 1.2;
+        font: 700 clamp(1.125rem, 1rem + 0.5vw, 1.5rem)/1.2 Georgia, 'Times New Roman', serif;
       }
 
       /* Close button */
@@ -140,8 +137,7 @@
 
       & a {
         color: var(--mountain-pine-light);
-        text-decoration: underline;
-        text-decoration-color: var(--mountain-gold-light);
+        text-decoration: underline var(--mountain-gold-light);
         text-underline-offset: 0.15em;
 
         &:is(:hover, :focus-visible) {
@@ -397,8 +393,7 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 
       & > header {
-        border-bottom-width: 2px;
-        border-bottom-color: var(--mountain-pine);
+        border-bottom: 2px solid var(--mountain-pine);
 
         & > button:focus-visible {
           outline: 3px solid var(--mountain-pine);
@@ -407,8 +402,7 @@
       }
 
       & > footer {
-        border-top-width: 2px;
-        border-top-color: var(--mountain-pine);
+        border-top: 2px solid var(--mountain-pine);
       }
     }
 

@@ -1,9 +1,3 @@
-/* ============================================================
-   dispute.css — Dispute creation and detail pages
-   Loaded conditionally via $pageCss
-   Properties alphabetized within each rule
-   ============================================================ */
-
 @layer components {
 
   #dispute-create {

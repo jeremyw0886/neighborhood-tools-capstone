@@ -27,7 +27,8 @@
   @media (max-width: 400px) {
     .auth-card {
       box-shadow: none;
-      border-inline: none;
+      border-left: none;
+      border-right: none;
       border-radius: 0;
     }
 
@@ -40,12 +41,12 @@
 
   @media (max-width: 700px) {
     article[aria-labelledby$="-heading"] > header {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
     article[aria-labelledby$="-heading"] > footer {
-      margin-block-start: 1.5rem;
-      padding-block-start: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
     }
   }
 
@@ -67,16 +68,17 @@
 
   @media (max-width: 700px) {
     nav {
-      padding-inline: 0;
+      padding-left: 0;
+      padding-right: 0;
       position: relative;
     }
 
     nav > a:first-child {
-      padding-inline-start: 3rem;
+      padding-left: 3rem;
     }
 
     nav > a:first-child img {
-      padding-block-start: .4rem;
+      padding-top: .4rem;
       width: 70px;
     }
 
@@ -84,7 +86,7 @@
       background: linear-gradient(180deg,
           var(--mountain-pine-dark) 0%,
           color-mix(in srgb, var(--mountain-pine-dark) 92%, black) 100%);
-      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -94,15 +96,15 @@
     }
 
     nav > #top-links > li {
-      border-block-end: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     nav > #top-links > li:last-child {
-      border-block-end: none;
+      border-bottom: none;
     }
 
     nav > #top-links a {
-      border-inline-start: 3px solid transparent;
+      border-left: 3px solid transparent;
       border-radius: 0;
       font-size: 0.938rem;
       min-height: 2.75rem;
@@ -113,20 +115,20 @@
 
     nav > #top-links a:is(:hover, :focus-visible) {
       background: rgba(255, 255, 255, 0.08);
-      border-inline-start-color: var(--mountain-gold);
+      border-left-color: var(--mountain-gold);
       color: var(--mountain-gold-light);
     }
 
     nav > #top-links a[aria-current="page"] {
       background: rgba(255, 255, 255, 0.05);
-      border-block-end: none;
-      border-inline-start: 3px solid var(--mountain-gold);
+      border-bottom: none;
+      border-left: 3px solid var(--mountain-gold);
       color: var(--mountain-gold);
     }
 
     nav > #user-actions {
       grid-column: 3;
-      padding-inline-end: 1.25rem;
+      padding-right: 1.25rem;
     }
 
     nav > #user-actions > a[href="/notifications"] {
@@ -138,11 +140,11 @@
     }
 
     body:not(:has(.home-page)) nav > a:first-child {
-      padding-inline-start: 4rem;
+      padding-left: 4rem;
     }
 
     body:not(:has(.home-page)) nav > #user-actions {
-      padding-inline-end: 2.25rem;
+      padding-right: 2.25rem;
     }
 
     body:not(:has(.home-page)) > header {
@@ -162,7 +164,8 @@
     nav.js-nav > #top-links {
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
       clip-path: inset(0 0 100% 0);
-      inset-inline: 0;
+      left: 0;
+      right: 0;
       opacity: 0;
       pointer-events: none;
       position: absolute;
@@ -198,11 +201,11 @@
     }
 
     body:not(:has(.home-page)) nav > a:first-child {
-      padding-inline-start: 2rem;
+      padding-left: 2rem;
     }
 
     body:not(:has(.home-page)) nav > #user-actions {
-      padding-inline-end: 2rem;
+      padding-right: 2rem;
     }
   }
 
@@ -215,10 +218,11 @@
 
     nav > #top-links > li[data-separator] {
       background: none;
-      border-block-end: none;
-      border-block-start: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       height: auto;
-      margin-block: 0.25rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.25rem;
       padding: 0;
       width: auto;
     }
@@ -241,7 +245,7 @@
       align-items: center;
       background: transparent;
       border: none;
-      border-inline-start: 3px solid transparent;
+      border-left: 3px solid transparent;
       border-radius: 0;
       color: var(--mountain-cream);
       cursor: pointer;
@@ -257,7 +261,7 @@
 
     nav > #top-links > [data-mobile-auth] :is(a, button):is(:hover, :focus-visible) {
       background: rgba(255, 255, 255, 0.08);
-      border-inline-start-color: var(--mountain-gold);
+      border-left-color: var(--mountain-gold);
       color: var(--mountain-gold-light);
     }
 
@@ -291,28 +295,25 @@
     }
 
     dialog > header {
-      padding-block: 0.625rem;
-      padding-inline: 0.875rem;
+      padding: 0.625rem 0.875rem;
     }
 
     dialog > div {
-      padding-block: 0.875rem;
-      padding-inline: 0.875rem;
+      padding: 0.875rem;
     }
 
     dialog > footer {
-      padding-block: 0.625rem;
-      padding-inline: 0.875rem;
+      padding: 0.625rem 0.875rem;
     }
 
     dialog details > summary {
       min-height: 2.75rem;
-      padding-block: 0.625rem;
-      padding-inline: 0.75rem;
+      padding: 0.625rem 0.75rem;
     }
 
     dialog details > div {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
   }
 
@@ -328,7 +329,7 @@
 
     dialog > header {
       background: var(--mountain-cloud);
-      padding-block-start: calc(0.625rem + env(safe-area-inset-top, 0px));
+      padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
       position: sticky;
       top: 0;
       z-index: 1;
@@ -338,7 +339,7 @@
       background: var(--mountain-cloud);
       bottom: 0;
       flex-direction: column;
-      padding-block-end: calc(0.625rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(0.625rem + env(safe-area-inset-bottom, 0px));
       position: sticky;
       z-index: 1;
     }
@@ -352,8 +353,7 @@
 
   @media (max-width: 700px) {
     main > section[aria-labelledby="browse-heading"] {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     main > section[aria-labelledby="browse-heading"] > header > h1 {
@@ -373,11 +373,13 @@
 
   @media (max-width: 400px) {
     main > section[aria-labelledby="browse-heading"] {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type {
-      padding-inline: 0.75rem 0.1875rem;
+      padding-left: 0.75rem;
+      padding-right: 0.1875rem;
     }
 
     main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type > button > span {
@@ -393,8 +395,7 @@
 
   @media (max-width: 700px) {
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) > header > h1 {
@@ -414,7 +415,8 @@
 
   @media (max-width: 400px) {
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
@@ -433,8 +435,7 @@
       [aria-labelledby="history-heading"],
       #loan-status
     ) {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     main > section:is(
@@ -466,7 +467,8 @@
       #loan-status
     ) > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] > ul > li > a {
       font-size: 0.813rem;
-      padding-inline: 0.625rem;
+      padding-left: 0.625rem;
+      padding-right: 0.625rem;
     }
 
     /* Pagination — hide Previous/Next text on mobile */
@@ -574,8 +576,7 @@
       #loan-status
     ) table td {
       font-size: 0.813rem;
-      padding-block: 0.625rem;
-      padding-inline: 0.5rem;
+      padding: 0.625rem 0.5rem;
     }
 
     /* Action buttons — smaller on mobile */
@@ -591,7 +592,8 @@
     ) table td > details > summary {
       font-size: 0.75rem;
       min-height: 2rem;
-      padding-inline: 0.5rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
     }
 
     /* Lifecycle progress — stack vertically on mobile */
@@ -603,7 +605,8 @@
         align-items: flex-start;
         flex-direction: row;
         gap: 0.75rem;
-        padding-block: 0.75rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
         text-align: start;
 
         &::after {
@@ -630,11 +633,11 @@
       row-gap: 0.25rem;
 
       & > dt {
-        margin-block-start: 0.5rem;
+        margin-top: 0.5rem;
       }
 
       & > dt:first-child {
-        margin-block-start: 0;
+        margin-top: 0;
       }
     }
 
@@ -671,7 +674,8 @@
       [aria-labelledby="history-heading"],
       #loan-status
     ) {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     /* Summary cards — single column on very small screens */
@@ -701,8 +705,7 @@
   @media (max-width: 700px) {
     #deposit-detail,
     #deposit-payment {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     #deposit-detail > header > h1,
@@ -730,7 +733,7 @@
 
       & > label {
         display: flex;
-        margin-inline-end: 0;
+        margin-right: 0;
       }
     }
 
@@ -743,7 +746,8 @@
   @media (max-width: 400px) {
     #deposit-detail,
     #deposit-payment {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
   }
 
@@ -751,8 +755,7 @@
 
   @media (max-width: 700px) {
     main > section[aria-labelledby="notifications-heading"] {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     main > section[aria-labelledby="notifications-heading"] > header {
@@ -771,7 +774,8 @@
 
     main > section[aria-labelledby="notifications-heading"] > ol > li > article {
       gap: 0.75rem;
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     /* Hide prev/next text labels, keep chevron icons */
@@ -783,7 +787,8 @@
 
   @media (max-width: 400px) {
     main > section[aria-labelledby="notifications-heading"] {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     /* Hide type icon on very small screens */
@@ -817,8 +822,7 @@
       [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"]
     ) {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     main > section:is(
@@ -844,7 +848,7 @@
       display: grid;
       gap: 0.5rem;
       grid-template-columns: repeat(2, 1fr);
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
 
       & > li > a {
         background: var(--mountain-cloud);
@@ -918,7 +922,8 @@
       [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"]
     ) {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     nav[aria-label="Admin navigation"] > ul > li > a {
@@ -934,8 +939,7 @@
 
   @media (max-width: 700px) {
     main > article[aria-labelledby="profile-heading"] {
-      padding-block: 1.25rem;
-      padding-inline: 1rem;
+      padding: 1.25rem 1rem;
     }
 
     /* Stack avatar + info vertically */
@@ -971,7 +975,8 @@
 
   @media (max-width: 400px) {
     main > article[aria-labelledby="profile-heading"] {
-      padding-inline: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
     /* Rating cards — stack on very small screens */

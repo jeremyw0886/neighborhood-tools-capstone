@@ -1,13 +1,13 @@
 @layer components {
 
   #deposit-detail {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 800px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     & > nav[aria-label="Back"] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > a {
         color: var(--mountain-mist);
@@ -21,7 +21,7 @@
         }
 
         & > i {
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
     }
@@ -31,7 +31,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem 1.25rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > h1 {
         color: var(--mountain-pine);
@@ -40,7 +40,7 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
@@ -82,23 +82,24 @@
       border-radius: 0.75rem;
       display: grid;
       gap: 0;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
       padding: 1.25rem;
 
       & > div {
         align-items: baseline;
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-block: 0.625rem;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
 
         &:last-child {
-          border-block-end: none;
-          padding-block-end: 0;
+          border-bottom: none;
+          padding-bottom: 0;
         }
 
         &:first-child {
-          padding-block-start: 0;
+          padding-top: 0;
         }
       }
 
@@ -125,14 +126,14 @@
       color: #92400e;
       font-size: 0.875rem;
       line-height: 1.5;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
       padding: 0.875rem 1.25rem;
     }
 
     & > [data-flash] {
       border-radius: 0.5rem;
       font-size: 0.875rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 0.875rem 1.25rem;
     }
 
@@ -150,23 +151,23 @@
       & ul {
         list-style: disc;
         margin: 0;
-        padding-inline-start: 1.25rem;
+        padding-left: 1.25rem;
 
         & > li + li {
-          margin-block-start: 0.25rem;
+          margin-top: 0.25rem;
         }
       }
     }
 
     & > section[aria-labelledby="process-heading"] {
-      border-block-start: 2px solid var(--mountain-fog);
-      margin-block-start: 2rem;
-      padding-block-start: 2rem;
+      border-top: 2px solid var(--mountain-fog);
+      margin-top: 2rem;
+      padding-top: 2rem;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       & form fieldset {
@@ -175,7 +176,7 @@
         padding: 1.5rem;
 
         &:not(:first-of-type) {
-          margin-block-start: 1.25rem;
+          margin-top: 1.25rem;
         }
 
         & > legend {
@@ -183,7 +184,8 @@
           font-size: 0.813rem;
           font-weight: 600;
           letter-spacing: 0.02em;
-          padding-inline: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
           text-transform: uppercase;
         }
 
@@ -193,7 +195,7 @@
           align-items: center;
           font-size: 0.938rem;
           gap: 0.375rem;
-          margin-inline-end: 1.5rem;
+          margin-right: 1.5rem;
 
           & > input[type="radio"] {
             accent-color: var(--mountain-pine);
@@ -201,10 +203,10 @@
         }
 
         & > div {
-          margin-block-start: 1rem;
+          margin-top: 1rem;
 
           &:first-of-type {
-            margin-block-start: 0;
+            margin-top: 0;
           }
 
           & > label {
@@ -213,7 +215,7 @@
             font-size: 0.813rem;
             font-weight: 600;
             letter-spacing: 0.02em;
-            margin-block-end: 0.375rem;
+            margin-bottom: 0.375rem;
             text-transform: uppercase;
           }
 
@@ -245,13 +247,13 @@
           & > p[role="alert"] {
             color: #991b1b;
             font-size: 0.813rem;
-            margin-block-start: 0.375rem;
+            margin-top: 0.375rem;
           }
         }
       }
 
       & form > footer {
-        margin-block-start: 1.5rem;
+        margin-top: 1.5rem;
 
         & > button[type="submit"] {
           background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
@@ -278,17 +280,17 @@
     }
 
     & > section[aria-labelledby="borrow-context-heading"] {
-      border-block-start: 2px solid var(--mountain-fog);
-      padding-block-start: 2rem;
+      border-top: 2px solid var(--mountain-fog);
+      padding-top: 2rem;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
@@ -302,18 +304,19 @@
 
         & > div {
           align-items: baseline;
-          border-block-end: 1px solid var(--mountain-fog);
+          border-bottom: 1px solid var(--mountain-fog);
           display: flex;
           gap: 1rem;
-          padding-block: 0.625rem;
+          padding-top: 0.625rem;
+          padding-bottom: 0.625rem;
 
           &:last-child {
-            border-block-end: none;
-            padding-block-end: 0;
+            border-bottom: none;
+            padding-bottom: 0;
           }
 
           &:first-child {
-            padding-block-start: 0;
+            padding-top: 0;
           }
         }
 
@@ -360,13 +363,13 @@
   }
 
   #deposit-payment {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 800px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     & > nav[aria-label="Back"] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > a {
         color: var(--mountain-mist);
@@ -380,13 +383,13 @@
         }
 
         & > i {
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
     }
 
     & > header {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > h1 {
         color: var(--mountain-pine);
@@ -395,7 +398,7 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
     }
@@ -406,23 +409,24 @@
       border-radius: 0.75rem;
       display: grid;
       gap: 0;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 1.25rem;
 
       & > div {
         align-items: baseline;
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-block: 0.625rem;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
 
         &:last-child {
-          border-block-end: none;
-          padding-block-end: 0;
+          border-bottom: none;
+          padding-bottom: 0;
         }
 
         &:first-child {
-          padding-block-start: 0;
+          padding-top: 0;
         }
       }
 
@@ -449,7 +453,7 @@
       color: #92400e;
       font-size: 0.875rem;
       line-height: 1.5;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
       padding: 0.875rem 1.25rem;
     }
 
@@ -462,7 +466,7 @@
       & > #payment-message {
         border-radius: 0.5rem;
         font-size: 0.875rem;
-        margin-block-start: 1rem;
+        margin-top: 1rem;
 
         &:not([hidden]) {
           background: #fef2f2;
@@ -473,7 +477,7 @@
       }
 
       & > footer {
-        margin-block-start: 1.5rem;
+        margin-top: 1.5rem;
 
         & > button[type="submit"] {
           background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
@@ -511,13 +515,13 @@
   }
 
   #payment-history {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 900px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     & > nav[aria-label="Back"] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > a {
         color: var(--mountain-mist);
@@ -531,7 +535,7 @@
         }
 
         & > i {
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
     }
@@ -540,11 +544,11 @@
       color: var(--mountain-pine);
       font-family: Georgia, 'Times New Roman', serif;
       font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > i {
         color: var(--mountain-gold);
-        margin-inline-end: 0.375rem;
+        margin-right: 0.375rem;
       }
     }
 
@@ -570,7 +574,7 @@
           align-items: center;
           display: flex;
           gap: 0.75rem;
-          margin-block-end: 1rem;
+          margin-bottom: 1rem;
 
           & > span[data-badge] {
             border-radius: 2rem;
@@ -605,7 +609,7 @@
           & > strong {
             color: var(--mountain-charcoal);
             font-size: 1.125rem;
-            margin-inline-start: auto;
+            margin-left: auto;
           }
         }
 
@@ -617,7 +621,8 @@
           & > div {
             display: flex;
             gap: 0.5rem;
-            padding-block: 0.375rem;
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem;
           }
 
           & dt {
@@ -635,9 +640,9 @@
         }
 
         & > footer {
-          border-block-start: 1px solid var(--mountain-fog);
-          margin-block-start: 0.75rem;
-          padding-block-start: 0.75rem;
+          border-top: 1px solid var(--mountain-fog);
+          margin-top: 0.75rem;
+          padding-top: 0.75rem;
           text-align: end;
 
           & > time {
@@ -649,7 +654,7 @@
     }
 
     & > nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       & > ul {
         align-items: center;
@@ -669,7 +674,8 @@
           min-height: 2.25rem;
           min-width: 2.25rem;
           justify-content: center;
-          padding-inline: 0.625rem;
+          padding-left: 0.625rem;
+          padding-right: 0.625rem;
           text-decoration: none;
           transition: background-color 0.2s, color 0.2s;
         }
@@ -696,7 +702,8 @@
 
         & > li > span[aria-hidden] {
           color: var(--mountain-mist);
-          padding-inline: 0.25rem;
+          padding-left: 0.25rem;
+          padding-right: 0.25rem;
         }
       }
     }
@@ -780,7 +787,7 @@
       }
 
       & > ul > li > footer {
-        border-block-start-width: 2px;
+        border-top-width: 2px;
       }
     }
   }

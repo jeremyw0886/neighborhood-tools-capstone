@@ -7,15 +7,15 @@
 @layer components {
 
   #dispute-create {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 700px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     /* ── Page header ── */
 
     & > header {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > h1 {
         color: var(--mountain-pine);
@@ -23,14 +23,15 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
       & > p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-        margin-block: 0.5rem 0;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
 
         & > strong {
           color: var(--mountain-pine);
@@ -46,18 +47,19 @@
       border-radius: 0.5rem;
       color: #991b1b;
       font-size: 0.938rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 0.75rem 1rem 0.75rem 2rem;
 
       & > li + li {
-        margin-block-start: 0.25rem;
+        margin-top: 0.25rem;
       }
     }
 
     /* ── Existing dispute alert ── */
 
     & > section[aria-label="Existing dispute"] {
-      padding-block: 2rem;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
 
       & > p[role="alert"] {
         background: #fef2f2;
@@ -65,11 +67,11 @@
         border-radius: 0.5rem;
         color: #991b1b;
         font-size: 0.938rem;
-        margin-block-end: 1.5rem;
+        margin-bottom: 1.5rem;
         padding: 1rem 1.25rem;
 
         & > i {
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
@@ -100,23 +102,24 @@
       border-radius: 0.75rem;
       display: grid;
       gap: 0;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
       padding: 1.25rem;
 
       & > div {
         align-items: baseline;
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-block: 0.625rem;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
 
         &:last-child {
-          border-block-end: none;
-          padding-block-end: 0;
+          border-bottom: none;
+          padding-bottom: 0;
         }
 
         &:first-child {
-          padding-block-start: 0;
+          padding-top: 0;
         }
       }
 
@@ -139,7 +142,7 @@
     /* ── Dispute form ── */
 
     & > form {
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
 
       & fieldset {
         border: 2px solid var(--mountain-fog);
@@ -150,14 +153,15 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding-inline: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
         }
 
         & > div {
-          margin-block-end: 1.25rem;
+          margin-bottom: 1.25rem;
 
           &:last-of-type {
-            margin-block-end: 0;
+            margin-bottom: 0;
           }
         }
 
@@ -166,7 +170,7 @@
           display: block;
           font-size: 0.875rem;
           font-weight: 500;
-          margin-block-end: 0.375rem;
+          margin-bottom: 0.375rem;
 
           & > span {
             color: #dc2626;
@@ -226,7 +230,7 @@
         & p[role="alert"] {
           color: #dc2626;
           font-size: 0.813rem;
-          margin-block-start: 0.375rem;
+          margin-top: 0.375rem;
         }
       }
 
@@ -234,7 +238,7 @@
         align-items: center;
         display: flex;
         gap: 1rem;
-        margin-block-start: 1.5rem;
+        margin-top: 1.5rem;
 
         & > button[type="submit"] {
           align-items: center;
@@ -248,8 +252,7 @@
           font-weight: 600;
           gap: 0.5rem;
           min-height: 2.75rem;
-          padding-block: 0.625rem;
-          padding-inline: 1.5rem;
+          padding: 0.625rem 1.5rem;
           transition: background 0.2s, transform 0.15s;
 
           &:is(:hover, :focus-visible) {
@@ -286,15 +289,15 @@
      ============================================================ */
 
   #dispute-show {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 800px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     /* ── Back nav ── */
 
     & > nav[aria-label="Back"] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > a {
         color: var(--mountain-mist);
@@ -308,7 +311,7 @@
         }
 
         & > i {
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
     }
@@ -320,7 +323,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem 1.25rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & > h1 {
         color: var(--mountain-pine);
@@ -329,7 +332,7 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
@@ -373,23 +376,24 @@
       border-radius: 0.75rem;
       display: grid;
       gap: 0;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
       padding: 1.25rem;
 
       & > div {
         align-items: baseline;
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         gap: 1rem;
-        padding-block: 0.625rem;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
 
         &:last-child {
-          border-block-end: none;
-          padding-block-end: 0;
+          border-bottom: none;
+          padding-bottom: 0;
         }
 
         &:first-child {
-          padding-block-start: 0;
+          padding-top: 0;
         }
       }
 
@@ -414,15 +418,15 @@
     & > section[aria-labelledby="thread-heading"] {
 
       & > h2 {
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 1.5rem;
-        padding-block-end: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
 
         & > span {
@@ -490,7 +494,7 @@
             & > time {
               color: var(--mountain-stone);
               font-size: 0.75rem;
-              margin-inline-start: auto;
+              margin-left: auto;
               white-space: nowrap;
             }
           }
@@ -506,15 +510,15 @@
         /* ── Type-specific accents ── */
 
         & > li[data-message-type="initial_report"] {
-          border-inline-start: 3px solid var(--mountain-gold);
+          border-left: 3px solid var(--mountain-gold);
         }
 
         & > li[data-message-type="response"] {
-          border-inline-start: 3px solid var(--mountain-pine-light);
+          border-left: 3px solid var(--mountain-pine-light);
         }
 
         & > li[data-message-type="admin_note"] {
-          border-inline-start: 3px solid var(--mountain-mist);
+          border-left: 3px solid var(--mountain-mist);
 
           & > header {
             background: #f0f4ff;
@@ -522,7 +526,7 @@
         }
 
         & > li[data-message-type="resolution"] {
-          border-inline-start: 3px solid #059669;
+          border-left: 3px solid #059669;
 
           & > header {
             background: #ecfdf5;
@@ -544,29 +548,29 @@
       border-radius: 0.5rem;
       color: #065f46;
       font-size: 0.938rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 0.75rem 1.25rem;
 
       & > i {
-        margin-inline-end: 0.375rem;
+        margin-right: 0.375rem;
       }
     }
 
     /* ── Reply form section ── */
 
     & > section[aria-labelledby="reply-heading"] {
-      border-block-start: 2px solid var(--mountain-fog);
-      margin-block-start: 2rem;
-      padding-block-start: 2rem;
+      border-top: 2px solid var(--mountain-fog);
+      margin-top: 2rem;
+      padding-top: 2rem;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
@@ -576,11 +580,11 @@
         border-radius: 0.5rem;
         color: #991b1b;
         font-size: 0.938rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
         padding: 0.75rem 1rem 0.75rem 2rem;
 
         & > li + li {
-          margin-block-start: 0.25rem;
+          margin-top: 0.25rem;
         }
       }
 
@@ -595,14 +599,15 @@
             color: var(--mountain-pine);
             font-size: 1rem;
             font-weight: 600;
-            padding-inline: 0.5rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
           }
 
           & > div {
-            margin-block-end: 1rem;
+            margin-bottom: 1rem;
 
             &:last-of-type {
-              margin-block-end: 0;
+              margin-bottom: 0;
             }
           }
 
@@ -611,7 +616,7 @@
             display: block;
             font-size: 0.875rem;
             font-weight: 500;
-            margin-block-end: 0.375rem;
+            margin-bottom: 0.375rem;
 
             & > span {
               color: #dc2626;
@@ -669,12 +674,12 @@
           & p[role="alert"] {
             color: #dc2626;
             font-size: 0.813rem;
-            margin-block-start: 0.375rem;
+            margin-top: 0.375rem;
           }
         }
 
         & > footer {
-          margin-block-start: 1rem;
+          margin-top: 1rem;
 
           & > button[type="submit"] {
             align-items: center;
@@ -688,8 +693,7 @@
             font-weight: 600;
             gap: 0.5rem;
             min-height: 2.75rem;
-            padding-block: 0.625rem;
-            padding-inline: 1.25rem;
+            padding: 0.625rem 1.25rem;
             transition: background 0.2s, transform 0.15s;
 
             &:is(:hover, :focus-visible) {
@@ -713,14 +717,14 @@
     /* ── Closed notice ── */
 
     & > p[data-closed-notice] {
-      border-block-start: 2px solid var(--mountain-fog);
+      border-top: 2px solid var(--mountain-fog);
       color: var(--mountain-mist);
       font-style: italic;
-      margin-block-start: 2rem;
-      padding-block-start: 1.5rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
 
       & > i {
-        margin-inline-end: 0.375rem;
+        margin-right: 0.375rem;
       }
     }
   }

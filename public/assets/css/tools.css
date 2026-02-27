@@ -9,15 +9,15 @@
   /* ── Tool listing pages (browse + bookmarks) ── */
 
   :is(#browse-page, #bookmarks-page) {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 1200px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     /* ── Page header ── */
 
     & > header {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       text-align: center;
 
       & > h1 {
@@ -26,14 +26,15 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
       & > p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-        margin-block: 0.5rem 0;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
       }
 
       & > nav[aria-label="Browse mode"] {
@@ -44,7 +45,7 @@
         border-radius: 2rem;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
         display: inline-flex;
-        margin-block-start: 1rem;
+        margin-top: 1rem;
         padding: 0.25rem;
         position: relative;
 
@@ -54,7 +55,7 @@
           box-shadow: 0 2px 8px var(--shadow-pine);
           content: '';
           height: calc(100% - 0.5rem);
-          inset-inline-start: 0.25rem;
+          left: 0.25rem;
           position: absolute;
           top: 0.25rem;
           transition: transform 0.3s ease;
@@ -97,7 +98,7 @@
       border-radius: 0.5rem;
       color: var(--mountain-pine);
       font-size: 0.938rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 0.75rem 1rem;
       text-align: center;
     }
@@ -108,7 +109,7 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       /* Search bar fieldset */
       & > fieldset:first-of-type {
@@ -117,8 +118,10 @@
         border: 2px solid var(--mountain-fog);
         border-radius: 2rem;
         display: flex;
-        padding-block: 0.25rem;
-        padding-inline: 1rem 0.25rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        padding-left: 1rem;
+        padding-right: 0.25rem;
         transition: border-color 0.25s, box-shadow 0.25s;
 
         &:focus-within {
@@ -197,7 +200,7 @@
 
             & > i {
               color: var(--mountain-gold);
-              margin-inline-end: 0.25rem;
+              margin-right: 0.25rem;
             }
           }
 
@@ -230,7 +233,7 @@
           & > span:last-child {
             display: flex;
             justify-content: space-between;
-            margin-block-start: -0.125rem;
+            margin-top: -0.125rem;
 
             & > span {
               color: var(--mountain-stone);
@@ -256,7 +259,8 @@
           font-weight: 600;
           gap: 0.4rem;
           min-height: 2.75rem;
-          padding-inline: 1.25rem;
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
           transition: background 0.25s;
           white-space: nowrap;
 
@@ -277,7 +281,8 @@
           grid-column: 1 / -1;
           justify-self: end;
           min-height: 2.75rem;
-          padding-inline: 1rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
           transition: border-color 0.25s, color 0.25s;
           white-space: nowrap;
 
@@ -312,12 +317,12 @@
     /* ── Results summary ── */
 
     & > div[aria-live] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       & > p {
         color: var(--mountain-mist);
         font-size: 0.938rem;
-        margin-block-end: 0;
+        margin-bottom: 0;
 
         & > strong {
           color: var(--mountain-pine);
@@ -346,7 +351,7 @@
     /* ── Pagination ── */
 
     & > nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       & > ul {
         align-items: center;
@@ -368,7 +373,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             justify-content: center;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -403,7 +409,8 @@
             min-width: 2.75rem;
             justify-content: center;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           /* Ellipsis */
@@ -419,23 +426,24 @@
     /* ── Empty state ── */
 
     & > section:is([aria-label="No results"], [aria-label="No bookmarks"]) {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       & > i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       & > h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       & > p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       & > a[role="button"] {
@@ -459,13 +467,13 @@
   /* ── Tool detail page ── */
 
   main > section[aria-labelledby="tool-detail-heading"] {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 900px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     & > nav[aria-label="Back"] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & a {
         align-items: center;
@@ -490,7 +498,7 @@
       border-radius: 0.5rem;
       color: var(--mountain-pine);
       font-size: 0.938rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 0.75rem 1rem;
       text-align: center;
     }
@@ -501,7 +509,7 @@
       display: grid;
       gap: 2rem;
       grid-template-columns: 1fr 1fr;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
 
       @media (max-width: 700px) {
         grid-template-columns: 1fr;
@@ -546,7 +554,7 @@
           }
 
           & > span:last-child {
-            margin-inline-start: 0.25rem;
+            margin-left: 0.25rem;
           }
         }
 
@@ -563,7 +571,7 @@
 
             & > i {
               color: var(--mountain-gold);
-              margin-inline-end: 0.25rem;
+              margin-right: 0.25rem;
               width: 1rem;
             }
           }
@@ -602,7 +610,8 @@
           font-weight: 600;
           gap: 0.5rem;
           min-height: 2.75rem;
-          padding-inline: 1.25rem;
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
           transition: background-color 0.2s, border-color 0.2s;
 
           &:is(:hover, :focus-visible) {
@@ -623,13 +632,13 @@
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.75rem;
-      margin-block-end: 1.25rem;
+      margin-bottom: 1.25rem;
       padding: 1.5rem;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 0.75rem;
+        margin-bottom: 0.75rem;
       }
 
       & > p {
@@ -644,17 +653,17 @@
       background: linear-gradient(135deg, var(--mountain-cloud) 0%, var(--mountain-cream) 100%);
       border: 1.5px solid var(--mountain-pine-light);
       border-radius: 0.75rem;
-      margin-block-end: 1.25rem;
+      margin-bottom: 1.25rem;
       padding: 1.5rem;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 0.75rem;
+        margin-bottom: 0.75rem;
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
 
@@ -664,14 +673,14 @@
         border-radius: 0.5rem;
         color: #991b1b;
         font-size: 0.875rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
         padding: 0.625rem 0.875rem;
       }
 
       & fieldset {
         border: 1px solid var(--mountain-fog);
         border-radius: 0.75rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
         padding: 1.25rem;
 
         & > legend {
@@ -679,15 +688,16 @@
           font-size: 0.813rem;
           font-weight: 700;
           letter-spacing: 0.05em;
-          padding-inline: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
           text-transform: uppercase;
         }
 
         & > div {
-          margin-block-end: 1rem;
+          margin-bottom: 1rem;
 
           &:last-child {
-            margin-block-end: 0;
+            margin-bottom: 0;
           }
 
           & > label {
@@ -695,7 +705,7 @@
             display: block;
             font-size: 0.875rem;
             font-weight: 600;
-            margin-block-end: 0.375rem;
+            margin-bottom: 0.375rem;
 
             & > span {
               color: #dc2626;
@@ -726,7 +736,7 @@
           & > select {
             appearance: none;
             min-height: 2.75rem;
-            padding-inline-end: 2.5rem;
+            padding-right: 2.5rem;
           }
 
           & > textarea {
@@ -739,7 +749,8 @@
             border-radius: 0.25rem;
             color: #991b1b;
             font-size: 0.813rem;
-            margin-block: 0.25rem 0;
+            margin-top: 0.25rem;
+            margin-bottom: 0;
             padding: 0.25rem 0.5rem;
           }
 
@@ -754,7 +765,7 @@
               grid-row: 2;
               height: 8px;
               justify-self: end;
-              margin-inline-end: 0.875rem;
+              margin-right: 0.875rem;
               -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 12px 8px;
               mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 12px 8px;
               pointer-events: none;
@@ -767,11 +778,11 @@
       & form > p {
         color: var(--mountain-slate);
         font-size: 0.875rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
 
@@ -802,7 +813,7 @@
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.75rem;
-      margin-block-end: 1.25rem;
+      margin-bottom: 1.25rem;
       padding: 1.25rem 1.5rem;
 
       & > p {
@@ -810,7 +821,7 @@
         font-size: 0.938rem;
 
         & > i {
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
 
         & > a {
@@ -843,7 +854,7 @@
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 0.75rem;
+        margin-bottom: 0.75rem;
       }
 
       & > a {
@@ -869,11 +880,11 @@
       & > p {
         color: var(--mountain-mist);
         font-size: 0.875rem;
-        margin-block-start: 0.5rem;
+        margin-top: 0.5rem;
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
     }
@@ -882,15 +893,15 @@
   /* ── Tool create + edit + availability pages ── */
 
   main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 720px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     /* ── Page header ── */
 
     & > header {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       text-align: center;
 
       & > h1 {
@@ -899,14 +910,15 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
       & > p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-        margin-block: 0.5rem 0;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
       }
     }
 
@@ -920,7 +932,7 @@
       font-size: 0.875rem;
       line-height: 1.5;
       list-style: disc inside;
-      margin-block-end: 1.25rem;
+      margin-bottom: 1.25rem;
       padding: 0.75rem 1rem;
     }
 
@@ -937,7 +949,7 @@
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 1rem;
-      margin-block-end: 1.25rem;
+      margin-bottom: 1.25rem;
       padding: 1.5rem;
 
       & > legend {
@@ -945,16 +957,17 @@
         font-size: 0.813rem;
         font-weight: 700;
         letter-spacing: 0.05em;
-        padding-inline: 0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
         text-transform: uppercase;
       }
 
       /* Field groups */
       & > div {
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
 
         &:last-child {
-          margin-block-end: 0;
+          margin-bottom: 0;
         }
 
         & > label {
@@ -962,7 +975,7 @@
           display: block;
           font-size: 0.875rem;
           font-weight: 600;
-          margin-block-end: 0.375rem;
+          margin-bottom: 0.375rem;
 
           /* Required asterisk */
           & > span {
@@ -1000,7 +1013,7 @@
 
         & > select {
           appearance: none;
-          padding-inline-end: 2.5rem;
+          padding-right: 2.5rem;
         }
 
         & > textarea {
@@ -1019,7 +1032,7 @@
             grid-row: 2;
             height: 8px;
             justify-self: end;
-            margin-inline-end: 0.875rem;
+            margin-right: 0.875rem;
             -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 12px 8px;
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 12px 8px;
             pointer-events: none;
@@ -1044,7 +1057,7 @@
             cursor: pointer;
             font-size: 0.813rem;
             font-weight: 600;
-            margin-inline-end: 0.75rem;
+            margin-right: 0.75rem;
             padding: 0.375rem 0.875rem;
             transition: background 0.2s;
           }
@@ -1064,7 +1077,8 @@
         & > p[role="alert"] {
           color: #dc2626;
           font-size: 0.813rem;
-          margin-block: 0.25rem 0;
+          margin-top: 0.25rem;
+          margin-bottom: 0;
         }
       }
     }
@@ -1098,7 +1112,7 @@
   main > section:is([aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
 
     & > nav[aria-label="Back"] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       & a {
         align-items: center;
@@ -1119,7 +1133,8 @@
   main > section[aria-labelledby="edit-tool-heading"] {
 
     & figure {
-      margin-block: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
 
       & > img {
         border: 1px solid var(--mountain-fog);
@@ -1133,12 +1148,12 @@
       & > figcaption {
         color: var(--mountain-mist);
         font-size: 0.813rem;
-        margin-block-start: 0.375rem;
+        margin-top: 0.375rem;
       }
     }
 
     & > nav[aria-label="Related actions"] {
-      margin-block-start: 1.5rem;
+      margin-top: 1.5rem;
       text-align: center;
 
       & > a {
@@ -1151,7 +1166,8 @@
         font-weight: 600;
         gap: 0.5rem;
         min-height: 2.75rem;
-        padding-inline: 1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
         text-decoration: none;
         transition: background-color 0.2s, border-color 0.2s;
 
@@ -1178,24 +1194,24 @@
       border-radius: 0.5rem;
       color: var(--mountain-pine);
       font-size: 0.938rem;
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       padding: 0.75rem 1rem;
       text-align: center;
     }
 
     & > p:not([role]) {
       color: var(--mountain-mist);
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       text-align: center;
     }
 
     & > section[aria-labelledby="blocks-heading"] {
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       & > div {
@@ -1210,7 +1226,7 @@
 
       & th {
         background: var(--mountain-cloud);
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
         color: var(--mountain-slate);
         font-size: 0.813rem;
         font-weight: 700;
@@ -1222,7 +1238,7 @@
       }
 
       & td {
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         color: var(--mountain-charcoal);
         font-size: 0.875rem;
         padding: 0.75rem 1rem;
@@ -1231,12 +1247,12 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
 
       & tr[data-status="active"] > td:first-child {
-        border-inline-start: 3px solid var(--mountain-pine);
+        border-left: 3px solid var(--mountain-pine);
       }
 
       & tr[data-status="past"] {
@@ -1255,7 +1271,8 @@
         font-weight: 600;
         gap: 0.375rem;
         min-height: 2.25rem;
-        padding-inline: 0.75rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
         transition: background-color 0.2s, color 0.2s;
 
         &:is(:hover, :focus-visible) {
@@ -1270,7 +1287,7 @@
 
         & > i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
     }
@@ -1278,35 +1295,35 @@
     & > section[aria-labelledby="add-block-heading"] > h2 {
       color: var(--mountain-pine);
       font-size: 1.125rem;
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       & > i {
         color: var(--mountain-gold);
-        margin-inline-end: 0.25rem;
+        margin-right: 0.25rem;
       }
     }
 
     & > section[aria-labelledby="listing-status-heading"] {
       border: 1.5px solid var(--mountain-fog);
       border-radius: 0.5rem;
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
       padding: 1.25rem 1.5rem;
       text-align: center;
 
       & > h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
 
         & > i {
-          margin-inline-end: 0.25rem;
+          margin-right: 0.25rem;
         }
       }
 
       & > p {
         color: var(--mountain-mist);
         font-size: 0.875rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       & button[data-action="unlist"] {
@@ -1320,9 +1337,11 @@
         font-size: 0.938rem;
         font-weight: 600;
         gap: 0.5rem;
-        margin-inline: auto;
+        margin-left: auto;
+        margin-right: auto;
         min-height: 2.75rem;
-        padding-inline: 1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
         transition: background-color 0.2s, color 0.2s;
 
         &:is(:hover, :focus-visible) {
@@ -1342,9 +1361,11 @@
         font-size: 0.938rem;
         font-weight: 600;
         gap: 0.5rem;
-        margin-inline: auto;
+        margin-left: auto;
+        margin-right: auto;
         min-height: 2.75rem;
-        padding-inline: 1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
         transition: background-color 0.2s, border-color 0.2s;
 
         &:is(:hover, :focus-visible) {

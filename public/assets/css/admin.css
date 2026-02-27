@@ -25,15 +25,15 @@
     [aria-labelledby="admin-tos-heading"],
     [aria-labelledby="admin-tos-create-heading"],
     [aria-labelledby="admin-search-heading"]) {
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 1100px;
-    padding-block: 2rem;
-    padding-inline: 1.5rem;
+    padding: 2rem 1.5rem;
 
     /* ── Page header ── */
 
     &>header {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
       text-align: center;
 
       &>h1 {
@@ -42,14 +42,15 @@
 
         &>i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
       &>p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-        margin-block: 0.5rem 0;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
       }
     }
 
@@ -58,11 +59,11 @@
     &>[data-admin-body]>section>h2,
     &>[data-admin-body]>details>summary>h2 {
       color: var(--mountain-pine);
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>i:not([data-chevron]) {
         color: var(--mountain-gold);
-        margin-inline-end: 0.375rem;
+        margin-right: 0.375rem;
       }
     }
 
@@ -71,7 +72,7 @@
     &>[data-admin-body]>details>summary {
       cursor: pointer;
       list-style: none;
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &::marker,
       &::-webkit-details-marker {
@@ -80,7 +81,7 @@
 
       &>h2>[data-chevron] {
         font-size: 0.75em;
-        margin-inline-start: 0.5rem;
+        margin-left: 0.5rem;
         transition: rotate 0.3s ease;
       }
     }
@@ -92,7 +93,7 @@
     /* ── Section spacing ── */
 
     &>[data-admin-body]> :is(section, details)+ :is(section, details) {
-      margin-block-start: 2.5rem;
+      margin-top: 2.5rem;
     }
   }
 
@@ -106,14 +107,14 @@
 
       &>nav[aria-label="Admin navigation"] {
         align-self: start;
-        border-block-end: none;
-        border-inline-end: 2px solid var(--mountain-fog);
+        border-bottom: none;
+        border-right: 2px solid var(--mountain-fog);
         flex-direction: column;
         grid-column: 1;
         grid-row: 1 / span 20;
         justify-content: flex-start;
         overflow-x: visible;
-        padding-inline-end: 1rem;
+        padding-right: 1rem;
         position: sticky;
         scrollbar-gutter: auto;
         top: 6.5rem;
@@ -123,19 +124,18 @@
           gap: 0.125rem;
 
           &>li>a {
-            border-block-end: none;
-            border-inline-start: 3px solid transparent;
+            border-bottom: none;
+            border-left: 3px solid transparent;
             font-size: 0.8125rem;
-            margin-block-end: 0;
-            padding-block: 0.4375rem;
-            padding-inline: 0.75rem;
+            margin-bottom: 0;
+            padding: 0.4375rem 0.75rem;
 
             &:is(:hover, :focus-visible) {
-              border-inline-start-color: var(--mountain-gold);
+              border-left-color: var(--mountain-gold);
             }
 
             &[aria-current="page"] {
-              border-inline-start-color: var(--mountain-gold-light);
+              border-left-color: var(--mountain-gold-light);
             }
           }
         }
@@ -150,9 +150,8 @@
   /* ── Global admin search bar ── */
 
   search[aria-label="Search all admin data"] {
-    padding-block: 0.75rem;
-    padding-inline: 1.5rem;
-    margin-block-end: 1rem;
+    padding: 0.75rem 1.5rem;
+    margin-bottom: 1rem;
 
     &>form[role="search"] {
       align-items: center;
@@ -161,10 +160,13 @@
       border-radius: 2rem;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
       display: flex;
-      margin-inline: auto;
+      margin-left: auto;
+      margin-right: auto;
       max-width: 480px;
-      padding-block: 0.25rem;
-      padding-inline: 1rem 0.25rem;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      padding-left: 1rem;
+      padding-right: 0.25rem;
       position: relative;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
       width: 100%;
@@ -217,7 +219,7 @@
   /* ── Sort / filter form bar ── */
 
   form[data-admin-filters] {
-    margin-block-end: 1.25rem;
+    margin-bottom: 1.25rem;
 
     &>fieldset {
       background: var(--mountain-cloud);
@@ -289,9 +291,11 @@
         font-weight: 600;
         gap: 0.375rem;
         height: 43.05px;
-        margin-block: auto;
+        margin-top: auto;
+        margin-bottom: auto;
         min-height: 2.25rem;
-        padding-inline: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         transition: background 0.2s;
 
         &:is(:hover, :focus-visible) {
@@ -347,14 +351,14 @@
   /* ── Admin quick actions ── */
 
   section[aria-labelledby="admin-actions-heading"] {
-    border-block-start: 1px solid var(--mountain-fog);
-    margin-block-start: 2.5rem;
-    padding-block-start: 1.5rem;
+    border-top: 1px solid var(--mountain-fog);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
 
     &>h2 {
       color: var(--mountain-pine);
       font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
     }
 
     &>ul {
@@ -390,7 +394,7 @@
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    margin-block-start: 1rem;
+    margin-top: 1rem;
 
     &>article>a {
       align-items: flex-start;
@@ -431,13 +435,13 @@
         font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
         font-weight: 700;
         line-height: 1;
-        margin-block-end: 0;
+        margin-bottom: 0;
       }
 
       &>span:last-child {
         color: var(--mountain-mist);
         font-size: 0.813rem;
-        margin-block-start: auto;
+        margin-top: auto;
 
         &>i {
           color: var(--mountain-gold);
@@ -488,16 +492,16 @@
   /* ── Dashboard trends table ── */
 
   section[aria-labelledby="admin-trends-heading"] {
-    border-block-start: 1px solid var(--mountain-fog);
-    margin-block-start: 2.5rem;
-    padding-block-start: 1.5rem;
+    border-top: 1px solid var(--mountain-fog);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
 
     &>header {
       align-items: center;
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem 1.5rem;
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>h2 {
         color: var(--mountain-pine);
@@ -505,7 +509,7 @@
 
         &>i {
           color: var(--mountain-gold);
-          margin-inline-end: 0.375rem;
+          margin-right: 0.375rem;
         }
       }
 
@@ -548,15 +552,14 @@
         width: 100%;
 
         & thead {
-          border-block-end: 2px solid var(--mountain-fog);
+          border-bottom: 2px solid var(--mountain-fog);
 
           & th {
             color: var(--mountain-mist);
             font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.04em;
-            padding-block: 0.625rem;
-            padding-inline: 0.5rem;
+            padding: 0.625rem 0.5rem;
             text-align: start;
             text-transform: uppercase;
             white-space: nowrap;
@@ -564,7 +567,7 @@
         }
 
         & tbody tr {
-          border-block-end: 1px solid var(--mountain-fog);
+          border-bottom: 1px solid var(--mountain-fog);
           transition: background-color 0.15s;
 
           &:is(:hover, :focus-within) {
@@ -573,8 +576,7 @@
 
           & td {
             font-size: 0.813rem;
-            padding-block: 0.5rem;
-            padding-inline: 0.5rem;
+            padding: 0.5rem;
             vertical-align: baseline;
             white-space: nowrap;
 
@@ -614,7 +616,8 @@
       color: var(--mountain-mist);
       font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
       line-height: 1.6;
-      margin-block: 1rem 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
       max-width: 65ch;
     }
 
@@ -642,7 +645,7 @@
   main>section[aria-labelledby="admin-events-heading"] {
 
     & nav[data-timing-filters] {
-      margin-block-end: 1.5rem;
+      margin-bottom: 1.5rem;
 
       &>ul {
         display: flex;
@@ -686,7 +689,7 @@
     }
 
     & div[aria-live] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>p {
         color: var(--mountain-mist);
@@ -699,7 +702,7 @@
     }
 
     & div[data-actions] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>a {
         align-items: center;
@@ -711,7 +714,8 @@
         font-weight: 600;
         gap: 0.375rem;
         min-height: 2.25rem;
-        padding-inline: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         text-decoration: none;
         transition: background 0.2s;
 
@@ -727,15 +731,14 @@
       width: 100%;
 
       & thead {
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
 
         & th {
           color: var(--mountain-mist);
           font-size: 0.75rem;
           font-weight: 600;
           letter-spacing: 0.04em;
-          padding-block: 0.625rem;
-          padding-inline: 0.75rem;
+          padding: 0.625rem 0.75rem;
           text-align: start;
           text-transform: uppercase;
           white-space: nowrap;
@@ -743,7 +746,7 @@
       }
 
       & tbody tr {
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         transition: background-color 0.15s;
 
         &:is(:hover, :focus-within) {
@@ -752,8 +755,7 @@
 
         & td {
           font-size: 0.875rem;
-          padding-block: 0.75rem;
-          padding-inline: 0.75rem;
+          padding: 0.75rem;
           vertical-align: top;
 
           &>a {
@@ -806,7 +808,7 @@
     }
 
     & nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>ul {
         align-items: center;
@@ -827,7 +829,8 @@
             justify-content: center;
             min-height: 2.75rem;
             min-width: 2.75rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -861,7 +864,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           &>span[aria-hidden] {
@@ -874,23 +878,24 @@
     }
 
     & section[aria-label="No events"] {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       &>h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       &>p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       &>a[role="button"] {
@@ -918,7 +923,7 @@
   main>section[aria-labelledby="admin-incidents-heading"] {
 
     & div[aria-live] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>p {
         color: var(--mountain-mist);
@@ -947,19 +952,19 @@
         }
 
         &[data-urgency="critical"] {
-          border-inline-start: 4px solid #dc2626;
+          border-left: 4px solid #dc2626;
         }
 
         &[data-urgency="high"] {
-          border-inline-start: 4px solid #ea580c;
+          border-left: 4px solid #ea580c;
         }
 
         &[data-urgency="moderate"] {
-          border-inline-start: 4px solid var(--mountain-gold);
+          border-left: 4px solid var(--mountain-gold);
         }
 
         &[data-urgency="new"] {
-          border-inline-start: 4px solid var(--mountain-pine-light);
+          border-left: 4px solid var(--mountain-pine-light);
         }
 
         &>header {
@@ -967,7 +972,7 @@
           display: flex;
           gap: 0.75rem;
           justify-content: space-between;
-          margin-block-end: 0.75rem;
+          margin-bottom: 0.75rem;
 
           &>h2 {
             color: var(--mountain-pine);
@@ -1066,12 +1071,12 @@
 
         &>footer {
           align-items: center;
-          border-block-start: 1px solid var(--mountain-fog);
+          border-top: 1px solid var(--mountain-fog);
           display: flex;
           flex-wrap: wrap;
           gap: 1rem;
-          margin-block-start: 0.75rem;
-          padding-block-start: 0.625rem;
+          margin-top: 0.75rem;
+          padding-top: 0.625rem;
 
           &>div {
             display: flex;
@@ -1089,7 +1094,7 @@
             color: var(--mountain-pine);
             font-size: 0.813rem;
             font-weight: 500;
-            margin-inline-start: auto;
+            margin-left: auto;
             text-decoration: underline;
             text-decoration-color: transparent;
             text-underline-offset: 2px;
@@ -1104,7 +1109,7 @@
     }
 
     & nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>ul {
         align-items: center;
@@ -1125,7 +1130,8 @@
             justify-content: center;
             min-height: 2.75rem;
             min-width: 2.75rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -1159,7 +1165,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           &>span[aria-hidden] {
@@ -1172,23 +1179,24 @@
     }
 
     & section[aria-label="No incidents"] {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       &>h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       &>p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       &>a[role="button"] {
@@ -1222,12 +1230,12 @@
       color: var(--mountain-pine);
       font-size: 0.875rem;
       font-weight: 500;
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
       padding: 0.75rem 1rem;
     }
 
     & div[aria-live] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>p {
         color: var(--mountain-mist);
@@ -1244,15 +1252,14 @@
       width: 100%;
 
       & thead {
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
 
         & th {
           color: var(--mountain-mist);
           font-size: 0.75rem;
           font-weight: 600;
           letter-spacing: 0.04em;
-          padding-block: 0.625rem;
-          padding-inline: 0.75rem;
+          padding: 0.625rem 0.75rem;
           text-align: start;
           text-transform: uppercase;
           white-space: nowrap;
@@ -1260,7 +1267,7 @@
       }
 
       & tbody tr {
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         transition: background-color 0.15s;
 
         &:is(:hover, :focus-within) {
@@ -1268,18 +1275,17 @@
         }
 
         &[data-pending] {
-          border-inline-start: 3px solid var(--mountain-gold);
+          border-left: 3px solid var(--mountain-gold);
         }
 
         &[data-suspended] {
-          border-inline-start: 3px solid #dc2626;
+          border-left: 3px solid #dc2626;
           opacity: 0.85;
         }
 
         & td {
           font-size: 0.875rem;
-          padding-block: 0.75rem;
-          padding-inline: 0.75rem;
+          padding: 0.75rem;
           vertical-align: top;
 
           &>a {
@@ -1299,7 +1305,7 @@
             color: var(--mountain-mist);
             display: block;
             font-size: 0.75rem;
-            margin-block-start: 0.125rem;
+            margin-top: 0.125rem;
           }
 
           &>span {
@@ -1364,7 +1370,8 @@
               font-weight: 600;
               gap: 0.3rem;
               min-height: 2.25rem;
-              padding-inline: 0.875rem;
+              padding-left: 0.875rem;
+              padding-right: 0.875rem;
               transition: background 0.2s, transform 0.1s;
               white-space: nowrap;
 
@@ -1418,7 +1425,7 @@
     }
 
     & nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>ul {
         align-items: center;
@@ -1439,7 +1446,8 @@
             justify-content: center;
             min-height: 2.75rem;
             min-width: 2.75rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -1473,7 +1481,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           &>span[aria-hidden] {
@@ -1486,23 +1495,24 @@
     }
 
     & section[aria-label="No users"] {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       &>h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       &>p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       &>a[role="button"] {
@@ -1530,7 +1540,7 @@
   main>section[aria-labelledby="admin-disputes-heading"] {
 
     & div[aria-live] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>p {
         color: var(--mountain-mist);
@@ -1559,19 +1569,19 @@
         }
 
         &[data-urgency="critical"] {
-          border-inline-start: 4px solid #dc2626;
+          border-left: 4px solid #dc2626;
         }
 
         &[data-urgency="high"] {
-          border-inline-start: 4px solid #ea580c;
+          border-left: 4px solid #ea580c;
         }
 
         &[data-urgency="moderate"] {
-          border-inline-start: 4px solid var(--mountain-gold);
+          border-left: 4px solid var(--mountain-gold);
         }
 
         &[data-urgency="new"] {
-          border-inline-start: 4px solid var(--mountain-pine-light);
+          border-left: 4px solid var(--mountain-pine-light);
         }
 
         &>header {
@@ -1579,7 +1589,7 @@
           display: flex;
           gap: 0.75rem;
           justify-content: space-between;
-          margin-block-end: 0.75rem;
+          margin-bottom: 0.75rem;
 
           &>h2 {
             color: var(--mountain-pine);
@@ -1661,12 +1671,12 @@
 
         &>footer {
           align-items: center;
-          border-block-start: 1px solid var(--mountain-fog);
+          border-top: 1px solid var(--mountain-fog);
           display: flex;
           flex-wrap: wrap;
           gap: 1rem;
-          margin-block-start: 0.75rem;
-          padding-block-start: 0.625rem;
+          margin-top: 0.75rem;
+          padding-top: 0.625rem;
 
           &>time,
           &>span {
@@ -1678,7 +1688,7 @@
     }
 
     & nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>ul {
         align-items: center;
@@ -1699,7 +1709,8 @@
             justify-content: center;
             min-height: 2.75rem;
             min-width: 2.75rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -1733,7 +1744,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           &>span[aria-hidden] {
@@ -1746,23 +1758,24 @@
     }
 
     & section[aria-label="No disputes"] {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       &>h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       &>p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       &>a[role="button"] {
@@ -1827,7 +1840,8 @@
       color: var(--mountain-mist);
       font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
       line-height: 1.6;
-      margin-block: 1rem 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
       max-width: 65ch;
     }
 
@@ -1838,12 +1852,13 @@
       color: var(--mountain-pine);
       font-size: 0.875rem;
       font-weight: 500;
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
       padding: 0.75rem 1rem;
     }
 
     & div[data-actions] {
-      margin-block: 1rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
 
       &>a {
         align-items: center;
@@ -1855,7 +1870,8 @@
         font-weight: 600;
         gap: 0.375rem;
         min-height: 2.25rem;
-        padding-inline: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         text-decoration: none;
         transition: background 0.2s;
 
@@ -1871,7 +1887,7 @@
     & section[aria-labelledby="tos-noncompliant-heading"] {
 
       &>div[aria-live] {
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
 
         &>p {
           color: var(--mountain-mist);
@@ -1888,22 +1904,21 @@
         width: 100%;
 
         & thead {
-          border-block-end: 2px solid var(--mountain-fog);
+          border-bottom: 2px solid var(--mountain-fog);
 
           & th {
             color: var(--mountain-mist);
             font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.04em;
-            padding-block: 0.625rem;
-            padding-inline: 0.75rem;
+            padding: 0.625rem 0.75rem;
             text-align: start;
             text-transform: uppercase;
           }
         }
 
         & tbody tr {
-          border-block-end: 1px solid var(--mountain-fog);
+          border-bottom: 1px solid var(--mountain-fog);
           transition: background-color 0.15s;
 
           &:is(:hover, :focus-within) {
@@ -1912,8 +1927,7 @@
 
           & td {
             font-size: 0.875rem;
-            padding-block: 0.75rem;
-            padding-inline: 0.75rem;
+            padding: 0.75rem;
             vertical-align: top;
 
             &>a {
@@ -1933,7 +1947,7 @@
               color: var(--mountain-mist);
               display: block;
               font-size: 0.75rem;
-              margin-block-start: 0.125rem;
+              margin-top: 0.125rem;
             }
 
             &>span {
@@ -1950,7 +1964,7 @@
       /* ── Pagination — shared with disputes ── */
 
       & nav[aria-label="Pagination"] {
-        margin-block-start: 2rem;
+        margin-top: 2rem;
 
         &>ul {
           align-items: center;
@@ -1971,7 +1985,8 @@
               justify-content: center;
               min-height: 2.75rem;
               min-width: 2.75rem;
-              padding-inline: 0.625rem;
+              padding-left: 0.625rem;
+              padding-right: 0.625rem;
               text-decoration: none;
               transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -2005,7 +2020,8 @@
               min-height: 2.75rem;
               min-width: 2.75rem;
               opacity: 0.5;
-              padding-inline: 0.625rem;
+              padding-left: 0.625rem;
+              padding-right: 0.625rem;
             }
 
             &>span[aria-hidden] {
@@ -2020,23 +2036,24 @@
       /* ── Empty state ── */
 
       &>section[aria-label="All compliant"] {
-        padding-block: 4rem;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
         text-align: center;
 
         &>i {
           color: var(--mountain-fog);
           font-size: 3rem;
-          margin-block-end: 1rem;
+          margin-bottom: 1rem;
         }
 
         &>h3 {
           color: var(--mountain-pine);
-          margin-block-end: 0.5rem;
+          margin-bottom: 0.5rem;
         }
 
         &>p {
           color: var(--mountain-mist);
-          margin-block-end: 1.25rem;
+          margin-bottom: 1.25rem;
         }
 
         &>a[role="button"] {
@@ -2073,13 +2090,14 @@
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
-        margin-block-end: 1.5rem;
+        margin-bottom: 1.5rem;
         padding: 1.25rem;
 
         &>legend {
           color: var(--mountain-pine);
           font-weight: 600;
-          padding-inline: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
         }
 
         &>div {
@@ -2158,7 +2176,8 @@
           font-weight: 600;
           gap: 0.375rem;
           min-height: 2.75rem;
-          padding-inline: 1.25rem;
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
           transition: background 0.2s;
 
           &:is(:hover, :focus-visible) {
@@ -2193,7 +2212,7 @@
   main>section[aria-labelledby="admin-tools-heading"] {
 
     & div[aria-live] {
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
 
       &>p {
         color: var(--mountain-mist);
@@ -2210,15 +2229,14 @@
       width: 100%;
 
       & thead {
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
 
         & th {
           color: var(--mountain-mist);
           font-size: 0.75rem;
           font-weight: 600;
           letter-spacing: 0.04em;
-          padding-block: 0.625rem;
-          padding-inline: 0.75rem;
+          padding: 0.625rem 0.75rem;
           text-align: start;
           text-transform: uppercase;
           white-space: nowrap;
@@ -2226,7 +2244,7 @@
       }
 
       & tbody tr {
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         transition: background-color 0.15s;
 
         &:is(:hover, :focus-within) {
@@ -2234,13 +2252,12 @@
         }
 
         &[data-has-incidents] {
-          border-inline-start: 3px solid #ea580c;
+          border-left: 3px solid #ea580c;
         }
 
         & td {
           font-size: 0.875rem;
-          padding-block: 0.75rem;
-          padding-inline: 0.75rem;
+          padding: 0.75rem;
           vertical-align: top;
 
           &>a {
@@ -2260,7 +2277,7 @@
             color: var(--mountain-mist);
             display: block;
             font-size: 0.75rem;
-            margin-block-start: 0.125rem;
+            margin-top: 0.125rem;
           }
 
           &>span {
@@ -2296,7 +2313,7 @@
     }
 
     & nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>ul {
         align-items: center;
@@ -2317,7 +2334,8 @@
             justify-content: center;
             min-height: 2.75rem;
             min-width: 2.75rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -2351,7 +2369,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           &>span[aria-hidden] {
@@ -2364,23 +2383,24 @@
     }
 
     & section[aria-label="No tools"] {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       &>h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       &>p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       &>a[role="button"] {
@@ -2410,7 +2430,7 @@
     & section[aria-labelledby="neighborhood-stats-heading"] {
 
       &>div[aria-live] {
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
 
         &>p {
           color: var(--mountain-mist);
@@ -2427,15 +2447,14 @@
         width: 100%;
 
         & thead {
-          border-block-end: 2px solid var(--mountain-fog);
+          border-bottom: 2px solid var(--mountain-fog);
 
           & th {
             color: var(--mountain-mist);
             font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.04em;
-            padding-block: 0.625rem;
-            padding-inline: 0.75rem;
+            padding: 0.625rem 0.75rem;
             text-align: start;
             text-transform: uppercase;
             white-space: nowrap;
@@ -2443,7 +2462,7 @@
         }
 
         & tbody tr {
-          border-block-end: 1px solid var(--mountain-fog);
+          border-bottom: 1px solid var(--mountain-fog);
           transition: background-color 0.15s;
 
           &:is(:hover, :focus-within) {
@@ -2451,13 +2470,12 @@
           }
 
           &[data-has-activity] {
-            border-inline-start: 3px solid var(--mountain-pine-light);
+            border-left: 3px solid var(--mountain-pine-light);
           }
 
           & td {
             font-size: 0.875rem;
-            padding-block: 0.75rem;
-            padding-inline: 0.75rem;
+            padding: 0.75rem;
             vertical-align: top;
 
             &>strong {
@@ -2470,7 +2488,7 @@
               color: var(--mountain-mist);
               display: block;
               font-size: 0.75rem;
-              margin-block-start: 0.125rem;
+              margin-top: 0.125rem;
             }
 
             &>span {
@@ -2483,12 +2501,12 @@
       &>p[data-cache-note] {
         color: var(--mountain-stone);
         font-size: 0.75rem;
-        margin-block-start: 0.75rem;
+        margin-top: 0.75rem;
         text-align: end;
       }
 
       & nav[aria-label="Pagination"] {
-        margin-block-start: 2rem;
+        margin-top: 2rem;
 
         &>ul {
           align-items: center;
@@ -2509,7 +2527,8 @@
               justify-content: center;
               min-height: 2.75rem;
               min-width: 2.75rem;
-              padding-inline: 0.625rem;
+              padding-left: 0.625rem;
+              padding-right: 0.625rem;
               text-decoration: none;
               transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -2543,7 +2562,8 @@
               min-height: 2.75rem;
               min-width: 2.75rem;
               opacity: 0.5;
-              padding-inline: 0.625rem;
+              padding-left: 0.625rem;
+              padding-right: 0.625rem;
             }
 
             &>span[aria-hidden] {
@@ -2556,23 +2576,24 @@
       }
 
       &>section[aria-label="No neighborhoods"] {
-        padding-block: 4rem;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
         text-align: center;
 
         &>i {
           color: var(--mountain-fog);
           font-size: 3rem;
-          margin-block-end: 1rem;
+          margin-bottom: 1rem;
         }
 
         &>h3 {
           color: var(--mountain-pine);
-          margin-block-end: 0.5rem;
+          margin-bottom: 0.5rem;
         }
 
         &>p {
           color: var(--mountain-mist);
-          margin-block-end: 1.25rem;
+          margin-bottom: 1.25rem;
         }
 
         &>a[role="button"] {
@@ -2608,12 +2629,12 @@
       color: var(--mountain-pine);
       font-size: 0.875rem;
       font-weight: 500;
-      margin-block-end: 1rem;
+      margin-bottom: 1rem;
       padding: 0.75rem 1rem;
     }
 
     & form[data-upload-form] {
-      margin-block-end: 2rem;
+      margin-bottom: 2rem;
 
       & fieldset {
         border: 1px solid var(--mountain-fog);
@@ -2626,7 +2647,8 @@
         &>legend {
           color: var(--mountain-pine);
           font-weight: 600;
-          padding-inline: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
         }
 
         &>div {
@@ -2672,7 +2694,8 @@
           font-weight: 600;
           gap: 0.375rem;
           min-height: 2.25rem;
-          padding-inline: 1rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
           transition: background 0.2s;
           white-space: nowrap;
 
@@ -2692,7 +2715,7 @@
       display: grid;
       gap: 1.5rem;
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 275px), 1fr));
-      margin-block-end: 2.5rem;
+      margin-bottom: 2.5rem;
 
       &>article {
         border: 1px solid var(--mountain-fog);
@@ -2714,7 +2737,7 @@
           display: flex;
           height: 7.5rem;
           justify-content: center;
-          margin-block-end: 1.25rem;
+          margin-bottom: 1.25rem;
           width: 7.5rem;
 
           &>img {
@@ -2747,7 +2770,7 @@
           color: var(--mountain-mist);
           font-size: 0.8125rem;
           line-height: 1.4;
-          margin-block-start: 0.25rem;
+          margin-top: 0.25rem;
 
           &>time {
             color: var(--mountain-slate);
@@ -2760,14 +2783,14 @@
           color: var(--mountain-cream);
           font-size: 0.8125rem;
           font-weight: 500;
-          margin-block-start: 0.75rem;
+          margin-top: 0.75rem;
           padding: 0.375rem 0.75rem;
         }
 
         &>[data-stats] {
           display: flex;
           gap: 0.75rem;
-          margin-block-start: 0.75rem;
+          margin-top: 0.75rem;
 
           &>span {
             border: 1px solid var(--mountain-fog);
@@ -2801,11 +2824,11 @@
 
         &>form[data-inline-form] {
           align-items: center;
-          border-block-start: 1px solid var(--mountain-fog);
+          border-top: 1px solid var(--mountain-fog);
           display: flex;
           gap: 0.5rem;
-          margin-block-end: 1rem;
-          padding-block-start: 1.25rem;
+          margin-bottom: 1rem;
+          padding-top: 1.25rem;
 
           &>input[type="text"] {
             border: 1px solid var(--mountain-fog);
@@ -2828,7 +2851,8 @@
             justify-content: center;
             min-height: 2.25rem;
             min-width: 2.25rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             transition: background 0.2s;
 
             &:is(:hover, :focus-visible) {
@@ -2904,11 +2928,12 @@
     & p[data-empty] {
       color: var(--mountain-mist);
       font-size: 0.938rem;
-      margin-block: 1rem 2.5rem;
+      margin-top: 1rem;
+      margin-bottom: 2.5rem;
     }
 
     & nav[aria-label="Pagination"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>ul {
         align-items: center;
@@ -2929,7 +2954,8 @@
             justify-content: center;
             min-height: 2.75rem;
             min-width: 2.75rem;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
             text-decoration: none;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
@@ -2963,7 +2989,8 @@
             min-height: 2.75rem;
             min-width: 2.75rem;
             opacity: 0.5;
-            padding-inline: 0.625rem;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
           }
 
           &>span[aria-hidden] {
@@ -2980,15 +3007,14 @@
       width: 100%;
 
       & thead {
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
 
         & th {
           color: var(--mountain-mist);
           font-size: 0.75rem;
           font-weight: 600;
           letter-spacing: 0.04em;
-          padding-block: 0.625rem;
-          padding-inline: 0.75rem;
+          padding: 0.625rem 0.75rem;
           text-align: start;
           text-transform: uppercase;
           white-space: nowrap;
@@ -2996,7 +3022,7 @@
       }
 
       & tbody tr {
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         transition: background-color 0.15s;
 
         &:is(:hover, :focus-within) {
@@ -3005,8 +3031,7 @@
 
         & td {
           font-size: 0.875rem;
-          padding-block: 0.75rem;
-          padding-inline: 0.75rem;
+          padding: 0.75rem;
           vertical-align: middle;
 
           &>figure[data-icon-preview] {
@@ -3051,7 +3076,8 @@
             font-weight: 600;
             gap: 0.3rem;
             min-height: 2.25rem;
-            padding-inline: 0.875rem;
+            padding-left: 0.875rem;
+            padding-right: 0.875rem;
             transition: background 0.2s;
             white-space: nowrap;
 
@@ -3069,7 +3095,7 @@
             vertical-align: top;
 
             & details {
-              margin-block-end: 0.5rem;
+              margin-bottom: 0.5rem;
 
               &>summary {
                 align-items: center;
@@ -3084,7 +3110,8 @@
                 gap: 0.3rem;
                 list-style: none;
                 min-height: 2.25rem;
-                padding-inline: 0.875rem;
+                padding-left: 0.875rem;
+                padding-right: 0.875rem;
                 transition: background 0.2s, color 0.2s;
 
                 &::-webkit-details-marker {
@@ -3108,7 +3135,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
-                margin-block-start: 0.5rem;
+                margin-top: 0.5rem;
                 padding: 0.75rem;
 
                 & label {
@@ -3154,15 +3181,15 @@
   /* ── Category create form ── */
 
   main>section[aria-labelledby="admin-categories-heading"] section[data-category-create] {
-    margin-block-end: 1.5rem;
+    margin-bottom: 1.5rem;
 
     & h2 {
       color: var(--mountain-pine);
       font-size: 1.125rem;
-      margin-block-end: 0.75rem;
+      margin-bottom: 0.75rem;
 
       &>i {
-        margin-inline-end: 0.25rem;
+        margin-right: 0.25rem;
       }
     }
 
@@ -3221,7 +3248,8 @@
         font-weight: 600;
         gap: 0.375rem;
         min-height: 2.25rem;
-        padding-inline: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         transition: background 0.2s;
         white-space: nowrap;
 
@@ -3243,23 +3271,24 @@
   #admin-search-page {
 
     & section[aria-label="No results"] {
-      padding-block: 4rem;
+      padding-top: 4rem;
+      padding-bottom: 4rem;
       text-align: center;
 
       &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
-        margin-block-end: 1rem;
+        margin-bottom: 1rem;
       }
 
       &>h2 {
         color: var(--mountain-pine);
-        margin-block-end: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
       &>p {
         color: var(--mountain-mist);
-        margin-block-end: 1.25rem;
+        margin-bottom: 1.25rem;
       }
 
       &>a[role="button"] {
@@ -3282,16 +3311,16 @@
     }
 
     & section[aria-labelledby^="search-"] {
-      margin-block-start: 2rem;
+      margin-top: 2rem;
 
       &>h2 {
         align-items: center;
-        border-block-end: 2px solid var(--mountain-fog);
+        border-bottom: 2px solid var(--mountain-fog);
         color: var(--mountain-pine);
         display: flex;
         font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
         gap: 0.5rem;
-        padding-block-end: 0.5rem;
+        padding-bottom: 0.5rem;
 
         &>i {
           color: var(--mountain-gold);
@@ -3308,7 +3337,7 @@
       }
 
       &>div[role="list"]>article {
-        border-block-end: 1px solid var(--mountain-fog);
+        border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         flex-direction: column;
         gap: 0.375rem;
@@ -3408,7 +3437,7 @@
         font-size: 0.813rem;
         font-weight: 600;
         gap: 0.375rem;
-        margin-block-start: 0.5rem;
+        margin-top: 0.5rem;
         text-decoration: underline;
         text-decoration-color: transparent;
         text-underline-offset: 2px;
@@ -3436,7 +3465,7 @@
         align-self: center;
         grid-row: 1 / 3;
         height: 4rem;
-        margin-block-end: 0;
+        margin-bottom: 0;
         width: 4rem;
 
         &>img {
@@ -3499,7 +3528,7 @@
       }
 
       & tbody tr td+td {
-        margin-block-start: 0.5rem;
+        margin-top: 0.5rem;
       }
 
       & tbody tr td[data-label]::before {
@@ -3508,14 +3537,14 @@
         display: block;
         font-size: 0.688rem;
         font-weight: 600;
-        margin-block-end: 0.125rem;
+        margin-bottom: 0.125rem;
         text-transform: uppercase;
       }
 
       & tbody tr td:last-child:not([data-label]) {
-        border-block-start: 1px solid var(--mountain-fog);
-        margin-block-start: auto;
-        padding-block-start: 0.75rem;
+        border-top: 1px solid var(--mountain-fog);
+        margin-top: auto;
+        padding-top: 0.75rem;
       }
     }
   }
@@ -3614,10 +3643,10 @@
   @media (prefers-contrast: more) {
     nav[aria-label="Admin navigation"] {
       --subnav-border: 3px;
-      border-block-end-width: var(--subnav-border);
+      border-bottom-width: var(--subnav-border);
 
       & a[aria-current="page"] {
-        border-block-end-width: 4px;
+        border-bottom-width: 4px;
       }
     }
 

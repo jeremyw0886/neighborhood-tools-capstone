@@ -25,10 +25,10 @@
     display: grid;
     gap: clamp(0.375rem, 0.125rem + 0.75vw, 0.75rem);
     grid-template-columns: 1fr auto 1fr;
-    margin-inline: auto;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 1400px;
-    padding-block: 0.625rem;
-    padding-inline: 1.25rem;
+    padding: 0.625rem 1.25rem;
 
     /* ── Logo link (first child) ── */
 
@@ -127,7 +127,7 @@
 
         /* Active page indicator */
         &[aria-current="page"] {
-          border-block-end: 2px solid var(--mountain-gold);
+          border-bottom: 2px solid var(--mountain-gold);
           color: var(--mountain-gold);
         }
 
@@ -219,13 +219,14 @@
           display: flex;
           font-size: 0.688rem;
           font-weight: 700;
-          inset-block-start: -0.25rem;
-          inset-inline-end: -0.375rem;
+          top: -0.25rem;
+          right: -0.375rem;
           justify-content: center;
           line-height: 1;
           min-height: 1.125rem;
           min-width: 1.125rem;
-          padding-inline: 0.25rem;
+          padding-left: 0.25rem;
+          padding-right: 0.25rem;
           position: absolute;
         }
       }
@@ -302,10 +303,11 @@
       display: flex;
       flex-direction: column;
       gap: 0;
-      inset-block-start: calc(100% + 0.5rem);
-      inset-inline-end: 0;
+      top: calc(100% + 0.5rem);
+      right: 0;
       min-width: 11rem;
-      padding-block: 0.5rem;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
       position: absolute;
       z-index: 100;
 
@@ -351,7 +353,8 @@
       grid-template-columns: 1.5fr repeat(3, 1fr);
       gap: 2rem;
       max-width: 1200px;
-      margin-inline: auto;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     & > div:first-child > div:first-child {
@@ -381,10 +384,10 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--mountain-gold-light);
-      margin-block-end: 0.75rem;
-      padding-block-end: 0.5rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
       line-height: 1.4;
-      border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     & ul {
@@ -399,7 +402,8 @@
       text-decoration: none;
       font-size: 0.9rem;
       display: block;
-      padding-block: 0.5rem;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
       transition: color 0.2s ease, opacity 0.2s ease;
 
       &:is(:hover, :focus-visible) {
@@ -414,14 +418,15 @@
     }
 
     & > div:last-child {
-      border-block-start: 1px solid rgba(255, 255, 255, 0.1);
-      margin-block-start: 2rem;
-      padding-block-start: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 2rem;
+      padding-top: 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       max-width: 1200px;
-      margin-inline: auto;
+      margin-left: auto;
+      margin-right: auto;
 
       & p {
         font-size: 0.85rem;
@@ -449,7 +454,7 @@
   nav:is([aria-label="Dashboard navigation"], [aria-label="Admin navigation"]) {
     --subnav-border: 2px;
 
-    border-block-end: var(--subnav-border) solid var(--mountain-fog);
+    border-bottom: var(--subnav-border) solid var(--mountain-fog);
     display: flex;
     justify-content: center;
     overflow-x: auto;
@@ -461,14 +466,15 @@
 
       & > li > a {
         align-items: center;
-        border-block-end: 3px solid transparent;
+        border-bottom: 3px solid transparent;
         color: var(--mountain-mist);
         display: inline-flex;
         font-weight: 600;
         gap: 0.4rem;
-        margin-block-end: calc(-1 * var(--subnav-border));
+        margin-bottom: calc(-1 * var(--subnav-border));
         min-height: 2.75rem;
-        padding-block: 0.625rem;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
         text-decoration: none;
         transition: border-color 0.25s, color 0.25s;
         white-space: nowrap;
@@ -497,10 +503,10 @@
 
   @media (prefers-contrast: more) {
     nav[aria-label="Main navigation"]:not([data-hero]) {
-      border-block-end: 2px solid var(--mountain-cream);
+      border-bottom: 2px solid var(--mountain-cream);
 
       & > #top-links a[aria-current="page"] {
-        border-block-end-width: 3px;
+        border-bottom-width: 3px;
         font-weight: 700;
       }
 

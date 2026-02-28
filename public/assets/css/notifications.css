@@ -26,11 +26,6 @@
       & > h1 {
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.375rem;
-        }
       }
 
       & > form > button {

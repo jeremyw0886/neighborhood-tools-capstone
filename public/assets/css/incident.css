@@ -11,11 +11,6 @@
       & > h1 {
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.375rem;
-        }
       }
 
       & > p {
@@ -252,11 +247,6 @@
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
         font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.375rem;
-        }
       }
 
       & > p[data-status] {
@@ -350,11 +340,6 @@
         font-size: 1.125rem;
         margin-bottom: 1rem;
         padding-bottom: 0.75rem;
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.375rem;
-        }
       }
 
       & > div {
@@ -382,11 +367,6 @@
         font-size: 1.125rem;
         margin-bottom: 1.5rem;
         padding-bottom: 0.75rem;
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.375rem;
-        }
 
         & > span {
           color: var(--mountain-mist);

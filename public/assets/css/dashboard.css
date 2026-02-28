@@ -52,11 +52,6 @@
       & > h1 {
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.375rem;
-        }
       }
 
       & > p {
@@ -85,11 +80,6 @@
     & > [data-dashboard-body] > section > h2 {
       color: var(--mountain-pine);
       margin-bottom: 1rem;
-
-      & > i {
-        color: var(--mountain-gold);
-        margin-right: 0.375rem;
-      }
 
       &[data-urgent] {
         color: #b91c1c;
@@ -259,11 +249,6 @@
   section[aria-labelledby="admin-summary-heading"] > h2 {
     color: var(--mountain-pine);
     margin-bottom: 1rem;
-
-    & > i {
-      color: var(--mountain-gold);
-      margin-right: 0.375rem;
-    }
   }
 
   /* ── Quick actions ── */

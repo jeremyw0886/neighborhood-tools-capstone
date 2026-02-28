@@ -1512,6 +1512,13 @@
     color: #1e40af;
   }
 
+  /* --- Heading Icons ---------------------------------------- */
+
+  main :is(h1, h2, h3) > i {
+    color: var(--mountain-gold);
+    margin-right: 0.375rem;
+  }
+
   /* --- Forms ------------------------------------------------ */
 
   fieldset :is(

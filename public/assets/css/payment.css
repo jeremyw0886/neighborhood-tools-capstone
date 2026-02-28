@@ -5,26 +5,6 @@
     max-width: 800px;
     padding: 2rem 1.5rem;
 
-    & > nav[aria-label="Back"] {
-      margin-bottom: 1.5rem;
-
-      & > a {
-        color: var(--mountain-mist);
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: color 0.2s;
-
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-pine);
-        }
-
-        & > i {
-          margin-right: 0.25rem;
-        }
-      }
-    }
-
     & > header {
       align-items: baseline;
       display: flex;
@@ -339,26 +319,6 @@
     max-width: 800px;
     padding: 2rem 1.5rem;
 
-    & > nav[aria-label="Back"] {
-      margin-bottom: 1.5rem;
-
-      & > a {
-        color: var(--mountain-mist);
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: color 0.2s;
-
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-pine);
-        }
-
-        & > i {
-          margin-right: 0.25rem;
-        }
-      }
-    }
-
     & > header {
       margin-bottom: 1.5rem;
 
@@ -483,26 +443,6 @@
     margin: 0 auto;
     max-width: 900px;
     padding: 2rem 1.5rem;
-
-    & > nav[aria-label="Back"] {
-      margin-bottom: 1.5rem;
-
-      & > a {
-        color: var(--mountain-mist);
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: color 0.2s;
-
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-pine);
-        }
-
-        & > i {
-          margin-right: 0.25rem;
-        }
-      }
-    }
 
     & > h1 {
       color: var(--mountain-pine);
@@ -667,7 +607,6 @@
 
   @media (prefers-reduced-motion: reduce) {
     #deposit-detail {
-      & > nav a,
       & > section dl dd a,
       & > section[aria-labelledby="process-heading"] form :is(input, textarea),
       & > section[aria-labelledby="process-heading"] form > footer > button {
@@ -675,18 +614,12 @@
       }
     }
 
-    #deposit-payment {
-      & > nav a,
-      & > form#payment-form > footer > button {
-        transition: none;
-      }
+    #deposit-payment > form#payment-form > footer > button {
+      transition: none;
     }
 
-    #payment-history {
-      & > nav a,
-      & > nav[aria-label="Pagination"] a {
-        transition: none;
-      }
+    #payment-history > nav[aria-label="Pagination"] a {
+      transition: none;
     }
   }
 

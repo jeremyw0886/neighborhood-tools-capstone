@@ -53,7 +53,7 @@ if (!empty($depositPending)):
     The borrower hasn't paid the security deposit yet. The pickup code can be generated once the deposit is confirmed.
   </p>
 
-  <nav aria-label="Navigation">
+  <nav aria-label="Back">
     <a href="/dashboard/lender">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       Back to Dashboard
@@ -104,7 +104,7 @@ if (!empty($awaitingLender)):
     <?= $lenderName ?> hasn't generated the pickup code yet. Once they do, you'll receive a notification.
   </p>
 
-  <nav aria-label="Navigation">
+  <nav aria-label="Back">
     <a href="/dashboard/borrower">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       Back to Dashboard
@@ -155,7 +155,7 @@ if (!empty($awaitingBorrower)):
     <?= $borrowerName ?> hasn't generated the return code yet. Once they do, you'll receive a notification.
   </p>
 
-  <nav aria-label="Navigation">
+  <nav aria-label="Back">
     <a href="/dashboard/lender">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       Back to Dashboard
@@ -311,7 +311,7 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
     </section>
   <?php endif; ?>
 
-  <nav aria-label="Navigation">
+  <nav aria-label="Back">
     <a href="/dashboard">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       Back to Dashboard

@@ -302,30 +302,10 @@
       }
     }
 
-    /* ── Back navigation ── */
-
-    & > nav {
+    & > nav[aria-label="Back"] {
       border-top: 1px solid var(--mountain-fog);
+      margin-bottom: 0;
       padding-top: 1.5rem;
-
-      & > a {
-        align-items: center;
-        color: var(--mountain-pine-light);
-        display: inline-flex;
-        font-weight: 500;
-        gap: 0.5rem;
-        text-decoration: none;
-
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold);
-          text-decoration: underline;
-        }
-
-        &:focus-visible {
-          outline: 2px solid var(--mountain-gold);
-          outline-offset: 2px;
-        }
-      }
     }
   }
 

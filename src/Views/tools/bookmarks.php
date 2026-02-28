@@ -27,6 +27,8 @@ $paginationUrl = static function (int $pageNum): string {
     <p>Tools you've saved for later.</p>
   </header>
 
+  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
+
   <?php if (!empty($bookmarkFlash)): ?>
     <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
   <?php endif; ?>
@@ -141,4 +143,5 @@ $paginationUrl = static function (int $pageNum): string {
 
   <?php endif; ?>
 
+</div>
 </section>

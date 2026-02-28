@@ -71,7 +71,7 @@ class EventController extends BaseController
         $this->render('events/index', [
             'title'          => 'Community Events — NeighborhoodTools',
             'description'    => 'Upcoming community events in the Asheville and Hendersonville areas.',
-            'pageCss'        => ['features.css'],
+            'pageCss'        => ['dashboard.css', 'features.css'],
             'events'         => $events,
             'totalCount'     => $totalCount,
             'page'           => $page,

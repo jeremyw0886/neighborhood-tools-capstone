@@ -61,6 +61,8 @@ $totalAll   = array_sum($timingCounts);
     <p>Discover upcoming events in the Asheville and Hendersonville neighborhoods.</p>
   </header>
 
+  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
+
   <?php if ($eventSuccess !== ''): ?>
     <p role="alert"><?= htmlspecialchars($eventSuccess) ?></p>
   <?php endif; ?>
@@ -312,4 +314,5 @@ $totalAll   = array_sum($timingCounts);
 
   <?php endif; ?>
 
+</div>
 </section>

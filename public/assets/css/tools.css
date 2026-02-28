@@ -1409,4 +1409,71 @@
     }
   }
 
+  /* --- Responsive ----------------------------------------- */
+
+  @media (max-width: 700px) {
+    main > section[aria-labelledby="browse-heading"] {
+      padding: 1.25rem 1rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > header > h1 {
+      font-size: 1.5rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > div[role="list"] {
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    main > section[aria-labelledby="browse-heading"] > nav[aria-label="Pagination"] > ul > li > a > span,
+    main > section[aria-labelledby="browse-heading"] > nav[aria-label="Pagination"] > ul > li > span[aria-disabled] > span {
+      display: none;
+    }
+
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
+      padding: 1.25rem 1rem;
+    }
+
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) > header > h1 {
+      font-size: 1.5rem;
+    }
+
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
+      padding: 1rem;
+    }
+
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) form > button[type="submit"] {
+      align-self: stretch;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 400px) {
+    main > section[aria-labelledby="browse-heading"] {
+      padding: 0 0.75rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type {
+      padding: 0 0.1875rem 0 0.75rem;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type > button > span {
+      display: none;
+    }
+
+    main > section[aria-labelledby="browse-heading"] > div[role="list"] {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
+      padding: 0 0.75rem;
+    }
+
+    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+    }
+  }
+
 }

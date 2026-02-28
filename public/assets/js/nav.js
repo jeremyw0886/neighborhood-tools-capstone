@@ -74,7 +74,9 @@
       };
 
       // Visual divider between navigation links and auth section
-      addLi().setAttribute('role', 'separator');
+      const sep = addLi();
+      sep.dataset.separator = '';
+      sep.setAttribute('aria-hidden', 'true');
 
       if (!authSection) return;
 

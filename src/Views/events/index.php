@@ -232,7 +232,7 @@ $totalAll   = array_sum($timingCounts);
             </li>
           <?php else: ?>
             <li>
-              <span aria-disabled="true" aria-label="No previous page">
+              <span aria-disabled="true">
                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
                 <span>Previous</span>
               </span>
@@ -286,7 +286,7 @@ $totalAll   = array_sum($timingCounts);
             </li>
           <?php else: ?>
             <li>
-              <span aria-disabled="true" aria-label="No next page">
+              <span aria-disabled="true">
                 <span>Next</span>
                 <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
               </span>

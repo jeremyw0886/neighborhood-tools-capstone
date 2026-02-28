@@ -8,13 +8,11 @@
 
   /* ── Shared dashboard page wrapper ── */
 
-  main > section:is(
-    [aria-labelledby="dashboard-heading"],
+  main>section:is([aria-labelledby="dashboard-heading"],
     [aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
     [aria-labelledby="history-heading"],
-    #loan-status
-  ) {
+    #loan-status) {
     margin: 0 auto;
     max-width: 1100px;
     padding: 2rem 1.5rem;
@@ -45,16 +43,16 @@
 
     /* ── Page header ── */
 
-    & > header {
+    &>header {
       margin-bottom: 1.5rem;
       text-align: center;
 
-      & > h1 {
+      &>h1 {
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
         margin: 0.5rem 0 0;
@@ -63,28 +61,28 @@
 
     /* ── Dashboard sub-navigation (shared base in nav.css) ── */
 
-    & > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] {
+    &>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
 
-      & > ul > li > a {
+      &>ul>li>a {
         font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
         padding: 0 1rem;
       }
 
-      & > ul > li[data-separator] {
+      &>ul>li[data-separator] {
         display: none;
       }
     }
 
     /* ── Section headings (h2s within sub-sections) ── */
 
-    & > [data-dashboard-body] > section > h2 {
+    &>[data-dashboard-body]>section>h2 {
       color: var(--mountain-pine);
       margin-bottom: 1rem;
 
       &[data-urgent] {
         color: #b91c1c;
 
-        & > i {
+        &>i {
           color: #b91c1c;
         }
       }
@@ -92,7 +90,7 @@
 
     /* ── Sections spacing ── */
 
-    & > [data-dashboard-body] > section + section {
+    &>[data-dashboard-body]>section+section {
       margin-top: 2.5rem;
     }
   }
@@ -105,7 +103,7 @@
       display: grid;
       grid-template-columns: max-content 1fr;
 
-      & > nav[aria-label="Dashboard navigation"] {
+      &>nav[aria-label="Dashboard navigation"] {
         align-self: start;
         border-bottom: none;
         border-right: 2px solid var(--mountain-fog);
@@ -119,11 +117,11 @@
         scrollbar-gutter: auto;
         top: 5rem;
 
-        & > ul {
+        &>ul {
           flex-direction: column;
           gap: 0.125rem;
 
-          & > li > a {
+          &>li>a {
             border-bottom: none;
             border-left: 3px solid transparent;
             font-size: 0.8125rem;
@@ -139,7 +137,7 @@
             }
           }
 
-          & > li[data-separator] {
+          &>li[data-separator] {
             border-top: 1px solid var(--mountain-fog);
             display: block;
             margin: 0.5rem 0;
@@ -147,7 +145,7 @@
         }
       }
 
-      & > :not(nav[aria-label="Dashboard navigation"]) {
+      &> :not(nav[aria-label="Dashboard navigation"]) {
         grid-column: 2;
       }
     }
@@ -155,15 +153,15 @@
 
   /* ── Summary card grid (index page) ── */
 
-  section[aria-labelledby="summary-heading"] > ul,
-  section[aria-labelledby="admin-summary-heading"] > ul {
+  section[aria-labelledby="summary-heading"]>ul,
+  section[aria-labelledby="admin-summary-heading"]>ul {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 
-    & > li > article {
+    &>li>article {
 
-      & > a {
+      &>a {
         align-items: flex-start;
         background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
@@ -183,12 +181,12 @@
           transform: translateY(-2px);
         }
 
-        & > i:first-child {
+        &>i:first-child {
           color: var(--mountain-pine-light);
           font-size: 1.25rem;
         }
 
-        & > h3 {
+        &>h3 {
           color: var(--mountain-slate);
           font-size: 0.813rem;
           font-weight: 600;
@@ -196,7 +194,7 @@
           text-transform: uppercase;
         }
 
-        & > p {
+        &>p {
           color: var(--mountain-pine);
           font-family: Georgia, 'Times New Roman', serif;
           font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
@@ -204,37 +202,37 @@
           line-height: 1;
           margin-bottom: 0;
 
-          & > span {
+          &>span {
             color: var(--mountain-mist);
             font-size: 0.5em;
             font-weight: 400;
           }
         }
 
-        & > span:last-child {
+        &>span:last-child {
           color: var(--mountain-mist);
           font-size: 0.813rem;
           margin-top: auto;
 
-          & > i {
+          &>i {
             color: var(--mountain-gold);
             font-size: 0.75rem;
           }
         }
       }
 
-      &[data-urgent] > a {
+      &[data-urgent]>a {
         border-color: #fca5a5;
 
-        & > i:first-child {
+        &>i:first-child {
           color: #b91c1c;
         }
 
-        & > h3 {
+        &>h3 {
           color: #b91c1c;
         }
 
-        & > p {
+        &>p {
           color: #b91c1c;
         }
 
@@ -246,7 +244,7 @@
     }
   }
 
-  section[aria-labelledby="admin-summary-heading"] > h2 {
+  section[aria-labelledby="admin-summary-heading"]>h2 {
     color: var(--mountain-pine);
     margin-bottom: 1rem;
   }
@@ -258,18 +256,18 @@
     margin-top: 2.5rem;
     padding-top: 1.5rem;
 
-    & > h2 {
+    &>h2 {
       color: var(--mountain-pine);
       font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
       margin-bottom: 1rem;
     }
 
-    & > ul {
+    &>ul {
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
 
-      & > li > a {
+      &>li>a {
         align-items: center;
         background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
         border-radius: 2rem;
@@ -288,7 +286,7 @@
           transform: scale(1.02);
         }
 
-        & > span {
+        &>span {
           color: var(--mountain-gold-light);
           font-size: 0.8em;
         }
@@ -298,12 +296,10 @@
 
   /* ── Dashboard tables (lender, borrower, history) ── */
 
-  main > section:is(
-    [aria-labelledby="lender-heading"],
+  main>section:is([aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
     [aria-labelledby="history-heading"],
-    #loan-status
-  ) table {
+    #loan-status) table {
 
     & thead th {
       color: var(--mountain-slate);
@@ -319,7 +315,7 @@
       color: var(--mountain-charcoal);
       vertical-align: middle;
 
-      & > a {
+      &>a {
         font-weight: 500;
         text-decoration: none;
 
@@ -329,13 +325,13 @@
         }
       }
 
-      & > time {
+      &>time {
         white-space: nowrap;
       }
 
-      & > span[data-status],
-      & > span[data-urgent],
-      & > span[data-warning] {
+      &>span[data-status],
+      &>span[data-urgent],
+      &>span[data-warning] {
         border-radius: 1rem;
         display: inline-block;
         font-size: 0.75rem;
@@ -347,32 +343,32 @@
         white-space: nowrap;
       }
 
-      & > span[data-status="on-time"],
-      & > span:not([data-urgent]):not([data-warning]):not([data-status]) {
+      &>span[data-status="on-time"],
+      &>span:not([data-urgent]):not([data-warning]):not([data-status]) {
         background: #f0fdf4;
         color: #166534;
       }
 
-      & > span[data-status="due-soon"],
-      & > span[data-warning] {
+      &>span[data-status="due-soon"],
+      &>span[data-warning] {
         background: #fffbeb;
         color: #92400e;
       }
 
-      & > span[data-status="overdue"],
-      & > span[data-status="denied"],
-      & > span[data-status="cancelled"],
-      & > span[data-urgent] {
+      &>span[data-status="overdue"],
+      &>span[data-status="denied"],
+      &>span[data-status="cancelled"],
+      &>span[data-urgent] {
         background: #fef2f2;
         color: #991b1b;
       }
 
-      & > span[data-status="approved"] {
+      &>span[data-status="approved"] {
         background: #eff6ff;
         color: #1e40af;
       }
 
-      & > small {
+      &>small {
         color: var(--mountain-mist);
         display: block;
         font-size: 0.75rem;
@@ -389,7 +385,7 @@
       vertical-align: middle;
     }
 
-    & td > form > button {
+    & td>form>button {
       align-items: center;
       background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
       border: none;
@@ -418,10 +414,10 @@
 
     /* ── Inline disclosure forms (deny, extend) ── */
 
-    & td > details {
+    & td>details {
       width: 100%;
 
-      & > summary {
+      &>summary {
         align-items: center;
         background: transparent;
         border: 1px solid var(--mountain-fog);
@@ -453,18 +449,18 @@
         }
       }
 
-      &[open] > summary {
+      &[open]>summary {
         border-color: var(--mountain-pine-light);
         color: var(--mountain-pine);
         margin-bottom: 0.5rem;
       }
 
-      & > form {
+      &>form {
         display: flex;
         flex-direction: column;
         gap: 0.375rem;
 
-        & > label {
+        &>label {
           color: var(--mountain-slate);
           font-size: 0.75rem;
           font-weight: 600;
@@ -472,8 +468,8 @@
           text-transform: uppercase;
         }
 
-        & > textarea,
-        & > input[type="number"] {
+        &>textarea,
+        &>input[type="number"] {
           border: 1px solid var(--mountain-fog);
           border-radius: 0.375rem;
           font: inherit;
@@ -493,11 +489,11 @@
           }
         }
 
-        & > input[type="number"] {
+        &>input[type="number"] {
           max-width: 8rem;
         }
 
-        & > button[type="submit"] {
+        &>button[type="submit"] {
           align-items: center;
           align-self: flex-start;
           background: var(--mountain-pine-light);
@@ -528,14 +524,12 @@
 
   /* ── Sort / filter form bars ── */
 
-  main > section:is(
-    [aria-labelledby="lender-heading"],
+  main>section:is([aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]
-  ) form[aria-label*="Sort"] {
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"] {
     margin-bottom: 1rem;
 
-    & > fieldset {
+    &>fieldset {
       align-items: flex-end;
       border: none;
       display: flex;
@@ -543,11 +537,11 @@
       gap: 0.75rem;
       padding: 0;
 
-      & > legend {
+      &>legend {
         position: absolute;
       }
 
-      & > label {
+      &>label {
         color: var(--mountain-slate);
         display: flex;
         flex-direction: column;
@@ -557,7 +551,7 @@
         letter-spacing: 0.02em;
         text-transform: uppercase;
 
-        & > select {
+        &>select {
           background: var(--mountain-cloud);
           border: 1px solid var(--mountain-fog);
           border-radius: 0.375rem;
@@ -580,7 +574,7 @@
         }
       }
 
-      & > button[type="submit"] {
+      &>button[type="submit"] {
         background: var(--mountain-pine-light);
         border: none;
         border-radius: 0.375rem;
@@ -606,11 +600,9 @@
 
   /* ── Sorted column indicators ── */
 
-  main > section:is(
-    [aria-labelledby="lender-heading"],
+  main>section:is([aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]
-  ) table th[aria-sort] {
+    [aria-labelledby="history-heading"]) table th[aria-sort] {
     color: var(--mountain-pine);
 
     &[aria-sort="ascending"]::after {
@@ -626,7 +618,7 @@
 
   /* ── Awaiting-pickup handover link ── */
 
-  td[data-actions] > a[role="button"] {
+  td[data-actions]>a[role="button"] {
     align-items: center;
     background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
     border-radius: 0.375rem;
@@ -655,7 +647,7 @@
 
   /* ── Loan status — lifecycle progress indicator ── */
 
-  #loan-status > section[aria-labelledby="lifecycle-heading"] > ol {
+  #loan-status>section[aria-labelledby="lifecycle-heading"]>ol {
     counter-reset: step;
     display: flex;
     gap: 0;
@@ -663,7 +655,7 @@
     margin: 1.5rem 0;
     padding: 0;
 
-    & > li {
+    &>li {
       align-items: center;
       counter-increment: step;
       display: flex;
@@ -704,7 +696,7 @@
         display: none;
       }
 
-      & > span {
+      &>span {
         color: var(--mountain-mist);
         font-size: 0.75rem;
         font-weight: 600;
@@ -714,7 +706,7 @@
     }
 
     /* Completed steps */
-    & > li[data-completed] {
+    &>li[data-completed] {
 
       &::before {
         background: var(--mountain-pine);
@@ -728,13 +720,13 @@
         background: var(--mountain-pine);
       }
 
-      & > span {
+      &>span {
         color: var(--mountain-pine);
       }
     }
 
     /* Current step */
-    & > li[aria-current="step"] {
+    &>li[aria-current="step"] {
 
       &::before {
         background: #fff;
@@ -743,14 +735,14 @@
         color: var(--mountain-pine);
       }
 
-      & > span {
+      &>span {
         color: var(--mountain-pine);
         font-weight: 700;
       }
     }
 
     /* Due-soon current step */
-    & > li[aria-current="step"][data-warning] {
+    &>li[aria-current="step"][data-warning] {
 
       &::before {
         border-color: #92400e;
@@ -758,13 +750,13 @@
         color: #92400e;
       }
 
-      & > span {
+      &>span {
         color: #92400e;
       }
     }
 
     /* Overdue current step */
-    & > li[aria-current="step"][data-urgent] {
+    &>li[aria-current="step"][data-urgent] {
 
       &::before {
         border-color: #991b1b;
@@ -772,14 +764,14 @@
         color: #991b1b;
       }
 
-      & > span {
+      &>span {
         color: #991b1b;
       }
     }
 
     /* Terminal states (denied / cancelled) */
-    & > li[data-status="denied"]::before,
-    & > li[data-status="cancelled"]::before {
+    &>li[data-status="denied"]::before,
+    &>li[data-status="cancelled"]::before {
       background: #fef2f2;
       border-color: #991b1b;
       color: #991b1b;
@@ -787,8 +779,8 @@
       font-size: 0.875rem;
     }
 
-    & > li[data-status="denied"] > span,
-    & > li[data-status="cancelled"] > span {
+    &>li[data-status="denied"]>span,
+    &>li[data-status="cancelled"]>span {
       color: #991b1b;
       font-weight: 700;
     }
@@ -796,13 +788,13 @@
 
   /* ── Loan status — detail definition list ── */
 
-  #loan-status > section[aria-labelledby="details-heading"] > dl {
+  #loan-status>section[aria-labelledby="details-heading"]>dl {
     column-gap: 1.5rem;
     display: grid;
     grid-template-columns: max-content 1fr;
     row-gap: 0.625rem;
 
-    & > dt {
+    &>dt {
       color: var(--mountain-slate);
       font-size: 0.813rem;
       font-weight: 600;
@@ -811,11 +803,11 @@
       text-transform: uppercase;
     }
 
-    & > dd {
+    &>dd {
       color: var(--mountain-charcoal);
       font-size: 0.938rem;
 
-      & > a {
+      &>a {
         color: var(--mountain-pine-light);
         font-weight: 500;
         text-decoration: none;
@@ -826,11 +818,11 @@
         }
       }
 
-      & > time {
+      &>time {
         white-space: nowrap;
       }
 
-      & > span[data-status] {
+      &>span[data-status] {
         border-radius: 1rem;
         display: inline-block;
         font-size: 0.75rem;
@@ -841,24 +833,24 @@
         text-transform: uppercase;
       }
 
-      & > span[data-status="on-time"] {
+      &>span[data-status="on-time"] {
         background: #f0fdf4;
         color: #166534;
       }
 
-      & > span[data-status="due-soon"] {
+      &>span[data-status="due-soon"] {
         background: #fffbeb;
         color: #92400e;
       }
 
-      & > span[data-status="overdue"],
-      & > span[data-status="denied"],
-      & > span[data-status="cancelled"] {
+      &>span[data-status="overdue"],
+      &>span[data-status="denied"],
+      &>span[data-status="cancelled"] {
         background: #fef2f2;
         color: #991b1b;
       }
 
-      & > span[data-status="approved"] {
+      &>span[data-status="approved"] {
         background: #eff6ff;
         color: #1e40af;
       }
@@ -867,16 +859,16 @@
 
   /* ── Loan status — actions section ── */
 
-  #loan-status > section[aria-labelledby="actions-heading"] {
+  #loan-status>section[aria-labelledby="actions-heading"] {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
 
-    & > h2 {
+    &>h2 {
       flex-basis: 100%;
     }
 
-    & > form > button {
+    &>form>button {
       align-items: center;
       background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
       border: none;
@@ -902,8 +894,8 @@
       }
     }
 
-    & > details {
-      & > summary {
+    &>details {
+      &>summary {
         align-items: center;
         background: transparent;
         border: 1px solid var(--mountain-fog);
@@ -934,20 +926,20 @@
         }
       }
 
-      &[open] > summary {
+      &[open]>summary {
         border-color: var(--mountain-pine-light);
         color: var(--mountain-pine);
         margin-bottom: 0.5rem;
       }
 
-      & > form {
+      &>form {
         display: flex;
         flex-direction: column;
         flex-basis: 100%;
         gap: 0.375rem;
         max-width: 28rem;
 
-        & > label {
+        &>label {
           color: var(--mountain-slate);
           font-size: 0.75rem;
           font-weight: 600;
@@ -955,8 +947,8 @@
           text-transform: uppercase;
         }
 
-        & > textarea,
-        & > input[type="number"] {
+        &>textarea,
+        &>input[type="number"] {
           border: 1px solid var(--mountain-fog);
           border-radius: 0.375rem;
           font: inherit;
@@ -976,11 +968,11 @@
           }
         }
 
-        & > input[type="number"] {
+        &>input[type="number"] {
           max-width: 8rem;
         }
 
-        & > button[type="submit"] {
+        &>button[type="submit"] {
           align-self: flex-start;
           background: var(--mountain-pine-light);
           border: none;
@@ -1028,22 +1020,22 @@
       border-radius: 0.25rem;
     }
 
-    & > i {
+    &>i {
       font-size: 0.75rem;
     }
   }
 
   /* ── Loan status — rate CTA ── */
 
-  #loan-status > section[aria-labelledby="rate-heading"] {
+  #loan-status>section[aria-labelledby="rate-heading"] {
 
-    & > p {
+    &>p {
       color: var(--mountain-slate);
       font-size: 0.875rem;
       margin-bottom: 0.75rem;
     }
 
-    & > [data-rate-cta] {
+    &>[data-rate-cta] {
       align-items: center;
       background: linear-gradient(135deg, var(--mountain-gold) 0%, var(--mountain-gold-dark) 100%);
       border-radius: 0.375rem;
@@ -1071,13 +1063,13 @@
 
   /* ── Lender page tool grid ── */
 
-  section[aria-labelledby="listed-tools-heading"] > div[role="list"] {
+  section[aria-labelledby="listed-tools-heading"]>div[role="list"] {
     display: grid;
     gap: 1.5rem;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
-  section[aria-labelledby="listed-tools-heading"] > div[role="list"] > article {
+  section[aria-labelledby="listed-tools-heading"]>div[role="list"]>article {
     flex: none;
     min-width: 0;
     width: auto;
@@ -1085,18 +1077,18 @@
 
   /* ── Lender page pagination ── */
 
-  section[aria-labelledby="listed-tools-heading"] > nav[aria-label="Pagination"] {
+  section[aria-labelledby="listed-tools-heading"]>nav[aria-label="Pagination"] {
     margin-top: 2rem;
 
-    & > ul {
+    &>ul {
       align-items: center;
       display: flex;
       gap: 0.25rem;
       justify-content: center;
 
-      & > li {
+      &>li {
 
-        & > a {
+        &>a {
           align-items: center;
           border: 1px solid transparent;
           border-radius: 0.5rem;
@@ -1130,7 +1122,7 @@
           }
         }
 
-        & > span[aria-disabled] {
+        &>span[aria-disabled] {
           align-items: center;
           color: var(--mountain-stone);
           cursor: default;
@@ -1144,7 +1136,7 @@
           padding: 0 0.625rem;
         }
 
-        & > span[aria-hidden] {
+        &>span[aria-hidden] {
           color: var(--mountain-stone);
           min-width: 2rem;
           text-align: center;
@@ -1155,20 +1147,16 @@
 
   /* ── Empty states ── */
 
-  main > section:is(
-    [aria-labelledby="lender-heading"],
+  main>section:is([aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
     [aria-labelledby="history-heading"],
-    #loan-status
-  ) section > p:last-child {
+    #loan-status) section>p:last-child {
     color: var(--mountain-mist);
   }
 
-  main > section:is(
-    [aria-labelledby="lender-heading"],
+  main>section:is([aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]
-  ) a[role="button"] {
+    [aria-labelledby="history-heading"]) a[role="button"] {
     align-items: center;
     background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
     border-radius: 2rem;
@@ -1190,38 +1178,31 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
-    ) form[aria-label*="Sort"] select,
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] select,
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]
-    ) form[aria-label*="Sort"] button {
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] button {
       transition: none;
     }
 
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      #loan-status
-    ) table td > form > button,
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+      #loan-status) table td>form>button,
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      #loan-status
-    ) table td > details > summary {
+      #loan-status) table td>details>summary {
       transition: none;
     }
 
-    #loan-status > section[aria-labelledby="lifecycle-heading"] > ol > li::before {
+    #loan-status>section[aria-labelledby="lifecycle-heading"]>ol>li::before {
       transition: none;
     }
 
-    #loan-status > section[aria-labelledby="actions-heading"] > form > button,
-    #loan-status > section[aria-labelledby="actions-heading"] > details > summary {
+    #loan-status>section[aria-labelledby="actions-heading"]>form>button,
+    #loan-status>section[aria-labelledby="actions-heading"]>details>summary {
       transition: none;
     }
   }
@@ -1229,49 +1210,271 @@
   /* ── High contrast mode ── */
 
   @media (prefers-contrast: more) {
-    section[aria-labelledby="summary-heading"] > ul > li > article > a,
-    section[aria-labelledby="admin-summary-heading"] > ul > li > article > a {
+
+    section[aria-labelledby="summary-heading"]>ul>li>article>a,
+    section[aria-labelledby="admin-summary-heading"]>ul>li>article>a {
       border-width: 2px;
     }
 
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
-      #loan-status
-    ) table thead {
+      #loan-status) table thead {
       border-bottom-width: 3px;
     }
 
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      #loan-status
-    ) table td > form > button {
+      #loan-status) table td>form>button {
       outline: 1px solid #fff;
       outline-offset: -1px;
     }
 
-    main > section:is(
-      [aria-labelledby="lender-heading"],
+    main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      #loan-status
-    ) table td > details > summary {
+      #loan-status) table td>details>summary {
       border-width: 2px;
     }
 
-    main > section:is(
-      [aria-labelledby="dashboard-heading"],
+    main>section:is([aria-labelledby="dashboard-heading"],
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
-      #loan-status
-    ) > [data-dashboard-body] > nav[aria-label="Dashboard navigation"] {
+      #loan-status)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
       border-bottom-width: 3px;
 
       & a[aria-current="page"] {
         border-bottom-width: 4px;
       }
+    }
+  }
+
+  /* --- Responsive ----------------------------------------- */
+
+  @media (max-width: 700px) {
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) {
+      padding: 1.25rem 1rem;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status)>header>h1 {
+      font-size: 1.5rem;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul {
+      gap: 0;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a {
+      font-size: 0.813rem;
+      padding: 0 0.625rem;
+    }
+
+    section[aria-labelledby="summary-heading"]>ul,
+    section[aria-labelledby="admin-summary-heading"]>ul {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    section[aria-labelledby="summary-heading"]>ul>li>article>a,
+    section[aria-labelledby="admin-summary-heading"]>ul>li>article>a {
+      min-height: 6.5rem;
+      padding: 1rem;
+    }
+
+    section[aria-labelledby="admin-summary-heading"]>div[role="list"] {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    section[aria-labelledby="admin-summary-heading"]>div[role="list"]>article>a {
+      min-height: 6.5rem;
+      padding: 1rem;
+    }
+
+    section[aria-labelledby="quick-actions-heading"]>ul {
+      flex-direction: column;
+    }
+
+    section[aria-labelledby="quick-actions-heading"]>ul>li>a {
+      justify-content: center;
+      width: 100%;
+    }
+
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) table {
+      display: block;
+      overflow-x: auto;
+    }
+
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) table thead,
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) table tbody,
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) table tr {
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) table th,
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) table td {
+      font-size: 0.813rem;
+      padding: 0.625rem 0.5rem;
+    }
+
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      #loan-status) table td>form>button,
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      #loan-status) table td>details>summary {
+      font-size: 0.75rem;
+      min-height: 2rem;
+      padding: 0 0.5rem;
+    }
+
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset {
+      flex-direction: column;
+      align-items: stretch;
+
+      &>label>select {
+        width: 100%;
+      }
+
+      &>button[type="submit"] {
+        align-self: flex-start;
+      }
+    }
+
+    #loan-status>section[aria-labelledby="lifecycle-heading"]>ol {
+      flex-direction: column;
+      gap: 0;
+
+      &>li {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        text-align: start;
+
+        &::after {
+          background: var(--mountain-fog);
+          height: calc(100% - 2.25rem);
+          left: calc(1.125rem - 1px);
+          top: 2.25rem;
+          width: 2px;
+        }
+
+        &:last-child::after {
+          display: none;
+        }
+      }
+
+      &>li[data-completed]::after {
+        background: var(--mountain-pine);
+      }
+    }
+
+    #loan-status>section[aria-labelledby="details-heading"]>dl {
+      grid-template-columns: 1fr;
+      row-gap: 0.25rem;
+
+      &>dt {
+        margin-top: 0.5rem;
+      }
+
+      &>dt:first-child {
+        margin-top: 0;
+      }
+    }
+
+    #loan-status>section[aria-labelledby="actions-heading"] {
+      flex-direction: column;
+
+      &>form {
+        width: 100%;
+      }
+
+      &>form>button {
+        justify-content: center;
+        width: 100%;
+      }
+
+      &>details {
+        width: 100%;
+      }
+    }
+
+    section[aria-labelledby="listed-tools-heading"]>div[role="list"] {
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    section[aria-labelledby="listed-tools-heading"]>nav[aria-label="Pagination"]>ul>li>a>span,
+    section[aria-labelledby="listed-tools-heading"]>nav[aria-label="Pagination"]>ul>li>span[aria-disabled]>span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 400px) {
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status) {
+      padding: 0 0.75rem;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      #loan-status)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a>i {
+      display: none;
+    }
+
+    section[aria-labelledby="summary-heading"]>ul,
+    section[aria-labelledby="admin-summary-heading"]>ul {
+      grid-template-columns: 1fr;
+    }
+
+    section[aria-labelledby="admin-summary-heading"]>div[role="list"] {
+      grid-template-columns: 1fr;
     }
   }
 

@@ -1454,6 +1454,11 @@
     .auth-card form > button[type="submit"] {
       border: 2px solid var(--mountain-pine-dark);
     }
+
+    main > [id] > dl,
+    main > [id] > section > dl {
+      border-width: 2px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1666,6 +1671,62 @@
         font-size: 0.875rem;
         padding: 0.75rem;
         vertical-align: top;
+      }
+    }
+  }
+
+  /* --- Detail Lists ---------------------------------------- */
+
+  main > [id] > dl,
+  main > [id] > section > dl {
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.75rem;
+    display: grid;
+    gap: 0;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+
+    & > div {
+      align-items: baseline;
+      border-bottom: 1px solid var(--mountain-fog);
+      display: flex;
+      gap: 1rem;
+      padding: 0.625rem 0;
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      &:first-child {
+        padding-top: 0;
+      }
+    }
+
+    & dt {
+      color: var(--mountain-slate);
+      flex-shrink: 0;
+      font-size: 0.813rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      min-width: 7rem;
+      text-transform: uppercase;
+    }
+
+    & dd {
+      color: var(--mountain-charcoal);
+      font-size: 0.938rem;
+    }
+
+    & dd > a {
+      color: var(--mountain-pine-light);
+      font-weight: 500;
+      text-decoration: none;
+
+      &:is(:hover, :focus-visible) {
+        color: var(--mountain-gold);
+        text-decoration: underline;
       }
     }
   }

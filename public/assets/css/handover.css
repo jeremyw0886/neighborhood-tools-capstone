@@ -59,87 +59,37 @@
     /* ── Handover details ── */
 
     & > dl {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.75rem;
-      display: grid;
-      gap: 0;
-      margin-bottom: 2rem;
-      padding: 1.25rem;
 
-      & > div {
-        align-items: baseline;
-        border-bottom: 1px solid var(--mountain-fog);
-        display: flex;
-        gap: 1rem;
-        padding: 0.625rem 0;
-
-        &:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        &:first-child {
-          padding-top: 0;
-        }
+      & dd > i {
+        color: var(--mountain-gold);
+        margin-right: 0.25rem;
       }
 
-      & dt {
-        color: var(--mountain-slate);
-        flex-shrink: 0;
-        font-size: 0.813rem;
+      & dd > span {
+        border-radius: 1rem;
+        display: inline-block;
+        font-size: 0.75rem;
         font-weight: 600;
         letter-spacing: 0.02em;
-        min-width: 7rem;
+        line-height: 1;
+        padding: 0.3rem 0.625rem;
         text-transform: uppercase;
+        white-space: nowrap;
       }
 
-      & dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.938rem;
+      & dd > span:not([data-urgent]):not([data-warning]) {
+        background: #f0fdf4;
+        color: #166534;
+      }
 
-        & > a {
-          color: var(--mountain-pine-light);
-          font-weight: 500;
-          text-decoration: none;
+      & dd > span[data-urgent] {
+        background: #fef2f2;
+        color: #991b1b;
+      }
 
-          &:is(:hover, :focus-visible) {
-            color: var(--mountain-gold);
-            text-decoration: underline;
-          }
-        }
-
-        & > i {
-          color: var(--mountain-gold);
-          margin-right: 0.25rem;
-        }
-
-        & > span {
-          border-radius: 1rem;
-          display: inline-block;
-          font-size: 0.75rem;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-          line-height: 1;
-          padding: 0.3rem 0.625rem;
-          text-transform: uppercase;
-          white-space: nowrap;
-        }
-
-        & > span:not([data-urgent]):not([data-warning]) {
-          background: #f0fdf4;
-          color: #166534;
-        }
-
-        & > span[data-urgent] {
-          background: #fef2f2;
-          color: #991b1b;
-        }
-
-        & > span[data-warning] {
-          background: #fffbeb;
-          color: #92400e;
-        }
+      & dd > span[data-warning] {
+        background: #fffbeb;
+        color: #92400e;
       }
     }
 
@@ -321,10 +271,6 @@
 
   @media (prefers-contrast: more) {
     #handover-verify {
-
-      & > dl {
-        border-width: 2px;
-      }
 
       & > form fieldset {
         border-width: 3px;

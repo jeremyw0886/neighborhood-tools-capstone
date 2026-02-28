@@ -80,50 +80,6 @@
       }
     }
 
-    /* ── Borrow context ── */
-
-    & > dl {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.75rem;
-      display: grid;
-      gap: 0;
-      margin-bottom: 2rem;
-      padding: 1.25rem;
-
-      & > div {
-        align-items: baseline;
-        border-bottom: 1px solid var(--mountain-fog);
-        display: flex;
-        gap: 1rem;
-        padding: 0.625rem 0;
-
-        &:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        &:first-child {
-          padding-top: 0;
-        }
-      }
-
-      & dt {
-        color: var(--mountain-slate);
-        flex-shrink: 0;
-        font-size: 0.813rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        min-width: 7rem;
-        text-transform: uppercase;
-      }
-
-      & dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.938rem;
-      }
-    }
-
     /* ── Dispute form ── */
 
     & > form {
@@ -225,50 +181,6 @@
       & > p[data-status="dismissed"] {
         background: var(--mountain-fog);
         color: var(--mountain-slate);
-      }
-    }
-
-    /* ── Dispute metadata ── */
-
-    & > dl {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.75rem;
-      display: grid;
-      gap: 0;
-      margin-bottom: 2rem;
-      padding: 1.25rem;
-
-      & > div {
-        align-items: baseline;
-        border-bottom: 1px solid var(--mountain-fog);
-        display: flex;
-        gap: 1rem;
-        padding: 0.625rem 0;
-
-        &:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        &:first-child {
-          padding-top: 0;
-        }
-      }
-
-      & dt {
-        color: var(--mountain-slate);
-        flex-shrink: 0;
-        font-size: 0.813rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        min-width: 7rem;
-        text-transform: uppercase;
-      }
-
-      & dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.938rem;
       }
     }
 
@@ -533,10 +445,6 @@
   @media (prefers-contrast: more) {
     #dispute-create {
 
-      & > dl {
-        border-width: 2px;
-      }
-
       & > form fieldset {
         border-width: 3px;
 
@@ -552,10 +460,6 @@
     }
 
     #dispute-show {
-
-      & > dl {
-        border-width: 2px;
-      }
 
       & > section[aria-labelledby="thread-heading"] > ol > li {
         border-width: 2px;

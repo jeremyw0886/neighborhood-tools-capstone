@@ -50,48 +50,6 @@
       }
     }
 
-    & > dl[aria-label="Deposit details"] {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.75rem;
-      display: grid;
-      gap: 0;
-      margin-bottom: 2rem;
-      padding: 1.25rem;
-
-      & > div {
-        align-items: baseline;
-        border-bottom: 1px solid var(--mountain-fog);
-        display: flex;
-        gap: 1rem;
-        padding: 0.625rem 0;
-
-        &:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        &:first-child {
-          padding-top: 0;
-        }
-      }
-
-      & dt {
-        color: var(--mountain-slate);
-        flex-shrink: 0;
-        font-size: 0.813rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        min-width: 7rem;
-        text-transform: uppercase;
-      }
-
-      & dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.938rem;
-      }
-    }
-
     & > p[data-deposit-terms] {
       background: #fffbeb;
       border: 1px solid #fde68a;
@@ -248,54 +206,16 @@
       }
 
       & > dl {
-        background: var(--mountain-cloud);
-        border: 1px solid var(--mountain-fog);
-        border-radius: 0.75rem;
-        display: grid;
-        gap: 0;
-        padding: 1.25rem;
 
-        & > div {
-          align-items: baseline;
-          border-bottom: 1px solid var(--mountain-fog);
-          display: flex;
-          gap: 1rem;
-          padding: 0.625rem 0;
+        & dd > a {
+          color: var(--mountain-pine);
+          font-weight: 500;
+          text-decoration: none;
+          transition: color 0.2s;
 
-          &:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-          }
-
-          &:first-child {
-            padding-top: 0;
-          }
-        }
-
-        & dt {
-          color: var(--mountain-slate);
-          flex-shrink: 0;
-          font-size: 0.813rem;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-          min-width: 7rem;
-          text-transform: uppercase;
-        }
-
-        & dd {
-          color: var(--mountain-charcoal);
-          font-size: 0.938rem;
-
-          & > a {
-            color: var(--mountain-pine);
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s;
-
-            &:is(:hover, :focus-visible) {
-              color: var(--mountain-pine-dark);
-              text-decoration: underline;
-            }
+          &:is(:hover, :focus-visible) {
+            color: var(--mountain-pine-dark);
+            text-decoration: underline;
           }
         }
 
@@ -330,45 +250,7 @@
     }
 
     & > dl[aria-label="Deposit summary"] {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.75rem;
-      display: grid;
-      gap: 0;
       margin-bottom: 1.5rem;
-      padding: 1.25rem;
-
-      & > div {
-        align-items: baseline;
-        border-bottom: 1px solid var(--mountain-fog);
-        display: flex;
-        gap: 1rem;
-        padding: 0.625rem 0;
-
-        &:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        &:first-child {
-          padding-top: 0;
-        }
-      }
-
-      & dt {
-        color: var(--mountain-slate);
-        flex-shrink: 0;
-        font-size: 0.813rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        min-width: 7rem;
-        text-transform: uppercase;
-      }
-
-      & dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.938rem;
-      }
     }
 
     & > p[data-deposit-terms] {
@@ -626,10 +508,6 @@
   @media (prefers-contrast: more) {
     #deposit-payment {
 
-      & > dl {
-        border-width: 2px;
-      }
-
       & > p[data-deposit-terms] {
         border-width: 2px;
       }
@@ -645,11 +523,6 @@
     }
 
     #deposit-detail {
-
-      & > dl,
-      & > section dl {
-        border-width: 2px;
-      }
 
       & > [data-flash] {
         border-width: 2px;

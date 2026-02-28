@@ -125,7 +125,7 @@ class DisputeController extends BaseController
         $this->render('disputes/create', [
             'title'       => 'File a Dispute — NeighborhoodTools',
             'description' => 'Report an issue with a borrow transaction.',
-            'pageCss'     => ['dispute.css'],
+            'pageCss'     => ['features.css'],
             'borrow'      => $borrow,
             'hasExisting'  => $hasExisting,
             'errors'      => $errors,
@@ -196,7 +196,7 @@ class DisputeController extends BaseController
         $this->render('disputes/show', [
             'title'       => htmlspecialchars($dispute['subject_text_dsp']) . ' — NeighborhoodTools',
             'description' => 'Dispute details and message thread.',
-            'pageCss'     => ['dispute.css'],
+            'pageCss'     => ['features.css'],
             'dispute'     => $dispute,
             'messages'    => $messages,
             'isAdmin'     => $isAdmin,

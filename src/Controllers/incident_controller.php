@@ -79,7 +79,7 @@ class IncidentController extends BaseController
         $this->render('incidents/create', [
             'title'         => 'Report an Incident — NeighborhoodTools',
             'description'   => 'File an incident report for a borrow transaction.',
-            'pageCss'       => ['incident.css'],
+            'pageCss'       => ['features.css'],
             'borrow'        => $borrow,
             'hasExisting'   => $hasExisting,
             'incidentTypes' => $incidentTypes,
@@ -137,7 +137,7 @@ class IncidentController extends BaseController
         $this->render('incidents/show', [
             'title'       => htmlspecialchars($incident['subject_irt']) . ' — NeighborhoodTools',
             'description' => 'Incident report details.',
-            'pageCss'     => ['incident.css'],
+            'pageCss'     => ['features.css'],
             'incident'    => $incident,
             'photos'      => $photos,
             'isAdmin'     => $isAdmin,

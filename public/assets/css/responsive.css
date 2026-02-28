@@ -220,58 +220,6 @@
     }
   }
 
-  /* ── Deposit pages (detail + payment) ── */
-
-  @media (max-width: 700px) {
-
-    #deposit-detail,
-    #deposit-payment {
-      padding: 1.25rem 1rem;
-    }
-
-    #deposit-detail>header>h1,
-    #deposit-payment>header>h1 {
-      font-size: 1.25rem;
-    }
-
-    #deposit-detail>dl[aria-label="Deposit details"],
-    #deposit-detail>section[aria-labelledby="borrow-context-heading"]>dl,
-    #deposit-payment>dl[aria-label="Deposit summary"] {
-      padding: 1rem;
-
-      &>div {
-        flex-direction: column;
-        gap: 0.25rem;
-      }
-
-      & dt {
-        min-width: 0;
-      }
-    }
-
-    #deposit-detail>section[aria-labelledby="process-heading"] form fieldset {
-      padding: 1rem;
-
-      &>label {
-        display: flex;
-        margin-right: 0;
-      }
-    }
-
-    #deposit-detail>section[aria-labelledby="process-heading"] form>footer>button[type="submit"],
-    #deposit-payment>form#payment-form>footer>button[type="submit"] {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 400px) {
-
-    #deposit-detail,
-    #deposit-payment {
-      padding: 0 0.75rem;
-    }
-  }
-
   /* ── Site footer ── */
 
   @media (max-width: 700px) {

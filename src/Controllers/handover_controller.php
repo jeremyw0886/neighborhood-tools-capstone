@@ -86,7 +86,7 @@ class HandoverController extends BaseController
         $this->render('handover/verify', [
             'title'           => 'Verify Handover — NeighborhoodTools',
             'description'     => 'Enter the handover verification code to confirm tool ' . $handover['handover_type'] . '.',
-            'pageCss'         => ['handover.css'],
+            'pageCss'         => ['features.css'],
             'handover'        => $handover,
             'isVerifier'      => $isVerifier,
             'handoverSuccess' => $this->flash('handover_success'),
@@ -112,7 +112,7 @@ class HandoverController extends BaseController
             $this->render('handover/verify', [
                 'title'          => 'Awaiting Pickup — NeighborhoodTools',
                 'description'    => 'Waiting for the lender to generate the pickup code.',
-                'pageCss'        => ['handover.css'],
+                'pageCss'        => ['features.css'],
                 'awaitingLender' => true,
                 'borrow'         => $borrow,
             ]);
@@ -125,7 +125,7 @@ class HandoverController extends BaseController
             $this->render('handover/verify', [
                 'title'          => 'Awaiting Deposit — NeighborhoodTools',
                 'description'    => 'Waiting for the borrower to pay the security deposit.',
-                'pageCss'        => ['handover.css'],
+                'pageCss'        => ['features.css'],
                 'depositPending' => true,
                 'borrow'         => $borrow,
             ]);
@@ -203,7 +203,7 @@ class HandoverController extends BaseController
             $this->render('handover/verify', [
                 'title'            => 'Awaiting Return — NeighborhoodTools',
                 'description'      => 'Waiting for the borrower to generate the return code.',
-                'pageCss'          => ['handover.css'],
+                'pageCss'          => ['features.css'],
                 'awaitingBorrower' => true,
                 'borrow'           => $borrow,
             ]);

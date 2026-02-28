@@ -71,7 +71,7 @@ class EventController extends BaseController
         $this->render('events/index', [
             'title'          => 'Community Events — NeighborhoodTools',
             'description'    => 'Upcoming community events in the Asheville and Hendersonville areas.',
-            'pageCss'        => ['event.css'],
+            'pageCss'        => ['features.css'],
             'events'         => $events,
             'totalCount'     => $totalCount,
             'page'           => $page,
@@ -113,7 +113,7 @@ class EventController extends BaseController
         $this->render('events/create', [
             'title'         => 'Create Event — NeighborhoodTools',
             'description'   => 'Schedule a new community event.',
-            'pageCss'       => ['event.css'],
+            'pageCss'       => ['features.css'],
             'neighborhoods' => $neighborhoods,
             'errors'        => $errors,
             'old'           => $old,
@@ -322,7 +322,7 @@ class EventController extends BaseController
         $this->render('events/show', [
             'title'         => htmlspecialchars($event['event_name_evt']) . ' — NeighborhoodTools',
             'description'   => 'Event details for ' . htmlspecialchars($event['event_name_evt']),
-            'pageCss'       => ['event.css'],
+            'pageCss'       => ['features.css'],
             'event'         => $event,
             'meta'          => $meta,
             'isAdmin'       => $isAdmin,

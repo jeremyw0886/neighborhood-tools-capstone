@@ -68,7 +68,7 @@ class RatingController extends BaseController
         $this->render('rating/show', [
             'title'         => 'Rate Your Experience — NeighborhoodTools',
             'description'   => 'Submit a rating for your borrow of ' . $borrow['tool_name_tol'] . '.',
-            'pageCss'       => ['rating.css'],
+            'pageCss'       => ['features.css'],
             'borrow'        => $borrow,
             'isBorrower'    => $isBorrower,
             'targetId'      => $targetId,

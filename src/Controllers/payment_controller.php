@@ -56,7 +56,7 @@ class PaymentController extends BaseController
         $this->render('payments/deposit', [
             'title'          => 'Security Deposit — NeighborhoodTools',
             'description'    => 'View security deposit details and status.',
-            'pageCss'        => ['payment.css'],
+            'pageCss'        => ['features.css'],
             'pageJs'         => $pageJs,
             'deposit'        => $deposit,
             'isAdmin'        => $isAdmin,
@@ -76,7 +76,7 @@ class PaymentController extends BaseController
         $viewData = [
             'title'                => 'Pay Security Deposit — NeighborhoodTools',
             'description'          => 'Complete your security deposit payment.',
-            'pageCss'              => ['payment.css'],
+            'pageCss'              => ['features.css'],
             'pageJs'               => ['payment.js'],
             'deposit'              => $pending,
             'isAdmin'              => $isAdmin,
@@ -591,7 +591,7 @@ class PaymentController extends BaseController
         $this->render('payments/history', [
             'title'        => 'Payment History — NeighborhoodTools',
             'description'  => 'View your payment transaction history.',
-            'pageCss'      => ['payment.css'],
+            'pageCss'      => ['features.css'],
             'transactions' => $transactions,
             'isAdmin'      => $isAdmin,
             'page'         => $page,

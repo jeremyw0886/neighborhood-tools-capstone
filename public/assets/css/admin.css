@@ -89,7 +89,7 @@
 
   /* ── Desktop sidebar layout ── */
 
-  @media (min-width: 769px) {
+  @media (min-width: 1100px) {
     [data-admin-body] {
       column-gap: 1.5rem;
       display: grid;
@@ -3145,6 +3145,42 @@
 
   /* --- Responsive ----------------------------------------- */
 
+  @media (max-width: 1099px) {
+
+    nav[aria-label="Admin navigation"] {
+      overflow-x: visible;
+      scrollbar-gutter: auto;
+
+      &>ul {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+
+        &>li {
+          flex: 0 1 8rem;
+        }
+
+        &>li>a {
+          background: var(--mountain-cloud);
+          border-bottom: none;
+          border-radius: 0.375rem;
+          font-size: 0.75rem;
+          justify-content: center;
+          margin-bottom: 0;
+          padding: 0.5rem 0.75rem;
+          text-align: center;
+          width: 100%;
+        }
+
+        &>li>a[aria-current="page"] {
+          background: var(--mountain-pine);
+          color: #fff;
+        }
+      }
+    }
+  }
+
   @media (max-width: 700px) {
 
     main>section:is([aria-labelledby="admin-heading"],
@@ -3177,28 +3213,6 @@
       [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-search-heading"])>header>h1 {
       font-size: 1.5rem;
-    }
-
-    nav[aria-label="Admin navigation"]>ul {
-      display: grid;
-      gap: 0.5rem;
-      grid-template-columns: repeat(2, 1fr);
-      margin-bottom: 2rem;
-
-      &>li>a {
-        background: var(--mountain-cloud);
-        border-radius: 0.375rem;
-        font-size: 0.75rem;
-        justify-content: center;
-        min-width: 8rem;
-        text-align: center;
-        width: 100%;
-      }
-
-      &>li>a[aria-current="page"] {
-        background: var(--mountain-pine);
-        color: #fff;
-      }
     }
 
     search[aria-label="Search all admin data"] {

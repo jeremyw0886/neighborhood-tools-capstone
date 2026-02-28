@@ -97,7 +97,7 @@
 
   /* ── Desktop sidebar layout ── */
 
-  @media (min-width: 769px) {
+  @media (min-width: 1100px) {
     [data-dashboard-body] {
       column-gap: 1.5rem;
       display: grid;
@@ -1478,7 +1478,7 @@
 
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: 1100px) {
     main>article[aria-labelledby="profile-heading"]>[data-dashboard-body]:not(:has(> nav)) {
       display: block;
     }
@@ -1886,6 +1886,46 @@
 
   /* --- Responsive ----------------------------------------- */
 
+  @media (max-width: 1099px) {
+
+    nav[aria-label="Dashboard navigation"] {
+      overflow-x: visible;
+      scrollbar-gutter: auto;
+
+      &>ul {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+
+        &>li {
+          flex: 0 1 8rem;
+        }
+
+        &>li>a {
+          background: var(--mountain-cloud);
+          border-bottom: none;
+          border-radius: 0.375rem;
+          font-size: 0.75rem;
+          justify-content: center;
+          margin-bottom: 0;
+          padding: 0.5rem 0.75rem;
+          text-align: center;
+          width: 100%;
+        }
+
+        &>li>a[aria-current="page"] {
+          background: var(--mountain-pine);
+          color: #fff;
+        }
+
+        &>li[data-separator] {
+          display: none;
+        }
+      }
+    }
+  }
+
   @media (max-width: 700px) {
 
     main>section:is([aria-labelledby="dashboard-heading"],
@@ -1902,23 +1942,6 @@
       [aria-labelledby="history-heading"],
       #loan-status)>header>h1 {
       font-size: 1.5rem;
-    }
-
-    main>section:is([aria-labelledby="dashboard-heading"],
-      [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"],
-      #loan-status)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul {
-      gap: 0;
-    }
-
-    main>section:is([aria-labelledby="dashboard-heading"],
-      [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"],
-      #loan-status)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a {
-      font-size: 0.813rem;
-      padding: 0 0.625rem;
     }
 
     section[aria-labelledby="summary-heading"]>ul,

@@ -28,7 +28,7 @@ class CategoryController extends BaseController
         $this->render('categories/index', [
             'title'       => 'Categories — NeighborhoodTools',
             'description' => 'Browse tools by category — power tools, hand tools, garden equipment, and more from your neighbors.',
-            'pageCss'     => ['categories.css'],
+            'pageCss'     => ['tools.css'],
             'categories'  => $categories,
         ]);
     }

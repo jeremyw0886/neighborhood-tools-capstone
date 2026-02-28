@@ -49,7 +49,7 @@ class NotificationController extends BaseController
         $this->render('notifications/index', [
             'title'         => 'Notifications — NeighborhoodTools',
             'description'   => 'Your notifications and alerts.',
-            'pageCss'       => ['notifications.css'],
+            'pageCss'       => ['pages.css'],
             'notifications' => $notifications,
             'totalCount'    => $totalCount,
             'page'          => $page,

@@ -18,7 +18,7 @@
  * between this modal and the standalone tos/show.php page.
  *
  * @see public/assets/js/nav.js       — modal open/close logic
- * @see public/assets/css/modal.css    — dialog styling (legal formatting)
+ * @see public/assets/css/components.css — dialog styling (legal formatting)
  * @see partials/content-tos.php       — shared content
  * @see src/Models/Tos.php             — getCurrent(), hasUserAccepted()
  */

@@ -59,7 +59,7 @@
       }
     }
 
-    /* ── Dashboard sub-navigation (shared base in nav.css) ── */
+    /* ── Dashboard sub-navigation (shared base in components.css) ── */
 
     &>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
 

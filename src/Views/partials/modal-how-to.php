@@ -10,7 +10,7 @@
  * between this modal and the standalone pages/how-to.php page.
  *
  * @see public/assets/js/nav.js       — modal open/close logic
- * @see public/assets/css/modal.css    — dialog styling
+ * @see public/assets/css/components.css — dialog styling
  * @see partials/content-how-to.php    — shared content
  */
 ?>

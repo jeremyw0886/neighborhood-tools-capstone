@@ -10,7 +10,7 @@
  * between this modal and the standalone pages/faq.php page.
  *
  * @see public/assets/js/nav.js       — modal open/close logic
- * @see public/assets/css/modal.css    — dialog styling (details/summary accordion)
+ * @see public/assets/css/components.css — dialog styling (details/summary accordion)
  * @see partials/content-faq.php       — shared content
  */
 ?>

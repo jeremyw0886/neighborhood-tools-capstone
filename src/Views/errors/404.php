@@ -6,7 +6,7 @@
     <title>Page Not Found — NeighborhoodTools</title>
     <meta name="description" content="The page you're looking for doesn't exist.">
     <link rel="stylesheet" href="/assets/css/base.css">
-    <link rel="stylesheet" href="/assets/css/errors.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
 </head>
 <body>
     <main id="error-page">

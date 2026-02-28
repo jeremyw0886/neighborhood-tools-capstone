@@ -17,7 +17,7 @@
  *
  * Content is stored as plain text with \n line breaks — rendered
  * via nl2br(htmlspecialchars(), false) for safety. The data-legal attribute
- * hooks into modal.css's legal document formatting rules.
+ * hooks into components.css's legal document formatting rules.
  */
 $contentHeadingLevel ??= 'h2';
 ?>

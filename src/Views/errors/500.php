@@ -6,7 +6,7 @@
     <title>Server Error — NeighborhoodTools</title>
     <meta name="description" content="Something went wrong on our end.">
     <link rel="stylesheet" href="/assets/css/base.css">
-    <link rel="stylesheet" href="/assets/css/errors.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
 </head>
 <body>
     <main id="error-page">

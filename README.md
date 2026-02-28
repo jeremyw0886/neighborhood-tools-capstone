@@ -107,5 +107,5 @@ composer dump-autoload
 After changing bundled CSS files, rebuild the production bundle:
 
 ```bash
-php build-css.php
+php build-assets.php
 ```

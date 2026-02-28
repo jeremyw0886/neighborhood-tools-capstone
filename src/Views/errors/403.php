@@ -6,7 +6,7 @@
     <title>Access Denied — NeighborhoodTools</title>
     <meta name="description" content="You don't have permission to access this page.">
     <link rel="stylesheet" href="/assets/css/base.css">
-    <link rel="stylesheet" href="/assets/css/errors.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
 </head>
 <body>
     <main id="error-page">

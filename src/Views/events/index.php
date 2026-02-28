@@ -59,6 +59,7 @@ $totalAll   = array_sum($timingCounts);
       Community Events
     </h1>
     <p>Discover upcoming events in the Asheville and Hendersonville neighborhoods.</p>
+    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

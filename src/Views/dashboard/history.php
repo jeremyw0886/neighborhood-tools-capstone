@@ -25,6 +25,7 @@ use App\Core\ViewHelper;
       Borrow History
     </h1>
     <p>Review your past lending and borrowing activity.</p>
+    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

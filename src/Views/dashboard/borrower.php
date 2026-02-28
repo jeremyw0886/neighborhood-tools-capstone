@@ -28,6 +28,7 @@ use App\Core\ViewHelper;
       My Borrows
     </h1>
     <p>Track your active borrows, pending requests, and overdue items.</p>
+    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

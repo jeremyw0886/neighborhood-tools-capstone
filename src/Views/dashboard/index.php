@@ -43,6 +43,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
       Welcome, <?= htmlspecialchars($authUser['first_name']) ?>
     </h1>
     <p>Here&rsquo;s a snapshot of your NeighborhoodTools activity.</p>
+    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

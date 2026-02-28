@@ -31,6 +31,7 @@ use App\Core\ViewHelper;
       My Tools
     </h1>
     <p>Manage your listed tools and respond to incoming borrow requests.</p>
+    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

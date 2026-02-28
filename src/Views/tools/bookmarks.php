@@ -25,6 +25,7 @@ $paginationUrl = static function (int $pageNum): string {
       <i class="fa-solid fa-bookmark" aria-hidden="true"></i> My Bookmarks
     </h1>
     <p>Tools you've saved for later.</p>
+    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

@@ -810,11 +810,6 @@
       padding: 0 1rem 1rem;
     }
 
-    .home-page > header > section > nav.js-nav > #top-links {
-      left: -1rem;
-      right: -1rem;
-    }
-
     .home-page > header > section > div > div {
       align-items: center;
       flex-direction: column;
@@ -925,11 +920,6 @@
       border-end-end-radius: 1rem;
       gap: 1rem;
       padding: 0.75rem 0.75rem 1.25rem;
-    }
-
-    .home-page > header > section > nav.js-nav > #top-links {
-      left: -0.75rem;
-      right: -0.75rem;
     }
 
     .home-page > header > section > div > div > a {

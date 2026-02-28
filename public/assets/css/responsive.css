@@ -101,13 +101,14 @@
     nav.js-nav > #top-links {
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
       clip-path: inset(0 0 100% 0);
-      left: 0;
-      right: 0;
+      left: 50%;
       opacity: 0;
       pointer-events: none;
       position: absolute;
       top: 100%;
+      transform: translateX(-50%);
       transition: clip-path 0.35s ease, opacity 0.3s ease;
+      width: 100vw;
       z-index: 50;
     }
 

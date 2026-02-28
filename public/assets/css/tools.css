@@ -15,22 +15,22 @@
 
     /* ── Page header ── */
 
-    & > header {
+    &>header {
       margin-bottom: 1.5rem;
       text-align: center;
 
-      & > h1 {
+      &>h1 {
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
         margin: 0.5rem 0 0;
       }
 
-      & > nav[aria-label="Browse mode"] {
+      &>nav[aria-label="Browse mode"] {
         --toggle-count: 2;
 
         align-items: center;
@@ -59,7 +59,7 @@
           transform: translateX(100%);
         }
 
-        & > a {
+        &>a {
           align-items: center;
           color: var(--mountain-slate);
           display: inline-flex;
@@ -77,7 +77,7 @@
           z-index: 1;
         }
 
-        & > a[aria-current="page"] {
+        &>a[aria-current="page"] {
           color: #fff;
         }
       }
@@ -85,7 +85,7 @@
 
     /* ── Bookmark flash message ── */
 
-    & > p[role="status"] {
+    &>p[role="status"] {
       background: var(--mountain-cream);
       border: 1px solid var(--mountain-gold);
       border-radius: 0.5rem;
@@ -98,13 +98,13 @@
 
     /* ── Search + Filter form ── */
 
-    & > form[role="search"] {
+    &>form[role="search"] {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       margin-bottom: 1.5rem;
 
-      & > fieldset:first-of-type {
+      &>fieldset:first-of-type {
         align-items: center;
         background: var(--mountain-cloud);
         border: 2px solid var(--mountain-fog);
@@ -118,13 +118,13 @@
           box-shadow: 0 2px 12px rgba(200, 155, 60, 0.15);
         }
 
-        & > span {
+        &>span {
           color: var(--mountain-mist);
           flex-shrink: 0;
           font-size: 1rem;
         }
 
-        & > input[type="search"] {
+        &>input[type="search"] {
           background: transparent;
           border: none;
           color: var(--mountain-charcoal);
@@ -138,7 +138,7 @@
           }
         }
 
-        & > button {
+        &>button {
           align-items: center;
           background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
           border-radius: 1.5rem;
@@ -163,7 +163,7 @@
         }
       }
 
-      & > fieldset:last-of-type {
+      &>fieldset:last-of-type {
         align-items: end;
         background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
@@ -173,26 +173,26 @@
         grid-template-columns: repeat(4, 1fr) auto;
         padding: 1.25rem;
 
-        & > div {
+        &>div {
           display: flex;
           flex-direction: column;
           gap: 0.375rem;
 
-          & > label {
+          &>label {
             color: var(--mountain-slate);
             font-size: 0.813rem;
             font-weight: 600;
             letter-spacing: 0.02em;
             text-transform: uppercase;
 
-            & > i {
+            &>i {
               color: var(--mountain-gold);
               margin-right: 0.25rem;
             }
           }
 
-          & > select,
-          & > input[type="text"] {
+          &>select,
+          &>input[type="text"] {
             background: var(--mountain-cream);
             border: 1px solid var(--mountain-fog);
             border-radius: 0.5rem;
@@ -208,19 +208,19 @@
             }
           }
 
-          & > input[type="range"] {
+          &>input[type="range"] {
             accent-color: var(--mountain-pine-light);
             cursor: pointer;
             height: 2rem;
             width: 100%;
           }
 
-          & > span:last-child {
+          &>span:last-child {
             display: flex;
             justify-content: space-between;
             margin-top: -0.125rem;
 
-            & > span {
+            &>span {
               color: var(--mountain-stone);
               font-size: 0.75rem;
               line-height: 1;
@@ -233,7 +233,7 @@
           font-weight: 700;
         }
 
-        & > button[type="submit"] {
+        &>button[type="submit"] {
           align-items: center;
           background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
           border-radius: 0.5rem;
@@ -251,7 +251,7 @@
           }
         }
 
-        & > a[role="button"] {
+        &>a[role="button"] {
           align-items: center;
           border: 1px solid var(--mountain-fog);
           border-radius: 0.5rem;
@@ -277,12 +277,12 @@
         @media (max-width: 1024px) {
           grid-template-columns: 1fr 1fr;
 
-          & > button[type="submit"] {
+          &>button[type="submit"] {
             grid-column: 1 / -1;
             justify-content: center;
           }
 
-          & > a[role="button"] {
+          &>a[role="button"] {
             justify-content: center;
             justify-self: stretch;
           }
@@ -296,15 +296,15 @@
 
     /* ── Results summary ── */
 
-    & > div[aria-live] {
+    &>div[aria-live] {
       margin-bottom: 1rem;
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         font-size: 0.938rem;
         margin-bottom: 0;
 
-        & > strong {
+        &>strong {
           color: var(--mountain-pine);
         }
       }
@@ -312,7 +312,7 @@
 
     /* ── Tool card grid ── */
 
-    & > div[role="list"] {
+    &>div[role="list"] {
       container-name: browse-grid;
       container-type: inline-size;
       display: grid;
@@ -320,7 +320,7 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
 
-    & > div[role="list"] > article {
+    &>div[role="list"]>article {
       flex: none;
       height: 100%;
       min-width: 0;
@@ -329,18 +329,18 @@
 
     /* ── Pagination ── */
 
-    & > nav[aria-label="Pagination"] {
+    &>nav[aria-label="Pagination"] {
       margin-top: 2rem;
 
-      & > ul {
+      &>ul {
         align-items: center;
         display: flex;
         gap: 0.25rem;
         justify-content: center;
 
-        & > li {
+        &>li {
 
-          & > a {
+          &>a {
             align-items: center;
             border: 1px solid transparent;
             border-radius: 0.5rem;
@@ -374,7 +374,7 @@
             }
           }
 
-          & > span[aria-disabled] {
+          &>span[aria-disabled] {
             align-items: center;
             color: var(--mountain-stone);
             cursor: default;
@@ -388,7 +388,7 @@
             padding: 0 0.625rem;
           }
 
-          & > span[aria-hidden] {
+          &>span[aria-hidden] {
             color: var(--mountain-stone);
             min-width: 2rem;
             text-align: center;
@@ -399,27 +399,27 @@
 
     /* ── Empty state ── */
 
-    & > section:is([aria-label="No results"], [aria-label="No bookmarks"]) {
+    &>section:is([aria-label="No results"], [aria-label="No bookmarks"]) {
       padding: 4rem 0;
       text-align: center;
 
-      & > i {
+      &>i {
         color: var(--mountain-fog);
         font-size: 3rem;
         margin-bottom: 1rem;
       }
 
-      & > h2 {
+      &>h2 {
         color: var(--mountain-pine);
         margin-bottom: 0.5rem;
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         margin-bottom: 1.25rem;
       }
 
-      & > a[role="button"] {
+      &>a[role="button"] {
         background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
         border-radius: 2rem;
         color: #fff;
@@ -439,12 +439,12 @@
 
   /* ── Tool detail page ── */
 
-  main > section[aria-labelledby="tool-detail-heading"] {
+  main>section[aria-labelledby="tool-detail-heading"] {
     margin: 0 auto;
     max-width: 900px;
     padding: 2rem 1.5rem;
 
-    & > nav[aria-label="Back"] {
+    &>nav[aria-label="Back"] {
       margin-bottom: 1.5rem;
 
       & a {
@@ -464,7 +464,7 @@
 
     /* ── Bookmark flash message ── */
 
-    & > p[role="status"] {
+    &>p[role="status"] {
       background: var(--mountain-cream);
       border: 1px solid var(--mountain-gold);
       border-radius: 0.5rem;
@@ -477,7 +477,7 @@
 
     /* ── Article header — image + info side by side ── */
 
-    & article > header {
+    & article>header {
       display: grid;
       gap: 2rem;
       grid-template-columns: 1fr 1fr;
@@ -487,8 +487,8 @@
         grid-template-columns: 1fr;
       }
 
-      & > figure {
-        & > img {
+      &>figure {
+        &>img {
           border: 1px solid var(--mountain-fog);
           border-radius: 0.75rem;
           display: block;
@@ -498,74 +498,74 @@
         }
       }
 
-      & > div {
+      &>div {
         display: flex;
         flex-direction: column;
         gap: 1rem;
 
-        & > h1 {
+        &>h1 {
           color: var(--mountain-pine);
           font-family: Georgia, 'Times New Roman', serif;
           font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
           line-height: 1.2;
         }
 
-        & > p:first-of-type {
+        &>p:first-of-type {
           align-items: center;
           color: var(--mountain-mist);
           display: flex;
           font-size: 0.938rem;
           gap: 0.25rem;
 
-          & > i.fa-star {
+          &>i.fa-star {
             color: var(--mountain-gold);
             font-size: 0.875rem;
           }
 
-          & > span:last-child {
+          &>span:last-child {
             margin-left: 0.25rem;
           }
         }
 
-        & > dl {
+        &>dl {
           display: grid;
           gap: 0.5rem 1rem;
           grid-template-columns: auto 1fr;
 
-          & > dt {
+          &>dt {
             color: var(--mountain-slate);
             font-size: 0.875rem;
             font-weight: 600;
 
-            & > i {
+            &>i {
               color: var(--mountain-gold);
               margin-right: 0.25rem;
               width: 1rem;
             }
           }
 
-          & > dd {
+          &>dd {
             color: var(--mountain-charcoal);
             font-size: 0.875rem;
           }
 
-          & > dd[data-availability="available"] {
+          &>dd[data-availability="available"] {
             color: var(--mountain-pine);
             font-weight: 600;
           }
 
-          & > dd[data-availability="borrowed"] {
+          &>dd[data-availability="borrowed"] {
             color: #b45309;
             font-weight: 600;
           }
 
-          & > dd[data-availability="unavailable"] {
+          &>dd[data-availability="unavailable"] {
             color: #dc2626;
             font-weight: 600;
           }
         }
 
-        & > form > button {
+        &>form>button {
           align-items: center;
           background: var(--mountain-cream);
           border: 1.5px solid var(--mountain-fog);
@@ -585,7 +585,7 @@
             border-color: var(--mountain-pine-light);
           }
 
-          & > i.fa-bookmark {
+          &>i.fa-bookmark {
             color: var(--mountain-gold);
           }
         }
@@ -594,20 +594,20 @@
 
     /* ── Description + conditions sections ── */
 
-    & article > section {
+    & article>section {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.75rem;
       margin-bottom: 1.25rem;
       padding: 1.5rem;
 
-      & > h2 {
+      &>h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
         margin-bottom: 0.75rem;
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-charcoal);
         line-height: 1.65;
       }
@@ -615,25 +615,25 @@
 
     /* ── Borrow request / status sections ── */
 
-    & article > section[aria-labelledby="borrow-heading"] {
+    & article>section[aria-labelledby="borrow-heading"] {
       background: linear-gradient(135deg, var(--mountain-cloud) 0%, var(--mountain-cream) 100%);
       border: 1.5px solid var(--mountain-pine-light);
       border-radius: 0.75rem;
       margin-bottom: 1.25rem;
       padding: 1.5rem;
 
-      & > h2 {
+      &>h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
         margin-bottom: 0.75rem;
 
-        & > i {
+        &>i {
           color: var(--mountain-gold);
           margin-right: 0.25rem;
         }
       }
 
-      & > p[role="alert"] {
+      &>p[role="alert"] {
         background: #fef2f2;
         border: 1px solid #fca5a5;
         border-radius: 0.5rem;
@@ -649,7 +649,7 @@
         margin-bottom: 1rem;
         padding: 1.25rem;
 
-        & > legend {
+        &>legend {
           color: var(--mountain-pine);
           font-size: 0.813rem;
           font-weight: 700;
@@ -658,27 +658,27 @@
           text-transform: uppercase;
         }
 
-        & > div {
+        &>div {
           margin-bottom: 1rem;
 
           &:last-child {
             margin-bottom: 0;
           }
 
-          & > label {
+          &>label {
             color: var(--mountain-slate);
             display: block;
             font-size: 0.875rem;
             font-weight: 600;
             margin-bottom: 0.375rem;
 
-            & > span {
+            &>span {
               color: #dc2626;
             }
           }
 
-          & > select,
-          & > textarea {
+          &>select,
+          &>textarea {
             background: #fff;
             border: 1.5px solid var(--mountain-fog);
             border-radius: 0.5rem;
@@ -698,18 +698,18 @@
             }
           }
 
-          & > select {
+          &>select {
             appearance: none;
             min-height: 2.75rem;
             padding-right: 2.5rem;
           }
 
-          & > textarea {
+          &>textarea {
             min-height: 5rem;
             resize: vertical;
           }
 
-          & > p[role="alert"] {
+          &>p[role="alert"] {
             background: #fef2f2;
             border-radius: 0.25rem;
             color: #991b1b;
@@ -739,18 +739,18 @@
         }
       }
 
-      & form > p {
+      & form>p {
         color: var(--mountain-slate);
         font-size: 0.875rem;
         margin-bottom: 1rem;
 
-        & > i {
+        &>i {
           color: var(--mountain-gold);
           margin-right: 0.25rem;
         }
       }
 
-      & form > button[type="submit"] {
+      & form>button[type="submit"] {
         align-items: center;
         background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
         border-radius: 0.5rem;
@@ -773,22 +773,22 @@
       }
     }
 
-    & article > section:is([aria-label="Unavailable notice"], [aria-label="Login prompt"]) {
+    & article>section:is([aria-label="Unavailable notice"], [aria-label="Login prompt"]) {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.75rem;
       margin-bottom: 1.25rem;
       padding: 1.25rem 1.5rem;
 
-      & > p {
+      &>p {
         color: var(--mountain-slate);
         font-size: 0.938rem;
 
-        & > i {
+        &>i {
           margin-right: 0.375rem;
         }
 
-        & > a {
+        &>a {
           color: var(--mountain-pine);
           font-weight: 600;
 
@@ -799,29 +799,29 @@
       }
     }
 
-    & article > section[aria-label="Unavailable notice"] > p > i {
+    & article>section[aria-label="Unavailable notice"]>p>i {
       color: #dc2626;
     }
 
-    & article > section[aria-label="Login prompt"] > p > i {
+    & article>section[aria-label="Login prompt"]>p>i {
       color: var(--mountain-pine-light);
     }
 
     /* ── Owner aside ── */
 
-    & article > aside {
+    & article>aside {
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 0.75rem;
       padding: 1.5rem;
 
-      & > h2 {
+      &>h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
         margin-bottom: 0.75rem;
       }
 
-      & > a {
+      &>a {
         align-items: center;
         color: var(--mountain-pine);
         display: inline-flex;
@@ -834,19 +834,19 @@
           color: var(--mountain-pine-light);
         }
 
-        & > img {
+        &>img {
           border: 2px solid var(--mountain-fog);
           border-radius: 50%;
           object-fit: cover;
         }
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         font-size: 0.875rem;
         margin-top: 0.5rem;
 
-        & > i {
+        &>i {
           color: var(--mountain-gold);
           margin-right: 0.25rem;
         }
@@ -856,23 +856,23 @@
 
   /* ── Tool create + edit + availability pages ── */
 
-  main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
+  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
     margin: 0 auto;
     max-width: 720px;
     padding: 2rem 1.5rem;
 
     /* ── Page header ── */
 
-    & > header {
+    &>header {
       margin-bottom: 1.5rem;
       text-align: center;
 
-      & > h1 {
+      &>h1 {
         color: var(--mountain-pine);
         font-family: Georgia, 'Times New Roman', serif;
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
         margin: 0.5rem 0 0;
@@ -881,7 +881,7 @@
 
     /* ── Validation error summary ── */
 
-    & > ul[role="alert"] {
+    &>ul[role="alert"] {
       background: #fef2f2;
       border: 1px solid #fca5a5;
       border-radius: 0.5rem;
@@ -909,7 +909,7 @@
       margin-bottom: 1.25rem;
       padding: 1.5rem;
 
-      & > legend {
+      &>legend {
         color: var(--mountain-pine);
         font-size: 0.813rem;
         font-weight: 700;
@@ -918,26 +918,26 @@
         text-transform: uppercase;
       }
 
-      & > div {
+      &>div {
         margin-bottom: 1rem;
 
         &:last-child {
           margin-bottom: 0;
         }
 
-        & > label {
+        &>label {
           color: var(--mountain-slate);
           display: block;
           font-size: 0.875rem;
           font-weight: 600;
           margin-bottom: 0.375rem;
 
-          & > span {
+          &>span {
             color: #dc2626;
           }
         }
 
-        & > :is(input[type="text"], input[type="number"], select, textarea) {
+        &> :is(input[type="text"], input[type="number"], select, textarea) {
           background: var(--mountain-cream);
           border: 1.5px solid var(--mountain-fog);
           border-radius: 0.5rem;
@@ -961,16 +961,16 @@
           }
         }
 
-        & > :is(input[type="text"], input[type="number"], select) {
+        &> :is(input[type="text"], input[type="number"], select) {
           min-height: 2.75rem;
         }
 
-        & > select {
+        &>select {
           appearance: none;
           padding-right: 2.5rem;
         }
 
-        & > textarea {
+        &>textarea {
           min-height: 6rem;
           resize: vertical;
         }
@@ -994,7 +994,7 @@
           }
         }
 
-        & > input[type="file"] {
+        &>input[type="file"] {
           background: var(--mountain-cream);
           border: 1.5px dashed var(--mountain-fog);
           border-radius: 0.5rem;
@@ -1027,7 +1027,7 @@
           }
         }
 
-        & > p[role="alert"] {
+        &>p[role="alert"] {
           color: #dc2626;
           font-size: 0.813rem;
           margin: 0.25rem 0 0;
@@ -1037,7 +1037,7 @@
 
     /* ── Submit button ── */
 
-    & form > button[type="submit"] {
+    & form>button[type="submit"] {
       align-items: center;
       align-self: flex-start;
       background: var(--mountain-pine);
@@ -1061,9 +1061,9 @@
     }
   }
 
-  main > section:is([aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
+  main>section:is([aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
 
-    & > nav[aria-label="Back"] {
+    &>nav[aria-label="Back"] {
       margin-bottom: 1.5rem;
 
       & a {
@@ -1082,12 +1082,12 @@
     }
   }
 
-  main > section[aria-labelledby="edit-tool-heading"] {
+  main>section[aria-labelledby="edit-tool-heading"] {
 
     & figure {
       margin: 0.5rem 0 1rem;
 
-      & > img {
+      &>img {
         border: 1px solid var(--mountain-fog);
         border-radius: 0.5rem;
         display: block;
@@ -1096,18 +1096,18 @@
         object-fit: cover;
       }
 
-      & > figcaption {
+      &>figcaption {
         color: var(--mountain-mist);
         font-size: 0.813rem;
         margin-top: 0.375rem;
       }
     }
 
-    & > nav[aria-label="Related actions"] {
+    &>nav[aria-label="Related actions"] {
       margin-top: 1.5rem;
       text-align: center;
 
-      & > a {
+      &>a {
         align-items: center;
         border: 1.5px solid var(--mountain-fog);
         border-radius: 0.5rem;
@@ -1126,7 +1126,7 @@
           border-color: var(--mountain-pine-light);
         }
 
-        & > i {
+        &>i {
           color: var(--mountain-gold);
         }
       }
@@ -1135,10 +1135,10 @@
 
   /* ── Availability management page ── */
 
-  main > section[aria-labelledby="availability-heading"] {
+  main>section[aria-labelledby="availability-heading"] {
     max-width: 900px;
 
-    & > p[role="status"] {
+    &>p[role="status"] {
       background: var(--mountain-cream);
       border: 1px solid var(--mountain-gold);
       border-radius: 0.5rem;
@@ -1149,22 +1149,22 @@
       text-align: center;
     }
 
-    & > p:not([role]) {
+    &>p:not([role]) {
       color: var(--mountain-mist);
       margin-bottom: 1.5rem;
       text-align: center;
     }
 
-    & > section[aria-labelledby="blocks-heading"] {
+    &>section[aria-labelledby="blocks-heading"] {
       margin-bottom: 2rem;
 
-      & > h2 {
+      &>h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
         margin-bottom: 1rem;
       }
 
-      & > div {
+      &>div {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
       }
@@ -1195,13 +1195,13 @@
         vertical-align: middle;
         white-space: nowrap;
 
-        & > i {
+        &>i {
           color: var(--mountain-gold);
           margin-right: 0.25rem;
         }
       }
 
-      & tr[data-status="active"] > td:first-child {
+      & tr[data-status="active"]>td:first-child {
         border-left: 3px solid var(--mountain-pine);
       }
 
@@ -1209,7 +1209,7 @@
         opacity: 0.55;
       }
 
-      & td > form > button {
+      & td>form>button {
         align-items: center;
         background: transparent;
         border: 1px solid #fca5a5;
@@ -1230,46 +1230,46 @@
         }
       }
 
-      & td > span {
+      & td>span {
         color: var(--mountain-mist);
         font-size: 0.813rem;
 
-        & > i {
+        &>i {
           color: var(--mountain-gold);
           margin-right: 0.25rem;
         }
       }
     }
 
-    & > section[aria-labelledby="add-block-heading"] > h2 {
+    &>section[aria-labelledby="add-block-heading"]>h2 {
       color: var(--mountain-pine);
       font-size: 1.125rem;
       margin-bottom: 1rem;
 
-      & > i {
+      &>i {
         color: var(--mountain-gold);
         margin-right: 0.25rem;
       }
     }
 
-    & > section[aria-labelledby="listing-status-heading"] {
+    &>section[aria-labelledby="listing-status-heading"] {
       border: 1.5px solid var(--mountain-fog);
       border-radius: 0.5rem;
       margin-bottom: 2rem;
       padding: 1.25rem 1.5rem;
       text-align: center;
 
-      & > h2 {
+      &>h2 {
         color: var(--mountain-pine);
         font-size: 1.125rem;
         margin-bottom: 0.5rem;
 
-        & > i {
+        &>i {
           margin-right: 0.25rem;
         }
       }
 
-      & > p {
+      &>p {
         color: var(--mountain-mist);
         font-size: 0.875rem;
         margin-bottom: 1rem;
@@ -1326,29 +1326,29 @@
   @media (prefers-contrast: more) {
     :is(#browse-page, #bookmarks-page) {
 
-      & > header > nav[aria-label="Browse mode"] {
+      &>header>nav[aria-label="Browse mode"] {
         border: 2px solid var(--mountain-fog);
       }
 
-      & > form[role="search"] > fieldset:first-of-type {
+      &>form[role="search"]>fieldset:first-of-type {
         border-width: 3px;
       }
 
-      & > form[role="search"] > fieldset:last-of-type {
+      &>form[role="search"]>fieldset:last-of-type {
         border-width: 2px;
 
-        & > div > select,
-        & > div > input[type="text"] {
+        &>div>select,
+        &>div>input[type="text"] {
           border-width: 2px;
         }
       }
 
-      & > nav[aria-label="Pagination"] > ul > li > a {
+      &>nav[aria-label="Pagination"]>ul>li>a {
         border-color: var(--mountain-fog);
       }
     }
 
-    main > section[aria-labelledby="tool-detail-heading"] article > section[aria-labelledby="borrow-heading"] {
+    main>section[aria-labelledby="tool-detail-heading"] article>section[aria-labelledby="borrow-heading"] {
       border-width: 2px;
 
       & fieldset {
@@ -1359,12 +1359,12 @@
         border-width: 2px;
       }
 
-      & form > button[type="submit"] {
+      & form>button[type="submit"] {
         border: 2px solid var(--mountain-pine-dark);
       }
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
 
       & fieldset {
         border-width: 2px;
@@ -1374,7 +1374,7 @@
         border-width: 2px;
       }
 
-      & form > button[type="submit"] {
+      & form>button[type="submit"] {
         border: 2px solid var(--mountain-pine-dark);
       }
     }
@@ -1383,25 +1383,25 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
-    :is(#browse-page, #bookmarks-page) > header > nav[aria-label="Browse mode"] {
+    :is(#browse-page, #bookmarks-page)>header>nav[aria-label="Browse mode"] {
 
       &::before {
         transition: none;
       }
 
-      & > a {
+      &>a {
         transition: none;
       }
     }
 
-    main > section[aria-labelledby="tool-detail-heading"] article > section[aria-labelledby="borrow-heading"] {
+    main>section[aria-labelledby="tool-detail-heading"] article>section[aria-labelledby="borrow-heading"] {
 
       & :is(select, textarea, button) {
         transition: none;
       }
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
 
       & :is(input, select, textarea, button) {
         transition: none;
@@ -1412,37 +1412,33 @@
   /* --- Responsive ----------------------------------------- */
 
   @media (max-width: 700px) {
-    main > section[aria-labelledby="browse-heading"] {
+    main>section[aria-labelledby="browse-heading"] {
       padding: 1.25rem 1rem;
     }
 
-    main > section[aria-labelledby="browse-heading"] > header > h1 {
-      font-size: 1.5rem;
-    }
-
-    main > section[aria-labelledby="browse-heading"] > div[role="list"] {
+    main>section[aria-labelledby="browse-heading"]>div[role="list"] {
       gap: 1rem;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 
-    main > section[aria-labelledby="browse-heading"] > nav[aria-label="Pagination"] > ul > li > a > span,
-    main > section[aria-labelledby="browse-heading"] > nav[aria-label="Pagination"] > ul > li > span[aria-disabled] > span {
+    main>section[aria-labelledby="browse-heading"]>nav[aria-label="Pagination"]>ul>li>a>span,
+    main>section[aria-labelledby="browse-heading"]>nav[aria-label="Pagination"]>ul>li>span[aria-disabled]>span {
       display: none;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
       padding: 1.25rem 1rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) > header > h1 {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"])>header>h1 {
       font-size: 1.5rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
       padding: 1rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) form > button[type="submit"] {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) form>button[type="submit"] {
       align-self: stretch;
       justify-content: center;
       width: 100%;
@@ -1450,27 +1446,27 @@
   }
 
   @media (max-width: 400px) {
-    main > section[aria-labelledby="browse-heading"] {
+    main>section[aria-labelledby="browse-heading"] {
       padding: 0 0.75rem;
     }
 
-    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type {
+    main>section[aria-labelledby="browse-heading"]>form[role="search"]>fieldset:first-of-type {
       padding: 0 0.1875rem 0 0.75rem;
     }
 
-    main > section[aria-labelledby="browse-heading"] > form[role="search"] > fieldset:first-of-type > button > span {
+    main>section[aria-labelledby="browse-heading"]>form[role="search"]>fieldset:first-of-type>button>span {
       display: none;
     }
 
-    main > section[aria-labelledby="browse-heading"] > div[role="list"] {
+    main>section[aria-labelledby="browse-heading"]>div[role="list"] {
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
       padding: 0 0.75rem;
     }
 
-    main > section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset {
       border-radius: 0.75rem;
       padding: 0.75rem;
     }

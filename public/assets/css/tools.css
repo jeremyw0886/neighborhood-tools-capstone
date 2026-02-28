@@ -6,12 +6,18 @@
 
 @layer components {
 
-  /* ── Tool listing pages (browse + bookmarks) ── */
+  /* ── Browse page wrapper (bookmarks wrapper via dashboard.css) ── */
 
-  :is(#browse-page, #bookmarks-page) {
+  #browse-page {
     margin: 0 auto;
     max-width: 1200px;
     padding: 2rem 1.5rem;
+  }
+
+  /* ── Tool listing pages (browse + bookmarks) ── */
+
+  :is(#browse-page,
+    #bookmarks-page) {
 
     /* ── Page header ── */
 
@@ -55,7 +61,8 @@
           width: calc((100% - 0.5rem) / var(--toggle-count));
         }
 
-        &:is(:has(> a:nth-child(2)[aria-current="page"]), [data-active="end"])::before {
+        &:is(:has(> a:nth-child(2)[aria-current="page"]),
+          [data-active="end"])::before {
           transform: translateX(100%);
         }
 
@@ -85,7 +92,7 @@
 
     /* ── Bookmark flash message ── */
 
-    &>p[role="status"] {
+    & p[role="status"] {
       background: var(--mountain-cream);
       border: 1px solid var(--mountain-gold);
       border-radius: 0.5rem;
@@ -296,7 +303,7 @@
 
     /* ── Results summary ── */
 
-    &>div[aria-live] {
+    & div[aria-live] {
       margin-bottom: 1rem;
 
       &>p {
@@ -312,7 +319,7 @@
 
     /* ── Tool card grid ── */
 
-    &>div[role="list"] {
+    & div[role="list"] {
       container-name: browse-grid;
       container-type: inline-size;
       display: grid;
@@ -320,7 +327,7 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
 
-    &>div[role="list"]>article {
+    & div[role="list"]>article {
       flex: none;
       height: 100%;
       min-width: 0;
@@ -329,7 +336,7 @@
 
     /* ── Pagination ── */
 
-    &>nav[aria-label="Pagination"] {
+    & nav[aria-label="Pagination"] {
       margin-top: 2rem;
 
       &>ul {
@@ -399,7 +406,8 @@
 
     /* ── Empty state ── */
 
-    &>section:is([aria-label="No results"], [aria-label="No bookmarks"]) {
+    & section:is([aria-label="No results"],
+      [aria-label="No bookmarks"]) {
       padding: 4rem 0;
       text-align: center;
 
@@ -1547,7 +1555,7 @@
         }
       }
 
-      &>nav[aria-label="Pagination"]>ul>li>a {
+      & nav[aria-label="Pagination"]>ul>li>a {
         border-color: var(--mountain-fog);
       }
     }

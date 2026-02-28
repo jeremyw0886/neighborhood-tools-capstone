@@ -47,6 +47,13 @@
       }
     }
 
+    /* ── Admin sub-navigation (shared base in components.css) ── */
+
+    &>[data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a {
+      font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
+      padding: 0 1rem;
+    }
+
     /* ── Section headings ── */
 
     &>[data-admin-body]>section>h2,

@@ -899,36 +899,8 @@
   /* --- Events --------------------------------------------- */
 
   #events-page {
-    margin: 0 auto;
-    max-width: 900px;
-    padding: 2rem 1.5rem;
 
-    &>header {
-      margin-bottom: 1.5rem;
-
-      &>h1 {
-        color: var(--mountain-pine);
-        font-family: Georgia, 'Times New Roman', serif;
-      }
-
-      &>p {
-        color: var(--mountain-mist);
-        margin-top: 0.25rem;
-      }
-    }
-
-    &>p[role="alert"],
-    &>p[role="status"] {
-      background: #f0fdf4;
-      border: 1px solid #86efac;
-      border-radius: 0.5rem;
-      color: #166534;
-      font-size: 0.938rem;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-    }
-
-    &>nav[aria-label="Filter by timing"] {
+    & nav[aria-label="Filter by timing"] {
       margin-bottom: 1.5rem;
 
       &>ul {
@@ -978,7 +950,7 @@
       }
     }
 
-    &>div[aria-live] {
+    & div[aria-live] {
       margin-bottom: 1rem;
 
       &>p {
@@ -992,7 +964,7 @@
       }
     }
 
-    &>div[role="list"] {
+    & div[role="list"] {
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -1184,7 +1156,7 @@
       }
     }
 
-    &>nav[aria-label="Pagination"] {
+    & nav[aria-label="Pagination"] {
       margin-top: 2rem;
 
       &>ul {
@@ -1252,7 +1224,7 @@
       }
     }
 
-    &>section[aria-label="No events"] {
+    & section[aria-label="No events"] {
       padding: 4rem 0;
       text-align: center;
 
@@ -2696,7 +2668,7 @@
 
     #events-page {
 
-      &>div[role="list"]>article {
+      & div[role="list"]>article {
         transition: none;
 
         &>footer>form>button {
@@ -2704,7 +2676,7 @@
         }
       }
 
-      &>nav[aria-label="Filter by timing"]>ul>li>a {
+      & nav[aria-label="Filter by timing"]>ul>li>a {
         transition: none;
       }
     }
@@ -2839,7 +2811,7 @@
 
     #events-page {
 
-      &>div[role="list"]>article {
+      & div[role="list"]>article {
         border-width: 2px;
 
         &[data-timing="happening-now"] {
@@ -2851,7 +2823,7 @@
         }
       }
 
-      &>nav[aria-label="Pagination"]>ul>li>a {
+      & nav[aria-label="Pagination"]>ul>li>a {
         border-color: var(--mountain-fog);
       }
     }

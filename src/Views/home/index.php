@@ -189,7 +189,7 @@ $bookmarkFlash    ??= '';
                 <i class="fa-solid fa-handshake" aria-hidden="true"></i>
                 <?= $borrowCount ?> borrow<?= $borrowCount !== 1 ? 's' : '' ?>
               </p>
-              <?php if (!empty($neighbor['bio'])): ?>
+              <?php if (trim($neighbor['bio'] ?? '') !== ''): ?>
                 <blockquote><?= htmlspecialchars($neighbor['bio']) ?></blockquote>
               <?php endif; ?>
             </a>

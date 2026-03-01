@@ -47,8 +47,9 @@
 
     &>header {
       border-bottom: 1px solid var(--mountain-fog);
-      margin-bottom: 1.5rem;
-      padding-bottom: 1.5rem;
+      height: 222.562px;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
       text-align: center;
 
       &>h1 {
@@ -68,7 +69,8 @@
         border: 2px solid var(--mountain-fog);
         border-radius: 2rem;
         display: flex;
-        margin-top: 1.25rem;
+        margin: 1.25rem auto 0;
+        max-width: 480px;
         padding: 0.25rem 0.25rem 0.25rem 1rem;
         transition: border-color 0.25s, box-shadow 0.25s;
 
@@ -179,7 +181,6 @@
         overflow-x: visible;
         padding-right: 1rem;
         position: sticky;
-        scrollbar-gutter: auto;
         top: 5rem;
 
         &>ul {

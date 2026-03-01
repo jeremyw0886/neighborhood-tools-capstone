@@ -25,8 +25,8 @@ $depositAmount = $waiver['default_deposit_amount_tol'];
 <section id="waiver-show" aria-labelledby="waiver-heading">
 
   <nav aria-label="Back">
-    <a href="/dashboard">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </a>
   </nav>
 

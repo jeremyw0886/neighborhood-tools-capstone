@@ -9,15 +9,9 @@ $bookmarkFlash ??= '';
 <section aria-labelledby="tool-detail-heading">
 
   <nav aria-label="Back">
-    <?php if ($isOwner): ?>
-      <a href="/dashboard">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
-      </a>
-    <?php else: ?>
-      <a href="<?= htmlspecialchars($backUrl) ?>">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-      </a>
-    <?php endif; ?>
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <?php if (!empty($bookmarkFlash)): ?>

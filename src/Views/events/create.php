@@ -17,6 +17,12 @@ $currentCity = '';
 
 <section id="event-create" aria-labelledby="event-create-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="event-create-heading">
       <i class="fa-solid fa-calendar-plus" aria-hidden="true"></i>

@@ -266,8 +266,8 @@ $deadlineValue = match ($deadlineMet) {
       <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
       <h2>No Open Incidents</h2>
       <p>All incidents have been resolved. The community is in good standing.</p>
-      <a href="/admin" role="button">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>
 

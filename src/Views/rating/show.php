@@ -193,10 +193,10 @@ $scoreLabels = [
     </section>
   <?php endif; ?>
 
-  <nav aria-label="Navigation">
-    <a href="/dashboard">
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      Back to Dashboard
+      Back
     </a>
   </nav>
 

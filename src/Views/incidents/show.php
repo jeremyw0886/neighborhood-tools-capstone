@@ -64,15 +64,9 @@ $typeIcon  = $typeIcons[$incident['incident_type']] ?? 'fa-circle-question';
 <section id="incident-show" aria-labelledby="incident-show-heading">
 
   <nav aria-label="Back">
-    <?php if ($isAdmin): ?>
-      <a href="/admin/incidents">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> All Incidents
-      </a>
-    <?php else: ?>
-      <a href="/dashboard">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
-      </a>
-    <?php endif; ?>
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <header>

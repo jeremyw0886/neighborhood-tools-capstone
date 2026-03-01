@@ -96,8 +96,8 @@ $sections = [
       <i class="fa-regular fa-face-meh" aria-hidden="true"></i>
       <h2>No Results Found</h2>
       <p>Nothing matched &#8220;<?= htmlspecialchars($term) ?>&#8221; across any category.</p>
-      <a href="/admin" role="button">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>
 

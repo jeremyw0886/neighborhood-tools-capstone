@@ -79,6 +79,12 @@ $paginationUrl = static fn(int $pageNum): string =>
 
 <section aria-labelledby="notifications-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="notifications-heading">
       <i class="fa-solid fa-bell" aria-hidden="true"></i> Notifications

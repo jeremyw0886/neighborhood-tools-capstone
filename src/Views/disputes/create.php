@@ -27,6 +27,12 @@ $yourRole   = $isBorrower ? 'Borrower' : 'Lender';
 
 <section id="dispute-create" aria-labelledby="dispute-create-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="dispute-create-heading">
       <i class="fa-solid fa-gavel" aria-hidden="true"></i>
@@ -43,8 +49,8 @@ $yourRole   = $isBorrower ? 'Borrower' : 'Lender';
         An open dispute already exists for this borrow transaction.
         Please wait for the current dispute to be resolved before filing a new one.
       </p>
-      <a href="/dashboard" role="button">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>
 

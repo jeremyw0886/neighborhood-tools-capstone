@@ -276,8 +276,8 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       <?php else: ?>
-        <a href="/admin" role="button">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       <?php endif; ?>
     </section>

@@ -180,8 +180,8 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
         <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
         <h3>No Neighborhood Data</h3>
         <p>No neighborhood statistics are available yet.</p>
-        <a href="/admin" role="button">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       </section>
 

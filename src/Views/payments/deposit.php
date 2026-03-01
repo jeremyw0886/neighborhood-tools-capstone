@@ -9,8 +9,8 @@ $provider  = htmlspecialchars($deposit['payment_provider']);
 <section id="deposit-payment" aria-labelledby="payment-heading">
 
   <nav aria-label="Back">
-    <a href="/dashboard">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </a>
   </nav>
 
@@ -101,15 +101,9 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
 <section id="deposit-detail" aria-labelledby="deposit-heading">
 
   <nav aria-label="Back">
-    <?php if ($isAdmin): ?>
-      <a href="/admin">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Admin Dashboard
-      </a>
-    <?php else: ?>
-      <a href="/dashboard">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
-      </a>
-    <?php endif; ?>
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <?php if ($depositSuccess): ?>

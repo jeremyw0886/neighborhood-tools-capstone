@@ -54,9 +54,9 @@ if (!empty($depositPending)):
   </p>
 
   <nav aria-label="Back">
-    <a href="/dashboard/lender">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      Back to Dashboard
+      Back
     </a>
   </nav>
 
@@ -105,9 +105,9 @@ if (!empty($awaitingLender)):
   </p>
 
   <nav aria-label="Back">
-    <a href="/dashboard/borrower">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      Back to Dashboard
+      Back
     </a>
   </nav>
 
@@ -156,9 +156,9 @@ if (!empty($awaitingBorrower)):
   </p>
 
   <nav aria-label="Back">
-    <a href="/dashboard/lender">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      Back to Dashboard
+      Back
     </a>
   </nav>
 
@@ -312,9 +312,9 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
   <?php endif; ?>
 
   <nav aria-label="Back">
-    <a href="/dashboard">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      Back to Dashboard
+      Back
     </a>
   </nav>
 

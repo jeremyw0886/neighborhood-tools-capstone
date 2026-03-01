@@ -47,15 +47,9 @@ $typeIcons = [
 <section id="dispute-show" aria-labelledby="dispute-show-heading">
 
   <nav aria-label="Back">
-    <?php if ($isAdmin): ?>
-      <a href="/admin/disputes">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> All Disputes
-      </a>
-    <?php else: ?>
-      <a href="/dashboard">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
-      </a>
-    <?php endif; ?>
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <?php if ($msgSuccess !== ''): ?>

@@ -13,15 +13,9 @@ $paginationUrl = static fn(int $p): string => '/payments/history?page=' . $p;
 <section id="payment-history" aria-labelledby="history-heading">
 
   <nav aria-label="Back">
-    <?php if ($isAdmin): ?>
-      <a href="/admin">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Admin Dashboard
-      </a>
-    <?php else: ?>
-      <a href="/dashboard">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard
-      </a>
-    <?php endif; ?>
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
   </nav>
 
   <h1 id="history-heading">

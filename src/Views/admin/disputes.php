@@ -213,8 +213,8 @@ $sortLabels = [
         </a>
       <?php else: ?>
         <p>All disputes have been resolved. The community is in good standing.</p>
-        <a href="/admin" role="button">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       <?php endif; ?>
     </section>

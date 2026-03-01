@@ -23,8 +23,8 @@ $toolId  = (int) $tool['id_tol'];
 <section aria-labelledby="availability-heading">
 
   <nav aria-label="Back">
-    <a href="/tools/<?= $toolId ?>/edit">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Edit
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </a>
   </nav>
 

@@ -19,8 +19,12 @@ class HomeController extends BaseController
             $featuredTools = [];
         }
 
+        $currentUserId = !empty($_SESSION['logged_in'])
+            ? (int) $_SESSION['user_id']
+            : null;
+
         try {
-            $topMembers = Account::getTopMembers(3);
+            $topMembers = Account::getTopMembers(10, $currentUserId);
         } catch (\Exception) {
             $topMembers = [];
         }
@@ -33,7 +37,7 @@ class HomeController extends BaseController
             ?? 'Asheville';
 
         try {
-            $nearbyMembers = Account::getNearbyMembers($selectedCity, 10);
+            $nearbyMembers = Account::getNearbyMembers($selectedCity, 10, $currentUserId);
             $isNearbyFallback = empty($nearbyMembers);
         } catch (\Exception $e) {
             error_log('getNearbyMembers failed: ' . $e->getMessage());
@@ -66,7 +70,8 @@ class HomeController extends BaseController
             'nearbyMembers'    => $nearbyMembers,
             'isNearbyFallback' => $isNearbyFallback,
             'featuredTools'    => $featuredTools,
-            'topMembers'       => $topMembers,
+            'topMembers'        => $topMembers,
+            'friendlyNeighbors' => array_slice($topMembers, 0, 3),
             'bookmarkedIds'    => $bookmarkedIds,
             'bookmarkFlash'    => $this->flash('bookmark_flash'),
         ]);

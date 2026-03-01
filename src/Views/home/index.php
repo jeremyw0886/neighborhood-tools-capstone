@@ -109,18 +109,20 @@ $bookmarkFlash    ??= '';
 
     <section aria-labelledby="popular-heading">
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
-      <div role="list">
-        <?php $cardHeadingLevel = 'h3'; ?>
-        <?php if (!empty($featuredTools)): ?>
+      <?php if (!empty($featuredTools)): ?>
+        <div role="list">
+          <?php $cardHeadingLevel = 'h3'; ?>
           <?php foreach ($featuredTools as $toolIndex => $tool): ?>
             <?php $eagerLoad = ($toolIndex === 0); ?>
             <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
           <?php endforeach; ?>
-        <?php else: ?>
-          <p>No tools available yet. Be the first to list one!</p>
-        <?php endif; ?>
-        <?php unset($cardHeadingLevel); ?>
-      </div>
+          <?php unset($cardHeadingLevel); ?>
+        </div>
+      <?php else: ?>
+        <p>No tools available yet.
+          <a href="<?= $isLoggedIn ? '/tools/create' : '/register' ?>">Be the first to list one!</a>
+        </p>
+      <?php endif; ?>
     </section>
 
     <section aria-labelledby="neighbors-heading">

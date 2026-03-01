@@ -30,15 +30,17 @@ class Tool
                 av.owner_name,
                 aim.file_name_aim AS owner_avatar,
                 avv.file_name_avv AS owner_vector_avatar,
-                (SELECT MIN(c.category_name_cat)
+                (SELECT c.category_name_cat
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = av.id_tol) AS category_name,
-                (SELECT MIN(vec.file_name_vec)
+                 WHERE tc.id_tol_tolcat = av.id_tol
+                 ORDER BY c.category_name_cat LIMIT 1) AS category_name,
+                (SELECT vec.file_name_vec
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
                  LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-                 WHERE tc.id_tol_tolcat = av.id_tol) AS category_icon
+                 WHERE tc.id_tol_tolcat = av.id_tol
+                 ORDER BY c.category_name_cat LIMIT 1) AS category_icon
             FROM available_tool_v av
             LEFT JOIN (
                 SELECT id_tol_trt,
@@ -461,15 +463,17 @@ class Tool
                 td.owner_name,
                 aim.file_name_aim AS owner_avatar,
                 avv.file_name_avv AS owner_vector_avatar,
-                (SELECT MIN(c.category_name_cat)
+                (SELECT c.category_name_cat
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = td.id_tol) AS category_name,
-                (SELECT MIN(vec.file_name_vec)
+                 WHERE tc.id_tol_tolcat = td.id_tol
+                 ORDER BY c.category_name_cat LIMIT 1) AS category_name,
+                (SELECT vec.file_name_vec
                  FROM tool_category_tolcat tc
                  JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
                  LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-                 WHERE tc.id_tol_tolcat = td.id_tol) AS category_icon
+                 WHERE tc.id_tol_tolcat = td.id_tol
+                 ORDER BY c.category_name_cat LIMIT 1) AS category_icon
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
@@ -770,15 +774,17 @@ class Tool
     }
 
     /**
-     * Fetch the primary category name for a batch of tool IDs.
+     * Fetch category name + icon for a batch of tool IDs.
      *
-     * Returns an associative array keyed by tool ID. Tools with no
-     * category assignment are omitted from the result.
+     * Returns both values from the same category row so they always
+     * match. When $preferredCategoryId is set (browsing by category),
+     * that category is selected over the alphabetic default.
      *
-     * @param  int[] $toolIds  Tool primary keys
-     * @return array<int, string>  [id_tol => category_name_cat]
+     * @param  int[] $toolIds              Tool primary keys
+     * @param  ?int  $preferredCategoryId  Prefer this category when a tool belongs to multiple
+     * @return array<int, array{category_name: string, category_icon: ?string}>
      */
-    public static function getCategoryNamesForTools(array $toolIds): array
+    public static function getCategoryDataForTools(array $toolIds, ?int $preferredCategoryId = null): array
     {
         if ($toolIds === []) {
             return [];
@@ -788,62 +794,48 @@ class Tool
 
         $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
 
-        $stmt = $pdo->prepare("
-            SELECT tc.id_tol_tolcat, MIN(c.category_name_cat) AS category_name
-            FROM tool_category_tolcat tc
-            JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-            WHERE tc.id_tol_tolcat IN ({$placeholders})
-            GROUP BY tc.id_tol_tolcat
-        ");
+        $orderExpr = $preferredCategoryId !== null
+            ? 'CASE WHEN c.id_cat = ? THEN 0 ELSE 1 END, c.category_name_cat'
+            : 'c.category_name_cat';
 
-        foreach (array_values($toolIds) as $i => $id) {
-            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+        $sql = "
+            SELECT sub.id_tol_tolcat, sub.category_name, sub.category_icon
+            FROM (
+                SELECT tc.id_tol_tolcat,
+                       c.category_name_cat AS category_name,
+                       vec.file_name_vec AS category_icon,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY tc.id_tol_tolcat
+                           ORDER BY {$orderExpr}
+                       ) AS rn
+                FROM tool_category_tolcat tc
+                JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+                WHERE tc.id_tol_tolcat IN ({$placeholders})
+            ) sub
+            WHERE sub.rn = 1
+        ";
+
+        $stmt = $pdo->prepare($sql);
+
+        $paramIndex = 1;
+
+        if ($preferredCategoryId !== null) {
+            $stmt->bindValue($paramIndex++, $preferredCategoryId, PDO::PARAM_INT);
+        }
+
+        foreach (array_values($toolIds) as $id) {
+            $stmt->bindValue($paramIndex++, $id, PDO::PARAM_INT);
         }
 
         $stmt->execute();
 
         $map = [];
         foreach ($stmt->fetchAll() as $row) {
-            $map[(int) $row['id_tol_tolcat']] = $row['category_name'];
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param  int[] $toolIds
-     * @return array<int, string>  [id_tol => file_name_vec]
-     */
-    public static function getCategoryIconsForTools(array $toolIds): array
-    {
-        if ($toolIds === []) {
-            return [];
-        }
-
-        $pdo = Database::connection();
-
-        $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
-
-        $stmt = $pdo->prepare("
-            SELECT tc.id_tol_tolcat, MIN(vec.file_name_vec) AS category_icon
-            FROM tool_category_tolcat tc
-            JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-            LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-            WHERE tc.id_tol_tolcat IN ({$placeholders})
-            GROUP BY tc.id_tol_tolcat
-        ");
-
-        foreach (array_values($toolIds) as $i => $id) {
-            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
-        }
-
-        $stmt->execute();
-
-        $map = [];
-        foreach ($stmt->fetchAll() as $row) {
-            if ($row['category_icon'] !== null) {
-                $map[(int) $row['id_tol_tolcat']] = $row['category_icon'];
-            }
+            $map[(int) $row['id_tol_tolcat']] = [
+                'category_name' => $row['category_name'],
+                'category_icon' => $row['category_icon'],
+            ];
         }
 
         return $map;

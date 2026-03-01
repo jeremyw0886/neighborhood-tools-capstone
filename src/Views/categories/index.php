@@ -53,7 +53,7 @@
 
             <dl>
               <dt><i class="fa-solid fa-check-circle" aria-hidden="true"></i> Available</dt>
-              <dd><?= $available ?> of <?= $total ?> tool<?= $total !== 1 ? 's' : '' ?></dd>
+              <dd><?= $available ?> tool<?= $available !== 1 ? 's' : '' ?></dd>
 
               <?php if ($minFee !== null): ?>
                 <dt><i class="fa-solid fa-dollar-sign" aria-hidden="true"></i> Fee Range</dt>

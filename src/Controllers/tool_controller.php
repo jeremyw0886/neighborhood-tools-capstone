@@ -77,15 +77,14 @@ class ToolController extends BaseController
 
             $categories = Tool::getCategories();
 
-            // Enrich search results with category names for card display
             if ($tools !== []) {
                 $toolIds     = array_column($tools, 'id_tol');
-                $categoryMap = Tool::getCategoryNamesForTools($toolIds);
-                $iconMap     = Tool::getCategoryIconsForTools($toolIds);
+                $categoryData = Tool::getCategoryDataForTools($toolIds, $categoryId);
 
                 foreach ($tools as &$t) {
-                    $t['category_name'] = $categoryMap[(int) $t['id_tol']] ?? null;
-                    $t['category_icon'] = $iconMap[(int) $t['id_tol']] ?? null;
+                    $data = $categoryData[(int) $t['id_tol']] ?? [];
+                    $t['category_name'] = $data['category_name'] ?? null;
+                    $t['category_icon'] = $data['category_icon'] ?? null;
                 }
                 unset($t);
             }

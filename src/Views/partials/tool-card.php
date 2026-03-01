@@ -29,6 +29,9 @@
       </button>
     </form>
   <?php endif; ?>
+  <?php if (!empty($tool['is_new_arrival'])): ?>
+    <span aria-label="New arrival">NEW</span>
+  <?php endif; ?>
   <div>
     <?php if (!empty($tool['category_name'])): ?>
       <span>

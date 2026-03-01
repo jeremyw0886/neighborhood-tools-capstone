@@ -15,26 +15,47 @@ class Tool
     private const int NEW_ARRIVAL_DAYS = 30;
 
     /**
-     * Fetch popular/featured tools ranked by composite popularity score.
+     * Fetch popular/featured tools with reserved slots for new arrivals.
      *
-     * @param  int   $limit  Number of tools to return
+     * @param  int   $limit     Total tools to return
+     * @param  int   $newSlots  Slots reserved for unrated new arrivals
      * @return array
      */
-    public static function getFeatured(int $limit = 6): array
+    public static function getFeatured(int $limit = 6, int $newSlots = 2): array
     {
-        $ranked = self::getRankedTools($limit);
+        $newSlots = max(0, min($newSlots, $limit - 1));
 
-        $toolIds = array_column($ranked, 'id_tol');
-        $categoryMap = self::getCategoryDataForTools($toolIds);
+        $ranked = self::getRankedTools($limit);
+        $rankedIds = array_column($ranked, 'id_tol');
+
+        $newArrivals = self::getRecentUnratedTools($newSlots, $rankedIds);
+
+        $rankedSlots = $limit - count($newArrivals);
+        $ranked = array_slice($ranked, 0, $rankedSlots);
 
         foreach ($ranked as &$row) {
+            $row['is_new_arrival'] = false;
+        }
+        unset($row);
+
+        foreach ($newArrivals as &$row) {
+            $row['is_new_arrival'] = true;
+        }
+        unset($row);
+
+        $results = array_merge($ranked, $newArrivals);
+
+        $toolIds = array_column($results, 'id_tol');
+        $categoryMap = self::getCategoryDataForTools($toolIds);
+
+        foreach ($results as &$row) {
             $catData = $categoryMap[(int) $row['id_tol']] ?? [];
             $row['category_name'] = $catData['category_name'] ?? null;
             $row['category_icon'] = $catData['category_icon'] ?? null;
         }
         unset($row);
 
-        return $ranked;
+        return $results;
     }
 
     /**
@@ -126,6 +147,82 @@ class Tool
         $stmt->bindValue(':bs_borrowed_id', $borrowedId, PDO::PARAM_INT);
         $stmt->bindValue(':bs_returned_id', $returnedId, PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+    /**
+     * Fetch recent unrated tools for new-arrival slots.
+     *
+     * @param  int   $limit       Max rows to return
+     * @param  int[] $excludeIds  Tool IDs already in the ranked set
+     * @return array
+     */
+    private static function getRecentUnratedTools(int $limit, array $excludeIds): array
+    {
+        if ($limit < 1) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+        $days = self::NEW_ARRIVAL_DAYS;
+
+        $excludeClause = $excludeIds !== []
+            ? 'AND av.id_tol NOT IN (' . implode(',', array_fill(0, count($excludeIds), '?')) . ')'
+            : '';
+
+        $sql = "
+            WITH unrated AS (
+                SELECT
+                    av.id_tol,
+                    av.owner_id,
+                    av.tool_name_tol,
+                    av.rental_fee_tol,
+                    av.primary_image,
+                    0 AS avg_rating,
+                    av.owner_name,
+                    aim.file_name_aim AS owner_avatar,
+                    avv.file_name_avv AS owner_vector_avatar,
+                    av.created_at_tol,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY av.owner_id
+                        ORDER BY av.created_at_tol DESC
+                    ) AS owner_rank
+                FROM available_tool_v av
+                LEFT JOIN (
+                    SELECT id_tol_trt
+                    FROM tool_rating_trt
+                    GROUP BY id_tol_trt
+                ) rs ON av.id_tol = rs.id_tol_trt
+                LEFT JOIN account_image_aim aim
+                    ON aim.id_acc_aim = av.owner_id AND aim.is_primary_aim = 1
+                LEFT JOIN account_acc acc_avv ON av.owner_id = acc_avv.id_acc
+                LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
+                WHERE rs.id_tol_trt IS NULL
+                  AND av.created_at_tol >= DATE_SUB(NOW(), INTERVAL {$days} DAY)
+                  {$excludeClause}
+            )
+            SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
+                   primary_image, avg_rating, owner_name, owner_avatar,
+                   owner_vector_avatar
+            FROM unrated
+            WHERE owner_rank <= 1
+            ORDER BY created_at_tol DESC
+            LIMIT ?
+        ";
+
+        $stmt = $pdo->prepare($sql);
+
+        $paramIndex = 1;
+        foreach ($excludeIds as $id) {
+            $stmt->bindValue($paramIndex++, $id, PDO::PARAM_INT);
+        }
+        $stmt->bindValue($paramIndex, $limit, PDO::PARAM_INT);
+
         $stmt->execute();
 
         $results = $stmt->fetchAll();

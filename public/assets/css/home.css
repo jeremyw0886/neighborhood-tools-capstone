@@ -527,14 +527,9 @@
       scrollbar-width: thin;
     }
 
-    /* Keep carousel cards at desktop proportions across all breakpoints */
+    /* Pin carousel card width — base card rule in components.css handles the rest */
     & > div > article {
-      min-height: 310px;
       width: 220px;
-    }
-
-    & > div > article > figure {
-      height: 180px;
     }
   }
 

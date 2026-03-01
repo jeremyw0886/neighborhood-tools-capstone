@@ -178,6 +178,17 @@ $bookmarkFlash    ??= '';
                 <?php endfor; ?>
                 <span class="visually-hidden"><?= htmlspecialchars(number_format($neighbor['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
               </p>
+              <p>
+                <?php
+                  $toolCount = (int) ($neighbor['tools_owned'] ?? 0);
+                  $borrowCount = (int) ($neighbor['completed_borrows'] ?? 0);
+                ?>
+                <i class="fa-solid fa-toolbox" aria-hidden="true"></i>
+                <?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> shared
+                <span aria-hidden="true">&middot;</span>
+                <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                <?= $borrowCount ?> borrow<?= $borrowCount !== 1 ? 's' : '' ?>
+              </p>
               <?php if (!empty($neighbor['bio'])): ?>
                 <blockquote><?= htmlspecialchars($neighbor['bio']) ?></blockquote>
               <?php endif; ?>

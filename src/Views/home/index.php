@@ -80,11 +80,22 @@ $bookmarkFlash    ??= '';
                   <?= htmlspecialchars($displayName) ?>
                 </h3>
                 <p>
-                  <?php $avg = round((float) ($member['avg_rating'] ?? 0)); ?>
-                  <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+                  <?php
+                    $rating = round(($member['avg_rating'] ?? 0) * 2) / 2;
+                    $fullStars = (int) floor($rating);
+                    $halfStar = ($rating - $fullStars) >= 0.5;
+                    $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                  ?>
+                  <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
                   <?php endfor; ?>
-                  <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
+                  <?php if ($halfStar): ?>
+                    <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+                  <?php endif; ?>
+                  <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                    <i class="fa-regular fa-star" aria-hidden="true"></i>
+                  <?php endfor; ?>
+                  <span class="visually-hidden"><?= htmlspecialchars(number_format($member['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
                 </p>
                 <p>
                   <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
@@ -150,11 +161,22 @@ $bookmarkFlash    ??= '';
                    loading="lazy" decoding="async">
               <h3><?= htmlspecialchars($neighbor['username']) ?></h3>
               <p>
-                <?php $avg = round($neighbor['avg_rating'] ?? 0); ?>
-                <?php for ($i = 1; $i <= 5; $i++): ?>
-                  <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+                <?php
+                  $rating = round(($neighbor['avg_rating'] ?? 0) * 2) / 2;
+                  $fullStars = (int) floor($rating);
+                  $halfStar = ($rating - $fullStars) >= 0.5;
+                  $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                ?>
+                <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                  <i class="fa-solid fa-star" aria-hidden="true"></i>
                 <?php endfor; ?>
-                <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
+                <?php if ($halfStar): ?>
+                  <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+                <?php endif; ?>
+                <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                  <i class="fa-regular fa-star" aria-hidden="true"></i>
+                <?php endfor; ?>
+                <span class="visually-hidden"><?= htmlspecialchars(number_format($neighbor['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
               </p>
               <?php if (!empty($neighbor['bio'])): ?>
                 <blockquote><?= htmlspecialchars($neighbor['bio']) ?></blockquote>

@@ -29,18 +29,7 @@ class Tool
                 COALESCE(rs.avg_rating, 0) AS avg_rating,
                 av.owner_name,
                 aim.file_name_aim AS owner_avatar,
-                avv.file_name_avv AS owner_vector_avatar,
-                (SELECT c.category_name_cat
-                 FROM tool_category_tolcat tc
-                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = av.id_tol
-                 ORDER BY c.category_name_cat LIMIT 1) AS category_name,
-                (SELECT vec.file_name_vec
-                 FROM tool_category_tolcat tc
-                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-                 WHERE tc.id_tol_tolcat = av.id_tol
-                 ORDER BY c.category_name_cat LIMIT 1) AS category_icon
+                avv.file_name_avv AS owner_vector_avatar
             FROM available_tool_v av
             LEFT JOIN (
                 SELECT id_tol_trt,
@@ -60,7 +49,19 @@ class Tool
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        $results = $stmt->fetchAll();
+
+        $toolIds = array_column($results, 'id_tol');
+        $categoryMap = self::getCategoryDataForTools($toolIds);
+
+        foreach ($results as &$row) {
+            $catData = $categoryMap[(int) $row['id_tol']] ?? [];
+            $row['category_name'] = $catData['category_name'] ?? null;
+            $row['category_icon'] = $catData['category_icon'] ?? null;
+        }
+        unset($row);
+
+        return $results;
     }
 
     /** Meters per mile for ST_Distance_Sphere conversion. */
@@ -462,18 +463,7 @@ class Tool
                 td.tool_condition,
                 td.owner_name,
                 aim.file_name_aim AS owner_avatar,
-                avv.file_name_avv AS owner_vector_avatar,
-                (SELECT c.category_name_cat
-                 FROM tool_category_tolcat tc
-                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = td.id_tol
-                 ORDER BY c.category_name_cat LIMIT 1) AS category_name,
-                (SELECT vec.file_name_vec
-                 FROM tool_category_tolcat tc
-                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-                 WHERE tc.id_tol_tolcat = td.id_tol
-                 ORDER BY c.category_name_cat LIMIT 1) AS category_icon
+                avv.file_name_avv AS owner_vector_avatar
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = td.owner_id AND aim.is_primary_aim = 1
@@ -490,7 +480,19 @@ class Tool
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        $results = $stmt->fetchAll();
+
+        $toolIds = array_column($results, 'id_tol');
+        $categoryMap = self::getCategoryDataForTools($toolIds);
+
+        foreach ($results as &$row) {
+            $catData = $categoryMap[(int) $row['id_tol']] ?? [];
+            $row['category_name'] = $catData['category_name'] ?? null;
+            $row['category_icon'] = $catData['category_icon'] ?? null;
+        }
+        unset($row);
+
+        return $results;
     }
 
     /**

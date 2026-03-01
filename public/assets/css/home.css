@@ -594,6 +594,12 @@
       }
     }
 
+    &:focus-visible {
+      border-color: var(--mountain-gold);
+      outline: 3px solid var(--mountain-gold);
+      outline-offset: 2px;
+    }
+
     & > span {
       color: var(--mountain-gold);
       font-size: 1.25rem;
@@ -1062,10 +1068,15 @@
     }
   }
 
-  /* ── REDUCED MOTION — disable hover lifts ── */
   @media (prefers-reduced-motion: reduce) {
-    .home-page > main > section:last-of-type > div > a:hover {
+    .home-page > main > section:last-of-type > div > a {
       transform: none;
+      transition: none;
+    }
+
+    .home-page > main > section:last-of-type > p:last-of-type a,
+    .home-page > main > section:last-of-type > p:last-of-type a i {
+      transition: none;
     }
   }
 

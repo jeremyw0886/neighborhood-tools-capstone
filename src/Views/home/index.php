@@ -195,7 +195,13 @@ $bookmarkFlash    ??= '';
             </a>
           <?php endforeach; ?>
         <?php else: ?>
-          <p>Friendly neighbors coming soon!</p>
+          <p>
+            <?php if ($isLoggedIn): ?>
+              <i class="fa-solid fa-seedling" aria-hidden="true"></i> Be the first — <a href="/tools/create">list a tool</a> and introduce yourself to the neighborhood.
+            <?php else: ?>
+              <i class="fa-solid fa-seedling" aria-hidden="true"></i> Your neighbors are waiting — <a href="/register">join the community</a> to get started.
+            <?php endif; ?>
+          </p>
         <?php endif; ?>
       </div>
       <?php if (!empty($friendlyNeighbors)): ?>

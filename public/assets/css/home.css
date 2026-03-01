@@ -564,6 +564,37 @@
       gap: 1.25rem;
       padding: 0.5rem 0 0.75rem;
     }
+
+    & > div > p {
+      color: var(--mountain-mist);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 2rem 1rem;
+
+      & i {
+        color: var(--mountain-pine-light);
+        margin-right: 0.25rem;
+      }
+
+      & a {
+        color: var(--mountain-pine);
+        font-weight: 600;
+        text-decoration: underline;
+        text-decoration-color: var(--mountain-gold);
+        text-underline-offset: 2px;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: var(--mountain-gold-dark);
+        }
+
+        &:focus-visible {
+          border-radius: 0.25rem;
+          outline: 2px solid var(--mountain-gold);
+          outline-offset: 4px;
+        }
+      }
+    }
   }
 
   /* ── NEIGHBOR CARD ── */

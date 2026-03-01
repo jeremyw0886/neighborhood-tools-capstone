@@ -343,45 +343,58 @@ class Account
     }
 
     /**
-     * Fetch top-rated and most-active members for the home page.
+     * Fetch top-rated active members for Friendly Neighbors + sidebar fallback.
      *
-     * Joins account_profile_v (display data) with user_reputation_fast_v
-     * (ranking metrics). Sorts by overall rating first, then by an activity
-     * score (tools owned + completed borrows) as a tiebreaker/fallback.
-     *
-     * @param  int   $limit  Number of members to return (default 3)
+     * @param  int      $limit            Max members to return
+     * @param  int|null $excludeAccountId Account ID to omit (logged-in user)
      * @return array<int, array{id_acc: int, username: string, avatar: ?string,
-     *               avg_rating: ?float, bio: ?string, tools_owned: int,
-     *               completed_borrows: int}>
+     *               vector_avatar: ?string, avg_rating: float, bio: ?string,
+     *               tools_owned: int, completed_borrows: int,
+     *               total_rating_count: int, is_top_member: int}>
      */
-    public static function getTopMembers(int $limit = 3): array
+    public static function getTopMembers(int $limit = 3, ?int $excludeAccountId = null): array
     {
         $pdo = Database::connection();
+
+        $excludeClause = $excludeAccountId !== null
+            ? 'AND p.id_acc != :exclude_id'
+            : '';
 
         $sql = "
             SELECT
                 p.id_acc,
-                p.username_acc               AS username,
-                p.primary_image              AS avatar,
+                p.username_acc                   AS username,
+                p.primary_image                  AS avatar,
                 p.vector_avatar,
-                r.overall_avg_rating         AS avg_rating,
-                p.bio_text_abi               AS bio,
-                r.tools_owned,
-                r.completed_borrows,
-                r.total_rating_count
+                COALESCE(r.overall_avg_rating, 0) AS avg_rating,
+                p.bio_text_abi                   AS bio,
+                COALESCE(r.tools_owned, 0)        AS tools_owned,
+                COALESCE(r.completed_borrows, 0)  AS completed_borrows,
+                COALESCE(r.total_rating_count, 0) AS total_rating_count,
+                CASE
+                    WHEN COALESCE(r.overall_avg_rating, 0) >= 4.0
+                     AND COALESCE(r.total_rating_count, 0) >= 1
+                    THEN 1 ELSE 0
+                END AS is_top_member
             FROM account_profile_v p
-            JOIN user_reputation_fast_v r ON p.id_acc = r.id_acc
+            LEFT JOIN user_reputation_fast_v r ON p.id_acc = r.id_acc
             WHERE p.account_status = 'active'
               AND p.role_name_rol  = 'member'
+              $excludeClause
             ORDER BY
                 COALESCE(r.overall_avg_rating, 0) DESC,
-                r.total_rating_count DESC,
-                (r.tools_owned + r.completed_borrows) DESC
+                COALESCE(r.total_rating_count, 0) DESC,
+                (COALESCE(r.tools_owned, 0) + COALESCE(r.completed_borrows, 0)) DESC
             LIMIT :limit
         ";
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        if ($excludeAccountId !== null) {
+            $stmt->bindValue(':exclude_id', $excludeAccountId, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
 
         return $stmt->fetchAll();

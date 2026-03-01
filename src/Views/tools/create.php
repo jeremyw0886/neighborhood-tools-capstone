@@ -7,6 +7,10 @@ $fuelTypes  ??= [];
 
 <section aria-labelledby="create-tool-heading">
 
+  <a href="<?= htmlspecialchars($_SERVER['HTTP_REFERER'] ?? '/tools') ?>" aria-label="Go back">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+  </a>
+
   <header>
     <h1 id="create-tool-heading">
       <i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool

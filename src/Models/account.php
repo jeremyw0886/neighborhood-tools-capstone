@@ -408,17 +408,22 @@ class Account
      * member's neighborhood name via id_nbh_acc first, falling back to the
      * primary ZIP-based neighborhood when the direct assignment is NULL.
      *
-     * @param  string $city   City name (e.g. "Asheville", "Hendersonville")
-     * @param  int    $limit  Max members to return (default 10)
+     * @param  string   $city             City name (e.g. "Asheville", "Hendersonville")
+     * @param  int      $limit            Max members to return (default 10)
+     * @param  int|null $excludeAccountId Account ID to omit (logged-in user)
      * @return array<int, array{id_acc: int, username: string, avatar: ?string,
      *               avg_rating: float, total_rating_count: int,
      *               neighborhood: ?string, is_top_member: int,
      *               distance_miles: float}>
      */
-    public static function getNearbyMembers(string $city, int $limit = 10): array
+    public static function getNearbyMembers(string $city, int $limit = 10, ?int $excludeAccountId = null): array
     {
         $pdo = Database::connection();
         $downtown = 'Downtown ' . $city;
+
+        $excludeClause = $excludeAccountId !== null
+            ? 'AND p.id_acc != :exclude_id'
+            : '';
 
         $sql = "
             WITH city_ref AS (
@@ -458,6 +463,7 @@ class Account
             LEFT JOIN neighborhood_nbh nbh_z       ON nz.id_nbh_nbhzpc = nbh_z.id_nbh
             WHERE p.account_status = 'active'
               AND p.role_name_rol  = 'member'
+              $excludeClause
             HAVING distance_miles IS NOT NULL
             ORDER BY distance_miles ASC
             LIMIT :limit
@@ -466,6 +472,11 @@ class Account
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':downtown', $downtown);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        if ($excludeAccountId !== null) {
+            $stmt->bindValue(':exclude_id', $excludeAccountId, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
 
         return $stmt->fetchAll();

@@ -3,8 +3,9 @@ $isNearbyFallback ??= false;
 $selectedCity     ??= 'Asheville';
 $nearbyMembers    ??= [];
 $featuredTools    ??= [];
-$topMembers       ??= [];
-$bookmarkedIds    ??= [];
+$topMembers        ??= [];
+$friendlyNeighbors ??= [];
+$bookmarkedIds     ??= [];
 $bookmarkFlash    ??= '';
 ?>
 
@@ -128,10 +129,12 @@ $bookmarkFlash    ??= '';
     <section aria-labelledby="neighbors-heading">
       <h2 id="neighbors-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Friendly Neighbors</h2>
       <div>
-        <?php if (!empty($topMembers)): ?>
-          <?php foreach (array_slice($topMembers, 0, 3) as $neighbor): ?>
+        <?php if (!empty($friendlyNeighbors)): ?>
+          <?php foreach ($friendlyNeighbors as $neighbor): ?>
             <a href="/profile/<?= (int) $neighbor['id_acc'] ?>">
-              <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+              <?php if (!empty($neighbor['is_top_member'])): ?>
+                <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+              <?php endif; ?>
               <?php
                 if (!empty($neighbor['vector_avatar'])) {
                     $neighborAvatarSrc = '/uploads/vectors/' . $neighbor['vector_avatar'];

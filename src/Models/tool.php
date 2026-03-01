@@ -9,57 +9,127 @@ use PDO;
 
 class Tool
 {
+    private const int PRIOR_WEIGHT = 3;
+    private const string PRIOR_MEAN = '3.5';
+    private const int MAX_PER_OWNER = 2;
+    private const int NEW_ARRIVAL_DAYS = 30;
+
     /**
-     * Fetch popular/featured tools with primary image, avg rating, and owner info.
+     * Fetch popular/featured tools ranked by composite popularity score.
      *
      * @param  int   $limit  Number of tools to return
      * @return array
      */
     public static function getFeatured(int $limit = 6): array
     {
-        $pdo = Database::connection();
+        $ranked = self::getRankedTools($limit);
 
-        $sql = "
-            SELECT
-                av.id_tol,
-                av.owner_id,
-                av.tool_name_tol,
-                av.rental_fee_tol,
-                av.primary_image,
-                COALESCE(rs.avg_rating, 0) AS avg_rating,
-                av.owner_name,
-                aim.file_name_aim AS owner_avatar,
-                avv.file_name_avv AS owner_vector_avatar
-            FROM available_tool_v av
-            LEFT JOIN (
-                SELECT id_tol_trt,
-                       ROUND(AVG(score_trt), 1) AS avg_rating
-                FROM tool_rating_trt
-                GROUP BY id_tol_trt
-            ) rs ON av.id_tol = rs.id_tol_trt
-            LEFT JOIN account_image_aim aim
-                ON aim.id_acc_aim = av.owner_id AND aim.is_primary_aim = 1
-            LEFT JOIN account_acc acc_avv ON av.owner_id = acc_avv.id_acc
-            LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
-            ORDER BY avg_rating DESC, av.created_at_tol DESC
-            LIMIT :limit
-        ";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $results = $stmt->fetchAll();
-
-        $toolIds = array_column($results, 'id_tol');
+        $toolIds = array_column($ranked, 'id_tol');
         $categoryMap = self::getCategoryDataForTools($toolIds);
 
-        foreach ($results as &$row) {
+        foreach ($ranked as &$row) {
             $catData = $categoryMap[(int) $row['id_tol']] ?? [];
             $row['category_name'] = $catData['category_name'] ?? null;
             $row['category_icon'] = $catData['category_icon'] ?? null;
         }
         unset($row);
+
+        return $ranked;
+    }
+
+    /**
+     * Rank available tools by Bayesian-weighted rating blended with borrow demand.
+     *
+     * @param  int   $limit  Maximum rows to return
+     * @return array
+     */
+    private static function getRankedTools(int $limit): array
+    {
+        $pdo = Database::connection();
+
+        $borrowedId = $pdo->query(
+            "SELECT fn_get_borrow_status_id('borrowed')"
+        )->fetchColumn();
+        $returnedId = $pdo->query(
+            "SELECT fn_get_borrow_status_id('returned')"
+        )->fetchColumn();
+
+        $pw = self::PRIOR_WEIGHT;
+        $pm = self::PRIOR_MEAN;
+        $maxPerOwner = self::MAX_PER_OWNER;
+
+        $sql = "
+            WITH scored AS (
+                SELECT
+                    av.id_tol,
+                    av.owner_id,
+                    av.tool_name_tol,
+                    av.rental_fee_tol,
+                    av.primary_image,
+                    COALESCE(rs.avg_rating, 0) AS avg_rating,
+                    av.owner_name,
+                    aim.file_name_aim AS owner_avatar,
+                    avv.file_name_avv AS owner_vector_avatar,
+                    av.created_at_tol,
+                    COALESCE(rs.rating_count, 0) AS rating_count,
+                    COALESCE(bc.borrow_count, 0) AS borrow_count,
+                    (
+                        COALESCE(rs.rating_count, 0) * COALESCE(rs.avg_rating, 0)
+                        + {$pw} * {$pm}
+                    ) / (
+                        COALESCE(rs.rating_count, 0) + {$pw}
+                    ) AS weighted_rating
+                FROM available_tool_v av
+                LEFT JOIN (
+                    SELECT id_tol_trt,
+                           ROUND(AVG(score_trt), 1) AS avg_rating,
+                           COUNT(*) AS rating_count
+                    FROM tool_rating_trt
+                    GROUP BY id_tol_trt
+                ) rs ON av.id_tol = rs.id_tol_trt
+                LEFT JOIN (
+                    SELECT id_tol_bor,
+                           COUNT(*) AS borrow_count
+                    FROM borrow_bor
+                    WHERE id_bst_bor IN (:bs_borrowed_id, :bs_returned_id)
+                    GROUP BY id_tol_bor
+                ) bc ON av.id_tol = bc.id_tol_bor
+                LEFT JOIN account_image_aim aim
+                    ON aim.id_acc_aim = av.owner_id AND aim.is_primary_aim = 1
+                LEFT JOIN account_acc acc_avv ON av.owner_id = acc_avv.id_acc
+                LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
+            ),
+            popularity AS (
+                SELECT *,
+                    (weighted_rating * 0.6)
+                    + (LEAST(borrow_count, 20) / 20.0 * 5 * 0.4) AS popularity_score
+                FROM scored
+            ),
+            diversity AS (
+                SELECT *,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY owner_id
+                        ORDER BY popularity_score DESC
+                    ) AS owner_rank
+                FROM popularity
+            )
+            SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
+                   primary_image, avg_rating, owner_name, owner_avatar,
+                   owner_vector_avatar
+            FROM diversity
+            WHERE owner_rank <= {$maxPerOwner}
+            ORDER BY popularity_score DESC, created_at_tol DESC
+            LIMIT :limit
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':bs_borrowed_id', $borrowedId, PDO::PARAM_INT);
+        $stmt->bindValue(':bs_returned_id', $returnedId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll();
+        $stmt->closeCursor();
 
         return $results;
     }

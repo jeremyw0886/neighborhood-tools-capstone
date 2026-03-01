@@ -198,6 +198,11 @@ $bookmarkFlash    ??= '';
           <p>Friendly neighbors coming soon!</p>
         <?php endif; ?>
       </div>
+      <?php if (!empty($friendlyNeighbors)): ?>
+        <p>
+          <a href="/tools">Browse tools from more neighbors <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </p>
+      <?php endif; ?>
     </section>
   </main>
 </div>

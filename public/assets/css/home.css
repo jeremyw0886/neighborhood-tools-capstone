@@ -649,6 +649,40 @@
     }
   }
 
+  .home-page > main > section:last-of-type > p:last-of-type {
+    margin-top: 1.25rem;
+    text-align: center;
+
+    & a {
+      color: var(--mountain-pine);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--mountain-gold-dark);
+      }
+
+      &:focus-visible {
+        border-radius: 0.25rem;
+        outline: 2px solid var(--mountain-gold);
+        outline-offset: 4px;
+      }
+
+      & i {
+        font-size: 0.85em;
+        margin-left: 0.25rem;
+        transition: transform 0.2s ease;
+      }
+
+      @media (hover: hover) {
+        &:hover i {
+          transform: translateX(3px);
+        }
+      }
+    }
+  }
+
   /* ── CONTAINER QUERIES — component-responsive card layouts ── */
 
   @container neighbor-grid (max-width: 700px) {
@@ -873,6 +907,18 @@
       max-width: none;
       min-width: 0;
       scroll-snap-align: center;
+    }
+
+    .carousel-dots + p:last-of-type {
+      margin-top: 0.5rem;
+    }
+
+    .home-page > main > section:last-of-type > p:last-of-type {
+      margin-top: 1rem;
+    }
+
+    .home-page > main > section:last-of-type > p:last-of-type a {
+      font-size: 0.9rem;
     }
 
     .home-page > header > aside {

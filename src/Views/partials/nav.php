@@ -131,7 +131,7 @@ $isHero = !empty($heroPage);
         <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in
       </a>
 
-      <?php if ($currentPage === '/tools'): ?>
+      <?php if ($currentPage === '/tools' || $currentPage === '/categories'): ?>
         <a href="/register">
           <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Sign Up
         </a>

@@ -848,7 +848,7 @@
 
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) {
     margin: 0 auto;
-    max-width: 720px;
+    max-width: 1100px;
     padding: 2rem 1.5rem;
 
     &>header {
@@ -1071,14 +1071,13 @@
     }
 
     &>nav[aria-label="Related actions"] {
-      margin-top: 1.5rem;
       text-align: center;
 
       &>a {
         align-items: center;
-        border: 1.5px solid var(--mountain-fog);
+        background: var(--mountain-gold);
         border-radius: 0.5rem;
-        color: var(--mountain-pine);
+        color: var(--mountain-pine-dark);
         display: inline-flex;
         font-size: 0.938rem;
         font-weight: 600;
@@ -1086,15 +1085,15 @@
         min-height: 2.75rem;
         padding: 0 1.5rem;
         text-decoration: none;
-        transition: background-color 0.2s, border-color 0.2s;
+        transition: background-color 0.2s, box-shadow 0.2s;
 
         &:is(:hover, :focus-visible) {
-          background: var(--mountain-cloud);
-          border-color: var(--mountain-pine-light);
+          background: var(--mountain-gold-dark);
+          box-shadow: 0 2px 8px var(--shadow-pine);
         }
 
         &>i {
-          color: var(--mountain-gold);
+          color: inherit;
         }
       }
     }

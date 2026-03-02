@@ -21,6 +21,12 @@ $fuelTypes         ??= [];
     <p>Update the details for <strong><?= htmlspecialchars($tool['tool_name_tol']) ?></strong>.</p>
   </header>
 
+  <nav aria-label="Related actions">
+    <a href="/tools/<?= (int) $tool['id_tol'] ?>/availability">
+      <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i> Manage Availability
+    </a>
+  </nav>
+
   <?php if (!empty($errors)): ?>
     <ul role="alert" aria-label="Form errors">
       <?php foreach ($errors as $msg): ?>
@@ -191,11 +197,5 @@ $fuelTypes         ??= [];
       <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
     </button>
   </form>
-
-  <nav aria-label="Related actions">
-    <a href="/tools/<?= (int) $tool['id_tol'] ?>/availability">
-      <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i> Manage Availability
-    </a>
-  </nav>
 
 </section>

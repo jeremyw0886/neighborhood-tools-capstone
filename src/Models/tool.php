@@ -333,6 +333,7 @@ class Tool
                 aim.file_name_aim AS owner_avatar,
                 avv.file_name_avv AS owner_vector_avatar,
                 tim.file_name_tim AS primary_image,
+                t.created_at_tol,
                 (SELECT COALESCE(AVG(trt.score_trt), 0)
                    FROM tool_rating_trt trt
                   WHERE trt.id_tol_trt = t.id_tol) AS avg_rating,
@@ -430,7 +431,17 @@ class Tool
 
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        $results = $stmt->fetchAll();
+        $cutoff  = strtotime('-' . self::NEW_ARRIVAL_DAYS . ' days');
+
+        foreach ($results as &$row) {
+            $row['is_new_arrival'] = isset($row['created_at_tol'])
+                && strtotime($row['created_at_tol']) >= $cutoff
+                && (int) ($row['rating_count'] ?? 1) === 0;
+        }
+        unset($row);
+
+        return $results;
     }
 
     /**
@@ -450,13 +461,17 @@ class Tool
         $stmt = $pdo->prepare("
             SELECT t.id_tol,
                    t.id_acc_tol AS owner_id,
+                   t.created_at_tol,
                    aim.file_name_aim AS owner_avatar,
                    avv.file_name_avv AS owner_vector_avatar,
                    EXISTS (
                        SELECT 1 FROM borrow_bor b
                         WHERE b.id_tol_bor = t.id_tol
                           AND b.id_bst_bor = fn_get_borrow_status_id('borrowed')
-                   ) AS is_lent_out
+                   ) AS is_lent_out,
+                   (SELECT COUNT(*)
+                      FROM tool_rating_trt trt
+                     WHERE trt.id_tol_trt = t.id_tol) AS rating_count
             FROM tool_tol t
             JOIN account_acc a ON t.id_acc_tol = a.id_acc
             LEFT JOIN account_image_aim aim
@@ -476,12 +491,19 @@ class Tool
             $enrichMap[(int) $row['id_tol']] = $row;
         }
 
+        $cutoff = strtotime('-' . self::NEW_ARRIVAL_DAYS . ' days');
+
         foreach ($results as &$row) {
             $extra = $enrichMap[(int) $row['id_tol']] ?? [];
             $row['owner_id']             = $extra['owner_id'] ?? null;
             $row['owner_avatar']         = $extra['owner_avatar'] ?? null;
             $row['owner_vector_avatar']  = $extra['owner_vector_avatar'] ?? null;
             $row['is_lent_out']          = (bool) ($extra['is_lent_out'] ?? false);
+            $createdAt   = $row['created_at_tol'] ?? $extra['created_at_tol'] ?? null;
+            $ratingCount = (int) ($extra['rating_count'] ?? $row['rating_count'] ?? 1);
+            $row['is_new_arrival'] = $createdAt !== null
+                && strtotime($createdAt) >= $cutoff
+                && $ratingCount === 0;
         }
         unset($row);
 

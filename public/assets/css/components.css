@@ -849,7 +849,7 @@
       }
     }
 
-    &>span[aria-label="New arrival"],
+    &>span[aria-label="Just listed"],
     &>span[aria-label="Currently lent out"] {
       border-radius: 0.25rem;
       font-size: 0.7rem;
@@ -863,7 +863,7 @@
       z-index: 1;
     }
 
-    &>span[aria-label="New arrival"] {
+    &>span[aria-label="Just listed"] {
       background: var(--mountain-gold);
       color: var(--mountain-pine-dark);
     }

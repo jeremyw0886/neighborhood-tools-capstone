@@ -32,7 +32,7 @@
   <?php if (!empty($tool['is_lent_out'])): ?>
     <span aria-label="Currently lent out">LENT OUT</span>
   <?php elseif (!empty($tool['is_new_arrival'])): ?>
-    <span aria-label="New arrival">NEW</span>
+    <span aria-label="Just listed">JUST LISTED</span>
   <?php endif; ?>
   <div>
     <?php if (!empty($tool['category_name'])): ?>

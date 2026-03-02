@@ -169,6 +169,7 @@ class ToolController extends BaseController
             'term'          => $term,
             'categoryId'    => $categoryId,
             'zip'           => $zip,
+            'userZip'       => $_SESSION['user_zip'] ?? null,
             'radius'        => $radius,
             'maxFee'        => $maxFee,
             'sliderMax'     => $sliderMax,

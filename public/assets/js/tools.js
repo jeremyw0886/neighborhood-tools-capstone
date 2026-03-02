@@ -15,6 +15,19 @@
 })();
 
 (function () {
+  const radius = document.getElementById('filter-radius');
+  const zip = document.getElementById('filter-zip');
+  if (!radius || !zip) return;
+
+  function sync() {
+    zip.required = radius.value !== '';
+  }
+
+  sync();
+  radius.addEventListener('change', sync);
+})();
+
+(function () {
   const checkbox = document.getElementById('uses-fuel');
   const group = document.getElementById('fuel-type-group');
   if (!checkbox || !group) return;

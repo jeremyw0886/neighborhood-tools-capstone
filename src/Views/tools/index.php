@@ -103,7 +103,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
                id="filter-zip"
                name="zip"
                placeholder="e.g. 28801"
-               value="<?= htmlspecialchars($zip ?? '') ?>"
+               value="<?= htmlspecialchars($zip ?? $userZip ?? '') ?>"
                pattern="[0-9]{5}"
                maxlength="5"
                inputmode="numeric"
@@ -115,7 +115,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
           <i class="fa-solid fa-circle-dot" aria-hidden="true"></i> Distance
         </label>
         <select id="filter-radius" name="radius">
-          <option value="">Exact ZIP</option>
+          <option value="">Zip code required</option>
           <option value="5" <?= $radius === 5 ? 'selected' : '' ?>>5 miles</option>
           <option value="10" <?= $radius === 10 ? 'selected' : '' ?>>10 miles</option>
           <option value="25" <?= $radius === 25 ? 'selected' : '' ?>>25 miles</option>

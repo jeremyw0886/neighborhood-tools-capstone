@@ -38,6 +38,10 @@ public/uploads/profiles/*
 public/uploads/tools/*
 public/uploads/vectors/*
 !public/uploads/**/.gitkeep
+!public/uploads/tools/.htaccess
+!public/uploads/tools/tool_*.jpg
+!public/uploads/vectors/vec_*.svg
+!public/uploads/vectors/avt_*.svg
 
 # Rate limit data files
 storage/rate-limits/*.json

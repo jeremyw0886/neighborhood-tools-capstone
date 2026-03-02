@@ -1546,8 +1546,12 @@
       border-bottom: 1px solid var(--mountain-fog);
       transition: background-color 0.15s;
 
-      &:is(:hover, :focus-within) {
+      &:nth-child(even) {
         background: var(--mountain-cloud);
+      }
+
+      &:is(:hover, :focus-within) {
+        background: color-mix(in srgb, var(--mountain-pine-light) 8%, transparent);
       }
 
       & td {

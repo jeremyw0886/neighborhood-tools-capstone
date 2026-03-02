@@ -383,7 +383,7 @@ class Tool
         $where .= " AND ROUND(ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter, 1) <= :radius";
 
         $sql = $select . $joins . $where
-             . " ORDER BY distance_miles ASC"
+             . " ORDER BY is_lent_out ASC, distance_miles ASC"
              . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);

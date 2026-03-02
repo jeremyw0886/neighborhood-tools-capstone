@@ -54,7 +54,8 @@ class ToolController extends BaseController
             }
         }
 
-        $offset     = ($page - 1) * self::PER_PAGE;
+        $offset         = ($page - 1) * self::PER_PAGE;
+        $excludeOwnerId = !empty($_SESSION['logged_in']) ? (int) $_SESSION['user_id'] : null;
 
         try {
             $tools = Tool::search(
@@ -65,6 +66,7 @@ class ToolController extends BaseController
                 limit: self::PER_PAGE,
                 offset: $offset,
                 radius: $radius,
+                excludeOwnerId: $excludeOwnerId,
             );
 
             $totalCount = Tool::searchCount(
@@ -73,6 +75,7 @@ class ToolController extends BaseController
                 zip: $zip,
                 maxFee: $maxFee,
                 radius: $radius,
+                excludeOwnerId: $excludeOwnerId,
             );
 
             $categories = Tool::getCategories();

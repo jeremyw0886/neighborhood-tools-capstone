@@ -258,9 +258,10 @@ class Tool
         int $limit = 12,
         int $offset = 0,
         ?int $radius = null,
+        ?int $excludeOwnerId = null,
     ): array {
         if ($radius !== null && $zip !== null) {
-            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius);
+            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius, $excludeOwnerId);
         }
 
         $pdo = Database::connection();
@@ -282,7 +283,16 @@ class Tool
 
         $stmt->closeCursor();
 
-        return self::enrichResults($pdo, $results);
+        $results = self::enrichResults($pdo, $results);
+
+        if ($excludeOwnerId !== null) {
+            $results = array_values(array_filter(
+                $results,
+                static fn(array $row): bool => (int) ($row['owner_id'] ?? 0) !== $excludeOwnerId,
+            ));
+        }
+
+        return $results;
     }
 
     /**
@@ -301,6 +311,7 @@ class Tool
         int $limit,
         int $offset,
         int $radius,
+        ?int $excludeOwnerId = null,
     ): array {
         $pdo = Database::connection();
 
@@ -380,6 +391,10 @@ class Tool
             $where .= " AND t.rental_fee_tol <= :maxFee";
         }
 
+        if ($excludeOwnerId !== null) {
+            $where .= " AND t.id_acc_tol != :exclude_owner";
+        }
+
         $where .= " AND ROUND(ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter, 1) <= :radius";
 
         $sql = $select . $joins . $where
@@ -403,6 +418,10 @@ class Tool
 
         if ($categoryId !== null) {
             $stmt->bindValue(':category', $categoryId, PDO::PARAM_INT);
+        }
+
+        if ($excludeOwnerId !== null) {
+            $stmt->bindValue(':exclude_owner', $excludeOwnerId, PDO::PARAM_INT);
         }
 
         if ($maxFee !== null) {
@@ -489,6 +508,7 @@ class Tool
         ?string $zip = null,
         ?float $maxFee = null,
         ?int $radius = null,
+        ?int $excludeOwnerId = null,
     ): int {
         $pdo = Database::connection();
         $useDistance = $radius !== null && $zip !== null;
@@ -533,6 +553,10 @@ class Tool
             $where[] = 't.rental_fee_tol <= :maxFee';
         }
 
+        if ($excludeOwnerId !== null) {
+            $where[] = 't.id_acc_tol != :exclude_owner';
+        }
+
         $sql = 'SELECT COUNT(DISTINCT t.id_tol) '
              . 'FROM tool_tol t '
              . implode(' ', $joins) . ' '
@@ -554,6 +578,10 @@ class Tool
 
         if ($zip !== null && !$useDistance) {
             $stmt->bindValue(':zip', $zip, PDO::PARAM_STR);
+        }
+
+        if ($excludeOwnerId !== null) {
+            $stmt->bindValue(':exclude_owner', $excludeOwnerId, PDO::PARAM_INT);
         }
 
         if ($categoryId !== null) {

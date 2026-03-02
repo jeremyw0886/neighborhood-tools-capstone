@@ -63,8 +63,10 @@ class BaseController
             self::$unreadCacheLoaded = true;
         }
 
-        $backUrl = '/';
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+        $backUrls    = $_SESSION['_back_urls'] ?? [];
+        $backUrl     = $backUrls[$currentPath] ?? '/';
+        $referer     = $_SERVER['HTTP_REFERER'] ?? '';
 
         if ($referer !== '') {
             $parsed  = parse_url($referer);
@@ -72,13 +74,28 @@ class BaseController
             $curHost = $_SERVER['HTTP_HOST'] ?? '';
 
             if ($refHost === $curHost && isset($parsed['path'])) {
-                $backUrl = $parsed['path'];
+                $refPath = $parsed['path'];
+                $refUrl  = $refPath . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
 
-                if (isset($parsed['query'])) {
-                    $backUrl .= '?' . $parsed['query'];
+                if ($refPath === $currentPath) {
+                    // Same page (POST-redirect-GET) — keep stored value
+                } else {
+                    $refBackPath = isset($backUrls[$refPath])
+                        ? (parse_url($backUrls[$refPath], PHP_URL_PATH) ?: '/')
+                        : null;
+
+                    if ($refBackPath !== $currentPath) {
+                        $backUrls[$currentPath] = $refUrl;
+                        $backUrl = $refUrl;
+                    }
                 }
             }
         }
+
+        if (count($backUrls) > 20) {
+            $backUrls = array_slice($backUrls, -20, preserve_keys: true);
+        }
+        $_SESSION['_back_urls'] = $backUrls;
 
         $flashError = $_SESSION['_flash_error'] ?? null;
         unset($_SESSION['_flash_error']);
@@ -87,7 +104,7 @@ class BaseController
             'isLoggedIn'  => $isLoggedIn,
             'authUser'    => $authUser,
             'csrfToken'   => $_SESSION['csrf_token'] ?? '',
-            'currentPage' => parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/',
+            'currentPage' => $currentPath,
             'currentTos'  => $currentTos,
             'tosAccepted' => $tosAccepted,
             'unreadCount' => self::$cachedUnreadCount,

@@ -235,19 +235,16 @@ class Tool
     private const float METERS_PER_MILE = 1609.344;
 
     /**
-     * Search available tools via stored procedure or spatial query.
+     * Search available tools with optional spatial or exact-ZIP filtering.
      *
-     * When $radius is null the SP handles all filtering. When a radius is
-     * provided (and $zip is set), a direct spatial query replaces the SP
-     * so tools within the given mile radius are returned.
-     *
-     * @param  string  $term        Search term (FULLTEXT against name + description)
-     * @param  ?int    $categoryId  Filter by category, or null for all
-     * @param  ?string $zip         Filter by owner zip code, or null for all
-     * @param  ?float  $maxFee      Maximum rental fee, or null for no cap
-     * @param  int     $limit       Results per page
-     * @param  int     $offset      Pagination offset
-     * @param  ?int    $radius      Search radius in miles, or null for exact ZIP
+     * @param  string  $term            FULLTEXT search against name + description
+     * @param  ?int    $categoryId      Filter by category, or null for all
+     * @param  ?string $zip             Filter by owner zip code, or null for all
+     * @param  ?float  $maxFee          Maximum rental fee, or null for no cap
+     * @param  int     $limit           Results per page
+     * @param  int     $offset          Pagination offset
+     * @param  ?int    $radius          Search radius in miles, or null for exact ZIP
+     * @param  ?int    $excludeOwnerId  Omit tools owned by this account
      * @return array
      */
     public static function search(
@@ -264,42 +261,150 @@ class Tool
             return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius, $excludeOwnerId);
         }
 
-        $pdo = Database::connection();
+        return self::searchStandard($term, $categoryId, $zip, $maxFee, $limit, $offset, $excludeOwnerId);
+    }
 
-        $stmt = $pdo->prepare('CALL sp_search_available_tools(:term, :zip, :category, :maxFee, :limit, :offset)');
+    /**
+     * Non-spatial search with all filters applied in SQL.
+     *
+     * @return array
+     */
+    private static function searchStandard(
+        string $term,
+        ?int $categoryId,
+        ?string $zip,
+        ?float $maxFee,
+        int $limit,
+        int $offset,
+        ?int $excludeOwnerId = null,
+    ): array {
+        $pdo = Database::connection();
 
         $searchTerm = $term !== '' ? $term : null;
 
-        $stmt->bindValue(':term', $searchTerm, $searchTerm === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':zip', $zip, $zip === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':category', $categoryId, $categoryId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-        $stmt->bindValue(':maxFee', $maxFee, $maxFee === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $select = "
+            SELECT
+                t.id_tol,
+                t.tool_name_tol,
+                t.tool_description_tol,
+                t.rental_fee_tol,
+                t.default_loan_duration_hours_tol,
+                t.is_deposit_required_tol,
+                t.default_deposit_amount_tol,
+                t.id_acc_tol AS owner_id,
+                tcd.condition_name_tcd AS tool_condition,
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
+                a.zip_code_acc AS owner_zip,
+                aim.file_name_aim AS owner_avatar,
+                avv.file_name_avv AS owner_vector_avatar,
+                tim.file_name_tim AS primary_image,
+                t.created_at_tol,
+                (SELECT COALESCE(AVG(trt.score_trt), 0)
+                   FROM tool_rating_trt trt
+                  WHERE trt.id_tol_trt = t.id_tol) AS avg_rating,
+                (SELECT COUNT(*)
+                   FROM tool_rating_trt trt
+                  WHERE trt.id_tol_trt = t.id_tol) AS rating_count,
+                EXISTS (
+                    SELECT 1 FROM borrow_bor b
+                     WHERE b.id_tol_bor = t.id_tol
+                       AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
+                ) AS is_lent_out
+        ";
+
+        $joins = "
+            FROM tool_tol t
+            JOIN account_acc a ON t.id_acc_tol = a.id_acc
+            JOIN tool_condition_tcd tcd ON t.id_tcd_tol = tcd.id_tcd
+            LEFT JOIN tool_image_tim tim
+                   ON t.id_tol = tim.id_tol_tim AND tim.is_primary_tim = TRUE
+            LEFT JOIN account_image_aim aim
+                   ON aim.id_acc_aim = t.id_acc_tol AND aim.is_primary_aim = 1
+            LEFT JOIN avatar_vector_avv avv ON a.id_avv_acc = avv.id_avv
+        ";
+
+        if ($categoryId !== null) {
+            $joins .= " JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat";
+        }
+
+        $where = "
+            WHERE t.is_available_tol = TRUE
+              AND a.id_ast_acc != fn_get_account_status_id(:deleted_status)
+              AND NOT EXISTS (
+                  SELECT 1 FROM availability_block_avb avb
+                   WHERE avb.id_tol_avb = t.id_tol
+                     AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
+              )
+        ";
+
+        if ($searchTerm !== null) {
+            $where .= " AND MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(:term IN NATURAL LANGUAGE MODE)";
+        }
+
+        if ($zip !== null) {
+            $where .= " AND a.zip_code_acc = :zip";
+        }
+
+        if ($categoryId !== null) {
+            $where .= " AND tc.id_cat_tolcat = :category";
+        }
+
+        if ($maxFee !== null) {
+            $where .= " AND t.rental_fee_tol <= :maxFee";
+        }
+
+        if ($excludeOwnerId !== null) {
+            $where .= " AND t.id_acc_tol != :exclude_owner";
+        }
+
+        $sql = $select . $joins . $where
+             . " ORDER BY is_lent_out ASC, avg_rating DESC, t.created_at_tol DESC"
+             . " LIMIT :limit OFFSET :offset";
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':deleted_status', 'deleted');
+        $stmt->bindValue(':bs_borrowed', 'borrowed');
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        if ($searchTerm !== null) {
+            $stmt->bindValue(':term', $searchTerm);
+        }
+
+        if ($zip !== null) {
+            $stmt->bindValue(':zip', $zip);
+        }
+
+        if ($categoryId !== null) {
+            $stmt->bindValue(':category', $categoryId, PDO::PARAM_INT);
+        }
+
+        if ($excludeOwnerId !== null) {
+            $stmt->bindValue(':exclude_owner', $excludeOwnerId, PDO::PARAM_INT);
+        }
+
+        if ($maxFee !== null) {
+            $stmt->bindValue(':maxFee', $maxFee);
+        }
 
         $stmt->execute();
 
         $results = $stmt->fetchAll();
+        $cutoff  = strtotime('-' . self::NEW_ARRIVAL_DAYS . ' days');
 
-        $stmt->closeCursor();
-
-        $results = self::enrichResults($pdo, $results);
-
-        if ($excludeOwnerId !== null) {
-            $results = array_values(array_filter(
-                $results,
-                static fn(array $row): bool => (int) ($row['owner_id'] ?? 0) !== $excludeOwnerId,
-            ));
+        foreach ($results as &$row) {
+            $row['is_new_arrival'] = isset($row['created_at_tol'])
+                && strtotime($row['created_at_tol']) >= $cutoff
+                && (int) ($row['rating_count'] ?? 1) === 0;
         }
+        unset($row);
 
         return $results;
     }
 
     /**
      * Spatial search returning tools within $radius miles of $originZip.
-     *
-     * Mirrors the SP's availability/status checks but replaces exact ZIP
-     * match with ST_Distance_Sphere against zip_code_zpc spatial indexes.
      *
      * @return array
      */
@@ -396,7 +501,7 @@ class Tool
             $where .= " AND t.id_acc_tol != :exclude_owner";
         }
 
-        $where .= " AND ROUND(ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter, 1) <= :radius";
+        $where .= " AND ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter <= :radius";
 
         $sql = $select . $joins . $where
              . " ORDER BY is_lent_out ASC, distance_miles ASC"
@@ -438,72 +543,6 @@ class Tool
             $row['is_new_arrival'] = isset($row['created_at_tol'])
                 && strtotime($row['created_at_tol']) >= $cutoff
                 && (int) ($row['rating_count'] ?? 1) === 0;
-        }
-        unset($row);
-
-        return $results;
-    }
-
-    /**
-     * Enrich SP search results with owner_id, avatar, and lent-out status.
-     *
-     * @return array
-     */
-    private static function enrichResults(\PDO $pdo, array $results): array
-    {
-        if ($results === []) {
-            return $results;
-        }
-
-        $toolIds = array_column($results, 'id_tol');
-        $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
-
-        $stmt = $pdo->prepare("
-            SELECT t.id_tol,
-                   t.id_acc_tol AS owner_id,
-                   t.created_at_tol,
-                   aim.file_name_aim AS owner_avatar,
-                   avv.file_name_avv AS owner_vector_avatar,
-                   EXISTS (
-                       SELECT 1 FROM borrow_bor b
-                        WHERE b.id_tol_bor = t.id_tol
-                          AND b.id_bst_bor = fn_get_borrow_status_id('borrowed')
-                   ) AS is_lent_out,
-                   (SELECT COUNT(*)
-                      FROM tool_rating_trt trt
-                     WHERE trt.id_tol_trt = t.id_tol) AS rating_count
-            FROM tool_tol t
-            JOIN account_acc a ON t.id_acc_tol = a.id_acc
-            LEFT JOIN account_image_aim aim
-                ON aim.id_acc_aim = t.id_acc_tol AND aim.is_primary_aim = 1
-            LEFT JOIN avatar_vector_avv avv ON a.id_avv_acc = avv.id_avv
-            WHERE t.id_tol IN ({$placeholders})
-        ");
-
-        foreach ($toolIds as $i => $tid) {
-            $stmt->bindValue($i + 1, $tid, PDO::PARAM_INT);
-        }
-
-        $stmt->execute();
-
-        $enrichMap = [];
-        foreach ($stmt->fetchAll() as $row) {
-            $enrichMap[(int) $row['id_tol']] = $row;
-        }
-
-        $cutoff = strtotime('-' . self::NEW_ARRIVAL_DAYS . ' days');
-
-        foreach ($results as &$row) {
-            $extra = $enrichMap[(int) $row['id_tol']] ?? [];
-            $row['owner_id']             = $extra['owner_id'] ?? null;
-            $row['owner_avatar']         = $extra['owner_avatar'] ?? null;
-            $row['owner_vector_avatar']  = $extra['owner_vector_avatar'] ?? null;
-            $row['is_lent_out']          = (bool) ($extra['is_lent_out'] ?? false);
-            $createdAt   = $row['created_at_tol'] ?? $extra['created_at_tol'] ?? null;
-            $ratingCount = (int) ($extra['rating_count'] ?? $row['rating_count'] ?? 1);
-            $row['is_new_arrival'] = $createdAt !== null
-                && strtotime($createdAt) >= $cutoff
-                && $ratingCount === 0;
         }
         unset($row);
 
@@ -553,7 +592,7 @@ class Tool
             $joins[] = 'JOIN zip_code_zpc z ON z.zip_code_zpc = a.zip_code_acc';
             $joins[] = 'CROSS JOIN zip_code_zpc origin';
             $where[] = 'origin.zip_code_zpc = :origin_zip';
-            $where[] = 'ROUND(ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :meters_per_mile, 1) <= :radius';
+            $where[] = 'ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :meters_per_mile <= :radius';
         }
 
         $searchTerm = $term !== '' ? $term : null;

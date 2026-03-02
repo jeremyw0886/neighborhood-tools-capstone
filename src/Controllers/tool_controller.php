@@ -39,6 +39,10 @@ class ToolController extends BaseController
             $zip = null;
         }
 
+        if ($zip === null && $radius !== null && !empty($_SESSION['user_zip'])) {
+            $zip = $_SESSION['user_zip'];
+        }
+
         if ($zip === null) {
             $radius = null;
         }

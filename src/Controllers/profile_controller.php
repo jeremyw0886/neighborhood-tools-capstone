@@ -275,6 +275,7 @@ class ProfileController extends BaseController
 
             $_SESSION['user_name']       = $firstName . ' ' . $lastName;
             $_SESSION['user_first_name'] = $firstName;
+            $_SESSION['user_zip']        = $zipCode;
         } catch (\Throwable $e) {
             error_log('ProfileController::update — ' . $e->getMessage());
 

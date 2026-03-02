@@ -273,6 +273,7 @@ class AuthController extends BaseController
         $_SESSION['user_name']          = $data['first_name'] . ' ' . $data['last_name'];
         $_SESSION['user_first_name']    = $data['first_name'];
         $_SESSION['user_role']          = 'member';
+        $_SESSION['user_zip']           = $data['zip_code'];
         $_SESSION['user_avatar']        = null;
         $_SESSION['user_vector_avatar'] = null;
 
@@ -522,7 +523,8 @@ class AuthController extends BaseController
      * Populate session variables from a verified account row.
      *
      * @param array{id_acc: int, first_name_acc: string, last_name_acc: string,
-     *              role_name_rol: string, avatar: ?string, vector_avatar: ?string} $account
+     *              zip_code_acc: string, role_name_rol: string,
+     *              avatar: ?string, vector_avatar: ?string} $account
      */
     private function setSessionFromAccount(array $account): void
     {
@@ -531,6 +533,7 @@ class AuthController extends BaseController
         $_SESSION['user_name']            = $account['first_name_acc'] . ' ' . $account['last_name_acc'];
         $_SESSION['user_first_name']      = $account['first_name_acc'];
         $_SESSION['user_role']            = $account['role_name_rol'];
+        $_SESSION['user_zip']             = $account['zip_code_acc'];
         $_SESSION['user_avatar']          = $account['avatar'];
         $_SESSION['user_vector_avatar']   = $account['vector_avatar'] ?? null;
     }

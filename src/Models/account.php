@@ -180,6 +180,7 @@ class Account
                 a.last_name_acc,
                 a.email_address_acc,
                 a.password_hash_acc,
+                a.zip_code_acc,
                 r.role_name_rol,
                 ast.status_name_ast AS account_status,
                 aim.file_name_aim      AS avatar,

@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\Category;
+use App\Models\Tool;
 
 class CategoryController extends BaseController
 {
@@ -18,18 +19,23 @@ class CategoryController extends BaseController
      */
     public function index(): void
     {
+        $excludeOwnerId = !empty($_SESSION['logged_in']) ? (int) $_SESSION['user_id'] : null;
+
         try {
-            $categories = Category::getAll();
+            $categories   = Category::getAll();
+            $browseCounts = Tool::getBrowseableCountsByCategory($excludeOwnerId);
         } catch (\Throwable $e) {
             error_log('CategoryController::index failed: ' . $e->getMessage());
-            $categories = [];
+            $categories   = [];
+            $browseCounts = [];
         }
 
         $this->render('categories/index', [
-            'title'       => 'Categories — NeighborhoodTools',
-            'description' => 'Browse tools by category — power tools, hand tools, garden equipment, and more from your neighbors.',
-            'pageCss'     => ['tools.css'],
-            'categories'  => $categories,
+            'title'        => 'Categories — NeighborhoodTools',
+            'description'  => 'Browse tools by category — power tools, hand tools, garden equipment, and more from your neighbors.',
+            'pageCss'      => ['tools.css'],
+            'categories'   => $categories,
+            'browseCounts' => $browseCounts,
         ]);
     }
 }

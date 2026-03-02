@@ -620,6 +620,55 @@ class Tool
     }
 
     /**
+     * Live per-category tool counts matching browse-page filtering.
+     *
+     * @param  ?int $excludeOwnerId  Omit tools owned by this account
+     * @return array<int, int>       [category_id => tool_count]
+     */
+    public static function getBrowseableCountsByCategory(?int $excludeOwnerId = null): array
+    {
+        $pdo = Database::connection();
+
+        $where = [
+            't.is_available_tol = TRUE',
+            'a.id_ast_acc != fn_get_account_status_id(:deleted_status)',
+            'NOT EXISTS (
+                SELECT 1 FROM availability_block_avb avb
+                WHERE avb.id_tol_avb = t.id_tol
+                  AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
+            )',
+        ];
+
+        if ($excludeOwnerId !== null) {
+            $where[] = 't.id_acc_tol != :exclude_owner';
+        }
+
+        $sql = 'SELECT tc.id_cat_tolcat AS category_id, COUNT(DISTINCT t.id_tol) AS tool_count '
+             . 'FROM tool_tol t '
+             . 'JOIN account_acc a ON t.id_acc_tol = a.id_acc '
+             . 'JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat '
+             . 'WHERE ' . implode(' AND ', $where) . ' '
+             . 'GROUP BY tc.id_cat_tolcat';
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':deleted_status', 'deleted', PDO::PARAM_STR);
+
+        if ($excludeOwnerId !== null) {
+            $stmt->bindValue(':exclude_owner', $excludeOwnerId, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        $counts = [];
+
+        foreach ($stmt->fetchAll() as $row) {
+            $counts[(int) $row['category_id']] = (int) $row['tool_count'];
+        }
+
+        return $counts;
+    }
+
+    /**
      * Fetch all categories with tool counts and fee ranges.
      *
      * Queries category_summary_fast_v (materialized, refreshed hourly) for

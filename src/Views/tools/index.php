@@ -4,7 +4,8 @@
  *
  * Variables from ToolController::index():
  *   $tools        array   Tool rows from sp_search_available_tools()
- *   $categories   array   Rows from category_summary_fast_v
+ *   $categories   array   Rows from category_summary_fast_v (names, icons, fee ranges)
+ *   $browseCounts array   Live per-category tool counts [category_id => count]
  *   $totalCount   int     Total matching tools (for pagination text)
  *   $page         int     Current page number (1-based)
  *   $totalPages   int     Total pages
@@ -88,7 +89,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
           <?php foreach ($categories as $cat): ?>
             <option value="<?= (int) $cat['id_cat'] ?>"
                     <?= $categoryId === (int) $cat['id_cat'] ? 'selected' : '' ?>>
-              <?= htmlspecialchars($cat['category_name_cat']) ?> (<?= (int) $cat['total_tools'] ?>)
+              <?= htmlspecialchars($cat['category_name_cat']) ?> (<?= $browseCounts[(int) $cat['id_cat']] ?? 0 ?>)
             </option>
           <?php endforeach; ?>
         </select>

@@ -78,7 +78,8 @@ class ToolController extends BaseController
                 excludeOwnerId: $excludeOwnerId,
             );
 
-            $categories = Tool::getCategories();
+            $categories   = Tool::getCategories();
+            $browseCounts = Tool::getBrowseableCountsByCategory($excludeOwnerId);
 
             if ($tools !== []) {
                 $toolIds     = array_column($tools, 'id_tol');
@@ -105,9 +106,10 @@ class ToolController extends BaseController
             }
         } catch (\Throwable $e) {
             error_log('ToolController::index — ' . $e->getMessage());
-            $tools      = [];
-            $totalCount = 0;
-            $categories = [];
+            $tools        = [];
+            $totalCount   = 0;
+            $categories   = [];
+            $browseCounts = [];
         }
 
         $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
@@ -154,6 +156,7 @@ class ToolController extends BaseController
             'pageJs'        => ['tools.js'],
             'tools'         => $tools,
             'categories'    => $categories,
+            'browseCounts'  => $browseCounts,
             'totalCount'    => $totalCount,
             'page'          => $page,
             'totalPages'    => $totalPages,

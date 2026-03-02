@@ -3,9 +3,8 @@
  * Browse Categories — view all tool categories with stats.
  *
  * Variables from CategoryController::index():
- *   $categories  array  Rows from category_summary_fast_v (id_cat, category_name_cat,
- *                       category_icon, total_tools, listed_tools, available_tools,
- *                       category_avg_rating, min_rental_fee, max_rental_fee)
+ *   $categories   array  Rows from category_summary_fast_v (names, icons, fee ranges)
+ *   $browseCounts array  Live per-category tool counts [category_id => count]
  */
 ?>
 
@@ -29,8 +28,7 @@
 
     <div role="list">
       <?php foreach ($categories as $cat):
-        $available  = (int) $cat['available_tools'];
-        $total      = (int) $cat['total_tools'];
+        $available  = $browseCounts[(int) $cat['id_cat']] ?? 0;
         $minFee     = $cat['min_rental_fee'] !== null ? number_format((float) $cat['min_rental_fee'], 2) : null;
         $maxFee     = $cat['max_rental_fee'] !== null ? number_format((float) $cat['max_rental_fee'], 2) : null;
         $hasIcon    = !empty($cat['category_icon']);

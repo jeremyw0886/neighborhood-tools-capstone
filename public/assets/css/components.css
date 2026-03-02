@@ -849,10 +849,9 @@
       }
     }
 
-    &>span[aria-label="New arrival"] {
-      background: var(--mountain-gold);
+    &>span[aria-label="New arrival"],
+    &>span[aria-label="Currently lent out"] {
       border-radius: 0.25rem;
-      color: var(--mountain-pine-dark);
       font-size: 0.7rem;
       font-weight: 700;
       left: 0.5rem;
@@ -862,6 +861,16 @@
       text-transform: uppercase;
       top: 0.5rem;
       z-index: 1;
+    }
+
+    &>span[aria-label="New arrival"] {
+      background: var(--mountain-gold);
+      color: var(--mountain-pine-dark);
+    }
+
+    &>span[aria-label="Currently lent out"] {
+      background: rgba(180, 83, 9, 0.9);
+      color: #fff;
     }
 
     &>form {

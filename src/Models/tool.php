@@ -328,6 +328,11 @@ class Tool
                 (SELECT COUNT(*)
                    FROM tool_rating_trt trt
                   WHERE trt.id_tol_trt = t.id_tol) AS rating_count,
+                EXISTS (
+                    SELECT 1 FROM borrow_bor b
+                     WHERE b.id_tol_bor = t.id_tol
+                       AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
+                ) AS is_lent_out,
                 ROUND(
                     ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc)
                     / :mpm_select,
@@ -356,15 +361,6 @@ class Tool
             WHERE origin.zip_code_zpc = :origin_zip
               AND t.is_available_tol = TRUE
               AND a.id_ast_acc != fn_get_account_status_id(:deleted_status)
-              AND NOT EXISTS (
-                  SELECT 1 FROM borrow_bor b
-                   WHERE b.id_tol_bor = t.id_tol
-                     AND b.id_bst_bor IN (
-                         fn_get_borrow_status_id(:bs_requested),
-                         fn_get_borrow_status_id(:bs_approved),
-                         fn_get_borrow_status_id(:bs_borrowed)
-                     )
-              )
               AND NOT EXISTS (
                   SELECT 1 FROM availability_block_avb avb
                    WHERE avb.id_tol_avb = t.id_tol
@@ -396,8 +392,6 @@ class Tool
         $stmt->bindValue(':mpm_filter', self::METERS_PER_MILE);
         $stmt->bindValue(':origin_zip', $originZip);
         $stmt->bindValue(':deleted_status', 'deleted');
-        $stmt->bindValue(':bs_requested', 'requested');
-        $stmt->bindValue(':bs_approved', 'approved');
         $stmt->bindValue(':bs_borrowed', 'borrowed');
         $stmt->bindValue(':radius', $radius, PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -421,7 +415,7 @@ class Tool
     }
 
     /**
-     * Enrich SP search results with owner_id and avatar (not returned by the SP).
+     * Enrich SP search results with owner_id, avatar, and lent-out status.
      *
      * @return array
      */
@@ -438,7 +432,12 @@ class Tool
             SELECT t.id_tol,
                    t.id_acc_tol AS owner_id,
                    aim.file_name_aim AS owner_avatar,
-                   avv.file_name_avv AS owner_vector_avatar
+                   avv.file_name_avv AS owner_vector_avatar,
+                   EXISTS (
+                       SELECT 1 FROM borrow_bor b
+                        WHERE b.id_tol_bor = t.id_tol
+                          AND b.id_bst_bor = fn_get_borrow_status_id('borrowed')
+                   ) AS is_lent_out
             FROM tool_tol t
             JOIN account_acc a ON t.id_acc_tol = a.id_acc
             LEFT JOIN account_image_aim aim
@@ -463,6 +462,7 @@ class Tool
             $row['owner_id']             = $extra['owner_id'] ?? null;
             $row['owner_avatar']         = $extra['owner_avatar'] ?? null;
             $row['owner_vector_avatar']  = $extra['owner_vector_avatar'] ?? null;
+            $row['is_lent_out']          = (bool) ($extra['is_lent_out'] ?? false);
         }
         unset($row);
 
@@ -496,15 +496,6 @@ class Tool
         $where = [
             't.is_available_tol = TRUE',
             'a.id_ast_acc != fn_get_account_status_id(:deleted_status)',
-            'NOT EXISTS (
-                SELECT 1 FROM borrow_bor b
-                WHERE b.id_tol_bor = t.id_tol
-                  AND b.id_bst_bor IN (
-                      fn_get_borrow_status_id(:bs_requested),
-                      fn_get_borrow_status_id(:bs_approved),
-                      fn_get_borrow_status_id(:bs_borrowed)
-                  )
-            )',
             'NOT EXISTS (
                 SELECT 1 FROM availability_block_avb avb
                 WHERE avb.id_tol_avb = t.id_tol
@@ -550,9 +541,6 @@ class Tool
         $stmt = $pdo->prepare($sql);
 
         $stmt->bindValue(':deleted_status', 'deleted', PDO::PARAM_STR);
-        $stmt->bindValue(':bs_requested', 'requested', PDO::PARAM_STR);
-        $stmt->bindValue(':bs_approved', 'approved', PDO::PARAM_STR);
-        $stmt->bindValue(':bs_borrowed', 'borrowed', PDO::PARAM_STR);
 
         if ($useDistance) {
             $stmt->bindValue(':origin_zip', $zip);
@@ -945,15 +933,12 @@ class Tool
     /**
      * Fetch category name + icon for a batch of tool IDs.
      *
-     * Returns both values from the same category row so they always
-     * match. When $preferredCategoryId is set (browsing by category),
-     * that category is selected over the alphabetic default.
+     * Each tool belongs to exactly one category via the junction table.
      *
-     * @param  int[] $toolIds              Tool primary keys
-     * @param  ?int  $preferredCategoryId  Prefer this category when a tool belongs to multiple
+     * @param  int[] $toolIds  Tool primary keys
      * @return array<int, array{category_name: string, category_icon: ?string}>
      */
-    public static function getCategoryDataForTools(array $toolIds, ?int $preferredCategoryId = null): array
+    public static function getCategoryDataForTools(array $toolIds): array
     {
         if ($toolIds === []) {
             return [];
@@ -963,38 +948,20 @@ class Tool
 
         $placeholders = implode(',', array_fill(0, count($toolIds), '?'));
 
-        $orderExpr = $preferredCategoryId !== null
-            ? 'CASE WHEN c.id_cat = ? THEN 0 ELSE 1 END, c.category_name_cat'
-            : 'c.category_name_cat';
-
         $sql = "
-            SELECT sub.id_tol_tolcat, sub.category_name, sub.category_icon
-            FROM (
-                SELECT tc.id_tol_tolcat,
-                       c.category_name_cat AS category_name,
-                       vec.file_name_vec AS category_icon,
-                       ROW_NUMBER() OVER (
-                           PARTITION BY tc.id_tol_tolcat
-                           ORDER BY {$orderExpr}
-                       ) AS rn
-                FROM tool_category_tolcat tc
-                JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-                WHERE tc.id_tol_tolcat IN ({$placeholders})
-            ) sub
-            WHERE sub.rn = 1
+            SELECT tc.id_tol_tolcat,
+                   c.category_name_cat AS category_name,
+                   vec.file_name_vec AS category_icon
+            FROM tool_category_tolcat tc
+            JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+            LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+            WHERE tc.id_tol_tolcat IN ({$placeholders})
         ";
 
         $stmt = $pdo->prepare($sql);
 
-        $paramIndex = 1;
-
-        if ($preferredCategoryId !== null) {
-            $stmt->bindValue($paramIndex++, $preferredCategoryId, PDO::PARAM_INT);
-        }
-
-        foreach (array_values($toolIds) as $id) {
-            $stmt->bindValue($paramIndex++, $id, PDO::PARAM_INT);
+        foreach (array_values($toolIds) as $i => $id) {
+            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
         }
 
         $stmt->execute();

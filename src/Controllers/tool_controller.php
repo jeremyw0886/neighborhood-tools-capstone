@@ -79,7 +79,7 @@ class ToolController extends BaseController
 
             if ($tools !== []) {
                 $toolIds     = array_column($tools, 'id_tol');
-                $categoryData = Tool::getCategoryDataForTools($toolIds, $categoryId);
+                $categoryData = Tool::getCategoryDataForTools($toolIds);
 
                 foreach ($tools as &$t) {
                     $data = $categoryData[(int) $t['id_tol']] ?? [];

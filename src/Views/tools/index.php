@@ -88,7 +88,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
           <?php foreach ($categories as $cat): ?>
             <option value="<?= (int) $cat['id_cat'] ?>"
                     <?= $categoryId === (int) $cat['id_cat'] ? 'selected' : '' ?>>
-              <?= htmlspecialchars($cat['category_name_cat']) ?> (<?= (int) $cat['available_tools'] ?>)
+              <?= htmlspecialchars($cat['category_name_cat']) ?> (<?= (int) $cat['total_tools'] ?>)
             </option>
           <?php endforeach; ?>
         </select>

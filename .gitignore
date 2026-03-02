@@ -55,6 +55,7 @@ storage/sessions/*
 # Local test files
 local_testing/
 seed_images/
+usability_testing/
 
 # Claude
 .claude

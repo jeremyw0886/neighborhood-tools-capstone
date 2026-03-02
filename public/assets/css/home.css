@@ -16,7 +16,6 @@
     grid-row: span 2;
     margin: 0 auto;
     max-width: 1400px;
-    overflow-x: clip;
     text-align: center;
     width: 100%;
 
@@ -45,12 +44,13 @@
     border-end-end-radius: 2rem;
     color: #fff;
     display: flex;
-    flex: 2.8;
+    flex: 0 1 calc(70% + 50vw - 50%);
     flex-direction: column;
     gap: 0.5rem;
-    max-width: 70%;
+    margin-left: calc(-50vw + 50%);
+    max-width: calc(70% + 50vw - 50%);
     min-width: 0;
-    padding: 0 1.5rem 2rem;
+    padding: 0 1.5rem 2rem calc(1.5rem + 50vw - 50%);
     position: relative;
 
     & a {

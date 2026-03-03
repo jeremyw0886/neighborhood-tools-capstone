@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
+    <link rel="icon" href="/assets/images/logo.svg" type="image/svg+xml">
+    <noscript><link rel="stylesheet" href="/assets/css/noscript.css"></noscript>
     <link rel="preload" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>">
     <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>

@@ -1,0 +1,22 @@
+@layer components {
+  @media (max-width: 700px) {
+    nav>#top-links {
+      clip-path: none;
+      opacity: 1;
+      pointer-events: auto;
+      position: static;
+      transform: none;
+      width: auto;
+    }
+
+    nav>#mobile-menu-toggle {
+      display: none;
+    }
+
+    nav>#user-actions>#user-actions-toggle,
+    nav>#user-actions>#user-actions-menu,
+    nav>#user-actions>a[href="/register"] {
+      display: revert;
+    }
+  }
+}

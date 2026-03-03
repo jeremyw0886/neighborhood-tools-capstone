@@ -153,10 +153,15 @@ class ProfileController extends BaseController
         $old    = $_SESSION['profile_old'] ?? [];
         unset($_SESSION['profile_errors'], $_SESSION['profile_old']);
 
+        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
+        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+
         $this->render('profile/edit', [
             'title'         => 'Edit Profile — NeighborhoodTools',
             'description'   => 'Edit your NeighborhoodTools profile.',
             'pageCss'       => ['dashboard.css'],
+            'pageJs'        => ['recaptcha.js'],
+            'cdnJs'         => $cdnJs,
             'profile'       => $profile,
             'preferences'   => $preferences,
             'meta'          => $meta,
@@ -177,6 +182,12 @@ class ProfileController extends BaseController
     {
         $this->requireAuth();
         $this->validateCsrf();
+
+        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
+        if (!$this->verifyRecaptcha($recaptchaToken, 'profile_update')) {
+            $_SESSION['profile_errors'] = ['general' => 'Verification failed. Please try again.'];
+            $this->redirect('/profile/edit');
+        }
 
         $userId = (int) $_SESSION['user_id'];
 

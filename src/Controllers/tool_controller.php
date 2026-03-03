@@ -271,9 +271,14 @@ class ToolController extends BaseController
 
         $isOwner = !empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id'];
 
+        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
+        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+
         $this->render('tools/show', [
             'title'         => $tool['tool_name_tol'] . ' — NeighborhoodTools',
             'pageCss'       => ['tools.css'],
+            'pageJs'        => ['recaptcha.js'],
+            'cdnJs'         => $cdnJs,
             'tool'          => $tool,
             'isBookmarked'  => $isBookmarked,
             'isOwner'       => $isOwner,
@@ -307,10 +312,14 @@ class ToolController extends BaseController
         $old    = $_SESSION['tool_old'] ?? [];
         unset($_SESSION['tool_errors'], $_SESSION['tool_old']);
 
+        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
+        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+
         $this->render('tools/create', [
             'title'      => 'List a Tool — NeighborhoodTools',
             'pageCss'    => ['tools.css'],
-            'pageJs'     => ['tools.js'],
+            'pageJs'     => ['tools.js', 'recaptcha.js'],
+            'cdnJs'      => $cdnJs,
             'categories' => $categories,
             'fuelTypes'  => $fuelTypes,
             'errors'     => $errors,
@@ -654,6 +663,12 @@ class ToolController extends BaseController
     {
         $this->requireAuth();
         $this->validateCsrf();
+
+        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
+        if (!$this->verifyRecaptcha($recaptchaToken, 'tool_create')) {
+            $_SESSION['tool_errors'] = ['general' => 'Verification failed. Please try again.'];
+            $this->redirect('/tools/create');
+        }
 
         $userId = (int) $_SESSION['user_id'];
 

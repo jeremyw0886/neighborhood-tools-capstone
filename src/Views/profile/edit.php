@@ -45,6 +45,7 @@ if (!empty($profile['vector_avatar'])) {
 
   <form action="/profile/edit" method="post" enctype="multipart/form-data" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+    <input type="hidden" name="g-recaptcha-response" class="recaptcha-token" data-action="profile_update" value="">
 
     <fieldset>
       <legend>Personal Information</legend>
@@ -233,6 +234,12 @@ if (!empty($profile['vector_avatar'])) {
     <button type="submit">
       <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
     </button>
+
+    <p class="recaptcha-notice">
+      Protected by reCAPTCHA.
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp;
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>.
+    </p>
   </form>
 
   </div>

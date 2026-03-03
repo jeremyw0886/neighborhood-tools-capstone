@@ -221,6 +221,67 @@ class BaseController
     }
 
     /**
+     * Verify a reCAPTCHA v3 token with Google's siteverify API.
+     *
+     * @param  string $token     The g-recaptcha-response value from the form
+     * @param  string $action    Expected action name (must match what the JS sent)
+     * @param  float  $threshold Minimum acceptable score (0.0–1.0)
+     * @return bool
+     */
+    protected function verifyRecaptcha(string $token, string $action, float $threshold = 0.5): bool
+    {
+        $secret = $_ENV['RECAPTCHA_SECRET_KEY'] ?? '';
+
+        if ($secret === '' || $token === '') {
+            return false;
+        }
+
+        $context = stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => http_build_query([
+                    'secret'   => $secret,
+                    'response' => $token,
+                    'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+                ]),
+                'timeout' => 5,
+            ],
+        ]);
+
+        $response = @file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+
+        if ($response === false) {
+            error_log('reCAPTCHA verification request failed');
+            return true;
+        }
+
+        $result = json_decode($response, true);
+
+        if (!is_array($result)) {
+            error_log('reCAPTCHA returned invalid JSON');
+            return true;
+        }
+
+        if (empty($result['success'])) {
+            error_log('reCAPTCHA verification failed: ' . json_encode($result['error-codes'] ?? []));
+            return false;
+        }
+
+        if (($result['action'] ?? '') !== $action) {
+            error_log("reCAPTCHA action mismatch: expected '{$action}', got '{$result['action']}'");
+            return false;
+        }
+
+        if (($result['score'] ?? 0.0) < $threshold) {
+            error_log("reCAPTCHA score too low: {$result['score']} < {$threshold}");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Enforce rate limiting on the current request.
      *
      * Call at the top of state-changing actions, after validateCsrf().

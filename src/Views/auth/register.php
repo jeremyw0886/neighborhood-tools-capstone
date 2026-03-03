@@ -15,6 +15,7 @@
 
     <form method="post" action="/register" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <input type="hidden" name="g-recaptcha-response" class="recaptcha-token" data-action="register" value="">
 
       <div aria-hidden="true">
         <label for="reg-website">Leave this empty</label>
@@ -222,6 +223,12 @@
       <button type="submit">
         <i class="fa-solid fa-mountain" aria-hidden="true"></i> Create Account
       </button>
+
+      <p class="recaptcha-notice">
+        Protected by reCAPTCHA.
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp;
+        <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>.
+      </p>
     </form>
 
     <footer>

@@ -22,9 +22,14 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
+        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
+        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+
         $this->render('auth/login', [
             'title'       => 'Log In — NeighborhoodTools',
             'description' => 'Log in to your NeighborhoodTools account to borrow and lend tools in your community.',
+            'pageJs'      => ['recaptcha.js'],
+            'cdnJs'       => $cdnJs,
             'error'       => $_SESSION['auth_error'] ?? null,
             'authSuccess' => $_SESSION['auth_success'] ?? null,
             'oldEmail'    => $_SESSION['auth_old_email'] ?? '',
@@ -51,6 +56,14 @@ class AuthController extends BaseController
         if ($honeypot !== '') {
             RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
             $this->redirect('/login');
+        }
+
+        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
+        if (!$this->verifyRecaptcha($recaptchaToken, 'login')) {
+            $this->loginFailed(
+                email: $email,
+                message: 'Verification failed. Please try again.',
+            );
         }
 
         // Validate required fields
@@ -112,10 +125,14 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
+        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
+        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+
         $this->render('auth/register', [
             'title'          => 'Sign Up — NeighborhoodTools',
             'description'    => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
-            'pageJs'         => ['auth.js'],
+            'pageJs'         => ['auth.js', 'recaptcha.js'],
+            'cdnJs'          => $cdnJs,
             'errors'         => $_SESSION['register_errors'] ?? [],
             'old'            => $_SESSION['register_old'] ?? [],
             'neighborhoods'  => Neighborhood::allGroupedByCity(),
@@ -143,6 +160,12 @@ class AuthController extends BaseController
 
         if ($honeypot !== '') {
             RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|register');
+            $this->redirect('/register');
+        }
+
+        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
+        if (!$this->verifyRecaptcha($recaptchaToken, 'register')) {
+            $_SESSION['register_errors'] = ['general' => 'Verification failed. Please try again.'];
             $this->redirect('/register');
         }
 

@@ -126,6 +126,7 @@ $bookmarkFlash ??= '';
 
         <form method="post" action="/borrow/request">
           <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+          <input type="hidden" name="g-recaptcha-response" class="recaptcha-token" data-action="borrow_request" value="">
           <input type="hidden" name="tool_id" value="<?= (int) $tool['id_tol'] ?>">
 
           <fieldset>
@@ -178,6 +179,12 @@ $bookmarkFlash ??= '';
           <button type="submit">
             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Request
           </button>
+
+          <p class="recaptcha-notice">
+            Protected by reCAPTCHA.
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp;
+            <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>.
+          </p>
         </form>
       </section>
     <?php elseif (!empty($isLoggedIn) && !$isOwner && $status !== 'AVAILABLE'): ?>

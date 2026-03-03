@@ -1824,6 +1824,29 @@
     }
   }
 
+  /* --- reCAPTCHA ---------------------------------------- */
+
+  .grecaptcha-badge {
+    visibility: hidden;
+  }
+
+  .recaptcha-notice {
+    color: var(--mountain-mist);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: center;
+
+    & a {
+      color: var(--mountain-mist);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+
+      &:hover {
+        color: var(--mountain-pine);
+      }
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     nav[aria-label="Back"]>a {
       transition: none;

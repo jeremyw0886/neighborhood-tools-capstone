@@ -11,14 +11,15 @@ NeighborhoodTools lets neighbors share and borrow tools from each other. Members
 
 ## Tech Stack
 
-| Layer        | Technology                                                    |
-| ------------ | ------------------------------------------------------------- |
-| Backend      | PHP 8.4+ (no framework)                                       |
-| Database     | MySQL 8 &mdash; views for reads, stored procedures for writes |
-| Frontend     | Vanilla HTML5, CSS, JavaScript (ES6+)                         |
-| Icons        | Font Awesome 6.5.0 (self-hosted subset)                       |
-| Server       | Apache with mod_rewrite, SiteGround hosting                   |
-| Dependencies | Composer &mdash; `vlucas/phpdotenv`, classmap autoloading     |
+| Layer        | Technology                                                                      |
+| ------------ | ------------------------------------------------------------------------------- |
+| Backend      | PHP 8.4+ (no framework)                                                         |
+| Database     | MySQL 8 &mdash; views for reads, stored procedures for writes                   |
+| Frontend     | Vanilla HTML5, CSS, JavaScript (ES6+)                                           |
+| Icons        | Font Awesome 6.5.0 (self-hosted subset)                                         |
+| Server       | Apache with mod_rewrite, SiteGround hosting                                     |
+| Payments     | Stripe (`stripe/stripe-php`)                                                    |
+| Dependencies | Composer &mdash; `vlucas/phpdotenv`, `stripe/stripe-php`, classmap autoloading  |
 
 ## Architecture
 
@@ -28,8 +29,10 @@ Custom MVC with a front controller at `public/index.php`. All requests route thr
 neighborhoodtools/
 ├── config/
 │   ├── app.php               # App settings (timezone, debug)
+│   ├── asset-version.php      # Cache-busting version string
 │   ├── css.php                # CSS bundle manifest
-│   ├── database.php           # DB config (auto-detects environment)
+│   ├── database.php           # DB config (reads from .env)
+│   ├── rate-limit.php         # Rate limiting thresholds
 │   └── routes.php             # Route definitions
 ├── public/
 │   ├── index.php              # Front controller
@@ -53,31 +56,28 @@ neighborhoodtools/
 ## Implemented Features
 
 - **Home** &mdash; Hero section, featured tools, top members, location-based member sidebar
-- **Authentication** &mdash; Login, registration, logout with CSRF protection, honeypot, bcrypt hashing
-- **Tools** &mdash; Browse with search/filter/pagination, detail view, create, edit, delete, bookmarks
-- **Dashboard** &mdash; Overview, lender view (listed tools + incoming requests), borrower view (active borrows), transaction history
-- **Borrowing** &mdash; Request submission from tool detail page
-- **Profiles** &mdash; Public member profiles with ratings, listed tools, bio
+- **Authentication** &mdash; Login, registration, logout with CSRF protection, honeypot, bcrypt hashing, password reset via email
+- **Tools** &mdash; Browse with search/filter/pagination, detail view, create, edit, delete, bookmarks, availability management, listing toggle
+- **Dashboard** &mdash; Overview, lender view (listed tools + incoming requests), borrower view (active borrows), transaction history, loan status tracking
+- **Borrowing** &mdash; Request, approve, deny, cancel, extend
+- **Handover verification** &mdash; Pickup/return code confirmation
+- **Ratings** &mdash; Rate borrowers and lenders after transactions, rate tools
+- **Profiles** &mdash; Public member profiles with ratings, listed tools, bio, profile editing
+- **Payments/deposits** &mdash; Security deposit handling with Stripe integration, payment history
+- **Disputes** &mdash; Member-facing dispute filing, detail view, messaging
+- **Events** &mdash; Community events with detail view, creation, RSVP
+- **Incidents** &mdash; Member-facing damage/loss/injury reporting, detail view
+- **Waivers** &mdash; Borrow waiver, condition acknowledgment, liability release
+- **Categories** &mdash; Category browsing page
 - **Notifications** &mdash; Paginated notification feed with mark-all-read
-- **Admin** &mdash; Dashboard with platform stats, user/tool/dispute/event/incident management, reports, audit log, TOS versioning (none have content yet)
+- **Admin** &mdash; Dashboard with platform stats, global search, user management (approve/deny/status), tool management, category CRUD with icon assignment, vector image library, avatar vector management, dispute/event/incident oversight, reports, audit log, TOS versioning
 - **Terms of Service** &mdash; Versioned TOS with acceptance tracking
 - **Info Pages** &mdash; How-To, FAQ (available as standalone pages and modals)
 
-## Not Yet Implemented
+## In Progress
 
-- **Borrow workflow** &mdash; Approve/deny requests, checkout, check-in, return, extend (lender actions)
-- **Loan tracking** &mdash; Real-time status tracking of active loans through the borrow lifecycle (requested, approved, borrowed, due soon, overdue, returned)
-- **Dashboard sort/filter** &mdash; Filter/sort lender and borrower views by date, name, status
-- **Tool search sort** &mdash; Sort results asc/desc, JS sort/filter enhancement with PHP fallback
-- **Ratings** &mdash; Rate borrowers and lenders after transactions
-- **Admin actions** &mdash; Approve account requests, activate/deactivate members, vector image library
-- **Payments/deposits** &mdash; Security deposit handling
-- **Disputes** &mdash; Member-facing dispute filing and messaging
-- **Events** &mdash; Community events
-- **Handover verification** &mdash; Pickup/return code confirmation
-- **Incidents** &mdash; Member-facing damage/loss/injury reporting
-- **Waivers** &mdash; Borrow waiver, condition acknowledgment, liability release
-- **Categories API** &mdash; Category browsing endpoint
+- **Deposits view** &mdash; Admin-facing deposit management interface
+- **JavaScript enhancements** &mdash; Progressive UX improvements and client-side optimizations across existing features
 
 ## Coding Standards
 
@@ -86,6 +86,10 @@ neighborhoodtools/
 - **JS:** `'use strict'`, progressive enhancement (everything 'works' without JS)
 - **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings (color pallet to be updated for contrast)
 - **Security:** CSRF tokens, CSP/HSTS/X-Frame-Options headers, HttpOnly/Secure/SameSite cookies
+
+## AI-Assisted Development
+
+[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, and usability testing support.
 
 ## Local Development
 

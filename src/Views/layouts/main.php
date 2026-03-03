@@ -60,6 +60,7 @@
   <?php endforeach; ?>
   <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
   <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <script src="/assets/js/usability-test.js" defer></script>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
   <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>
   <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer></script>

@@ -1349,6 +1349,22 @@
               outline: 2px solid var(--mountain-pine);
               outline-offset: 2px;
             }
+
+            &[data-own-profile] {
+              background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+              color: #fff;
+              gap: 0.3rem;
+
+              &:is(:hover, :focus-visible) {
+                background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+              }
+            }
+          }
+
+          & button,
+          &>a {
+            justify-content: center;
+            min-width: 6.5rem;
           }
         }
       }
@@ -3394,8 +3410,9 @@
     grid-column: 1 / -1;
   }
 
-  main > section[aria-labelledby="admin-events-heading"] table tbody tr td:last-child {
-    grid-column: 1 / -1;
+  :is(main > section[aria-labelledby="admin-events-heading"],
+    main > section[aria-labelledby="admin-events-heading"] > section[aria-labelledby]) table tbody {
+    grid-template-columns: 1fr;
   }
 
   main > section[aria-labelledby="admin-categories-heading"] table tbody tr td:nth-child(n+4) {

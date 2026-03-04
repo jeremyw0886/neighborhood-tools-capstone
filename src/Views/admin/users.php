@@ -251,11 +251,19 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
                         <i class="fa-solid fa-ban" aria-hidden="true"></i> Suspend
                       </button>
                     </form>
+                    <a href="/profile/<?= (int) $user['id_acc'] ?>">View</a>
                   <?php endif; ?>
-                  <a href="/profile/<?= (int) $user['id_acc'] ?>">View</a>
                 </div>
               <?php else: ?>
-                <a href="/profile/<?= (int) $user['id_acc'] ?>">View Profile</a>
+                <div data-actions>
+                  <?php if ((int) $user['id_acc'] === $actorId): ?>
+                    <a href="/profile/<?= (int) $user['id_acc'] ?>" data-own-profile>
+                      <i class="fa-solid fa-user" aria-hidden="true"></i> My Profile
+                    </a>
+                  <?php else: ?>
+                    <a href="/profile/<?= (int) $user['id_acc'] ?>">View Profile</a>
+                  <?php endif; ?>
+                </div>
               <?php endif; ?>
             </td>
           </tr>

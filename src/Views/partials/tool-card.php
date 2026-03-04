@@ -47,12 +47,17 @@
     <<?= $headingTag ?>><a href="/tools/<?= (int) $tool['id_tol'] ?>"><?= htmlspecialchars($tool['tool_name_tol']) ?></a></<?= $headingTag ?>>
     <p>$<?= number_format((float) ($tool['rental_fee_tol'] ?? 0), 2) ?><span>/day</span></p>
     <footer>
-      <?php $avg = (int) round($tool['avg_rating'] ?? 0); ?>
-      <span role="img" aria-label="<?= htmlspecialchars((string) $avg) ?> out of 5 stars">
-        <?php for ($i = 1; $i <= 5; $i++): ?>
-          <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
-        <?php endfor; ?>
-      </span>
+      <?php $ratingCount = (int) ($tool['rating_count'] ?? 0); ?>
+      <?php if ($ratingCount > 0): ?>
+        <?php $avg = (int) round($tool['avg_rating'] ?? 0); ?>
+        <span role="img" aria-label="<?= htmlspecialchars((string) $avg) ?> out of 5 stars">
+          <?php for ($i = 1; $i <= 5; $i++): ?>
+            <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+          <?php endfor; ?>
+        </span>
+      <?php else: ?>
+        <span>No ratings yet</span>
+      <?php endif; ?>
       <?php if (isset($tool['distance_miles'])): ?>
         <span aria-label="<?= htmlspecialchars($tool['distance_miles']) ?> miles away">
           <i class="fa-solid fa-location-dot" aria-hidden="true"></i>

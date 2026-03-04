@@ -79,24 +79,28 @@ $bookmarkFlash    ??= '';
                   <?php endif; ?>
                   <?= htmlspecialchars($displayName) ?>
                 </h3>
-                <p>
-                  <?php
-                    $rating = round(($member['avg_rating'] ?? 0) * 2) / 2;
-                    $fullStars = (int) floor($rating);
-                    $halfStar = ($rating - $fullStars) >= 0.5;
-                    $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
-                  ?>
-                  <?php for ($i = 0; $i < $fullStars; $i++): ?>
-                    <i class="fa-solid fa-star" aria-hidden="true"></i>
-                  <?php endfor; ?>
-                  <?php if ($halfStar): ?>
-                    <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
-                  <?php endif; ?>
-                  <?php for ($i = 0; $i < $emptyStars; $i++): ?>
-                    <i class="fa-regular fa-star" aria-hidden="true"></i>
-                  <?php endfor; ?>
-                  <span class="visually-hidden"><?= htmlspecialchars(number_format($member['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
-                </p>
+                <?php if ((int) ($member['total_rating_count'] ?? 0) > 0): ?>
+                  <p>
+                    <?php
+                      $rating = round(($member['avg_rating'] ?? 0) * 2) / 2;
+                      $fullStars = (int) floor($rating);
+                      $halfStar = ($rating - $fullStars) >= 0.5;
+                      $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                    ?>
+                    <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                      <i class="fa-solid fa-star" aria-hidden="true"></i>
+                    <?php endfor; ?>
+                    <?php if ($halfStar): ?>
+                      <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+                    <?php endif; ?>
+                    <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                      <i class="fa-regular fa-star" aria-hidden="true"></i>
+                    <?php endfor; ?>
+                    <span class="visually-hidden"><?= htmlspecialchars(number_format($member['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
+                  </p>
+                <?php else: ?>
+                  <p>No ratings yet</p>
+                <?php endif; ?>
                 <p>
                   <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
                   <?= htmlspecialchars($member['neighborhood'] ?? $selectedCity) ?>
@@ -160,24 +164,28 @@ $bookmarkFlash    ??= '';
                    width="80" height="80"
                    loading="lazy" decoding="async">
               <h3><?= htmlspecialchars($neighbor['username']) ?></h3>
-              <p>
-                <?php
-                  $rating = round(($neighbor['avg_rating'] ?? 0) * 2) / 2;
-                  $fullStars = (int) floor($rating);
-                  $halfStar = ($rating - $fullStars) >= 0.5;
-                  $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
-                ?>
-                <?php for ($i = 0; $i < $fullStars; $i++): ?>
-                  <i class="fa-solid fa-star" aria-hidden="true"></i>
-                <?php endfor; ?>
-                <?php if ($halfStar): ?>
-                  <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
-                <?php endif; ?>
-                <?php for ($i = 0; $i < $emptyStars; $i++): ?>
-                  <i class="fa-regular fa-star" aria-hidden="true"></i>
-                <?php endfor; ?>
-                <span class="visually-hidden"><?= htmlspecialchars(number_format($neighbor['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
-              </p>
+              <?php if ((int) ($neighbor['total_rating_count'] ?? 0) > 0): ?>
+                <p>
+                  <?php
+                    $rating = round(($neighbor['avg_rating'] ?? 0) * 2) / 2;
+                    $fullStars = (int) floor($rating);
+                    $halfStar = ($rating - $fullStars) >= 0.5;
+                    $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                  ?>
+                  <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                  <?php endfor; ?>
+                  <?php if ($halfStar): ?>
+                    <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+                  <?php endif; ?>
+                  <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                    <i class="fa-regular fa-star" aria-hidden="true"></i>
+                  <?php endfor; ?>
+                  <span class="visually-hidden"><?= htmlspecialchars(number_format($neighbor['avg_rating'] ?? 0, 1)) ?> out of 5 stars</span>
+                </p>
+              <?php else: ?>
+                <p>No ratings yet</p>
+              <?php endif; ?>
               <p>
                 <?php
                   $toolCount = (int) ($neighbor['tools_owned'] ?? 0);

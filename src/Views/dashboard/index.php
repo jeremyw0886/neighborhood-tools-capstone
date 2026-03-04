@@ -115,22 +115,26 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
           <a href="/profile/<?= (int) $authUser['id'] ?>">
             <i class="fa-solid fa-star" aria-hidden="true"></i>
             <h3>My Rating</h3>
-            <p>
-              <?= htmlspecialchars((string) $overallRating) ?><span>/5</span>
-            </p>
-            <span>
-              <?php for ($i = 0; $i < $starsFull; $i++): ?>
-                <i class="fa-solid fa-star" aria-hidden="true"></i>
-              <?php endfor; ?>
-              <?php if ($starsHalf): ?>
-                <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
-              <?php endif; ?>
-              <?php for ($i = 0; $i < $starsEmpty; $i++): ?>
-                <i class="fa-regular fa-star" aria-hidden="true"></i>
-              <?php endfor; ?>
-              <span class="visually-hidden"><?= htmlspecialchars((string) $overallRating) ?> out of 5 stars</span>
-              (<?= htmlspecialchars((string) $totalRatings) ?> review<?= $totalRatings !== 1 ? 's' : '' ?>)
-            </span>
+            <?php if ($totalRatings > 0): ?>
+              <p>
+                <?= htmlspecialchars((string) $overallRating) ?><span>/5</span>
+              </p>
+              <span>
+                <?php for ($i = 0; $i < $starsFull; $i++): ?>
+                  <i class="fa-solid fa-star" aria-hidden="true"></i>
+                <?php endfor; ?>
+                <?php if ($starsHalf): ?>
+                  <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+                <?php endif; ?>
+                <?php for ($i = 0; $i < $starsEmpty; $i++): ?>
+                  <i class="fa-regular fa-star" aria-hidden="true"></i>
+                <?php endfor; ?>
+                <span class="visually-hidden"><?= htmlspecialchars((string) $overallRating) ?> out of 5 stars</span>
+                (<?= htmlspecialchars((string) $totalRatings) ?> review<?= $totalRatings !== 1 ? 's' : '' ?>)
+              </span>
+            <?php else: ?>
+              <p>No ratings yet</p>
+            <?php endif; ?>
           </a>
         </article>
       </li>

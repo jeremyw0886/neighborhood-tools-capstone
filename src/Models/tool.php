@@ -135,8 +135,8 @@ class Tool
                 FROM popularity
             )
             SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
-                   primary_image, avg_rating, owner_name, owner_avatar,
-                   owner_vector_avatar
+                   primary_image, avg_rating, rating_count, owner_name,
+                   owner_avatar, owner_vector_avatar
             FROM diversity
             WHERE owner_rank <= {$maxPerOwner}
             ORDER BY popularity_score DESC, created_at_tol DESC
@@ -184,6 +184,7 @@ class Tool
                     av.rental_fee_tol,
                     av.primary_image,
                     0 AS avg_rating,
+                    0 AS rating_count,
                     av.owner_name,
                     aim.file_name_aim AS owner_avatar,
                     avv.file_name_avv AS owner_vector_avatar,
@@ -207,8 +208,8 @@ class Tool
                   {$excludeClause}
             )
             SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
-                   primary_image, avg_rating, owner_name, owner_avatar,
-                   owner_vector_avatar
+                   primary_image, avg_rating, rating_count, owner_name,
+                   owner_avatar, owner_vector_avatar
             FROM unrated
             WHERE owner_rank <= 1
             ORDER BY created_at_tol DESC

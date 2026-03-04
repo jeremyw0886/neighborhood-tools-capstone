@@ -42,14 +42,19 @@ $bookmarkFlash ??= '';
       <div>
         <h1 id="tool-detail-heading"><?= htmlspecialchars($tool['tool_name_tol']) ?></h1>
 
-        <p>
-          <?php $avg = round((float) ($tool['avg_rating'] ?? 0)); ?>
-          <?php for ($i = 1; $i <= 5; $i++): ?>
-            <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
-          <?php endfor; ?>
-          <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
-          <span>(<?= htmlspecialchars((string) (int) ($tool['rating_count'] ?? 0)) ?> review<?= ((int) ($tool['rating_count'] ?? 0)) !== 1 ? 's' : '' ?>)</span>
-        </p>
+        <?php $ratingCount = (int) ($tool['rating_count'] ?? 0); ?>
+        <?php if ($ratingCount > 0): ?>
+          <p>
+            <?php $avg = round((float) ($tool['avg_rating'] ?? 0)); ?>
+            <?php for ($i = 1; $i <= 5; $i++): ?>
+              <i class="fa-<?= $i <= $avg ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+            <?php endfor; ?>
+            <span class="visually-hidden"><?= htmlspecialchars((string) $avg) ?> out of 5 stars</span>
+            <span>(<?= htmlspecialchars((string) $ratingCount) ?> review<?= $ratingCount !== 1 ? 's' : '' ?>)</span>
+          </p>
+        <?php else: ?>
+          <p>No ratings yet</p>
+        <?php endif; ?>
 
         <?php $status = $tool['availability_status'] ?? 'UNKNOWN'; ?>
         <dl>

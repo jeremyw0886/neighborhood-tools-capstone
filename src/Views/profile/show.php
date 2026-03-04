@@ -109,7 +109,8 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <div>
               <div>
         <h3>As a Lender</h3>
-        <?php if ($profile['lender_rating'] !== null): ?>
+        <?php $lenderCount = (int) ($reputation['lender_rating_count'] ?? 0); ?>
+        <?php if ($lenderCount > 0): ?>
           <p>
             <?php $lenderAvg = round((float) $profile['lender_rating']); ?>
             <?php for ($i = 1; $i <= 5; $i++): ?>
@@ -117,10 +118,8 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <?php endfor; ?>
             <span class="visually-hidden"><?= htmlspecialchars((string) $lenderAvg) ?> out of 5 stars</span>
           </p>
-          <?php if ($reputation !== null): ?>
-            <p><?= number_format((float) $profile['lender_rating'], 1) ?> avg
-              (<?= (int) ($reputation['lender_rating_count'] ?? 0) ?> rating<?= (int) ($reputation['lender_rating_count'] ?? 0) !== 1 ? 's' : '' ?>)</p>
-          <?php endif; ?>
+          <p><?= number_format((float) $profile['lender_rating'], 1) ?> avg
+            (<?= $lenderCount ?> rating<?= $lenderCount !== 1 ? 's' : '' ?>)</p>
         <?php else: ?>
           <p>No ratings yet</p>
         <?php endif; ?>
@@ -128,7 +127,8 @@ $rangeEnd   = min($page * $perPage, $totalTools);
 
       <div>
         <h3>As a Borrower</h3>
-        <?php if ($profile['borrower_rating'] !== null): ?>
+        <?php $borrowerCount = (int) ($reputation['borrower_rating_count'] ?? 0); ?>
+        <?php if ($borrowerCount > 0): ?>
           <p>
             <?php $borrowerAvg = round((float) $profile['borrower_rating']); ?>
             <?php for ($i = 1; $i <= 5; $i++): ?>
@@ -136,10 +136,8 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <?php endfor; ?>
             <span class="visually-hidden"><?= htmlspecialchars((string) $borrowerAvg) ?> out of 5 stars</span>
           </p>
-          <?php if ($reputation !== null): ?>
-            <p><?= number_format((float) $profile['borrower_rating'], 1) ?> avg
-              (<?= (int) ($reputation['borrower_rating_count'] ?? 0) ?> rating<?= (int) ($reputation['borrower_rating_count'] ?? 0) !== 1 ? 's' : '' ?>)</p>
-          <?php endif; ?>
+          <p><?= number_format((float) $profile['borrower_rating'], 1) ?> avg
+            (<?= $borrowerCount ?> rating<?= $borrowerCount !== 1 ? 's' : '' ?>)</p>
         <?php else: ?>
           <p>No ratings yet</p>
         <?php endif; ?>

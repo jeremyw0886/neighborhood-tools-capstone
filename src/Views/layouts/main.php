@@ -7,6 +7,12 @@
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
     <link rel="icon" href="/assets/images/logo.svg" type="image/svg+xml">
     <noscript><link rel="stylesheet" href="/assets/css/noscript.css"></noscript>
+    <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    <?php foreach ($cdnJs ?? [] as $cdn): ?>
+    <?php $cdnOrigin = parse_url($cdn, PHP_URL_SCHEME) . '://' . parse_url($cdn, PHP_URL_HOST); ?>
+    <link rel="preconnect" href="<?= htmlspecialchars($cdnOrigin) ?>">
+    <link rel="dns-prefetch" href="<?= htmlspecialchars($cdnOrigin) ?>">
+    <?php endforeach; ?>
     <link rel="preload" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>">
     <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>

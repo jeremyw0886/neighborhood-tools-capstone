@@ -55,8 +55,14 @@
 
     & a {
       color: var(--mountain-cream);
+      display: flex;
+      gap: .275rem;
       text-decoration: none;
       transition: color 0.3s ease;
+
+      & span {
+        align-self: start;
+      }
 
       &:hover {
         color: var(--mountain-gold);

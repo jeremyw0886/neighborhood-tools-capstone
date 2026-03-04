@@ -33,10 +33,10 @@ error_log
 *.swp
 
 # User uploads (keep directory structure via .gitkeep)
-public/uploads/incidents/*
-public/uploads/profiles/*
-public/uploads/tools/*
-public/uploads/vectors/*
+# public/uploads/incidents/*
+# public/uploads/profiles/*
+# public/uploads/tools/*
+# public/uploads/vectors/*
 !public/uploads/**/.gitkeep
 !public/uploads/**/.htaccess
 

@@ -221,16 +221,15 @@ class BaseController
     }
 
     /**
-     * Verify a reCAPTCHA v3 token with Google's siteverify API.
+     * Verify a Cloudflare Turnstile token via the siteverify API.
      *
-     * @param  string $token     The g-recaptcha-response value from the form
-     * @param  string $action    Expected action name (must match what the JS sent)
-     * @param  float  $threshold Minimum acceptable score (0.0–1.0)
+     * @param string $token  The cf-turnstile-response value from the form
+     * @param string $action Expected action name (must match the widget's data-action)
      * @return bool
      */
-    protected function verifyRecaptcha(string $token, string $action, float $threshold = 0.5): bool
+    protected function verifyTurnstile(string $token, string $action): bool
     {
-        $secret = $_ENV['RECAPTCHA_SECRET_KEY'] ?? '';
+        $secret = $_ENV['TURNSTILE_SECRET_KEY'] ?? '';
 
         if ($secret === '' || $token === '') {
             return false;
@@ -249,32 +248,31 @@ class BaseController
             ],
         ]);
 
-        $response = @file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+        $response = @file_get_contents(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            false,
+            $context,
+        );
 
         if ($response === false) {
-            error_log('reCAPTCHA verification request failed');
+            error_log('Turnstile verification request failed');
             return true;
         }
 
         $result = json_decode($response, true);
 
         if (!is_array($result)) {
-            error_log('reCAPTCHA returned invalid JSON');
+            error_log('Turnstile returned invalid JSON');
             return true;
         }
 
         if (empty($result['success'])) {
-            error_log('reCAPTCHA verification failed: ' . json_encode($result['error-codes'] ?? []));
+            error_log('Turnstile verification failed: ' . json_encode($result['error-codes'] ?? []));
             return false;
         }
 
         if (($result['action'] ?? '') !== $action) {
-            error_log("reCAPTCHA action mismatch: expected '{$action}', got '{$result['action']}'");
-            return false;
-        }
-
-        if (($result['score'] ?? 0.0) < $threshold) {
-            error_log("reCAPTCHA score too low: {$result['score']} < {$threshold}");
+            error_log("Turnstile action mismatch: expected '{$action}', got '{$result['action']}'");
             return false;
         }
 

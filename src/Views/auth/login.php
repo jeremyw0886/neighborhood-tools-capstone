@@ -22,8 +22,6 @@
 
     <form method="post" action="/login" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-      <input type="hidden" name="g-recaptcha-response" class="recaptcha-token" data-action="login" value="">
-
       <div aria-hidden="true">
         <label for="website">Leave this empty</label>
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
@@ -62,11 +60,9 @@
         <i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> Log In
       </button>
 
-      <p class="recaptcha-notice">
-        Protected by reCAPTCHA.
-        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp;
-        <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>.
-      </p>
+      <?php if (!empty($turnstileSiteKey)): ?>
+        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="login" data-appearance="interaction-only" data-theme="light"></div>
+      <?php endif; ?>
     </form>
 
     <footer>

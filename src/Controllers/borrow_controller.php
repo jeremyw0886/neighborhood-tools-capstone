@@ -40,8 +40,8 @@ class BorrowController extends BaseController
             'Too many borrow requests. Please try again in {minutes}.',
         );
 
-        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
-        if (!$this->verifyRecaptcha($recaptchaToken, 'borrow_request')) {
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!$this->verifyTurnstile($turnstileToken, 'borrow_request')) {
             $_SESSION['borrow_errors'] = ['general' => 'Verification failed. Please try again.'];
             $this->redirect('/tools/' . $toolId);
         }

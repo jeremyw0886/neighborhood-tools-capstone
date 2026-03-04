@@ -45,8 +45,6 @@ if (!empty($profile['vector_avatar'])) {
 
   <form action="/profile/edit" method="post" enctype="multipart/form-data" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-    <input type="hidden" name="g-recaptcha-response" class="recaptcha-token" data-action="profile_update" value="">
-
     <fieldset>
       <legend>Personal Information</legend>
 
@@ -235,11 +233,9 @@ if (!empty($profile['vector_avatar'])) {
       <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
     </button>
 
-    <p class="recaptcha-notice">
-      Protected by reCAPTCHA.
-      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp;
-      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>.
-    </p>
+    <?php if (!empty($turnstileSiteKey)): ?>
+      <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="profile_update" data-appearance="interaction-only" data-theme="light"></div>
+    <?php endif; ?>
   </form>
 
   </div>

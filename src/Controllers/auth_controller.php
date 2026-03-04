@@ -22,17 +22,17 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
-        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
-        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
+        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
 
         $this->render('auth/login', [
-            'title'       => 'Log In — NeighborhoodTools',
-            'description' => 'Log in to your NeighborhoodTools account to borrow and lend tools in your community.',
-            'pageJs'      => ['recaptcha.js'],
-            'cdnJs'       => $cdnJs,
-            'error'       => $_SESSION['auth_error'] ?? null,
-            'authSuccess' => $_SESSION['auth_success'] ?? null,
-            'oldEmail'    => $_SESSION['auth_old_email'] ?? '',
+            'title'            => 'Log In — NeighborhoodTools',
+            'description'      => 'Log in to your NeighborhoodTools account to borrow and lend tools in your community.',
+            'cdnJs'            => $cdnJs,
+            'turnstileSiteKey' => $turnstileSiteKey,
+            'error'            => $_SESSION['auth_error'] ?? null,
+            'authSuccess'      => $_SESSION['auth_success'] ?? null,
+            'oldEmail'         => $_SESSION['auth_old_email'] ?? '',
         ]);
 
         unset($_SESSION['auth_error'], $_SESSION['auth_old_email'], $_SESSION['auth_success']);
@@ -58,8 +58,8 @@ class AuthController extends BaseController
             $this->redirect('/login');
         }
 
-        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
-        if (!$this->verifyRecaptcha($recaptchaToken, 'login')) {
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!$this->verifyTurnstile($turnstileToken, 'login')) {
             $this->loginFailed(
                 email: $email,
                 message: 'Verification failed. Please try again.',
@@ -125,17 +125,18 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
-        $siteKey = htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY'] ?? '');
-        $cdnJs = $siteKey !== '' ? ["https://www.google.com/recaptcha/api.js?render={$siteKey}"] : [];
+        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
+        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
 
         $this->render('auth/register', [
-            'title'          => 'Sign Up — NeighborhoodTools',
-            'description'    => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
-            'pageJs'         => ['auth.js', 'recaptcha.js'],
-            'cdnJs'          => $cdnJs,
-            'errors'         => $_SESSION['register_errors'] ?? [],
-            'old'            => $_SESSION['register_old'] ?? [],
-            'neighborhoods'  => Neighborhood::allGroupedByCity(),
+            'title'            => 'Sign Up — NeighborhoodTools',
+            'description'      => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
+            'pageJs'           => ['auth.js'],
+            'cdnJs'            => $cdnJs,
+            'turnstileSiteKey' => $turnstileSiteKey,
+            'errors'           => $_SESSION['register_errors'] ?? [],
+            'old'              => $_SESSION['register_old'] ?? [],
+            'neighborhoods'    => Neighborhood::allGroupedByCity(),
         ]);
 
         unset($_SESSION['register_errors'], $_SESSION['register_old']);
@@ -163,8 +164,8 @@ class AuthController extends BaseController
             $this->redirect('/register');
         }
 
-        $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
-        if (!$this->verifyRecaptcha($recaptchaToken, 'register')) {
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!$this->verifyTurnstile($turnstileToken, 'register')) {
             $_SESSION['register_errors'] = ['general' => 'Verification failed. Please try again.'];
             $this->redirect('/register');
         }

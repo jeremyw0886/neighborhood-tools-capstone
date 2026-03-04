@@ -257,12 +257,13 @@ class Tool
         int $offset = 0,
         ?int $radius = null,
         ?int $excludeOwnerId = null,
+        bool $excludeLentOut = false,
     ): array {
         if ($radius !== null && $zip !== null) {
-            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius, $excludeOwnerId);
+            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius, $excludeOwnerId, $excludeLentOut);
         }
 
-        return self::searchStandard($term, $categoryId, $zip, $maxFee, $limit, $offset, $excludeOwnerId);
+        return self::searchStandard($term, $categoryId, $zip, $maxFee, $limit, $offset, $excludeOwnerId, $excludeLentOut);
     }
 
     /**
@@ -278,6 +279,7 @@ class Tool
         int $limit,
         int $offset,
         ?int $excludeOwnerId = null,
+        bool $excludeLentOut = false,
     ): array {
         $pdo = Database::connection();
 
@@ -361,6 +363,14 @@ class Tool
             $where .= " AND t.id_acc_tol != :exclude_owner";
         }
 
+        if ($excludeLentOut) {
+            $where .= " AND NOT EXISTS (
+                SELECT 1 FROM borrow_bor bl
+                 WHERE bl.id_tol_bor = t.id_tol
+                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
+            )";
+        }
+
         $sql = $select . $joins . $where
              . " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC"
              . " LIMIT :limit OFFSET :offset";
@@ -392,6 +402,10 @@ class Tool
             $stmt->bindValue(':maxFee', $maxFee);
         }
 
+        if ($excludeLentOut) {
+            $stmt->bindValue(':bs_lent_filter', 'borrowed');
+        }
+
         $stmt->execute();
 
         $results = $stmt->fetchAll();
@@ -421,6 +435,7 @@ class Tool
         int $offset,
         int $radius,
         ?int $excludeOwnerId = null,
+        bool $excludeLentOut = false,
     ): array {
         $pdo = Database::connection();
 
@@ -508,6 +523,14 @@ class Tool
             $where .= " AND t.id_acc_tol != :exclude_owner";
         }
 
+        if ($excludeLentOut) {
+            $where .= " AND NOT EXISTS (
+                SELECT 1 FROM borrow_bor bl
+                 WHERE bl.id_tol_bor = t.id_tol
+                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
+            )";
+        }
+
         $where .= " AND ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter <= :radius";
 
         $sql = $select . $joins . $where
@@ -539,6 +562,10 @@ class Tool
 
         if ($maxFee !== null) {
             $stmt->bindValue(':maxFee', $maxFee);
+        }
+
+        if ($excludeLentOut) {
+            $stmt->bindValue(':bs_lent_filter', 'borrowed');
         }
 
         $stmt->execute();
@@ -577,6 +604,7 @@ class Tool
         ?float $maxFee = null,
         ?int $radius = null,
         ?int $excludeOwnerId = null,
+        bool $excludeLentOut = false,
     ): int {
         $pdo = Database::connection();
         $useDistance = $radius !== null && $zip !== null;
@@ -625,6 +653,14 @@ class Tool
             $where[] = 't.id_acc_tol != :exclude_owner';
         }
 
+        if ($excludeLentOut) {
+            $where[] = 'NOT EXISTS (
+                SELECT 1 FROM borrow_bor bl
+                 WHERE bl.id_tol_bor = t.id_tol
+                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
+            )';
+        }
+
         $sql = 'SELECT COUNT(DISTINCT t.id_tol) '
              . 'FROM tool_tol t '
              . implode(' ', $joins) . ' '
@@ -658,6 +694,10 @@ class Tool
 
         if ($maxFee !== null) {
             $stmt->bindValue(':maxFee', $maxFee, PDO::PARAM_STR);
+        }
+
+        if ($excludeLentOut) {
+            $stmt->bindValue(':bs_lent_filter', 'borrowed', PDO::PARAM_STR);
         }
 
         $stmt->execute();

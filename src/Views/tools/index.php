@@ -1,35 +1,38 @@
 <?php
 /**
- * Browse Tools — search, filter, and paginate available tools.
+ * Browse Tools — search, filter, and paginate tools.
  *
- * Variables from ToolController::index():
- *   $tools        array   Tool rows from sp_search_available_tools()
- *   $categories   array   Rows from category_summary_fast_v (names, icons, fee ranges)
- *   $browseCounts array   Live per-category tool counts [category_id => count]
- *   $totalCount   int     Total matching tools (for pagination text)
- *   $page         int     Current page number (1-based)
- *   $totalPages   int     Total pages
- *   $perPage      int     Results per page (12)
- *   $filterParams array   Active filters (q, category, zip, radius, max_fee) — nulls stripped
- *   $term         string  Current search term (may be '')
- *   $categoryId   ?int    Selected category ID or null
- *   $zip          ?string Zip code filter or null
- *   $radius       ?int    Search radius in miles or null for exact ZIP
- *   $maxFee       ?float  Max rental fee or null
- *   $sliderMax    int     Rounded ceiling for the fee range slider
- *   $sliderValue  int     Current slider position (user-set or sliderMax)
+ * Shared by ToolController::index() (All Tools) and
+ * AvailableController::index() (Available Tools). The $availableOnly
+ * flag switches the heading, active tab, and form target.
+ *
+ * @var array   $tools        Tool rows
+ * @var array   $categories   Rows from category_summary_fast_v
+ * @var array   $browseCounts Per-category tool counts [category_id => count]
+ * @var int     $totalCount   Total matching tools (for pagination)
+ * @var int     $page         Current page number (1-based)
+ * @var int     $totalPages   Total pages
+ * @var int     $perPage      Results per page (12)
+ * @var array   $filterParams Active filters — nulls stripped
+ * @var string  $term         Current search term (may be '')
+ * @var ?int    $categoryId   Selected category ID or null
+ * @var ?string $zip          Zip code filter or null
+ * @var ?int    $radius       Search radius in miles or null
+ * @var ?float  $maxFee       Max rental fee or null
+ * @var int     $sliderMax    Rounded ceiling for the fee range slider
+ * @var int     $sliderValue  Current slider position
+ * @var bool    $availableOnly  True when rendered by AvailableController
  */
 
-// Pagination range display
+$isAvailable = !empty($availableOnly);
+$basePath    = $isAvailable ? '/categories' : '/tools';
+
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
-/**
- * Build a pagination URL preserving all active filters.
- */
-$paginationUrl = static function (int $pageNum) use ($filterParams): string {
+$paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): string {
     $params = array_merge($filterParams, ['page' => $pageNum]);
-    return '/tools?' . htmlspecialchars(http_build_query($params));
+    return $basePath . '?' . htmlspecialchars(http_build_query($params));
 };
 ?>
 
@@ -37,13 +40,14 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
 
   <header>
     <h1 id="browse-heading">
-      <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
+      <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
+      <?= $isAvailable ? 'Available Tools' : 'All Tools' ?>
     </h1>
     <nav aria-label="Browse mode">
-      <a href="/categories">
-        <i class="fa-solid fa-tags" aria-hidden="true"></i> Categories
+      <a href="/categories"<?= $isAvailable ? ' aria-current="page"' : '' ?>>
+        <i class="fa-solid fa-check-circle" aria-hidden="true"></i> Available
       </a>
-      <a href="/tools" aria-current="page">
+      <a href="/tools"<?= !$isAvailable ? ' aria-current="page"' : '' ?>>
         <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> All Tools
       </a>
     </nav>
@@ -60,7 +64,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
     </p>
   <?php endif; ?>
 
-  <form role="search" action="/tools" method="get" aria-label="Search and filter tools">
+  <form role="search" action="<?= htmlspecialchars($basePath) ?>" method="get" aria-label="Search and filter tools">
 
     <fieldset aria-label="Search">
       <label for="browse-search" class="visually-hidden">Search tools</label>
@@ -150,7 +154,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
       </button>
 
       <?php if (!empty($filterParams)): ?>
-        <a href="/tools" role="button">
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear Filters
         </a>
       <?php endif; ?>
@@ -266,7 +270,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams): string {
       <h2>No Tools Found</h2>
       <p>Try broadening your search or adjusting the filters above.</p>
       <?php if (!empty($filterParams)): ?>
-        <a href="/tools" role="button">
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear All Filters
         </a>
       <?php endif; ?>

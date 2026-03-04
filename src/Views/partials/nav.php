@@ -41,7 +41,7 @@ $isHero = !empty($heroPage);
     </li>
     <li>
       <a href="/categories"<?= $currentPage === '/categories' || $currentPage === '/tools' ? ' aria-current="page"' : '' ?>>
-        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Tools
+        <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
       </a>
     </li>
     <li data-separator aria-hidden="true"></li>

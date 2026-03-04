@@ -100,7 +100,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <?php endif; ?>
           
             <?php if (!empty($profileNotice)): ?>
-              <p role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($profileNotice) ?></p>
+              <p role="status" data-flash="success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($profileNotice) ?></p>
             <?php endif; ?>
           
           <section aria-labelledby="ratings-heading">
@@ -264,7 +264,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
         <h3>No Tools Listed</h3>
         <?php if ($isOwnProfile): ?>
           <p>You haven&rsquo;t listed any tools yet. Share your tools with the community!</p>
-          <a href="/tools/create" role="button">
+          <a href="/tools/create" role="button" data-intent="primary">
             <i class="fa-solid fa-plus" aria-hidden="true"></i> List Your First Tool
           </a>
         <?php else: ?>

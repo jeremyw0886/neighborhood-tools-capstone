@@ -15,7 +15,7 @@ $bookmarkFlash ??= '';
   </nav>
 
   <?php if (!empty($bookmarkFlash)): ?>
-    <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($bookmarkFlash) ?></p>
   <?php endif; ?>
 
   <article>
@@ -90,6 +90,7 @@ $bookmarkFlash ??= '';
           <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <button type="submit"
+                    data-intent="ghost"
                     aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
               <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
               <?= $isBookmarked ? 'Bookmarked' : 'Bookmark' ?>
@@ -180,7 +181,7 @@ $bookmarkFlash ??= '';
             </p>
           <?php endif; ?>
 
-          <button type="submit">
+          <button type="submit" data-intent="success">
             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Request
           </button>
 
@@ -199,7 +200,7 @@ $bookmarkFlash ??= '';
     <?php elseif (empty($isLoggedIn)): ?>
       <section aria-label="Login prompt">
         <p>
-          <a href="/login"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in</a> to request this tool.
+          <a href="/login"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log In</a> to request this tool.
         </p>
       </section>
     <?php endif; ?>

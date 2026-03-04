@@ -69,7 +69,7 @@ $totalAll   = array_sum($timingCounts);
   <?php endif; ?>
 
   <?php if ($eventFlash !== ''): ?>
-    <p role="status"><?= htmlspecialchars($eventFlash) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($eventFlash) ?></p>
   <?php endif; ?>
 
   <nav aria-label="Filter by timing">
@@ -210,6 +210,7 @@ $totalAll   = array_sum($timingCounts);
               <form method="post" action="/events/<?= (int) $event['id_evt'] ?>/rsvp">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                 <button type="submit"
+                        data-intent="<?= $isAttending ? 'danger' : 'success' ?>"
                         aria-label="<?= $isAttending ? 'Cancel RSVP for' : 'RSVP to' ?> <?= htmlspecialchars($event['event_name_evt']) ?>">
                   <i class="fa-<?= $isAttending ? 'solid' : 'regular' ?> fa-calendar-check" aria-hidden="true"></i>
                   <?= $isAttending ? 'Going' : 'RSVP' ?>
@@ -307,7 +308,7 @@ $totalAll   = array_sum($timingCounts);
       <h2>No Upcoming Events</h2>
       <p>There are no community events scheduled right now. Check back soon!</p>
       <?php if ($timing !== null): ?>
-        <a href="/events" role="button">
+        <a href="/events" role="button" data-intent="primary">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> View All Events
         </a>
       <?php endif; ?>

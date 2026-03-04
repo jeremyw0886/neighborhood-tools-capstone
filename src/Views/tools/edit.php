@@ -193,7 +193,7 @@ $fuelTypes         ??= [];
       </div>
     </fieldset>
 
-    <button type="submit">
+    <button type="submit" data-intent="primary">
       <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
     </button>
   </form>

@@ -42,7 +42,7 @@
   <?php endif; ?>
 
     <?php if (!empty($flashError)): ?>
-      <p role="alert" data-flash-error><?= htmlspecialchars($flashError) ?></p>
+      <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
     <?php endif; ?>
 
     <?= $content ?>

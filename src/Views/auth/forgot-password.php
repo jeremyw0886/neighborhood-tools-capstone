@@ -7,14 +7,14 @@
     </header>
 
     <?php if (!empty($success)): ?>
-      <div role="status" aria-live="polite" class="auth-message auth-message--success">
+      <div role="status" aria-live="polite" data-flash="success">
         <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
         <?= htmlspecialchars($success) ?>
       </div>
     <?php endif; ?>
 
     <?php if (!empty($error)): ?>
-      <div role="alert" aria-live="polite" class="auth-message auth-message--error">
+      <div role="alert" aria-live="polite" data-flash="error">
         <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
         <?= htmlspecialchars($error) ?>
       </div>
@@ -42,13 +42,13 @@
         >
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-size="lg" data-width="full">
         <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Reset Link
       </button>
     </form>
 
     <footer>
-      <p>Remember your password? <a href="/login">Log in</a></p>
+      <p>Remember your password? <a href="/login">Log In</a></p>
     </footer>
   </div>
 </section>

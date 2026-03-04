@@ -31,7 +31,7 @@ $paginationUrl = static function (int $pageNum): string {
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
 
   <?php if (!empty($bookmarkFlash)): ?>
-    <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($bookmarkFlash) ?></p>
   <?php endif; ?>
 
   <div aria-live="polite" aria-atomic="true">
@@ -137,7 +137,7 @@ $paginationUrl = static function (int $pageNum): string {
       <i class="fa-solid fa-bookmark" aria-hidden="true"></i>
       <h2>No Bookmarks Yet</h2>
       <p>Browse tools and tap the bookmark icon to save them here.</p>
-      <a href="/tools" role="button">
+      <a href="/tools" role="button" data-intent="primary">
         <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
       </a>
     </section>

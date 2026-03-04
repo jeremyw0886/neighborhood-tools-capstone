@@ -277,13 +277,13 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
       <?php if ($canApprove): ?>
         <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/approve">
           <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-          <button type="submit">
+          <button type="submit" data-intent="success">
             <i class="fa-solid fa-check" aria-hidden="true"></i> Approve Request
           </button>
         </form>
 
         <details>
-          <summary>
+          <summary data-intent="danger">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny Request
           </summary>
           <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/deny">
@@ -297,7 +297,7 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
               rows="2"
               placeholder="Why are you denying this request?"
             ></textarea>
-            <button type="submit">Deny Request</button>
+            <button type="submit" data-intent="danger">Deny Request</button>
           </form>
         </details>
       <?php endif; ?>
@@ -305,7 +305,7 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
       <?php if ($canReturn): ?>
         <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/return">
           <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-          <button type="submit">
+          <button type="submit" data-intent="success">
             <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Confirm Return
           </button>
         </form>
@@ -313,7 +313,7 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
 
       <?php if ($canExtend): ?>
         <details>
-          <summary>
+          <summary data-intent="warning">
             <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend Loan
           </summary>
           <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/extend">
@@ -337,14 +337,14 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
               rows="2"
               placeholder="Why are you extending this loan?"
             ></textarea>
-            <button type="submit">Extend Loan</button>
+            <button type="submit" data-intent="warning">Extend Loan</button>
           </form>
         </details>
       <?php endif; ?>
 
       <?php if ($canCancel): ?>
         <details>
-          <summary>
+          <summary data-intent="danger">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
           </summary>
           <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/cancel">
@@ -358,7 +358,7 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
               rows="2"
               placeholder="Why are you cancelling?"
             ></textarea>
-            <button type="submit">Cancel Request</button>
+            <button type="submit" data-intent="danger">Cancel Request</button>
           </form>
         </details>
       <?php endif; ?>

@@ -5,17 +5,17 @@
   /* ── Nav — mobile layout (always applies) ── */
 
   @media (max-width: 700px) {
-    nav {
+    nav[aria-label="Main navigation"] {
       padding: 0;
       position: relative;
     }
 
-    nav>a:first-child img {
+    nav[aria-label="Main navigation"]>a:first-child img {
       padding-top: .4rem;
       width: 70px;
     }
 
-    nav>#top-links {
+    nav[aria-label="Main navigation"]>#top-links {
       background: linear-gradient(180deg,
           var(--mountain-pine-dark) 0%,
           color-mix(in srgb, var(--mountain-pine-dark) 92%, black) 100%);
@@ -37,21 +37,21 @@
       z-index: 50;
     }
 
-    nav>#mobile-menu-toggle {
+    nav[aria-label="Main navigation"]>#mobile-menu-toggle {
       display: inline-flex;
       grid-column: 2;
       justify-self: center;
     }
 
-    nav>#top-links>li {
+    nav[aria-label="Main navigation"]>#top-links>li {
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    nav>#top-links>li:last-child {
+    nav[aria-label="Main navigation"]>#top-links>li:last-child {
       border-bottom: none;
     }
 
-    nav>#top-links a {
+    nav[aria-label="Main navigation"]>#top-links a {
       border-left: 3px solid transparent;
       border-radius: 0;
       font-size: 0.938rem;
@@ -61,25 +61,25 @@
       width: 100%;
     }
 
-    nav>#top-links a:is(:hover, :focus-visible) {
+    nav[aria-label="Main navigation"]>#top-links a:is(:hover, :focus-visible) {
       background: rgba(255, 255, 255, 0.08);
       border-left-color: var(--mountain-gold);
       color: var(--mountain-gold-light);
     }
 
-    nav>#top-links a[aria-current="page"] {
+    nav[aria-label="Main navigation"]>#top-links a[aria-current="page"] {
       background: rgba(255, 255, 255, 0.05);
       border-bottom: none;
       border-left: 3px solid var(--mountain-gold);
       color: var(--mountain-gold);
     }
 
-    nav>#user-actions {
+    nav[aria-label="Main navigation"]>#user-actions {
       grid-column: 3;
       padding-right: 1.25rem;
     }
 
-    nav>#user-actions>a[href="/notifications"] {
+    nav[aria-label="Main navigation"]>#user-actions>a[href="/notifications"] {
       align-items: center;
       display: flex;
       justify-content: center;
@@ -87,17 +87,17 @@
       min-width: 2.75rem;
     }
 
-    nav>#user-actions>#user-actions-toggle,
-    nav>#user-actions>#user-actions-menu,
-    nav>#user-actions>a[href="/register"] {
+    nav[aria-label="Main navigation"]>#user-actions>#user-actions-toggle,
+    nav[aria-label="Main navigation"]>#user-actions>#user-actions-menu,
+    nav[aria-label="Main navigation"]>#user-actions>a[href="/register"] {
       display: none;
     }
 
-    body:not(:has(.home-page)) nav>a:first-child {
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
       padding-left: 1rem;
     }
 
-    body:not(:has(.home-page)) nav>#user-actions {
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>#user-actions {
       padding-right: 2.25rem;
     }
 
@@ -109,7 +109,7 @@
   /* ── Nav — hamburger open state + backdrop ── */
 
   @media (max-width: 700px) {
-    nav>#top-links.open {
+    nav[aria-label="Main navigation"]>#top-links.open {
       clip-path: inset(0);
       opacity: 1;
       pointer-events: auto;
@@ -125,15 +125,15 @@
   }
 
   @media (max-width: 400px) {
-    nav>a:first-child img {
+    nav[aria-label="Main navigation"]>a:first-child img {
       width: 32px;
     }
 
-    body:not(:has(.home-page)) nav>a:first-child {
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
       padding-left: 2rem;
     }
 
-    body:not(:has(.home-page)) nav>#user-actions {
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>#user-actions {
       padding-right: 2rem;
     }
   }
@@ -141,11 +141,11 @@
   /* ── Unified mobile menu — auth items in hamburger (JS-only) ── */
 
   @media (max-width: 700px) {
-    nav>#top-links>[data-mobile-auth] {
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] {
       padding: 0;
     }
 
-    nav>#top-links>li[data-separator] {
+    nav[aria-label="Main navigation"]>#top-links>li[data-separator] {
       background: none;
       border-bottom: none;
       border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -155,7 +155,7 @@
       width: auto;
     }
 
-    nav>#top-links>[data-mobile-auth]>span {
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth]>span {
       align-items: center;
       color: var(--mountain-gold-light);
       display: flex;
@@ -165,11 +165,11 @@
       padding: 0.625rem 1rem 0.25rem;
     }
 
-    nav>#top-links>[data-mobile-auth]>span>i {
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth]>span>i {
       opacity: 0.8;
     }
 
-    nav>#top-links>[data-mobile-auth] :is(a, button) {
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] :is(a, button) {
       align-items: center;
       background: transparent;
       border: none;
@@ -187,13 +187,13 @@
       width: 100%;
     }
 
-    nav>#top-links>[data-mobile-auth] :is(a, button):is(:hover, :focus-visible) {
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] :is(a, button):is(:hover, :focus-visible) {
       background: rgba(255, 255, 255, 0.08);
       border-left-color: var(--mountain-gold);
       color: var(--mountain-gold-light);
     }
 
-    nav>#top-links>[data-mobile-auth] :is(a, button)>i {
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] :is(a, button)>i {
       font-size: 0.85em;
       opacity: 0.8;
     }
@@ -202,11 +202,11 @@
   /* ── Reduced motion — disable menu animation ── */
 
   @media (max-width: 700px) and (prefers-reduced-motion: reduce) {
-    nav>#top-links {
+    nav[aria-label="Main navigation"]>#top-links {
       transition: none;
     }
 
-    nav>#mobile-menu-toggle>span {
+    nav[aria-label="Main navigation"]>#mobile-menu-toggle>span {
       transition: none;
     }
   }

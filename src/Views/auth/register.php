@@ -7,7 +7,7 @@
     </header>
 
     <?php if (!empty($errors['general'])): ?>
-      <div role="alert" aria-live="polite" class="auth-message auth-message--error">
+      <div role="alert" aria-live="polite" data-flash="error">
         <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
         <?= htmlspecialchars($errors['general']) ?>
       </div>
@@ -164,7 +164,7 @@
             name="street_address"
             value="<?= htmlspecialchars($old['street_address'] ?? '') ?>"
             maxlength="255"
-            autocomplete="street-address"
+            autocomplete="address-line1"
             placeholder="123 Haywood St"
             aria-describedby="address-hint"
           >
@@ -218,7 +218,7 @@
         </div>
       </fieldset>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-size="lg" data-width="full">
         <i class="fa-solid fa-mountain" aria-hidden="true"></i> Create Account
       </button>
 
@@ -228,7 +228,7 @@
     </form>
 
     <footer>
-      <p>Already have an account? <a href="/login">Log in</a></p>
+      <p>Already have an account? <a href="/login">Log In</a></p>
     </footer>
   </div>
 </section>

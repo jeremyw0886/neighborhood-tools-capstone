@@ -113,7 +113,7 @@ $depositAmount = $waiver['default_deposit_amount_tol'];
       </label>
     </fieldset>
 
-    <button type="submit">
+    <button type="submit" data-intent="success">
       <i class="fa-solid fa-signature" aria-hidden="true"></i>
       Sign Waiver
     </button>

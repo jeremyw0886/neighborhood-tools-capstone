@@ -35,7 +35,7 @@ $days = (int) $event['days_until_event'];
   </nav>
 
   <?php if ($eventFlash !== ''): ?>
-    <p role="status"><?= htmlspecialchars($eventFlash) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($eventFlash) ?></p>
   <?php endif; ?>
 
   <header>
@@ -146,7 +146,7 @@ $days = (int) $event['days_until_event'];
   <?php if (!empty($isLoggedIn) && !$isPast): ?>
     <form method="post" action="/events/<?= (int) $event['id_evt'] ?>/rsvp" aria-label="RSVP">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-      <button type="submit">
+      <button type="submit" data-intent="<?= $isAttending ? 'danger' : 'success' ?>">
         <i class="fa-<?= $isAttending ? 'solid' : 'regular' ?> fa-calendar-check" aria-hidden="true"></i>
         <?= $isAttending ? 'Cancel RSVP' : 'RSVP to This Event' ?>
       </button>

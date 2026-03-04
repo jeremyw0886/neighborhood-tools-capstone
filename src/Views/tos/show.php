@@ -46,7 +46,7 @@ $tos = $currentTos ?? null;
           <form method="post" action="/tos/accept">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <input type="hidden" name="tos_id" value="<?= (int) $tos['id_tos'] ?>">
-            <button type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> I Accept the Terms of Service</button>
+            <button type="submit" data-intent="success"><i class="fa-solid fa-check" aria-hidden="true"></i> I Accept the Terms of Service</button>
           </form>
         <?php endif; ?>
       </footer>

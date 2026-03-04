@@ -189,7 +189,7 @@ $currentCity = '';
     </fieldset>
 
     <footer>
-      <button type="submit">
+      <button type="submit" data-intent="primary">
         <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Create Event
       </button>
       <a href="/events">Cancel</a>

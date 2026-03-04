@@ -14,7 +14,7 @@
            name="q"
            placeholder="Search tools by name or description…"
            autocomplete="off">
-    <button type="submit">
+    <button type="submit" data-intent="primary" data-shape="pill">
       <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
       <span>Search</span>
     </button>

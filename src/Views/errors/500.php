@@ -15,8 +15,8 @@
         <h2>Rockslide on the Trail</h2>
         <p>Something went wrong on our end. We're working to clear the path &mdash; please try again in a moment.</p>
         <nav>
-            <a href="/">Back to Home</a>
-            <a href="/">Try Again</a>
+            <a href="/" role="button" data-intent="primary">Back to Home</a>
+            <a href="/" role="button" data-intent="secondary">Try Again</a>
         </nav>
         <figure aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">

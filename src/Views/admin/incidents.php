@@ -131,7 +131,7 @@ $deadlineValue = match ($deadlineMet) {
         </select>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -266,7 +266,7 @@ $deadlineValue = match ($deadlineMet) {
       <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
       <h2>No Open Incidents</h2>
       <p>All incidents have been resolved. The community is in good standing.</p>
-      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>

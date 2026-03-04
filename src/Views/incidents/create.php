@@ -59,7 +59,7 @@ $typeLabels = [
         An open incident report already exists for this borrow transaction.
         Please wait for the current incident to be resolved before filing a new one.
       </p>
-      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>
@@ -228,7 +228,7 @@ $typeLabels = [
       </fieldset>
 
       <footer>
-        <button type="submit">
+        <button type="submit" data-intent="warning">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit Report
         </button>
         <a href="/dashboard">Cancel</a>

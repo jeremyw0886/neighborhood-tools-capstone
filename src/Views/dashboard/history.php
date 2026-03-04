@@ -70,7 +70,7 @@ use App\Core\ViewHelper;
               <option value="cancelled"<?= ViewHelper::selected($lendStatus ?? '', 'cancelled') ?>>Cancelled</option>
             </select>
           </label>
-          <button type="submit">Sort</button>
+          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
         </fieldset>
       </form>
 
@@ -101,7 +101,7 @@ use App\Core\ViewHelper;
                 <?php endif; ?>
               </td>
               <td>
-                <?= htmlspecialchars($statusText) ?>
+                <span data-borrow-status="<?= htmlspecialchars($statusText) ?>"><?= htmlspecialchars($statusText) ?></span>
                 <?php if ($statusText === 'returned'): ?>
                   <a href="/rate/<?= (int) $row['id_bor'] ?>" data-rate-link>
                     <i class="fa-solid fa-star" aria-hidden="true"></i> Rate
@@ -167,7 +167,7 @@ use App\Core\ViewHelper;
               <option value="cancelled"<?= ViewHelper::selected($borrowStatus ?? '', 'cancelled') ?>>Cancelled</option>
             </select>
           </label>
-          <button type="submit">Sort</button>
+          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
         </fieldset>
       </form>
 
@@ -198,7 +198,7 @@ use App\Core\ViewHelper;
                 <?php endif; ?>
               </td>
               <td>
-                <?= htmlspecialchars($statusText) ?>
+                <span data-borrow-status="<?= htmlspecialchars($statusText) ?>"><?= htmlspecialchars($statusText) ?></span>
                 <?php if ($statusText === 'returned'): ?>
                   <a href="/rate/<?= (int) $row['id_bor'] ?>" data-rate-link>
                     <i class="fa-solid fa-star" aria-hidden="true"></i> Rate

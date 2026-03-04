@@ -119,7 +119,7 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
         <label for="tools-incidents">Incidents only</label>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -210,11 +210,11 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
       <h2>No Tools Listed</h2>
       <p>No tools match the current criteria.</p>
       <?php if ($hasFilters): ?>
-        <a href="/admin/tools" role="button">
+        <a href="/admin/tools" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       <?php else: ?>
-        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       <?php endif; ?>

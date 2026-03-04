@@ -290,7 +290,7 @@ $typeIcon  = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
             maxlength="2000"
             placeholder="Describe the tool's current condition (optional)"
           ><?= htmlspecialchars($handoverOld['condition_notes'] ?? '') ?></textarea>
-          <button type="submit">
+          <button type="submit" data-intent="success">
             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
             Confirm <?= $typeLabel ?>
           </button>

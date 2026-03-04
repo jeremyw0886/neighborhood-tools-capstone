@@ -84,7 +84,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
           </select>
         </div>
 
-        <button type="submit">
+        <button type="submit" data-intent="success">
           <i class="fa-solid fa-plus" aria-hidden="true"></i> Add
         </button>
       </fieldset>
@@ -131,7 +131,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
         </select>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -199,7 +199,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                       </option>
                     <?php endforeach; ?>
                   </select>
-                  <button type="submit">
+                  <button type="submit" data-intent="primary" data-size="sm">
                     <i class="fa-solid fa-check" aria-hidden="true"></i>
                     <span class="visually-hidden">Save icon</span>
                   </button>
@@ -237,7 +237,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                         <?php endforeach; ?>
                       </select>
                     </div>
-                    <button type="submit">
+                    <button type="submit" data-intent="primary" data-size="sm">
                       <i class="fa-solid fa-check" aria-hidden="true"></i> Save
                     </button>
                   </form>
@@ -247,7 +247,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                       action="/admin/categories/<?= $catId ?>/delete"
                       data-category-delete>
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                  <button type="submit"
+                  <button type="submit" data-intent="danger" data-size="sm"
                     <?php if ($toolCount > 0): ?>
                       data-confirm="<?= $toolCount ?> tool<?= $toolCount !== 1 ? 's' : '' ?> use this category. They will be uncategorized after deletion."
                     <?php endif; ?>>
@@ -264,7 +264,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
         <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
         <h3>No Categories Found</h3>
         <p>No categories match the current filters.</p>
-        <a href="/admin/categories" role="button">
+        <a href="/admin/categories" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       </section>

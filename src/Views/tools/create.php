@@ -171,7 +171,7 @@ $fuelTypes  ??= [];
       </div>
     </fieldset>
 
-    <button type="submit">
+    <button type="submit" data-intent="success">
       <i class="fa-solid fa-check" aria-hidden="true"></i> List Tool
     </button>
 

@@ -7,14 +7,14 @@
     </header>
 
     <?php if (!empty($authSuccess)): ?>
-      <div role="status" aria-live="polite" class="auth-message auth-message--success">
+      <div role="status" aria-live="polite" data-flash="success">
         <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
         <?= htmlspecialchars($authSuccess) ?>
       </div>
     <?php endif; ?>
 
     <?php if (!empty($error)): ?>
-      <div role="alert" aria-live="polite" class="auth-message auth-message--error">
+      <div role="alert" aria-live="polite" data-flash="error">
         <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
         <?= htmlspecialchars($error) ?>
       </div>
@@ -56,7 +56,7 @@
         <a href="/forgot-password" class="forgot-link">Forgot your password?</a>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-size="lg" data-width="full">
         <i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> Log In
       </button>
 

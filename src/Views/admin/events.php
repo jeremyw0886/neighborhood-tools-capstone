@@ -94,7 +94,7 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
         </select>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -182,7 +182,7 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
       <i class="fa-regular fa-calendar" aria-hidden="true"></i>
       <h2>No Upcoming Events</h2>
       <p>No events match the current filter. Create one to get started.</p>
-      <a href="/events/create" role="button">
+      <a href="/events/create" role="button" data-intent="primary">
         <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Event
       </a>
     </section>

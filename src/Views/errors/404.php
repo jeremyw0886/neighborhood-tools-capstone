@@ -15,8 +15,8 @@
         <h2>Lost in the Mountains</h2>
         <p>The trail you're looking for doesn't exist &mdash; it may have been moved or the path was wrong.</p>
         <nav>
-            <a href="/">Back to Home</a>
-            <a href="/tools">Browse Tools</a>
+            <a href="/" role="button" data-intent="primary">Back to Home</a>
+            <a href="/tools" role="button" data-intent="secondary">Browse Tools</a>
         </nav>
         <figure aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">

@@ -54,7 +54,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
   </header>
 
   <?php if (!empty($bookmarkFlash)): ?>
-    <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($bookmarkFlash) ?></p>
   <?php endif; ?>
 
   <?php if (!empty($zipWarning)): ?>
@@ -67,6 +67,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
   <form role="search" action="<?= htmlspecialchars($basePath) ?>" method="get" aria-label="Search and filter tools">
 
     <fieldset aria-label="Search">
+      <legend class="visually-hidden">Search</legend>
       <label for="browse-search" class="visually-hidden">Search tools</label>
       <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
       <input type="search"
@@ -75,7 +76,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
              placeholder="Search tools by name or description…"
              value="<?= htmlspecialchars($term) ?>"
              autocomplete="off">
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         <span>Search</span>
       </button>
@@ -149,12 +150,12 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
         </span>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply Filters
       </button>
 
       <?php if (!empty($filterParams)): ?>
-        <a href="<?= htmlspecialchars($basePath) ?>" role="button">
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear Filters
         </a>
       <?php endif; ?>
@@ -270,7 +271,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
       <h2>No Tools Found</h2>
       <p>Try broadening your search or adjusting the filters above.</p>
       <?php if (!empty($filterParams)): ?>
-        <a href="<?= htmlspecialchars($basePath) ?>" role="button">
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear All Filters
         </a>
       <?php endif; ?>

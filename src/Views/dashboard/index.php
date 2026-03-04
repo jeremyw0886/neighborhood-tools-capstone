@@ -26,15 +26,15 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
 <section aria-labelledby="dashboard-heading">
 
   <?php if (!empty($borrowSuccess)): ?>
-    <p role="status"><?= htmlspecialchars($borrowSuccess) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
 
   <?php if (!empty($ratingSuccess)): ?>
-    <p role="status"><?= htmlspecialchars($ratingSuccess) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($ratingSuccess) ?></p>
   <?php endif; ?>
 
   <?php if (!empty($waiverSuccess)): ?>
-    <p role="status"><?= htmlspecialchars($waiverSuccess) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($waiverSuccess) ?></p>
   <?php endif; ?>
 
   <header>

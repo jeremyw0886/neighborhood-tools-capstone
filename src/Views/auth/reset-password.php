@@ -7,7 +7,7 @@
     </header>
 
     <?php if (!empty($error)): ?>
-      <div role="alert" aria-live="polite" class="auth-message auth-message--error">
+      <div role="alert" aria-live="polite" data-flash="error">
         <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
         <?= htmlspecialchars($error) ?>
       </div>
@@ -51,13 +51,13 @@
         >
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-size="lg" data-width="full">
         <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Reset Password
       </button>
     </form>
 
     <footer>
-      <p>Remember your password? <a href="/login">Log in</a></p>
+      <p>Remember your password? <a href="/login">Log In</a></p>
     </footer>
   </div>
 </section>

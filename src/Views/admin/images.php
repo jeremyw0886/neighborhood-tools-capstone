@@ -90,7 +90,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                  maxlength="255"
                  placeholder="e.g. Hammer tool icon">
         </div>
-        <button type="submit">
+        <button type="submit" data-intent="primary">
           <i class="fa-solid fa-upload" aria-hidden="true"></i> Upload
         </button>
       </fieldset>
@@ -147,7 +147,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           </select>
         </div>
 
-        <button type="submit">
+        <button type="submit" data-intent="primary" data-shape="pill">
           <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
         </button>
         <?php if ($iconsHasFilters):
@@ -205,7 +205,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                      maxlength="255"
                      value="<?= htmlspecialchars($vec['description_text_vec'] ?? '') ?>"
                      placeholder="Add description">
-              <button type="submit">
+              <button type="submit" data-intent="primary" data-size="sm">
                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
                 <span class="visually-hidden">Save description</span>
               </button>
@@ -215,7 +215,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                     action="/admin/vectors/<?= (int) $vec['id_vec'] ?>/delete"
                     data-delete-form>
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                <button type="submit"
+                <button type="submit" data-intent="danger" data-size="sm"
                   <?php if (!empty($vec['assigned_category'])): ?>
                     data-confirm="This icon is assigned to &quot;<?= htmlspecialchars($vec['assigned_category']) ?>&quot;. It will be unassigned before deletion."
                   <?php endif; ?>>
@@ -241,7 +241,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
         <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
         <h3>No Icons Found</h3>
         <p>No category icons match the current filters.</p>
-        <a href="/admin/images" role="button">
+        <a href="/admin/images" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       </section>
@@ -284,7 +284,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                  maxlength="255"
                  placeholder="e.g. Mountain hiker avatar">
         </div>
-        <button type="submit">
+        <button type="submit" data-intent="primary">
           <i class="fa-solid fa-upload" aria-hidden="true"></i> Upload
         </button>
       </fieldset>
@@ -341,7 +341,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           </select>
         </div>
 
-        <button type="submit">
+        <button type="submit" data-intent="primary" data-shape="pill">
           <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
         </button>
         <?php if ($avatarsHasFilters):
@@ -407,7 +407,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                      maxlength="255"
                      value="<?= htmlspecialchars($avt['description_text_avv'] ?? '') ?>"
                      placeholder="Add description">
-              <button type="submit">
+              <button type="submit" data-intent="primary" data-size="sm">
                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
                 <span class="visually-hidden">Save description</span>
               </button>
@@ -418,11 +418,11 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                     data-toggle-form>
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                 <?php if ((int) $avt['is_active_avv']): ?>
-                  <button type="submit">
+                  <button type="submit" data-intent="warning" data-size="sm">
                     <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Deactivate
                   </button>
                 <?php else: ?>
-                  <button type="submit">
+                  <button type="submit" data-intent="success" data-size="sm">
                     <i class="fa-solid fa-eye" aria-hidden="true"></i> Activate
                   </button>
                 <?php endif; ?>
@@ -431,7 +431,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                     action="/admin/avatar-vectors/<?= (int) $avt['id_avv'] ?>/delete"
                     data-delete-form>
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                <button type="submit"
+                <button type="submit" data-intent="danger" data-size="sm"
                   <?php if ((int) $avt['user_count'] > 0): ?>
                     data-confirm="This avatar is selected by <?= (int) $avt['user_count'] ?> user<?= (int) $avt['user_count'] !== 1 ? 's' : '' ?>. It will be unassigned before deletion."
                   <?php endif; ?>>
@@ -457,7 +457,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
         <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
         <h3>No Avatars Found</h3>
         <p>No avatar vectors match the current filters.</p>
-        <a href="/admin/images" role="button">
+        <a href="/admin/images" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       </section>

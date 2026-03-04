@@ -146,7 +146,7 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
         </select>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -224,13 +224,13 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
                 <div data-actions>
                   <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/approve">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <button type="submit" data-approve>
+                    <button type="submit" data-approve data-intent="success" data-size="sm">
                       <i class="fa-solid fa-check" aria-hidden="true"></i> Approve
                     </button>
                   </form>
                   <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/deny">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <button type="submit" data-deny>
+                    <button type="submit" data-deny data-intent="danger" data-size="sm">
                       <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny
                     </button>
                   </form>
@@ -240,14 +240,14 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
                   <?php if ($isSuspended): ?>
                     <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/status">
                       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                      <button type="submit" data-activate>
+                      <button type="submit" data-activate data-intent="success" data-size="sm">
                         <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Activate
                       </button>
                     </form>
                   <?php else: ?>
                     <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/status">
                       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                      <button type="submit" data-suspend>
+                      <button type="submit" data-suspend data-intent="danger" data-size="sm">
                         <i class="fa-solid fa-ban" aria-hidden="true"></i> Suspend
                       </button>
                     </form>
@@ -280,11 +280,11 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
       <h2>No Members Found</h2>
       <p>No platform members match the current criteria.</p>
       <?php if ($search !== null || $role !== null || $status !== null): ?>
-        <a href="/admin/users" role="button">
+        <a href="/admin/users" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       <?php else: ?>
-        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       <?php endif; ?>

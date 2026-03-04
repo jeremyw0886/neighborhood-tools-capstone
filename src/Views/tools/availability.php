@@ -36,7 +36,7 @@ $toolId  = (int) $tool['id_tol'];
   </header>
 
   <?php if ($success !== ''): ?>
-    <p role="status"><?= htmlspecialchars($success) ?></p>
+    <p role="status" data-flash="success"><?= htmlspecialchars($success) ?></p>
   <?php endif; ?>
 
   <?php if (!empty($errors)): ?>
@@ -66,11 +66,11 @@ $toolId  = (int) $tool['id_tol'];
     <form method="post" action="/tools/<?= $toolId ?>/toggle-listing">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <?php if ($isListed): ?>
-        <button type="submit" data-action="unlist">
+        <button type="submit" data-action="unlist" data-intent="danger">
           <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Unlist Tool
         </button>
       <?php else: ?>
-        <button type="submit" data-action="relist">
+        <button type="submit" data-action="relist" data-intent="success">
           <i class="fa-solid fa-eye" aria-hidden="true"></i> Re-list Tool
         </button>
       <?php endif; ?>
@@ -117,7 +117,7 @@ $toolId  = (int) $tool['id_tol'];
                     <form method="post" action="/tools/<?= $toolId ?>/availability/delete">
                       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                       <input type="hidden" name="block_id" value="<?= (int) $block['id_avb'] ?>">
-                      <button type="submit" aria-label="Remove block starting <?= htmlspecialchars(date('M j, Y', $start)) ?>">
+                      <button type="submit" data-intent="danger" data-size="sm" aria-label="Remove block starting <?= htmlspecialchars(date('M j, Y', $start)) ?>">
                         <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
                       </button>
                     </form>
@@ -184,7 +184,7 @@ $toolId  = (int) $tool['id_tol'];
         </div>
       </fieldset>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary">
         <i class="fa-solid fa-plus" aria-hidden="true"></i> Add Block
       </button>
     </form>

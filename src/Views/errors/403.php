@@ -15,8 +15,8 @@
         <h2>Trail Closed</h2>
         <p>You don't have permission to access this area. If you think this is a mistake, try logging in or head back home.</p>
         <nav>
-            <a href="/">Back to Home</a>
-            <a href="/login">Log In</a>
+            <a href="/" role="button" data-intent="primary">Back to Home</a>
+            <a href="/login" role="button" data-intent="secondary"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log In</a>
         </nav>
         <figure aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">

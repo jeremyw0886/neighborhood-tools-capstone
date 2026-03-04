@@ -79,7 +79,7 @@ use App\Core\ViewHelper;
               <option value="asc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'asc') ?>>Oldest First</option>
             </select>
           </label>
-          <button type="submit">Sort</button>
+          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
         </fieldset>
       </form>
 
@@ -127,12 +127,12 @@ use App\Core\ViewHelper;
               <td data-actions>
                 <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/approve">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                  <button type="submit">
+                  <button type="submit" data-intent="success">
                     <i class="fa-solid fa-check" aria-hidden="true"></i> Approve
                   </button>
                 </form>
                 <details>
-                  <summary>
+                  <summary data-intent="danger">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny
                   </summary>
                   <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/deny">
@@ -146,7 +146,7 @@ use App\Core\ViewHelper;
                       rows="2"
                       placeholder="Why are you denying this request?"
                     ></textarea>
-                    <button type="submit">Deny Request</button>
+                    <button type="submit" data-intent="danger">Deny Request</button>
                   </form>
                 </details>
               </td>
@@ -204,15 +204,15 @@ use App\Core\ViewHelper;
                   $depositPaid = $deposit === null || $deposit['deposit_status'] !== 'pending';
                 ?>
                 <?php if (!$depositPaid): ?>
-                  <span role="button" aria-disabled="true">
+                  <span role="button" aria-disabled="true" data-intent="ghost">
                     <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Deposit
                   </span>
                 <?php elseif ($handover !== null): ?>
-                  <a href="/handover/<?= $pickupId ?>" role="button">
+                  <a href="/handover/<?= $pickupId ?>" role="button" data-intent="info">
                     <i class="fa-solid fa-key" aria-hidden="true"></i> Your Code
                   </a>
                 <?php else: ?>
-                  <a href="/handover/<?= $pickupId ?>" role="button">
+                  <a href="/handover/<?= $pickupId ?>" role="button" data-intent="info">
                     <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Code
                   </a>
                 <?php endif; ?>
@@ -252,7 +252,7 @@ use App\Core\ViewHelper;
               <option value="desc"<?= ViewHelper::selected(strtolower($lentSort['dir']), 'desc') ?>>Latest First</option>
             </select>
           </label>
-          <button type="submit">Sort</button>
+          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
         </fieldset>
       </form>
 
@@ -307,16 +307,16 @@ use App\Core\ViewHelper;
               <td data-actions>
                 <?php $handover = $handoversByBorrow[(int) $row['id_bor']] ?? null; ?>
                 <?php if ($handover !== null): ?>
-                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
+                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button" data-intent="info">
                     <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Code
                   </a>
                 <?php else: ?>
-                  <span role="button" aria-disabled="true">
+                  <span role="button" aria-disabled="true" data-intent="ghost">
                     <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Code
                   </span>
                 <?php endif; ?>
                 <details>
-                  <summary>
+                  <summary data-intent="warning">
                     <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend
                   </summary>
                   <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/extend">
@@ -340,7 +340,7 @@ use App\Core\ViewHelper;
                       rows="2"
                       placeholder="Why are you extending this loan?"
                     ></textarea>
-                    <button type="submit">Extend Loan</button>
+                    <button type="submit" data-intent="warning">Extend Loan</button>
                   </form>
                 </details>
               </td>
@@ -477,7 +477,7 @@ use App\Core\ViewHelper;
 
     <?php else: ?>
       <p>You haven&rsquo;t listed any tools yet.</p>
-      <a href="/tools/create" role="button">
+      <a href="/tools/create" role="button" data-intent="primary">
         <i class="fa-solid fa-plus" aria-hidden="true"></i> List Your First Tool
       </a>
     <?php endif; ?>

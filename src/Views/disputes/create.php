@@ -49,7 +49,7 @@ $yourRole   = $isBorrower ? 'Borrower' : 'Lender';
         An open dispute already exists for this borrow transaction.
         Please wait for the current dispute to be resolved before filing a new one.
       </p>
-      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>
@@ -122,7 +122,7 @@ $yourRole   = $isBorrower ? 'Borrower' : 'Lender';
       </fieldset>
 
       <footer>
-        <button type="submit">
+        <button type="submit" data-intent="warning">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit Dispute
         </button>
         <a href="/dashboard">Cancel</a>

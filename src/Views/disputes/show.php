@@ -207,7 +207,7 @@ $typeIcons = [
         </fieldset>
 
         <footer>
-          <button type="submit">
+          <button type="submit" data-intent="primary">
             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Message
           </button>
         </footer>

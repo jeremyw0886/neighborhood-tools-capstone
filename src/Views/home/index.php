@@ -18,18 +18,18 @@ $bookmarkFlash    ??= '';
           Build Community</h1>
         <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
         <div>
-          <a href="/tools" role="button"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools</a>
+          <a href="/tools" role="button" data-intent="primary" data-size="lg"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools</a>
           <?php if ($isLoggedIn): ?>
-            <a href="/tools/create" role="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool</a>
+            <a href="/tools/create" role="button" data-intent="secondary" data-size="lg"><i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool</a>
           <?php else: ?>
-            <a href="/register" role="button"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
+            <a href="/register" role="button" data-intent="success" data-size="lg"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
           <?php endif; ?>
         </div>
         <form role="search" aria-label="Search tools" action="/tools" method="get">
           <label for="search-tools" class="visually-hidden">Search tools</label>
           <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
           <input type="search" id="search-tools" name="q" placeholder="Search tools near you ...">
-          <button type="submit"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
+          <button type="submit" data-intent="primary" data-shape="pill"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
         </form>
       </div>
     </section>
@@ -106,7 +106,7 @@ $bookmarkFlash    ??= '';
                   <?= htmlspecialchars($member['neighborhood'] ?? $selectedCity) ?>
                 </p>
               </div>
-              <a href="/profile/<?= (int) $member['id_acc'] ?>" role="button">
+              <a href="/profile/<?= (int) $member['id_acc'] ?>" role="button" data-intent="primary">
                 <i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> View Profile
               </a>
             </article>
@@ -120,7 +120,7 @@ $bookmarkFlash    ??= '';
 
   <main id="main-content">
     <?php if (!empty($bookmarkFlash)): ?>
-      <p role="status"><?= htmlspecialchars($bookmarkFlash) ?></p>
+      <p role="status" data-flash="success"><?= htmlspecialchars($bookmarkFlash) ?></p>
     <?php endif; ?>
 
     <section aria-labelledby="popular-heading">

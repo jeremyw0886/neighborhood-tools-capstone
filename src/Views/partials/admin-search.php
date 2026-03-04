@@ -15,6 +15,6 @@
            placeholder="Search users, tools, disputes&#8230;"
            value="<?= htmlspecialchars($_GET['q'] ?? '') ?>"
            autocomplete="off">
-    <button type="submit"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
+    <button type="submit" data-intent="primary" data-shape="pill"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
   </form>
 </search>

@@ -96,7 +96,7 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
         </select>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -220,7 +220,7 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
         <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
         <h3>All Members Compliant</h3>
         <p>Every active member has accepted the current Terms of Service.</p>
-        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       </section>

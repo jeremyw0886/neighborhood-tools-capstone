@@ -26,6 +26,12 @@ if (!empty($profile['vector_avatar'])) {
 
 <section id="profile-edit" aria-labelledby="edit-profile-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="edit-profile-heading">
       <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
@@ -229,7 +235,7 @@ if (!empty($profile['vector_avatar'])) {
       </fieldset>
     <?php endif; ?>
 
-    <button type="submit">
+    <button type="submit" data-intent="primary">
       <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
     </button>
 

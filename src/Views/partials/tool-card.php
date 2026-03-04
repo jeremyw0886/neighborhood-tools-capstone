@@ -24,6 +24,7 @@
     <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <button type="submit"
+              data-intent="ghost" data-shape="icon"
               aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
         <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
       </button>

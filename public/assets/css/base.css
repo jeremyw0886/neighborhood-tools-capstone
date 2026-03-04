@@ -41,6 +41,134 @@
       /* Shadows */
       --shadow-pine: rgba(27, 58, 47, 0.18);
       --shadow-mountain: rgba(57, 74, 83, 0.14);
+
+      /* Semantic color primitives */
+      --color-success-50:  #ecfdf5;
+      --color-success-100: #d1fae5;
+      --color-success-200: #6ee7b7;
+      --color-success-500: #16a34a;
+      --color-success-600: #15803d;
+      --color-success-700: #166534;
+      --color-success-800: #065f46;
+      --color-success-900: #064e3b;
+
+      --color-danger-50:   #fef2f2;
+      --color-danger-100:  #fee2e2;
+      --color-danger-200:  #fca5a5;
+      --color-danger-500:  #ef4444;
+      --color-danger-600:  #dc2626;
+      --color-danger-700:  #b91c1c;
+      --color-danger-800:  #991b1b;
+      --color-danger-900:  #7f1d1d;
+
+      --color-warning-50:  #fffbeb;
+      --color-warning-100: #fef3c7;
+      --color-warning-200: #fde68a;
+      --color-warning-500: #f59e0b;
+      --color-warning-600: #d97706;
+      --color-warning-700: #b45309;
+      --color-warning-800: #92400e;
+      --color-warning-900: #78350f;
+
+      --color-info-50:     #eff6ff;
+      --color-info-100:    #dbeafe;
+      --color-info-200:    #93c5fd;
+      --color-info-500:    #3b82f6;
+      --color-info-600:    #2563eb;
+      --color-info-700:    #1d4ed8;
+      --color-info-800:    #1e40af;
+      --color-info-900:    #1e3a8a;
+
+      --color-special-50:  #f5f3ff;
+      --color-special-100: #ede9fe;
+      --color-special-600: #7c3aed;
+      --color-special-800: #5b21b6;
+
+      --color-high-50:     #fff7ed;
+      --color-high-600:    #ea580c;
+
+      --color-primary-900: #0a1a12;
+
+      /* Badge Colors */
+      --badge-success-bg:   var(--color-success-100);
+      --badge-success-text: var(--color-success-800);
+      --badge-danger-bg:    var(--color-danger-100);
+      --badge-danger-text:  var(--color-danger-800);
+      --badge-warning-bg:   var(--color-warning-100);
+      --badge-warning-text: var(--color-warning-800);
+      --badge-info-bg:      var(--color-info-100);
+      --badge-info-text:    var(--color-info-800);
+      --badge-neutral-bg:   var(--mountain-fog);
+      --badge-neutral-text: var(--mountain-slate);
+      --badge-special-bg:   var(--color-special-100);
+      --badge-special-text: var(--color-special-800);
+      --badge-high-bg:      var(--color-high-50);
+      --badge-high-text:    var(--color-high-600);
+
+      /* Badge Shape */
+      --badge-radius: 2rem;
+      --badge-pad:    0.25rem 0.75rem;
+      --badge-font:   0.75rem;
+      --badge-weight: 600;
+
+      /* Button Gradients */
+      --btn-success-from:       var(--color-success-600);
+      --btn-success-to:         var(--color-success-700);
+      --btn-success-hover-from: var(--color-success-700);
+      --btn-success-hover-to:   var(--color-success-800);
+      --btn-danger-from:        var(--color-danger-600);
+      --btn-danger-to:          var(--color-danger-700);
+      --btn-danger-hover-from:  var(--color-danger-700);
+      --btn-danger-hover-to:    var(--color-danger-800);
+      --btn-warning-from:       var(--color-warning-700);
+      --btn-warning-to:         var(--color-warning-800);
+      --btn-warning-hover-from: var(--color-warning-800);
+      --btn-warning-hover-to:   var(--color-warning-900);
+      --btn-info-from:          var(--color-info-600);
+      --btn-info-to:            var(--color-info-700);
+      --btn-info-hover-from:    var(--color-info-700);
+      --btn-info-hover-to:      var(--color-info-800);
+      --btn-primary-from:       var(--mountain-pine);
+      --btn-primary-to:         var(--mountain-pine-dark);
+      --btn-primary-hover-from: var(--mountain-pine-dark);
+      --btn-primary-hover-to:   var(--color-primary-900);
+      --btn-text-light:         #fff;
+      --btn-text-dark:          var(--mountain-pine-dark);
+
+      /* Button Shape */
+      --btn-radius:      0.5rem;
+      --btn-radius-pill: 2rem;
+      --btn-pad-sm:      0.5rem 1rem;
+      --btn-pad-md:      0.65rem 1.5rem;
+      --btn-pad-lg:      0.75rem 2rem;
+      --btn-min-h-sm:    2.25rem;
+      --btn-min-h-md:    2.75rem;
+      --btn-min-h-lg:    3rem;
+      --btn-font-sm:     0.8125rem;
+      --btn-font-md:     0.875rem;
+      --btn-font-lg:     1rem;
+      --btn-weight:      600;
+      --btn-gap:         0.5rem;
+      --btn-transition:  background 200ms ease, box-shadow 200ms ease, border-color 200ms ease, transform 100ms ease;
+
+      /* Alert / Message Box Colors */
+      --alert-success-bg:     var(--color-success-50);
+      --alert-success-border: var(--color-success-200);
+      --alert-success-text:   var(--color-success-800);
+      --alert-danger-bg:      var(--color-danger-50);
+      --alert-danger-border:  var(--color-danger-200);
+      --alert-danger-text:    var(--color-danger-800);
+      --alert-info-bg:        var(--color-info-50);
+      --alert-info-border:    var(--color-info-200);
+      --alert-info-text:      var(--color-info-800);
+      --alert-warning-bg:     var(--color-warning-50);
+      --alert-warning-border: var(--color-warning-200);
+      --alert-warning-text:   var(--color-warning-800);
+
+      /* Functional Colors */
+      --field-error:        var(--color-danger-600);
+      --field-error-border: var(--color-danger-500);
+      --notification-badge: var(--color-danger-600);
   }
 
   /* --- Reset --- */
@@ -160,17 +288,6 @@
       min-width: 0;
   }
 
-  [data-flash-error] {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      border-radius: 0.5rem;
-      color: #991b1b;
-      font-size: 0.938rem;
-      line-height: 1.5;
-      margin: 1rem auto;
-      max-width: 1100px;
-      padding: 0.75rem 1.25rem;
-  }
 }
 
 /* --- Utilities layer: accessibility, focus, reduced motion --- */

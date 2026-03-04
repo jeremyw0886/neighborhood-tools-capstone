@@ -94,7 +94,7 @@ $paginationUrl = static fn(int $pageNum): string =>
       <form action="/notifications/read" method="post">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <input type="hidden" name="page" value="<?= htmlspecialchars((string) $page) ?>">
-        <button type="submit">
+        <button type="submit" data-intent="primary">
           <i class="fa-solid fa-check-double" aria-hidden="true"></i> Mark all as read
         </button>
       </form>
@@ -250,7 +250,7 @@ $paginationUrl = static fn(int $pageNum): string =>
       <i class="fa-regular fa-bell-slash" aria-hidden="true"></i>
       <h2>No Notifications</h2>
       <p>You&rsquo;re all caught up! We&rsquo;ll let you know when something needs your attention.</p>
-      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>

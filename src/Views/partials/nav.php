@@ -118,7 +118,7 @@ $isHero = !empty($heroPage);
         <li role="menuitem">
           <form action="/logout" method="post">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-            <button type="submit">
+            <button type="submit" data-intent="ghost">
               <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout
             </button>
           </form>
@@ -127,8 +127,8 @@ $isHero = !empty($heroPage);
 
     <?php else: ?>
 
-      <a href="/login" role="button">
-        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in
+      <a href="/login" role="button" data-intent="primary">
+        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log In
       </a>
 
       <?php if ($currentPage === '/tools' || $currentPage === '/categories'): ?>

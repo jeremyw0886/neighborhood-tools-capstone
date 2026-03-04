@@ -45,7 +45,7 @@ $provider  = htmlspecialchars($deposit['payment_provider']);
     <div id="payment-element"></div>
     <p id="payment-message" role="alert" hidden></p>
     <footer>
-      <button type="submit">Pay $<?= $amount ?></button>
+      <button type="submit" data-intent="warning">Pay $<?= $amount ?></button>
     </footer>
   </form>
   <?php else: ?>
@@ -127,7 +127,7 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
       <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
       Security Deposit
     </h1>
-    <p data-action="<?= htmlspecialchars($actionKey) ?>">
+    <p data-badge="<?= htmlspecialchars($actionKey) ?>">
       <?= $action ?>
     </p>
   </header>
@@ -265,7 +265,7 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
         </div>
       </fieldset>
       <footer>
-        <button type="submit">Process Deposit</button>
+        <button type="submit" data-intent="success">Process Deposit</button>
       </footer>
     </form>
   </section>

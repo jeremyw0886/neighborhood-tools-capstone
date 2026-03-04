@@ -119,7 +119,7 @@ $scoreLabels = [
           placeholder="Share your experience with this <?= $raterRole === 'borrower' ? 'lender' : 'borrower' ?>…"
         ><?= htmlspecialchars($old['user_review'] ?? '') ?></textarea>
 
-        <button type="submit">
+        <button type="submit" data-intent="primary">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
           Submit User Rating
         </button>
@@ -177,7 +177,7 @@ $scoreLabels = [
           placeholder="How was the tool's condition and performance?"
         ><?= htmlspecialchars($old['tool_review'] ?? '') ?></textarea>
 
-        <button type="submit">
+        <button type="submit" data-intent="primary">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
           Submit Tool Rating
         </button>

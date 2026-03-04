@@ -142,20 +142,20 @@ use App\Core\ViewHelper;
                   $depositPaid   = $borrowDeposit === null || $borrowDeposit['deposit_status'] !== 'pending';
                 ?>
                 <?php if (!$depositPaid): ?>
-                  <a href="/payments/deposit/<?= (int) $borrowDeposit['id_sdp'] ?>" role="button">
+                  <a href="/payments/deposit/<?= (int) $borrowDeposit['id_sdp'] ?>" role="button" data-intent="warning">
                     <i class="fa-solid fa-credit-card" aria-hidden="true"></i> Pay Deposit
                   </a>
                 <?php elseif ($handover !== null): ?>
-                  <a href="/handover/<?= $pickupId ?>" role="button">
+                  <a href="/handover/<?= $pickupId ?>" role="button" data-intent="info">
                     <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Code
                   </a>
                 <?php else: ?>
-                  <span role="button" aria-disabled="true">
+                  <span role="button" aria-disabled="true" data-intent="ghost">
                     <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Code
                   </span>
                 <?php endif; ?>
                 <details>
-                  <summary>
+                  <summary data-intent="danger">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
                   </summary>
                   <form method="post" action="/borrow/<?= (int) $pickup['id_bor'] ?>/cancel">
@@ -169,7 +169,7 @@ use App\Core\ViewHelper;
                       rows="2"
                       placeholder="Why are you cancelling?"
                     ></textarea>
-                    <button type="submit">Cancel Request</button>
+                    <button type="submit" data-intent="danger">Cancel Request</button>
                   </form>
                 </details>
               </td>
@@ -217,7 +217,7 @@ use App\Core\ViewHelper;
               <option value="overdue"<?= ViewHelper::selected($borrowStatus ?? '', 'overdue') ?>>Overdue</option>
             </select>
           </label>
-          <button type="submit">Sort</button>
+          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
         </fieldset>
       </form>
 
@@ -252,23 +252,23 @@ use App\Core\ViewHelper;
               </td>
               <td>
                 <?php
-                  $status = $row['due_status'] ?? 'ON TIME';
-                  $statusAttr = match ($status) {
-                      'OVERDUE'  => ' data-urgent',
-                      'DUE SOON' => ' data-warning',
-                      default    => '',
+                  $dueStatus  = $row['due_status'] ?? 'ON TIME';
+                  $statusSlug = match ($dueStatus) {
+                      'OVERDUE'  => 'overdue',
+                      'DUE SOON' => 'due-soon',
+                      default    => 'on-time',
                   };
                 ?>
-                <span<?= $statusAttr ?>><?= htmlspecialchars($status) ?></span>
+                <span data-status="<?= $statusSlug ?>"><?= htmlspecialchars($dueStatus) ?></span>
               </td>
               <td data-actions>
                 <?php $handover = $handoversByBorrow[(int) $row['id_bor']] ?? null; ?>
                 <?php if ($handover !== null): ?>
-                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
+                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button" data-intent="info">
                     <i class="fa-solid fa-key" aria-hidden="true"></i> Your Code
                   </a>
                 <?php else: ?>
-                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button">
+                  <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button" data-intent="info">
                     <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Code
                   </a>
                 <?php endif; ?>
@@ -279,7 +279,7 @@ use App\Core\ViewHelper;
       </table>
     <?php else: ?>
       <p>You don&rsquo;t have any active borrows.</p>
-      <a href="/tools" role="button">
+      <a href="/tools" role="button" data-intent="primary">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools
       </a>
     <?php endif; ?>
@@ -316,7 +316,7 @@ use App\Core\ViewHelper;
               <option value="asc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'asc') ?>>Oldest First</option>
             </select>
           </label>
-          <button type="submit">Sort</button>
+          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
         </fieldset>
       </form>
 
@@ -353,7 +353,7 @@ use App\Core\ViewHelper;
               <td data-actions>
                 <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/cancel">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                  <button type="submit">
+                  <button type="submit" data-intent="danger">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
                   </button>
                 </form>

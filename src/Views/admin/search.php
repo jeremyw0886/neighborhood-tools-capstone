@@ -96,7 +96,7 @@ $sections = [
       <i class="fa-regular fa-face-meh" aria-hidden="true"></i>
       <h2>No Results Found</h2>
       <p>Nothing matched &#8220;<?= htmlspecialchars($term) ?>&#8221; across any category.</p>
-      <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+      <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>
     </section>

@@ -106,7 +106,7 @@ $oldVal = static fn(string $field): string =>
     </fieldset>
 
     <div>
-      <button type="submit">
+      <button type="submit" data-intent="success">
         <i class="fa-solid fa-check" aria-hidden="true"></i>
         Publish Version
       </button>

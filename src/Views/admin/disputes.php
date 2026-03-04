@@ -98,7 +98,7 @@ $sortLabels = [
         </select>
       </div>
 
-      <button type="submit">
+      <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
     </fieldset>
@@ -208,12 +208,12 @@ $sortLabels = [
       <h2>No Open Disputes</h2>
       <?php if ($urgency !== null): ?>
         <p>No disputes match the selected urgency level.</p>
-        <a href="/admin/disputes" role="button">
+        <a href="/admin/disputes" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
         </a>
       <?php else: ?>
         <p>All disputes have been resolved. The community is in good standing.</p>
-        <a href="<?= htmlspecialchars($backUrl) ?>" role="button">
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       <?php endif; ?>

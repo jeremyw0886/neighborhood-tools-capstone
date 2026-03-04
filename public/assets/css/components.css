@@ -896,6 +896,21 @@
       }
     }
 
+    &>span[aria-label="Your tool"] {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 0.25rem;
+      color: var(--mountain-pine);
+      font-size: 0.65rem;
+      font-weight: 700;
+      gap: 0.25rem;
+      letter-spacing: 0.04em;
+      padding: 0.25rem 0.5rem;
+      position: absolute;
+      right: 0.5rem;
+      top: 0.5rem;
+      z-index: 1;
+    }
+
     &>div {
       display: flex;
       flex: 1;

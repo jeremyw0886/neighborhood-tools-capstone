@@ -310,7 +310,10 @@ class Tool
                     SELECT 1 FROM borrow_bor b
                      WHERE b.id_tol_bor = t.id_tol
                        AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
-                ) AS is_lent_out
+                ) AS is_lent_out,
+                (SELECT MAX(b.created_at_bor)
+                   FROM borrow_bor b
+                  WHERE b.id_tol_bor = t.id_tol) AS last_activity
         ";
 
         $joins = "
@@ -359,7 +362,7 @@ class Tool
         }
 
         $sql = $select . $joins . $where
-             . " ORDER BY is_lent_out ASC, avg_rating DESC, t.created_at_tol DESC"
+             . " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC"
              . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
@@ -451,6 +454,9 @@ class Tool
                      WHERE b.id_tol_bor = t.id_tol
                        AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
                 ) AS is_lent_out,
+                (SELECT MAX(b.created_at_bor)
+                   FROM borrow_bor b
+                  WHERE b.id_tol_bor = t.id_tol) AS last_activity,
                 ROUND(
                     ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc)
                     / :mpm_select,
@@ -505,7 +511,7 @@ class Tool
         $where .= " AND ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter <= :radius";
 
         $sql = $select . $joins . $where
-             . " ORDER BY is_lent_out ASC, distance_miles ASC"
+             . " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, distance_miles ASC"
              . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);

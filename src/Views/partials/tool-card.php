@@ -28,6 +28,8 @@
         <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
       </button>
     </form>
+  <?php elseif (!empty($isLoggedIn) && ($authUser['id'] ?? 0) === (int) ($tool['owner_id'] ?? 0)): ?>
+    <span aria-label="Your tool"><i class="fa-solid fa-user" aria-hidden="true"></i> YOUR TOOL</span>
   <?php endif; ?>
   <?php if (!empty($tool['is_lent_out'])): ?>
     <span aria-label="Currently lent out">LENT OUT</span>

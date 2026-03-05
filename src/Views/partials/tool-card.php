@@ -1,7 +1,10 @@
 <?php $isBookmarked = isset($bookmarkedIds) && in_array((int) $tool['id_tol'], $bookmarkedIds, true); ?>
 <?php $isEager = !empty($eagerLoad); $eagerLoad = false; ?>
 <?php $headingTag = $cardHeadingLevel ?? 'h2'; ?>
-<article role="listitem">
+<article role="listitem"
+  data-condition="<?= htmlspecialchars($tool['tool_condition'] ?? '') ?>"
+  data-owner="<?= htmlspecialchars($tool['owner_name'] ?? '') ?>"
+  data-deposit="<?= !empty($tool['is_deposit_required_tol']) ? number_format((float) ($tool['default_deposit_amount_tol'] ?? 0), 2) : '' ?>">
   <figure>
     <?php if (!empty($tool['primary_image'])):
       $imgFile = htmlspecialchars($tool['primary_image']);

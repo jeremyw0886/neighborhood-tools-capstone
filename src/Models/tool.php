@@ -86,6 +86,9 @@ class Tool
                     av.owner_id,
                     av.tool_name_tol,
                     av.rental_fee_tol,
+                    av.tool_condition,
+                    av.is_deposit_required_tol,
+                    av.default_deposit_amount_tol,
                     av.primary_image,
                     COALESCE(rs.avg_rating, 0) AS avg_rating,
                     av.owner_name,
@@ -135,7 +138,9 @@ class Tool
                 FROM popularity
             )
             SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
-                   primary_image, avg_rating, rating_count, owner_name,
+                   tool_condition, is_deposit_required_tol,
+                   default_deposit_amount_tol, primary_image,
+                   avg_rating, rating_count, owner_name,
                    owner_avatar, owner_vector_avatar
             FROM diversity
             WHERE owner_rank <= {$maxPerOwner}
@@ -182,6 +187,9 @@ class Tool
                     av.owner_id,
                     av.tool_name_tol,
                     av.rental_fee_tol,
+                    av.tool_condition,
+                    av.is_deposit_required_tol,
+                    av.default_deposit_amount_tol,
                     av.primary_image,
                     0 AS avg_rating,
                     0 AS rating_count,
@@ -208,7 +216,9 @@ class Tool
                   {$excludeClause}
             )
             SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
-                   primary_image, avg_rating, rating_count, owner_name,
+                   tool_condition, is_deposit_required_tol,
+                   default_deposit_amount_tol, primary_image,
+                   avg_rating, rating_count, owner_name,
                    owner_avatar, owner_vector_avatar
             FROM unrated
             WHERE owner_rank <= 1

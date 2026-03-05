@@ -690,4 +690,30 @@ class Deposit
 
         return $stmt->fetchAll();
     }
+
+    /**
+     * Count deposits matching the given admin filters.
+     */
+    public static function getAdminFilteredCount(
+        ?string $status = null,
+        ?string $action = null,
+        ?string $search = null,
+        bool $incidentsOnly = false,
+    ): int {
+        $filter = self::buildAdminWhere($status, $action, $search, $incidentsOnly);
+
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            " . self::adminBaseFrom() . "
+            {$filter['where']}
+        ");
+
+        foreach ($filter['params'] as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
 }

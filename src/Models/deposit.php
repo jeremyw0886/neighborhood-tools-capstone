@@ -11,6 +11,15 @@ class Deposit
 {
     private const int PER_PAGE = 12;
 
+    // Must match AdminController::DEPOSITS_ALLOWED_STATUSES
+    private const array ALLOWED_STATUSES = ['pending', 'held', 'released', 'forfeited', 'partial_release'];
+
+    // Must match AdminController::DEPOSITS_ALLOWED_ACTIONS
+    private const array ALLOWED_ACTIONS = [
+        'READY FOR RELEASE', 'OVERDUE - REVIEW NEEDED', 'ACTIVE BORROW',
+        'PAYMENT PENDING', 'RELEASED', 'FORFEITED', 'PARTIAL RELEASE', 'REVIEW NEEDED',
+    ];
+
     /**
      * Create a pending security deposit for a borrow.
      *

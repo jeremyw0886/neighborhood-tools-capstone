@@ -73,6 +73,8 @@ $deadlineValue = match ($deadlineMet) {
     false   => 'missed',
     default => '',
 };
+
+$hasFilters = $type !== null || $deadlineMet !== null;
 ?>
 
 <section aria-labelledby="admin-incidents-heading">
@@ -134,6 +136,11 @@ $deadlineValue = match ($deadlineMet) {
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
+      <?php if ($hasFilters): ?>
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+        </a>
+      <?php endif; ?>
     </fieldset>
   </form>
 
@@ -265,10 +272,17 @@ $deadlineValue = match ($deadlineMet) {
     <section aria-label="No incidents">
       <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
       <h2>No Open Incidents</h2>
-      <p>All incidents have been resolved. The community is in good standing.</p>
-      <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-      </a>
+      <?php if ($hasFilters): ?>
+        <p>No incidents match the current criteria.</p>
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
+          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+        </a>
+      <?php else: ?>
+        <p>All incidents have been resolved. The community is in good standing.</p>
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+        </a>
+      <?php endif; ?>
     </section>
 
   <?php endif; ?>

@@ -50,6 +50,8 @@ $sortLabels = [
     'last_message_at' => 'Last Activity',
     'message_count'   => 'Messages',
 ];
+
+$hasFilters = $urgency !== null;
 ?>
 
 <section aria-labelledby="admin-disputes-heading">
@@ -101,6 +103,11 @@ $sortLabels = [
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
+      <?php if ($hasFilters): ?>
+        <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+        </a>
+      <?php endif; ?>
     </fieldset>
   </form>
 

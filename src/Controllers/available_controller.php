@@ -146,6 +146,32 @@ class AvailableController extends BaseController
             }
         }
 
+        if ($this->isXhr()) {
+            $basePath = '/categories';
+
+            ob_start();
+            foreach ($tools as $tool) {
+                require BASE_PATH . '/src/Views/partials/tool-card.php';
+            }
+            $cardsHtml = ob_get_clean();
+
+            ob_start();
+            require BASE_PATH . '/src/Views/partials/pagination.php';
+            $paginationHtml = ob_get_clean();
+
+            $rangeStart = $totalCount > 0 ? (($page - 1) * self::PER_PAGE) + 1 : 0;
+            $rangeEnd   = min($page * self::PER_PAGE, $totalCount);
+
+            $this->jsonResponse(200, [
+                'success'        => true,
+                'html'           => $cardsHtml,
+                'paginationHtml' => $paginationHtml,
+                'totalCount'     => $totalCount,
+                'rangeStart'     => $rangeStart,
+                'rangeEnd'       => $rangeEnd,
+            ]);
+        }
+
         $this->render('tools/index', [
             'title'         => 'Available Tools — NeighborhoodTools',
             'description'   => 'Browse tools available to borrow right now from your neighbors in the Asheville and Hendersonville areas.',

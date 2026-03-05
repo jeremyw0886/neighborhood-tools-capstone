@@ -1276,6 +1276,11 @@
         font-size: 0.75rem;
       }
 
+      &>span:not([role="img"]):not([aria-label]) {
+        color: var(--mountain-mist);
+        font-size: 0.75rem;
+      }
+
       &>span[aria-label$="miles away"] {
         color: var(--mountain-mist);
         font-size: 0.688rem;

@@ -334,6 +334,14 @@ class BaseController
     }
 
     /**
+     * Check if the current request was made via XMLHttpRequest.
+     */
+    protected function isXhr(): bool
+    {
+        return ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
+    }
+
+    /**
      * Send a JSON response and halt execution.
      */
     protected function jsonResponse(int $statusCode, array $data): never

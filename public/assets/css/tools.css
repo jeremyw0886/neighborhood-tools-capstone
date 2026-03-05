@@ -250,6 +250,27 @@
       width: auto;
     }
 
+    & div[role="list"]>.skeleton-card {
+      aspect-ratio: 3 / 4;
+      background: linear-gradient(
+        110deg,
+        var(--mountain-fog) 30%,
+        var(--mountain-cream) 50%,
+        var(--mountain-fog) 70%
+      );
+      background-size: 200% 100%;
+      border-radius: 0.75rem;
+
+      @media (prefers-reduced-motion: no-preference) {
+        animation: skeleton-shimmer 1.5s ease-in-out infinite;
+      }
+    }
+
+    @keyframes skeleton-shimmer {
+      from { background-position: 200% 0; }
+      to { background-position: -200% 0; }
+    }
+
     /* ── Pagination ── */
 
     & nav[aria-label="Pagination"] {

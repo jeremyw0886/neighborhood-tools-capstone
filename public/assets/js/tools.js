@@ -45,11 +45,13 @@
   const display = document.getElementById('fee-display');
   if (!slider || !display) return;
 
-  slider.addEventListener('input', () => {
+  function syncSliderAria() {
     display.textContent = `$${slider.value}`;
     slider.setAttribute('aria-valuenow', slider.value);
     slider.setAttribute('aria-valuetext', `$${slider.value}`);
-  });
+  }
+
+  slider.addEventListener('input', syncSliderAria);
 })();
 
 (function () {
@@ -66,11 +68,17 @@
     return page.querySelector('nav[aria-label="Pagination"]');
   }
 
-  const DEBOUNCE_MS  = 300;
+  function getFilterFieldset() {
+    return form.querySelector('fieldset[aria-label="Filters"]');
+  }
+
+  const DEBOUNCE_MS    = 300;
   const SKELETON_COUNT = 6;
 
-  let debounceTimer = null;
-  let generation    = 0;
+  let debounceTimer  = null;
+  let abortCtrl      = null;
+  let currentPage    = 1;
+  let isPaginating   = false;
 
   function getBasePath() {
     return form.action ? new URL(form.action).pathname : '/tools';
@@ -81,6 +89,7 @@
     const params = new URLSearchParams();
 
     for (const [key, value] of data) {
+      if (key === 'page') continue;
       const trimmed = value.toString().trim();
       if (trimmed !== '') params.set(key, trimmed);
     }
@@ -90,7 +99,17 @@
       params.delete('max_fee');
     }
 
+    if (currentPage > 1) {
+      params.set('page', String(currentPage));
+    }
+
     return params;
+  }
+
+  function hasActiveFilters() {
+    const params = buildQueryString();
+    params.delete('page');
+    return params.size > 0;
   }
 
   function showSkeletons() {
@@ -111,34 +130,62 @@
   function updateResultCount(data) {
     if (!countArea) return;
 
+    const existing = countArea.querySelector(':scope > p');
+    const p = document.createElement('p');
+
     if (data.totalCount > 0) {
-      const p = document.createElement('p');
       const strong1 = document.createElement('strong');
       strong1.textContent = `${data.rangeStart}–${data.rangeEnd}`;
       const strong2 = document.createElement('strong');
       strong2.textContent = data.totalCount.toLocaleString();
       const suffix = data.totalCount !== 1 ? 'tools' : 'tool';
-
       p.append('Showing ', strong1, ' of ', strong2, ` ${suffix}`);
-      countArea.replaceChildren(p);
     } else {
-      const p = document.createElement('p');
       p.textContent = 'No tools match your filters.';
-      countArea.replaceChildren(p);
+    }
+
+    if (existing) {
+      existing.replaceWith(p);
+    } else {
+      countArea.prepend(p);
     }
   }
 
-  async function fetchFiltered() {
-    const token = ++generation;
-    const params = buildQueryString();
+  function updateClearButton() {
+    const fieldset = getFilterFieldset();
+    if (!fieldset) return;
+
+    const existing = fieldset.querySelector('a[data-intent="ghost"]');
+    const active   = hasActiveFilters();
+
+    if (active && !existing) {
+      const basePath = getBasePath();
+      const link = document.createElement('a');
+      link.href = basePath;
+      link.setAttribute('role', 'button');
+      link.dataset.intent = 'ghost';
+      link.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear Filters';
+      fieldset.appendChild(link);
+    } else if (!active && existing) {
+      existing.remove();
+    }
+  }
+
+  async function fetchFiltered(replaceHistory = false) {
+    clearTimeout(debounceTimer);
+
+    if (abortCtrl) abortCtrl.abort();
+    abortCtrl = new AbortController();
+
+    const params   = buildQueryString();
     const basePath = getBasePath();
-    const url = `${basePath}?${params}`;
+    const qs       = params.toString();
+    const url      = qs ? `${basePath}?${qs}` : basePath;
 
     showSkeletons();
 
     try {
-      const res = await NT.fetch(url);
-      if (token !== generation) return;
+      const res = await NT.fetch(url, { signal: abortCtrl.signal });
 
       if (!res.ok) {
         form.submit();
@@ -163,6 +210,7 @@
       }
 
       updateResultCount(data);
+      updateClearButton();
 
       if (data.totalCount === 0 && grid) {
         grid.innerHTML = '';
@@ -172,26 +220,39 @@
         emptyState.hidden = data.totalCount > 0;
       }
 
-      history.replaceState(null, '', url);
-    } catch {
-      if (token !== generation) return;
+      if (replaceHistory) {
+        history.replaceState(null, '', url);
+      } else {
+        history.pushState(null, '', url);
+      }
+
+      if (isPaginating) {
+        isPaginating = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      NT.toast('Something went wrong. Reloading\u2026', 'error');
       form.submit();
     }
   }
 
   function handleImmediateChange() {
     clearTimeout(debounceTimer);
+    currentPage = 1;
     fetchFiltered();
   }
 
   function handleDebouncedInput() {
     clearTimeout(debounceTimer);
+    currentPage = 1;
     debounceTimer = setTimeout(fetchFiltered, DEBOUNCE_MS);
   }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     clearTimeout(debounceTimer);
+    currentPage = 1;
     fetchFiltered();
   });
 
@@ -205,37 +266,109 @@
   const maxFee = document.getElementById('filter-max-fee');
   search?.addEventListener('input', handleDebouncedInput);
   zip?.addEventListener('input', handleDebouncedInput);
-  maxFee?.addEventListener('change', handleImmediateChange);
+  maxFee?.addEventListener('input', handleDebouncedInput);
 
   page.addEventListener('click', (e) => {
     const link = e.target.closest('nav[aria-label="Pagination"] a');
     if (!link) return;
 
     e.preventDefault();
-    const url = new URL(link.href);
-    const pageNum = url.searchParams.get('page');
+    const linkUrl = new URL(link.href);
+    currentPage = parseInt(linkUrl.searchParams.get('page') ?? '1', 10);
+    isPaginating = true;
+    fetchFiltered();
+  });
 
-    if (pageNum) {
-      const pageInput = form.querySelector('input[name="page"]')
-        ?? Object.assign(document.createElement('input'), { type: 'hidden', name: 'page' });
-      pageInput.value = pageNum;
-      if (!pageInput.parentNode) form.appendChild(pageInput);
-    }
+  page.addEventListener('click', (e) => {
+    const clearLink = e.target.closest('fieldset a[data-intent="ghost"]');
+    if (!clearLink) return;
 
+    e.preventDefault();
+    form.reset();
+    currentPage = 1;
     fetchFiltered();
   });
 
   window.addEventListener('popstate', () => {
     const params = new URLSearchParams(window.location.search);
 
-    for (const input of form.elements) {
-      if (input.name && params.has(input.name)) {
-        input.value = params.get(input.name);
-      } else if (input.name && input.type !== 'hidden') {
-        input.value = input.defaultValue;
+    for (const el of form.elements) {
+      if (!el.name || el.name === 'page') continue;
+
+      const urlValue = params.get(el.name);
+
+      if (el.tagName === 'SELECT') {
+        const option = urlValue !== null
+          ? el.querySelector(`option[value="${CSS.escape(urlValue)}"]`)
+          : el.querySelector('option:first-child');
+        if (option) el.value = option.value;
+      } else if (el.type !== 'hidden') {
+        el.value = urlValue ?? el.defaultValue;
       }
     }
 
-    fetchFiltered();
+    currentPage = parseInt(params.get('page') ?? '1', 10);
+    fetchFiltered(true);
+  });
+
+  window.addEventListener('beforeunload', () => {
+    clearTimeout(debounceTimer);
+    if (abortCtrl) abortCtrl.abort();
+  });
+})();
+
+(function () {
+  const page = document.getElementById('browse-page');
+  if (!page) return;
+
+  const grid = page.querySelector('[role="list"]');
+  const summary = page.querySelector('[aria-live="polite"]');
+  if (!grid || !summary) return;
+
+  const STORAGE_KEY = 'nt-view-preference';
+
+  const toolbar = document.createElement('div');
+  toolbar.setAttribute('data-view-toggle', '');
+  toolbar.setAttribute('role', 'group');
+  toolbar.setAttribute('aria-label', 'View mode');
+
+  const gridBtn = document.createElement('button');
+  gridBtn.type = 'button';
+  gridBtn.innerHTML = '<i class="fa-solid fa-grip" aria-hidden="true"></i>';
+  gridBtn.setAttribute('aria-label', 'Grid view');
+  gridBtn.title = 'Grid view';
+  gridBtn.dataset.view = 'grid';
+
+  const listBtn = document.createElement('button');
+  listBtn.type = 'button';
+  listBtn.innerHTML = '<i class="fa-solid fa-list" aria-hidden="true"></i>';
+  listBtn.setAttribute('aria-label', 'List view');
+  listBtn.title = 'List view';
+  listBtn.dataset.view = 'list';
+
+  toolbar.append(gridBtn, listBtn);
+  summary.appendChild(toolbar);
+
+  const mql = window.matchMedia('(max-width: 600px)');
+
+  function setView(mode) {
+    const effective = mql.matches ? 'grid' : mode;
+    grid.dataset.view = effective;
+    gridBtn.setAttribute('aria-pressed', effective === 'grid');
+    listBtn.setAttribute('aria-pressed', effective === 'list');
+    if (!mql.matches) localStorage.setItem(STORAGE_KEY, mode);
+  }
+
+  function getPreferred() {
+    return localStorage.getItem(STORAGE_KEY) === 'list' ? 'list' : 'grid';
+  }
+
+  setView(getPreferred());
+  mql.addEventListener('change', () => setView(getPreferred()));
+
+  toolbar.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-view]');
+    if (!btn) return;
+    setView(btn.dataset.view);
   });
 })();

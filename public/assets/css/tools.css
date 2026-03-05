@@ -217,9 +217,13 @@
       }
     }
 
-    /* ── Results summary ── */
+    /* ── Results summary + view toggle ── */
 
     & div[aria-live] {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
       margin-bottom: 1rem;
 
       &>p {
@@ -229,6 +233,37 @@
 
         &>strong {
           color: var(--mountain-pine);
+        }
+      }
+
+      & [data-view-toggle] {
+        display: flex;
+        gap: 0.25rem;
+
+        &>button {
+          align-items: center;
+          background: var(--mountain-cream);
+          border: 1px solid var(--mountain-fog);
+          border-radius: 0.375rem;
+          color: var(--mountain-stone);
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 0.938rem;
+          height: 2.25rem;
+          justify-content: center;
+          transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+          width: 2.25rem;
+
+          &:is(:hover, :focus-visible) {
+            border-color: var(--mountain-pine-light);
+            color: var(--mountain-pine);
+          }
+
+          &[aria-pressed="true"] {
+            background: var(--mountain-pine);
+            border-color: var(--mountain-pine);
+            color: #fff;
+          }
         }
       }
     }
@@ -248,6 +283,139 @@
       height: 100%;
       min-width: 0;
       width: auto;
+    }
+
+    /* ── List view layout ── */
+
+    & div[role="list"][data-view="list"] {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+
+      &>article {
+        flex-direction: row;
+        height: auto;
+        min-height: 0;
+        width: auto;
+
+        &>figure {
+          flex-shrink: 0;
+          height: auto;
+          width: 160px;
+
+          & img {
+            aspect-ratio: 4 / 3;
+            height: 100%;
+          }
+        }
+
+        &>div {
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0.5rem 1rem;
+          padding: 0.75rem 1rem;
+
+          &>span:first-child {
+            order: -1;
+          }
+
+          &> :is(h2, h3) {
+            flex: 1 1 100%;
+            -webkit-line-clamp: 1;
+            max-height: 1.5em;
+          }
+
+          &>p {
+            margin-top: 0;
+          }
+        }
+
+        & footer {
+          gap: 1rem;
+        }
+
+        &>span[aria-label="Just listed"],
+        &>span[aria-label="Currently lent out"] {
+          left: 0.5rem;
+          top: 0.5rem;
+        }
+
+        &>form {
+          position: relative;
+          top: auto;
+          right: auto;
+          align-self: center;
+          margin-right: 0.75rem;
+          order: 3;
+        }
+
+        &>span[aria-label="Your tool"] {
+          position: relative;
+          top: auto;
+          right: auto;
+          align-self: center;
+          margin-right: 0.75rem;
+          order: 3;
+        }
+      }
+    }
+
+    @media (max-width: 600px) {
+      & div[aria-live] [data-view-toggle] {
+        display: none;
+      }
+
+      & div[role="list"] {
+        grid-template-columns: 1fr;
+      }
+
+      & div[role="list"][data-view="list"] {
+        gap: 1.5rem;
+        grid-template-columns: 1fr;
+
+        &>article {
+          flex-direction: column;
+          height: auto;
+          min-height: 310px;
+
+          &>figure {
+            height: 180px;
+            width: auto;
+          }
+
+          &>div {
+            align-items: stretch;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            gap: 0.375rem;
+            padding: 0.75rem;
+
+            &> :is(h2, h3) {
+              flex: initial;
+              -webkit-line-clamp: 2;
+              max-height: 3em;
+            }
+          }
+
+          &>form {
+            align-self: initial;
+            margin-right: 0;
+            order: initial;
+            position: absolute;
+            right: 0.5rem;
+            top: 0.5rem;
+          }
+
+          &>span[aria-label="Your tool"] {
+            align-self: initial;
+            margin-right: 0;
+            order: initial;
+            position: absolute;
+            right: 0.5rem;
+            top: 0.5rem;
+          }
+        }
+      }
     }
 
     & div[role="list"]>.skeleton-card {

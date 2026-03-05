@@ -548,4 +548,26 @@ class Deposit
                          COALESCE(sdp.released_at_sdp, sdp.forfeited_at_sdp, NOW()))
                 END";
     }
+
+    /**
+     * Return the shared FROM/JOIN clause for admin deposit queries.
+     *
+     * @return string  Raw SQL FROM clause with all joins
+     */
+    private static function adminBaseFrom(): string
+    {
+        return "FROM security_deposit_sdp sdp
+                JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+                JOIN payment_provider_ppv ppv ON sdp.id_ppv_sdp = ppv.id_ppv
+                JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
+                JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+                JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+                JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
+                JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
+                LEFT JOIN (
+                    SELECT id_bor_irt, COUNT(*) AS incident_count
+                    FROM incident_report_irt
+                    GROUP BY id_bor_irt
+                ) incident_stats ON sdp.id_bor_sdp = incident_stats.id_bor_irt";
+    }
 }

@@ -59,6 +59,27 @@ class NotificationController extends BaseController
     }
 
     /**
+     * Return the unread notification count as JSON.
+     *
+     * Lightweight polling endpoint — requires auth, rate-limited to prevent abuse.
+     */
+    public function unreadCount(): void
+    {
+        $this->requireAuth();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $count = Notification::getUnreadCount($userId);
+        } catch (\Throwable $e) {
+            error_log('NotificationController::unreadCount — ' . $e->getMessage());
+            $this->jsonResponse(500, ['success' => false, 'message' => 'Something went wrong.']);
+        }
+
+        $this->jsonResponse(200, ['success' => true, 'unread' => $count]);
+    }
+
+    /**
      * Mark notifications as read and redirect back.
      *
      * Supports both "mark all" (no notification_ids posted) and selective

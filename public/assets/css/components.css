@@ -717,6 +717,43 @@
     overflow: hidden;
   }
 
+  #keyboard-shortcuts {
+    height: auto;
+    max-height: 80vh;
+    max-height: 80dvh;
+    max-width: 28rem;
+    width: min(28rem, calc(100vw - 2rem));
+
+    & .shortcut-list {
+      display: grid;
+      gap: 0.5rem 1.5rem;
+      grid-template-columns: auto 1fr;
+      padding: clamp(1rem, 0.75rem + 0.75vw, 1.5rem);
+
+      & dt {
+        display: flex;
+        gap: 0.25rem;
+        justify-self: end;
+      }
+
+      & dd {
+        color: var(--mountain-charcoal);
+        margin: 0;
+      }
+    }
+
+    & kbd {
+      background: var(--mountain-fog);
+      border: 1px solid var(--mountain-mist);
+      border-radius: 0.25rem;
+      font-family: inherit;
+      font-size: 0.813rem;
+      font-weight: 600;
+      line-height: 1;
+      padding: 0.2rem 0.45rem;
+    }
+  }
+
   dialog {
     background: var(--mountain-cloud);
     border: none;

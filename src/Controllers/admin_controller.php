@@ -17,6 +17,7 @@ use App\Models\Tool;
 use App\Models\Tos;
 use App\Models\VectorImage;
 use App\Models\AvatarVector;
+use App\Models\Deposit;
 
 class AdminController extends BaseController
 {
@@ -312,6 +313,10 @@ class AdminController extends BaseController
     private const array TOOLS_SORT_FIELDS        = ['tool_name_tol', 'owner_name', 'tool_condition', 'rental_fee_tol', 'avg_rating', 'total_borrows', 'incident_count', 'created_at_tol'];
     private const array TOOLS_ALLOWED_CONDITIONS = ['new', 'good', 'fair', 'poor'];
 
+    private const array DEPOSITS_SORT_FIELDS      = ['amount_sdp', 'deposit_status', 'created_at_sdp', 'days_held', 'tool_name_tol', 'borrower_name', 'lender_name'];
+    private const array DEPOSITS_ALLOWED_STATUSES  = ['pending', 'held', 'released', 'forfeited', 'partial_release']; // Must match Deposit::ALLOWED_STATUSES
+    private const array DEPOSITS_ALLOWED_ACTIONS   = ['READY FOR RELEASE', 'OVERDUE - REVIEW NEEDED', 'ACTIVE BORROW', 'PAYMENT PENDING', 'RELEASED', 'FORFEITED', 'PARTIAL RELEASE', 'REVIEW NEEDED']; // Must match Deposit::ALLOWED_ACTIONS
+
     /**
      * Tool management — paginated, sortable, filterable list of all tools.
      *
@@ -371,6 +376,78 @@ class AdminController extends BaseController
             'perPage'       => self::PER_PAGE,
             'search'        => $search,
             'condition'     => $condition,
+            'incidentsOnly' => $incidentsOnly,
+            'sort'          => $sortParams['sort'],
+            'dir'           => $sortParams['dir'],
+            'filterParams'  => $filterParams,
+        ]);
+    }
+
+    /**
+     * Deposit management — paginated, sortable, filterable list of all deposits.
+     *
+     * Accepts `?q`, `?status`, `?action`, `?incidents`, `?sort`, `?dir` query params.
+     */
+    public function deposits(): void
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $search     = $this->parseSearchQuery();
+        $sortParams = $this->parseSortParams('', self::DEPOSITS_SORT_FIELDS, 'created_at_sdp', 'DESC');
+
+        $rawStatus = $_GET['status'] ?? '';
+        $status    = in_array($rawStatus, self::DEPOSITS_ALLOWED_STATUSES, true) ? $rawStatus : null;
+
+        $rawAction = $_GET['action'] ?? '';
+        $action    = in_array($rawAction, self::DEPOSITS_ALLOWED_ACTIONS, true) ? $rawAction : null;
+
+        $incidentsOnly = ($_GET['incidents'] ?? '') === '1';
+
+        try {
+            $page       = max(1, (int) ($_GET['page'] ?? 1));
+            $totalCount = Deposit::getAdminFilteredCount($status, $action, $search, $incidentsOnly);
+            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
+            $page       = min($page, $totalPages);
+            $offset     = ($page - 1) * self::PER_PAGE;
+            $deposits   = Deposit::getAdminList(
+                limit:         self::PER_PAGE,
+                offset:        $offset,
+                sort:          $sortParams['sort'],
+                dir:           $sortParams['dir'],
+                status:        $status,
+                action:        $action,
+                search:        $search,
+                incidentsOnly: $incidentsOnly,
+            );
+        } catch (\Throwable $e) {
+            error_log('AdminController::deposits — ' . $e->getMessage());
+            $deposits   = [];
+            $totalCount = 0;
+            $totalPages = 1;
+            $page       = 1;
+        }
+
+        $filterParams = array_filter([
+            'q'         => $search,
+            'status'    => $status,
+            'action'    => $action,
+            'sort'      => $sortParams['sort'] === 'created_at_sdp' ? null : $sortParams['sort'],
+            'dir'       => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
+            'incidents' => $incidentsOnly ? '1' : null,
+        ], static fn(mixed $v): bool => $v !== null);
+
+        $this->render('admin/deposits', [
+            'title'         => 'Manage Deposits',
+            'description'   => 'Admin deposit management',
+            'pageCss'       => ['admin.css'],
+            'deposits'      => $deposits,
+            'totalCount'    => $totalCount,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => self::PER_PAGE,
+            'search'        => $search,
+            'status'        => $status,
+            'action'        => $action,
             'incidentsOnly' => $incidentsOnly,
             'sort'          => $sortParams['sort'],
             'dir'           => $sortParams['dir'],
@@ -908,6 +985,7 @@ class AdminController extends BaseController
             'disputes'      => [],
             'events'        => [],
             'incidents'     => [],
+            'deposits'      => [],
             'neighborhoods' => [],
         ];
 
@@ -958,6 +1036,12 @@ class AdminController extends BaseController
                 $results['incidents'] = Incident::adminSearch($term);
             } catch (\Throwable $e) {
                 error_log('AdminController::search incidents — ' . $e->getMessage());
+            }
+
+            try {
+                $results['deposits'] = Deposit::adminSearch($term);
+            } catch (\Throwable $e) {
+                error_log('AdminController::search deposits — ' . $e->getMessage());
             }
 
             try {

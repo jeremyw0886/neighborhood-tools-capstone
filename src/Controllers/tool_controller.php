@@ -294,16 +294,25 @@ class ToolController extends BaseController
 
         $isOwner = !empty($_SESSION['logged_in']) && (int) $tool['owner_id'] === (int) $_SESSION['user_id'];
 
+        $images = [];
+
+        try {
+            $images = Tool::getImages($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::show images — ' . $e->getMessage());
+        }
+
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
 
         $this->render('tools/show', [
             'title'            => $tool['tool_name_tol'] . ' — NeighborhoodTools',
             'pageCss'          => ['tools.css'],
-            'pageJs'           => $turnstileSiteKey !== '' ? ['turnstile.js'] : [],
+            'pageJs'           => ['tools.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'tool'             => $tool,
+            'images'           => $images,
             'isBookmarked'     => $isBookmarked,
             'isOwner'          => $isOwner,
             'borrowErrors'     => $this->flash('borrow_errors', []),
@@ -408,11 +417,20 @@ class ToolController extends BaseController
         $old    = $_SESSION['edit_tool_old'] ?? [];
         unset($_SESSION['edit_tool_errors'], $_SESSION['edit_tool_old']);
 
+        $images = [];
+
+        try {
+            $images = Tool::getImages($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::edit images — ' . $e->getMessage());
+        }
+
         $this->render('tools/edit', [
             'title'             => 'Edit ' . htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
             'pageCss'           => ['tools.css'],
             'pageJs'            => ['tools.js'],
             'tool'              => $tool,
+            'images'            => $images,
             'categories'        => $categories,
             'fuelTypes'         => $fuelTypes,
             'currentCategoryId' => $currentCategoryId,

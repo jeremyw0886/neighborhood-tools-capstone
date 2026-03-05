@@ -4,6 +4,7 @@ $isOwner       ??= false;
 $borrowErrors  ??= [];
 $borrowOld     ??= [];
 $bookmarkFlash ??= '';
+$images        ??= [];
 ?>
 
 <section aria-labelledby="tool-detail-heading">
@@ -20,24 +21,110 @@ $bookmarkFlash ??= '';
 
   <article>
     <header>
-      <figure>
-        <?php if (!empty($tool['primary_image'])):
-          $imgFile = htmlspecialchars($tool['primary_image']);
-          $imgSmall = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image']));
-        ?>
-          <img src="/uploads/tools/<?= $imgFile ?>"
-               srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 800w"
-               sizes="(max-width: 768px) 100vw, 600px"
-               alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-               width="800" height="536"
-               decoding="async">
-        <?php else: ?>
-          <img src="/assets/images/tool-placeholder.svg"
-               alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-               width="600" height="400"
-               decoding="async">
+      <?php
+        $primaryImage = null;
+        $extraImages  = [];
+
+        foreach ($images as $img) {
+            if (!empty($img['is_primary_tim'])) {
+                $primaryImage = $img;
+            } else {
+                $extraImages[] = $img;
+            }
+        }
+
+        if ($primaryImage === null && $images !== []) {
+            $primaryImage = $images[0];
+            $extraImages  = array_slice($images, 1);
+        }
+      ?>
+
+      <div id="tool-gallery" data-count="<?= count($images) ?>">
+        <figure id="gallery-main">
+          <?php if ($primaryImage !== null):
+            $mainFile  = htmlspecialchars($primaryImage['file_name_tim']);
+            $mainThumb = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $primaryImage['file_name_tim']));
+            $mainAlt   = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
+          ?>
+            <a href="/uploads/tools/<?= $mainFile ?>" data-lightbox-trigger>
+              <img src="/uploads/tools/<?= $mainFile ?>"
+                   srcset="/uploads/tools/<?= $mainThumb ?> 400w, /uploads/tools/<?= $mainFile ?> 800w"
+                   sizes="(max-width: 768px) 100vw, 600px"
+                   alt="<?= $mainAlt ?>"
+                   width="800" height="536"
+                   id="gallery-main-img"
+                   decoding="async">
+            </a>
+            <?php if ($primaryImage['alt_text_tim']): ?>
+              <figcaption><?= htmlspecialchars($primaryImage['alt_text_tim']) ?></figcaption>
+            <?php endif; ?>
+          <?php else: ?>
+            <img src="/assets/images/tool-placeholder.svg"
+                 alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
+                 width="600" height="400"
+                 decoding="async">
+          <?php endif; ?>
+        </figure>
+
+        <?php if ($extraImages !== []): ?>
+          <ul id="gallery-thumbs" aria-label="Additional photos">
+            <?php if ($primaryImage !== null): ?>
+              <li>
+                <button type="button"
+                        aria-current="true"
+                        aria-label="<?= htmlspecialchars($primaryImage['alt_text_tim'] ?? 'Primary photo') ?>"
+                        data-full="/uploads/tools/<?= $mainFile ?>"
+                        data-srcset="/uploads/tools/<?= $mainThumb ?> 400w, /uploads/tools/<?= $mainFile ?> 800w"
+                        data-alt="<?= $mainAlt ?>">
+                  <img src="/uploads/tools/<?= $mainThumb ?>"
+                       alt=""
+                       width="80" height="54"
+                       loading="lazy"
+                       decoding="async">
+                </button>
+              </li>
+            <?php endif; ?>
+            <?php foreach ($extraImages as $extra):
+              $extraFile  = htmlspecialchars($extra['file_name_tim']);
+              $extraThumb = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $extra['file_name_tim']));
+              $extraAlt   = htmlspecialchars($extra['alt_text_tim'] ?? $tool['tool_name_tol']);
+            ?>
+              <li>
+                <button type="button"
+                        aria-label="<?= $extraAlt ?>"
+                        data-full="/uploads/tools/<?= $extraFile ?>"
+                        data-srcset="/uploads/tools/<?= $extraThumb ?> 400w, /uploads/tools/<?= $extraFile ?> 800w"
+                        data-alt="<?= $extraAlt ?>">
+                  <img src="/uploads/tools/<?= $extraThumb ?>"
+                       alt=""
+                       width="80" height="54"
+                       loading="lazy"
+                       decoding="async">
+                </button>
+              </li>
+            <?php endforeach; ?>
+          </ul>
         <?php endif; ?>
-      </figure>
+      </div>
+
+      <?php if ($images !== []): ?>
+        <dialog id="gallery-lightbox" aria-label="Image viewer">
+          <div>
+            <img src="" alt="" id="lightbox-img" decoding="async">
+            <?php if (count($images) > 1): ?>
+              <button type="button" id="lightbox-prev" aria-label="Previous image">
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+              </button>
+              <button type="button" id="lightbox-next" aria-label="Next image">
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+            <?php endif; ?>
+            <button type="button" id="lightbox-close" aria-label="Close image viewer">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </div>
+        </dialog>
+      <?php endif; ?>
 
       <div>
         <h1 id="tool-detail-heading"><?= htmlspecialchars($tool['tool_name_tol']) ?></h1>

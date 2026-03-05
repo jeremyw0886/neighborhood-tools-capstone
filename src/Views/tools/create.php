@@ -159,15 +159,19 @@ $fuelTypes  ??= [];
       </div>
 
       <div>
-        <label for="tool-image">Tool Photo</label>
+        <label for="tool-photos">Tool Photos</label>
         <input type="file"
-               id="tool-image"
-               name="tool_image"
+               id="tool-photos"
+               name="photos[]"
+               multiple
                accept="image/jpeg,image/png,image/webp"
-               <?php if (isset($errors['tool_image'])): ?>aria-invalid="true" aria-describedby="tool-image-error"<?php endif; ?>>
-        <?php if (isset($errors['tool_image'])): ?>
-          <p id="tool-image-error" role="alert"><?= htmlspecialchars($errors['tool_image']) ?></p>
+               aria-describedby="tool-photos-hint"
+               <?php if (isset($errors['photos'])): ?>aria-invalid="true"<?php endif; ?>>
+        <p id="tool-photos-hint">Upload up to 6 photos (max 5 MB each, JPEG/PNG/WebP). The first photo will be your primary listing image.</p>
+        <?php if (isset($errors['photos'])): ?>
+          <p role="alert"><?= htmlspecialchars($errors['photos']) ?></p>
         <?php endif; ?>
+        <ul id="photo-preview-list" hidden aria-label="Selected photo previews"></ul>
       </div>
     </fieldset>
 

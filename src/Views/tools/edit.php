@@ -4,6 +4,7 @@ $currentCategoryId ??= null;
 $errors            ??= [];
 $old               ??= [];
 $fuelTypes         ??= [];
+$images            ??= [];
 ?>
 
 <section aria-labelledby="edit-tool-heading">
@@ -171,26 +172,84 @@ $fuelTypes         ??= [];
         <?php endif; ?>
       </div>
 
-      <div>
-        <label for="tool-image">Tool Photo</label>
-        <?php if (!empty($tool['primary_image'])): ?>
-          <figure>
-            <img src="/uploads/tools/<?= htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image'])) ?>"
-                 alt="Current photo of <?= htmlspecialchars($tool['tool_name_tol']) ?>"
-                 width="400" height="268"
-                 decoding="async">
-            <figcaption>Current photo — upload a new file to replace it.</figcaption>
-          </figure>
-        <?php endif; ?>
-        <input type="file"
-               id="tool-image"
-               name="tool_image"
-               accept="image/jpeg,image/png,image/webp"
-               <?php if (isset($errors['tool_image'])): ?>aria-invalid="true" aria-describedby="tool-image-error"<?php endif; ?>>
-        <?php if (isset($errors['tool_image'])): ?>
-          <p id="tool-image-error" role="alert"><?= htmlspecialchars($errors['tool_image']) ?></p>
-        <?php endif; ?>
-      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Photos</legend>
+
+      <?php if ($images !== []): ?>
+        <ol id="gallery-manager" aria-label="Tool photos" data-tool-id="<?= (int) $tool['id_tol'] ?>">
+          <?php foreach ($images as $image):
+            $imgId      = (int) $image['id_tim'];
+            $filename   = htmlspecialchars($image['file_name_tim']);
+            $thumb      = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $image['file_name_tim']));
+            $altText    = htmlspecialchars($image['alt_text_tim'] ?? '');
+            $isPrimary  = !empty($image['is_primary_tim']);
+          ?>
+            <li data-image-id="<?= $imgId ?>" draggable="true">
+              <img src="/uploads/tools/<?= $thumb ?>"
+                   alt="<?= $altText !== '' ? $altText : htmlspecialchars($tool['tool_name_tol']) ?>"
+                   width="400" height="268"
+                   loading="lazy"
+                   decoding="async">
+
+              <div>
+                <label for="alt-text-<?= $imgId ?>">
+                  <span class="visually-hidden">Alt text for image <?= $imgId ?></span>
+                </label>
+                <input type="text"
+                       id="alt-text-<?= $imgId ?>"
+                       value="<?= $altText ?>"
+                       maxlength="255"
+                       placeholder="Describe this photo…"
+                       data-alt-input
+                       data-image-id="<?= $imgId ?>">
+              </div>
+
+              <div>
+                <input type="radio"
+                       name="primary_image"
+                       id="primary-<?= $imgId ?>"
+                       value="<?= $imgId ?>"
+                       <?= $isPrimary ? 'checked' : '' ?>
+                       data-primary-radio>
+                <label for="primary-<?= $imgId ?>">
+                  <?= $isPrimary ? '<i class="fa-solid fa-star" aria-hidden="true"></i> ' : '' ?>Primary
+                </label>
+              </div>
+
+              <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/images/<?= $imgId ?>" data-delete-form>
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                <button type="submit" data-intent="danger" aria-label="Delete this photo">
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
+                </button>
+              </form>
+
+              <span aria-hidden="true" data-drag-handle><i class="fa-solid fa-grip-vertical"></i></span>
+            </li>
+          <?php endforeach; ?>
+        </ol>
+      <?php else: ?>
+        <p>No photos uploaded yet.</p>
+      <?php endif; ?>
+
+      <?php if (count($images) < 6): ?>
+        <div>
+          <label for="add-photo">Add Photo</label>
+          <input type="file"
+                 id="add-photo"
+                 name="photo"
+                 accept="image/jpeg,image/png,image/webp"
+                 data-add-photo
+                 data-tool-id="<?= (int) $tool['id_tol'] ?>">
+          <p id="add-photo-hint">JPEG, PNG, or WebP — max 5 MB. <?= 6 - count($images) ?> slot<?= 6 - count($images) !== 1 ? 's' : '' ?> remaining.</p>
+        </div>
+      <?php endif; ?>
+
+      <?php if (isset($errors['photos'])): ?>
+        <p role="alert"><?= htmlspecialchars($errors['photos']) ?></p>
+      <?php endif; ?>
     </fieldset>
 
     <button type="submit" data-intent="primary">

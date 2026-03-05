@@ -570,4 +570,51 @@ class Deposit
                     GROUP BY id_bor_irt
                 ) incident_stats ON sdp.id_bor_sdp = incident_stats.id_bor_irt";
     }
+
+    /**
+     * Build WHERE clause and params for admin deposit filtering.
+     *
+     * @return array{where: string, params: array<string, mixed>}
+     */
+    private static function buildAdminWhere(
+        ?string $status,
+        ?string $action,
+        ?string $search,
+        bool $incidentsOnly = false,
+    ): array {
+        $conditions = [];
+        $params     = [];
+
+        if ($status !== null && in_array($status, self::ALLOWED_STATUSES, true)) {
+            $conditions[] = 'dps.status_name_dps = :status';
+            $params[':status'] = $status;
+        }
+
+        // MySQL cannot filter by column alias in WHERE, so the full CASE
+        // expression is repeated here. This means the CASE evaluates twice
+        // per row (SELECT + WHERE) when the action filter is active —
+        // acceptable for expected admin deposit volume.
+        if ($action !== null && in_array($action, self::ALLOWED_ACTIONS, true)) {
+            $conditions[] = self::actionRequiredCase() . ' = :action_required';
+            $params[':action_required'] = $action;
+        }
+
+        if ($search !== null) {
+            $conditions[] = '(t.tool_name_tol LIKE :search1'
+                . " OR CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) LIKE :search2"
+                . " OR CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) LIKE :search3)";
+            $term = '%' . $search . '%';
+            $params[':search1'] = $term;
+            $params[':search2'] = $term;
+            $params[':search3'] = $term;
+        }
+
+        if ($incidentsOnly) {
+            $conditions[] = 'incident_stats.incident_count > 0';
+        }
+
+        $where = $conditions !== [] ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        return ['where' => $where, 'params' => $params];
+    }
 }

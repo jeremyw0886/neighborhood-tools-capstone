@@ -4,7 +4,7 @@
  *
  * Variables from AdminController::search():
  *   $term        string  The search query
- *   $results     array   Keyed by entity: users, tools, categories, icons, avatars, disputes, events, incidents, neighborhoods
+ *   $results     array   Keyed by entity: users, tools, categories, icons, avatars, disputes, events, incidents, deposits, neighborhoods
  *   $totalCount  int     Sum of all result counts
  *
  * Return shapes per entity:
@@ -16,6 +16,7 @@
  *   disputes:      id_dsp, tool_name_tol, reporter_name, borrower_name, lender_name, dispute_status, days_open
  *   events:        id_evt, event_name_evt, start_at_evt, event_address_evt, event_timing
  *   incidents:     id_irt, incident_type, tool_name_tol, reporter_name, borrower_name, lender_name, incident_status, days_open
+ *   deposits:      id_sdp, amount_sdp, deposit_status, tool_name_tol, borrower_name, lender_name, action_required
  *   neighborhoods: id_nbh, neighborhood_name_nbh, city_name_nbh, state_code_sta, active_members
  *
  * Shared data:
@@ -63,6 +64,11 @@ $sections = [
         'label' => 'Incidents',
         'page'  => '/admin/incidents',
     ],
+    'deposits' => [
+        'icon'  => 'fa-vault',
+        'label' => 'Deposits',
+        'page'  => '/admin/deposits',
+    ],
     'neighborhoods' => [
         'icon'  => 'fa-chart-bar',
         'label' => 'Neighborhoods',
@@ -84,7 +90,7 @@ $sections = [
         for &#8220;<?= htmlspecialchars($term) ?>&#8221;
       </p>
     <?php else: ?>
-      <p>Enter a search term to find users, tools, categories, images, disputes, events, incidents, and neighborhoods.</p>
+      <p>Enter a search term to find users, tools, categories, images, disputes, events, incidents, deposits, and neighborhoods.</p>
     <?php endif; ?>
   </header>
 
@@ -293,6 +299,39 @@ $sections = [
                   <div>
                     <dt>Age</dt>
                     <dd><?= (int) $incident['days_open'] ?> day<?= (int) $incident['days_open'] !== 1 ? 's' : '' ?></dd>
+                  </div>
+                </dl>
+              </article>
+            <?php endforeach;
+
+          elseif ($key === 'deposits'):
+            foreach ($items as $deposit): ?>
+              <article>
+                <h3><a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">Deposit #<?= (int) $deposit['id_sdp'] ?></a></h3>
+                <dl>
+                  <div>
+                    <dt>Amount</dt>
+                    <dd>$<?= number_format((float) $deposit['amount_sdp'], 2) ?></dd>
+                  </div>
+                  <div>
+                    <dt>Status</dt>
+                    <dd><span data-deposit-status="<?= htmlspecialchars($deposit['deposit_status']) ?>"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $deposit['deposit_status']))) ?></span></dd>
+                  </div>
+                  <div>
+                    <dt>Tool</dt>
+                    <dd><?= htmlspecialchars($deposit['tool_name_tol']) ?></dd>
+                  </div>
+                  <div>
+                    <dt>Borrower</dt>
+                    <dd><?= htmlspecialchars($deposit['borrower_name']) ?></dd>
+                  </div>
+                  <div>
+                    <dt>Lender</dt>
+                    <dd><?= htmlspecialchars($deposit['lender_name']) ?></dd>
+                  </div>
+                  <div>
+                    <dt>Action</dt>
+                    <dd><?= htmlspecialchars($deposit['action_required']) ?></dd>
                   </div>
                 </dl>
               </article>

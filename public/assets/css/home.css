@@ -161,6 +161,7 @@
         border-radius: 20rem;
         box-shadow: 0 4px 12px rgba(212, 168, 75, 0.35);
         color: #fff;
+        height: 4rem;
         min-width: 12rem;
 
         &:hover:not(:disabled, [aria-disabled="true"]) {

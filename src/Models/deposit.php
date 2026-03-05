@@ -716,4 +716,40 @@ class Deposit
 
         return (int) $stmt->fetchColumn();
     }
+
+    /**
+     * Search deposits for the admin global search.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function adminSearch(string $term, int $limit = 5): array
+    {
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            SELECT sdp.id_sdp,
+                   sdp.amount_sdp,
+                   dps.status_name_dps AS deposit_status,
+                   t.tool_name_tol,
+                   CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                   CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+                   " . self::actionRequiredCase() . " AS action_required
+            " . self::adminBaseFrom() . "
+            WHERE t.tool_name_tol LIKE :search1
+               OR CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) LIKE :search2
+               OR CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) LIKE :search3
+               OR dps.status_name_dps LIKE :search4
+            ORDER BY sdp.created_at_sdp DESC
+            LIMIT :limit
+        ");
+
+        $like = '%' . $term . '%';
+        $stmt->bindValue(':search1', $like);
+        $stmt->bindValue(':search2', $like);
+        $stmt->bindValue(':search3', $like);
+        $stmt->bindValue(':search4', $like);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

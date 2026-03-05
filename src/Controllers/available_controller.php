@@ -155,6 +155,7 @@ class AvailableController extends BaseController
 
         if ($this->isXhr()) {
             $basePath = '/categories';
+            extract($this->getSharedData());
 
             ob_start();
             foreach ($tools as $tool) {

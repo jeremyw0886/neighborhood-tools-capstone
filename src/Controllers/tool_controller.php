@@ -158,6 +158,7 @@ class ToolController extends BaseController
 
         if ($this->isXhr()) {
             $basePath = '/tools';
+            extract($this->getSharedData());
 
             ob_start();
             foreach ($tools as $tool) {

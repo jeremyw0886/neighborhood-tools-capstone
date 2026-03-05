@@ -2180,15 +2180,15 @@
         }
 
         &>span[data-condition="good"] {
-          color: var(--btn-success-from);
+          color: #166534;
         }
 
         &>span[data-condition="fair"] {
-          color: var(--btn-warning-from);
+          color: #92400e;
         }
 
         &>span[data-condition="poor"] {
-          color: var(--field-error);
+          color: #b91c1c;
         }
 
         &>span[data-warning] {

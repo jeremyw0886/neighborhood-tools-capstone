@@ -6,71 +6,72 @@
 
   if (!zipInput || !select) return;
 
-  const fullOptions = select.innerHTML;
-  let controller    = null;
+  const savedOptions = [...select.children].map(child => child.cloneNode(true));
+  let generation = 0;
 
   function restoreFullList() {
-    select.innerHTML = fullOptions;
+    select.replaceChildren(...savedOptions.map(node => node.cloneNode(true)));
   }
 
-  function handleZipChange() {
+  async function handleZipChange() {
     const zip = zipInput.value.trim();
-
-    if (controller) {
-      controller.abort();
-      controller = null;
-    }
+    const token = ++generation;
 
     if (!/^\d{5}$/.test(zip)) {
       restoreFullList();
       return;
     }
 
-    controller = new AbortController();
+    try {
+      const res = await NT.fetch(`/api/neighborhoods/${encodeURIComponent(zip)}`);
+      if (token !== generation) return;
 
-    fetch('/api/neighborhoods/' + encodeURIComponent(zip), {
-      signal: controller.signal,
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error(res.statusText);
-        return res.json();
-      })
-      .then(function (neighborhoods) {
-        if (!neighborhoods.length) {
-          restoreFullList();
-          return;
+      if (!res.ok) {
+        restoreFullList();
+        return;
+      }
+
+      const neighborhoods = await res.json();
+
+      if (!neighborhoods.length) {
+        restoreFullList();
+        return;
+      }
+
+      const current = select.value;
+      const grouped = {};
+
+      for (const n of neighborhoods) {
+        (grouped[n.city_name_nbh] ??= []).push(n);
+      }
+
+      const fragment = document.createDocumentFragment();
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select a neighborhood';
+      fragment.appendChild(placeholder);
+
+      for (const city of Object.keys(grouped).sort()) {
+        const group = document.createElement('optgroup');
+        group.label = city;
+
+        for (const n of grouped[city]) {
+          const opt = document.createElement('option');
+          opt.value = n.id_nbh;
+          opt.textContent = n.neighborhood_name_nbh;
+          opt.selected = String(n.id_nbh) === current;
+          group.appendChild(opt);
         }
 
-        const current = select.value;
+        fragment.appendChild(group);
+      }
 
-        const grouped = {};
-        neighborhoods.forEach(function (n) {
-          const city = n.city_name_nbh;
-          if (!grouped[city]) grouped[city] = [];
-          grouped[city].push(n);
-        });
-
-        let html = '<option value="">Select a neighborhood</option>';
-
-        Object.keys(grouped).sort().forEach(function (city) {
-          html += '<optgroup label="' + city.replace(/"/g, '&quot;') + '">';
-          grouped[city].forEach(function (n) {
-            const sel = String(n.id_nbh) === current ? ' selected' : '';
-            const name = n.neighborhood_name_nbh
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;');
-            html += '<option value="' + n.id_nbh + '"' + sel + '>' + name + '</option>';
-          });
-          html += '</optgroup>';
-        });
-
-        select.innerHTML = html;
-      })
-      .catch(function (err) {
-        if (err.name === 'AbortError') return;
-        restoreFullList();
-      });
+      select.replaceChildren(fragment);
+    } catch {
+      if (token !== generation) return;
+      NT.toast('Could not load neighborhoods for that ZIP code.', 'error');
+      restoreFullList();
+    }
   }
 
   zipInput.addEventListener('input', handleZipChange);
@@ -101,7 +102,6 @@
     btn.appendChild(icon);
 
     input.after(btn);
-    btn.style.top = `${input.offsetTop + input.offsetHeight / 2}px`;
 
     btn.addEventListener('click', () => {
       const showing = input.type === 'text';

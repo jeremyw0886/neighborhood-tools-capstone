@@ -58,19 +58,7 @@ class ToolController extends BaseController
             }
         }
 
-        $offset = ($page - 1) * self::PER_PAGE;
-
         try {
-            $tools = Tool::search(
-                term: $term,
-                categoryId: $categoryId,
-                zip: $zip,
-                maxFee: $maxFee,
-                limit: self::PER_PAGE,
-                offset: $offset,
-                radius: $radius,
-            );
-
             $totalCount = Tool::searchCount(
                 term: $term,
                 categoryId: $categoryId,
@@ -81,6 +69,24 @@ class ToolController extends BaseController
 
             $categories   = Tool::getCategories();
             $browseCounts = Tool::getBrowseableCountsByCategory();
+
+            $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
+
+            if ($page > $totalPages) {
+                $page = $totalPages;
+            }
+
+            $offset = ($page - 1) * self::PER_PAGE;
+
+            $tools = Tool::search(
+                term: $term,
+                categoryId: $categoryId,
+                zip: $zip,
+                maxFee: $maxFee,
+                limit: self::PER_PAGE,
+                offset: $offset,
+                radius: $radius,
+            );
 
             if ($tools !== []) {
                 $toolIds     = array_column($tools, 'id_tol');
@@ -93,6 +99,7 @@ class ToolController extends BaseController
                 }
                 unset($t);
             }
+
             if ($term !== '') {
                 try {
                     SearchLog::insert(
@@ -113,9 +120,8 @@ class ToolController extends BaseController
             $browseCounts = [];
         }
 
-        $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
+        $totalPages ??= (int) ceil($totalCount / self::PER_PAGE) ?: 1;
 
-        // Clamp page to valid range
         if ($page > $totalPages) {
             $page = $totalPages;
         }

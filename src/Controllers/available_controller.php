@@ -53,21 +53,8 @@ class AvailableController extends BaseController
         }
 
         $excludeOwnerId = !empty($_SESSION['logged_in']) ? (int) $_SESSION['user_id'] : null;
-        $offset = ($page - 1) * self::PER_PAGE;
 
         try {
-            $tools = Tool::search(
-                term: $term,
-                categoryId: $categoryId,
-                zip: $zip,
-                maxFee: $maxFee,
-                limit: self::PER_PAGE,
-                offset: $offset,
-                radius: $radius,
-                excludeOwnerId: $excludeOwnerId,
-                excludeLentOut: true,
-            );
-
             $totalCount = Tool::searchCount(
                 term: $term,
                 categoryId: $categoryId,
@@ -80,6 +67,26 @@ class AvailableController extends BaseController
 
             $categories   = Tool::getCategories();
             $browseCounts = Tool::getBrowseableCountsByCategory($excludeOwnerId);
+
+            $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
+
+            if ($page > $totalPages) {
+                $page = $totalPages;
+            }
+
+            $offset = ($page - 1) * self::PER_PAGE;
+
+            $tools = Tool::search(
+                term: $term,
+                categoryId: $categoryId,
+                zip: $zip,
+                maxFee: $maxFee,
+                limit: self::PER_PAGE,
+                offset: $offset,
+                radius: $radius,
+                excludeOwnerId: $excludeOwnerId,
+                excludeLentOut: true,
+            );
 
             if ($tools !== []) {
                 $toolIds      = array_column($tools, 'id_tol');
@@ -113,7 +120,7 @@ class AvailableController extends BaseController
             $browseCounts = [];
         }
 
-        $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
+        $totalPages ??= (int) ceil($totalCount / self::PER_PAGE) ?: 1;
 
         if ($page > $totalPages) {
             $page = $totalPages;

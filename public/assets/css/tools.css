@@ -554,14 +554,65 @@
         grid-template-columns: 1fr;
       }
 
-      &>figure {
-        &>img {
-          border: 1px solid var(--mountain-fog);
-          border-radius: 0.75rem;
-          display: block;
-          height: auto;
-          object-fit: cover;
-          width: 100%;
+      & #tool-gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 0;
+
+        & #gallery-main {
+
+          & > a {
+            cursor: zoom-in;
+            display: block;
+          }
+
+          & img {
+            border: 1px solid var(--mountain-fog);
+            border-radius: 0.75rem;
+            display: block;
+            height: auto;
+            object-fit: cover;
+            width: 100%;
+          }
+
+          & figcaption {
+            color: var(--mountain-mist);
+            font-size: 0.813rem;
+            margin-top: 0.375rem;
+          }
+        }
+
+        & #gallery-thumbs {
+          display: grid;
+          gap: 0.5rem;
+          grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+
+          & button {
+            aspect-ratio: 3 / 2;
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            overflow: hidden;
+            padding: 0;
+            transition: border-color 0.2s;
+
+            &[aria-current="true"] {
+              border-color: var(--mountain-pine);
+            }
+
+            &:is(:hover, :focus-visible) {
+              border-color: var(--mountain-gold);
+            }
+
+            & img {
+              display: block;
+              height: 100%;
+              object-fit: cover;
+              width: 100%;
+            }
+          }
         }
       }
 
@@ -634,6 +685,76 @@
 
         &>form>button>i.fa-bookmark {
           color: var(--mountain-gold);
+        }
+      }
+
+      & #gallery-lightbox {
+        background: transparent;
+        border: none;
+        max-height: 90vh;
+        max-width: 90vw;
+        padding: 0;
+
+        &::backdrop {
+          backdrop-filter: blur(4px);
+          background: rgba(0, 0, 0, 0.85);
+        }
+
+        & > div {
+          align-items: center;
+          display: flex;
+          justify-content: center;
+          position: relative;
+        }
+
+        & #lightbox-img {
+          border-radius: 0.5rem;
+          display: block;
+          max-height: 85vh;
+          max-width: 85vw;
+          object-fit: contain;
+        }
+
+        & button {
+          align-items: center;
+          background: rgba(0, 0, 0, 0.6);
+          border: none;
+          border-radius: 50%;
+          color: #fff;
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 1.25rem;
+          height: 2.75rem;
+          justify-content: center;
+          position: absolute;
+          transition: background-color 0.2s;
+          width: 2.75rem;
+
+          &:is(:hover, :focus-visible) {
+            background: rgba(0, 0, 0, 0.85);
+          }
+
+          &:focus-visible {
+            outline: 2px solid var(--mountain-gold);
+            outline-offset: 2px;
+          }
+        }
+
+        & #lightbox-close {
+          right: -1rem;
+          top: -1rem;
+        }
+
+        & #lightbox-prev {
+          left: -3.5rem;
+          top: 50%;
+          translate: 0 -50%;
+        }
+
+        & #lightbox-next {
+          right: -3.5rem;
+          top: 50%;
+          translate: 0 -50%;
         }
       }
     }
@@ -1055,6 +1176,29 @@
           font-size: 0.813rem;
           margin: 0.25rem 0 0;
         }
+
+        & #photo-preview-list:not([hidden]) {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin-top: 0.75rem;
+          padding: 0;
+
+          & > li {
+            border: 1px solid var(--mountain-fog);
+            border-radius: 0.5rem;
+            list-style: none;
+            overflow: hidden;
+            width: 100px;
+
+            & img {
+              aspect-ratio: 3 / 2;
+              display: block;
+              object-fit: cover;
+              width: 100%;
+            }
+          }
+        }
       }
     }
 
@@ -1065,22 +1209,94 @@
 
   main>section[aria-labelledby="edit-tool-heading"] {
 
-    & figure {
-      margin: 0.5rem 0 1rem;
+    & #gallery-manager {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      margin-bottom: 1rem;
 
-      &>img {
-        border: 1px solid var(--mountain-fog);
-        border-radius: 0.5rem;
-        display: block;
-        height: auto;
-        max-width: 200px;
-        object-fit: cover;
-      }
+      & > li {
+        background: var(--mountain-cream);
+        border: 1.5px solid var(--mountain-fog);
+        border-radius: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        overflow: hidden;
+        padding-bottom: 0.75rem;
+        position: relative;
+        transition: border-color 0.2s, box-shadow 0.2s;
 
-      &>figcaption {
-        color: var(--mountain-mist);
-        font-size: 0.813rem;
-        margin-top: 0.375rem;
+        &:is(:hover, :focus-within) {
+          border-color: var(--mountain-pine-light);
+        }
+
+        &[data-dragging] {
+          opacity: 0.4;
+        }
+
+        &[data-drag-over] {
+          border-color: var(--mountain-gold);
+          box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.2);
+        }
+
+        & > img {
+          aspect-ratio: 3 / 2;
+          display: block;
+          object-fit: cover;
+          width: 100%;
+        }
+
+        & > div {
+          padding: 0 0.75rem;
+        }
+
+        & input[type="text"] {
+          background: #fff;
+          border: 1px solid var(--mountain-fog);
+          border-radius: 0.375rem;
+          color: var(--mountain-charcoal);
+          font-size: 0.813rem;
+          padding: 0.375rem 0.5rem;
+          width: 100%;
+
+          &:focus {
+            border-color: var(--mountain-pine-light);
+            box-shadow: 0 0 0 2px rgba(58, 106, 85, 0.12);
+            outline: none;
+          }
+        }
+
+        & input[type="radio"] {
+          accent-color: var(--mountain-pine);
+        }
+
+        & label:has(> .fa-star) {
+          color: var(--mountain-gold);
+          font-weight: 600;
+        }
+
+        & [data-delete-form] {
+          padding: 0 0.75rem;
+
+          & button {
+            font-size: 0.813rem;
+            width: 100%;
+          }
+        }
+
+        & [data-drag-handle] {
+          color: var(--mountain-stone);
+          cursor: grab;
+          font-size: 1.125rem;
+          position: absolute;
+          right: 0.5rem;
+          top: 0.5rem;
+
+          &:active {
+            cursor: grabbing;
+          }
+        }
       }
     }
 
@@ -1283,6 +1499,21 @@
       }
     }
 
+    main>section[aria-labelledby="tool-detail-heading"] article>header {
+
+      & #gallery-thumbs button {
+        border-width: 3px;
+      }
+
+      & #gallery-lightbox button {
+        border: 2px solid rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    main>section[aria-labelledby="edit-tool-heading"] #gallery-manager > li {
+      border-width: 2px;
+    }
+
   }
 
   /* ── Reduced motion ── */
@@ -1311,6 +1542,21 @@
       & :is(input, select, textarea, button) {
         transition: none;
       }
+    }
+
+    main>section[aria-labelledby="tool-detail-heading"] article>header {
+
+      & #gallery-thumbs button {
+        transition: none;
+      }
+
+      & #gallery-lightbox button {
+        transition: none;
+      }
+    }
+
+    main>section[aria-labelledby="edit-tool-heading"] #gallery-manager > li {
+      transition: none;
     }
 
   }
@@ -1347,6 +1593,41 @@
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) form>button[type="submit"] {
       align-self: stretch;
       width: 100%;
+    }
+
+    main>section[aria-labelledby="tool-detail-heading"] article>header #gallery-lightbox {
+
+      & #lightbox-prev,
+      & #lightbox-next {
+        position: fixed;
+      }
+
+      & #lightbox-prev {
+        left: 0.5rem;
+      }
+
+      & #lightbox-next {
+        right: 0.5rem;
+      }
+
+      & #lightbox-close {
+        position: fixed;
+        right: 0.75rem;
+        top: 0.75rem;
+      }
+
+      & #lightbox-img {
+        max-height: 80vh;
+        max-width: 95vw;
+      }
+    }
+
+    main>section[aria-labelledby="tool-detail-heading"] article>header #gallery-thumbs {
+      grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    }
+
+    main>section[aria-labelledby="edit-tool-heading"] #gallery-manager {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
   }
 

@@ -214,22 +214,7 @@ class Deposit
                    sdp.id_bor_sdp,
                    bst.status_name_bst AS borrow_status,
                    b.due_at_bor,
-                   CASE
-                       WHEN dps.status_name_dps = 'released' THEN 'RELEASED'
-                       WHEN dps.status_name_dps = 'forfeited' THEN 'FORFEITED'
-                       WHEN dps.status_name_dps = 'pending' THEN 'PAYMENT PENDING'
-                       WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
-                                            WHERE status_name_bst = 'returned')
-                            THEN 'READY FOR RELEASE'
-                       WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
-                                            WHERE status_name_bst = 'borrowed')
-                            AND b.due_at_bor < NOW()
-                            THEN 'OVERDUE - REVIEW NEEDED'
-                       WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
-                                            WHERE status_name_bst = 'borrowed')
-                            THEN 'ACTIVE BORROW'
-                       ELSE 'REVIEW NEEDED'
-                   END AS action_required,
+                   " . self::actionRequiredCase() . " AS action_required,
                    t.id_tol,
                    t.tool_name_tol,
                    t.estimated_value_tol,
@@ -515,5 +500,37 @@ class Deposit
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Return the CASE expression for the action_required column.
+     *
+     * The held-status branches use correlated subqueries for borrow status
+     * lookups. For single-row queries (findDetailById) the cost is negligible.
+     * For paginated lists (getAdminList) and especially when the action filter
+     * is active (CASE evaluates twice per row in SELECT and WHERE), the cost
+     * scales with row count — acceptable for expected admin deposit volume.
+     *
+     * @return string  Raw SQL CASE expression (no trailing comma or alias)
+     */
+    private static function actionRequiredCase(): string
+    {
+        return "CASE
+                    WHEN dps.status_name_dps = 'released' THEN 'RELEASED'
+                    WHEN dps.status_name_dps = 'forfeited' THEN 'FORFEITED'
+                    WHEN dps.status_name_dps = 'partial_release' THEN 'PARTIAL RELEASE'
+                    WHEN dps.status_name_dps = 'pending' THEN 'PAYMENT PENDING'
+                    WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                         WHERE status_name_bst = 'returned')
+                         THEN 'READY FOR RELEASE'
+                    WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                         WHERE status_name_bst = 'borrowed')
+                         AND b.due_at_bor < NOW()
+                         THEN 'OVERDUE - REVIEW NEEDED'
+                    WHEN b.id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                         WHERE status_name_bst = 'borrowed')
+                         THEN 'ACTIVE BORROW'
+                    ELSE 'REVIEW NEEDED'
+                END";
     }
 }

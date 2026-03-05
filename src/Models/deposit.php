@@ -203,10 +203,7 @@ class Deposit
                    ppv.provider_name_ppv AS payment_provider,
                    sdp.external_payment_id_sdp,
                    sdp.held_at_sdp,
-                   CASE WHEN sdp.held_at_sdp IS NOT NULL
-                        THEN TIMESTAMPDIFF(DAY, sdp.held_at_sdp, NOW())
-                        ELSE NULL
-                   END AS days_held,
+                   " . self::daysHeldCase() . " AS days_held,
                    sdp.released_at_sdp,
                    sdp.forfeited_at_sdp,
                    sdp.forfeited_amount_sdp,
@@ -531,6 +528,24 @@ class Deposit
                                          WHERE status_name_bst = 'borrowed')
                          THEN 'ACTIVE BORROW'
                     ELSE 'REVIEW NEEDED'
+                END";
+    }
+
+    /**
+     * Return the CASE expression for the days_held column.
+     *
+     * Pending deposits return NULL (never held). Released deposits freeze at
+     * held_at → released_at. Forfeited/partial_release freeze at held_at →
+     * forfeited_at. Held deposits show a live count from held_at → NOW().
+     *
+     * @return string  Raw SQL CASE expression (no trailing comma or alias)
+     */
+    private static function daysHeldCase(): string
+    {
+        return "CASE WHEN dps.status_name_dps = 'pending' THEN NULL
+                    WHEN sdp.held_at_sdp IS NULL THEN NULL
+                    ELSE TIMESTAMPDIFF(DAY, sdp.held_at_sdp,
+                         COALESCE(sdp.released_at_sdp, sdp.forfeited_at_sdp, NOW()))
                 END";
     }
 }

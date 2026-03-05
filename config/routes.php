@@ -161,6 +161,7 @@ return [
     'GET /admin/disputes'          => [DisputeController::class, 'index'],
     'GET /admin/events'            => [AdminController::class, 'events'],
     'GET /admin/incidents'         => [AdminController::class, 'incidents'],
+    'GET /admin/deposits'          => [AdminController::class, 'deposits'],
     'GET /admin/reports'           => [AdminController::class, 'reports'],
     'GET /admin/audit-log'         => [AdminController::class, 'auditLog'],
     'GET /admin/tos/create'        => [AdminController::class, 'showCreateTos'],

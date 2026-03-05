@@ -617,4 +617,77 @@ class Deposit
 
         return ['where' => $where, 'params' => $params];
     }
+
+    /**
+     * Fetch a paginated, filtered, sorted list of deposits for the admin view.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getAdminList(
+        int $limit,
+        int $offset,
+        string $sort = 'created_at_sdp',
+        string $dir = 'DESC',
+        ?string $status = null,
+        ?string $action = null,
+        ?string $search = null,
+        bool $incidentsOnly = false,
+    ): array {
+        $validSortFields = [
+            'amount_sdp', 'deposit_status', 'created_at_sdp',
+            'days_held', 'tool_name_tol', 'borrower_name', 'lender_name',
+        ];
+
+        $sortCol = in_array($sort, $validSortFields, true) ? $sort : 'created_at_sdp';
+        $dir     = in_array($dir, ['ASC', 'DESC'], true) ? $dir : 'DESC';
+
+        $orderExpr = match ($sortCol) {
+            'amount_sdp'     => 'sdp.amount_sdp',
+            'deposit_status' => 'dps.status_name_dps',
+            'created_at_sdp' => 'sdp.created_at_sdp',
+            'days_held'      => 'days_held',
+            'tool_name_tol'  => 't.tool_name_tol',
+            'borrower_name'  => "CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc)",
+            'lender_name'    => "CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)",
+        };
+
+        $filter = self::buildAdminWhere($status, $action, $search, $incidentsOnly);
+
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare("
+            SELECT sdp.id_sdp,
+                   sdp.amount_sdp,
+                   dps.status_name_dps AS deposit_status,
+                   ppv.provider_name_ppv AS payment_provider,
+                   sdp.held_at_sdp,
+                   sdp.released_at_sdp,
+                   sdp.forfeited_at_sdp,
+                   sdp.forfeited_amount_sdp,
+                   sdp.created_at_sdp,
+                   " . self::daysHeldCase() . " AS days_held,
+                   " . self::actionRequiredCase() . " AS action_required,
+                   t.id_tol,
+                   t.tool_name_tol,
+                   sdp.id_bor_sdp,
+                   bst.status_name_bst AS borrow_status,
+                   borrower.id_acc AS borrower_id,
+                   CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                   lender.id_acc AS lender_id,
+                   CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+                   COALESCE(incident_stats.incident_count, 0) AS incident_count
+            " . self::adminBaseFrom() . "
+            {$filter['where']}
+            ORDER BY {$orderExpr} {$dir}
+            LIMIT :limit OFFSET :offset
+        ");
+
+        foreach ($filter['params'] as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

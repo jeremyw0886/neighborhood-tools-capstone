@@ -424,9 +424,8 @@ class ToolController extends BaseController
     /**
      * Handle tool edit form submission.
      *
-     * Validates ownership, input, and optional image upload, then persists
-     * changes via Tool::update(). On success, cleans up the old image file
-     * if a replacement was uploaded and redirects to the tool detail page.
+     * Validates ownership and input, then persists field changes via
+     * Tool::update(). Image management is handled by dedicated AJAX endpoints.
      */
     public function update(string $id): void
     {
@@ -439,7 +438,6 @@ class ToolController extends BaseController
             $this->abort(404);
         }
 
-        // Fetch tool for ownership check (also captures old image filename)
         $tool = null;
 
         try {
@@ -467,15 +465,6 @@ class ToolController extends BaseController
 
         $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration, $usesFuel, $fuelType);
 
-        $imageFilename = null;
-        $hasImage = isset($_FILES['tool_image'])
-            && $_FILES['tool_image']['error'] !== UPLOAD_ERR_NO_FILE;
-
-        if ($hasImage) {
-            $imageErrors = $this->validateToolImage($_FILES['tool_image']);
-            $errors = array_merge($errors, $imageErrors);
-        }
-
         $oldInput = [
             'tool_name'     => $toolName,
             'description'   => $description,
@@ -493,41 +482,21 @@ class ToolController extends BaseController
             $this->redirect('/tools/' . $toolId . '/edit');
         }
 
-        if ($hasImage) {
-            $imageFilename = $this->moveToolImage($_FILES['tool_image']);
-
-            if ($imageFilename === null) {
-                $_SESSION['edit_tool_errors'] = ['tool_image' => 'Failed to save the uploaded image. Please try again.'];
-                $_SESSION['edit_tool_old'] = $oldInput;
-                $this->redirect('/tools/' . $toolId . '/edit');
-            }
-        }
-
         try {
             Tool::update($toolId, [
-                'tool_name'      => $toolName,
-                'description'    => $description !== '' ? $description : null,
-                'rental_fee'     => (float) $rentalFee,
-                'condition'      => $condition,
-                'loan_duration'  => $loanDuration !== '' ? (int) $loanDuration : null,
-                'fuel_type'      => $usesFuel && $fuelType !== '' ? $fuelType : null,
-                'category_id'    => $categoryId,
-                'image_filename' => $imageFilename,
+                'tool_name'     => $toolName,
+                'description'   => $description !== '' ? $description : null,
+                'rental_fee'    => (float) $rentalFee,
+                'condition'     => $condition,
+                'loan_duration' => $loanDuration !== '' ? (int) $loanDuration : null,
+                'fuel_type'     => $usesFuel && $fuelType !== '' ? $fuelType : null,
+                'category_id'   => $categoryId,
             ]);
-
-            if ($imageFilename !== null && !empty($tool['primary_image'])) {
-                $this->deleteToolImageFiles($tool['primary_image']);
-            }
 
             $_SESSION['tool_saved'] = true;
             $this->redirect('/tools/' . $toolId);
         } catch (\Throwable $e) {
             error_log('ToolController::update — ' . $e->getMessage());
-
-            if ($imageFilename !== null) {
-                $this->deleteToolImageFiles($imageFilename);
-            }
-
             $_SESSION['edit_tool_errors'] = ['general' => 'Something went wrong updating your listing. Please try again.'];
             $_SESSION['edit_tool_old'] = $oldInput;
             $this->redirect('/tools/' . $toolId . '/edit');
@@ -708,13 +677,20 @@ class ToolController extends BaseController
 
         $errors = $this->validateToolListing($toolName, $categoryId, $rentalFee, $condition, $loanDuration, $usesFuel, $fuelType);
 
-        $imageFilename = null;
-        $hasImage = isset($_FILES['tool_image'])
-            && $_FILES['tool_image']['error'] !== UPLOAD_ERR_NO_FILE;
+        $uploadedFiles = $this->normalizeFileArray($_FILES['photos'] ?? []);
+        $uploadedFiles = array_filter($uploadedFiles, static fn(array $f): bool => $f['error'] !== UPLOAD_ERR_NO_FILE);
 
-        if ($hasImage) {
-            $imageErrors = $this->validateToolImage($_FILES['tool_image']);
-            $errors = array_merge($errors, $imageErrors);
+        if (count($uploadedFiles) > self::MAX_IMAGES) {
+            $errors['photos'] = 'You may upload up to ' . self::MAX_IMAGES . ' photos.';
+        }
+
+        foreach ($uploadedFiles as $i => $file) {
+            $fileErrors = $this->validateToolImage($file);
+
+            if ($fileErrors !== []) {
+                $errors['photos'] = $errors['photos'] ?? reset($fileErrors);
+                break;
+            }
         }
 
         $oldInput = [
@@ -734,27 +710,35 @@ class ToolController extends BaseController
             $this->redirect('/tools/create');
         }
 
-        if ($hasImage) {
-            $imageFilename = $this->moveToolImage($_FILES['tool_image']);
+        $imageFilenames = [];
 
-            if ($imageFilename === null) {
-                $_SESSION['tool_errors'] = ['tool_image' => 'Failed to save the uploaded image. Please try again.'];
+        foreach ($uploadedFiles as $file) {
+            $filename = $this->moveToolImage($file);
+
+            if ($filename === null) {
+                foreach ($imageFilenames as $saved) {
+                    $this->deleteToolImageFiles($saved['filename']);
+                }
+
+                $_SESSION['tool_errors'] = ['photos' => 'Failed to save an uploaded image. Please try again.'];
                 $_SESSION['tool_old'] = $oldInput;
                 $this->redirect('/tools/create');
             }
+
+            $imageFilenames[] = ['filename' => $filename, 'alt_text' => null];
         }
 
         try {
             $toolId = Tool::create([
-                'tool_name'      => $toolName,
-                'description'    => $description !== '' ? $description : null,
-                'rental_fee'     => (float) $rentalFee,
-                'owner_id'       => $userId,
-                'category_id'    => $categoryId,
-                'condition'      => $condition,
-                'loan_duration'  => $loanDuration !== '' ? (int) $loanDuration : null,
-                'fuel_type'      => $usesFuel && $fuelType !== '' ? $fuelType : null,
-                'image_filename' => $imageFilename,
+                'tool_name'       => $toolName,
+                'description'     => $description !== '' ? $description : null,
+                'rental_fee'      => (float) $rentalFee,
+                'owner_id'        => $userId,
+                'category_id'     => $categoryId,
+                'condition'       => $condition,
+                'loan_duration'   => $loanDuration !== '' ? (int) $loanDuration : null,
+                'fuel_type'       => $usesFuel && $fuelType !== '' ? $fuelType : null,
+                'image_filenames' => $imageFilenames,
             ]);
 
             $_SESSION['tool_saved'] = true;
@@ -762,14 +746,44 @@ class ToolController extends BaseController
         } catch (\Throwable $e) {
             error_log('ToolController::store — ' . $e->getMessage());
 
-            if ($imageFilename !== null) {
-                $this->deleteToolImageFiles($imageFilename);
+            foreach ($imageFilenames as $saved) {
+                $this->deleteToolImageFiles($saved['filename']);
             }
 
             $_SESSION['tool_errors'] = ['general' => 'Something went wrong creating your listing. Please try again.'];
             $_SESSION['tool_old'] = $oldInput;
             $this->redirect('/tools/create');
         }
+    }
+
+    /**
+     * Normalize a multi-file $_FILES array into an array of per-file arrays.
+     *
+     * PHP stores multi-uploads as ['name' => [...], 'tmp_name' => [...], ...]
+     * This converts to [['name' => ..., 'tmp_name' => ..., ...], ...].
+     *
+     * @param  array $files  The $_FILES entry for a multi-file input
+     * @return array<int, array{name: string, type: string, tmp_name: string, error: int, size: int}>
+     */
+    private function normalizeFileArray(array $files): array
+    {
+        if (!isset($files['name']) || !is_array($files['name'])) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($files['name'] as $i => $name) {
+            $normalized[] = [
+                'name'     => $name,
+                'type'     => $files['type'][$i],
+                'tmp_name' => $files['tmp_name'][$i],
+                'error'    => $files['error'][$i],
+                'size'     => $files['size'][$i],
+            ];
+        }
+
+        return $normalized;
     }
 
     /**
@@ -1154,5 +1168,283 @@ class ToolController extends BaseController
         }
 
         $this->redirect('/tools/' . $toolId . '/availability');
+    }
+
+    private const int MAX_IMAGES = 6;
+
+    /**
+     * Upload a new image for a tool (AJAX).
+     */
+    public function uploadImage(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->jsonResponse(404, ['error' => 'Tool not found']);
+        }
+
+        $tool = $this->findOwnedTool($toolId);
+
+        if ($tool === null) {
+            $this->jsonResponse(403, ['error' => 'Unauthorized']);
+        }
+
+        try {
+            $count = Tool::getImageCount($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::uploadImage count — ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'Server error']);
+        }
+
+        if ($count >= self::MAX_IMAGES) {
+            $this->jsonResponse(422, ['error' => 'Maximum of ' . self::MAX_IMAGES . ' images allowed']);
+        }
+
+        $hasFile = isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE;
+
+        if (!$hasFile) {
+            $this->jsonResponse(422, ['error' => 'No image file provided']);
+        }
+
+        $errors = $this->validateToolImage($_FILES['photo']);
+
+        if ($errors !== []) {
+            $this->jsonResponse(422, ['error' => reset($errors)]);
+        }
+
+        $filename = $this->moveToolImage($_FILES['photo']);
+
+        if ($filename === null) {
+            $this->jsonResponse(500, ['error' => 'Failed to save image']);
+        }
+
+        $altText   = isset($_POST['alt_text']) ? mb_substr(trim($_POST['alt_text']), 0, 255) : null;
+        $altText   = $altText !== '' ? $altText : null;
+        $isPrimary = $count === 0;
+        $sortOrder = $count + 1;
+
+        try {
+            $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder);
+
+            $this->jsonResponse(200, [
+                'id'         => $imageId,
+                'filename'   => $filename,
+                'alt_text'   => $altText,
+                'sort_order' => $sortOrder,
+                'is_primary' => $isPrimary,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('ToolController::uploadImage — ' . $e->getMessage());
+            $this->deleteToolImageFiles($filename);
+            $this->jsonResponse(500, ['error' => 'Failed to save image record']);
+        }
+    }
+
+    /**
+     * Delete a tool image (AJAX or form POST with _method=DELETE).
+     */
+    public function deleteImage(string $id, string $img): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId  = (int) $id;
+        $imageId = (int) $img;
+
+        if ($toolId < 1 || $imageId < 1) {
+            $this->jsonResponse(404, ['error' => 'Not found']);
+        }
+
+        $tool = $this->findOwnedTool($toolId);
+
+        if ($tool === null) {
+            $this->jsonResponse(403, ['error' => 'Unauthorized']);
+        }
+
+        if (!$this->imageBelongsToTool($imageId, $toolId)) {
+            $this->jsonResponse(404, ['error' => 'Image not found']);
+        }
+
+        try {
+            $filename = Tool::deleteImage($imageId);
+
+            if ($filename !== null) {
+                $this->deleteToolImageFiles($filename);
+            }
+
+            $newPrimary = null;
+            $images = Tool::getImages($toolId);
+
+            foreach ($images as $image) {
+                if ($image['is_primary_tim']) {
+                    $newPrimary = (int) $image['id_tim'];
+                    break;
+                }
+            }
+
+            $this->jsonResponse(200, [
+                'deleted'        => true,
+                'new_primary_id' => $newPrimary,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('ToolController::deleteImage — ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'Failed to delete image']);
+        }
+    }
+
+    /**
+     * Reorder tool images via drag-drop (AJAX, JSON body).
+     */
+    public function reorderImages(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId = (int) $id;
+
+        if ($toolId < 1) {
+            $this->jsonResponse(404, ['error' => 'Tool not found']);
+        }
+
+        $tool = $this->findOwnedTool($toolId);
+
+        if ($tool === null) {
+            $this->jsonResponse(403, ['error' => 'Unauthorized']);
+        }
+
+        $body = $this->getJsonBody();
+        $order = $body['order'] ?? [];
+
+        if (!is_array($order) || $order === []) {
+            $this->jsonResponse(422, ['error' => 'Order array is required']);
+        }
+
+        $existingImages = Tool::getImages($toolId);
+        $existingIds = array_map(static fn(array $img): int => (int) $img['id_tim'], $existingImages);
+
+        $orderedIds = array_map('intval', $order);
+
+        if (count($orderedIds) !== count($existingIds)
+            || array_diff($orderedIds, $existingIds) !== []
+        ) {
+            $this->jsonResponse(422, ['error' => 'Order must contain all image IDs for this tool']);
+        }
+
+        try {
+            Tool::reorderImages($toolId, $orderedIds);
+            $this->jsonResponse(200, ['success' => true]);
+        } catch (\Throwable $e) {
+            error_log('ToolController::reorderImages — ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'Failed to reorder images']);
+        }
+    }
+
+    /**
+     * Set a tool image as the primary (AJAX).
+     */
+    public function setPrimary(string $id, string $img): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId  = (int) $id;
+        $imageId = (int) $img;
+
+        if ($toolId < 1 || $imageId < 1) {
+            $this->jsonResponse(404, ['error' => 'Not found']);
+        }
+
+        $tool = $this->findOwnedTool($toolId);
+
+        if ($tool === null) {
+            $this->jsonResponse(403, ['error' => 'Unauthorized']);
+        }
+
+        if (!$this->imageBelongsToTool($imageId, $toolId)) {
+            $this->jsonResponse(404, ['error' => 'Image not found']);
+        }
+
+        try {
+            Tool::setPrimaryImage($toolId, $imageId);
+            $this->jsonResponse(200, ['success' => true]);
+        } catch (\Throwable $e) {
+            error_log('ToolController::setPrimary — ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'Failed to set primary image']);
+        }
+    }
+
+    /**
+     * Update alt text for a tool image (AJAX, JSON body).
+     */
+    public function updateImage(string $id, string $img): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $toolId  = (int) $id;
+        $imageId = (int) $img;
+
+        if ($toolId < 1 || $imageId < 1) {
+            $this->jsonResponse(404, ['error' => 'Not found']);
+        }
+
+        $tool = $this->findOwnedTool($toolId);
+
+        if ($tool === null) {
+            $this->jsonResponse(403, ['error' => 'Unauthorized']);
+        }
+
+        if (!$this->imageBelongsToTool($imageId, $toolId)) {
+            $this->jsonResponse(404, ['error' => 'Image not found']);
+        }
+
+        $body    = $this->getJsonBody();
+        $altText = mb_substr(trim($body['alt_text'] ?? ''), 0, 255);
+
+        try {
+            Tool::updateImageAltText($imageId, $altText);
+            $this->jsonResponse(200, ['success' => true]);
+        } catch (\Throwable $e) {
+            error_log('ToolController::updateImage — ' . $e->getMessage());
+            $this->jsonResponse(500, ['error' => 'Failed to update image']);
+        }
+    }
+
+    /**
+     * Fetch a tool and verify ownership by the current user.
+     *
+     * @return ?array Tool data, or null if not found / not owned
+     */
+    private function findOwnedTool(int $toolId): ?array
+    {
+        try {
+            $tool = Tool::findById($toolId);
+        } catch (\Throwable $e) {
+            error_log('ToolController::findOwnedTool — ' . $e->getMessage());
+            return null;
+        }
+
+        if ($tool === null) {
+            return null;
+        }
+
+        if ((int) $tool['owner_id'] !== (int) $_SESSION['user_id']) {
+            return null;
+        }
+
+        return $tool;
+    }
+
+    /**
+     * Verify an image belongs to a specific tool.
+     */
+    private function imageBelongsToTool(int $imageId, int $toolId): bool
+    {
+        $images = Tool::getImages($toolId);
+
+        return array_any($images, static fn(array $img): bool => (int) $img['id_tim'] === $imageId);
     }
 }

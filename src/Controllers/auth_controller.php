@@ -28,6 +28,7 @@ class AuthController extends BaseController
         $this->render('auth/login', [
             'title'            => 'Log In — NeighborhoodTools',
             'description'      => 'Log in to your NeighborhoodTools account to borrow and lend tools in your community.',
+            'pageJs'           => $turnstileSiteKey !== '' ? ['turnstile.js'] : [],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'error'            => $_SESSION['auth_error'] ?? null,
@@ -131,7 +132,7 @@ class AuthController extends BaseController
         $this->render('auth/register', [
             'title'            => 'Sign Up — NeighborhoodTools',
             'description'      => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
-            'pageJs'           => ['auth.js'],
+            'pageJs'           => ['auth.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'errors'           => $_SESSION['register_errors'] ?? [],

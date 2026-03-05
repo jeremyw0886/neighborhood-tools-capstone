@@ -160,6 +160,7 @@ class ProfileController extends BaseController
             'title'            => 'Edit Profile — NeighborhoodTools',
             'description'      => 'Edit your NeighborhoodTools profile.',
             'pageCss'          => ['dashboard.css'],
+            'pageJs'           => $turnstileSiteKey !== '' ? ['turnstile.js'] : [],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'profile'          => $profile,

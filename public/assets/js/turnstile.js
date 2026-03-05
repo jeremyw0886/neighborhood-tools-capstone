@@ -1,0 +1,33 @@
+'use strict';
+
+(function () {
+  const widget = document.querySelector('.cf-turnstile');
+  if (!widget) return;
+
+  const form = widget.closest('form');
+  if (!form) return;
+
+  const submit = form.querySelector('[type="submit"]');
+  if (!submit) return;
+
+  const existing = form.querySelector('[name="cf-turnstile-response"]');
+  if (existing && existing.value) return;
+
+  submit.disabled = true;
+  submit.setAttribute('aria-busy', 'true');
+
+  window.onTurnstileVerify = function () {
+    submit.disabled = false;
+    submit.removeAttribute('aria-busy');
+  };
+
+  window.onTurnstileExpire = function () {
+    submit.disabled = true;
+    submit.setAttribute('aria-busy', 'true');
+  };
+
+  window.onTurnstileError = function () {
+    submit.disabled = false;
+    submit.removeAttribute('aria-busy');
+  };
+})();

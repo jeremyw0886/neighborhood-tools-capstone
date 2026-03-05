@@ -274,6 +274,7 @@ class ToolController extends BaseController
         $this->render('tools/show', [
             'title'            => $tool['tool_name_tol'] . ' — NeighborhoodTools',
             'pageCss'          => ['tools.css'],
+            'pageJs'           => $turnstileSiteKey !== '' ? ['turnstile.js'] : [],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'tool'             => $tool,
@@ -315,7 +316,7 @@ class ToolController extends BaseController
         $this->render('tools/create', [
             'title'            => 'List a Tool — NeighborhoodTools',
             'pageCss'          => ['tools.css'],
-            'pageJs'           => ['tools.js'],
+            'pageJs'           => ['tools.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'categories'       => $categories,

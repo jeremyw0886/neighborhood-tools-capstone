@@ -240,7 +240,7 @@ if (!empty($profile['vector_avatar'])) {
     </button>
 
     <?php if (!empty($turnstileSiteKey)): ?>
-      <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="profile_update" data-appearance="interaction-only" data-theme="light"></div>
+      <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="profile_update" data-appearance="interaction-only" data-theme="light" data-callback="onTurnstileVerify" data-expired-callback="onTurnstileExpire" data-error-callback="onTurnstileError"></div>
     <?php endif; ?>
   </form>
 

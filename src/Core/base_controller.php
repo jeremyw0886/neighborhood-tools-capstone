@@ -334,6 +334,22 @@ class BaseController
     }
 
     /**
+     * Read and decode the JSON request body.
+     *
+     * @return array Decoded JSON payload
+     */
+    protected function getJsonBody(): array
+    {
+        $raw = file_get_contents('php://input');
+
+        if ($raw === '' || $raw === false || !json_validate($raw)) {
+            $this->jsonResponse(400, ['error' => 'Invalid JSON']);
+        }
+
+        return json_decode($raw, true);
+    }
+
+    /**
      * Check if the current request was made via XMLHttpRequest.
      */
     protected function isXhr(): bool

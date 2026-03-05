@@ -93,9 +93,17 @@ if ($isHttps) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 }
 
-// Get request method and URI
+// Get request method and URI — support _method override for HTML forms
 $method = $_SERVER['REQUEST_METHOD'];
-$uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+
+if ($method === 'POST' && !empty($_POST['_method'])) {
+    $override = strtoupper($_POST['_method']);
+    if (in_array($override, ['PUT', 'PATCH', 'DELETE'], true)) {
+        $method = $override;
+    }
+}
+
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 
 // Strip trailing slash (except root)
 if ($uri !== '/') {

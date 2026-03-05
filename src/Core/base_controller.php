@@ -207,7 +207,14 @@ class BaseController
             $this->redirect(is_string($path) && $path !== '' ? $path : '/');
         }
 
-        $posted  = $_POST['csrf_token'] ?? '';
+        $fromPost   = $_POST['csrf_token'] ?? '';
+        $fromHeader = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+
+        if ($fromPost !== '' && $fromHeader !== '' && !hash_equals($fromPost, $fromHeader)) {
+            $this->abort(403);
+        }
+
+        $posted  = $fromPost !== '' ? $fromPost : $fromHeader;
         $session = $_SESSION['csrf_token'] ?? '';
 
         if ($session === '' || !hash_equals($session, $posted)) {
@@ -333,6 +340,8 @@ class BaseController
     {
         http_response_code($statusCode);
         header('Content-Type: application/json');
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: no-store');
         echo json_encode($data);
         exit;
     }

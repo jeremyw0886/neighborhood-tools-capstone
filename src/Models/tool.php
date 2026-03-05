@@ -868,16 +868,12 @@ class Tool
     }
 
     /**
-     * Create a new tool listing with category assignment and optional image.
-     *
-     * Performs up to 3 INSERTs in a transaction:
-     *   1. tool_tol — the tool record (condition defaults to 'good')
-     *   2. tool_category_tolcat — junction row linking tool to its category
-     *   3. tool_image_tim — primary image row (only if an image was uploaded)
+     * Create a new tool listing with category assignment and optional images.
      *
      * @param  array{tool_name: string, description: ?string, rental_fee: float,
      *               owner_id: int, category_id: int, condition: string,
-     *               loan_duration: ?int, image_filename: ?string} $data
+     *               loan_duration: ?int,
+     *               image_filenames: array<array{filename: string, alt_text: ?string}>} $data
      * @return int  The new tool's primary key (id_tol)
      */
     public static function create(array $data): int
@@ -933,7 +929,6 @@ class Tool
 
             $toolId = (int) $pdo->lastInsertId();
 
-            // Category junction
             $stmt = $pdo->prepare("
                 INSERT INTO tool_category_tolcat (id_tol_tolcat, id_cat_tolcat)
                 VALUES (:tool, :category)
@@ -942,15 +937,25 @@ class Tool
             $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
             $stmt->execute();
 
-            // Primary image (optional)
-            if ($data['image_filename'] !== null) {
-                $stmt = $pdo->prepare("
-                    INSERT INTO tool_image_tim (id_tol_tim, file_name_tim, is_primary_tim)
-                    VALUES (:tool, :filename, TRUE)
+            $images = $data['image_filenames'] ?? [];
+
+            if ($images !== []) {
+                $imgStmt = $pdo->prepare("
+                    INSERT INTO tool_image_tim
+                        (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim)
+                    VALUES (:tool, :filename, :altText, :isPrimary, :sortOrder)
                 ");
-                $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-                $stmt->bindValue(':filename', $data['image_filename'], PDO::PARAM_STR);
-                $stmt->execute();
+
+                foreach ($images as $i => $img) {
+                    $altText = $img['alt_text'] ?? null;
+
+                    $imgStmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+                    $imgStmt->bindValue(':filename', $img['filename'], PDO::PARAM_STR);
+                    $imgStmt->bindValue(':altText', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+                    $imgStmt->bindValue(':isPrimary', $i === 0, PDO::PARAM_BOOL);
+                    $imgStmt->bindValue(':sortOrder', $i + 1, PDO::PARAM_INT);
+                    $imgStmt->execute();
+                }
             }
 
             $pdo->commit();
@@ -963,18 +968,13 @@ class Tool
     }
 
     /**
-     * Update an existing tool listing, its category, and optionally its image.
+     * Update an existing tool listing and its category.
      *
-     * Performs up to 4 statements in a transaction:
-     *   1. UPDATE tool_tol — name, description, fee, condition, loan duration
-     *   2. DELETE tool_category_tolcat — remove old category link
-     *   3. INSERT tool_category_tolcat — assign new category
-     *   4. (conditional) DELETE old + INSERT new tool_image_tim row
+     * Image management is handled by dedicated endpoints (addImage, deleteImage, etc.).
      *
      * @param  int   $toolId  Tool primary key
      * @param  array{tool_name: string, description: ?string, rental_fee: float,
-     *               condition: string, loan_duration: ?int,
-     *               category_id: int, image_filename: ?string} $data
+     *               condition: string, loan_duration: ?int, category_id: int} $data
      */
     public static function update(int $toolId, array $data): void
     {
@@ -1017,7 +1017,6 @@ class Tool
 
             $stmt->execute();
 
-            // 2–3. Replace category junction (delete + insert)
             $stmt = $pdo->prepare("
                 DELETE FROM tool_category_tolcat
                 WHERE id_tol_tolcat = :tool
@@ -1032,24 +1031,6 @@ class Tool
             $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
             $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
             $stmt->execute();
-
-            // 4. Replace primary image (only if a new file was uploaded)
-            if ($data['image_filename'] !== null) {
-                $stmt = $pdo->prepare("
-                    DELETE FROM tool_image_tim
-                    WHERE id_tol_tim = :tool AND is_primary_tim = TRUE
-                ");
-                $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-                $stmt->execute();
-
-                $stmt = $pdo->prepare("
-                    INSERT INTO tool_image_tim (id_tol_tim, file_name_tim, is_primary_tim)
-                    VALUES (:tool, :filename, TRUE)
-                ");
-                $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-                $stmt->bindValue(':filename', $data['image_filename'], PDO::PARAM_STR);
-                $stmt->execute();
-            }
 
             $pdo->commit();
         } catch (\Throwable $e) {
@@ -1364,5 +1345,244 @@ class Tool
         $tool = $stmt->fetch();
 
         return $tool !== false ? $tool : null;
+    }
+
+    /**
+     * Fetch all images for a tool, ordered for gallery display.
+     *
+     * @param  int   $toolId  Tool primary key
+     * @return array
+     */
+    public static function getImages(int $toolId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT id_tim, id_tol_tim, file_name_tim, alt_text_tim,
+                   is_primary_tim, sort_order_tim, uploaded_at_tim
+            FROM tool_image_tim
+            WHERE id_tol_tim = :toolId
+            ORDER BY sort_order_tim ASC, id_tim ASC
+        ");
+
+        $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Add an image to a tool listing.
+     *
+     * @param  int     $toolId    Tool primary key
+     * @param  string  $filename  Stored filename
+     * @param  ?string $altText   Alt text for the image
+     * @param  bool    $isPrimary Whether this is the primary image
+     * @param  int     $sortOrder Display order position
+     * @return int     The new image row's primary key (id_tim)
+     */
+    public static function addImage(
+        int $toolId,
+        string $filename,
+        ?string $altText,
+        bool $isPrimary,
+        int $sortOrder,
+    ): int {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            if ($isPrimary) {
+                $stmt = $pdo->prepare("
+                    UPDATE tool_image_tim
+                    SET is_primary_tim = FALSE
+                    WHERE id_tol_tim = :toolId AND is_primary_tim = TRUE
+                ");
+                $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $stmt = $pdo->prepare("
+                INSERT INTO tool_image_tim
+                    (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim)
+                VALUES (:toolId, :filename, :altText, :isPrimary, :sortOrder)
+            ");
+            $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+            $stmt->bindValue(':filename', $filename, PDO::PARAM_STR);
+            $stmt->bindValue(':altText', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':isPrimary', $isPrimary, PDO::PARAM_BOOL);
+            $stmt->bindValue(':sortOrder', $sortOrder, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $imageId = (int) $pdo->lastInsertId();
+
+            $pdo->commit();
+
+            return $imageId;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Delete a tool image and promote the next image to primary if needed.
+     *
+     * @param  int     $imageId  Image primary key (id_tim)
+     * @return ?string Filename of the deleted image for disk cleanup, or null if not found
+     */
+    public static function deleteImage(int $imageId): ?string
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT id_tim, id_tol_tim, file_name_tim, is_primary_tim
+            FROM tool_image_tim
+            WHERE id_tim = :id
+        ");
+        $stmt->bindValue(':id', $imageId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $image = $stmt->fetch();
+
+        if ($image === false) {
+            return null;
+        }
+
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare("DELETE FROM tool_image_tim WHERE id_tim = :id");
+            $stmt->bindValue(':id', $imageId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($image['is_primary_tim']) {
+                $stmt = $pdo->prepare("
+                    UPDATE tool_image_tim
+                    SET is_primary_tim = TRUE
+                    WHERE id_tol_tim = :toolId
+                    ORDER BY sort_order_tim ASC, id_tim ASC
+                    LIMIT 1
+                ");
+                $stmt->bindValue(':toolId', $image['id_tol_tim'], PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $pdo->commit();
+
+            return $image['file_name_tim'];
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Reorder images for a tool by updating sort_order values.
+     *
+     * @param  int   $toolId     Tool primary key
+     * @param  int[] $orderedIds Ordered array of image IDs (position = sort order)
+     */
+    public static function reorderImages(int $toolId, array $orderedIds): void
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE tool_image_tim
+                SET sort_order_tim = :sortOrder
+                WHERE id_tim = :imageId AND id_tol_tim = :toolId
+            ");
+
+            foreach ($orderedIds as $position => $imageId) {
+                $stmt->bindValue(':sortOrder', $position + 1, PDO::PARAM_INT);
+                $stmt->bindValue(':imageId', $imageId, PDO::PARAM_INT);
+                $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Set a specific image as the primary for a tool.
+     *
+     * @param  int $toolId   Tool primary key
+     * @param  int $imageId  Image primary key (id_tim)
+     */
+    public static function setPrimaryImage(int $toolId, int $imageId): void
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE tool_image_tim
+                SET is_primary_tim = FALSE
+                WHERE id_tol_tim = :toolId AND is_primary_tim = TRUE
+            ");
+            $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $stmt = $pdo->prepare("
+                UPDATE tool_image_tim
+                SET is_primary_tim = TRUE
+                WHERE id_tim = :imageId AND id_tol_tim = :toolId
+            ");
+            $stmt->bindValue(':imageId', $imageId, PDO::PARAM_INT);
+            $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Update the alt text for a tool image.
+     *
+     * @param  int    $imageId  Image primary key (id_tim)
+     * @param  string $altText  New alt text value
+     */
+    public static function updateImageAltText(int $imageId, string $altText): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE tool_image_tim
+            SET alt_text_tim = :altText
+            WHERE id_tim = :id
+        ");
+        $stmt->bindValue(':altText', $altText, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $imageId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Count images attached to a tool (for enforcing the 6-image cap).
+     *
+     * @param  int $toolId  Tool primary key
+     * @return int
+     */
+    public static function getImageCount(int $toolId): int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM tool_image_tim
+            WHERE id_tol_tim = :toolId
+        ");
+        $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
     }
 }

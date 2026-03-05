@@ -372,3 +372,672 @@
     setView(btn.dataset.view);
   });
 })();
+
+(function () {
+  const fileInput = document.getElementById('tool-photos');
+  const previewList = document.getElementById('photo-preview-list');
+  if (!fileInput || !previewList) return;
+
+  const MAX_FILES = 6;
+  const MAX_SIZE = 5 * 1024 * 1024;
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+  function validateFiles(files) {
+    if (files.length > MAX_FILES) {
+      NT.toast(`You can upload at most ${MAX_FILES} photos.`, 'error');
+      return false;
+    }
+
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        NT.toast(`"${file.name}" is not a valid image type. Use JPEG, PNG, or WebP.`, 'error');
+        return false;
+      }
+      if (file.size > MAX_SIZE) {
+        NT.toast(`"${file.name}" exceeds the 5 MB limit.`, 'error');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function renderPreviews(files) {
+    for (const img of previewList.querySelectorAll('img')) {
+      URL.revokeObjectURL(img.src);
+    }
+    previewList.innerHTML = '';
+
+    if (files.length === 0) {
+      previewList.hidden = true;
+      return;
+    }
+
+    previewList.hidden = false;
+
+    for (let i = 0; i < files.length; i++) {
+      const li = document.createElement('li');
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(files[i]);
+      img.alt = `Preview of ${files[i].name}`;
+      img.width = 120;
+      img.height = 80;
+      li.appendChild(img);
+
+      const label = document.createElement('span');
+      label.textContent = i === 0 ? 'Primary' : `Photo ${i + 1}`;
+      li.appendChild(label);
+
+      previewList.appendChild(li);
+    }
+  }
+
+  fileInput.addEventListener('change', () => {
+    const files = Array.from(fileInput.files);
+
+    if (files.length === 0) {
+      renderPreviews([]);
+      return;
+    }
+
+    if (!validateFiles(files)) {
+      fileInput.value = '';
+      renderPreviews([]);
+      return;
+    }
+
+    renderPreviews(files);
+  });
+
+  const dropZone = fileInput.closest('div');
+  if (!dropZone) return;
+
+  let dragCounter = 0;
+
+  dropZone.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
+    dropZone.dataset.dragover = '';
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      delete dropZone.dataset.dragover;
+    }
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    delete dropZone.dataset.dragover;
+
+    const dt = new DataTransfer();
+    for (const file of e.dataTransfer.files) {
+      if (ALLOWED_TYPES.includes(file.type)) {
+        dt.items.add(file);
+      }
+    }
+
+    if (dt.files.length === 0) {
+      NT.toast('No valid image files found in the drop.', 'error');
+      return;
+    }
+
+    fileInput.files = dt.files;
+    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+})();
+
+(function () {
+  const gallery = document.getElementById('gallery-manager');
+  if (!gallery) return;
+
+  const toolId = gallery.dataset.toolId;
+  let busy = false;
+
+  function setBusy(state) {
+    busy = state;
+    gallery.ariaBusy = state ? 'true' : 'false';
+  }
+
+  function getImageIds() {
+    return Array.from(gallery.querySelectorAll('li[data-image-id]'))
+      .map(li => parseInt(li.dataset.imageId, 10));
+  }
+
+  let dragItem = null;
+
+  gallery.addEventListener('dragstart', (e) => {
+    const li = e.target.closest('li[data-image-id]');
+    if (!li) return;
+    dragItem = li;
+    li.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', li.dataset.imageId);
+  });
+
+  gallery.addEventListener('dragend', (e) => {
+    const li = e.target.closest('li[data-image-id]');
+    if (li) li.classList.remove('dragging');
+    dragItem = null;
+    for (const el of gallery.querySelectorAll('.drag-over')) {
+      el.classList.remove('drag-over');
+    }
+  });
+
+  gallery.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    const target = e.target.closest('li[data-image-id]');
+    if (!target || target === dragItem) return;
+
+    for (const el of gallery.querySelectorAll('.drag-over')) {
+      el.classList.remove('drag-over');
+    }
+    target.classList.add('drag-over');
+  });
+
+  gallery.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    const target = e.target.closest('li[data-image-id]');
+    if (!target || !dragItem || target === dragItem || busy) return;
+
+    for (const el of gallery.querySelectorAll('.drag-over')) {
+      el.classList.remove('drag-over');
+    }
+
+    const items = Array.from(gallery.children);
+    const dragIdx = items.indexOf(dragItem);
+    const targetIdx = items.indexOf(target);
+
+    if (dragIdx < targetIdx) {
+      target.after(dragItem);
+    } else {
+      target.before(dragItem);
+    }
+
+    setBusy(true);
+
+    try {
+      const res = await NT.fetch(`/tools/${toolId}/images/order`, {
+        method: 'PATCH',
+        body: JSON.stringify({ order: getImageIds() }),
+      });
+
+      if (!res.ok) {
+        NT.toast('Failed to save new order.', 'error');
+        if (dragIdx < targetIdx) {
+          items[dragIdx].before(dragItem);
+        } else {
+          items[dragIdx].after(dragItem);
+        }
+      }
+    } catch {
+      NT.toast('Failed to save new order.', 'error');
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  gallery.addEventListener('click', async (e) => {
+    const deleteBtn = e.target.closest('[data-delete-form] button[type="submit"]');
+    if (!deleteBtn) return;
+
+    e.preventDefault();
+    if (busy) return;
+
+    const li = deleteBtn.closest('li[data-image-id]');
+    if (!li) return;
+
+    const imageId = li.dataset.imageId;
+
+    if (!confirm('Delete this photo?')) return;
+
+    setBusy(true);
+    deleteBtn.disabled = true;
+
+    try {
+      const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        NT.toast('Failed to delete photo.', 'error');
+        deleteBtn.disabled = false;
+        setBusy(false);
+        return;
+      }
+
+      const data = await res.json();
+      li.remove();
+
+      if (data.new_primary_id) {
+        const promoted = gallery.querySelector(`li[data-image-id="${data.new_primary_id}"] [data-primary-radio]`);
+        if (promoted) {
+          promoted.checked = true;
+          const label = promoted.nextElementSibling;
+          if (label) label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
+        }
+      }
+
+      const remaining = gallery.querySelectorAll('li[data-image-id]').length;
+
+      if (remaining === 0) {
+        gallery.outerHTML = '<p>No photos uploaded yet.</p>';
+      }
+
+      const addSection = document.querySelector('[data-add-photo]')?.closest('div');
+      if (addSection) {
+        addSection.hidden = false;
+        const hint = addSection.querySelector('p');
+        if (hint) {
+          const slots = 6 - remaining;
+          hint.textContent = `JPEG, PNG, or WebP — max 5 MB. ${slots} slot${slots !== 1 ? 's' : ''} remaining.`;
+        }
+      }
+
+      NT.toast('Photo deleted.', 'success');
+    } catch {
+      NT.toast('Failed to delete photo.', 'error');
+      deleteBtn.disabled = false;
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  gallery.addEventListener('change', async (e) => {
+    const radio = e.target.closest('[data-primary-radio]');
+    if (!radio || busy) return;
+
+    const imageId = radio.value;
+    setBusy(true);
+
+    for (const r of gallery.querySelectorAll('[data-primary-radio]')) {
+      r.disabled = true;
+    }
+
+    try {
+      const res = await NT.fetch(`/tools/${toolId}/images/${imageId}/primary`, {
+        method: 'PATCH',
+      });
+
+      if (!res.ok) {
+        NT.toast('Failed to set primary photo.', 'error');
+        setBusy(false);
+        return;
+      }
+
+      for (const li of gallery.querySelectorAll('li[data-image-id]')) {
+        const r = li.querySelector('[data-primary-radio]');
+        const label = r?.nextElementSibling;
+        if (!label) continue;
+
+        if (r.value === imageId) {
+          label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
+        } else {
+          label.textContent = 'Primary';
+        }
+      }
+
+      NT.toast('Primary photo updated.', 'success');
+    } catch {
+      NT.toast('Failed to set primary photo.', 'error');
+    } finally {
+      for (const r of gallery.querySelectorAll('[data-primary-radio]')) {
+        r.disabled = false;
+      }
+      setBusy(false);
+    }
+  });
+
+  const addInput = document.querySelector('[data-add-photo]');
+
+  if (addInput) {
+    addInput.addEventListener('change', async () => {
+      const file = addInput.files?.[0];
+      if (!file || busy) return;
+
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(file.type)) {
+        NT.toast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
+        addInput.value = '';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        NT.toast('File exceeds the 5 MB limit.', 'error');
+        addInput.value = '';
+        return;
+      }
+
+      setBusy(true);
+      addInput.disabled = true;
+
+      const fd = new FormData();
+      fd.append('photo', file);
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images`, {
+          method: 'POST',
+          body: fd,
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          NT.toast(err?.error ?? 'Failed to upload photo.', 'error');
+          addInput.value = '';
+          addInput.disabled = false;
+          setBusy(false);
+          return;
+        }
+
+        const img = await res.json();
+
+        const li = document.createElement('li');
+        li.dataset.imageId = img.id;
+        li.draggable = true;
+
+        const thumb = img.filename.replace(/\.(\w+)$/, '-400w.$1');
+
+        li.innerHTML = `
+          <img src="/uploads/tools/${thumb}"
+               alt="${img.alt_text || ''}"
+               width="400" height="268"
+               loading="lazy"
+               decoding="async">
+          <div>
+            <label for="alt-text-${img.id}">
+              <span class="visually-hidden">Alt text for image ${img.id}</span>
+            </label>
+            <input type="text"
+                   id="alt-text-${img.id}"
+                   value=""
+                   maxlength="255"
+                   placeholder="Describe this photo\u2026"
+                   data-alt-input
+                   data-image-id="${img.id}">
+          </div>
+          <div>
+            <input type="radio"
+                   name="primary_image"
+                   id="primary-${img.id}"
+                   value="${img.id}"
+                   ${img.is_primary ? 'checked' : ''}
+                   data-primary-radio>
+            <label for="primary-${img.id}">
+              ${img.is_primary ? '<i class="fa-solid fa-star" aria-hidden="true"></i> ' : ''}Primary
+            </label>
+          </div>
+          <form method="post" action="/tools/${toolId}/images/${img.id}" data-delete-form>
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="hidden" name="csrf_token" value="${document.querySelector('meta[name="csrf-token"]')?.content ?? ''}">
+            <button type="submit" data-intent="danger" aria-label="Delete this photo">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
+            </button>
+          </form>
+          <span aria-hidden="true" data-drag-handle><i class="fa-solid fa-grip-vertical"></i></span>
+        `;
+
+        const activeGallery = document.getElementById('gallery-manager');
+        if (activeGallery) {
+          activeGallery.appendChild(li);
+        }
+
+        const remaining = 6 - activeGallery.querySelectorAll('li[data-image-id]').length;
+        const addSection = addInput.closest('div');
+
+        if (remaining <= 0) {
+          addSection.hidden = true;
+        } else {
+          const hint = addSection.querySelector('p');
+          if (hint) {
+            hint.textContent = `JPEG, PNG, or WebP — max 5 MB. ${remaining} slot${remaining !== 1 ? 's' : ''} remaining.`;
+          }
+        }
+
+        addInput.value = '';
+        NT.toast('Photo uploaded.', 'success');
+      } catch {
+        NT.toast('Failed to upload photo.', 'error');
+      } finally {
+        addInput.disabled = false;
+        setBusy(false);
+      }
+    });
+
+    const dropZone = addInput.closest('div');
+    if (dropZone) {
+      let dragCounter = 0;
+
+      dropZone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        dropZone.dataset.dragover = '';
+      });
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dragCounter--;
+        if (dragCounter <= 0) {
+          dragCounter = 0;
+          delete dropZone.dataset.dragover;
+        }
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        delete dropZone.dataset.dragover;
+
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        const file = Array.from(e.dataTransfer.files).find(f => allowed.includes(f.type));
+
+        if (!file) {
+          NT.toast('No valid image file found. Use JPEG, PNG, or WebP.', 'error');
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          NT.toast('File exceeds the 5 MB limit.', 'error');
+          return;
+        }
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        addInput.files = dt.files;
+        addInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+  }
+
+  let altDebounceTimers = {};
+
+  gallery.addEventListener('blur', async (e) => {
+    const input = e.target.closest('[data-alt-input]');
+    if (!input) return;
+
+    const imageId = input.dataset.imageId;
+    clearTimeout(altDebounceTimers[imageId]);
+
+    altDebounceTimers[imageId] = setTimeout(async () => {
+      const altText = input.value.trim().slice(0, 255);
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ alt_text: altText }),
+        });
+
+        if (!res.ok) {
+          NT.toast('Failed to save alt text.', 'error');
+        }
+      } catch {
+        NT.toast('Failed to save alt text.', 'error');
+      }
+    }, 300);
+  }, true);
+})();
+
+(function () {
+  const galleryEl = document.getElementById('tool-gallery');
+  if (!galleryEl) return;
+
+  const mainFigure = document.getElementById('gallery-main');
+  const mainImg = document.getElementById('gallery-main-img');
+  const thumbList = document.getElementById('gallery-thumbs');
+  const lightbox = document.getElementById('gallery-lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const prevBtn = document.getElementById('lightbox-prev');
+  const nextBtn = document.getElementById('lightbox-next');
+  const closeBtn = document.getElementById('lightbox-close');
+
+  if (thumbList && mainImg) {
+    const thumbButtons = thumbList.querySelectorAll('button');
+    let currentIndex = 0;
+
+    function setActiveThumb(index) {
+      currentIndex = index;
+
+      for (let i = 0; i < thumbButtons.length; i++) {
+        thumbButtons[i].setAttribute('aria-current', i === index ? 'true' : 'false');
+      }
+
+      const btn = thumbButtons[index];
+      if (!btn) return;
+
+      mainImg.src = btn.dataset.full;
+      mainImg.srcset = btn.dataset.srcset || '';
+      mainImg.alt = btn.dataset.alt || '';
+
+      const link = mainImg.closest('a[data-lightbox-trigger]');
+      if (link) link.href = btn.dataset.full;
+
+      const caption = mainFigure?.querySelector('figcaption');
+      const altText = btn.dataset.alt || '';
+      if (caption) {
+        caption.textContent = altText;
+        caption.hidden = altText === '';
+      }
+    }
+
+    thumbList.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+
+      const index = Array.from(thumbButtons).indexOf(btn);
+      if (index >= 0) setActiveThumb(index);
+    });
+
+    galleryEl.addEventListener('keydown', (e) => {
+      if (lightbox?.open) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActiveThumb((currentIndex + 1) % thumbButtons.length);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActiveThumb((currentIndex - 1 + thumbButtons.length) % thumbButtons.length);
+      }
+    });
+  }
+
+  if (!lightbox || !lightboxImg) return;
+
+  const allImages = [];
+  let lightboxIndex = 0;
+  let triggerElement = null;
+
+  if (thumbList) {
+    for (const btn of thumbList.querySelectorAll('button')) {
+      allImages.push({
+        src: btn.dataset.full,
+        alt: btn.dataset.alt || '',
+      });
+    }
+  } else if (mainImg) {
+    const link = mainImg.closest('a[data-lightbox-trigger]');
+    allImages.push({
+      src: link?.href || mainImg.src,
+      alt: mainImg.alt,
+    });
+  }
+
+  function showLightboxImage(index) {
+    lightboxIndex = index;
+    const img = allImages[index];
+    if (!img) return;
+
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+
+    if (prevBtn) prevBtn.hidden = allImages.length <= 1;
+    if (nextBtn) nextBtn.hidden = allImages.length <= 1;
+  }
+
+  function openLightbox(index) {
+    triggerElement = document.activeElement;
+    showLightboxImage(index);
+    lightbox.showModal();
+  }
+
+  function closeLightbox() {
+    lightbox.close();
+    triggerElement?.focus();
+    triggerElement = null;
+  }
+
+  galleryEl.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-lightbox-trigger]');
+    if (!trigger) return;
+
+    e.preventDefault();
+
+    let index = 0;
+    if (thumbList) {
+      const activeBtn = thumbList.querySelector('button[aria-current="true"]');
+      if (activeBtn) {
+        index = Array.from(thumbList.querySelectorAll('button')).indexOf(activeBtn);
+      }
+    }
+
+    openLightbox(Math.max(0, index));
+  });
+
+  closeBtn?.addEventListener('click', closeLightbox);
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  prevBtn?.addEventListener('click', () => {
+    showLightboxImage((lightboxIndex - 1 + allImages.length) % allImages.length);
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    showLightboxImage((lightboxIndex + 1) % allImages.length);
+  });
+
+  lightbox.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeLightbox();
+    } else if (e.key === 'ArrowLeft' && allImages.length > 1) {
+      e.preventDefault();
+      showLightboxImage((lightboxIndex - 1 + allImages.length) % allImages.length);
+    } else if (e.key === 'ArrowRight' && allImages.length > 1) {
+      e.preventDefault();
+      showLightboxImage((lightboxIndex + 1) % allImages.length);
+    }
+  });
+})();

@@ -1426,11 +1426,20 @@ class ToolController extends BaseController
             $this->jsonResponse(404, ['error' => 'Image not found']);
         }
 
-        $body    = $this->getJsonBody();
-        $altText = mb_substr(trim($body['alt_text'] ?? ''), 0, 255);
+        $body = $this->getJsonBody();
 
         try {
-            Tool::updateImageAltText($imageId, $altText);
+            if (isset($body['alt_text'])) {
+                $altText = mb_substr(trim($body['alt_text']), 0, 255);
+                Tool::updateImageAltText($imageId, $altText);
+            }
+
+            if (isset($body['focal_x'], $body['focal_y'])) {
+                $focalX = max(0, min(100, (int) $body['focal_x']));
+                $focalY = max(0, min(100, (int) $body['focal_y']));
+                Tool::updateFocalPoint($imageId, $focalX, $focalY);
+            }
+
             $this->jsonResponse(200, ['success' => true]);
         } catch (\Throwable $e) {
             error_log('ToolController::updateImage — ' . $e->getMessage());

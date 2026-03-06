@@ -133,12 +133,11 @@ class DashboardController extends BaseController
         );
 
         $pickupBorrowIds = array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup);
-        $depositsByBorrow = Deposit::findByBorrowIds($pickupBorrowIds);
+        $lentBorrowIds   = array_map(static fn(array $row): int => (int) $row['id_bor'], $lentOut);
+        $depositsByBorrow     = Deposit::findByBorrowIds($pickupBorrowIds);
+        $lentDepositsByBorrow = Deposit::findByBorrowIds($lentBorrowIds);
 
-        $allBorrowIds = array_merge(
-            $pickupBorrowIds,
-            array_map(static fn(array $row): int => (int) $row['id_bor'], $lentOut),
-        );
+        $allBorrowIds = array_merge($pickupBorrowIds, $lentBorrowIds);
         $handoversByBorrow = Handover::findPendingByBorrowIds($allBorrowIds);
 
         $waiversByBorrow = [];
@@ -162,11 +161,12 @@ class DashboardController extends BaseController
             'incomingRequests'   => array_values($incomingRequests),
             'awaitingPickup'     => array_values($awaitingPickup),
             'lentOut'            => array_values($lentOut),
-            'depositsByBorrow'   => $depositsByBorrow,
-            'handoversByBorrow'  => $handoversByBorrow,
-            'waiversByBorrow'    => $waiversByBorrow,
-            'reqSort'            => $reqSort,
-            'lentSort'           => $lentSort,
+            'depositsByBorrow'        => $depositsByBorrow,
+            'lentDepositsByBorrow'    => $lentDepositsByBorrow,
+            'handoversByBorrow'       => $handoversByBorrow,
+            'waiversByBorrow'         => $waiversByBorrow,
+            'reqSort'                 => $reqSort,
+            'lentSort'                => $lentSort,
             'borrowSuccess'      => $this->flash('borrow_success'),
             'borrowErrors'       => $this->flash('borrow_errors', []),
         ]);

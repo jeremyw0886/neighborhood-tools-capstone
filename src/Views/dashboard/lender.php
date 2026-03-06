@@ -11,9 +11,10 @@
  *   $incomingRequests   array  Pending requests where user is lender
  *   $awaitingPickup     array  Approved borrows awaiting pickup (lender side)
  *   $lentOut            array  Active borrows where user is lender
- *   $depositsByBorrow   array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
- *   $handoversByBorrow  array<int, array>  Keyed by borrow ID — pending handover rows
- *   $waiversByBorrow    array<int, bool>   Keyed by borrow ID — true if waiver signed
+ *   $depositsByBorrow        array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
+ *   $lentDepositsByBorrow    array<int, array>  Keyed by borrow ID — deposit rows for lent-out borrows
+ *   $handoversByBorrow       array<int, array>  Keyed by borrow ID — pending handover rows
+ *   $waiversByBorrow         array<int, bool>   Keyed by borrow ID — true if waiver signed
  *   $reqSort            array{sort: string, dir: string}  Incoming requests sort state
  *   $lentSort           array{sort: string, dir: string}  Lent-out table sort state
  *
@@ -188,6 +189,15 @@ use App\Core\ViewHelper;
                 </dd>
                 <dt>Duration</dt>
                 <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>
+                <?php if ($deposit !== null): ?>
+                <dt>Deposit</dt>
+                <dd>
+                  <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">
+                    $<?= number_format((float) $deposit['amount_sdp'], 2) ?>
+                  </a>
+                  <small>(<?= htmlspecialchars(str_replace('_', ' ', $deposit['deposit_status'])) ?>)</small>
+                </dd>
+                <?php endif; ?>
               </dl>
               <footer data-actions>
                 <?php if (!$waiverSigned): ?>
@@ -286,6 +296,16 @@ use App\Core\ViewHelper;
                   </time>
                   <small><?= htmlspecialchars($dueLabel) ?></small>
                 </dd>
+                <?php $lentDeposit = $lentDepositsByBorrow[(int) $row['id_bor']] ?? null; ?>
+                <?php if ($lentDeposit !== null): ?>
+                <dt>Deposit</dt>
+                <dd>
+                  <a href="/payments/deposit/<?= (int) $lentDeposit['id_sdp'] ?>">
+                    $<?= number_format((float) $lentDeposit['amount_sdp'], 2) ?>
+                  </a>
+                  <small>(<?= htmlspecialchars(str_replace('_', ' ', $lentDeposit['deposit_status'])) ?>)</small>
+                </dd>
+                <?php endif; ?>
               </dl>
               <footer data-actions>
                 <?php $handover = $handoversByBorrow[(int) $row['id_bor']] ?? null; ?>

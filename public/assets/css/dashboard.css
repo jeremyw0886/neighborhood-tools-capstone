@@ -170,7 +170,7 @@
         overflow-x: visible;
         padding-right: 1rem;
         position: sticky;
-        top: 5rem;
+        top: 6rem;
 
         &>ul {
           flex-direction: column;

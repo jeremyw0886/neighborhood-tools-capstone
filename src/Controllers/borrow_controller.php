@@ -86,6 +86,17 @@ class BorrowController extends BaseController
                 loanDurationHours: $loanDuration,
                 notes: $notes !== '' ? $notes : null,
             );
+        } catch (\PDOException $e) {
+            error_log('BorrowController::request — ' . $e->getMessage());
+            $message = $e->getCode() === '45000'
+                ? $e->errorInfo[2] ?? 'Something went wrong. Please try again.'
+                : 'Something went wrong. Please try again.';
+            $_SESSION['borrow_errors'] = ['general' => $message];
+            $_SESSION['borrow_old'] = [
+                'loan_duration' => $loanDuration,
+                'notes'         => $notes,
+            ];
+            $this->redirect('/tools/' . $toolId);
         } catch (\Throwable $e) {
             error_log('BorrowController::request — ' . $e->getMessage());
             $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];

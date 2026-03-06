@@ -365,6 +365,7 @@
     return new Promise((resolve) => {
       const dialog = document.createElement('dialog');
       dialog.setAttribute('aria-label', 'Confirmation');
+      dialog.dataset.confirm = '';
 
       const p = document.createElement('p');
       p.textContent = message;

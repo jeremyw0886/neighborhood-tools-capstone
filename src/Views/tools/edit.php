@@ -276,9 +276,6 @@ $images            ??= [];
                  required
                  data-tool-id="<?= (int) $tool['id_tol'] ?>">
         </div>
-        <button type="submit" id="photo-submit" data-intent="primary">
-          <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Upload
-        </button>
       </form>
     <?php endif; ?>
 

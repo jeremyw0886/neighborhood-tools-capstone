@@ -1390,10 +1390,6 @@
       }
     }
 
-    & #photo-submit {
-      margin-top: 0.75rem;
-    }
-
     & #crop-dialog {
       background: var(--mountain-cream);
       border: 1px solid var(--mountain-fog);

@@ -691,6 +691,8 @@
     if (fi) fi.value = '';
   }
 
+  let savedScrollY = 0;
+
   function closeCropDialog() {
     if (!cropDialog) return;
     cleanupCropState();
@@ -783,6 +785,7 @@
     if (confirmBtn) confirmBtn.disabled = false;
 
     cropDialog.dataset.mode = 'upload';
+    savedScrollY = window.scrollY;
     cropDialog.showModal();
     cropViewport?.focus();
   }
@@ -809,6 +812,7 @@
     if (confirmBtn) confirmBtn.disabled = false;
 
     cropDialog.dataset.mode = 'reposition';
+    savedScrollY = window.scrollY;
     cropDialog.showModal();
     cropViewport?.focus();
   }
@@ -914,6 +918,7 @@
         NT.applyFocalPoints(li);
         closeCropDialog();
         updateSlotHint();
+        li.focus({ preventScroll: true });
         requestAnimationFrame(() => {
           li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
@@ -977,7 +982,13 @@
   });
 
   cancelBtn?.addEventListener('click', closeCropDialog);
-  cropDialog?.addEventListener('close', cleanupCropState);
+  cropDialog?.addEventListener('close', () => {
+    cleanupCropState();
+    window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+    });
+  });
 
   let dragItem = null;
 
@@ -1241,11 +1252,8 @@
     attachGalleryListeners(gallery);
   }
 
-  const photoSubmit = document.getElementById('photo-submit');
   const dropZone = document.getElementById('photo-drop-zone');
   const fileInput = document.getElementById('add-photo');
-
-  if (photoSubmit) photoSubmit.hidden = true;
 
   if (dropZone && fileInput) {
     dropZone.setAttribute('role', 'button');

@@ -188,6 +188,40 @@ class Deposit
     }
 
     /**
+     * Find a held deposit by ID with borrow context for admin processing.
+     */
+    public static function findHeldById(int $id): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                   sdp.external_payment_id_sdp,
+                   dps.status_name_dps AS deposit_status,
+                   ppv.provider_name_ppv AS payment_provider,
+                   b.id_acc_bor AS borrower_id,
+                   t.id_acc_tol AS lender_id,
+                   t.tool_name_tol,
+                   bst.status_name_bst AS borrow_status
+            FROM security_deposit_sdp sdp
+            JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+            JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
+            JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
+            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            WHERE sdp.id_sdp = :id
+              AND dps.status_name_dps = :status
+        ');
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':status', 'held', PDO::PARAM_STR);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Fetch full deposit detail by ID, regardless of status.
      *
      * @return ?array  Deposit row with borrow, tool, and account context

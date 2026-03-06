@@ -60,6 +60,8 @@ class PaymentController extends BaseController
             'pageJs'         => $pageJs,
             'deposit'        => $deposit,
             'isAdmin'        => $isAdmin,
+            'isBorrower'     => $isBorrower,
+            'isLender'       => $isLender,
             'paymentMode'    => false,
             'depositSuccess' => $this->flash('deposit_success'),
             'depositErrors'  => $this->flash('deposit_errors', []),
@@ -133,14 +135,14 @@ class PaymentController extends BaseController
             $this->abort(404);
         }
 
-        $deposit = Deposit::findById($depositId);
+        $deposit = Deposit::findHeldById($depositId);
 
         if ($deposit === null) {
             $raw = Deposit::findByIdRaw($depositId);
 
             if ($raw !== null) {
                 $_SESSION['deposit_errors'] = ['This deposit has already been processed (' . $raw['deposit_status'] . ').'];
-                $this->redirect('/admin');
+                $this->redirect('/payments/deposit/' . $depositId);
             }
 
             $this->abort(404);
@@ -164,6 +166,13 @@ class PaymentController extends BaseController
         $externalStatus = $deposit['payment_provider'] === 'manual' ? 'completed' : 'simulated';
 
         if ($action === 'release') {
+            $borrowStatus = strtolower($deposit['borrow_status'] ?? '');
+
+            if ($borrowStatus !== 'returned') {
+                $_SESSION['deposit_errors'] = ['Cannot release deposit — the tool has not been returned yet (borrow status: ' . $borrowStatus . ').'];
+                $this->redirect('/payments/deposit/' . $depositId);
+            }
+
             $this->processRelease($depositId, $deposit, $providerId, $externalStatus);
         } else {
             $this->processForfeit($depositId, $deposit, $providerId, $externalStatus);

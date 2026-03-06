@@ -335,7 +335,18 @@ class BorrowController extends BaseController
             $this->abort(403);
         }
 
-        $reason = 'Cancelled by ' . ($isBorrower ? 'borrower' : 'lender');
+        $roleLabel = $isBorrower ? 'borrower' : 'lender';
+        $rawReason = trim($_POST['reason'] ?? '');
+
+        if ($rawReason !== '') {
+            if (mb_strlen($rawReason) > 1000) {
+                $_SESSION['borrow_errors'] = ['reason' => 'Reason must be 1,000 characters or fewer.'];
+                $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+            }
+            $reason = 'Cancelled by ' . $roleLabel . ': ' . $rawReason;
+        } else {
+            $reason = 'Cancelled by ' . $roleLabel;
+        }
 
         try {
             $result = Borrow::cancel(borrowId: $borrowId, cancellerId: $userId, reason: $reason);

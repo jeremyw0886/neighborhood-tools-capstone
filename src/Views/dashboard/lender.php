@@ -83,48 +83,39 @@ use App\Core\ViewHelper;
         </fieldset>
       </form>
 
-      <table>
-        <caption class="visually-hidden">Pending borrow requests for your tools</caption>
-        <thead>
-          <tr>
-            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'tool_name_tol') ?>>Tool</th>
-            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'borrower_name') ?>>Borrower</th>
-            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'loan_duration_hours_bor') ?>>Duration</th>
-            <th scope="col"<?= ViewHelper::ariaSort($reqSort['sort'], $reqSort['dir'], 'hours_pending', 'requested_at_bor') ?>>Waiting</th>
-            <th scope="col">Borrower Rating</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($incomingRequests as $req): ?>
-            <tr>
-              <td>
+      <ul data-card-list>
+        <?php foreach ($incomingRequests as $req): ?>
+          <?php
+            $hoursPending = (int) $req['hours_pending'];
+            $waitLabel = $hoursPending < 24
+              ? $hoursPending . 'h ago'
+              : (int) floor($hoursPending / 24) . 'd ago';
+            $bAvg   = round((float) ($req['borrower_avg_rating'] ?? 0), 1);
+            $bCount = (int) ($req['borrower_rating_count'] ?? 0);
+          ?>
+          <li>
+            <article data-activity-card>
+              <header>
                 <a href="/dashboard/loan/<?= (int) $req['id_bor'] ?>">
                   <?= htmlspecialchars($req['tool_name_tol']) ?>
                 </a>
-              </td>
-              <td>
-                <a href="/profile/<?= (int) $req['borrower_id'] ?>">
-                  <?= htmlspecialchars($req['borrower_name']) ?>
-                </a>
-              </td>
-              <td><?= (int) $req['loan_duration_hours_bor'] ?> hrs</td>
-              <td>
-                <?php
-                  $hoursPending = (int) $req['hours_pending'];
-                  echo $hoursPending < 24
-                    ? $hoursPending . 'h ago'
-                    : (int) floor($hoursPending / 24) . 'd ago';
-                ?>
-              </td>
-              <td>
-                <?php
-                  $bAvg = round((float) ($req['borrower_avg_rating'] ?? 0), 1);
-                  $bCount = (int) ($req['borrower_rating_count'] ?? 0);
-                ?>
-                <?= $bCount > 0 ? $bAvg . '/5 (' . $bCount . ')' : 'No ratings' ?>
-              </td>
-              <td data-actions>
+                <span data-status="requested">Pending</span>
+              </header>
+              <dl>
+                <dt>Borrower</dt>
+                <dd>
+                  <a href="/profile/<?= (int) $req['borrower_id'] ?>">
+                    <?= htmlspecialchars($req['borrower_name']) ?>
+                  </a>
+                </dd>
+                <dt>Duration</dt>
+                <dd><?= (int) $req['loan_duration_hours_bor'] ?> hrs</dd>
+                <dt>Waiting</dt>
+                <dd><?= htmlspecialchars($waitLabel) ?></dd>
+                <dt>Rating</dt>
+                <dd><?= $bCount > 0 ? $bAvg . '/5 (' . $bCount . ')' : 'No ratings' ?></dd>
+              </dl>
+              <footer data-actions>
                 <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/approve">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                   <button type="submit" data-intent="success">
@@ -149,11 +140,11 @@ use App\Core\ViewHelper;
                     <button type="submit" data-intent="danger">Deny Request</button>
                   </form>
                 </details>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+              </footer>
+            </article>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     </section>
   <?php endif; ?>
 
@@ -164,45 +155,39 @@ use App\Core\ViewHelper;
         Awaiting Pickup (<?= count($awaitingPickup) ?>)
       </h2>
 
-      <table>
-        <caption class="visually-hidden">Approved borrows awaiting pickup</caption>
-        <thead>
-          <tr>
-            <th scope="col">Tool</th>
-            <th scope="col">Borrower</th>
-            <th scope="col">Approved</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Status</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($awaitingPickup as $pickup): ?>
-            <tr>
-              <td>
-                <a href="/dashboard/loan/<?= (int) $pickup['id_bor'] ?>">
+      <ul data-card-list>
+        <?php foreach ($awaitingPickup as $pickup): ?>
+          <?php
+            $pickupId    = (int) $pickup['id_bor'];
+            $deposit     = $depositsByBorrow[$pickupId] ?? null;
+            $handover    = $handoversByBorrow[$pickupId] ?? null;
+            $depositPaid = $deposit === null || $deposit['deposit_status'] !== 'pending';
+          ?>
+          <li>
+            <article data-activity-card>
+              <header>
+                <a href="/dashboard/loan/<?= $pickupId ?>">
                   <?= htmlspecialchars($pickup['tool_name_tol']) ?>
                 </a>
-              </td>
-              <td>
-                <a href="/profile/<?= (int) $pickup['borrower_id'] ?>">
-                  <?= htmlspecialchars($pickup['borrower_name']) ?>
-                </a>
-              </td>
-              <td>
-                <time datetime="<?= htmlspecialchars($pickup['approved_at_bor']) ?>">
-                  <?= htmlspecialchars(date('M j, g:ia', strtotime($pickup['approved_at_bor']))) ?>
-                </time>
-              </td>
-              <td><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</td>
-              <td><span data-status="approved">Approved &mdash; awaiting pickup</span></td>
-              <td data-actions>
-                <?php
-                  $pickupId  = (int) $pickup['id_bor'];
-                  $deposit   = $depositsByBorrow[$pickupId] ?? null;
-                  $handover  = $handoversByBorrow[$pickupId] ?? null;
-                  $depositPaid = $deposit === null || $deposit['deposit_status'] !== 'pending';
-                ?>
+                <span data-status="approved">Awaiting Pickup</span>
+              </header>
+              <dl>
+                <dt>Borrower</dt>
+                <dd>
+                  <a href="/profile/<?= (int) $pickup['borrower_id'] ?>">
+                    <?= htmlspecialchars($pickup['borrower_name']) ?>
+                  </a>
+                </dd>
+                <dt>Approved</dt>
+                <dd>
+                  <time datetime="<?= htmlspecialchars($pickup['approved_at_bor']) ?>">
+                    <?= htmlspecialchars(date('M j, g:ia', strtotime($pickup['approved_at_bor']))) ?>
+                  </time>
+                </dd>
+                <dt>Duration</dt>
+                <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>
+              </dl>
+              <footer data-actions>
                 <?php if (!$depositPaid): ?>
                   <span role="button" aria-disabled="true" data-intent="ghost">
                     <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Deposit
@@ -216,11 +201,11 @@ use App\Core\ViewHelper;
                     <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Code
                   </a>
                 <?php endif; ?>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+              </footer>
+            </article>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     </section>
   <?php endif; ?>
 
@@ -256,55 +241,47 @@ use App\Core\ViewHelper;
         </fieldset>
       </form>
 
-      <table>
-        <caption class="visually-hidden">Tools currently lent to other members</caption>
-        <thead>
-          <tr>
-            <th scope="col"<?= ViewHelper::ariaSort($lentSort['sort'], $lentSort['dir'], 'tool_name_tol') ?>>Tool</th>
-            <th scope="col"<?= ViewHelper::ariaSort($lentSort['sort'], $lentSort['dir'], 'borrower_name') ?>>Borrower</th>
-            <th scope="col"<?= ViewHelper::ariaSort($lentSort['sort'], $lentSort['dir'], 'due_at_bor', 'hours_until_due') ?>>Due Date</th>
-            <th scope="col">Status</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($lentOut as $row): ?>
-            <?php
-              $dueStatus    = $row['due_status'] ?? 'ON TIME';
-              $statusSlug   = match ($dueStatus) {
-                  'OVERDUE'  => 'overdue',
-                  'DUE SOON' => 'due-soon',
-                  default    => 'on-time',
-              };
-              $hoursUntilDue = (int) ($row['hours_until_due'] ?? 0);
-              $dueLabel      = match (true) {
-                  $dueStatus === 'OVERDUE'   => abs($hoursUntilDue) . 'h overdue',
-                  $hoursUntilDue >= 24        => (int) floor($hoursUntilDue / 24) . 'd ' . ($hoursUntilDue % 24) . 'h left',
-                  $hoursUntilDue > 0          => $hoursUntilDue . 'h left',
-                  default                     => 'Due now',
-              };
-            ?>
-            <tr>
-              <td>
+      <ul data-card-list>
+        <?php foreach ($lentOut as $row): ?>
+          <?php
+            $dueStatus    = $row['due_status'] ?? 'ON TIME';
+            $statusSlug   = match ($dueStatus) {
+                'OVERDUE'  => 'overdue',
+                'DUE SOON' => 'due-soon',
+                default    => 'on-time',
+            };
+            $hoursUntilDue = (int) ($row['hours_until_due'] ?? 0);
+            $dueLabel      = match (true) {
+                $dueStatus === 'OVERDUE'   => abs($hoursUntilDue) . 'h overdue',
+                $hoursUntilDue >= 24        => (int) floor($hoursUntilDue / 24) . 'd ' . ($hoursUntilDue % 24) . 'h left',
+                $hoursUntilDue > 0          => $hoursUntilDue . 'h left',
+                default                     => 'Due now',
+            };
+          ?>
+          <li>
+            <article data-activity-card>
+              <header>
                 <a href="/dashboard/loan/<?= (int) $row['id_bor'] ?>">
                   <?= htmlspecialchars($row['tool_name_tol']) ?>
                 </a>
-              </td>
-              <td>
-                <a href="/profile/<?= (int) $row['borrower_id'] ?>">
-                  <?= htmlspecialchars($row['borrower_name']) ?>
-                </a>
-              </td>
-              <td>
-                <time datetime="<?= htmlspecialchars($row['due_at_bor']) ?>">
-                  <?= htmlspecialchars(date('M j, g:ia', strtotime($row['due_at_bor']))) ?>
-                </time>
-                <small><?= htmlspecialchars($dueLabel) ?></small>
-              </td>
-              <td>
                 <span data-status="<?= $statusSlug ?>"><?= htmlspecialchars($dueStatus) ?></span>
-              </td>
-              <td data-actions>
+              </header>
+              <dl>
+                <dt>Borrower</dt>
+                <dd>
+                  <a href="/profile/<?= (int) $row['borrower_id'] ?>">
+                    <?= htmlspecialchars($row['borrower_name']) ?>
+                  </a>
+                </dd>
+                <dt>Due</dt>
+                <dd>
+                  <time datetime="<?= htmlspecialchars($row['due_at_bor']) ?>">
+                    <?= htmlspecialchars(date('M j, g:ia', strtotime($row['due_at_bor']))) ?>
+                  </time>
+                  <small><?= htmlspecialchars($dueLabel) ?></small>
+                </dd>
+              </dl>
+              <footer data-actions>
                 <?php $handover = $handoversByBorrow[(int) $row['id_bor']] ?? null; ?>
                 <?php if ($handover !== null): ?>
                   <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button" data-intent="info">
@@ -343,11 +320,11 @@ use App\Core\ViewHelper;
                     <button type="submit" data-intent="warning">Extend Loan</button>
                   </form>
                 </details>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+              </footer>
+            </article>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     <?php else: ?>
       <p>No tools currently lent out.</p>
     <?php endif; ?>

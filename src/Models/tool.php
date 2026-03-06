@@ -1359,7 +1359,8 @@ class Tool
 
         $stmt = $pdo->prepare("
             SELECT id_tim, id_tol_tim, file_name_tim, alt_text_tim,
-                   is_primary_tim, sort_order_tim, uploaded_at_tim
+                   is_primary_tim, sort_order_tim, focal_x_tim, focal_y_tim,
+                   uploaded_at_tim
             FROM tool_image_tim
             WHERE id_tol_tim = :toolId
             ORDER BY sort_order_tim ASC, id_tim ASC
@@ -1561,6 +1562,28 @@ class Tool
             WHERE id_tim = :id
         ");
         $stmt->bindValue(':altText', $altText, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $imageId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Update the focal point for a tool image.
+     *
+     * @param int $imageId Image primary key (id_tim)
+     * @param int $focalX  Horizontal focal point 0-100
+     * @param int $focalY  Vertical focal point 0-100
+     */
+    public static function updateFocalPoint(int $imageId, int $focalX, int $focalY): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE tool_image_tim
+            SET focal_x_tim = :focalX, focal_y_tim = :focalY
+            WHERE id_tim = :id
+        ");
+        $stmt->bindValue(':focalX', max(0, min(100, $focalX)), PDO::PARAM_INT);
+        $stmt->bindValue(':focalY', max(0, min(100, $focalY)), PDO::PARAM_INT);
         $stmt->bindValue(':id', $imageId, PDO::PARAM_INT);
         $stmt->execute();
     }

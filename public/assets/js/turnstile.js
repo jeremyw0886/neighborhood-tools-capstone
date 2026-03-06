@@ -16,18 +16,29 @@
   submit.disabled = true;
   submit.setAttribute('aria-busy', 'true');
 
-  window.onTurnstileVerify = function () {
+  let verified = false;
+
+  function enable() {
     submit.disabled = false;
     submit.removeAttribute('aria-busy');
+  }
+
+  window.onTurnstileVerify = function () {
+    verified = true;
+    enable();
   };
 
   window.onTurnstileExpire = function () {
+    verified = false;
     submit.disabled = true;
     submit.setAttribute('aria-busy', 'true');
   };
 
   window.onTurnstileError = function () {
-    submit.disabled = false;
-    submit.removeAttribute('aria-busy');
+    enable();
   };
+
+  setTimeout(() => {
+    if (!verified) enable();
+  }, 5000);
 })();

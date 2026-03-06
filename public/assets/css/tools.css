@@ -568,10 +568,10 @@
           }
 
           & img {
+            aspect-ratio: 3 / 2;
             border: 1px solid var(--mountain-fog);
             border-radius: 0.75rem;
             display: block;
-            height: auto;
             object-fit: cover;
             width: 100%;
           }

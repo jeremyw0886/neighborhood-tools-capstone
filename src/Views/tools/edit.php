@@ -185,13 +185,21 @@ $images            ??= [];
             $thumb      = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $image['file_name_tim']));
             $altText    = htmlspecialchars($image['alt_text_tim'] ?? '');
             $isPrimary  = !empty($image['is_primary_tim']);
+            $focalX     = (int) ($image['focal_x_tim'] ?? 50);
+            $focalY     = (int) ($image['focal_y_tim'] ?? 50);
+            $focalPos   = ($focalX !== 50 || $focalY !== 50) ? "object-position:{$focalX}% {$focalY}%" : '';
           ?>
-            <li data-image-id="<?= $imgId ?>" draggable="true">
+            <li data-image-id="<?= $imgId ?>"
+                data-focal-x="<?= $focalX ?>"
+                data-focal-y="<?= $focalY ?>"
+                draggable="true">
               <img src="/uploads/tools/<?= $thumb ?>"
                    alt="<?= $altText !== '' ? $altText : htmlspecialchars($tool['tool_name_tol']) ?>"
                    width="400" height="268"
                    loading="lazy"
-                   decoding="async">
+                   decoding="async"
+                   <?= $focalPos !== '' ? "style=\"{$focalPos}\"" : '' ?>
+                   data-crop-target>
 
               <div>
                 <label for="alt-text-<?= $imgId ?>">

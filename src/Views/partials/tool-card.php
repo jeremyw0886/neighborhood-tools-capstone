@@ -9,13 +9,16 @@
     <?php if (!empty($tool['primary_image'])):
       $imgFile = htmlspecialchars($tool['primary_image']);
       $imgSmall = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image']));
+      $focalX = (int) ($tool['primary_focal_x'] ?? 50);
+      $focalY = (int) ($tool['primary_focal_y'] ?? 50);
+      $objPos = ($focalX !== 50 || $focalY !== 50) ? " style=\"object-position:{$focalX}% {$focalY}%\"" : '';
     ?>
       <img src="/uploads/tools/<?= $imgSmall ?>"
            srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 800w"
            sizes="(max-width: 640px) 47vw, 220px"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="400" height="268"
-           <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?>>
+           <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $objPos ?>>
     <?php else: ?>
       <img src="/assets/images/tool-placeholder.svg"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"

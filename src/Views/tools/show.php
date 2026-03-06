@@ -45,6 +45,9 @@ $images        ??= [];
             $mainFile  = htmlspecialchars($primaryImage['file_name_tim']);
             $mainThumb = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $primaryImage['file_name_tim']));
             $mainAlt   = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
+            $mainFx    = (int) ($primaryImage['focal_x_tim'] ?? 50);
+            $mainFy    = (int) ($primaryImage['focal_y_tim'] ?? 50);
+            $mainPos   = ($mainFx !== 50 || $mainFy !== 50) ? "object-position:{$mainFx}% {$mainFy}%" : '';
           ?>
             <a href="/uploads/tools/<?= $mainFile ?>" data-lightbox-trigger>
               <img src="/uploads/tools/<?= $mainFile ?>"
@@ -53,7 +56,8 @@ $images        ??= [];
                    alt="<?= $mainAlt ?>"
                    width="800" height="536"
                    id="gallery-main-img"
-                   decoding="async">
+                   decoding="async"
+                   <?= $mainPos !== '' ? "style=\"{$mainPos}\"" : '' ?>>
             </a>
             <?php if ($primaryImage['alt_text_tim']): ?>
               <figcaption><?= htmlspecialchars($primaryImage['alt_text_tim']) ?></figcaption>
@@ -75,12 +79,15 @@ $images        ??= [];
                         aria-label="<?= htmlspecialchars($primaryImage['alt_text_tim'] ?? 'Primary photo') ?>"
                         data-full="/uploads/tools/<?= $mainFile ?>"
                         data-srcset="/uploads/tools/<?= $mainThumb ?> 400w, /uploads/tools/<?= $mainFile ?> 800w"
-                        data-alt="<?= $mainAlt ?>">
+                        data-alt="<?= $mainAlt ?>"
+                        data-focal-x="<?= $mainFx ?>"
+                        data-focal-y="<?= $mainFy ?>">
                   <img src="/uploads/tools/<?= $mainThumb ?>"
                        alt=""
                        width="80" height="54"
                        loading="lazy"
-                       decoding="async">
+                       decoding="async"
+                       <?= $mainPos !== '' ? "style=\"{$mainPos}\"" : '' ?>>
                 </button>
               </li>
             <?php endif; ?>
@@ -88,18 +95,24 @@ $images        ??= [];
               $extraFile  = htmlspecialchars($extra['file_name_tim']);
               $extraThumb = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $extra['file_name_tim']));
               $extraAlt   = htmlspecialchars($extra['alt_text_tim'] ?? $tool['tool_name_tol']);
+              $extraFx    = (int) ($extra['focal_x_tim'] ?? 50);
+              $extraFy    = (int) ($extra['focal_y_tim'] ?? 50);
+              $extraPos   = ($extraFx !== 50 || $extraFy !== 50) ? "object-position:{$extraFx}% {$extraFy}%" : '';
             ?>
               <li>
                 <button type="button"
                         aria-label="<?= $extraAlt ?>"
                         data-full="/uploads/tools/<?= $extraFile ?>"
                         data-srcset="/uploads/tools/<?= $extraThumb ?> 400w, /uploads/tools/<?= $extraFile ?> 800w"
-                        data-alt="<?= $extraAlt ?>">
+                        data-alt="<?= $extraAlt ?>"
+                        data-focal-x="<?= $extraFx ?>"
+                        data-focal-y="<?= $extraFy ?>">
                   <img src="/uploads/tools/<?= $extraThumb ?>"
                        alt=""
                        width="80" height="54"
                        loading="lazy"
-                       decoding="async">
+                       decoding="async"
+                       <?= $extraPos !== '' ? "style=\"{$extraPos}\"" : '' ?>>
                 </button>
               </li>
             <?php endforeach; ?>

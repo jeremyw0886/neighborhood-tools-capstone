@@ -184,7 +184,7 @@ $images            ??= [];
 
     <p id="gallery-crop-hint">
       <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
-      Drag a card to reorder. Drag an image to reposition its crop.
+      Drag cards to reorder. Use <strong>Reposition</strong> to adjust cropping.
     </p>
 
     <?php if ($images !== []): ?>
@@ -209,8 +209,7 @@ $images            ??= [];
                  width="400" height="268"
                  loading="lazy"
                  decoding="async"
-                 <?= $focalPos !== '' ? "style=\"{$focalPos}\"" : '' ?>
-                 data-crop-target>
+                 <?= $focalPos !== '' ? "style=\"{$focalPos}\"" : '' ?>>
 
             <div>
               <label for="alt-text-<?= $imgId ?>">
@@ -239,11 +238,10 @@ $images            ??= [];
 
             <div>
               <button type="button"
-                      data-reset-focal
+                      data-reposition
                       data-image-id="<?= $imgId ?>"
-                      aria-label="Reset crop position"
-                      <?= ($focalX === 50 && $focalY === 50) ? 'hidden' : '' ?>>
-                <i class="fa-solid fa-arrows-to-circle" aria-hidden="true"></i> Reset Crop
+                      aria-label="Reposition this photo">
+                <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Reposition
               </button>
             </div>
 
@@ -262,20 +260,49 @@ $images            ??= [];
     <?php endif; ?>
 
     <?php if (count($images) < 6): ?>
-      <div>
-        <label for="add-photo">Add Photo</label>
-        <input type="file"
-               id="add-photo"
-               accept="image/jpeg,image/png,image/webp"
-               data-add-photo
-               data-tool-id="<?= (int) $tool['id_tol'] ?>">
-        <p id="add-photo-hint">JPEG, PNG, or WebP — max 5 MB. <?= 6 - count($images) ?> slot<?= 6 - count($images) !== 1 ? 's' : '' ?> remaining.</p>
-      </div>
+      <form id="photo-upload-form"
+            method="POST"
+            action="/tools/<?= (int) $tool['id_tol'] ?>/images"
+            enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+        <div id="photo-drop-zone">
+          <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+          <p>Drag an image here or click to browse</p>
+          <p id="add-photo-hint">JPEG, PNG, or WebP — max 5 MB. <?= 6 - count($images) ?> slot<?= 6 - count($images) !== 1 ? 's' : '' ?> remaining.</p>
+          <label for="add-photo" class="visually-hidden">Choose a photo</label>
+          <input type="file"
+                 id="add-photo"
+                 name="photo"
+                 accept="image/jpeg,image/png,image/webp"
+                 required
+                 data-tool-id="<?= (int) $tool['id_tol'] ?>">
+        </div>
+        <button type="submit" id="photo-submit" data-intent="primary">
+          <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Upload
+        </button>
+      </form>
     <?php endif; ?>
 
     <?php if (isset($errors['photos'])): ?>
       <p role="alert"><?= htmlspecialchars($errors['photos']) ?></p>
     <?php endif; ?>
+
+    <dialog id="crop-dialog" aria-label="Position your photo">
+      <header>
+        <h2>Position Your Photo</h2>
+        <p>Drag the image to choose which part is visible.</p>
+      </header>
+      <div id="crop-viewport">
+        <img id="crop-preview" alt="Crop preview" draggable="false">
+      </div>
+      <footer>
+        <button type="button" data-crop-cancel>Cancel</button>
+        <button type="button" data-crop-confirm data-intent="primary">
+          <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+          <span data-crop-label>Upload</span>
+        </button>
+      </footer>
+    </dialog>
   </fieldset>
 
 </section>

@@ -268,7 +268,12 @@ $images        ??= [];
               <textarea id="borrow-notes"
                         name="notes"
                         rows="3"
+                        maxlength="2000"
+                        aria-describedby="<?= !empty($borrowErrors['notes']) ? 'notes-error' : '' ?>"
                         placeholder="Tell the lender what you need the tool for or when you'd like to pick it up…"><?= htmlspecialchars($borrowOld['notes'] ?? '') ?></textarea>
+              <?php if (!empty($borrowErrors['notes'])): ?>
+                <p role="alert" id="notes-error"><?= htmlspecialchars($borrowErrors['notes']) ?></p>
+              <?php endif; ?>
             </div>
           </fieldset>
 

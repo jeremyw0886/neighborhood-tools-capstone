@@ -49,7 +49,7 @@ class BorrowController extends BaseController
         $loanDuration = (int) ($_POST['loan_duration'] ?? 0);
         $notes        = trim($_POST['notes'] ?? '');
 
-        $errors = $this->validateRequest($loanDuration);
+        $errors = $this->validateRequest($loanDuration, $notes);
 
         if ($errors !== []) {
             $_SESSION['borrow_errors'] = $errors;
@@ -471,12 +471,16 @@ class BorrowController extends BaseController
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)
      */
-    private function validateRequest(int $loanDuration): array
+    private function validateRequest(int $loanDuration, string $notes): array
     {
         $errors = [];
 
         if ($loanDuration < 1 || $loanDuration > 720) {
             $errors['loan_duration'] = 'Please select a valid loan duration.';
+        }
+
+        if (mb_strlen($notes) > 2000) {
+            $errors['notes'] = 'Notes must be 2,000 characters or fewer.';
         }
 
         return $errors;

@@ -735,6 +735,43 @@ class Borrow
     }
 
     /**
+     * Fetch approved borrows that have exceeded the pickup window.
+     *
+     * @param  int $thresholdDays  Days since approval before considered stale
+     * @return array Rows with borrow ID, tool name, borrower/lender IDs and names
+     */
+    public static function getStaleApproved(int $thresholdDays = 7): array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                b.id_bor,
+                b.id_tol_bor,
+                b.id_acc_bor   AS borrower_id,
+                t.id_acc_tol   AS lender_id,
+                t.tool_name_tol,
+                b.approved_at_bor,
+                CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)     AS lender_name,
+                DATEDIFF(NOW(), b.approved_at_bor)                           AS days_since_approved
+            FROM borrow_bor b
+            JOIN tool_tol t            ON b.id_tol_bor = t.id_tol
+            JOIN account_acc borrower  ON b.id_acc_bor  = borrower.id_acc
+            JOIN account_acc lender    ON t.id_acc_tol  = lender.id_acc
+            WHERE b.id_bst_bor = fn_get_borrow_status_id('approved')
+              AND b.approved_at_bor < NOW() - INTERVAL :days DAY
+            ORDER BY b.approved_at_bor ASC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':days', $thresholdDays, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Fetch handover verification records for a borrow.
      *
      * @return array Rows with handover type, verification timestamps, participant names

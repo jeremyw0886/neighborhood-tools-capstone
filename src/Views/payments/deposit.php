@@ -66,6 +66,7 @@ foreach ($depositErrors as $msg) {
 
 $depositId     = (int) $deposit['id_sdp'];
 $amount        = number_format((float) $deposit['amount_sdp'], 2);
+$statusRaw     = strtolower($deposit['deposit_status']);
 $status        = htmlspecialchars($deposit['deposit_status']);
 $action        = htmlspecialchars($deposit['action_required']);
 $actionKey     = strtolower($deposit['action_required']);
@@ -96,6 +97,12 @@ $forfeitedAmount = $deposit['forfeited_amount_sdp'] !== null
 $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
     ? htmlspecialchars($deposit['forfeiture_reason_sdp'])
     : null;
+$isPartialRelease  = $statusRaw === 'partial_release';
+$refundedAmount    = $isPartialRelease && $forfeitedAmount !== null
+    ? number_format((float) $deposit['amount_sdp'] - (float) $deposit['forfeited_amount_sdp'], 2)
+    : null;
+$borrowStatusRaw   = strtolower($deposit['borrow_status']);
+$toolReturned      = $borrowStatusRaw === 'returned';
 ?>
 
 <section id="deposit-detail" aria-labelledby="deposit-heading">
@@ -127,7 +134,7 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
       <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
       Security Deposit
     </h1>
-    <p data-badge="<?= htmlspecialchars($actionKey) ?>">
+    <p data-action="<?= htmlspecialchars($actionKey) ?>">
       <?= $action ?>
     </p>
   </header>
@@ -137,10 +144,21 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
       <dt>Amount</dt>
       <dd>$<?= $amount ?></dd>
     </div>
+    <?php if ($isPartialRelease && $forfeitedAmount !== null): ?>
     <div>
-      <dt>Status</dt>
-      <dd><?= $status ?></dd>
+      <dt>Refunded</dt>
+      <dd>$<?= $refundedAmount ?></dd>
     </div>
+    <div>
+      <dt>Forfeited</dt>
+      <dd>$<?= $forfeitedAmount ?></dd>
+    </div>
+    <?php elseif ($statusRaw === 'forfeited' && $forfeitedAmount !== null): ?>
+    <div>
+      <dt>Forfeited</dt>
+      <dd>$<?= $forfeitedAmount ?></dd>
+    </div>
+    <?php endif; ?>
     <?php if ($heldDate): ?>
     <div>
       <dt>Days Held</dt>
@@ -163,20 +181,14 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
     </div>
     <?php if ($releasedDate): ?>
     <div>
-      <dt>Released</dt>
+      <dt>Refund Approved</dt>
       <dd><time datetime="<?= htmlspecialchars($deposit['released_at_sdp']) ?>"><?= $releasedDate ?></time></dd>
     </div>
     <?php endif; ?>
     <?php if ($forfeitedDate): ?>
     <div>
-      <dt>Forfeited</dt>
+      <dt>Forfeiture Date</dt>
       <dd><time datetime="<?= htmlspecialchars($deposit['forfeited_at_sdp']) ?>"><?= $forfeitedDate ?></time></dd>
-    </div>
-    <?php endif; ?>
-    <?php if ($forfeitedAmount): ?>
-    <div>
-      <dt>Forfeited Amount</dt>
-      <dd>$<?= $forfeitedAmount ?></dd>
     </div>
     <?php endif; ?>
     <?php if ($forfeitReason): ?>
@@ -187,8 +199,69 @@ $forfeitReason   = $deposit['forfeiture_reason_sdp'] !== null
     <?php endif; ?>
   </dl>
 
-  <?php if (in_array(strtolower($deposit['deposit_status']), ['pending', 'held'], true)): ?>
-  <p data-deposit-terms>Your deposit is fully refundable upon safe return of the tool. If damage or loss occurs, part or all of the deposit may be forfeited.</p>
+  <?php if (in_array($statusRaw, ['pending', 'held'], true)): ?>
+  <div data-deposit-outcome="info" role="status">
+    <p>
+      <i class="fa-solid fa-lock" aria-hidden="true"></i>
+      <strong>Your $<?= $amount ?> deposit is being held securely.</strong>
+    </p>
+    <p>This deposit is fully refundable upon safe return of the tool. If damage or loss occurs, part or all may be forfeited.</p>
+  </div>
+  <?php elseif ($statusRaw === 'released' && $toolReturned && $isBorrower): ?>
+  <div data-deposit-outcome="success" role="status">
+    <p>
+      <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      <strong>Your $<?= $amount ?> deposit has been approved for refund.</strong>
+    </p>
+    <p>The refund will be returned to your original payment method (<?= $provider ?>). Processing typically takes 5–10 business days depending on your bank.</p>
+  </div>
+  <?php elseif ($statusRaw === 'released' && $toolReturned && $isLender): ?>
+  <div data-deposit-outcome="success" role="status">
+    <p>
+      <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      <strong>The $<?= $amount ?> deposit has been refunded to the borrower.</strong>
+    </p>
+    <p>The tool was returned in acceptable condition and the full deposit has been released.</p>
+  </div>
+  <?php elseif ($statusRaw === 'released' && !$toolReturned): ?>
+  <div data-deposit-outcome="info" role="status">
+    <p>
+      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+      <strong>The deposit hold has been released by an administrator.</strong>
+    </p>
+    <p>The tool has not yet been returned. The refund will be processed once the loan is complete.</p>
+  </div>
+  <?php elseif ($statusRaw === 'forfeited'): ?>
+  <div data-deposit-outcome="danger" role="status">
+    <p>
+      <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+      <?php if ($isBorrower): ?>
+      <strong>Your deposit of $<?= $forfeitedAmount ?? $amount ?> has been forfeited.</strong>
+      <?php else: ?>
+      <strong>The deposit of $<?= $forfeitedAmount ?? $amount ?> has been forfeited to you.</strong>
+      <?php endif; ?>
+    </p>
+    <?php if ($forfeitReason): ?>
+    <p>Reason: <?= $forfeitReason ?></p>
+    <?php endif; ?>
+  </div>
+  <?php elseif ($isPartialRelease): ?>
+  <div data-deposit-outcome="warning" role="status">
+    <p>
+      <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+      <?php if ($isBorrower): ?>
+      <strong>$<?= $forfeitedAmount ?> of your deposit was forfeited. $<?= $refundedAmount ?> has been approved for refund.</strong>
+      <?php else: ?>
+      <strong>$<?= $forfeitedAmount ?> was forfeited to you. $<?= $refundedAmount ?> was refunded to the borrower.</strong>
+      <?php endif; ?>
+    </p>
+    <?php if ($isBorrower): ?>
+    <p>The refunded portion will be returned to your original payment method (<?= $provider ?>). Processing typically takes 5–10 business days.</p>
+    <?php endif; ?>
+    <?php if ($forfeitReason): ?>
+    <p>Reason: <?= $forfeitReason ?></p>
+    <?php endif; ?>
+  </div>
   <?php endif; ?>
 
   <section aria-labelledby="borrow-context-heading">

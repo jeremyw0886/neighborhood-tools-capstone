@@ -55,6 +55,26 @@
         background: var(--badge-warning-bg);
         color: var(--alert-warning-text);
       }
+
+      &>p[data-action="released"] {
+        background: var(--badge-success-bg);
+        color: var(--badge-success-text);
+      }
+
+      &>p[data-action="forfeited"] {
+        background: var(--badge-danger-bg);
+        color: var(--badge-danger-text);
+      }
+
+      &>p[data-action="partial release"] {
+        background: var(--badge-warning-bg);
+        color: var(--badge-warning-text);
+      }
+
+      &>p[data-action="payment pending"] {
+        background: var(--badge-neutral-bg);
+        color: var(--badge-neutral-text);
+      }
     }
 
     &>p[data-deposit-terms] {
@@ -66,6 +86,49 @@
       line-height: 1.5;
       margin-bottom: 2rem;
       padding: 0.875rem 1.25rem;
+    }
+
+    &>[data-deposit-outcome] {
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+      padding: 1rem 1.25rem;
+
+      & p:first-child {
+        align-items: center;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      & p + p {
+        margin-top: 0.375rem;
+        padding-left: 1.5rem;
+      }
+    }
+
+    &>[data-deposit-outcome="success"] {
+      background: var(--alert-success-bg);
+      border: 1px solid var(--alert-success-border);
+      color: var(--alert-success-text);
+    }
+
+    &>[data-deposit-outcome="danger"] {
+      background: var(--alert-danger-bg);
+      border: 1px solid var(--alert-danger-border);
+      color: var(--alert-danger-text);
+    }
+
+    &>[data-deposit-outcome="warning"] {
+      background: var(--alert-warning-bg);
+      border: 1px solid var(--alert-warning-border);
+      color: var(--alert-warning-text);
+    }
+
+    &>[data-deposit-outcome="info"] {
+      background: var(--alert-info-bg);
+      border: 1px solid var(--alert-info-border);
+      color: var(--alert-info-text);
     }
 
     &>[data-flash] {
@@ -2699,6 +2762,10 @@
     #deposit-detail {
 
       &>[data-flash] {
+        border-width: 2px;
+      }
+
+      &>[data-deposit-outcome] {
         border-width: 2px;
       }
 

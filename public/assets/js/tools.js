@@ -499,8 +499,11 @@
   const fieldset = gallery?.closest('fieldset') ?? document.querySelector('section[aria-labelledby="edit-tool-heading"] > fieldset:last-of-type');
   if (!fieldset) return;
 
-  const toolId = gallery?.dataset.toolId ?? document.querySelector('[data-add-photo]')?.dataset.toolId;
+  const toolId = gallery?.dataset.toolId ?? document.getElementById('add-photo')?.dataset.toolId;
   if (!toolId) return;
+
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const MAX_SIZE = 5 * 1024 * 1024;
 
   let busy = false;
 
@@ -525,6 +528,10 @@
     const div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
     return div.innerHTML.replace(/"/g, '&quot;');
+  }
+
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
   }
 
   function ensureGallery() {
@@ -554,41 +561,43 @@
   function updateSlotHint() {
     const g = getGallery();
     const remaining = 6 - (g ? g.querySelectorAll('li[data-image-id]').length : 0);
-    const addSection = document.querySelector('[data-add-photo]')?.closest('div');
+    const uploadForm = document.getElementById('photo-upload-form');
 
-    if (addSection) {
-      addSection.hidden = remaining <= 0;
-      const hint = addSection.querySelector('#add-photo-hint');
+    if (uploadForm) {
+      uploadForm.hidden = remaining <= 0;
+      const hint = document.getElementById('add-photo-hint');
       if (hint && remaining > 0) {
         hint.textContent = `JPEG, PNG, or WebP \u2014 max 5 MB. ${remaining} slot${remaining !== 1 ? 's' : ''} remaining.`;
       }
     }
   }
 
-  function updateResetButtons() {
-    const g = getGallery();
-    if (!g) return;
-    for (const li of g.querySelectorAll('li[data-image-id]')) {
-      const btn = li.querySelector('[data-reset-focal]');
-      if (!btn) continue;
-      const fx = parseInt(li.dataset.focalX ?? '50', 10);
-      const fy = parseInt(li.dataset.focalY ?? '50', 10);
-      btn.hidden = (fx === 50 && fy === 50);
+  function validateFile(file) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      NT.toast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
+      return false;
     }
+    if (file.size > MAX_SIZE) {
+      NT.toast('File exceeds the 5 MB limit.', 'error');
+      return false;
+    }
+    return true;
   }
 
   function buildLiHtml(img) {
     const thumb = escapeAttr(img.filename.replace(/\.(\w+)$/, '-400w.$1'));
     const altSafe = escapeAttr(img.alt_text || '');
     const csrfToken = escapeAttr(document.querySelector('meta[name="csrf-token"]')?.content ?? '');
+    const fx = img.focal_x ?? 50;
+    const fy = img.focal_y ?? 50;
+    const focalStyle = (fx !== 50 || fy !== 50) ? ` style="object-position:${fx}% ${fy}%"` : '';
 
     return `
       <img src="/uploads/tools/${thumb}"
            alt="${altSafe}"
            width="400" height="268"
            loading="lazy"
-           decoding="async"
-           data-crop-target>
+           decoding="async"${focalStyle}>
       <div>
         <label for="alt-text-${img.id}">
           <span class="visually-hidden">Alt text for image ${img.id}</span>
@@ -614,11 +623,10 @@
       </div>
       <div>
         <button type="button"
-                data-reset-focal
+                data-reposition
                 data-image-id="${img.id}"
-                aria-label="Reset crop position"
-                hidden>
-          <i class="fa-solid fa-arrows-to-circle" aria-hidden="true"></i> Reset Crop
+                aria-label="Reposition this photo">
+          <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Reposition
         </button>
       </div>
       <form method="post" action="/tools/${toolId}/images/${img.id}" data-delete-form>
@@ -648,12 +656,254 @@
     }
   }
 
+  const cropDialog  = document.getElementById('crop-dialog');
+  const cropPreview = document.getElementById('crop-preview');
+  const cropViewport = document.getElementById('crop-viewport');
+  const confirmBtn  = cropDialog?.querySelector('[data-crop-confirm]');
+  const cancelBtn   = cropDialog?.querySelector('[data-crop-cancel]');
+  const cropLabelEl = cropDialog?.querySelector('[data-crop-label]');
+  const confirmIcon = confirmBtn?.querySelector('i');
+
+  let cropMode = null;
+  let cropFile = null;
+  let cropObjectUrl = null;
+  let cropFocalX = 50;
+  let cropFocalY = 50;
+  let repositionImageId = null;
+
+  function cleanupCropState() {
+    if (cropObjectUrl) {
+      URL.revokeObjectURL(cropObjectUrl);
+      cropObjectUrl = null;
+    }
+    cropFile = null;
+    cropMode = null;
+    repositionImageId = null;
+    const fi = document.getElementById('add-photo');
+    if (fi) fi.value = '';
+  }
+
+  function closeCropDialog() {
+    if (!cropDialog) return;
+    cleanupCropState();
+    cropDialog.close();
+  }
+
+  function openCropUpload(file) {
+    if (!cropDialog || !cropPreview) return;
+
+    cropMode = 'upload';
+    cropFile = file;
+    cropFocalX = 50;
+    cropFocalY = 50;
+    repositionImageId = null;
+
+    cropObjectUrl = URL.createObjectURL(file);
+    cropPreview.src = cropObjectUrl;
+    cropPreview.style.objectPosition = '50% 50%';
+
+    if (confirmIcon) confirmIcon.className = 'fa-solid fa-cloud-arrow-up';
+    if (cropLabelEl) cropLabelEl.textContent = 'Upload';
+    if (confirmBtn) confirmBtn.disabled = false;
+
+    cropDialog.dataset.mode = 'upload';
+    cropDialog.showModal();
+  }
+
+  function openCropReposition(imageId, imgSrc, focalX, focalY) {
+    if (!cropDialog || !cropPreview) return;
+
+    cropMode = 'reposition';
+    cropFile = null;
+    cropObjectUrl = null;
+    cropFocalX = focalX;
+    cropFocalY = focalY;
+    repositionImageId = imageId;
+
+    cropPreview.src = imgSrc;
+    cropPreview.style.objectPosition = `${focalX}% ${focalY}%`;
+
+    if (confirmIcon) confirmIcon.className = 'fa-solid fa-check';
+    if (cropLabelEl) cropLabelEl.textContent = 'Save';
+    if (confirmBtn) confirmBtn.disabled = false;
+
+    cropDialog.dataset.mode = 'reposition';
+    cropDialog.showModal();
+  }
+
+  if (cropViewport && cropPreview) {
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startFX = 50;
+    let startFY = 50;
+
+    cropViewport.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      cropViewport.setPointerCapture(e.pointerId);
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startFX = cropFocalX;
+      startFY = cropFocalY;
+    });
+
+    cropViewport.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      e.preventDefault();
+
+      const vpW = cropViewport.clientWidth;
+      const vpH = cropViewport.clientHeight;
+      const natW = cropPreview.naturalWidth || 800;
+      const natH = cropPreview.naturalHeight || 536;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const pctDx = vpW > 0 ? (dx / vpW) * -100 : 0;
+      const pctDy = vpH > 0 ? (dy / vpH) * -100 : 0;
+
+      const vpAspect = vpW / vpH;
+      const natAspect = natW / natH;
+      let sensitivityX, sensitivityY;
+
+      if (natAspect > vpAspect) {
+        sensitivityX = (natW * (vpH / natH)) / vpW;
+        sensitivityY = 1;
+      } else {
+        sensitivityX = 1;
+        sensitivityY = (natH * (vpW / natW)) / vpH;
+      }
+
+      cropFocalX = clamp(Math.round(startFX + pctDx * sensitivityX), 0, 100);
+      cropFocalY = clamp(Math.round(startFY + pctDy * sensitivityY), 0, 100);
+      cropPreview.style.objectPosition = `${cropFocalX}% ${cropFocalY}%`;
+    });
+
+    cropViewport.addEventListener('pointerup', () => { dragging = false; });
+    cropViewport.addEventListener('pointercancel', () => { dragging = false; });
+
+    cropViewport.addEventListener('keydown', (e) => {
+      let handled = false;
+
+      if (e.key === 'ArrowLeft')  { cropFocalX = clamp(cropFocalX - 1, 0, 100); handled = true; }
+      if (e.key === 'ArrowRight') { cropFocalX = clamp(cropFocalX + 1, 0, 100); handled = true; }
+      if (e.key === 'ArrowUp')    { cropFocalY = clamp(cropFocalY - 1, 0, 100); handled = true; }
+      if (e.key === 'ArrowDown')  { cropFocalY = clamp(cropFocalY + 1, 0, 100); handled = true; }
+
+      if (handled) {
+        e.preventDefault();
+        cropPreview.style.objectPosition = `${cropFocalX}% ${cropFocalY}%`;
+      }
+    });
+  }
+
+  confirmBtn?.addEventListener('click', async () => {
+    if (busy) return;
+
+    if (cropMode === 'upload') {
+      if (!cropFile) return;
+
+      confirmBtn.disabled = true;
+      confirmBtn.dataset.loading = '';
+      setBusy(true);
+
+      const fd = new FormData();
+      fd.append('photo', cropFile);
+      fd.append('focal_x', String(cropFocalX));
+      fd.append('focal_y', String(cropFocalY));
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images`, {
+          method: 'POST',
+          body: fd,
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          NT.toast(err?.error ?? 'Failed to upload photo.', 'error');
+          confirmBtn.disabled = false;
+          delete confirmBtn.dataset.loading;
+          setBusy(false);
+          return;
+        }
+
+        const img = await res.json();
+        const g = ensureGallery();
+
+        const li = document.createElement('li');
+        li.dataset.imageId = img.id;
+        li.dataset.focalX = String(img.focal_x ?? cropFocalX);
+        li.dataset.focalY = String(img.focal_y ?? cropFocalY);
+        li.draggable = true;
+        li.tabIndex = 0;
+        li.innerHTML = buildLiHtml(img);
+
+        g.appendChild(li);
+        closeCropDialog();
+        updateSlotHint();
+        NT.toast('Photo uploaded.', 'success');
+      } catch {
+        NT.toast('Failed to upload photo.', 'error');
+        confirmBtn.disabled = false;
+        delete confirmBtn.dataset.loading;
+      } finally {
+        setBusy(false);
+      }
+    } else if (cropMode === 'reposition') {
+      if (!repositionImageId) return;
+
+      confirmBtn.disabled = true;
+      confirmBtn.dataset.loading = '';
+      setBusy(true);
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images/${repositionImageId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ focal_x: cropFocalX, focal_y: cropFocalY }),
+        });
+
+        if (!res.ok) {
+          NT.toast('Failed to save position.', 'error');
+          confirmBtn.disabled = false;
+          delete confirmBtn.dataset.loading;
+          setBusy(false);
+          return;
+        }
+
+        const g = getGallery();
+        const li = g?.querySelector(`li[data-image-id="${repositionImageId}"]`);
+        if (li) {
+          li.dataset.focalX = String(cropFocalX);
+          li.dataset.focalY = String(cropFocalY);
+          const img = li.querySelector('img');
+          if (img) {
+            img.style.objectPosition = (cropFocalX !== 50 || cropFocalY !== 50)
+              ? `${cropFocalX}% ${cropFocalY}%`
+              : '';
+          }
+        }
+
+        closeCropDialog();
+        NT.toast('Position saved.', 'success');
+      } catch {
+        NT.toast('Failed to save position.', 'error');
+        confirmBtn.disabled = false;
+        delete confirmBtn.dataset.loading;
+      } finally {
+        setBusy(false);
+      }
+    }
+  });
+
+  cancelBtn?.addEventListener('click', closeCropDialog);
+  cropDialog?.addEventListener('close', cleanupCropState);
+
   let dragItem = null;
 
   function attachGalleryListeners(g) {
 
     g.addEventListener('dragstart', (e) => {
-      if (e.target.closest('img[data-crop-target], input, button, label, a')) {
+      if (e.target.closest('input, button, label, a')) {
         e.preventDefault();
         return;
       }
@@ -865,48 +1115,21 @@
       }
     });
 
-    g.addEventListener('click', async (e) => {
-      const resetBtn = e.target.closest('[data-reset-focal]');
-      if (!resetBtn || busy) return;
+    g.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-reposition]');
+      if (!btn || busy) return;
 
-      const li = resetBtn.closest('li[data-image-id]');
+      const li = btn.closest('li[data-image-id]');
       if (!li) return;
 
       const imageId = li.dataset.imageId;
-      const img = li.querySelector('img[data-crop-target]');
+      const img = li.querySelector('img');
       if (!img) return;
 
-      const prevX = parseInt(li.dataset.focalX ?? '50', 10);
-      const prevY = parseInt(li.dataset.focalY ?? '50', 10);
-      if (prevX === 50 && prevY === 50) return;
+      const fx = parseInt(li.dataset.focalX ?? '50', 10);
+      const fy = parseInt(li.dataset.focalY ?? '50', 10);
 
-      li.dataset.focalX = '50';
-      li.dataset.focalY = '50';
-      img.style.objectPosition = '';
-      resetBtn.hidden = true;
-
-      try {
-        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ focal_x: 50, focal_y: 50 }),
-        });
-
-        if (!res.ok) {
-          li.dataset.focalX = prevX;
-          li.dataset.focalY = prevY;
-          img.style.objectPosition = `${prevX}% ${prevY}%`;
-          resetBtn.hidden = false;
-          NT.toast('Failed to reset crop position.', 'error');
-        } else {
-          NT.toast('Crop position reset.', 'success');
-        }
-      } catch {
-        li.dataset.focalX = prevX;
-        li.dataset.focalY = prevY;
-        img.style.objectPosition = `${prevX}% ${prevY}%`;
-        resetBtn.hidden = false;
-        NT.toast('Failed to reset crop position.', 'error');
-      }
+      openCropReposition(imageId, img.src, fx, fy);
     });
 
     g.addEventListener('blur', async (e) => {
@@ -931,277 +1154,78 @@
         NT.toast('Failed to save alt text.', 'error');
       }
     }, true);
-
-    initFocalPointCrop(g);
-  }
-
-  function initFocalPointCrop(g) {
-    let activeImg    = null;
-    let activeLi     = null;
-    let startX       = 0;
-    let startY       = 0;
-    let startFocalX  = 50;
-    let startFocalY  = 50;
-    let imgNatW      = 0;
-    let imgNatH      = 0;
-    let imgRenderedW = 0;
-    let imgRenderedH = 0;
-
-    function clamp(val, min, max) {
-      return Math.max(min, Math.min(max, val));
-    }
-
-    function getFocalFromLi(li) {
-      return {
-        x: parseInt(li.dataset.focalX ?? '50', 10),
-        y: parseInt(li.dataset.focalY ?? '50', 10),
-      };
-    }
-
-    function applyPosition(img, fx, fy) {
-      img.style.objectPosition = `${fx}% ${fy}%`;
-    }
-
-    function onPointerDown(e) {
-      const img = e.target.closest('img[data-crop-target]');
-      if (!img || busy) return;
-
-      const li = img.closest('li[data-image-id]');
-      if (!li) return;
-
-      e.preventDefault();
-      img.setPointerCapture(e.pointerId);
-
-      activeImg   = img;
-      activeLi    = li;
-      const focal = getFocalFromLi(li);
-      startFocalX = focal.x;
-      startFocalY = focal.y;
-      startX      = e.clientX;
-      startY      = e.clientY;
-
-      imgNatW      = img.naturalWidth  || 800;
-      imgNatH      = img.naturalHeight || 536;
-      imgRenderedW = img.clientWidth;
-      imgRenderedH = img.clientHeight;
-
-      li.dataset.cropping = '';
-      li.draggable = false;
-    }
-
-    function onPointerMove(e) {
-      if (!activeImg) return;
-      e.preventDefault();
-
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-
-      const pctDx = imgRenderedW > 0 ? (dx / imgRenderedW) * -100 : 0;
-      const pctDy = imgRenderedH > 0 ? (dy / imgRenderedH) * -100 : 0;
-
-      const aspect = imgRenderedW / imgRenderedH;
-      const natAspect = imgNatW / imgNatH;
-
-      let sensitivityX, sensitivityY;
-
-      if (natAspect > aspect) {
-        const scaledW = imgNatW * (imgRenderedH / imgNatH);
-        sensitivityX = scaledW / imgRenderedW;
-        sensitivityY = 1;
-      } else {
-        sensitivityX = 1;
-        const scaledH = imgNatH * (imgRenderedW / imgNatW);
-        sensitivityY = scaledH / imgRenderedH;
-      }
-
-      const fx = clamp(Math.round(startFocalX + pctDx * sensitivityX), 0, 100);
-      const fy = clamp(Math.round(startFocalY + pctDy * sensitivityY), 0, 100);
-
-      applyPosition(activeImg, fx, fy);
-    }
-
-    async function onPointerUp() {
-      if (!activeImg || !activeLi) return;
-
-      const li  = activeLi;
-      const img = activeImg;
-      const imageId = li.dataset.imageId;
-
-      delete li.dataset.cropping;
-      li.draggable = true;
-      activeImg = null;
-      activeLi  = null;
-
-      const style = img.style.objectPosition;
-      const match = style.match(/(\d+)%\s+(\d+)%/);
-      const fx = match ? parseInt(match[1], 10) : 50;
-      const fy = match ? parseInt(match[2], 10) : 50;
-
-      const prev = getFocalFromLi(li);
-      if (fx === prev.x && fy === prev.y) return;
-
-      li.dataset.focalX = fx;
-      li.dataset.focalY = fy;
-
-      try {
-        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ focal_x: fx, focal_y: fy }),
-        });
-
-        if (!res.ok) {
-          li.dataset.focalX = prev.x;
-          li.dataset.focalY = prev.y;
-          applyPosition(img, prev.x, prev.y);
-          NT.toast('Failed to save crop position.', 'error');
-        } else {
-          NT.toast('Crop position saved.', 'success');
-          updateResetButtons();
-        }
-      } catch {
-        li.dataset.focalX = prev.x;
-        li.dataset.focalY = prev.y;
-        applyPosition(img, prev.x, prev.y);
-        NT.toast('Failed to save crop position.', 'error');
-      }
-    }
-
-    function onPointerCancel() {
-      if (!activeImg || !activeLi) return;
-
-      const li  = activeLi;
-      const img = activeImg;
-      const focal = getFocalFromLi(li);
-
-      delete li.dataset.cropping;
-      li.draggable = true;
-      applyPosition(img, focal.x, focal.y);
-      activeImg = null;
-      activeLi  = null;
-    }
-
-    g.addEventListener('pointerdown', onPointerDown);
-    g.addEventListener('pointermove', onPointerMove);
-    g.addEventListener('pointerup', onPointerUp);
-    g.addEventListener('pointercancel', onPointerCancel);
   }
 
   if (gallery) {
     attachGalleryListeners(gallery);
   }
 
-  const addInput = document.querySelector('[data-add-photo]');
+  const photoSubmit = document.getElementById('photo-submit');
+  const dropZone = document.getElementById('photo-drop-zone');
+  const fileInput = document.getElementById('add-photo');
 
-  if (addInput) {
-    addInput.addEventListener('change', async () => {
-      const file = addInput.files?.[0];
-      if (!file || busy) return;
+  if (photoSubmit) photoSubmit.hidden = true;
 
-      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!allowed.includes(file.type)) {
-        NT.toast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
-        addInput.value = '';
-        return;
-      }
+  if (dropZone && fileInput) {
+    dropZone.setAttribute('role', 'button');
+    dropZone.tabIndex = 0;
+    dropZone.setAttribute('aria-label', 'Choose a photo to upload');
 
-      if (file.size > 5 * 1024 * 1024) {
-        NT.toast('File exceeds the 5 MB limit.', 'error');
-        addInput.value = '';
-        return;
-      }
+    dropZone.addEventListener('click', (e) => {
+      if (e.target === fileInput) return;
+      fileInput.click();
+    });
 
-      setBusy(true);
-      addInput.disabled = true;
-
-      const fd = new FormData();
-      fd.append('photo', file);
-
-      try {
-        const res = await NT.fetch(`/tools/${toolId}/images`, {
-          method: 'POST',
-          body: fd,
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => null);
-          NT.toast(err?.error ?? 'Failed to upload photo.', 'error');
-          addInput.value = '';
-          addInput.disabled = false;
-          setBusy(false);
-          return;
-        }
-
-        const img = await res.json();
-        const g = ensureGallery();
-
-        const li = document.createElement('li');
-        li.dataset.imageId = img.id;
-        li.dataset.focalX = '50';
-        li.dataset.focalY = '50';
-        li.draggable = true;
-        li.tabIndex = 0;
-        li.innerHTML = buildLiHtml(img);
-
-        g.appendChild(li);
-        updateSlotHint();
-
-        addInput.value = '';
-        NT.toast('Photo uploaded.', 'success');
-      } catch {
-        NT.toast('Failed to upload photo.', 'error');
-      } finally {
-        addInput.disabled = false;
-        setBusy(false);
+    dropZone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
       }
     });
 
-    const dropZone = addInput.closest('div');
-    if (dropZone) {
-      let dragCounter = 0;
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      if (!validateFile(file)) { fileInput.value = ''; return; }
+      openCropUpload(file);
+    });
 
-      dropZone.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        dragCounter++;
-        dropZone.dataset.dragover = '';
-      });
+    let dragCounter = 0;
 
-      dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-      });
+    dropZone.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      dragCounter++;
+      dropZone.dataset.dragover = '';
+    });
 
-      dropZone.addEventListener('dragleave', () => {
-        dragCounter--;
-        if (dragCounter <= 0) {
-          dragCounter = 0;
-          delete dropZone.dataset.dragover;
-        }
-      });
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
 
-      dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
+    dropZone.addEventListener('dragleave', () => {
+      dragCounter--;
+      if (dragCounter <= 0) {
         dragCounter = 0;
         delete dropZone.dataset.dragover;
+      }
+    });
 
-        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-        const file = Array.from(e.dataTransfer.files).find(f => allowed.includes(f.type));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      delete dropZone.dataset.dragover;
 
-        if (!file) {
-          NT.toast('No valid image file found. Use JPEG, PNG, or WebP.', 'error');
-          return;
-        }
+      const file = Array.from(e.dataTransfer.files).find(f => ALLOWED_TYPES.includes(f.type));
 
-        if (file.size > 5 * 1024 * 1024) {
-          NT.toast('File exceeds the 5 MB limit.', 'error');
-          return;
-        }
+      if (!file) {
+        NT.toast('No valid image file found. Use JPEG, PNG, or WebP.', 'error');
+        return;
+      }
 
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        addInput.files = dt.files;
-        addInput.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-    }
+      if (!validateFile(file)) return;
+      openCropUpload(file);
+    });
   }
 })();
 

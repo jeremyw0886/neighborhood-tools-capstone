@@ -475,6 +475,68 @@ class BorrowController extends BaseController
     }
 
     /**
+     * Send a return reminder notification to the borrower (lender action).
+     *
+     * Rate-limited to one reminder per borrow per 24 hours.
+     */
+    public function remind(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $borrowId = (int) $id;
+
+        if ($borrowId < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findActiveById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::remind lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        if ((int) $borrow['lender_id'] !== $userId) {
+            $this->abort(403);
+        }
+
+        $rateLimitKey = $userId . '|remind_borrow_' . $borrowId;
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 1, 86400)) {
+            $_SESSION['borrow_errors'] = ['general' => 'You already sent a reminder for this tool today.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        RateLimiter::increment($rateLimitKey);
+
+        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
+
+        try {
+            Notification::send(
+                accountId: (int) $borrow['borrower_id'],
+                type: 'return',
+                title: 'Return Reminder',
+                body: $lenderName . ' is requesting the return of ' . $borrow['tool_name_tol'] . '.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('BorrowController::remind notification — ' . $e->getMessage());
+            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/dashboard/lender');
+        }
+
+        $_SESSION['borrow_success'] = 'Reminder sent to ' . htmlspecialchars($borrow['borrower_name']) . '.';
+        $this->redirect('/dashboard/lender');
+    }
+
+    /**
      * Validate borrow request form fields.
      *
      * @return array<string, string>  Field-keyed error messages (empty = valid)

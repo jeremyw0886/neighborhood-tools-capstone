@@ -79,6 +79,7 @@ return [
     'POST /borrow/{id}/deny'       => [BorrowController::class, 'deny'],
     'POST /borrow/{id}/cancel'     => [BorrowController::class, 'cancel'],
     'POST /borrow/{id}/extend'     => [BorrowController::class, 'extend'],
+    'POST /borrow/{id}/remind'     => [BorrowController::class, 'remind'],
 
     // Profile
     'GET /profile/edit'            => [ProfileController::class, 'edit'],

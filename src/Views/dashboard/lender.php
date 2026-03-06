@@ -384,6 +384,14 @@ use App\Core\ViewHelper;
                     <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Code
                   </span>
                 <?php endif; ?>
+                <?php if ($dueStatus === 'OVERDUE' || $dueStatus === 'DUE SOON'): ?>
+                  <form method="post" action="/borrow/<?= (int) $row['id_bor'] ?>/remind">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <button type="submit" data-intent="warning">
+                      <i class="fa-solid fa-bell" aria-hidden="true"></i> Send Reminder
+                    </button>
+                  </form>
+                <?php endif; ?>
                 <details>
                   <summary data-intent="warning">
                     <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend

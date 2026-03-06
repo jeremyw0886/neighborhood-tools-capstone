@@ -1257,6 +1257,26 @@
           width: 100%;
         }
 
+        & > img[data-crop-target] {
+          cursor: move;
+          cursor: grab;
+          touch-action: none;
+          user-select: none;
+
+          &:active {
+            cursor: grabbing;
+          }
+        }
+
+        &[data-cropping] {
+          border-color: var(--mountain-pine);
+          box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.2);
+
+          & > img[data-crop-target] {
+            cursor: grabbing;
+          }
+        }
+
         & > div {
           padding: 0 0.75rem;
         }

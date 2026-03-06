@@ -290,11 +290,13 @@ $images            ??= [];
     <dialog id="crop-dialog" aria-label="Position your photo">
       <header>
         <h2>Position Your Photo</h2>
-        <p>Drag the image to choose which part is visible.</p>
+        <p>Drag to choose which part is visible in the 3:2 frame.</p>
       </header>
       <div id="crop-viewport">
         <img id="crop-preview" alt="Crop preview" draggable="false">
+        <div id="crop-frame" aria-hidden="true"></div>
       </div>
+      <p id="crop-hint">Use arrow keys to nudge</p>
       <footer>
         <button type="button" data-crop-cancel>Cancel</button>
         <button type="button" data-crop-confirm data-intent="primary">

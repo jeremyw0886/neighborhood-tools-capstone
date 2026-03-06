@@ -36,7 +36,7 @@ $images            ??= [];
     </ul>
   <?php endif; ?>
 
-  <form action="/tools/<?= (int) $tool['id_tol'] ?>" method="post" novalidate>
+  <form id="edit-tool-form" action="/tools/<?= (int) $tool['id_tol'] ?>" method="post" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
     <fieldset>
@@ -174,9 +174,6 @@ $images            ??= [];
 
     </fieldset>
 
-    <button type="submit" data-intent="primary">
-      <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
-    </button>
   </form>
 
   <fieldset>
@@ -302,5 +299,9 @@ $images            ??= [];
       </footer>
     </dialog>
   </fieldset>
+
+  <button type="submit" form="edit-tool-form" data-intent="primary">
+    <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
+  </button>
 
 </section>

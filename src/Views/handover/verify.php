@@ -7,14 +7,65 @@
  *   $isVerifier        bool   Whether the current user is the one who verifies (not the generator)
  *   $awaitingLender    bool   (optional) True when borrower visits before lender generates pickup code
  *   $awaitingBorrower  bool   (optional) True when lender visits before borrower generates return code
+ *   $waiverPending     bool   (optional) True when lender visits but borrower hasn't signed waiver
  *   $depositPending    bool   (optional) True when lender visits but borrower hasn't paid deposit
- *   $borrow            array  (optional) Row from Borrow::findById() — present with awaiting/deposit flags
+ *   $borrow            array  (optional) Row from Borrow::findById() — present with awaiting/deposit/waiver flags
  *
  * Shared data:
  *   $authUser   array{id, name, first_name, role, avatar}
  *   $csrfToken  string
  */
 
+if (!empty($waiverPending)):
+  $toolName = htmlspecialchars($borrow['tool_name_tol']);
+?>
+
+<section id="handover-verify" aria-labelledby="handover-heading">
+
+  <header>
+    <h1 id="handover-heading">
+      <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
+      Pickup Verification
+    </h1>
+    <p>Awaiting waiver for <strong><?= $toolName ?></strong>.</p>
+  </header>
+
+  <dl aria-label="Borrow details">
+    <div>
+      <dt>Tool</dt>
+      <dd><?= $toolName ?></dd>
+    </div>
+    <div>
+      <dt>Borrower</dt>
+      <dd>
+        <a href="/profile/<?= (int) $borrow['borrower_id'] ?>">
+          <?= htmlspecialchars($borrow['borrower_name']) ?>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd><span data-status="approved">Approved</span></dd>
+    </div>
+  </dl>
+
+  <p data-flash="info">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    The borrower hasn't signed the borrow waiver yet. The pickup process can continue once the waiver is signed.
+  </p>
+
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Back
+    </a>
+  </nav>
+
+</section>
+
+<?php return; endif; ?>
+
+<?php
 if (!empty($depositPending)):
   $toolName = htmlspecialchars($borrow['tool_name_tol']);
 ?>

@@ -13,6 +13,7 @@
  *   $lentOut            array  Active borrows where user is lender
  *   $depositsByBorrow   array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
  *   $handoversByBorrow  array<int, array>  Keyed by borrow ID — pending handover rows
+ *   $waiversByBorrow    array<int, bool>   Keyed by borrow ID — true if waiver signed
  *   $reqSort            array{sort: string, dir: string}  Incoming requests sort state
  *   $lentSort           array{sort: string, dir: string}  Lent-out table sort state
  *
@@ -158,10 +159,11 @@ use App\Core\ViewHelper;
       <ul data-card-list>
         <?php foreach ($awaitingPickup as $pickup): ?>
           <?php
-            $pickupId    = (int) $pickup['id_bor'];
-            $deposit     = $depositsByBorrow[$pickupId] ?? null;
-            $handover    = $handoversByBorrow[$pickupId] ?? null;
-            $depositPaid = $deposit === null || $deposit['deposit_status'] !== 'pending';
+            $pickupId      = (int) $pickup['id_bor'];
+            $waiverSigned  = $waiversByBorrow[$pickupId] ?? false;
+            $deposit       = $depositsByBorrow[$pickupId] ?? null;
+            $handover      = $handoversByBorrow[$pickupId] ?? null;
+            $depositPaid   = $deposit === null || $deposit['deposit_status'] !== 'pending';
           ?>
           <li>
             <article data-activity-card>
@@ -188,7 +190,11 @@ use App\Core\ViewHelper;
                 <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>
               </dl>
               <footer data-actions>
-                <?php if (!$depositPaid): ?>
+                <?php if (!$waiverSigned): ?>
+                  <span role="button" aria-disabled="true" data-intent="ghost">
+                    <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Waiver
+                  </span>
+                <?php elseif (!$depositPaid): ?>
                   <span role="button" aria-disabled="true" data-intent="ghost">
                     <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Deposit
                   </span>

@@ -9,6 +9,7 @@ use App\Models\Borrow;
 use App\Models\Deposit;
 use App\Models\Handover;
 use App\Models\Notification;
+use App\Models\Waiver;
 
 class HandoverController extends BaseController
 {
@@ -117,13 +118,30 @@ class HandoverController extends BaseController
     {
         $borrowId = (int) $borrow['id_bor'];
 
+        $waiverSigned = Waiver::hasSignedWaiver($borrowId);
+
         if ((int) $borrow['lender_id'] !== $userId) {
+            if (!$waiverSigned) {
+                $this->redirect('/waiver/' . $borrowId);
+            }
+
             $this->render('handover/verify', [
                 'title'          => 'Awaiting Pickup — NeighborhoodTools',
                 'description'    => 'Waiting for the lender to generate the pickup code.',
                 'pageCss'        => ['features.css'],
                 'awaitingLender' => true,
                 'borrow'         => $borrow,
+            ]);
+            exit;
+        }
+
+        if (!$waiverSigned) {
+            $this->render('handover/verify', [
+                'title'           => 'Awaiting Waiver — NeighborhoodTools',
+                'description'     => 'Waiting for the borrower to sign the borrow waiver.',
+                'pageCss'         => ['features.css'],
+                'waiverPending'   => true,
+                'borrow'          => $borrow,
             ]);
             exit;
         }

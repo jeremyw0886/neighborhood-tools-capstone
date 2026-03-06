@@ -64,6 +64,63 @@ class Waiver
     }
 
     /**
+     * Check whether a signed waiver exists for a borrow transaction.
+     *
+     * @return bool True if at least one signed waiver row exists
+     */
+    public static function hasSignedWaiver(int $borrowId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            SELECT 1
+            FROM borrow_waiver_bwv
+            WHERE id_bor_bwv = :id
+            LIMIT 1
+        ');
+        $stmt->bindValue(':id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * Check waiver status for multiple borrow IDs at once.
+     *
+     * @param  int[] $borrowIds
+     * @return array<int, bool> Keyed by borrow ID — true if waiver signed
+     */
+    public static function getSignedStatusByBorrowIds(array $borrowIds): array
+    {
+        if ($borrowIds === []) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+
+        $placeholders = implode(',', array_fill(0, count($borrowIds), '?'));
+        $stmt = $pdo->prepare("
+            SELECT id_bor_bwv
+            FROM borrow_waiver_bwv
+            WHERE id_bor_bwv IN ({$placeholders})
+        ");
+
+        foreach (array_values($borrowIds) as $i => $id) {
+            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+        $signedIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $result = [];
+        foreach ($borrowIds as $id) {
+            $result[$id] = in_array($id, $signedIds, true);
+        }
+
+        return $result;
+    }
+
+    /**
      * Record a signed waiver for a borrow transaction.
      *
      * Inserts a single row into borrow_waiver_bwv with all three

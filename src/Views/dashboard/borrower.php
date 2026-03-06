@@ -9,6 +9,7 @@
  *   $awaitingPickup     array  Approved borrows awaiting pickup (borrower side)
  *   $depositsByBorrow   array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
  *   $handoversByBorrow  array<int, array>  Keyed by borrow ID — pending handover rows
+ *   $waiversByBorrow    array<int, bool>   Keyed by borrow ID — true if waiver signed
  *   $borrowSort         array{sort: string, dir: string}  Active borrows sort state
  *   $borrowStatus       ?string  Active borrows status filter (on-time|due-soon|overdue|null)
  *   $reqSort            array{sort: string, dir: string}  Pending requests sort state
@@ -102,6 +103,7 @@ use App\Core\ViewHelper;
         <?php foreach ($awaitingPickup as $pickup): ?>
           <?php
             $pickupId      = (int) $pickup['id_bor'];
+            $waiverSigned  = $waiversByBorrow[$pickupId] ?? false;
             $borrowDeposit = $depositsByBorrow[$pickupId] ?? null;
             $handover      = $handoversByBorrow[$pickupId] ?? null;
             $depositPaid   = $borrowDeposit === null || $borrowDeposit['deposit_status'] !== 'pending';
@@ -131,7 +133,11 @@ use App\Core\ViewHelper;
                 <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>
               </dl>
               <footer data-actions>
-                <?php if (!$depositPaid): ?>
+                <?php if (!$waiverSigned): ?>
+                  <a href="/waiver/<?= $pickupId ?>" role="button" data-intent="warning">
+                    <i class="fa-solid fa-file-signature" aria-hidden="true"></i> Sign Waiver
+                  </a>
+                <?php elseif (!$depositPaid): ?>
                   <a href="/payments/deposit/<?= (int) $borrowDeposit['id_sdp'] ?>" role="button" data-intent="warning">
                     <i class="fa-solid fa-credit-card" aria-hidden="true"></i> Pay Deposit
                   </a>

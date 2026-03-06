@@ -12,6 +12,7 @@ use App\Models\Deposit;
 use App\Models\Handover;
 use App\Models\PlatformStats;
 use App\Models\Tool;
+use App\Models\Waiver;
 
 class DashboardController extends BaseController
 {
@@ -140,6 +141,15 @@ class DashboardController extends BaseController
         );
         $handoversByBorrow = Handover::findPendingByBorrowIds($allBorrowIds);
 
+        $waiversByBorrow = [];
+        if ($pickupBorrowIds !== []) {
+            try {
+                $waiversByBorrow = Waiver::getSignedStatusByBorrowIds($pickupBorrowIds);
+            } catch (\Throwable $e) {
+                error_log('DashboardController::lender (waivers) — ' . $e->getMessage());
+            }
+        }
+
         $this->render('dashboard/lender', [
             'title'              => 'My Tools — NeighborhoodTools',
             'description'        => 'Manage your listed tools and incoming borrow requests.',
@@ -154,6 +164,7 @@ class DashboardController extends BaseController
             'lentOut'            => array_values($lentOut),
             'depositsByBorrow'   => $depositsByBorrow,
             'handoversByBorrow'  => $handoversByBorrow,
+            'waiversByBorrow'    => $waiversByBorrow,
             'reqSort'            => $reqSort,
             'lentSort'           => $lentSort,
             'borrowSuccess'      => $this->flash('borrow_success'),
@@ -231,6 +242,15 @@ class DashboardController extends BaseController
         );
         $handoversByBorrow = Handover::findPendingByBorrowIds($allBorrowIds);
 
+        $waiversByBorrow = [];
+        if ($pickupBorrowIds !== []) {
+            try {
+                $waiversByBorrow = Waiver::getSignedStatusByBorrowIds($pickupBorrowIds);
+            } catch (\Throwable $e) {
+                error_log('DashboardController::borrower (waivers) — ' . $e->getMessage());
+            }
+        }
+
         $this->render('dashboard/borrower', [
             'title'              => 'My Borrows — NeighborhoodTools',
             'description'        => 'Track your active borrows and pending requests.',
@@ -241,6 +261,7 @@ class DashboardController extends BaseController
             'awaitingPickup'     => array_values($awaitingPickup),
             'depositsByBorrow'   => $depositsByBorrow,
             'handoversByBorrow'  => $handoversByBorrow,
+            'waiversByBorrow'    => $waiversByBorrow,
             'borrowSort'         => $borrowSort,
             'borrowStatus'       => $borrowStatus,
             'reqSort'            => $reqSort,

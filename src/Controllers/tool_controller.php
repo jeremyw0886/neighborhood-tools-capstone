@@ -1214,44 +1214,63 @@ class ToolController extends BaseController
         $this->validateCsrf();
 
         $toolId = (int) $id;
+        $json   = $this->wantsJson();
 
         if ($toolId < 1) {
-            $this->jsonResponse(404, ['error' => 'Tool not found']);
+            $json ? $this->jsonResponse(404, ['error' => 'Tool not found']) : $this->abort(404);
         }
 
         $tool = $this->findOwnedTool($toolId);
 
         if ($tool === null) {
-            $this->jsonResponse(403, ['error' => 'Unauthorized']);
+            $json ? $this->jsonResponse(403, ['error' => 'Unauthorized']) : $this->abort(403);
         }
 
         try {
             $count = Tool::getImageCount($toolId);
         } catch (\Throwable $e) {
             error_log('ToolController::uploadImage count — ' . $e->getMessage());
-            $this->jsonResponse(500, ['error' => 'Server error']);
+            $json ? $this->jsonResponse(500, ['error' => 'Server error']) : $this->abort(500);
         }
 
         if ($count >= self::MAX_IMAGES) {
-            $this->jsonResponse(422, ['error' => 'Maximum of ' . self::MAX_IMAGES . ' images allowed']);
+            $errorMsg = 'Maximum of ' . self::MAX_IMAGES . ' images allowed';
+            if ($json) {
+                $this->jsonResponse(422, ['error' => $errorMsg]);
+            }
+            $_SESSION['edit_tool_errors'] = ['photos' => $errorMsg];
+            $this->redirect('/tools/' . $toolId . '/edit');
         }
 
         $hasFile = isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE;
 
         if (!$hasFile) {
-            $this->jsonResponse(422, ['error' => 'No image file provided']);
+            if ($json) {
+                $this->jsonResponse(422, ['error' => 'No image file provided']);
+            }
+            $_SESSION['edit_tool_errors'] = ['photos' => 'No image file provided'];
+            $this->redirect('/tools/' . $toolId . '/edit');
         }
 
         $errors = $this->validateToolImage($_FILES['photo']);
 
         if ($errors !== []) {
-            $this->jsonResponse(422, ['error' => reset($errors)]);
+            $errorMsg = reset($errors);
+            if ($json) {
+                $this->jsonResponse(422, ['error' => $errorMsg]);
+            }
+            $_SESSION['edit_tool_errors'] = ['photos' => $errorMsg];
+            $this->redirect('/tools/' . $toolId . '/edit');
         }
 
         $filename = $this->moveToolImage($_FILES['photo']);
 
         if ($filename === null) {
-            $this->jsonResponse(500, ['error' => 'Failed to save image']);
+            if ($json) {
+                $this->jsonResponse(500, ['error' => 'Failed to save image']);
+            }
+            $_SESSION['edit_tool_errors'] = ['photos' => 'Failed to save image'];
+            $this->redirect('/tools/' . $toolId . '/edit');
         }
 
         $altText   = isset($_POST['alt_text']) ? mb_substr(trim($_POST['alt_text']), 0, 255) : null;
@@ -1259,20 +1278,36 @@ class ToolController extends BaseController
         $isPrimary = $count === 0;
         $sortOrder = $count + 1;
 
-        try {
-            $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder);
+        $focalX = isset($_POST['focal_x']) ? max(0, min(100, (int) $_POST['focal_x'])) : 50;
+        $focalY = isset($_POST['focal_y']) ? max(0, min(100, (int) $_POST['focal_y'])) : 50;
 
-            $this->jsonResponse(200, [
-                'id'         => $imageId,
-                'filename'   => $filename,
-                'alt_text'   => $altText,
-                'sort_order' => $sortOrder,
-                'is_primary' => $isPrimary,
-            ]);
+        try {
+            $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder, $focalX, $focalY);
+
+            if ($json) {
+                $this->jsonResponse(200, [
+                    'id'         => $imageId,
+                    'filename'   => $filename,
+                    'alt_text'   => $altText,
+                    'sort_order' => $sortOrder,
+                    'is_primary' => $isPrimary,
+                    'focal_x'    => $focalX,
+                    'focal_y'    => $focalY,
+                ]);
+            }
+
+            $_SESSION['tool_saved'] = true;
+            $this->redirect('/tools/' . $toolId . '/edit');
         } catch (\Throwable $e) {
             error_log('ToolController::uploadImage — ' . $e->getMessage());
             $this->deleteToolImageFiles($filename);
-            $this->jsonResponse(500, ['error' => 'Failed to save image record']);
+
+            if ($json) {
+                $this->jsonResponse(500, ['error' => 'Failed to save image record']);
+            }
+
+            $_SESSION['edit_tool_errors'] = ['photos' => 'Failed to save image record'];
+            $this->redirect('/tools/' . $toolId . '/edit');
         }
     }
 

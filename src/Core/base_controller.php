@@ -359,6 +359,14 @@ class BaseController
     }
 
     /**
+     * Check if the client prefers a JSON response.
+     */
+    protected function wantsJson(): bool
+    {
+        return str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+    }
+
+    /**
      * Send a JSON response and halt execution.
      */
     protected function jsonResponse(int $statusCode, array $data): never

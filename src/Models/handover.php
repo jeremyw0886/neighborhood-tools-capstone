@@ -121,6 +121,24 @@ class Handover
     }
 
     /**
+     * Delete an expired, unverified handover so a fresh one can be created.
+     */
+    public static function expireHandover(int $handoverId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('
+            DELETE FROM handover_verification_hov
+            WHERE id_hov = :id
+              AND verified_at_hov IS NULL
+              AND expires_at_hov < NOW()
+        ');
+
+        $stmt->bindValue(':id', $handoverId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
      * Mark a pending handover as verified.
      *
      * Sets verified_at_hov to NOW() and records the verifier's account ID.

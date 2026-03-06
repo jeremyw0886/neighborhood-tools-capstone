@@ -39,6 +39,15 @@ class HandoverController extends BaseController
             $handover = null;
         }
 
+        if ($handover !== null && $handover['code_status'] === 'EXPIRED') {
+            try {
+                Handover::expireHandover((int) $handover['id_hov']);
+            } catch (\Throwable $e) {
+                error_log('HandoverController::verify expire — ' . $e->getMessage());
+            }
+            $handover = null;
+        }
+
         if ($handover === null) {
             try {
                 $borrow = Borrow::findById($id);

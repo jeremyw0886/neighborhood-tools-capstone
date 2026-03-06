@@ -223,14 +223,6 @@ $toolReturned      = $borrowStatusRaw === 'returned';
     </p>
     <p>The tool was returned in acceptable condition and the full deposit has been released.</p>
   </div>
-  <?php elseif ($statusRaw === 'released' && !$toolReturned): ?>
-  <div data-deposit-outcome="info" role="status">
-    <p>
-      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-      <strong>The deposit hold has been released by an administrator.</strong>
-    </p>
-    <p>The tool has not yet been returned. The refund will be processed once the loan is complete.</p>
-  </div>
   <?php elseif ($statusRaw === 'forfeited'): ?>
   <div data-deposit-outcome="danger" role="status">
     <p>
@@ -304,15 +296,31 @@ $toolReturned      = $borrowStatusRaw === 'returned';
     </dl>
   </section>
 
-  <?php if ($isAdmin && strtolower($deposit['deposit_status']) === 'held'): ?>
+  <?php
+  $canProcess = $isAdmin
+      && strtolower($deposit['deposit_status']) === 'held'
+      && in_array($actionKey, ['ready for release', 'overdue - review needed', 'active borrow'], true);
+  ?>
+  <?php if ($canProcess): ?>
   <section aria-labelledby="process-heading">
     <h2 id="process-heading">Process Deposit</h2>
     <form method="post" action="/payments/deposit/<?= $depositId ?>" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
         <legend>Action</legend>
-        <label><input type="radio" name="action" value="release" checked> Release to Borrower</label>
-        <label><input type="radio" name="action" value="forfeit"> Forfeit to Lender</label>
+        <label>
+          <input type="radio" name="action" value="release"
+                 <?= !$toolReturned ? 'disabled' : 'checked' ?>>
+          Release to Borrower
+          <?php if (!$toolReturned): ?>
+            <small>(available after tool is returned)</small>
+          <?php endif; ?>
+        </label>
+        <label>
+          <input type="radio" name="action" value="forfeit"
+                 <?= !$toolReturned ? 'checked' : '' ?>>
+          Forfeit to Lender
+        </label>
       </fieldset>
       <fieldset>
         <legend>Forfeit Details</legend>

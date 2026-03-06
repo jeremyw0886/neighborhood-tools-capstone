@@ -213,6 +213,12 @@ use App\Core\ViewHelper;
             $deposit       = $depositsByBorrow[$pickupId] ?? null;
             $handover      = $handoversByBorrow[$pickupId] ?? null;
             $depositPaid   = $deposit === null || $deposit['deposit_status'] !== 'pending';
+            $approvedHoursAgo = (int) ((time() - strtotime($pickup['approved_at_bor'])) / 3600);
+            $approvedDaysAgo  = (int) floor($approvedHoursAgo / 24);
+            $pickupUrgency    = $approvedDaysAgo >= 3 ? 'overdue' : ($approvedDaysAgo >= 2 ? 'due-soon' : null);
+            $approvedAgoLabel = $approvedDaysAgo > 0
+              ? $approvedDaysAgo . ' day' . ($approvedDaysAgo !== 1 ? 's' : '') . ' ago'
+              : $approvedHoursAgo . 'h ago';
           ?>
           <li>
             <article data-activity-card>
@@ -234,6 +240,7 @@ use App\Core\ViewHelper;
                   <time datetime="<?= htmlspecialchars($pickup['approved_at_bor']) ?>">
                     <?= htmlspecialchars(date('M j, g:ia', strtotime($pickup['approved_at_bor']))) ?>
                   </time>
+                  <small<?= $pickupUrgency !== null ? ' data-status="' . $pickupUrgency . '"' : '' ?>><?= htmlspecialchars($approvedAgoLabel) ?></small>
                 </dd>
                 <dt>Duration</dt>
                 <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>

@@ -435,8 +435,11 @@ class BorrowController extends BaseController
             $errors['reason'] = 'Reason must be 1,000 characters or fewer.';
         }
 
+        $toolLabel = $borrow['tool_name_tol'] ?? 'this loan';
+
         if ($errors !== []) {
-            $_SESSION['borrow_errors'] = $errors;
+            $first = reset($errors);
+            $_SESSION['borrow_errors'] = ['general' => $toolLabel . ': ' . $first];
             $this->redirect('/dashboard/lender');
         }
 
@@ -449,7 +452,7 @@ class BorrowController extends BaseController
             );
         } catch (\Throwable $e) {
             error_log('BorrowController::extend — ' . $e->getMessage());
-            $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $_SESSION['borrow_errors'] = ['general' => $toolLabel . ': Something went wrong. Please try again.'];
             $this->redirect('/dashboard/lender');
         }
 

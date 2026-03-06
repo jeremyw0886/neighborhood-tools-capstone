@@ -1401,7 +1401,7 @@
       box-shadow: 0 8px 32px var(--shadow-pine);
       max-width: 90vw;
       padding: 0;
-      width: 28rem;
+      width: 32rem;
 
       &::backdrop {
         background: rgba(0, 0, 0, 0.6);
@@ -1425,12 +1425,17 @@
       }
 
       & #crop-viewport {
-        aspect-ratio: 3 / 2;
+        background: var(--mountain-slate);
         border: 1px solid var(--mountain-fog);
         border-radius: 0.5rem;
         cursor: grab;
+        display: flex;
+        align-items: center;
+        height: 22rem;
+        justify-content: center;
         margin: 0.75rem 1.5rem;
         overflow: hidden;
+        position: relative;
         touch-action: none;
 
         &:active {
@@ -1444,12 +1449,29 @@
       }
 
       & #crop-preview {
-        display: block;
-        height: 100%;
-        object-fit: cover;
+        height: auto;
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
         pointer-events: none;
+        position: absolute;
         user-select: none;
-        width: 100%;
+        width: auto;
+      }
+
+      & #crop-frame {
+        border: 2px solid white;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+        pointer-events: none;
+        position: absolute;
+      }
+
+      & #crop-hint {
+        color: var(--mountain-mist);
+        font-size: 0.75rem;
+        margin: 0;
+        padding: 0 1.5rem 0.25rem;
+        text-align: center;
       }
 
       & > footer {
@@ -1827,10 +1849,15 @@
       width: auto;
 
       & #crop-viewport {
+        height: 16rem;
         margin-inline: 1rem;
       }
 
       & > header {
+        padding-inline: 1rem;
+      }
+
+      & #crop-hint {
         padding-inline: 1rem;
       }
 

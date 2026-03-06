@@ -495,402 +495,448 @@
 })();
 
 (function () {
-  const gallery = document.getElementById('gallery-manager');
-  if (!gallery) return;
+  let gallery = document.getElementById('gallery-manager');
+  const fieldset = gallery?.closest('fieldset') ?? document.querySelector('section[aria-labelledby="edit-tool-heading"] > fieldset:last-of-type');
+  if (!fieldset) return;
 
-  const toolId = gallery.dataset.toolId;
+  const toolId = gallery?.dataset.toolId ?? document.querySelector('[data-add-photo]')?.dataset.toolId;
+  if (!toolId) return;
+
   let busy = false;
+
+  function getGallery() {
+    return document.getElementById('gallery-manager');
+  }
 
   function setBusy(state) {
     busy = state;
-    gallery.ariaBusy = state ? 'true' : 'false';
+    const g = getGallery();
+    if (g) g.ariaBusy = state ? 'true' : 'false';
   }
 
   function getImageIds() {
-    return Array.from(gallery.querySelectorAll('li[data-image-id]'))
+    const g = getGallery();
+    if (!g) return [];
+    return Array.from(g.querySelectorAll('li[data-image-id]'))
       .map(li => parseInt(li.dataset.imageId, 10));
   }
 
-  let dragItem = null;
+  function escapeAttr(str) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML.replace(/"/g, '&quot;');
+  }
 
-  gallery.addEventListener('dragstart', (e) => {
-    const handle = e.target.closest('[data-drag-handle]');
-    if (!handle) {
-      e.preventDefault();
-      return;
-    }
+  function ensureGallery() {
+    let g = getGallery();
+    if (g) return g;
 
-    const li = handle.closest('li[data-image-id]');
-    if (!li) return;
-    dragItem = li;
-    li.dataset.dragging = '';
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', li.dataset.imageId);
-  });
+    const emptyMsg = fieldset.querySelector('#gallery-empty');
+    if (emptyMsg) emptyMsg.remove();
 
-  gallery.addEventListener('dragend', (e) => {
-    const li = e.target.closest('li[data-image-id]');
-    if (li) delete li.dataset.dragging;
-    dragItem = null;
-    for (const el of gallery.querySelectorAll('[data-drag-over]')) {
-      delete el.dataset.dragOver;
-    }
-  });
+    g = document.createElement('ol');
+    g.id = 'gallery-manager';
+    g.setAttribute('aria-label', 'Tool photos');
+    g.dataset.toolId = toolId;
 
-  gallery.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-
-    const target = e.target.closest('li[data-image-id]');
-    if (!target || target === dragItem) return;
-
-    for (const el of gallery.querySelectorAll('[data-drag-over]')) {
-      delete el.dataset.dragOver;
-    }
-    target.dataset.dragOver = '';
-  });
-
-  gallery.addEventListener('drop', async (e) => {
-    e.preventDefault();
-    const target = e.target.closest('li[data-image-id]');
-    if (!target || !dragItem || target === dragItem || busy) return;
-
-    for (const el of gallery.querySelectorAll('[data-drag-over]')) {
-      delete el.dataset.dragOver;
-    }
-
-    const dragIdx = Array.from(gallery.children).indexOf(dragItem);
-    const targetIdx = Array.from(gallery.children).indexOf(target);
-    const refNode = dragItem.nextElementSibling;
-
-    if (dragIdx < targetIdx) {
-      target.after(dragItem);
+    const hint = fieldset.querySelector('#gallery-crop-hint');
+    if (hint) {
+      hint.after(g);
     } else {
-      target.before(dragItem);
+      fieldset.querySelector('legend').after(g);
     }
 
-    setBusy(true);
+    attachGalleryListeners(g);
+    gallery = g;
+    return g;
+  }
 
+  function updateSlotHint() {
+    const g = getGallery();
+    const remaining = 6 - (g ? g.querySelectorAll('li[data-image-id]').length : 0);
+    const addSection = document.querySelector('[data-add-photo]')?.closest('div');
+
+    if (addSection) {
+      addSection.hidden = remaining <= 0;
+      const hint = addSection.querySelector('#add-photo-hint');
+      if (hint && remaining > 0) {
+        hint.textContent = `JPEG, PNG, or WebP \u2014 max 5 MB. ${remaining} slot${remaining !== 1 ? 's' : ''} remaining.`;
+      }
+    }
+  }
+
+  function updateResetButtons() {
+    const g = getGallery();
+    if (!g) return;
+    for (const li of g.querySelectorAll('li[data-image-id]')) {
+      const btn = li.querySelector('[data-reset-focal]');
+      if (!btn) continue;
+      const fx = parseInt(li.dataset.focalX ?? '50', 10);
+      const fy = parseInt(li.dataset.focalY ?? '50', 10);
+      btn.hidden = (fx === 50 && fy === 50);
+    }
+  }
+
+  function buildLiHtml(img) {
+    const thumb = escapeAttr(img.filename.replace(/\.(\w+)$/, '-400w.$1'));
+    const altSafe = escapeAttr(img.alt_text || '');
+    const csrfToken = escapeAttr(document.querySelector('meta[name="csrf-token"]')?.content ?? '');
+
+    return `
+      <img src="/uploads/tools/${thumb}"
+           alt="${altSafe}"
+           width="400" height="268"
+           loading="lazy"
+           decoding="async"
+           data-crop-target>
+      <div>
+        <label for="alt-text-${img.id}">
+          <span class="visually-hidden">Alt text for image ${img.id}</span>
+        </label>
+        <input type="text"
+               id="alt-text-${img.id}"
+               value=""
+               maxlength="255"
+               placeholder="Describe this photo\u2026"
+               data-alt-input
+               data-image-id="${img.id}">
+      </div>
+      <div>
+        <input type="radio"
+               name="primary_image"
+               id="primary-${img.id}"
+               value="${img.id}"
+               ${img.is_primary ? 'checked' : ''}
+               data-primary-radio>
+        <label for="primary-${img.id}">
+          ${img.is_primary ? '<i class="fa-solid fa-star" aria-hidden="true"></i> ' : ''}Primary
+        </label>
+      </div>
+      <div>
+        <button type="button"
+                data-reset-focal
+                data-image-id="${img.id}"
+                aria-label="Reset crop position"
+                hidden>
+          <i class="fa-solid fa-arrows-to-circle" aria-hidden="true"></i> Reset Crop
+        </button>
+      </div>
+      <form method="post" action="/tools/${toolId}/images/${img.id}" data-delete-form>
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="hidden" name="csrf_token" value="${csrfToken}">
+        <button type="submit" data-intent="danger" aria-label="Delete this photo">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
+        </button>
+      </form>
+      <span aria-hidden="true" data-drag-handle><i class="fa-solid fa-grip-vertical"></i></span>
+    `;
+  }
+
+  async function persistOrder() {
     try {
       const res = await NT.fetch(`/tools/${toolId}/images/order`, {
         method: 'PATCH',
         body: JSON.stringify({ order: getImageIds() }),
       });
-
       if (!res.ok) {
         NT.toast('Failed to save new order.', 'error');
-        if (refNode) refNode.before(dragItem);
-        else gallery.appendChild(dragItem);
+        return false;
       }
+      return true;
     } catch {
       NT.toast('Failed to save new order.', 'error');
-      if (refNode) refNode.before(dragItem);
-      else gallery.appendChild(dragItem);
-    } finally {
-      setBusy(false);
+      return false;
     }
-  });
+  }
 
-  gallery.addEventListener('click', async (e) => {
-    const deleteBtn = e.target.closest('[data-delete-form] button[type="submit"]');
-    if (!deleteBtn) return;
+  let dragItem = null;
 
-    e.preventDefault();
-    if (busy) return;
+  function attachGalleryListeners(g) {
 
-    const li = deleteBtn.closest('li[data-image-id]');
-    if (!li) return;
-
-    const imageId = li.dataset.imageId;
-
-    if (!confirm('Delete this photo?')) return;
-
-    setBusy(true);
-    deleteBtn.disabled = true;
-
-    try {
-      const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
-        method: 'DELETE',
-      });
-
-      if (!res.ok) {
-        NT.toast('Failed to delete photo.', 'error');
-        deleteBtn.disabled = false;
-        setBusy(false);
+    g.addEventListener('dragstart', (e) => {
+      const handle = e.target.closest('[data-drag-handle]');
+      if (!handle) {
+        e.preventDefault();
         return;
       }
 
-      const data = await res.json();
-      li.remove();
+      const li = handle.closest('li[data-image-id]');
+      if (!li) return;
+      dragItem = li;
+      li.dataset.dragging = '';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', li.dataset.imageId);
+    });
 
-      if (data.new_primary_id) {
-        const promoted = gallery.querySelector(`li[data-image-id="${data.new_primary_id}"] [data-primary-radio]`);
-        if (promoted) {
-          promoted.checked = true;
-          const label = promoted.nextElementSibling;
-          if (label) label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
-        }
+    g.addEventListener('dragend', (e) => {
+      const li = e.target.closest('li[data-image-id]');
+      if (li) delete li.dataset.dragging;
+      dragItem = null;
+      for (const el of g.querySelectorAll('[data-drag-over]')) {
+        delete el.dataset.dragOver;
+      }
+    });
+
+    g.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+
+      const target = e.target.closest('li[data-image-id]');
+      if (!target || target === dragItem) return;
+
+      for (const el of g.querySelectorAll('[data-drag-over]')) {
+        delete el.dataset.dragOver;
+      }
+      target.dataset.dragOver = '';
+    });
+
+    g.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      const target = e.target.closest('li[data-image-id]');
+      if (!target || !dragItem || target === dragItem || busy) return;
+
+      for (const el of g.querySelectorAll('[data-drag-over]')) {
+        delete el.dataset.dragOver;
       }
 
-      const remaining = gallery.querySelectorAll('li[data-image-id]').length;
+      const items = Array.from(g.querySelectorAll('li[data-image-id]'));
+      const dragIdx = items.indexOf(dragItem);
+      const targetIdx = items.indexOf(target);
+      const refNode = dragItem.nextElementSibling;
 
-      if (remaining === 0) {
-        gallery.outerHTML = '<p>No photos uploaded yet.</p>';
-      }
-
-      const addSection = document.querySelector('[data-add-photo]')?.closest('div');
-      if (addSection) {
-        addSection.hidden = false;
-        const hint = addSection.querySelector('p');
-        if (hint) {
-          const slots = 6 - remaining;
-          hint.textContent = `JPEG, PNG, or WebP — max 5 MB. ${slots} slot${slots !== 1 ? 's' : ''} remaining.`;
-        }
-      }
-
-      NT.toast('Photo deleted.', 'success');
-    } catch {
-      NT.toast('Failed to delete photo.', 'error');
-      deleteBtn.disabled = false;
-    } finally {
-      setBusy(false);
-    }
-  });
-
-  gallery.addEventListener('change', async (e) => {
-    const radio = e.target.closest('[data-primary-radio]');
-    if (!radio || busy) return;
-
-    const imageId = radio.value;
-    setBusy(true);
-
-    for (const r of gallery.querySelectorAll('[data-primary-radio]')) {
-      r.disabled = true;
-    }
-
-    try {
-      const res = await NT.fetch(`/tools/${toolId}/images/${imageId}/primary`, {
-        method: 'PATCH',
-      });
-
-      if (!res.ok) {
-        NT.toast('Failed to set primary photo.', 'error');
-        setBusy(false);
-        return;
-      }
-
-      for (const li of gallery.querySelectorAll('li[data-image-id]')) {
-        const r = li.querySelector('[data-primary-radio]');
-        const label = r?.nextElementSibling;
-        if (!label) continue;
-
-        if (r.value === imageId) {
-          label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
-        } else {
-          label.textContent = 'Primary';
-        }
-      }
-
-      NT.toast('Primary photo updated.', 'success');
-    } catch {
-      NT.toast('Failed to set primary photo.', 'error');
-    } finally {
-      for (const r of gallery.querySelectorAll('[data-primary-radio]')) {
-        r.disabled = false;
-      }
-      setBusy(false);
-    }
-  });
-
-  const addInput = document.querySelector('[data-add-photo]');
-
-  if (addInput) {
-    addInput.addEventListener('change', async () => {
-      const file = addInput.files?.[0];
-      if (!file || busy) return;
-
-      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!allowed.includes(file.type)) {
-        NT.toast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
-        addInput.value = '';
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        NT.toast('File exceeds the 5 MB limit.', 'error');
-        addInput.value = '';
-        return;
+      if (dragIdx < targetIdx) {
+        target.after(dragItem);
+      } else {
+        target.before(dragItem);
       }
 
       setBusy(true);
-      addInput.disabled = true;
+      const ok = await persistOrder();
+      if (!ok) {
+        if (refNode) refNode.before(dragItem);
+        else g.appendChild(dragItem);
+      }
+      setBusy(false);
+    });
 
-      const fd = new FormData();
-      fd.append('photo', file);
+    g.addEventListener('keydown', async (e) => {
+      const li = e.target.closest('li[data-image-id]');
+      if (!li || !e.altKey || busy) return;
+
+      const items = Array.from(g.querySelectorAll('li[data-image-id]'));
+      const idx = items.indexOf(li);
+      if (idx < 0) return;
+
+      let swapTarget = null;
+
+      if ((e.key === 'ArrowUp' || e.key === 'ArrowLeft') && idx > 0) {
+        swapTarget = items[idx - 1];
+        e.preventDefault();
+        swapTarget.before(li);
+      } else if ((e.key === 'ArrowDown' || e.key === 'ArrowRight') && idx < items.length - 1) {
+        swapTarget = items[idx + 1];
+        e.preventDefault();
+        swapTarget.after(li);
+      }
+
+      if (!swapTarget) return;
+
+      li.focus();
+      setBusy(true);
+      const ok = await persistOrder();
+      if (!ok) {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          swapTarget.after(li);
+        } else {
+          swapTarget.before(li);
+        }
+        li.focus();
+      }
+      setBusy(false);
+    });
+
+    g.addEventListener('click', async (e) => {
+      const deleteBtn = e.target.closest('[data-delete-form] button[type="submit"]');
+      if (!deleteBtn) return;
+
+      e.preventDefault();
+      if (busy) return;
+
+      const li = deleteBtn.closest('li[data-image-id]');
+      if (!li) return;
+
+      const imageId = li.dataset.imageId;
+
+      if (!confirm('Delete this photo?')) return;
+
+      setBusy(true);
+      deleteBtn.disabled = true;
 
       try {
-        const res = await NT.fetch(`/tools/${toolId}/images`, {
-          method: 'POST',
-          body: fd,
+        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
+          method: 'DELETE',
         });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => null);
-          NT.toast(err?.error ?? 'Failed to upload photo.', 'error');
-          addInput.value = '';
-          addInput.disabled = false;
+          NT.toast('Failed to delete photo.', 'error');
+          deleteBtn.disabled = false;
           setBusy(false);
           return;
         }
 
-        const img = await res.json();
+        const data = await res.json();
+        li.remove();
 
-        const li = document.createElement('li');
-        li.dataset.imageId = img.id;
-        li.dataset.focalX = '50';
-        li.dataset.focalY = '50';
-        li.draggable = true;
-
-        const thumb = img.filename.replace(/\.(\w+)$/, '-400w.$1');
-
-        li.innerHTML = `
-          <img src="/uploads/tools/${thumb}"
-               alt="${img.alt_text || ''}"
-               width="400" height="268"
-               loading="lazy"
-               decoding="async"
-               data-crop-target>
-          <div>
-            <label for="alt-text-${img.id}">
-              <span class="visually-hidden">Alt text for image ${img.id}</span>
-            </label>
-            <input type="text"
-                   id="alt-text-${img.id}"
-                   value=""
-                   maxlength="255"
-                   placeholder="Describe this photo\u2026"
-                   data-alt-input
-                   data-image-id="${img.id}">
-          </div>
-          <div>
-            <input type="radio"
-                   name="primary_image"
-                   id="primary-${img.id}"
-                   value="${img.id}"
-                   ${img.is_primary ? 'checked' : ''}
-                   data-primary-radio>
-            <label for="primary-${img.id}">
-              ${img.is_primary ? '<i class="fa-solid fa-star" aria-hidden="true"></i> ' : ''}Primary
-            </label>
-          </div>
-          <form method="post" action="/tools/${toolId}/images/${img.id}" data-delete-form>
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="hidden" name="csrf_token" value="${document.querySelector('meta[name="csrf-token"]')?.content ?? ''}">
-            <button type="submit" data-intent="danger" aria-label="Delete this photo">
-              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
-            </button>
-          </form>
-          <span aria-hidden="true" data-drag-handle><i class="fa-solid fa-grip-vertical"></i></span>
-        `;
-
-        const activeGallery = document.getElementById('gallery-manager');
-        if (activeGallery) {
-          activeGallery.appendChild(li);
-        }
-
-        const remaining = 6 - activeGallery.querySelectorAll('li[data-image-id]').length;
-        const addSection = addInput.closest('div');
-
-        if (remaining <= 0) {
-          addSection.hidden = true;
-        } else {
-          const hint = addSection.querySelector('p');
-          if (hint) {
-            hint.textContent = `JPEG, PNG, or WebP — max 5 MB. ${remaining} slot${remaining !== 1 ? 's' : ''} remaining.`;
+        if (data.new_primary_id) {
+          const promoted = g.querySelector(`li[data-image-id="${data.new_primary_id}"] [data-primary-radio]`);
+          if (promoted) {
+            promoted.checked = true;
+            const label = promoted.nextElementSibling;
+            if (label) label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
           }
         }
 
-        addInput.value = '';
-        NT.toast('Photo uploaded.', 'success');
+        const remaining = g.querySelectorAll('li[data-image-id]').length;
+
+        if (remaining === 0) {
+          g.remove();
+          const empty = document.createElement('p');
+          empty.id = 'gallery-empty';
+          empty.textContent = 'No photos uploaded yet.';
+          const hint = fieldset.querySelector('#gallery-crop-hint');
+          if (hint) {
+            hint.after(empty);
+          } else {
+            fieldset.querySelector('legend').after(empty);
+          }
+        }
+
+        updateSlotHint();
+        NT.toast('Photo deleted.', 'success');
       } catch {
-        NT.toast('Failed to upload photo.', 'error');
+        NT.toast('Failed to delete photo.', 'error');
+        deleteBtn.disabled = false;
       } finally {
-        addInput.disabled = false;
         setBusy(false);
       }
     });
 
-    const dropZone = addInput.closest('div');
-    if (dropZone) {
-      let dragCounter = 0;
+    g.addEventListener('change', async (e) => {
+      const radio = e.target.closest('[data-primary-radio]');
+      if (!radio || busy) return;
 
-      dropZone.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        dragCounter++;
-        dropZone.dataset.dragover = '';
-      });
+      const imageId = radio.value;
+      setBusy(true);
 
-      dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-      });
+      for (const r of g.querySelectorAll('[data-primary-radio]')) {
+        r.disabled = true;
+      }
 
-      dropZone.addEventListener('dragleave', () => {
-        dragCounter--;
-        if (dragCounter <= 0) {
-          dragCounter = 0;
-          delete dropZone.dataset.dragover;
-        }
-      });
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}/primary`, {
+          method: 'PATCH',
+        });
 
-      dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dragCounter = 0;
-        delete dropZone.dataset.dragover;
-
-        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-        const file = Array.from(e.dataTransfer.files).find(f => allowed.includes(f.type));
-
-        if (!file) {
-          NT.toast('No valid image file found. Use JPEG, PNG, or WebP.', 'error');
+        if (!res.ok) {
+          NT.toast('Failed to set primary photo.', 'error');
+          setBusy(false);
           return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-          NT.toast('File exceeds the 5 MB limit.', 'error');
-          return;
+        for (const li of g.querySelectorAll('li[data-image-id]')) {
+          const r = li.querySelector('[data-primary-radio]');
+          const label = r?.nextElementSibling;
+          if (!label) continue;
+
+          if (r.value === imageId) {
+            label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
+          } else {
+            label.textContent = 'Primary';
+          }
         }
 
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        addInput.files = dt.files;
-        addInput.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-    }
-  }
+        NT.toast('Primary photo updated.', 'success');
+      } catch {
+        NT.toast('Failed to set primary photo.', 'error');
+      } finally {
+        for (const r of g.querySelectorAll('[data-primary-radio]')) {
+          r.disabled = false;
+        }
+        setBusy(false);
+      }
+    });
 
-  gallery.addEventListener('blur', async (e) => {
-    const input = e.target.closest('[data-alt-input]');
-    if (!input) return;
+    g.addEventListener('click', async (e) => {
+      const resetBtn = e.target.closest('[data-reset-focal]');
+      if (!resetBtn || busy) return;
 
-    const imageId = input.dataset.imageId;
-    const altText = input.value.trim().slice(0, 255);
+      const li = resetBtn.closest('li[data-image-id]');
+      if (!li) return;
 
-    try {
-      const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ alt_text: altText }),
-      });
+      const imageId = li.dataset.imageId;
+      const img = li.querySelector('img[data-crop-target]');
+      if (!img) return;
 
-      if (!res.ok) {
+      const prevX = parseInt(li.dataset.focalX ?? '50', 10);
+      const prevY = parseInt(li.dataset.focalY ?? '50', 10);
+      if (prevX === 50 && prevY === 50) return;
+
+      li.dataset.focalX = '50';
+      li.dataset.focalY = '50';
+      img.style.objectPosition = '';
+      resetBtn.hidden = true;
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ focal_x: 50, focal_y: 50 }),
+        });
+
+        if (!res.ok) {
+          li.dataset.focalX = prevX;
+          li.dataset.focalY = prevY;
+          img.style.objectPosition = `${prevX}% ${prevY}%`;
+          resetBtn.hidden = false;
+          NT.toast('Failed to reset crop position.', 'error');
+        } else {
+          NT.toast('Crop position reset.', 'success');
+        }
+      } catch {
+        li.dataset.focalX = prevX;
+        li.dataset.focalY = prevY;
+        img.style.objectPosition = `${prevX}% ${prevY}%`;
+        resetBtn.hidden = false;
+        NT.toast('Failed to reset crop position.', 'error');
+      }
+    });
+
+    g.addEventListener('blur', async (e) => {
+      const input = e.target.closest('[data-alt-input]');
+      if (!input || busy) return;
+
+      const imageId = input.dataset.imageId;
+      const altText = input.value.trim().slice(0, 255);
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ alt_text: altText }),
+        });
+
+        if (res.ok) {
+          NT.toast('Alt text saved.', 'success');
+        } else {
+          NT.toast('Failed to save alt text.', 'error');
+        }
+      } catch {
         NT.toast('Failed to save alt text.', 'error');
       }
-    } catch {
-      NT.toast('Failed to save alt text.', 'error');
-    }
-  }, true);
+    }, true);
 
-  (function initFocalPointCrop() {
+    initFocalPointCrop(g);
+  }
+
+  function initFocalPointCrop(g) {
     let activeImg    = null;
     let activeLi     = null;
     let startX       = 0;
@@ -1011,6 +1057,7 @@
           NT.toast('Failed to save crop position.', 'error');
         } else {
           NT.toast('Crop position saved.', 'success');
+          updateResetButtons();
         }
       } catch {
         li.dataset.focalX = prev.x;
@@ -1034,11 +1081,129 @@
       activeLi  = null;
     }
 
-    gallery.addEventListener('pointerdown', onPointerDown);
-    gallery.addEventListener('pointermove', onPointerMove);
-    gallery.addEventListener('pointerup', onPointerUp);
-    gallery.addEventListener('pointercancel', onPointerCancel);
-  })();
+    g.addEventListener('pointerdown', onPointerDown);
+    g.addEventListener('pointermove', onPointerMove);
+    g.addEventListener('pointerup', onPointerUp);
+    g.addEventListener('pointercancel', onPointerCancel);
+  }
+
+  if (gallery) {
+    attachGalleryListeners(gallery);
+  }
+
+  const addInput = document.querySelector('[data-add-photo]');
+
+  if (addInput) {
+    addInput.addEventListener('change', async () => {
+      const file = addInput.files?.[0];
+      if (!file || busy) return;
+
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(file.type)) {
+        NT.toast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
+        addInput.value = '';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        NT.toast('File exceeds the 5 MB limit.', 'error');
+        addInput.value = '';
+        return;
+      }
+
+      setBusy(true);
+      addInput.disabled = true;
+
+      const fd = new FormData();
+      fd.append('photo', file);
+
+      try {
+        const res = await NT.fetch(`/tools/${toolId}/images`, {
+          method: 'POST',
+          body: fd,
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          NT.toast(err?.error ?? 'Failed to upload photo.', 'error');
+          addInput.value = '';
+          addInput.disabled = false;
+          setBusy(false);
+          return;
+        }
+
+        const img = await res.json();
+        const g = ensureGallery();
+
+        const li = document.createElement('li');
+        li.dataset.imageId = img.id;
+        li.dataset.focalX = '50';
+        li.dataset.focalY = '50';
+        li.draggable = true;
+        li.tabIndex = 0;
+        li.innerHTML = buildLiHtml(img);
+
+        g.appendChild(li);
+        updateSlotHint();
+
+        addInput.value = '';
+        NT.toast('Photo uploaded.', 'success');
+      } catch {
+        NT.toast('Failed to upload photo.', 'error');
+      } finally {
+        addInput.disabled = false;
+        setBusy(false);
+      }
+    });
+
+    const dropZone = addInput.closest('div');
+    if (dropZone) {
+      let dragCounter = 0;
+
+      dropZone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        dropZone.dataset.dragover = '';
+      });
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dragCounter--;
+        if (dragCounter <= 0) {
+          dragCounter = 0;
+          delete dropZone.dataset.dragover;
+        }
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        delete dropZone.dataset.dragover;
+
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        const file = Array.from(e.dataTransfer.files).find(f => allowed.includes(f.type));
+
+        if (!file) {
+          NT.toast('No valid image file found. Use JPEG, PNG, or WebP.', 'error');
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          NT.toast('File exceeds the 5 MB limit.', 'error');
+          return;
+        }
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        addInput.files = dt.files;
+        addInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+  }
 })();
 
 (function () {

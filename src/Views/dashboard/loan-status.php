@@ -44,6 +44,10 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
 
   <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
 
+  <?php if (!empty($handoverSuccess)): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($handoverSuccess) ?></p>
+  <?php endif; ?>
+
   <section aria-labelledby="lifecycle-heading">
     <h2 id="lifecycle-heading" class="visually-hidden">Lifecycle Progress</h2>
 

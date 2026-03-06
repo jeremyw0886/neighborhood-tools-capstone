@@ -343,13 +343,14 @@ class DashboardController extends BaseController
         }
 
         $this->render('dashboard/loan-status', [
-            'title'       => 'Loan Status — NeighborhoodTools',
-            'description' => 'Track the status of your borrow.',
-            'pageCss'     => ['dashboard.css'],
-            'borrow'      => $borrow,
-            'extensions'  => $extensions,
-            'handovers'   => $handovers,
-            'deposit'     => $deposit,
+            'title'            => 'Loan Status — NeighborhoodTools',
+            'description'      => 'Track the status of your borrow.',
+            'pageCss'          => ['dashboard.css'],
+            'borrow'           => $borrow,
+            'extensions'       => $extensions,
+            'handovers'        => $handovers,
+            'deposit'          => $deposit,
+            'handoverSuccess'  => $this->flash('handover_success'),
         ]);
     }
 

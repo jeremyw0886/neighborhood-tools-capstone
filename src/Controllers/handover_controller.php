@@ -455,7 +455,7 @@ class HandoverController extends BaseController
 
         if ($isPickup) {
             $_SESSION['handover_success'] = 'Pickup confirmed! The ' . $toolName . ' handover is complete.';
-            $this->redirect('/handover/' . $id);
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         $_SESSION['rating_success'] = 'Return confirmed! Rate your experience below.';

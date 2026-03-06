@@ -659,6 +659,7 @@
   const cropDialog  = document.getElementById('crop-dialog');
   const cropPreview = document.getElementById('crop-preview');
   const cropViewport = document.getElementById('crop-viewport');
+  const cropFrame   = document.getElementById('crop-frame');
   const confirmBtn  = cropDialog?.querySelector('[data-crop-confirm]');
   const cancelBtn   = cropDialog?.querySelector('[data-crop-cancel]');
   const cropLabelEl = cropDialog?.querySelector('[data-crop-label]');
@@ -670,6 +671,7 @@
   let cropFocalX = 50;
   let cropFocalY = 50;
   let repositionImageId = null;
+  let cropLayout = null;
 
   function cleanupCropState() {
     if (cropObjectUrl) {
@@ -678,6 +680,7 @@
     }
     cropFile = null;
     cropMode = null;
+    cropLayout = null;
     repositionImageId = null;
     const fi = document.getElementById('add-photo');
     if (fi) fi.value = '';
@@ -687,6 +690,69 @@
     if (!cropDialog) return;
     cleanupCropState();
     cropDialog.close();
+  }
+
+  function layoutCrop() {
+    if (!cropViewport || !cropPreview || !cropFrame) return;
+
+    const stageW = cropViewport.clientWidth;
+    const stageH = cropViewport.clientHeight;
+    const natW = cropPreview.naturalWidth;
+    const natH = cropPreview.naturalHeight;
+    if (!natW || !natH) return;
+
+    const scale = Math.min(stageW / natW, stageH / natH);
+    const dispW = natW * scale;
+    const dispH = natH * scale;
+
+    const imgLeft = (stageW - dispW) / 2;
+    const imgTop = (stageH - dispH) / 2;
+    cropPreview.style.width = dispW + 'px';
+    cropPreview.style.height = dispH + 'px';
+    cropPreview.style.left = imgLeft + 'px';
+    cropPreview.style.top = imgTop + 'px';
+
+    let frameW, frameH;
+    if (dispW / dispH > 1.5) {
+      frameH = dispH;
+      frameW = dispH * 1.5;
+    } else {
+      frameW = dispW;
+      frameH = dispW / 1.5;
+    }
+
+    cropLayout = { imgLeft, imgTop, dispW, dispH, frameW, frameH };
+
+    cropFrame.style.width = frameW + 'px';
+    cropFrame.style.height = frameH + 'px';
+
+    positionFrameFromFocal();
+  }
+
+  function positionFrameFromFocal() {
+    if (!cropLayout || !cropFrame) return;
+    const { imgLeft, imgTop, dispW, dispH, frameW, frameH } = cropLayout;
+    const maxOffsetX = dispW - frameW;
+    const maxOffsetY = dispH - frameH;
+
+    const frameLeft = imgLeft + (maxOffsetX > 0 ? (cropFocalX / 100) * maxOffsetX : 0);
+    const frameTop = imgTop + (maxOffsetY > 0 ? (cropFocalY / 100) * maxOffsetY : 0);
+
+    cropFrame.style.left = frameLeft + 'px';
+    cropFrame.style.top = frameTop + 'px';
+  }
+
+  function updateFocalFromFrame() {
+    if (!cropLayout || !cropFrame) return;
+    const { imgLeft, imgTop, dispW, dispH, frameW, frameH } = cropLayout;
+    const maxOffsetX = dispW - frameW;
+    const maxOffsetY = dispH - frameH;
+
+    const frameLeft = parseFloat(cropFrame.style.left) - imgLeft;
+    const frameTop = parseFloat(cropFrame.style.top) - imgTop;
+
+    cropFocalX = maxOffsetX > 0 ? clamp(Math.round((frameLeft / maxOffsetX) * 100), 0, 100) : 50;
+    cropFocalY = maxOffsetY > 0 ? clamp(Math.round((frameTop / maxOffsetY) * 100), 0, 100) : 50;
   }
 
   function openCropUpload(file) {
@@ -699,8 +765,8 @@
     repositionImageId = null;
 
     cropObjectUrl = URL.createObjectURL(file);
+    cropPreview.onload = () => layoutCrop();
     cropPreview.src = cropObjectUrl;
-    cropPreview.style.objectPosition = '50% 50%';
 
     if (confirmIcon) confirmIcon.className = 'fa-solid fa-cloud-arrow-up';
     if (cropLabelEl) cropLabelEl.textContent = 'Upload';
@@ -720,8 +786,12 @@
     cropFocalY = focalY;
     repositionImageId = imageId;
 
+    cropPreview.onload = () => layoutCrop();
     cropPreview.src = imgSrc;
-    cropPreview.style.objectPosition = `${focalX}% ${focalY}%`;
+
+    if (cropPreview.complete && cropPreview.naturalWidth) {
+      layoutCrop();
+    }
 
     if (confirmIcon) confirmIcon.className = 'fa-solid fa-check';
     if (cropLabelEl) cropLabelEl.textContent = 'Save';
@@ -731,69 +801,60 @@
     cropDialog.showModal();
   }
 
-  if (cropViewport && cropPreview) {
+  if (cropViewport && cropFrame) {
     let dragging = false;
     let startX = 0;
     let startY = 0;
-    let startFX = 50;
-    let startFY = 50;
+    let startFrameLeft = 0;
+    let startFrameTop = 0;
 
     cropViewport.addEventListener('pointerdown', (e) => {
+      if (!cropLayout) return;
       e.preventDefault();
       cropViewport.setPointerCapture(e.pointerId);
       dragging = true;
       startX = e.clientX;
       startY = e.clientY;
-      startFX = cropFocalX;
-      startFY = cropFocalY;
+      startFrameLeft = parseFloat(cropFrame.style.left) || 0;
+      startFrameTop = parseFloat(cropFrame.style.top) || 0;
     });
 
     cropViewport.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
+      if (!dragging || !cropLayout) return;
       e.preventDefault();
 
-      const vpW = cropViewport.clientWidth;
-      const vpH = cropViewport.clientHeight;
-      const natW = cropPreview.naturalWidth || 800;
-      const natH = cropPreview.naturalHeight || 536;
-
+      const { imgLeft, imgTop, dispW, dispH, frameW, frameH } = cropLayout;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
-      const pctDx = vpW > 0 ? (dx / vpW) * -100 : 0;
-      const pctDy = vpH > 0 ? (dy / vpH) * -100 : 0;
 
-      const vpAspect = vpW / vpH;
-      const natAspect = natW / natH;
-      let sensitivityX, sensitivityY;
+      const newLeft = clamp(startFrameLeft + dx, imgLeft, imgLeft + dispW - frameW);
+      const newTop = clamp(startFrameTop + dy, imgTop, imgTop + dispH - frameH);
 
-      if (natAspect > vpAspect) {
-        sensitivityX = (natW * (vpH / natH)) / vpW;
-        sensitivityY = 1;
-      } else {
-        sensitivityX = 1;
-        sensitivityY = (natH * (vpW / natW)) / vpH;
-      }
-
-      cropFocalX = clamp(Math.round(startFX + pctDx * sensitivityX), 0, 100);
-      cropFocalY = clamp(Math.round(startFY + pctDy * sensitivityY), 0, 100);
-      cropPreview.style.objectPosition = `${cropFocalX}% ${cropFocalY}%`;
+      cropFrame.style.left = newLeft + 'px';
+      cropFrame.style.top = newTop + 'px';
+      updateFocalFromFrame();
     });
 
     cropViewport.addEventListener('pointerup', () => { dragging = false; });
     cropViewport.addEventListener('pointercancel', () => { dragging = false; });
 
     cropViewport.addEventListener('keydown', (e) => {
+      const step = 1;
       let handled = false;
 
-      if (e.key === 'ArrowLeft')  { cropFocalX = clamp(cropFocalX - 1, 0, 100); handled = true; }
-      if (e.key === 'ArrowRight') { cropFocalX = clamp(cropFocalX + 1, 0, 100); handled = true; }
-      if (e.key === 'ArrowUp')    { cropFocalY = clamp(cropFocalY - 1, 0, 100); handled = true; }
-      if (e.key === 'ArrowDown')  { cropFocalY = clamp(cropFocalY + 1, 0, 100); handled = true; }
+      if (e.key === 'ArrowLeft')  { cropFocalX = clamp(cropFocalX - step, 0, 100); handled = true; }
+      if (e.key === 'ArrowRight') { cropFocalX = clamp(cropFocalX + step, 0, 100); handled = true; }
+      if (e.key === 'ArrowUp')    { cropFocalY = clamp(cropFocalY - step, 0, 100); handled = true; }
+      if (e.key === 'ArrowDown')  { cropFocalY = clamp(cropFocalY + step, 0, 100); handled = true; }
 
       if (handled) {
         e.preventDefault();
-        cropPreview.style.objectPosition = `${cropFocalX}% ${cropFocalY}%`;
+        positionFrameFromFocal();
       }
+    });
+
+    window.addEventListener('resize', () => {
+      if (cropDialog?.open) layoutCrop();
     });
   }
 

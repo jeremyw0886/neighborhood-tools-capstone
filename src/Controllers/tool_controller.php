@@ -964,6 +964,14 @@ class ToolController extends BaseController
         }
 
         $canvas = imagecreatetruecolor($newW, $newH);
+
+        if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
+            imagealphablending($canvas, false);
+            imagesavealpha($canvas, true);
+            $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+            imagefill($canvas, 0, 0, $transparent);
+        }
+
         imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
         match ($type) {
@@ -1435,9 +1443,7 @@ class ToolController extends BaseController
             }
 
             if (isset($body['focal_x'], $body['focal_y'])) {
-                $focalX = max(0, min(100, (int) $body['focal_x']));
-                $focalY = max(0, min(100, (int) $body['focal_y']));
-                Tool::updateFocalPoint($imageId, $focalX, $focalY);
+                Tool::updateFocalPoint($imageId, (int) $body['focal_x'], (int) $body['focal_y']);
             }
 
             $this->jsonResponse(200, ['success' => true]);
@@ -1477,8 +1483,16 @@ class ToolController extends BaseController
      */
     private function imageBelongsToTool(int $imageId, int $toolId): bool
     {
-        $images = Tool::getImages($toolId);
+        $pdo = \App\Core\Database::connection();
 
-        return array_any($images, static fn(array $img): bool => (int) $img['id_tim'] === $imageId);
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM tool_image_tim
+            WHERE id_tim = :imageId AND id_tol_tim = :toolId
+        ");
+        $stmt->bindValue(':imageId', $imageId, \PDO::PARAM_INT);
+        $stmt->bindValue(':toolId', $toolId, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn() > 0;
     }
 }

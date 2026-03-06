@@ -59,7 +59,7 @@ $images        ??= [];
                    decoding="async"
                    <?= $mainPos !== '' ? "style=\"{$mainPos}\"" : '' ?>>
             </a>
-            <?php if ($primaryImage['alt_text_tim']): ?>
+            <?php if (($primaryImage['alt_text_tim'] ?? '') !== ''): ?>
               <figcaption><?= htmlspecialchars($primaryImage['alt_text_tim']) ?></figcaption>
             <?php endif; ?>
           <?php else: ?>

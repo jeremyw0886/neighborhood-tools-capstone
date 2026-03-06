@@ -197,6 +197,7 @@ class BaseController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST'
             && empty($_POST)
+            && empty($_FILES)
             && isset($_SERVER['CONTENT_LENGTH'])
             && (int) $_SERVER['CONTENT_LENGTH'] > 0
         ) {

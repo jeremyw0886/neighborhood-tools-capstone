@@ -514,20 +514,26 @@
   let dragItem = null;
 
   gallery.addEventListener('dragstart', (e) => {
-    const li = e.target.closest('li[data-image-id]');
+    const handle = e.target.closest('[data-drag-handle]');
+    if (!handle) {
+      e.preventDefault();
+      return;
+    }
+
+    const li = handle.closest('li[data-image-id]');
     if (!li) return;
     dragItem = li;
-    li.classList.add('dragging');
+    li.dataset.dragging = '';
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', li.dataset.imageId);
   });
 
   gallery.addEventListener('dragend', (e) => {
     const li = e.target.closest('li[data-image-id]');
-    if (li) li.classList.remove('dragging');
+    if (li) delete li.dataset.dragging;
     dragItem = null;
-    for (const el of gallery.querySelectorAll('.drag-over')) {
-      el.classList.remove('drag-over');
+    for (const el of gallery.querySelectorAll('[data-drag-over]')) {
+      delete el.dataset.dragOver;
     }
   });
 
@@ -538,10 +544,10 @@
     const target = e.target.closest('li[data-image-id]');
     if (!target || target === dragItem) return;
 
-    for (const el of gallery.querySelectorAll('.drag-over')) {
-      el.classList.remove('drag-over');
+    for (const el of gallery.querySelectorAll('[data-drag-over]')) {
+      delete el.dataset.dragOver;
     }
-    target.classList.add('drag-over');
+    target.dataset.dragOver = '';
   });
 
   gallery.addEventListener('drop', async (e) => {
@@ -549,13 +555,13 @@
     const target = e.target.closest('li[data-image-id]');
     if (!target || !dragItem || target === dragItem || busy) return;
 
-    for (const el of gallery.querySelectorAll('.drag-over')) {
-      el.classList.remove('drag-over');
+    for (const el of gallery.querySelectorAll('[data-drag-over]')) {
+      delete el.dataset.dragOver;
     }
 
-    const items = Array.from(gallery.children);
-    const dragIdx = items.indexOf(dragItem);
-    const targetIdx = items.indexOf(target);
+    const dragIdx = Array.from(gallery.children).indexOf(dragItem);
+    const targetIdx = Array.from(gallery.children).indexOf(target);
+    const refNode = dragItem.nextElementSibling;
 
     if (dragIdx < targetIdx) {
       target.after(dragItem);
@@ -573,14 +579,13 @@
 
       if (!res.ok) {
         NT.toast('Failed to save new order.', 'error');
-        if (dragIdx < targetIdx) {
-          items[dragIdx].before(dragItem);
-        } else {
-          items[dragIdx].after(dragItem);
-        }
+        if (refNode) refNode.before(dragItem);
+        else gallery.appendChild(dragItem);
       }
     } catch {
       NT.toast('Failed to save new order.', 'error');
+      if (refNode) refNode.before(dragItem);
+      else gallery.appendChild(dragItem);
     } finally {
       setBusy(false);
     }
@@ -742,6 +747,8 @@
 
         const li = document.createElement('li');
         li.dataset.imageId = img.id;
+        li.dataset.focalX = '50';
+        li.dataset.focalY = '50';
         li.draggable = true;
 
         const thumb = img.filename.replace(/\.(\w+)$/, '-400w.$1');
@@ -751,7 +758,8 @@
                alt="${img.alt_text || ''}"
                width="400" height="268"
                loading="lazy"
-               decoding="async">
+               decoding="async"
+               data-crop-target>
           <div>
             <label for="alt-text-${img.id}">
               <span class="visually-hidden">Alt text for image ${img.id}</span>
@@ -861,31 +869,25 @@
     }
   }
 
-  let altDebounceTimers = {};
-
   gallery.addEventListener('blur', async (e) => {
     const input = e.target.closest('[data-alt-input]');
     if (!input) return;
 
     const imageId = input.dataset.imageId;
-    clearTimeout(altDebounceTimers[imageId]);
+    const altText = input.value.trim().slice(0, 255);
 
-    altDebounceTimers[imageId] = setTimeout(async () => {
-      const altText = input.value.trim().slice(0, 255);
+    try {
+      const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ alt_text: altText }),
+      });
 
-      try {
-        const res = await NT.fetch(`/tools/${toolId}/images/${imageId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ alt_text: altText }),
-        });
-
-        if (!res.ok) {
-          NT.toast('Failed to save alt text.', 'error');
-        }
-      } catch {
+      if (!res.ok) {
         NT.toast('Failed to save alt text.', 'error');
       }
-    }, 300);
+    } catch {
+      NT.toast('Failed to save alt text.', 'error');
+    }
   }, true);
 
   (function initFocalPointCrop() {
@@ -958,11 +960,13 @@
       let sensitivityX, sensitivityY;
 
       if (natAspect > aspect) {
-        sensitivityX = imgNatW / imgRenderedW;
+        const scaledW = imgNatW * (imgRenderedH / imgNatH);
+        sensitivityX = scaledW / imgRenderedW;
         sensitivityY = 1;
       } else {
         sensitivityX = 1;
-        sensitivityY = imgNatH / imgRenderedH;
+        const scaledH = imgNatH * (imgRenderedW / imgNatW);
+        sensitivityY = scaledH / imgRenderedH;
       }
 
       const fx = clamp(Math.round(startFocalX + pctDx * sensitivityX), 0, 100);

@@ -217,6 +217,24 @@ use App\Core\ViewHelper;
                     <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Code
                   </a>
                 <?php endif; ?>
+                <details>
+                  <summary data-intent="danger">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
+                  </summary>
+                  <form method="post" action="/borrow/<?= $pickupId ?>/cancel">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <label for="cancel-reason-<?= $pickupId ?>">Reason</label>
+                    <textarea
+                      id="cancel-reason-<?= $pickupId ?>"
+                      name="reason"
+                      required
+                      maxlength="1000"
+                      rows="2"
+                      placeholder="Why are you cancelling this pickup?"
+                    ></textarea>
+                    <button type="submit" data-intent="danger">Cancel Pickup</button>
+                  </form>
+                </details>
               </footer>
             </article>
           </li>

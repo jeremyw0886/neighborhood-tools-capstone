@@ -77,6 +77,11 @@ class BorrowController extends BaseController
             $this->redirect('/tools/' . $toolId);
         }
 
+        if (Borrow::hasActiveForTool($userId, $toolId)) {
+            $_SESSION['borrow_errors'] = ['general' => 'You already have an active request for this tool.'];
+            $this->redirect('/tools/' . $toolId);
+        }
+
         RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|borrow_request');
 
         try {

@@ -325,6 +325,33 @@ class Borrow
     }
 
     /**
+     * Check if a borrower already has a non-terminal borrow for a tool.
+     *
+     * @return bool True if an active request/approval/loan exists
+     */
+    public static function hasActiveForTool(int $borrowerId, int $toolId): bool
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT 1
+            FROM borrow_bor b
+            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+            WHERE b.id_acc_bor = :borrower
+              AND b.id_tol_bor = :tool
+              AND bst.status_name_bst IN ('requested', 'approved', 'borrowed')
+            LIMIT 1
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':borrower', $borrowerId, PDO::PARAM_INT);
+        $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * Create a borrow request via sp_create_borrow_request().
      *
      * The SP validates tool availability internally via fn_is_tool_available()

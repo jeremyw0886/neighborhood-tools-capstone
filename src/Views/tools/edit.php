@@ -184,7 +184,7 @@ $images            ??= [];
 
     <p id="gallery-crop-hint">
       <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
-      Drag an image to reposition its crop. Use <kbd>Alt</kbd>+arrows to reorder.
+      Drag a card to reorder. Drag an image to reposition its crop.
     </p>
 
     <?php if ($images !== []): ?>
@@ -254,8 +254,6 @@ $images            ??= [];
                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
               </button>
             </form>
-
-            <span aria-hidden="true" data-drag-handle><i class="fa-solid fa-grip-vertical"></i></span>
           </li>
         <?php endforeach; ?>
       </ol>

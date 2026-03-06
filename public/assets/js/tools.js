@@ -628,7 +628,6 @@
           <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
         </button>
       </form>
-      <span aria-hidden="true" data-drag-handle><i class="fa-solid fa-grip-vertical"></i></span>
     `;
   }
 
@@ -654,13 +653,12 @@
   function attachGalleryListeners(g) {
 
     g.addEventListener('dragstart', (e) => {
-      const handle = e.target.closest('[data-drag-handle]');
-      if (!handle) {
+      if (e.target.closest('img[data-crop-target], input, button, label, a')) {
         e.preventDefault();
         return;
       }
 
-      const li = handle.closest('li[data-image-id]');
+      const li = e.target.closest('li[data-image-id]');
       if (!li) return;
       dragItem = li;
       li.dataset.dragging = '';
@@ -720,8 +718,9 @@
     });
 
     g.addEventListener('keydown', async (e) => {
-      const li = e.target.closest('li[data-image-id]');
-      if (!li || !e.altKey || busy) return;
+      if (e.target !== e.target.closest('li[data-image-id]')) return;
+      const li = e.target;
+      if (!li || busy) return;
 
       const items = Array.from(g.querySelectorAll('li[data-image-id]'));
       const idx = items.indexOf(li);

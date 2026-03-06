@@ -3,9 +3,11 @@
  * Dashboard — Loan detail page with lifecycle progress and actions.
  *
  * Variables from DashboardController::loanStatus():
- *   $borrow      array  Full borrow record with timestamps and counterparty info
- *   $extensions  array  Loan extension history from loan_extension_lex
- *   $handovers   array  Handover verification records
+ *   $borrow        array  Full borrow record with timestamps and counterparty info
+ *   $extensions    array  Loan extension history from loan_extension_lex
+ *   $handovers     array  Handover verification records
+ *   $deposit       ?array Security deposit record
+ *   $waiverSigned  bool   Whether the borrower has signed the waiver
  *
  * Shared data:
  *   $authUser  array{id, name, first_name, role, avatar}
@@ -18,27 +20,54 @@ $terminal  = in_array($status, ['denied', 'cancelled'], true);
 $stageIndex = $terminal ? -1 : array_search($status, $stages, true);
 
 $dueStatus = null;
+$timeLabel = null;
 if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
-    $hoursLeft = (int) ((strtotime($borrow['due_at_bor']) - time()) / 3600);
-    $dueStatus = match (true) {
-        $hoursLeft < 0  => 'overdue',
+    $secondsLeft = strtotime($borrow['due_at_bor']) - time();
+    $hoursLeft   = (int) ($secondsLeft / 3600);
+    $dueStatus   = match (true) {
+        $hoursLeft < 0   => 'overdue',
         $hoursLeft <= 24 => 'due-soon',
         default          => 'on-time',
     };
+
+    $absHours = abs($hoursLeft);
+    $timeLabel = match (true) {
+        $absHours >= 24 => (int) floor($absHours / 24) . 'd ' . ($absHours % 24) . 'h' . ($hoursLeft < 0 ? ' overdue' : ' left'),
+        $absHours > 0   => $absHours . 'h' . ($hoursLeft < 0 ? ' overdue' : ' left'),
+        default         => 'Due now',
+    };
 }
+
+$statusLabel = match ($status) {
+    'requested' => 'Pending',
+    'approved'  => 'Approved',
+    'borrowed'  => 'Borrowed',
+    'returned'  => 'Returned',
+    'denied'    => 'Denied',
+    'cancelled' => 'Cancelled',
+};
+$statusSlug = $dueStatus ?? $status;
+$counterpartyLabel = $isLender ? 'Borrower' : 'Lender';
+$counterpartyName  = $isLender ? $borrow['borrower_name'] : $borrow['lender_name'];
+$counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['lender_id'];
+$dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
 ?>
 
 <section id="loan-status" aria-labelledby="loan-status-heading">
 
   <header>
+    <a href="<?= $dashboardUrl ?>" data-back-link>
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Back to Dashboard
+    </a>
     <h1 id="loan-status-heading">
       <i class="fa-solid fa-timeline" aria-hidden="true"></i>
-      Loan Status
+      <?= htmlspecialchars($borrow['tool_name_tol']) ?>
     </h1>
     <p>
-      <?= htmlspecialchars($borrow['tool_name_tol']) ?> &mdash;
-      <?= $isLender ? 'lent to' : 'borrowed from' ?>
-      <?= htmlspecialchars($isLender ? $borrow['borrower_name'] : $borrow['lender_name']) ?>
+      <?= $isLender ? 'Lent to' : 'Borrowed from' ?>
+      <a href="/profile/<?= $counterpartyId ?>"><?= htmlspecialchars($counterpartyName) ?></a>
+      <span data-status="<?= htmlspecialchars($statusSlug) ?>"><?= htmlspecialchars($statusLabel) ?></span>
     </p>
   </header>
 
@@ -48,336 +77,485 @@ if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
     <p role="status" data-flash="success"><?= htmlspecialchars($handoverSuccess) ?></p>
   <?php endif; ?>
 
-  <section aria-labelledby="lifecycle-heading">
-    <h2 id="lifecycle-heading" class="visually-hidden">Lifecycle Progress</h2>
+  <div data-loan-body>
 
-    <?php if ($terminal): ?>
-      <ol aria-label="Loan lifecycle" data-terminal>
-        <?php
-          $terminalReached = false;
-          foreach ($stages as $i => $stage):
-            $label = ucfirst($stage);
-            if (!$terminalReached && $stage === 'approved' && $status === 'denied'):
-              $terminalReached = true;
-        ?>
-          <li data-completed>
-            <span>Requested</span>
-          </li>
-          <li aria-current="step" data-status="denied">
-            <span>Denied</span>
-          </li>
-        <?php
-              break;
-            elseif (!$terminalReached && $stage === 'approved' && $status === 'cancelled'):
-              $terminalReached = true;
-        ?>
-          <li data-completed>
-            <span>Requested</span>
-          </li>
-          <li aria-current="step" data-status="cancelled">
-            <span>Cancelled</span>
-          </li>
-        <?php
-              break;
-            endif;
-          endforeach;
+    <section aria-labelledby="lifecycle-heading" data-loan-card>
+      <h2 id="lifecycle-heading">
+        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+        Lifecycle
+      </h2>
 
-          if (!$terminalReached && $status === 'cancelled'):
-        ?>
-          <li data-completed><span>Requested</span></li>
-          <li data-completed><span>Approved</span></li>
-          <li aria-current="step" data-status="cancelled"><span>Cancelled</span></li>
-        <?php endif; ?>
-      </ol>
+      <?php if ($terminal): ?>
+        <ol aria-label="Loan lifecycle" data-terminal>
+          <?php if ($status === 'denied'): ?>
+            <li data-completed><span>Requested</span></li>
+            <li aria-current="step" data-status="denied"><span>Denied</span></li>
+          <?php elseif ($status === 'cancelled'): ?>
+            <?php
+              $cancelledAfterApproval = $borrow['approved_at_bor'] !== null;
+            ?>
+            <li data-completed><span>Requested</span></li>
+            <?php if ($cancelledAfterApproval): ?>
+              <li data-completed><span>Approved</span></li>
+            <?php endif; ?>
+            <li aria-current="step" data-status="cancelled"><span>Cancelled</span></li>
+          <?php endif; ?>
+        </ol>
 
-    <?php else: ?>
-      <ol aria-label="Loan lifecycle">
-        <?php foreach ($stages as $i => $stage): ?>
-          <?php
-            $label = ucfirst($stage);
-            $attrs = '';
-            if ($i < $stageIndex) {
-                $attrs = ' data-completed';
-            } elseif ($i === $stageIndex) {
-                $attrs = ' aria-current="step"';
-                if ($dueStatus !== null && $stage === 'borrowed') {
-                    $attrs .= match ($dueStatus) {
-                        'overdue'  => ' data-urgent',
-                        'due-soon' => ' data-warning',
-                        default    => '',
-                    };
-                }
-            }
-          ?>
-          <li<?= $attrs ?>>
-            <span><?= $label ?></span>
-          </li>
-        <?php endforeach; ?>
-      </ol>
-    <?php endif; ?>
-  </section>
-
-  <section aria-labelledby="details-heading">
-    <h2 id="details-heading">Loan Details</h2>
-
-    <dl>
-      <dt>Tool</dt>
-      <dd>
-        <a href="/tools/<?= (int) $borrow['id_tol_bor'] ?>">
-          <?= htmlspecialchars($borrow['tool_name_tol']) ?>
-        </a>
-      </dd>
-
-      <dt>Lender</dt>
-      <dd>
-        <a href="/profile/<?= (int) $borrow['lender_id'] ?>">
-          <?= htmlspecialchars($borrow['lender_name']) ?>
-        </a>
-      </dd>
-
-      <dt>Borrower</dt>
-      <dd>
-        <a href="/profile/<?= (int) $borrow['borrower_id'] ?>">
-          <?= htmlspecialchars($borrow['borrower_name']) ?>
-        </a>
-      </dd>
-
-      <dt>Status</dt>
-      <dd>
-        <?php if ($dueStatus): ?>
-          <span data-status="<?= $dueStatus ?>"><?= htmlspecialchars(ucfirst($status)) ?></span>
-        <?php elseif ($terminal): ?>
-          <span data-status="<?= htmlspecialchars($status) ?>"><?= htmlspecialchars(ucfirst($status)) ?></span>
-        <?php else: ?>
-          <?= htmlspecialchars(ucfirst($status)) ?>
-        <?php endif; ?>
-      </dd>
-
-      <dt>Duration</dt>
-      <dd><?= (int) $borrow['loan_duration_hours_bor'] ?> hours</dd>
-
-      <dt>Requested</dt>
-      <dd>
-        <time datetime="<?= htmlspecialchars($borrow['requested_at_bor']) ?>">
-          <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['requested_at_bor']))) ?>
-        </time>
-      </dd>
-
-      <?php if ($borrow['approved_at_bor'] !== null): ?>
-        <dt>Approved</dt>
-        <dd>
-          <time datetime="<?= htmlspecialchars($borrow['approved_at_bor']) ?>">
-            <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['approved_at_bor']))) ?>
-          </time>
-        </dd>
-      <?php endif; ?>
-
-      <?php if ($borrow['borrowed_at_bor'] !== null): ?>
-        <dt>Picked Up</dt>
-        <dd>
-          <time datetime="<?= htmlspecialchars($borrow['borrowed_at_bor']) ?>">
-            <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['borrowed_at_bor']))) ?>
-          </time>
-        </dd>
-      <?php endif; ?>
-
-      <?php if ($borrow['due_at_bor'] !== null): ?>
-        <dt>Due</dt>
-        <dd>
-          <time datetime="<?= htmlspecialchars($borrow['due_at_bor']) ?>">
-            <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['due_at_bor']))) ?>
-          </time>
-        </dd>
-      <?php endif; ?>
-
-      <?php if ($borrow['returned_at_bor'] !== null): ?>
-        <dt>Returned</dt>
-        <dd>
-          <time datetime="<?= htmlspecialchars($borrow['returned_at_bor']) ?>">
-            <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['returned_at_bor']))) ?>
-          </time>
-        </dd>
-      <?php endif; ?>
-
-      <?php if ($borrow['notes_text_bor'] !== null && $borrow['notes_text_bor'] !== ''): ?>
-        <dt>Notes</dt>
-        <dd><?= nl2br(htmlspecialchars($borrow['notes_text_bor']), false) ?></dd>
-      <?php endif; ?>
-    </dl>
-  </section>
-
-  <?php if ($deposit !== null): ?>
-  <section aria-labelledby="deposit-heading">
-    <h2 id="deposit-heading">
-      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-      Security Deposit
-    </h2>
-    <dl>
-      <dt>Status</dt>
-      <dd><?= htmlspecialchars(ucfirst($deposit['deposit_status'])) ?></dd>
-      <dt>Amount</dt>
-      <dd>$<?= number_format((float) $deposit['amount_sdp'], 2) ?></dd>
-    </dl>
-    <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">View Deposit Details</a>
-  </section>
-  <?php endif; ?>
-
-  <?php if (!empty($extensions)): ?>
-    <section aria-labelledby="extensions-heading">
-      <h2 id="extensions-heading">Extension History</h2>
-
-      <table>
-        <caption class="visually-hidden">Loan extension records</caption>
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Hours Added</th>
-            <th scope="col">Previous Due</th>
-            <th scope="col">New Due</th>
-            <th scope="col">Reason</th>
-            <th scope="col">Approved By</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($extensions as $ext): ?>
-            <tr>
-              <td>
-                <time datetime="<?= htmlspecialchars($ext['created_at_lex']) ?>">
-                  <?= htmlspecialchars(date('M j, g:ia', strtotime($ext['created_at_lex']))) ?>
-                </time>
-              </td>
-              <td><?= (int) $ext['extended_hours_lex'] ?> hrs</td>
-              <td>
-                <time datetime="<?= htmlspecialchars($ext['original_due_at_lex']) ?>">
-                  <?= htmlspecialchars(date('M j, g:ia', strtotime($ext['original_due_at_lex']))) ?>
-                </time>
-              </td>
-              <td>
-                <time datetime="<?= htmlspecialchars($ext['new_due_at_lex']) ?>">
-                  <?= htmlspecialchars(date('M j, g:ia', strtotime($ext['new_due_at_lex']))) ?>
-                </time>
-              </td>
-              <td><?= htmlspecialchars($ext['reason_lex']) ?></td>
-              <td><?= htmlspecialchars($ext['approved_by_name']) ?></td>
-            </tr>
+      <?php else: ?>
+        <ol aria-label="Loan lifecycle">
+          <?php foreach ($stages as $i => $stage): ?>
+            <?php
+              $label = ucfirst($stage);
+              $attrs = '';
+              if ($i < $stageIndex) {
+                  $attrs = ' data-completed';
+              } elseif ($i === $stageIndex) {
+                  $attrs = ' aria-current="step"';
+                  if ($dueStatus !== null && $stage === 'borrowed') {
+                      $attrs .= match ($dueStatus) {
+                          'overdue'  => ' data-urgent',
+                          'due-soon' => ' data-warning',
+                          default    => '',
+                      };
+                  }
+              }
+            ?>
+            <li<?= $attrs ?>>
+              <span><?= $label ?></span>
+            </li>
           <?php endforeach; ?>
-        </tbody>
-      </table>
-    </section>
-  <?php endif; ?>
-
-  <?php
-    $canApprove = $status === 'requested' && $isLender;
-    $canCancel  = in_array($status, ['requested', 'approved'], true);
-    $canReturn  = $status === 'borrowed' && $isLender;
-    $canExtend  = $status === 'borrowed' && $isLender;
-    $hasActions = $canApprove || $canCancel || $canReturn || $canExtend;
-  ?>
-
-  <?php if ($hasActions): ?>
-    <section aria-labelledby="actions-heading">
-      <h2 id="actions-heading">Actions</h2>
-
-      <?php if ($canApprove): ?>
-        <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/approve">
-          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-          <button type="submit" data-intent="success">
-            <i class="fa-solid fa-check" aria-hidden="true"></i> Approve Request
-          </button>
-        </form>
-
-        <details>
-          <summary data-intent="danger">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny Request
-          </summary>
-          <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/deny">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-            <label for="deny-reason">Reason</label>
-            <textarea
-              id="deny-reason"
-              name="reason"
-              required
-              maxlength="1000"
-              rows="2"
-              placeholder="Why are you denying this request?"
-            ></textarea>
-            <button type="submit" data-intent="danger">Deny Request</button>
-          </form>
-        </details>
+        </ol>
       <?php endif; ?>
 
-      <?php if ($canReturn): ?>
-        <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/return">
-          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-          <button type="submit" data-intent="success">
-            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Confirm Return
-          </button>
-        </form>
-      <?php endif; ?>
-
-      <?php if ($canExtend): ?>
-        <details>
-          <summary data-intent="warning">
-            <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend Loan
-          </summary>
-          <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/extend">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-            <label for="extra-hours">Additional hours</label>
-            <input
-              type="number"
-              id="extra-hours"
-              name="extra_hours"
-              required
-              min="1"
-              max="720"
-              placeholder="e.g. 24"
-            >
-            <label for="extend-reason">Reason</label>
-            <textarea
-              id="extend-reason"
-              name="reason"
-              required
-              maxlength="1000"
-              rows="2"
-              placeholder="Why are you extending this loan?"
-            ></textarea>
-            <button type="submit" data-intent="warning">Extend Loan</button>
-          </form>
-        </details>
-      <?php endif; ?>
-
-      <?php if ($canCancel): ?>
-        <details>
-          <summary data-intent="danger">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
-          </summary>
-          <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/cancel">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-            <label for="cancel-reason">Reason</label>
-            <textarea
-              id="cancel-reason"
-              name="reason"
-              required
-              maxlength="1000"
-              rows="2"
-              placeholder="Why are you cancelling?"
-            ></textarea>
-            <button type="submit" data-intent="danger">Cancel Request</button>
-          </form>
-        </details>
+      <?php if ($timeLabel !== null): ?>
+        <p data-time-remaining data-status="<?= htmlspecialchars($dueStatus) ?>">
+          <i class="fa-solid fa-clock" aria-hidden="true"></i>
+          <?= htmlspecialchars($timeLabel) ?>
+        </p>
       <?php endif; ?>
     </section>
-  <?php endif; ?>
 
-  <?php if ($status === 'returned'): ?>
-    <section aria-labelledby="rate-heading">
-      <h2 id="rate-heading">Rate This Borrow</h2>
-      <p>Share your experience to help the community.</p>
-      <a href="/rate/<?= (int) $borrow['id_bor'] ?>" data-rate-cta>
-        <i class="fa-solid fa-star" aria-hidden="true"></i> Leave a Rating
-      </a>
+    <?php if ($status === 'approved' && !$isLender): ?>
+      <section aria-labelledby="pickup-checklist-heading" data-loan-card>
+        <h2 id="pickup-checklist-heading">
+          <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+          Pickup Checklist
+        </h2>
+        <?php
+          $depositPaid    = $deposit === null || $deposit['deposit_status'] !== 'pending';
+          $pickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
+          $hasPickupCode  = $pickupHandover !== null;
+        ?>
+        <ul data-checklist>
+          <li<?= $waiverSigned ? ' data-done' : '' ?>>
+            <i class="fa-solid <?= $waiverSigned ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+            <?php if ($waiverSigned): ?>
+              <span>Waiver signed</span>
+            <?php else: ?>
+              <a href="/waiver/<?= (int) $borrow['id_bor'] ?>">Sign waiver</a>
+            <?php endif; ?>
+          </li>
+          <?php if ($deposit !== null): ?>
+            <li<?= $depositPaid ? ' data-done' : '' ?>>
+              <i class="fa-solid <?= $depositPaid ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+              <?php if ($depositPaid): ?>
+                <span>Deposit paid</span>
+              <?php else: ?>
+                <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">Pay deposit ($<?= number_format((float) $deposit['amount_sdp'], 2) ?>)</a>
+              <?php endif; ?>
+            </li>
+          <?php endif; ?>
+          <li<?= $hasPickupCode ? ' data-done' : '' ?>>
+            <i class="fa-solid <?= $hasPickupCode ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+            <?php if ($hasPickupCode): ?>
+              <span>Handover code ready</span>
+            <?php else: ?>
+              <span>Awaiting handover code from lender</span>
+            <?php endif; ?>
+          </li>
+        </ul>
+        <?php if ($waiverSigned && $depositPaid && $hasPickupCode): ?>
+          <a href="/handover/<?= (int) $borrow['id_bor'] ?>" data-intent="primary" role="button">
+            <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Pickup Code
+          </a>
+        <?php endif; ?>
+      </section>
+    <?php endif; ?>
+
+    <?php if ($status === 'approved' && $isLender): ?>
+      <?php
+        $pickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
+        $hasPickupCode  = $pickupHandover !== null;
+      ?>
+      <section aria-labelledby="pickup-checklist-heading" data-loan-card>
+        <h2 id="pickup-checklist-heading">
+          <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+          Pickup Checklist
+        </h2>
+        <ul data-checklist>
+          <li<?= $waiverSigned ? ' data-done' : '' ?>>
+            <i class="fa-solid <?= $waiverSigned ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+            <span>Borrower <?= $waiverSigned ? 'signed' : 'needs to sign' ?> waiver</span>
+          </li>
+          <?php if ($deposit !== null): ?>
+            <?php $depositPaid = $deposit['deposit_status'] !== 'pending'; ?>
+            <li<?= $depositPaid ? ' data-done' : '' ?>>
+              <i class="fa-solid <?= $depositPaid ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+              <span>Deposit <?= $depositPaid ? 'paid' : 'pending' ?></span>
+            </li>
+          <?php endif; ?>
+          <li<?= $hasPickupCode ? ' data-done' : '' ?>>
+            <i class="fa-solid <?= $hasPickupCode ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+            <?php if ($hasPickupCode): ?>
+              <span>Pickup code generated</span>
+            <?php else: ?>
+              <a href="/handover/<?= (int) $borrow['id_bor'] ?>">Generate pickup code</a>
+            <?php endif; ?>
+          </li>
+        </ul>
+      </section>
+    <?php endif; ?>
+
+    <section aria-labelledby="details-heading" data-loan-card>
+      <h2 id="details-heading">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        Loan Details
+      </h2>
+
+      <dl>
+        <dt>Tool</dt>
+        <dd>
+          <a href="/tools/<?= (int) $borrow['id_tol_bor'] ?>">
+            <?= htmlspecialchars($borrow['tool_name_tol']) ?>
+          </a>
+        </dd>
+
+        <dt><?= $counterpartyLabel ?></dt>
+        <dd>
+          <a href="/profile/<?= $counterpartyId ?>">
+            <?= htmlspecialchars($counterpartyName) ?>
+          </a>
+        </dd>
+
+        <dt>Duration</dt>
+        <dd><?= (int) $borrow['loan_duration_hours_bor'] ?> hours</dd>
+
+        <dt>Requested</dt>
+        <dd>
+          <time datetime="<?= htmlspecialchars($borrow['requested_at_bor']) ?>">
+            <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['requested_at_bor']))) ?>
+          </time>
+        </dd>
+
+        <?php if ($borrow['approved_at_bor'] !== null): ?>
+          <dt>Approved</dt>
+          <dd>
+            <time datetime="<?= htmlspecialchars($borrow['approved_at_bor']) ?>">
+              <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['approved_at_bor']))) ?>
+            </time>
+          </dd>
+        <?php endif; ?>
+
+        <?php if ($borrow['borrowed_at_bor'] !== null): ?>
+          <dt>Picked Up</dt>
+          <dd>
+            <time datetime="<?= htmlspecialchars($borrow['borrowed_at_bor']) ?>">
+              <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['borrowed_at_bor']))) ?>
+            </time>
+          </dd>
+        <?php endif; ?>
+
+        <?php if ($borrow['due_at_bor'] !== null): ?>
+          <dt>Due</dt>
+          <dd>
+            <time datetime="<?= htmlspecialchars($borrow['due_at_bor']) ?>">
+              <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['due_at_bor']))) ?>
+            </time>
+            <?php if ($timeLabel !== null): ?>
+              <small>(<?= htmlspecialchars($timeLabel) ?>)</small>
+            <?php endif; ?>
+          </dd>
+        <?php endif; ?>
+
+        <?php if ($borrow['returned_at_bor'] !== null): ?>
+          <dt>Returned</dt>
+          <dd>
+            <time datetime="<?= htmlspecialchars($borrow['returned_at_bor']) ?>">
+              <?= htmlspecialchars(date('M j, Y \a\t g:ia', strtotime($borrow['returned_at_bor']))) ?>
+            </time>
+          </dd>
+        <?php endif; ?>
+
+        <?php if ($borrow['notes_text_bor'] !== null && $borrow['notes_text_bor'] !== ''): ?>
+          <dt>Notes</dt>
+          <dd><?= nl2br(htmlspecialchars($borrow['notes_text_bor']), false) ?></dd>
+        <?php endif; ?>
+      </dl>
     </section>
-  <?php endif; ?>
 
-</div>
+    <?php if ($deposit !== null): ?>
+      <section aria-labelledby="deposit-heading" data-loan-card>
+        <h2 id="deposit-heading">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          Security Deposit
+        </h2>
+        <dl>
+          <dt>Status</dt>
+          <dd>
+            <span data-status="<?= htmlspecialchars($deposit['deposit_status']) ?>">
+              <?= htmlspecialchars(ucfirst($deposit['deposit_status'])) ?>
+            </span>
+          </dd>
+          <dt>Amount</dt>
+          <dd>$<?= number_format((float) $deposit['amount_sdp'], 2) ?></dd>
+          <?php if ($deposit['payment_provider'] !== null): ?>
+            <dt>Provider</dt>
+            <dd><?= htmlspecialchars(ucfirst($deposit['payment_provider'])) ?></dd>
+          <?php endif; ?>
+        </dl>
+        <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">View Deposit Details</a>
+      </section>
+    <?php endif; ?>
+
+    <?php if (!empty($handovers)): ?>
+      <section aria-labelledby="handovers-heading" data-loan-card>
+        <h2 id="handovers-heading">
+          <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+          Handover Verification
+        </h2>
+        <ul data-handover-list>
+          <?php foreach ($handovers as $hov): ?>
+            <li>
+              <article data-handover-record>
+                <header>
+                  <span data-handover-type><?= htmlspecialchars(ucfirst($hov['handover_type'])) ?></span>
+                  <?php if ($hov['verified_at_hov'] !== null): ?>
+                    <span data-status="on-time">Verified</span>
+                  <?php else: ?>
+                    <span data-status="requested">Pending</span>
+                  <?php endif; ?>
+                </header>
+                <dl>
+                  <dt>Generated by</dt>
+                  <dd><?= htmlspecialchars($hov['generator_name']) ?></dd>
+                  <dt>Generated</dt>
+                  <dd>
+                    <time datetime="<?= htmlspecialchars($hov['generated_at_hov']) ?>">
+                      <?= htmlspecialchars(date('M j, g:ia', strtotime($hov['generated_at_hov']))) ?>
+                    </time>
+                  </dd>
+                  <?php if ($hov['verified_at_hov'] !== null): ?>
+                    <dt>Verified by</dt>
+                    <dd><?= htmlspecialchars($hov['verifier_name'] ?? 'N/A') ?></dd>
+                    <dt>Verified</dt>
+                    <dd>
+                      <time datetime="<?= htmlspecialchars($hov['verified_at_hov']) ?>">
+                        <?= htmlspecialchars(date('M j, g:ia', strtotime($hov['verified_at_hov']))) ?>
+                      </time>
+                    </dd>
+                  <?php endif; ?>
+                  <?php if ($hov['condition_notes_hov'] !== null && $hov['condition_notes_hov'] !== ''): ?>
+                    <dt>Condition</dt>
+                    <dd><?= htmlspecialchars($hov['condition_notes_hov']) ?></dd>
+                  <?php endif; ?>
+                </dl>
+              </article>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </section>
+    <?php endif; ?>
+
+    <?php if (!empty($extensions)): ?>
+      <section aria-labelledby="extensions-heading" data-loan-card>
+        <h2 id="extensions-heading">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+          Extension History
+        </h2>
+
+        <table>
+          <caption class="visually-hidden">Loan extension records</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Hours Added</th>
+              <th scope="col">Previous Due</th>
+              <th scope="col">New Due</th>
+              <th scope="col">Reason</th>
+              <th scope="col">Approved By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($extensions as $ext): ?>
+              <tr>
+                <td>
+                  <time datetime="<?= htmlspecialchars($ext['created_at_lex']) ?>">
+                    <?= htmlspecialchars(date('M j, g:ia', strtotime($ext['created_at_lex']))) ?>
+                  </time>
+                </td>
+                <td><?= (int) $ext['extended_hours_lex'] ?> hrs</td>
+                <td>
+                  <time datetime="<?= htmlspecialchars($ext['original_due_at_lex']) ?>">
+                    <?= htmlspecialchars(date('M j, g:ia', strtotime($ext['original_due_at_lex']))) ?>
+                  </time>
+                </td>
+                <td>
+                  <time datetime="<?= htmlspecialchars($ext['new_due_at_lex']) ?>">
+                    <?= htmlspecialchars(date('M j, g:ia', strtotime($ext['new_due_at_lex']))) ?>
+                  </time>
+                </td>
+                <td><?= htmlspecialchars($ext['reason_lex']) ?></td>
+                <td><?= htmlspecialchars($ext['approved_by_name']) ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </section>
+    <?php endif; ?>
+
+    <?php
+      $canApprove = $status === 'requested' && $isLender;
+      $canCancel  = in_array($status, ['requested', 'approved'], true);
+      $canReturn  = $status === 'borrowed' && $isLender;
+      $canExtend  = $status === 'borrowed' && $isLender;
+      $hasActions = $canApprove || $canCancel || $canReturn || $canExtend;
+    ?>
+
+    <?php if ($hasActions): ?>
+      <section aria-labelledby="actions-heading" data-loan-card data-actions-card>
+        <h2 id="actions-heading">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          Actions
+        </h2>
+
+        <?php if ($canApprove): ?>
+          <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/approve">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+            <button type="submit" data-intent="success">
+              <i class="fa-solid fa-check" aria-hidden="true"></i> Approve Request
+            </button>
+          </form>
+
+          <details>
+            <summary data-intent="danger">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny Request
+            </summary>
+            <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/deny">
+              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+              <label for="deny-reason">Reason</label>
+              <textarea
+                id="deny-reason"
+                name="reason"
+                required
+                maxlength="1000"
+                rows="2"
+                placeholder="Why are you denying this request?"
+              ></textarea>
+              <button type="submit" data-intent="danger">Deny Request</button>
+            </form>
+          </details>
+        <?php endif; ?>
+
+        <?php if ($canReturn): ?>
+          <?php
+            $returnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return');
+            $hasReturnCode  = $returnHandover !== null;
+          ?>
+          <?php if ($hasReturnCode): ?>
+            <a href="/handover/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="info">
+              <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Return Code
+            </a>
+          <?php else: ?>
+            <span role="button" aria-disabled="true" data-intent="ghost">
+              <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Return Code
+            </span>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if ($status === 'borrowed' && !$isLender): ?>
+          <?php
+            $returnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return' && $h['verified_at_hov'] === null);
+            $hasReturnCode  = $returnHandover !== null;
+          ?>
+          <?php if ($hasReturnCode): ?>
+            <a href="/handover/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="info">
+              <i class="fa-solid fa-key" aria-hidden="true"></i> Your Return Code
+            </a>
+          <?php else: ?>
+            <a href="/handover/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="info">
+              <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Return Code
+            </a>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if ($canExtend): ?>
+          <details>
+            <summary data-intent="warning">
+              <i class="fa-solid fa-clock" aria-hidden="true"></i> Extend Loan
+            </summary>
+            <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/extend">
+              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+              <label for="extra-hours">Additional hours</label>
+              <input
+                type="number"
+                id="extra-hours"
+                name="extra_hours"
+                required
+                min="1"
+                max="720"
+                placeholder="e.g. 24"
+              >
+              <label for="extend-reason">Reason</label>
+              <textarea
+                id="extend-reason"
+                name="reason"
+                required
+                maxlength="1000"
+                rows="2"
+                placeholder="Why are you extending this loan?"
+              ></textarea>
+              <button type="submit" data-intent="warning">Extend Loan</button>
+            </form>
+          </details>
+        <?php endif; ?>
+
+        <?php if ($canCancel): ?>
+          <details>
+            <summary data-intent="danger">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
+            </summary>
+            <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/cancel">
+              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+              <label for="cancel-reason">Reason</label>
+              <textarea
+                id="cancel-reason"
+                name="reason"
+                required
+                maxlength="1000"
+                rows="2"
+                placeholder="Why are you cancelling?"
+              ></textarea>
+              <button type="submit" data-intent="danger">Cancel Request</button>
+            </form>
+          </details>
+        <?php endif; ?>
+      </section>
+    <?php endif; ?>
+
+    <?php if ($status === 'returned'): ?>
+      <section aria-labelledby="rate-heading" data-loan-card>
+        <h2 id="rate-heading">
+          <i class="fa-solid fa-star" aria-hidden="true"></i>
+          Rate This Borrow
+        </h2>
+        <p>Share your experience to help the community.</p>
+        <a href="/rate/<?= (int) $borrow['id_bor'] ?>" data-rate-cta>
+          <i class="fa-solid fa-star" aria-hidden="true"></i> Leave a Rating
+        </a>
+      </section>
+    <?php endif; ?>
+
+  </div>
+
 </section>

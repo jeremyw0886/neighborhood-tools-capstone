@@ -351,14 +351,16 @@ class DashboardController extends BaseController
             $this->abort(403);
         }
 
-        $extensions = [];
-        $handovers  = [];
-        $deposit    = null;
+        $extensions   = [];
+        $handovers    = [];
+        $deposit      = null;
+        $waiverSigned = false;
 
         try {
-            $extensions = Borrow::getExtensions($borrowId);
-            $handovers  = Borrow::getHandovers($borrowId);
-            $deposit    = Deposit::findByBorrowId($borrowId);
+            $extensions   = Borrow::getExtensions($borrowId);
+            $handovers    = Borrow::getHandovers($borrowId);
+            $deposit      = Deposit::findByBorrowId($borrowId);
+            $waiverSigned = Waiver::hasSignedWaiver($borrowId);
         } catch (\Throwable $e) {
             error_log('DashboardController::loanStatus (details) — ' . $e->getMessage());
         }
@@ -371,6 +373,7 @@ class DashboardController extends BaseController
             'extensions'       => $extensions,
             'handovers'        => $handovers,
             'deposit'          => $deposit,
+            'waiverSigned'     => $waiverSigned,
             'handoverSuccess'  => $this->flash('handover_success'),
         ]);
     }

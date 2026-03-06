@@ -590,14 +590,14 @@
     const csrfToken = escapeAttr(document.querySelector('meta[name="csrf-token"]')?.content ?? '');
     const fx = img.focal_x ?? 50;
     const fy = img.focal_y ?? 50;
-    const focalStyle = (fx !== 50 || fy !== 50) ? ` style="object-position:${fx}% ${fy}%"` : '';
+    const focalAttrs = (fx !== 50 || fy !== 50) ? ` data-focal-x="${fx}" data-focal-y="${fy}"` : '';
 
     return `
       <img src="/uploads/tools/${thumb}"
            alt="${altSafe}"
            width="400" height="268"
            loading="lazy"
-           decoding="async"${focalStyle}>
+           decoding="async"${focalAttrs}>
       <div>
         <label for="alt-text-${img.id}">
           <span class="visually-hidden">Alt text for image ${img.id}</span>
@@ -672,6 +672,8 @@
   let cropFocalY = 50;
   let repositionImageId = null;
   let cropLayout = null;
+  let frameLeft = 0;
+  let frameTop = 0;
 
   function cleanupCropState() {
     if (cropObjectUrl) {
@@ -682,6 +684,9 @@
     cropMode = null;
     cropLayout = null;
     repositionImageId = null;
+    NT.style.removeRule('crop-preview');
+    NT.style.removeRule('crop-frame-size');
+    NT.style.removeRule('crop-frame-pos');
     const fi = document.getElementById('add-photo');
     if (fi) fi.value = '';
   }
@@ -707,10 +712,8 @@
 
     const imgLeft = (stageW - dispW) / 2;
     const imgTop = (stageH - dispH) / 2;
-    cropPreview.style.width = dispW + 'px';
-    cropPreview.style.height = dispH + 'px';
-    cropPreview.style.left = imgLeft + 'px';
-    cropPreview.style.top = imgTop + 'px';
+    NT.style.setRule('crop-preview', '#crop-preview',
+      `width:${dispW}px;height:${dispH}px;left:${imgLeft}px;top:${imgTop}px`);
 
     let frameW, frameH;
     if (dispW / dispH > 1.5) {
@@ -723,8 +726,8 @@
 
     cropLayout = { imgLeft, imgTop, dispW, dispH, frameW, frameH };
 
-    cropFrame.style.width = frameW + 'px';
-    cropFrame.style.height = frameH + 'px';
+    NT.style.setRule('crop-frame-size', '#crop-frame',
+      `width:${frameW}px;height:${frameH}px`);
 
     positionFrameFromFocal();
   }
@@ -735,24 +738,31 @@
     const maxOffsetX = dispW - frameW;
     const maxOffsetY = dispH - frameH;
 
-    const frameLeft = imgLeft + (maxOffsetX > 0 ? (cropFocalX / 100) * maxOffsetX : 0);
-    const frameTop = imgTop + (maxOffsetY > 0 ? (cropFocalY / 100) * maxOffsetY : 0);
+    frameLeft = imgLeft + (maxOffsetX > 0 ? (cropFocalX / 100) * maxOffsetX : 0);
+    frameTop = imgTop + (maxOffsetY > 0 ? (cropFocalY / 100) * maxOffsetY : 0);
 
-    cropFrame.style.left = frameLeft + 'px';
-    cropFrame.style.top = frameTop + 'px';
+    NT.style.setRule('crop-frame-pos', '#crop-frame',
+      `left:${frameLeft}px;top:${frameTop}px`);
+  }
+
+  function setFramePosition(left, top) {
+    frameLeft = left;
+    frameTop = top;
+    NT.style.setRule('crop-frame-pos', '#crop-frame',
+      `left:${left}px;top:${top}px`);
   }
 
   function updateFocalFromFrame() {
-    if (!cropLayout || !cropFrame) return;
+    if (!cropLayout) return;
     const { imgLeft, imgTop, dispW, dispH, frameW, frameH } = cropLayout;
     const maxOffsetX = dispW - frameW;
     const maxOffsetY = dispH - frameH;
 
-    const frameLeft = parseFloat(cropFrame.style.left) - imgLeft;
-    const frameTop = parseFloat(cropFrame.style.top) - imgTop;
+    const relLeft = frameLeft - imgLeft;
+    const relTop = frameTop - imgTop;
 
-    cropFocalX = maxOffsetX > 0 ? clamp(Math.round((frameLeft / maxOffsetX) * 100), 0, 100) : 50;
-    cropFocalY = maxOffsetY > 0 ? clamp(Math.round((frameTop / maxOffsetY) * 100), 0, 100) : 50;
+    cropFocalX = maxOffsetX > 0 ? clamp(Math.round((relLeft / maxOffsetX) * 100), 0, 100) : 50;
+    cropFocalY = maxOffsetY > 0 ? clamp(Math.round((relTop / maxOffsetY) * 100), 0, 100) : 50;
   }
 
   function openCropUpload(file) {
@@ -774,6 +784,7 @@
 
     cropDialog.dataset.mode = 'upload';
     cropDialog.showModal();
+    cropViewport?.focus();
   }
 
   function openCropReposition(imageId, imgSrc, focalX, focalY) {
@@ -799,6 +810,7 @@
 
     cropDialog.dataset.mode = 'reposition';
     cropDialog.showModal();
+    cropViewport?.focus();
   }
 
   if (cropViewport && cropFrame) {
@@ -815,8 +827,8 @@
       dragging = true;
       startX = e.clientX;
       startY = e.clientY;
-      startFrameLeft = parseFloat(cropFrame.style.left) || 0;
-      startFrameTop = parseFloat(cropFrame.style.top) || 0;
+      startFrameLeft = frameLeft;
+      startFrameTop = frameTop;
     });
 
     cropViewport.addEventListener('pointermove', (e) => {
@@ -830,8 +842,7 @@
       const newLeft = clamp(startFrameLeft + dx, imgLeft, imgLeft + dispW - frameW);
       const newTop = clamp(startFrameTop + dy, imgTop, imgTop + dispH - frameH);
 
-      cropFrame.style.left = newLeft + 'px';
-      cropFrame.style.top = newTop + 'px';
+      setFramePosition(newLeft, newTop);
       updateFocalFromFrame();
     });
 
@@ -900,8 +911,12 @@
         li.innerHTML = buildLiHtml(img);
 
         g.appendChild(li);
+        NT.applyFocalPoints(li);
         closeCropDialog();
         updateSlotHint();
+        requestAnimationFrame(() => {
+          li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
         NT.toast('Photo uploaded.', 'success');
       } catch {
         NT.toast('Failed to upload photo.', 'error');
@@ -938,9 +953,14 @@
           li.dataset.focalY = String(cropFocalY);
           const img = li.querySelector('img');
           if (img) {
-            img.style.objectPosition = (cropFocalX !== 50 || cropFocalY !== 50)
-              ? `${cropFocalX}% ${cropFocalY}%`
-              : '';
+            if (cropFocalX !== 50 || cropFocalY !== 50) {
+              img.dataset.focalX = String(cropFocalX);
+              img.dataset.focalY = String(cropFocalY);
+            } else {
+              delete img.dataset.focalX;
+              delete img.dataset.focalY;
+            }
+            NT.applyFocalPoints(li);
           }
         }
 
@@ -1077,7 +1097,7 @@
 
       const imageId = li.dataset.imageId;
 
-      if (!confirm('Delete this photo?')) return;
+      if (!await NT.confirm('Delete this photo?')) return;
 
       setBusy(true);
       deleteBtn.disabled = true;
@@ -1323,7 +1343,14 @@
 
       const fx = btn.dataset.focalX ?? '50';
       const fy = btn.dataset.focalY ?? '50';
-      mainImg.style.objectPosition = (fx !== '50' || fy !== '50') ? `${fx}% ${fy}%` : '';
+      if (fx !== '50' || fy !== '50') {
+        mainImg.dataset.focalX = fx;
+        mainImg.dataset.focalY = fy;
+      } else {
+        delete mainImg.dataset.focalX;
+        delete mainImg.dataset.focalY;
+      }
+      NT.applyFocalPoints(mainImg);
 
       const link = mainImg.closest('a[data-lightbox-trigger]');
       if (link) link.href = btn.dataset.full;

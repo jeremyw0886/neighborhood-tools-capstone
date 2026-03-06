@@ -37,6 +37,7 @@
     const headers = new Headers(opts.headers);
     headers.set('X-CSRF-Token', CSRF_TOKEN);
     headers.set('X-Requested-With', 'XMLHttpRequest');
+    if (!headers.has('Accept')) headers.set('Accept', 'application/json');
 
     if (opts.body && !(opts.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
@@ -297,6 +298,107 @@
     input.form?.addEventListener('reset', cleanup);
   }
 
+  // ─── CSP-Safe Dynamic Styles ───────────────────────────────────────
+
+  const dynamicSheet = new CSSStyleSheet();
+  document.adoptedStyleSheets = [...document.adoptedStyleSheets, dynamicSheet];
+  const ruleMap = new Map();
+
+  /**
+   * Set a CSS rule keyed by a unique ID (replaces any previous rule for that key).
+   *
+   * @param {string} key
+   * @param {string} selector
+   * @param {string} declarations
+   */
+  function setRule(key, selector, declarations) {
+    removeRule(key);
+    const index = dynamicSheet.insertRule(`${selector}{${declarations}}`, dynamicSheet.cssRules.length);
+    ruleMap.set(key, index);
+  }
+
+  /**
+   * Remove a previously set rule by key.
+   *
+   * @param {string} key
+   */
+  function removeRule(key) {
+    if (!ruleMap.has(key)) return;
+    const staleIndex = ruleMap.get(key);
+    dynamicSheet.deleteRule(staleIndex);
+    ruleMap.delete(key);
+    for (const [k, v] of ruleMap) {
+      if (v > staleIndex) ruleMap.set(k, v - 1);
+    }
+  }
+
+  /**
+   * Apply object-position from data-focal-x / data-focal-y on images within root.
+   *
+   * @param {Element} root
+   */
+  function applyFocalPoints(root = document) {
+    const imgs = (root.matches?.('img') ? [root] : root.querySelectorAll('img'));
+    for (const img of imgs) {
+      if (!img.id) img.id = `fp-${crypto.randomUUID().slice(0, 8)}`;
+      const key = `fp-${img.id}`;
+      const fx = img.dataset.focalX;
+      const fy = img.dataset.focalY;
+      if (fx && fy) {
+        setRule(key, `#${CSS.escape(img.id)}`, `object-position:${fx}% ${fy}%`);
+      } else {
+        removeRule(key);
+      }
+    }
+  }
+
+  // ─── Non-Blocking Confirm Dialog ───────────────────────────────────
+
+  /**
+   * Promise-based replacement for window.confirm().
+   *
+   * @param {string} message
+   * @param {string} confirmLabel
+   * @returns {Promise<boolean>}
+   */
+  function ntConfirm(message, confirmLabel = 'Delete') {
+    return new Promise((resolve) => {
+      const dialog = document.createElement('dialog');
+      dialog.setAttribute('aria-label', 'Confirmation');
+
+      const p = document.createElement('p');
+      p.textContent = message;
+
+      const footer = document.createElement('footer');
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.textContent = 'Cancel';
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.textContent = confirmLabel;
+      confirmBtn.setAttribute('data-intent', 'danger');
+      confirmBtn.setAttribute('autofocus', '');
+
+      footer.append(cancelBtn, confirmBtn);
+      dialog.append(p, footer);
+      document.body.appendChild(dialog);
+
+      const cleanup = (result) => {
+        dialog.close();
+        dialog.remove();
+        resolve(result);
+      };
+
+      cancelBtn.addEventListener('click', () => cleanup(false));
+      confirmBtn.addEventListener('click', () => cleanup(true));
+      dialog.addEventListener('cancel', () => cleanup(false));
+
+      dialog.showModal();
+    });
+  }
+
   // ─── Pagination Smooth Scroll ──────────────────────────────────────
 
   function initPaginationScroll() {
@@ -317,6 +419,9 @@
   window.NT = Object.freeze({
     fetch: ntFetch,
     toast,
+    confirm: ntConfirm,
+    style: Object.freeze({ setRule, removeRule }),
+    applyFocalPoints,
     form: Object.freeze({
       trackDirty,
       charCounter,
@@ -329,6 +434,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     migrateFlashMessages();
     initPaginationScroll();
+    applyFocalPoints();
   });
 
 })();

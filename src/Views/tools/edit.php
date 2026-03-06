@@ -197,7 +197,6 @@ $images            ??= [];
           $isPrimary  = !empty($image['is_primary_tim']);
           $focalX     = (int) ($image['focal_x_tim'] ?? 50);
           $focalY     = (int) ($image['focal_y_tim'] ?? 50);
-          $focalPos   = ($focalX !== 50 || $focalY !== 50) ? "object-position:{$focalX}% {$focalY}%" : '';
         ?>
           <li data-image-id="<?= $imgId ?>"
               data-focal-x="<?= $focalX ?>"
@@ -209,7 +208,7 @@ $images            ??= [];
                  width="400" height="268"
                  loading="lazy"
                  decoding="async"
-                 <?= $focalPos !== '' ? "style=\"{$focalPos}\"" : '' ?>>
+                 <?= ($focalX !== 50 || $focalY !== 50) ? "data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '' ?>>
 
             <div>
               <label for="alt-text-<?= $imgId ?>">
@@ -292,7 +291,7 @@ $images            ??= [];
         <h2>Position Your Photo</h2>
         <p>Drag to choose which part is visible in the 3:2 frame.</p>
       </header>
-      <div id="crop-viewport">
+      <div id="crop-viewport" tabindex="0">
         <img id="crop-preview" alt="Crop preview" draggable="false">
         <div id="crop-frame" aria-hidden="true"></div>
       </div>

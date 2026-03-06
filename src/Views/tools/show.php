@@ -47,7 +47,6 @@ $images        ??= [];
             $mainAlt   = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
             $mainFx    = (int) ($primaryImage['focal_x_tim'] ?? 50);
             $mainFy    = (int) ($primaryImage['focal_y_tim'] ?? 50);
-            $mainPos   = ($mainFx !== 50 || $mainFy !== 50) ? "object-position:{$mainFx}% {$mainFy}%" : '';
           ?>
             <a href="/uploads/tools/<?= $mainFile ?>" data-lightbox-trigger>
               <img src="/uploads/tools/<?= $mainFile ?>"
@@ -57,7 +56,7 @@ $images        ??= [];
                    width="800" height="536"
                    id="gallery-main-img"
                    decoding="async"
-                   <?= $mainPos !== '' ? "style=\"{$mainPos}\"" : '' ?>>
+                   <?= ($mainFx !== 50 || $mainFy !== 50) ? "data-focal-x=\"{$mainFx}\" data-focal-y=\"{$mainFy}\"" : '' ?>>
             </a>
             <?php if (($primaryImage['alt_text_tim'] ?? '') !== ''): ?>
               <figcaption><?= htmlspecialchars($primaryImage['alt_text_tim']) ?></figcaption>
@@ -87,7 +86,7 @@ $images        ??= [];
                        width="80" height="54"
                        loading="lazy"
                        decoding="async"
-                       <?= $mainPos !== '' ? "style=\"{$mainPos}\"" : '' ?>>
+                       <?= ($mainFx !== 50 || $mainFy !== 50) ? "data-focal-x=\"{$mainFx}\" data-focal-y=\"{$mainFy}\"" : '' ?>>
                 </button>
               </li>
             <?php endif; ?>
@@ -97,7 +96,6 @@ $images        ??= [];
               $extraAlt   = htmlspecialchars($extra['alt_text_tim'] ?? $tool['tool_name_tol']);
               $extraFx    = (int) ($extra['focal_x_tim'] ?? 50);
               $extraFy    = (int) ($extra['focal_y_tim'] ?? 50);
-              $extraPos   = ($extraFx !== 50 || $extraFy !== 50) ? "object-position:{$extraFx}% {$extraFy}%" : '';
             ?>
               <li>
                 <button type="button"
@@ -112,7 +110,7 @@ $images        ??= [];
                        width="80" height="54"
                        loading="lazy"
                        decoding="async"
-                       <?= $extraPos !== '' ? "style=\"{$extraPos}\"" : '' ?>>
+                       <?= ($extraFx !== 50 || $extraFy !== 50) ? "data-focal-x=\"{$extraFx}\" data-focal-y=\"{$extraFy}\"" : '' ?>>
                 </button>
               </li>
             <?php endforeach; ?>

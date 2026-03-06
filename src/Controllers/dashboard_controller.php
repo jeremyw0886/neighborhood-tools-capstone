@@ -109,12 +109,14 @@ class DashboardController extends BaseController
             $pendingRequests = Borrow::getPendingForUser($userId, $reqSort['sort'], $reqSort['dir']);
             $activeBorrows   = Borrow::getActiveForUser($userId, $lentSort['sort'], $lentSort['dir']);
             $approvedLoans   = Borrow::getApprovedForUser($userId);
+            $overdueAll      = Borrow::getOverdueForUser($userId);
         } catch (\Throwable $e) {
             error_log('DashboardController::lender — ' . $e->getMessage());
             $tools           = [];
             $pendingRequests = [];
             $activeBorrows   = [];
             $approvedLoans   = [];
+            $overdueAll      = [];
         }
 
         $incomingRequests = array_filter(
@@ -131,6 +133,11 @@ class DashboardController extends BaseController
             $approvedLoans,
             static fn(array $row): bool => (int) $row['lender_id'] === $userId,
         );
+
+        $overdue = array_values(array_filter(
+            $overdueAll,
+            static fn(array $row): bool => (int) $row['lender_id'] === $userId,
+        ));
 
         $pickupBorrowIds = array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup);
         $lentBorrowIds   = array_map(static fn(array $row): int => (int) $row['id_bor'], $lentOut);
@@ -158,6 +165,7 @@ class DashboardController extends BaseController
             'toolsCount'         => $toolsCount,
             'toolsPages'         => $toolsPages,
             'perPage'            => $perPage,
+            'overdue'            => $overdue,
             'incomingRequests'   => array_values($incomingRequests),
             'awaitingPickup'     => array_values($awaitingPickup),
             'lentOut'            => array_values($lentOut),

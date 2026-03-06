@@ -158,21 +158,27 @@ $fuelTypes  ??= [];
         <?php endif; ?>
       </div>
 
-      <div>
-        <label for="tool-photos">Tool Photos</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Photos</legend>
+
+      <div id="photo-drop-zone">
+        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+        <p>Drag images here or click to browse</p>
+        <p id="photo-upload-hint">JPEG, PNG, or WebP — max 5 MB each, up to 6 photos. The first photo will be your primary listing image.</p>
+        <label for="tool-photos" class="visually-hidden">Choose photos</label>
         <input type="file"
                id="tool-photos"
                name="photos[]"
                multiple
                accept="image/jpeg,image/png,image/webp"
-               aria-describedby="tool-photos-hint"
                <?php if (isset($errors['photos'])): ?>aria-invalid="true"<?php endif; ?>>
-        <p id="tool-photos-hint">Upload up to 6 photos (max 5 MB each, JPEG/PNG/WebP). The first photo will be your primary listing image.</p>
-        <?php if (isset($errors['photos'])): ?>
-          <p role="alert"><?= htmlspecialchars($errors['photos']) ?></p>
-        <?php endif; ?>
-        <ul id="photo-preview-list" hidden aria-label="Selected photo previews"></ul>
       </div>
+      <?php if (isset($errors['photos'])): ?>
+        <p role="alert"><?= htmlspecialchars($errors['photos']) ?></p>
+      <?php endif; ?>
+      <ul id="photo-preview-list" hidden aria-label="Selected photo previews"></ul>
     </fieldset>
 
     <button type="submit" data-intent="success">

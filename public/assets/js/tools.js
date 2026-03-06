@@ -402,31 +402,47 @@
     return true;
   }
 
-  function renderPreviews(files) {
+  let selectedFiles = [];
+
+  function syncFileInput() {
+    const dt = new DataTransfer();
+    for (const f of selectedFiles) dt.items.add(f);
+    fileInput.files = dt.files;
+  }
+
+  function renderPreviews() {
     for (const img of previewList.querySelectorAll('img')) {
       URL.revokeObjectURL(img.src);
     }
     previewList.innerHTML = '';
 
-    if (files.length === 0) {
+    if (selectedFiles.length === 0) {
       previewList.hidden = true;
       return;
     }
 
     previewList.hidden = false;
 
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < selectedFiles.length; i++) {
       const li = document.createElement('li');
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(files[i]);
-      img.alt = `Preview of ${files[i].name}`;
+      img.src = URL.createObjectURL(selectedFiles[i]);
+      img.alt = `Preview of ${selectedFiles[i].name}`;
       img.width = 120;
       img.height = 80;
       li.appendChild(img);
 
-      const label = document.createElement('span');
-      label.textContent = i === 0 ? 'Primary' : `Photo ${i + 1}`;
-      li.appendChild(label);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Remove ${selectedFiles[i].name}`);
+      btn.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+      btn.addEventListener('click', () => {
+        URL.revokeObjectURL(img.src);
+        selectedFiles.splice(i, 1);
+        syncFileInput();
+        renderPreviews();
+      });
+      li.appendChild(btn);
 
       previewList.appendChild(li);
     }
@@ -435,21 +451,18 @@
   fileInput.addEventListener('change', () => {
     const files = Array.from(fileInput.files);
 
-    if (files.length === 0) {
-      renderPreviews([]);
-      return;
-    }
+    if (files.length === 0) return;
 
     if (!validateFiles(files)) {
       fileInput.value = '';
-      renderPreviews([]);
       return;
     }
 
-    renderPreviews(files);
+    selectedFiles = files;
+    renderPreviews();
   });
 
-  const dropZone = fileInput.closest('div');
+  const dropZone = document.getElementById('photo-drop-zone');
   if (!dropZone) return;
 
   let dragCounter = 0;

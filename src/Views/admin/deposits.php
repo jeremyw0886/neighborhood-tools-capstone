@@ -227,6 +227,12 @@ $allActions  = [
                   <?= $incidents ?> incident<?= $incidents !== 1 ? 's' : '' ?>
                 </small>
               <?php endif; ?>
+              <?php if (in_array($deposit['action_required'], ['READY FOR RELEASE', 'OVERDUE - REVIEW NEEDED'], true)): ?>
+                <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>"
+                   data-intent="primary" data-shape="pill">
+                  Process
+                </a>
+              <?php endif; ?>
             </td>
           </tr>
         <?php endforeach; ?>

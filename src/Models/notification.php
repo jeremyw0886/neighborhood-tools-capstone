@@ -93,6 +93,7 @@ class Notification
                 ntf.created_at_ntf,
                 TIMESTAMPDIFF(HOUR, ntf.created_at_ntf, NOW()) AS hours_ago,
                 ntf.id_bor_ntf,
+                t.id_tol AS related_tool_id,
                 t.tool_name_tol AS related_tool_name,
                 bst.status_name_bst AS related_borrow_status
             FROM notification_ntf ntf

@@ -157,16 +157,24 @@ class Notification
     }
 
     /**
-     * Count total notifications for a user (read + unread) for pagination.
+     * Count notifications for a user, optionally filtered, for pagination.
      */
-    public static function getCountForUser(int $accountId): int
+    public static function getCountForUser(int $accountId, ?string $filter = null): int
     {
-        $pdo = Database::connection();
+        $pdo          = Database::connection();
+        $filterClause = self::FILTER_CLAUSES[$filter] ?? '';
+        $needsTypeJoin = $filter !== null && $filter !== 'unread';
+
+        $join = $needsTypeJoin
+            ? 'JOIN notification_type_ntt ntt ON ntf.id_ntt_ntf = ntt.id_ntt'
+            : '';
 
         $stmt = $pdo->prepare("
             SELECT COUNT(*)
-            FROM notification_ntf
-            WHERE id_acc_ntf = :account_id
+            FROM notification_ntf ntf
+            {$join}
+            WHERE ntf.id_acc_ntf = :account_id
+            {$filterClause}
         ");
 
         $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);

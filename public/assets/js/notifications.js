@@ -54,6 +54,97 @@
     }
   };
 
+  // ─── Shared State ─────────────────────────────────────────────────
+
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let removalIdCounter = 0;
+
+  // ─── Shared Helpers ────────────────────────────────────────────────
+
+  const animateRemoval = (li) =>
+    new Promise((resolve) => {
+      if (prefersReducedMotion.matches) {
+        li.remove();
+        resolve();
+        return;
+      }
+
+      const id = ++removalIdCounter;
+      const key = `removal-${id}`;
+      li.dataset.removalId = String(id);
+      const selector =
+        `section[aria-labelledby="notifications-heading"] > ol > li[data-removal-id="${id}"]`;
+
+      NT.style.setRule(
+        key,
+        selector,
+        `overflow: hidden; max-height: ${li.offsetHeight}px; transition: max-height 0.3s ease, opacity 0.3s ease`
+      );
+
+      requestAnimationFrame(() => {
+        NT.style.setRule(
+          key,
+          selector,
+          'overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease'
+        );
+
+        const done = () => {
+          NT.style.removeRule(key);
+          li.remove();
+          resolve();
+        };
+        li.addEventListener('transitionend', done, { once: true });
+        setTimeout(done, 350);
+      });
+    });
+
+  const cleanUpEmptyGroups = () => {
+    for (const h3 of [...section.querySelectorAll('h3')]) {
+      const ol = h3.nextElementSibling;
+      if (ol?.tagName === 'OL' && ol.children.length === 0) {
+        ol.remove();
+        h3.remove();
+      }
+    }
+  };
+
+  const handleEmptyPage = () => {
+    const remaining = section.querySelectorAll('ol > li');
+    if (remaining.length > 0) return;
+
+    swapContent(location.href, false);
+  };
+
+  const updateSummary = (delta) => {
+    const liveRegion = section.querySelector('div[aria-live]');
+    if (!liveRegion) return;
+
+    const strong = liveRegion.querySelectorAll('strong');
+    if (strong.length < 2) return;
+
+    const totalEl = strong[1];
+    const total = (parseInt(totalEl.textContent.replace(/,/g, ''), 10) || 0) + delta;
+
+    if (total <= 0) {
+      liveRegion.innerHTML = '';
+      return;
+    }
+
+    totalEl.textContent = total.toLocaleString();
+
+    const rangeEl = strong[0];
+    const rangeText = rangeEl.textContent;
+    const [startStr] = rangeText.split('–');
+    const start = parseInt(startStr, 10) || 1;
+    const items = section.querySelectorAll('ol > li').length;
+    rangeEl.textContent = `${start}\u2013${start + items - 1}`;
+
+    const p = liveRegion.querySelector('p');
+    if (p) {
+      p.lastChild.textContent = total !== 1 ? ' notifications' : ' notification';
+    }
+  };
+
   // ─── Mark-as-Read Interception ──────────────────────────────────────
 
   const handleMarkRead = async (form) => {
@@ -92,20 +183,101 @@
   };
 
   section.addEventListener('submit', (e) => {
-    const form = e.target.closest(
-      'li[data-unread] > article > div > footer > form'
-    );
+    const form = e.target.closest('form');
     if (!form) return;
 
-    e.preventDefault();
-    handleMarkRead(form);
+    const markReadForm = form.closest(
+      'li[data-unread] > article > div > footer > form[action$="/read"]'
+    );
+    if (markReadForm) {
+      e.preventDefault();
+      handleMarkRead(markReadForm);
+      return;
+    }
+
+    const deleteForm = form.closest(
+      'li > article > div > footer > form[action$="/delete"]'
+    );
+    if (deleteForm) {
+      e.preventDefault();
+      handleDelete(deleteForm);
+      return;
+    }
+
+    const clearReadForm = form.closest(
+      'header > form[action$="/clear-read"]'
+    );
+    if (clearReadForm) {
+      e.preventDefault();
+      handleClearRead(clearReadForm);
+    }
   });
+
+  // ─── Delete Interception ───────────────────────────────────────────
+
+  const handleDelete = async (form) => {
+    const li = form.closest('li');
+    if (!li) return;
+
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+
+    const wasUnread = li.hasAttribute('data-unread');
+    const previousCount = readBadgeCount();
+    if (wasUnread) setBadgeCount(Math.max(0, previousCount - 1));
+
+    try {
+      const body = new FormData(form);
+      const res = await NT.fetch(form.action, { method: 'POST', body });
+      const data = await res.json();
+
+      if (!data.success) throw new Error('Server returned failure');
+
+      setBadgeCount(data.unread);
+      updateSummary(-1);
+      await animateRemoval(li);
+      cleanUpEmptyGroups();
+      handleEmptyPage();
+    } catch {
+      if (wasUnread) setBadgeCount(previousCount);
+      button.disabled = false;
+      NT.toast('Could not delete notification. Please try again.', 'error');
+    }
+  };
+
+  // ─── Clear-Read Interception ──────────────────────────────────────
+
+  const handleClearRead = async (form) => {
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+
+    try {
+      const body = new FormData(form);
+      const res = await NT.fetch(form.action, { method: 'POST', body });
+      const data = await res.json();
+
+      if (!data.success) throw new Error('Server returned failure');
+
+      setBadgeCount(data.unread);
+
+      const readItems = section.querySelectorAll('ol > li:not([data-unread])');
+      const removals = [...readItems].map(animateRemoval);
+      updateSummary(-readItems.length);
+      await Promise.all(removals);
+      cleanUpEmptyGroups();
+
+      form.remove();
+      handleEmptyPage();
+    } catch {
+      button.disabled = false;
+      NT.toast('Could not clear read notifications. Please try again.', 'error');
+    }
+  };
 
   // ─── Swipe-to-Mark-Read Gesture ────────────────────────────────────
 
   const SWIPE_THRESHOLD = 80;
   const TRAY_WIDTH = 72;
-  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   let swipeState = null;
   let swipeIdCounter = 0;

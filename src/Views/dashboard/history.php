@@ -102,7 +102,7 @@ use App\Core\ViewHelper;
               </td>
               <td>
                 <span data-borrow-status="<?= htmlspecialchars($statusText) ?>"><?= htmlspecialchars($statusText) ?></span>
-                <?php if ($statusText === 'returned'): ?>
+                <?php if ($statusText === 'returned' && !in_array((int) $row['id_bor'], $ratedBorrowIds, true)): ?>
                   <a href="/rate/<?= (int) $row['id_bor'] ?>" data-rate-link>
                     <i class="fa-solid fa-star" aria-hidden="true"></i> Rate
                   </a>
@@ -199,7 +199,7 @@ use App\Core\ViewHelper;
               </td>
               <td>
                 <span data-borrow-status="<?= htmlspecialchars($statusText) ?>"><?= htmlspecialchars($statusText) ?></span>
-                <?php if ($statusText === 'returned'): ?>
+                <?php if ($statusText === 'returned' && !in_array((int) $row['id_bor'], $ratedBorrowIds, true)): ?>
                   <a href="/rate/<?= (int) $row['id_bor'] ?>" data-rate-link>
                     <i class="fa-solid fa-star" aria-hidden="true"></i> Rate
                   </a>

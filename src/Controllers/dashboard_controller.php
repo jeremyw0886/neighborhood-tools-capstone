@@ -318,12 +318,24 @@ class DashboardController extends BaseController
             error_log('DashboardController::history — ' . $e->getMessage());
         }
 
+        $returnedIds = array_map(
+            static fn(array $r): int => (int) $r['id_bor'],
+            array_filter(
+                [...$lenderHistory, ...$borrowerHistory],
+                static fn(array $r): bool => ($r['borrow_status'] ?? $r['status_name_bst'] ?? $r['status'] ?? '') === 'returned',
+            ),
+        );
+        $ratedBorrowIds = $returnedIds !== []
+            ? Rating::getRatedBorrowIds($returnedIds, $userId)
+            : [];
+
         $this->render('dashboard/history', [
             'title'           => 'Borrow History — NeighborhoodTools',
             'description'     => 'View your past lending and borrowing activity.',
             'pageCss'         => ['dashboard.css'],
             'lenderHistory'   => $lenderHistory,
             'borrowerHistory' => $borrowerHistory,
+            'ratedBorrowIds'  => $ratedBorrowIds,
             'lendSort'        => $lendSort,
             'lendStatus'      => $lendStatus,
             'borrowSort'      => $borrowSort,

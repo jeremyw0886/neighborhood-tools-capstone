@@ -121,6 +121,40 @@ class Rating
     }
 
     /**
+     * Return the set of borrow IDs (from a given list) that a user has already rated.
+     *
+     * @param  int[] $borrowIds Borrow IDs to check
+     * @param  int   $raterId   Account that would have submitted the rating
+     * @return int[]            Subset of $borrowIds that have been rated
+     */
+    public static function getRatedBorrowIds(array $borrowIds, int $raterId): array
+    {
+        if ($borrowIds === []) {
+            return [];
+        }
+
+        $pdo = Database::connection();
+
+        $placeholders = implode(',', array_fill(0, count($borrowIds), '?'));
+
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT id_bor_urt
+            FROM user_rating_urt
+            WHERE id_bor_urt IN ({$placeholders})
+              AND id_acc_urt = ?
+        ");
+
+        $i = 1;
+        foreach ($borrowIds as $id) {
+            $stmt->bindValue($i++, $id, PDO::PARAM_INT);
+        }
+        $stmt->bindValue($i, $raterId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /**
      * Fetch all user ratings submitted for a borrow.
      *
      * @return array<int, array{rater_name: string, score: int, review: ?string, role: string, created_at: string}>

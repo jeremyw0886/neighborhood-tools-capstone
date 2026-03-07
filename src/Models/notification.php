@@ -34,6 +34,45 @@ class Notification
     }
 
     /**
+     * Fetch a single notification by ID, scoped to the owning account.
+     *
+     * @return ?array Notification row with notification_type, id_bor_ntf, related_borrow_status, related_tool_id — or null if not found/not owned
+     */
+    public static function getById(int $id, int $accountId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT
+                ntf.id_ntf,
+                ntt.type_name_ntt AS notification_type,
+                ntf.title_ntf,
+                ntf.body_ntf,
+                ntf.is_read_ntf,
+                ntf.created_at_ntf,
+                ntf.id_bor_ntf,
+                t.id_tol AS related_tool_id,
+                t.tool_name_tol AS related_tool_name,
+                bst.status_name_bst AS related_borrow_status
+            FROM notification_ntf ntf
+            JOIN notification_type_ntt ntt ON ntf.id_ntt_ntf = ntt.id_ntt
+            LEFT JOIN borrow_bor b ON ntf.id_bor_ntf = b.id_bor
+            LEFT JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            LEFT JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+            WHERE ntf.id_ntf = :id
+              AND ntf.id_acc_ntf = :account_id
+        ");
+
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Fetch notifications for a user (both read and unread), newest first.
      *
      * Mirrors unread_notification_v column structure (notification_type,

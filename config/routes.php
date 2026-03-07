@@ -129,6 +129,8 @@ return [
     'GET /notifications/preview'       => [NotificationController::class, 'preview'],
     'POST /notifications/read'         => [NotificationController::class, 'markRead'],
     'POST /notifications/clear-read'   => [NotificationController::class, 'clearRead'],
+    'GET /notifications/preferences'   => [NotificationController::class, 'preferences'],
+    'POST /notifications/preferences'  => [NotificationController::class, 'savePreferences'],
     'POST /notifications/{id}/delete'  => [NotificationController::class, 'delete'],
     'GET /notifications/{id}/go'       => [NotificationController::class, 'redirectThrough'],
     'GET /notifications'               => [NotificationController::class, 'index'],

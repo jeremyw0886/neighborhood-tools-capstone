@@ -348,4 +348,55 @@ class NotificationController extends BaseController
 
         $this->redirect('/notifications');
     }
+
+    /**
+     * Show the notification preferences page.
+     */
+    public function preferences(): void
+    {
+        $this->requireAuth();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $prefs = Notification::getPreferences($userId);
+        } catch (\Throwable $e) {
+            error_log('NotificationController::preferences — ' . $e->getMessage());
+            $prefs = ['due' => true, 'return' => true, 'rating' => true];
+        }
+
+        $this->render('notifications/preferences', [
+            'title'       => 'Notification Preferences — NeighborhoodTools',
+            'description' => 'Choose which notifications you receive.',
+            'pageCss'     => ['pages.css'],
+            'prefs'       => $prefs,
+        ]);
+    }
+
+    /**
+     * Save notification preferences and redirect back.
+     */
+    public function savePreferences(): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        $prefs = [
+            'due'    => isset($_POST['pref_due']),
+            'return' => isset($_POST['pref_return']),
+            'rating' => isset($_POST['pref_rating']),
+        ];
+
+        try {
+            Notification::updatePreferences($userId, $prefs);
+            $_SESSION['pref_notice'] = 'Preferences saved.';
+        } catch (\Throwable $e) {
+            error_log('NotificationController::savePreferences — ' . $e->getMessage());
+            $_SESSION['pref_notice'] = 'Something went wrong. Please try again.';
+        }
+
+        $this->redirect('/notifications/preferences');
+    }
 }

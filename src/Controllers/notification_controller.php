@@ -12,11 +12,13 @@ class NotificationController extends BaseController
     /** Results per page — divisible by 2, 3, and 4 for grid layouts. */
     private const int PER_PAGE = 12;
 
+    private const array ALLOWED_FILTERS = ['unread', 'request', 'decision', 'activity'];
+
     /**
-     * Show the user's notifications with pagination.
+     * Show the user's notifications with pagination and optional filtering.
      *
      * Displays both read and unread notifications, newest first.
-     * Pagination follows the same pattern as ToolController::index().
+     * Accepts `?filter=` query param to narrow by status or type group.
      */
     public function index(): void
     {
@@ -26,14 +28,18 @@ class NotificationController extends BaseController
         $page   = max(1, (int) ($_GET['page'] ?? 1));
         $offset = ($page - 1) * self::PER_PAGE;
 
+        $rawFilter = $_GET['filter'] ?? '';
+        $filter    = in_array($rawFilter, self::ALLOWED_FILTERS, true) ? $rawFilter : null;
+
         try {
             $notifications = Notification::getForUser(
                 accountId: $userId,
                 limit: self::PER_PAGE,
                 offset: $offset,
+                filter: $filter,
             );
 
-            $totalCount = Notification::getCountForUser($userId);
+            $totalCount = Notification::getCountForUser($userId, $filter);
         } catch (\Throwable $e) {
             error_log('NotificationController::index — ' . $e->getMessage());
             $notifications = [];
@@ -56,6 +62,7 @@ class NotificationController extends BaseController
             'page'          => $page,
             'totalPages'    => $totalPages,
             'perPage'       => self::PER_PAGE,
+            'filter'        => $filter,
         ]);
     }
 
@@ -242,7 +249,15 @@ class NotificationController extends BaseController
             ]);
         }
 
-        $page = max(1, (int) ($_POST['page'] ?? 1));
-        $this->redirect('/notifications' . ($page > 1 ? '?page=' . $page : ''));
+        $page      = max(1, (int) ($_POST['page'] ?? 1));
+        $rawFilter = $_POST['filter'] ?? '';
+        $filter    = in_array($rawFilter, self::ALLOWED_FILTERS, true) ? $rawFilter : null;
+
+        $query = http_build_query(array_filter([
+            'filter' => $filter,
+            'page'   => $page > 1 ? $page : null,
+        ]));
+
+        $this->redirect('/notifications' . ($query !== '' ? '?' . $query : ''));
     }
 }

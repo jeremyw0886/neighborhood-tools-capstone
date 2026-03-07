@@ -128,6 +128,8 @@ return [
     'GET /notifications/unread-count'  => [NotificationController::class, 'unreadCount'],
     'GET /notifications/preview'       => [NotificationController::class, 'preview'],
     'POST /notifications/read'         => [NotificationController::class, 'markRead'],
+    'POST /notifications/clear-read'   => [NotificationController::class, 'clearRead'],
+    'POST /notifications/{id}/delete'  => [NotificationController::class, 'delete'],
     'GET /notifications/{id}/go'       => [NotificationController::class, 'redirectThrough'],
     'GET /notifications'               => [NotificationController::class, 'index'],
 

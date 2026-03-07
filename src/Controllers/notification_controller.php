@@ -260,4 +260,92 @@ class NotificationController extends BaseController
 
         $this->redirect('/notifications' . ($query !== '' ? '?' . $query : ''));
     }
+
+    /**
+     * Delete a single notification and redirect back to the same page.
+     *
+     * Clamps the page number when the deletion empties the current page.
+     */
+    public function delete(string $id): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $id     = (int) $id;
+        $userId = (int) $_SESSION['user_id'];
+
+        if ($id < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $deleted = Notification::delete($id, $userId);
+        } catch (\Throwable $e) {
+            error_log('NotificationController::delete — ' . $e->getMessage());
+            $deleted = false;
+        }
+
+        if ($this->isXhr()) {
+            $unread = 0;
+            try {
+                $unread = Notification::getUnreadCount($userId);
+            } catch (\Throwable) {}
+
+            $this->jsonResponse($deleted ? 200 : 500, [
+                'success' => $deleted,
+                'unread'  => $unread,
+            ]);
+        }
+
+        $page      = max(1, (int) ($_POST['page'] ?? 1));
+        $rawFilter = $_POST['filter'] ?? '';
+        $filter    = in_array($rawFilter, self::ALLOWED_FILTERS, true) ? $rawFilter : null;
+
+        $totalCount = Notification::getCountForUser($userId, $filter);
+        $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $query = http_build_query(array_filter([
+            'filter' => $filter,
+            'page'   => $page > 1 ? $page : null,
+        ]));
+
+        $this->redirect('/notifications' . ($query !== '' ? '?' . $query : ''));
+    }
+
+    /**
+     * Delete all read notifications and redirect to page 1.
+     */
+    public function clearRead(): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $count = Notification::clearRead($userId);
+        } catch (\Throwable $e) {
+            error_log('NotificationController::clearRead — ' . $e->getMessage());
+            $count = 0;
+        }
+
+        if ($this->isXhr()) {
+            $unread = 0;
+            try {
+                $unread = Notification::getUnreadCount($userId);
+            } catch (\Throwable) {}
+
+            $this->jsonResponse(200, [
+                'success' => true,
+                'cleared' => $count,
+                'unread'  => $unread,
+            ]);
+        }
+
+        $this->redirect('/notifications');
+    }
 }

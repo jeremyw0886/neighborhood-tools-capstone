@@ -47,7 +47,13 @@ $rangeEnd   = min($page * $perPage, $totalTools);
 ?>
 
 <article aria-labelledby="profile-heading">
-  
+
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <img src="<?= htmlspecialchars($avatarSrc) ?>"
     alt="<?= htmlspecialchars($avatarAlt) ?>"

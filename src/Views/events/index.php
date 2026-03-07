@@ -53,6 +53,12 @@ $totalAll   = array_sum($timingCounts);
 
 <section id="events-page" aria-labelledby="events-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="events-heading">
       <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>

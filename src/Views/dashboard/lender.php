@@ -28,6 +28,12 @@ use App\Core\ViewHelper;
 
 <section aria-labelledby="lender-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="lender-heading">
       <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>

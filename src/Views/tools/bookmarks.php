@@ -20,6 +20,12 @@ $paginationUrl = static function (int $pageNum): string {
 
 <section id="bookmarks-page" aria-labelledby="bookmarks-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="bookmarks-heading">
       <i class="fa-solid fa-bookmark" aria-hidden="true"></i> My Bookmarks

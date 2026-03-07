@@ -23,6 +23,12 @@ use App\Core\ViewHelper;
 
 <section aria-labelledby="borrower-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="borrower-heading">
       <i class="fa-solid fa-hand" aria-hidden="true"></i>

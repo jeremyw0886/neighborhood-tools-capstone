@@ -19,6 +19,12 @@ use App\Core\ViewHelper;
 
 <section aria-labelledby="history-heading">
 
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
+
   <header>
     <h1 id="history-heading">
       <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>

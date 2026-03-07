@@ -144,7 +144,7 @@ return [
     'POST /tos/accept'             => [TosController::class, 'accept'],
 
     // Available Tools
-    'GET /categories'              => [AvailableController::class, 'index'],
+    'GET /available'               => [AvailableController::class, 'index'],
 
     // Admin
     'GET /admin'                   => [AdminController::class, 'dashboard'],

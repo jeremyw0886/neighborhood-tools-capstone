@@ -40,7 +40,7 @@ $isHero = !empty($heroPage);
       </a>
     </li>
     <li>
-      <a href="/categories"<?= $currentPage === '/categories' || $currentPage === '/tools' ? ' aria-current="page"' : '' ?>>
+      <a href="/available"<?= $currentPage === '/available' || $currentPage === '/tools' ? ' aria-current="page"' : '' ?>>
         <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Browse Tools
       </a>
     </li>
@@ -145,7 +145,7 @@ $isHero = !empty($heroPage);
         <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log In
       </a>
 
-      <?php if ($currentPage === '/tools' || $currentPage === '/categories'): ?>
+      <?php if ($currentPage === '/tools' || $currentPage === '/available'): ?>
         <a href="/register">
           <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Sign Up
         </a>

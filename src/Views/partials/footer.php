@@ -21,7 +21,7 @@
       <h2>Explore</h2>
       <ul>
         <li><a href="/"<?= $currentPage === '/' ? ' aria-current="page"' : '' ?>>Home</a></li>
-        <li><a href="/categories"<?= $currentPage === '/categories' ? ' aria-current="page"' : '' ?>>Browse Tools</a></li>
+        <li><a href="/available"<?= $currentPage === '/available' ? ' aria-current="page"' : '' ?>>Browse Tools</a></li>
         <li><a href="/events"<?= str_starts_with($currentPage, '/events') ? ' aria-current="page"' : '' ?>>Events</a></li>
       </ul>
     </nav>

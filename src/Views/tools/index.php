@@ -25,7 +25,7 @@
  */
 
 $isAvailable = !empty($availableOnly);
-$basePath    = $isAvailable ? '/categories' : '/tools';
+$basePath    = $isAvailable ? '/available' : '/tools';
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
@@ -44,7 +44,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
       <?= $isAvailable ? 'Available Tools' : 'All Tools' ?>
     </h1>
     <nav aria-label="Browse mode">
-      <a href="/categories"<?= $isAvailable ? ' aria-current="page"' : '' ?>>
+      <a href="/available"<?= $isAvailable ? ' aria-current="page"' : '' ?>>
         <i class="fa-solid fa-check-circle" aria-hidden="true"></i> Available
       </a>
       <a href="/tools"<?= !$isAvailable ? ' aria-current="page"' : '' ?>>

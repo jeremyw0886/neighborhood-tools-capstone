@@ -66,6 +66,28 @@ $relativeTime = static function (string $timestamp): string {
         : $then->format('M j, Y');
 };
 
+/**
+ * Compute a time-based group label for a notification timestamp.
+ *
+ * Uses calendar-day boundaries (not 24-hour periods) to avoid midnight edge cases.
+ */
+$groupLabel = static function (string $timestamp): string {
+    $now          = new DateTimeImmutable('now');
+    $todayStr     = $now->format('Y-m-d');
+    $yesterdayStr = $now->modify('-1 day')->format('Y-m-d');
+    $weekStart    = $now->modify('Monday this week')->format('Y-m-d');
+    $then         = new DateTimeImmutable($timestamp);
+    $thenStr      = $then->format('Y-m-d');
+
+    return match (true) {
+        $thenStr === $todayStr                       => 'Today',
+        $thenStr === $yesterdayStr                    => 'Yesterday',
+        $thenStr >= $weekStart                       => 'This Week',
+        $then->format('Y-m') === $now->format('Y-m') => 'This Month',
+        default                                       => 'Older',
+    };
+};
+
 // Pagination range display
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
@@ -113,13 +135,25 @@ $paginationUrl = static fn(int $pageNum): string =>
 
   <?php if (!empty($notifications)): ?>
 
-    <ol start="<?= $rangeStart ?>">
-      <?php foreach ($notifications as $ntf):
-        $isRead = !empty($ntf['is_read_ntf']);
-        $type   = $ntf['notification_type'] ?? 'request';
-        $icon   = $typeIcon($type);
-        $link   = '/notifications/' . (int) $ntf['id_ntf'] . '/go';
-      ?>
+    <?php
+    $currentGroup = '';
+    $itemIndex    = $rangeStart;
+    foreach ($notifications as $ntf):
+      $isRead = !empty($ntf['is_read_ntf']);
+      $type   = $ntf['notification_type'] ?? 'request';
+      $icon   = $typeIcon($type);
+      $link   = '/notifications/' . (int) $ntf['id_ntf'] . '/go';
+      $group  = $groupLabel($ntf['created_at_ntf']);
+
+      if ($group !== $currentGroup):
+        if ($currentGroup !== ''):
+          echo '    </ol>' . "\n";
+        endif;
+        $currentGroup = $group;
+    ?>
+    <h3><?= htmlspecialchars($group) ?></h3>
+    <ol start="<?= $itemIndex ?>">
+    <?php endif; ?>
         <li data-type="<?= htmlspecialchars($type) ?>"<?= $isRead ? '' : ' data-unread' ?>>
           <article>
             <span aria-hidden="true">
@@ -160,7 +194,10 @@ $paginationUrl = static fn(int $pageNum): string =>
             </div>
           </article>
         </li>
-      <?php endforeach; ?>
+    <?php
+      $itemIndex++;
+    endforeach;
+    ?>
     </ol>
 
     <?php if ($totalPages > 1): ?>

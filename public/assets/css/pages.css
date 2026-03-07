@@ -307,6 +307,25 @@
       }
     }
 
+    &>h3 {
+      border-bottom: 1px solid var(--mountain-fog);
+      color: var(--mountain-stone);
+      font-size: 0.75rem;
+      font-variant: small-caps;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin: 0;
+      padding: 1.25rem 0 0.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--mountain-cream, #fff);
+    }
+
+    &>h3:first-of-type {
+      padding-top: 0;
+    }
+
     &>ol {
       display: flex;
       flex-direction: column;
@@ -625,6 +644,10 @@
     }
 
     main>section[aria-labelledby="notifications-heading"] {
+
+      &>h3 {
+        border-bottom-width: 2px;
+      }
 
       &>ol>li {
         border-bottom-width: 2px;

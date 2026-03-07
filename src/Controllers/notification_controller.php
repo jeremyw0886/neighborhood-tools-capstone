@@ -81,6 +81,41 @@ class NotificationController extends BaseController
     }
 
     /**
+     * Return the 5 most recent unread notifications as JSON for the bell dropdown.
+     */
+    public function preview(): void
+    {
+        $this->requireAuth();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $unread = Notification::getUnreadForUser($userId, 5);
+            $count  = Notification::getUnreadCount($userId);
+        } catch (\Throwable $e) {
+            error_log('NotificationController::preview — ' . $e->getMessage());
+            $this->jsonResponse(500, ['success' => false, 'message' => 'Something went wrong.']);
+        }
+
+        $items = array_map(static fn(array $ntf): array => [
+            'id'        => (int) $ntf['id_ntf'],
+            'type'      => $ntf['notification_type'],
+            'title'     => $ntf['title_ntf'],
+            'body'      => $ntf['body_ntf'] ?? '',
+            'timestamp' => $ntf['created_at_ntf'],
+            'hoursAgo'  => (int) $ntf['hours_ago'],
+            'toolName'  => $ntf['related_tool_name'] ?? null,
+            'link'      => '/notifications/' . (int) $ntf['id_ntf'] . '/go',
+        ], $unread);
+
+        $this->jsonResponse(200, [
+            'success' => true,
+            'unread'  => $count,
+            'items'   => $items,
+        ]);
+    }
+
+    /**
      * Look up a notification, mark it read, and redirect to the best destination.
      *
      * Destination is resolved from the notification type and current borrow

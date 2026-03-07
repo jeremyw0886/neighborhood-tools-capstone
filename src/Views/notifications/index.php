@@ -331,10 +331,39 @@ $filterUrl = static fn(?string $f): string =>
 
   <?php else: ?>
 
-    <section aria-label="No notifications">
-      <i class="fa-regular fa-bell-slash" aria-hidden="true"></i>
-      <h2>No Notifications</h2>
-      <p>You&rsquo;re all caught up! We&rsquo;ll let you know when something needs your attention.</p>
+    <?php
+    $emptyState = match ($filter) {
+        'unread'   => [
+            'icon'    => 'fa-solid fa-circle-check',
+            'heading' => 'All Caught Up',
+            'body'    => 'You&rsquo;ve read all your notifications. Nice work!',
+        ],
+        'request'  => [
+            'icon'    => 'fa-solid fa-hand',
+            'heading' => 'No Borrow Requests',
+            'body'    => 'When someone requests one of your tools, you&rsquo;ll see it here.',
+        ],
+        'decision' => [
+            'icon'    => 'fa-solid fa-circle-check',
+            'heading' => 'No Decisions Yet',
+            'body'    => 'Updates on your borrow requests will appear here.',
+        ],
+        'activity' => [
+            'icon'    => 'fa-solid fa-clock',
+            'heading' => 'No Due Dates or Returns',
+            'body'    => 'When a borrow is due or returned, we&rsquo;ll notify you here.',
+        ],
+        default    => [
+            'icon'    => 'fa-regular fa-bell-slash',
+            'heading' => 'No Notifications',
+            'body'    => 'You&rsquo;re all caught up! We&rsquo;ll let you know when something needs your attention.',
+        ],
+    };
+    ?>
+    <section aria-label="<?= htmlspecialchars($emptyState['heading']) ?>">
+      <i class="<?= htmlspecialchars($emptyState['icon']) ?>" aria-hidden="true"></i>
+      <h2><?= htmlspecialchars($emptyState['heading']) ?></h2>
+      <p><?= $emptyState['body'] ?></p>
       <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
       </a>

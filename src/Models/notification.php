@@ -36,7 +36,7 @@ class Notification
     /**
      * Fetch a single notification by ID, scoped to the owning account.
      *
-     * @return ?array Notification row with notification_type, id_bor_ntf, related_borrow_status, related_tool_id — or null if not found/not owned
+     * @return ?array Notification row with notification_type, borrow IDs, participant IDs — or null if not found/not owned
      */
     public static function getById(int $id, int $accountId): ?array
     {
@@ -53,7 +53,9 @@ class Notification
                 ntf.id_bor_ntf,
                 t.id_tol AS related_tool_id,
                 t.tool_name_tol AS related_tool_name,
-                bst.status_name_bst AS related_borrow_status
+                bst.status_name_bst AS related_borrow_status,
+                b.id_acc_bor AS related_borrower_id,
+                t.id_acc_tol AS related_lender_id
             FROM notification_ntf ntf
             JOIN notification_type_ntt ntt ON ntf.id_ntt_ntf = ntt.id_ntt
             LEFT JOIN borrow_bor b ON ntf.id_bor_ntf = b.id_bor

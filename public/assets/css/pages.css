@@ -308,9 +308,6 @@
     }
 
     &>ol {
-      --notif-approval: var(--btn-success-from);
-      --notif-due: var(--btn-warning-from);
-
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -335,6 +332,19 @@
           }
         }
 
+        &[data-unread] article>div>footer>time::before {
+          display: inline-block;
+        }
+
+        &:not([data-unread])>article {
+          opacity: 0.7;
+          transition: opacity 0.15s;
+        }
+
+        &:not([data-unread]):is(:hover, :focus-within)>article {
+          opacity: 1;
+        }
+
         &>article {
           display: flex;
           gap: 1rem;
@@ -347,7 +357,7 @@
 
           &>span:first-child {
             align-items: center;
-            background: var(--mountain-cloud);
+            background: color-mix(in srgb, var(--mountain-pine-light) 15%, transparent);
             border-radius: 50%;
             color: var(--mountain-pine-light);
             display: flex;
@@ -403,6 +413,17 @@
               &>time {
                 color: var(--mountain-stone);
                 font-size: 0.813rem;
+              }
+
+              &>time::before {
+                background: var(--mountain-gold);
+                border-radius: 50%;
+                content: '';
+                display: none;
+                height: 0.5rem;
+                margin-right: 0.375rem;
+                vertical-align: middle;
+                width: 0.5rem;
               }
 
               &>span {
@@ -475,18 +496,22 @@
         }
 
         &[data-type="approval"]>article>span:first-child {
-          color: var(--notif-approval);
+          background: color-mix(in srgb, var(--btn-success-from) 15%, transparent);
+          color: var(--btn-success-from);
+        }
+
+        &[data-type="denial"]>article>span:first-child {
+          background: color-mix(in srgb, var(--color-danger-600) 15%, transparent);
+          color: var(--color-danger-600);
         }
 
         &[data-type="due"]>article>span:first-child {
-          color: var(--notif-due);
-        }
-
-        &[data-type="return"]>article>span:first-child {
-          color: var(--mountain-pine-light);
+          background: color-mix(in srgb, var(--btn-warning-from) 15%, transparent);
+          color: var(--btn-warning-from);
         }
 
         &[data-type="rating"]>article>span:first-child {
+          background: color-mix(in srgb, var(--mountain-gold) 15%, transparent);
           color: var(--mountain-gold);
         }
       }
@@ -651,6 +676,10 @@
     }
 
     main>section[aria-labelledby="notifications-heading"]>nav[aria-label="Pagination"]>ul>li>a {
+      transition: none;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>ol>li:not([data-unread])>article {
       transition: none;
     }
 

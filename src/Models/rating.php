@@ -121,6 +121,67 @@ class Rating
     }
 
     /**
+     * Fetch all user ratings submitted for a borrow.
+     *
+     * @return array<int, array{rater_name: string, score: int, review: ?string, role: string, created_at: string}>
+     */
+    public static function getUserRatingsForBorrow(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS rater_name,
+                urt.id_acc_urt AS rater_id,
+                urt.score_urt AS score,
+                urt.comment_text_urt AS review,
+                rtr.role_name_rtr AS role,
+                urt.created_at_urt AS created_at
+            FROM user_rating_urt urt
+            JOIN account_acc a ON urt.id_acc_urt = a.id_acc
+            JOIN rating_role_rtr rtr ON urt.id_rtr_urt = rtr.id_rtr
+            WHERE urt.id_bor_urt = :borrow_id
+            ORDER BY urt.created_at_urt ASC
+        ");
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Fetch the tool rating submitted for a borrow.
+     *
+     * @return ?array{rater_name: string, score: int, review: ?string, tool_name: string, created_at: string}
+     */
+    public static function getToolRatingForBorrow(int $borrowId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS rater_name,
+                trt.score_trt AS score,
+                trt.comment_text_trt AS review,
+                t.tool_name_tol AS tool_name,
+                trt.created_at_trt AS created_at
+            FROM tool_rating_trt trt
+            JOIN account_acc a ON trt.id_acc_trt = a.id_acc
+            JOIN tool_tol t ON trt.id_tol_trt = t.id_tol
+            WHERE trt.id_bor_trt = :borrow_id
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Check whether a user has already submitted a tool rating for a borrow.
      *
      * Uses the unique constraint (id_bor_trt, id_tol_trt).

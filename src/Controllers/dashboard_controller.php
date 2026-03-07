@@ -11,6 +11,7 @@ use App\Models\Borrow;
 use App\Models\Deposit;
 use App\Models\Handover;
 use App\Models\PlatformStats;
+use App\Models\Rating;
 use App\Models\Tool;
 use App\Models\Waiver;
 
@@ -363,12 +364,20 @@ class DashboardController extends BaseController
         $handovers    = [];
         $deposit      = null;
         $waiverSigned = false;
+        $userRatings  = [];
+        $toolRating   = null;
+        $hasRatedUser = false;
+        $hasRatedTool = false;
 
         try {
             $extensions   = Borrow::getExtensions($borrowId);
             $handovers    = Borrow::getHandovers($borrowId);
             $deposit      = Deposit::findByBorrowId($borrowId);
             $waiverSigned = Waiver::hasSignedWaiver($borrowId);
+            $userRatings  = Rating::getUserRatingsForBorrow($borrowId);
+            $toolRating   = Rating::getToolRatingForBorrow($borrowId);
+            $hasRatedUser = Rating::hasUserRated($borrowId, $userId);
+            $hasRatedTool = Rating::hasToolRated($borrowId, $userId);
         } catch (\Throwable $e) {
             error_log('DashboardController::loanStatus (details) — ' . $e->getMessage());
         }
@@ -382,6 +391,10 @@ class DashboardController extends BaseController
             'handovers'        => $handovers,
             'deposit'          => $deposit,
             'waiverSigned'     => $waiverSigned,
+            'userRatings'      => $userRatings,
+            'toolRating'       => $toolRating,
+            'hasRatedUser'     => $hasRatedUser,
+            'hasRatedTool'     => $hasRatedTool,
             'handoverSuccess'  => $this->flash('handover_success'),
         ]);
     }

@@ -163,22 +163,28 @@ class NotificationController extends BaseController
      */
     private function resolveDestination(array $ntf): string
     {
-        $type     = $ntf['notification_type'] ?? '';
-        $status   = $ntf['related_borrow_status'] ?? null;
-        $toolId   = $ntf['related_tool_id'] ?? null;
-        $borrowId = $ntf['id_bor_ntf'] ?? null;
+        $type       = $ntf['notification_type'] ?? '';
+        $status     = $ntf['related_borrow_status'] ?? null;
+        $borrowId   = $ntf['id_bor_ntf'] ?? null;
+        $userId     = (int) $_SESSION['user_id'];
+        $isLender   = $borrowId && ((int) ($ntf['related_lender_id'] ?? 0)) === $userId;
 
         $loanUrl = $borrowId ? '/dashboard/loan/' . (int) $borrowId : null;
 
         return match ($type) {
-            'request'  => $loanUrl ?? '/dashboard/lender',
-            'approval' => $loanUrl ?? '/dashboard/borrower',
+            'request'  => ($loanUrl ?? '/dashboard/lender') . '#lifecycle-heading',
+            'approval' => ($loanUrl ?? '/dashboard/borrower') . '#lifecycle-heading',
             'denial'   => $loanUrl ?? '/dashboard/borrower',
-            'due'      => $loanUrl ?? '/dashboard/borrower',
-            'return'   => $status === 'returned' && $borrowId
-                ? '/rate/' . (int) $borrowId
-                : '/dashboard/lender',
-            'rating'   => $loanUrl ?? '/dashboard/history',
+            'due'      => ($loanUrl ?? '/dashboard/borrower') . '#actions-heading',
+            'return'   => match (true) {
+                $status !== 'returned' && $loanUrl !== null => $loanUrl . '#handovers-heading',
+                $status === 'returned' && $isLender && $loanUrl !== null => $loanUrl . '#lifecycle-heading',
+                $status === 'returned' && !$isLender && $loanUrl !== null => $loanUrl . '#rate-heading',
+                default => '/dashboard',
+            },
+            'rating'   => $loanUrl !== null
+                ? $loanUrl . '#ratings-heading'
+                : '/dashboard/history',
             default    => '/notifications',
         };
     }

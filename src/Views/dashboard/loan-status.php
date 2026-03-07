@@ -424,11 +424,12 @@ $dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
     <?php endif; ?>
 
     <?php
-      $canApprove = $status === 'requested' && $isLender;
-      $canCancel  = in_array($status, ['requested', 'approved'], true);
-      $canReturn  = $status === 'borrowed' && $isLender;
-      $canExtend  = $status === 'borrowed' && $isLender;
-      $hasActions = $canApprove || $canCancel || $canReturn || $canExtend;
+      $canApprove  = $status === 'requested' && $isLender;
+      $canCancel   = in_array($status, ['requested', 'approved'], true);
+      $canReturn   = $status === 'borrowed' && $isLender;
+      $canExtend   = $status === 'borrowed' && $isLender;
+      $canRemind   = $status === 'borrowed' && $isLender;
+      $hasActions  = $canApprove || $canCancel || $canReturn || $canExtend || $canRemind;
     ?>
 
     <?php if ($hasActions): ?>
@@ -529,6 +530,15 @@ $dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
           </details>
         <?php endif; ?>
 
+        <?php if ($canRemind): ?>
+          <form method="post" action="/borrow/<?= (int) $borrow['id_bor'] ?>/remind">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+            <button type="submit" data-intent="info">
+              <i class="fa-solid fa-bell" aria-hidden="true"></i> Send Reminder
+            </button>
+          </form>
+        <?php endif; ?>
+
         <?php if ($canCancel): ?>
           <details>
             <summary data-intent="danger">
@@ -553,16 +563,89 @@ $dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
     <?php endif; ?>
 
     <?php if ($status === 'returned'): ?>
-      <section aria-labelledby="rate-heading" data-loan-card>
-        <h2 id="rate-heading">
-          <i class="fa-solid fa-star" aria-hidden="true"></i>
-          Rate This Borrow
-        </h2>
-        <p>Share your experience to help the community.</p>
-        <a href="/rate/<?= (int) $borrow['id_bor'] ?>" data-rate-cta>
-          <i class="fa-solid fa-star" aria-hidden="true"></i> Leave a Rating
-        </a>
-      </section>
+      <?php
+        $needsUserRating = !$hasRatedUser;
+        $needsToolRating = !$isLender && !$hasRatedTool;
+        $showRateSection = $needsUserRating || $needsToolRating;
+      ?>
+      <?php if ($showRateSection): ?>
+        <section aria-labelledby="rate-heading" data-loan-card>
+          <h2 id="rate-heading">
+            <i class="fa-solid fa-star" aria-hidden="true"></i>
+            Rate This Experience
+          </h2>
+          <?php if ($needsUserRating): ?>
+            <a href="/rate/<?= (int) $borrow['id_bor'] ?>" data-rate-cta>
+              <i class="fa-solid fa-star" aria-hidden="true"></i>
+              Rate <?= htmlspecialchars($counterpartyName) ?>
+            </a>
+          <?php endif; ?>
+          <?php if ($needsToolRating): ?>
+            <a href="/rate/<?= (int) $borrow['id_bor'] ?>" data-rate-cta>
+              <i class="fa-solid fa-wrench" aria-hidden="true"></i>
+              Rate <?= htmlspecialchars($borrow['tool_name_tol']) ?>
+            </a>
+          <?php endif; ?>
+        </section>
+      <?php endif; ?>
+
+      <?php if (!empty($userRatings) || $toolRating !== null): ?>
+        <section aria-labelledby="ratings-heading" data-loan-card>
+          <h2 id="ratings-heading">
+            <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+            Ratings
+          </h2>
+          <?php foreach ($userRatings as $ur): ?>
+            <?php
+              $isOwnRating = (int) $ur['rater_id'] === $authUser['id'];
+              $ratingLabel  = $isOwnRating
+                  ? 'You rated ' . htmlspecialchars($counterpartyName)
+                  : htmlspecialchars($ur['rater_name']) . ' rated you';
+            ?>
+            <article data-rating-card>
+              <header>
+                <span><?= $ratingLabel ?></span>
+                <span>as <?= htmlspecialchars(ucfirst($ur['role'])) ?></span>
+              </header>
+              <p aria-label="<?= (int) $ur['score'] ?> out of 5 stars">
+                <?php for ($i = 1; $i <= 5; $i++): ?>
+                  <i class="fa-<?= $i <= (int) $ur['score'] ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+                <?php endfor; ?>
+              </p>
+              <?php if ($ur['review'] !== null && $ur['review'] !== ''): ?>
+                <blockquote><?= htmlspecialchars($ur['review']) ?></blockquote>
+              <?php endif; ?>
+              <time datetime="<?= htmlspecialchars($ur['created_at']) ?>">
+                <?= htmlspecialchars(date('M j, Y', strtotime($ur['created_at']))) ?>
+              </time>
+            </article>
+          <?php endforeach; ?>
+
+          <?php if ($toolRating !== null): ?>
+            <article data-rating-card>
+              <header>
+                <span>
+                  <?= $isLender
+                      ? htmlspecialchars($toolRating['rater_name']) . ' rated '
+                      : 'You rated ' ?>
+                  <?= htmlspecialchars($toolRating['tool_name']) ?>
+                </span>
+              </header>
+              <p aria-label="<?= (int) $toolRating['score'] ?> out of 5 stars">
+                <?php for ($i = 1; $i <= 5; $i++): ?>
+                  <i class="fa-<?= $i <= (int) $toolRating['score'] ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
+                <?php endfor; ?>
+              </p>
+              <?php if ($toolRating['review'] !== null && $toolRating['review'] !== ''): ?>
+                <blockquote><?= htmlspecialchars($toolRating['review']) ?></blockquote>
+              <?php endif; ?>
+              <time datetime="<?= htmlspecialchars($toolRating['created_at']) ?>">
+                <?= htmlspecialchars(date('M j, Y', strtotime($toolRating['created_at']))) ?>
+              </time>
+            </article>
+          <?php endif; ?>
+        </section>
+      <?php endif; ?>
     <?php endif; ?>
 
   </div>

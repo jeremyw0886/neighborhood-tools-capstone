@@ -1610,11 +1610,12 @@
   /* ── Loan status — rate CTA ── */
 
   #loan-status [data-loan-card][aria-labelledby="rate-heading"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 
-    &>p {
-      color: var(--mountain-slate);
-      font-size: 0.875rem;
-      margin-bottom: 0.75rem;
+    &>h2 {
+      flex-basis: 100%;
     }
 
     &>[data-rate-cta] {
@@ -1639,6 +1640,68 @@
       &:focus-visible {
         outline: 2px solid var(--mountain-pine);
         outline-offset: 2px;
+      }
+    }
+  }
+
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"] {
+
+    &>[data-rating-card] {
+      border: 1px solid var(--mountain-fog);
+      border-radius: 0.5rem;
+      padding: 1rem;
+
+      &:not(:last-of-type) {
+        margin-bottom: 0.75rem;
+      }
+
+      &>header {
+        align-items: baseline;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 0.75rem;
+        margin-bottom: 0.5rem;
+
+        &>span:first-child {
+          color: var(--mountain-pine);
+          font-weight: 600;
+        }
+
+        &>span:last-child {
+          color: var(--mountain-mist);
+          font-size: 0.813rem;
+        }
+      }
+
+      &>p {
+        color: var(--mountain-gold-dark);
+        display: flex;
+        gap: 0.125rem;
+        margin-bottom: 0.5rem;
+
+        &>i {
+          font-size: 0.938rem;
+        }
+
+        &>i.fa-regular {
+          color: var(--mountain-fog);
+        }
+      }
+
+      &>blockquote {
+        border-left: 3px solid var(--mountain-pine-light);
+        color: var(--mountain-slate);
+        font-size: 0.875rem;
+        font-style: italic;
+        line-height: 1.5;
+        margin: 0 0 0.5rem;
+        padding: 0.375rem 0 0.375rem 0.75rem;
+      }
+
+      &>time {
+        color: var(--mountain-mist);
+        display: block;
+        font-size: 0.75rem;
       }
     }
   }
@@ -2343,6 +2406,10 @@
       transition: none;
     }
 
+    #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta] {
+      transition: none;
+    }
+
     #profile-edit :is(input, select, textarea, button) {
       transition: none;
     }
@@ -2643,6 +2710,15 @@
 
     #loan-status [data-handover-list] {
       grid-template-columns: 1fr;
+    }
+
+    #loan-status [data-loan-card][aria-labelledby="rate-heading"] {
+      flex-direction: column;
+
+      &>[data-rate-cta] {
+        justify-content: center;
+        width: 100%;
+      }
     }
 
     section[aria-labelledby="listed-tools-heading"]>div[role="list"] {

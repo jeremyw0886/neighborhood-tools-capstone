@@ -125,9 +125,10 @@ return [
     'GET /incidents/{id}'          => [IncidentController::class, 'show'],
 
     // Notifications
-    'GET /notifications'               => [NotificationController::class, 'index'],
     'GET /notifications/unread-count'  => [NotificationController::class, 'unreadCount'],
     'POST /notifications/read'         => [NotificationController::class, 'markRead'],
+    'GET /notifications/{id}/go'       => [NotificationController::class, 'redirectThrough'],
+    'GET /notifications'               => [NotificationController::class, 'index'],
 
     // Waivers
     'GET /waiver/{borrowId}'       => [WaiverController::class, 'show'],

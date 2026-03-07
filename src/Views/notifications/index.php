@@ -118,13 +118,7 @@ $paginationUrl = static fn(int $pageNum): string =>
         $isRead = !empty($ntf['is_read_ntf']);
         $type   = $ntf['notification_type'] ?? 'request';
         $icon   = $typeIcon($type);
-        $borrowLinkId = $ntf['id_bor_ntf'] ?? null;
-        $link = match (true) {
-            $borrowLinkId !== null && in_array($type, ['return', 'rating'], true)
-                => '/rate/' . (int) $borrowLinkId,
-            $borrowLinkId !== null => '/dashboard',
-            default => null,
-        };
+        $link   = '/notifications/' . (int) $ntf['id_ntf'] . '/go';
       ?>
         <li data-type="<?= htmlspecialchars($type) ?>"<?= $isRead ? '' : ' data-unread' ?>>
           <article>
@@ -133,13 +127,9 @@ $paginationUrl = static fn(int $pageNum): string =>
             </span>
 
             <div>
-              <?php if ($link !== null): ?>
-                <a href="<?= $link ?>">
-                  <h2><?= htmlspecialchars($ntf['title_ntf']) ?></h2>
-                </a>
-              <?php else: ?>
+              <a href="<?= htmlspecialchars($link) ?>">
                 <h2><?= htmlspecialchars($ntf['title_ntf']) ?></h2>
-              <?php endif; ?>
+              </a>
 
               <?php if (!empty($ntf['body_ntf'])): ?>
                 <p><?= htmlspecialchars($ntf['body_ntf']) ?></p>

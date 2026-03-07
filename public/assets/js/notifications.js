@@ -251,4 +251,61 @@
     }
     swipeState = null;
   });
+
+  // ─── Fetch-Based Filter & Pagination Swap ────────────────────────────
+
+  let filterController = null;
+
+  const swapContent = async (url, pushState = true) => {
+    filterController?.abort();
+    filterController = new AbortController();
+
+    const filterNav = section.querySelector('nav[aria-label="Filter notifications"]');
+    filterNav?.setAttribute('aria-busy', 'true');
+
+    try {
+      const res = await NT.fetch(url, { signal: filterController.signal });
+      const html = await res.text();
+
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const fresh = doc.querySelector(
+        'section[aria-labelledby="notifications-heading"]'
+      );
+      if (!fresh) throw new Error('Section not found in response');
+
+      const backNav = section.querySelector('nav[aria-label="Back"]');
+      section.innerHTML = '';
+      if (backNav) section.appendChild(backNav);
+
+      for (const child of [...fresh.children]) {
+        if (child.matches('nav[aria-label="Back"]')) continue;
+        section.appendChild(document.adoptNode(child));
+      }
+
+      if (pushState) history.pushState(null, '', url);
+
+      swipeState = null;
+      swipeIdCounter = 0;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      filterNav?.removeAttribute('aria-busy');
+      NT.toast('Could not load notifications. Please try again.', 'error');
+    }
+  };
+
+  section.addEventListener('click', (e) => {
+    const filterLink = e.target.closest(
+      'nav[aria-label="Filter notifications"] a[href]'
+    );
+    const paginationLink = e.target.closest('nav[aria-label="Pagination"] a[href]');
+    const link = filterLink || paginationLink;
+    if (!link) return;
+
+    e.preventDefault();
+    swapContent(link.href);
+  });
+
+  window.addEventListener('popstate', () => {
+    swapContent(location.href, false);
+  });
 })();

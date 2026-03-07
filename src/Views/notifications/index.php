@@ -136,6 +136,15 @@ $filterUrl = static fn(?string $f): string =>
         </button>
       </form>
     <?php endif; ?>
+
+    <?php if ($totalCount > 0): ?>
+      <form action="/notifications/clear-read" method="post">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+        <button type="submit" data-intent="danger-outline">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i> Clear read
+        </button>
+      </form>
+    <?php endif; ?>
   </header>
 
   <nav aria-label="Filter notifications">
@@ -240,6 +249,16 @@ $filterUrl = static fn(?string $f): string =>
                     </button>
                   </form>
                 <?php endif; ?>
+                <form action="/notifications/<?= (int) $ntf['id_ntf'] ?>/delete" method="post">
+                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                  <input type="hidden" name="page" value="<?= (int) $page ?>">
+                  <?php if ($filter !== null): ?>
+                    <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+                  <?php endif; ?>
+                  <button type="submit" aria-label="Delete notification">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                  </button>
+                </form>
               </footer>
             </div>
           </article>

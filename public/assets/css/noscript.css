@@ -1,5 +1,5 @@
 @layer components {
-  @media (max-width: 700px) {
+  @media (max-width: 800px) {
     nav[aria-label="Main navigation"]>#top-links {
       clip-path: none;
       opacity: 1;

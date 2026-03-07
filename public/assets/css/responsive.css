@@ -4,7 +4,7 @@
 
   /* ── Nav — mobile layout (always applies) ── */
 
-  @media (max-width: 700px) {
+  @media (max-width: 800px) {
     nav[aria-label="Main navigation"] {
       padding: 0;
       position: relative;
@@ -116,7 +116,7 @@
 
   /* ── Nav — hamburger open state + backdrop ── */
 
-  @media (max-width: 700px) {
+  @media (max-width: 800px) {
     nav[aria-label="Main navigation"]>#top-links.open {
       clip-path: inset(0);
       opacity: 1;
@@ -148,7 +148,7 @@
 
   /* ── Unified mobile menu — auth items in hamburger (JS-only) ── */
 
-  @media (max-width: 700px) {
+  @media (max-width: 800px) {
     nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] {
       padding: 0;
     }
@@ -209,7 +209,7 @@
 
   /* ── Reduced motion — disable menu animation ── */
 
-  @media (max-width: 700px) and (prefers-reduced-motion: reduce) {
+  @media (max-width: 800px) and (prefers-reduced-motion: reduce) {
     nav[aria-label="Main navigation"]>#top-links {
       transition: none;
     }

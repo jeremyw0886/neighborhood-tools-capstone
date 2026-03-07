@@ -147,6 +147,14 @@ $paginationUrl = static fn(int $pageNum): string =>
                 <?php endif; ?>
                 <?php if (!$isRead): ?>
                   <span class="visually-hidden">Unread</span>
+                  <form action="/notifications/read" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="notification_ids" value="<?= (int) $ntf['id_ntf'] ?>">
+                    <input type="hidden" name="page" value="<?= (int) $page ?>">
+                    <button type="submit" aria-label="Mark as read">
+                      <i class="fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                  </form>
                 <?php endif; ?>
               </footer>
             </div>

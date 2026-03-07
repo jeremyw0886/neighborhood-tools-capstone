@@ -64,8 +64,16 @@ $dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
       <i class="fa-solid fa-timeline" aria-hidden="true"></i>
       <?= htmlspecialchars($borrow['tool_name_tol']) ?>
     </h1>
+    <?php
+      $relationLabel = match ($status) {
+          'requested', 'denied', 'cancelled' => $isLender ? 'Requested by' : 'Requested from',
+          'approved'                         => $isLender ? 'Approved for' : 'Approved by',
+          'borrowed'                         => $isLender ? 'Lent to' : 'Borrowed from',
+          'returned'                         => $isLender ? 'Returned by' : 'Returned to',
+      };
+    ?>
     <p>
-      <?= $isLender ? 'Lent to' : 'Borrowed from' ?>
+      <?= $relationLabel ?>
       <a href="/profile/<?= $counterpartyId ?>"><?= htmlspecialchars($counterpartyName) ?></a>
       <span data-status="<?= htmlspecialchars($statusSlug) ?>"><?= htmlspecialchars($statusLabel) ?></span>
     </p>

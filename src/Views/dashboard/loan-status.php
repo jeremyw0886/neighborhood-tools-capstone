@@ -50,15 +50,13 @@ $statusSlug = $dueStatus ?? $status;
 $counterpartyLabel = $isLender ? 'Borrower' : 'Lender';
 $counterpartyName  = $isLender ? $borrow['borrower_name'] : $borrow['lender_name'];
 $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['lender_id'];
-$dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
 ?>
 
 <section id="loan-status" aria-labelledby="loan-status-heading">
 
   <header>
-    <a href="<?= $dashboardUrl ?>" data-back-link>
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      Back to Dashboard
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </a>
     <h1 id="loan-status-heading">
       <i class="fa-solid fa-timeline" aria-hidden="true"></i>

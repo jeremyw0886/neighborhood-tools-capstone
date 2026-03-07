@@ -9,6 +9,13 @@ use PDO;
 
 class Notification
 {
+    private const array FILTER_CLAUSES = [
+        'unread'   => 'AND ntf.is_read_ntf = FALSE',
+        'request'  => "AND ntt.type_name_ntt = 'request'",
+        'decision' => "AND ntt.type_name_ntt IN ('approval', 'denial')",
+        'activity' => "AND ntt.type_name_ntt IN ('due', 'return')",
+    ];
+
     /**
      * Count unread notifications for a user.
      *
@@ -81,9 +88,14 @@ class Notification
      * hours_ago, related_tool_name, related_borrow_status) but omits the
      * view's is_read_ntf = FALSE filter so both states are returned.
      */
-    public static function getForUser(int $accountId, int $limit = 12, int $offset = 0): array
-    {
-        $pdo = Database::connection();
+    public static function getForUser(
+        int $accountId,
+        int $limit = 12,
+        int $offset = 0,
+        ?string $filter = null,
+    ): array {
+        $pdo         = Database::connection();
+        $filterClause = self::FILTER_CLAUSES[$filter] ?? '';
 
         $sql = "
             SELECT
@@ -104,6 +116,7 @@ class Notification
             LEFT JOIN tool_tol t ON b.id_tol_bor = t.id_tol
             LEFT JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
             WHERE ntf.id_acc_ntf = :account_id
+            {$filterClause}
             ORDER BY ntf.created_at_ntf DESC
             LIMIT :limit OFFSET :offset
         ";

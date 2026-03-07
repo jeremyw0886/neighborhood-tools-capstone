@@ -243,6 +243,45 @@ class Notification
     }
 
     /**
+     * Delete a single notification, scoped to the owning account.
+     *
+     * @return bool True if a row was deleted
+     */
+    public static function delete(int $id, int $accountId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            DELETE FROM notification_ntf
+            WHERE id_ntf = :id
+              AND id_acc_ntf = :account_id
+        ");
+
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Delete all read notifications for a user via sp_clear_read_notifications.
+     *
+     * @return int Number of notifications deleted
+     */
+    public static function clearRead(int $accountId): int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare('CALL sp_clear_read_notifications(:account_id, @deleted_count)');
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        return (int) $pdo->query('SELECT @deleted_count')->fetchColumn();
+    }
+
+    /**
      * Mark notifications as read via sp_mark_notifications_read.
      *
      * @param  ?string $notificationIds  Comma-separated IDs, or null for all

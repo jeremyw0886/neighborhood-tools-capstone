@@ -449,6 +449,31 @@
           }
         }
 
+        &.swiping {
+          overflow: hidden;
+          position: relative;
+
+          &>article {
+            position: relative;
+            z-index: 1;
+            background: var(--mountain-cream, #fff);
+          }
+
+          &>[data-swipe-tray] {
+            align-items: center;
+            background: var(--btn-success-from);
+            bottom: 0;
+            color: #fff;
+            display: flex;
+            font-size: 1.25rem;
+            justify-content: center;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 72px;
+          }
+        }
+
         &[data-type="approval"]>article>span:first-child {
           color: var(--notif-approval);
         }
@@ -626,6 +651,10 @@
     }
 
     main>section[aria-labelledby="notifications-heading"]>nav[aria-label="Pagination"]>ul>li>a {
+      transition: none;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>ol>li.swiping>article {
       transition: none;
     }
   }

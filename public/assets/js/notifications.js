@@ -100,4 +100,155 @@
     e.preventDefault();
     handleMarkRead(form);
   });
+
+  // ─── Swipe-to-Mark-Read Gesture ────────────────────────────────────
+
+  const SWIPE_THRESHOLD = 80;
+  const TRAY_WIDTH = 72;
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  let swipeState = null;
+  let swipeIdCounter = 0;
+
+  const ensureSwipeId = (li) => {
+    if (!li.dataset.swipeId) {
+      li.dataset.swipeId = String(++swipeIdCounter);
+    }
+    return li.dataset.swipeId;
+  };
+
+  const ensureTray = (li) => {
+    if (li.querySelector('[data-swipe-tray]')) return;
+
+    const tray = document.createElement('div');
+    tray.setAttribute('data-swipe-tray', '');
+    tray.setAttribute('aria-hidden', 'true');
+    tray.innerHTML = '<i class="fa-solid fa-check"></i>';
+    li.appendChild(tray);
+  };
+
+  const snapSwipeTranslate = (li, x, callback) => {
+    const id = ensureSwipeId(li);
+    const key = `swipe-${id}`;
+    const selector =
+      `section[aria-labelledby="notifications-heading"] > ol > li[data-swipe-id="${id}"] > article`;
+
+    if (prefersReducedMotion.matches) {
+      NT.style.setRule(key, selector, `transform: translateX(${x}px)`);
+      callback?.();
+      return;
+    }
+
+    NT.style.setRule(
+      key,
+      selector,
+      `transform: translateX(${x}px); transition: transform 0.25s ease`
+    );
+
+    if (callback) {
+      const handler = () => {
+        li.querySelector('article')
+          ?.removeEventListener('transitionend', handler);
+        callback();
+      };
+      li.querySelector('article')?.addEventListener('transitionend', handler);
+      setTimeout(handler, 300);
+    }
+  };
+
+  const resetSwipe = (li) => {
+    snapSwipeTranslate(li, 0, () => {
+      const id = li.dataset.swipeId;
+      if (id) NT.style.removeRule(`swipe-${id}`);
+      li.querySelector('[data-swipe-tray]')?.remove();
+      li.classList.remove('swiping');
+    });
+  };
+
+  const confirmSwipe = (li) => {
+    const form = li.querySelector('footer > form');
+    if (!form) return;
+
+    snapSwipeTranslate(li, -li.offsetWidth, () => {
+      handleMarkRead(form);
+      const id = li.dataset.swipeId;
+      if (id) NT.style.removeRule(`swipe-${id}`);
+      li.querySelector('[data-swipe-tray]')?.remove();
+      li.classList.remove('swiping');
+    });
+  };
+
+  section.addEventListener('touchstart', (e) => {
+    const li = e.target.closest('li[data-unread]');
+    if (!li) return;
+
+    const touch = e.touches[0];
+    swipeState = {
+      li,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      currentX: 0,
+      locked: false,
+    };
+
+    ensureTray(li);
+  }, { passive: true });
+
+  section.addEventListener('touchmove', (e) => {
+    if (!swipeState) return;
+
+    const touch = e.touches[0];
+    const dx = touch.clientX - swipeState.startX;
+    const dy = touch.clientY - swipeState.startY;
+
+    if (!swipeState.locked) {
+      if (Math.abs(dy) > Math.abs(dx)) {
+        swipeState = null;
+        return;
+      }
+      if (Math.abs(dx) > 10) {
+        swipeState.locked = true;
+        swipeState.li.classList.add('swiping');
+      } else {
+        return;
+      }
+    }
+
+    e.preventDefault();
+
+    const clampedX = Math.min(0, Math.max(-TRAY_WIDTH - 20, dx));
+    swipeState.currentX = clampedX;
+
+    const id = ensureSwipeId(swipeState.li);
+    const selector =
+      `section[aria-labelledby="notifications-heading"] > ol > li[data-swipe-id="${id}"] > article`;
+    NT.style.setRule(
+      `swipe-${id}`,
+      selector,
+      `transform: translateX(${clampedX}px); transition: none`
+    );
+  }, { passive: false });
+
+  section.addEventListener('touchend', () => {
+    if (!swipeState || !swipeState.locked) {
+      swipeState = null;
+      return;
+    }
+
+    const { li, currentX } = swipeState;
+    swipeState = null;
+
+    if (Math.abs(currentX) >= SWIPE_THRESHOLD) {
+      confirmSwipe(li);
+    } else {
+      resetSwipe(li);
+    }
+  });
+
+  section.addEventListener('touchcancel', () => {
+    if (swipeState?.locked) {
+      resetSwipe(swipeState.li);
+    }
+    swipeState = null;
+  });
 })();

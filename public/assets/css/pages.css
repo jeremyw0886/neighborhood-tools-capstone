@@ -456,6 +456,29 @@
                 }
               }
 
+              &>[data-intent="secondary-sm"] {
+                border: 1px solid var(--mountain-pine-light);
+                border-radius: 1rem;
+                color: var(--mountain-pine-light);
+                font-size: 0.75rem;
+                font-weight: 600;
+                min-height: 1.75rem;
+                padding: 0.25rem 0.75rem;
+                text-decoration: none;
+                transition: background-color 0.15s, color 0.15s;
+                white-space: nowrap;
+
+                &:is(:hover, :focus-visible) {
+                  background: var(--mountain-pine-light);
+                  color: #fff;
+                }
+
+                &:focus-visible {
+                  outline: 2px solid var(--mountain-pine);
+                  outline-offset: 2px;
+                }
+              }
+
               &>form {
                 margin-left: auto;
 
@@ -691,6 +714,10 @@
     }
 
     main>section[aria-labelledby="notifications-heading"]>header>form>button {
+      transition: none;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>[data-intent="secondary-sm"] {
       transition: none;
     }
 

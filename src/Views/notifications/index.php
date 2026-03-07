@@ -179,6 +179,17 @@ $paginationUrl = static fn(int $pageNum): string =>
                     <?= htmlspecialchars($ntf['related_tool_name']) ?>
                   </span>
                 <?php endif; ?>
+                <?php
+                $borrowStatus = $ntf['related_borrow_status'] ?? '';
+                $actionLabel  = match (true) {
+                    $type === 'request' && $borrowStatus === 'requested' => 'View Request',
+                    $type === 'return' && $borrowStatus === 'returned'   => 'Rate Borrower',
+                    $type === 'rating'                                   => 'View History',
+                    default                                              => null,
+                };
+                if ($actionLabel !== null): ?>
+                  <a href="<?= htmlspecialchars($link) ?>" data-intent="secondary-sm"><?= $actionLabel ?></a>
+                <?php endif; ?>
                 <?php if (!$isRead): ?>
                   <span class="visually-hidden">Unread</span>
                   <form action="/notifications/read" method="post">

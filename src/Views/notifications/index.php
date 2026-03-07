@@ -93,10 +93,22 @@ $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
 /**
- * Build a pagination URL preserving the current page.
+ * Build a pagination URL preserving the current filter and page.
  */
-$paginationUrl = static fn(int $pageNum): string =>
-    '/notifications' . ($pageNum > 1 ? '?page=' . $pageNum : '');
+$paginationUrl = static function (int $pageNum) use ($filter): string {
+    $params = array_filter([
+        'filter' => $filter,
+        'page'   => $pageNum > 1 ? $pageNum : null,
+    ]);
+
+    return '/notifications' . ($params !== [] ? '?' . http_build_query($params) : '');
+};
+
+/**
+ * Build a filter tab URL.
+ */
+$filterUrl = static fn(?string $f): string =>
+    '/notifications' . ($f !== null ? '?filter=' . urlencode($f) : '');
 ?>
 
 <section aria-labelledby="notifications-heading">
@@ -116,12 +128,36 @@ $paginationUrl = static fn(int $pageNum): string =>
       <form action="/notifications/read" method="post">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <input type="hidden" name="page" value="<?= htmlspecialchars((string) $page) ?>">
+        <?php if ($filter !== null): ?>
+          <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+        <?php endif; ?>
         <button type="submit" data-intent="primary">
           <i class="fa-solid fa-check-double" aria-hidden="true"></i> Mark all as read
         </button>
       </form>
     <?php endif; ?>
   </header>
+
+  <nav aria-label="Filter notifications">
+    <ul>
+      <?php
+      $tabs = [
+          ''           => 'All',
+          'unread'     => 'Unread',
+          'request'    => 'Requests',
+          'decision'   => 'Decisions',
+          'activity'   => 'Due & Returns',
+      ];
+      foreach ($tabs as $value => $label):
+          $tabFilter = $value === '' ? null : $value;
+          $isCurrent = $filter === $tabFilter;
+      ?>
+        <li>
+          <a href="<?= htmlspecialchars($filterUrl($tabFilter)) ?>"<?= $isCurrent ? ' aria-current="page"' : '' ?>><?= htmlspecialchars($label) ?></a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  </nav>
 
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
@@ -196,6 +232,9 @@ $paginationUrl = static fn(int $pageNum): string =>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                     <input type="hidden" name="notification_ids" value="<?= (int) $ntf['id_ntf'] ?>">
                     <input type="hidden" name="page" value="<?= (int) $page ?>">
+                    <?php if ($filter !== null): ?>
+                      <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+                    <?php endif; ?>
                     <button type="submit" aria-label="Mark as read">
                       <i class="fa-solid fa-check" aria-hidden="true"></i>
                     </button>

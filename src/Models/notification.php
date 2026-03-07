@@ -95,7 +95,7 @@ class Notification
         ?string $filter = null,
     ): array {
         $pdo         = Database::connection();
-        $filterClause = self::FILTER_CLAUSES[$filter] ?? '';
+        $filterClause = $filter !== null ? (self::FILTER_CLAUSES[$filter] ?? '') : '';
 
         $sql = "
             SELECT
@@ -162,7 +162,7 @@ class Notification
     public static function getCountForUser(int $accountId, ?string $filter = null): int
     {
         $pdo          = Database::connection();
-        $filterClause = self::FILTER_CLAUSES[$filter] ?? '';
+        $filterClause = $filter !== null ? (self::FILTER_CLAUSES[$filter] ?? '') : '';
         $needsTypeJoin = $filter !== null && $filter !== 'unread';
 
         $join = $needsTypeJoin

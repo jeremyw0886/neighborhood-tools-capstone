@@ -80,6 +80,76 @@ class NotificationController extends BaseController
     }
 
     /**
+     * Look up a notification, mark it read, and redirect to the best destination.
+     *
+     * Destination is resolved from the notification type and current borrow
+     * status so that stale notifications still route correctly.
+     */
+    public function redirectThrough(string $id): void
+    {
+        $this->requireAuth();
+
+        $id     = (int) $id;
+        $userId = (int) $_SESSION['user_id'];
+
+        if ($id < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $ntf = Notification::getById($id, $userId);
+        } catch (\Throwable $e) {
+            error_log('NotificationController::redirectThrough — ' . $e->getMessage());
+            $this->redirect('/notifications');
+            return;
+        }
+
+        if ($ntf === null) {
+            $this->abort(404);
+        }
+
+        if (!$ntf['is_read_ntf']) {
+            try {
+                Notification::markRead(accountId: $userId, notificationIds: (string) $id);
+            } catch (\Throwable $e) {
+                error_log('NotificationController::redirectThrough markRead — ' . $e->getMessage());
+            }
+        }
+
+        $this->redirect($this->resolveDestination($ntf));
+    }
+
+    /**
+     * Resolve the best destination URL for a notification.
+     *
+     * @param  array $ntf Notification row from getById()
+     * @return string Destination path
+     */
+    private function resolveDestination(array $ntf): string
+    {
+        $type     = $ntf['notification_type'] ?? '';
+        $status   = $ntf['related_borrow_status'] ?? null;
+        $toolId   = $ntf['related_tool_id'] ?? null;
+        $borrowId = $ntf['id_bor_ntf'] ?? null;
+
+        return match ($type) {
+            'request'  => $status === 'requested' && $toolId
+                ? '/tools/' . (int) $toolId
+                : '/dashboard/lender',
+            'approval' => $toolId
+                ? '/tools/' . (int) $toolId
+                : '/dashboard/borrower',
+            'denial'   => '/dashboard/borrower',
+            'due'      => '/dashboard/borrower',
+            'return'   => $status === 'returned' && $borrowId
+                ? '/rate/' . (int) $borrowId
+                : '/dashboard/lender',
+            'rating'   => '/dashboard/history',
+            default    => '/notifications',
+        };
+    }
+
+    /**
      * Mark notifications as read and redirect back.
      *
      * Supports both "mark all" (no notification_ids posted) and selective

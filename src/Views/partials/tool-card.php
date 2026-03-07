@@ -15,7 +15,7 @@
     ?>
       <img src="/uploads/tools/<?= $imgSmall ?>"
            srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 800w"
-           sizes="(max-width: 640px) 47vw, 220px"
+           sizes="(max-width: 600px) calc(100vw - 3rem), (max-width: 640px) 47vw, 220px"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
            width="400" height="268"
            <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $focalAttrs ?>>

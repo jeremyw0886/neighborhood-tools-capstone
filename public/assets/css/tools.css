@@ -367,6 +367,11 @@
 
       & div[role="list"] {
         grid-template-columns: 1fr;
+
+        &>article>figure {
+          aspect-ratio: 16 / 9;
+          height: auto;
+        }
       }
 
       & div[role="list"][data-view="list"] {
@@ -379,7 +384,8 @@
           min-height: 310px;
 
           &>figure {
-            height: 180px;
+            aspect-ratio: 16 / 9;
+            height: auto;
             width: auto;
           }
 

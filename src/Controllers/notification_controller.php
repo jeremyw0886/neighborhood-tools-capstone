@@ -326,11 +326,14 @@ class NotificationController extends BaseController
 
         $userId = (int) $_SESSION['user_id'];
 
+        $success = true;
+
         try {
             $count = Notification::clearRead($userId);
         } catch (\Throwable $e) {
             error_log('NotificationController::clearRead — ' . $e->getMessage());
-            $count = 0;
+            $count   = 0;
+            $success = false;
         }
 
         if ($this->isXhr()) {
@@ -339,8 +342,8 @@ class NotificationController extends BaseController
                 $unread = Notification::getUnreadCount($userId);
             } catch (\Throwable) {}
 
-            $this->jsonResponse(200, [
-                'success' => true,
+            $this->jsonResponse($success ? 200 : 500, [
+                'success' => $success,
                 'cleared' => $count,
                 'unread'  => $unread,
             ]);

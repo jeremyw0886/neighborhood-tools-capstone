@@ -364,6 +364,15 @@ $dashboardUrl      = $isLender ? '/dashboard/lender' : '/dashboard/borrower';
             </li>
           <?php endforeach; ?>
         </ul>
+        <?php
+          $pendingHandover = array_find($handovers, static fn(array $h): bool => $h['verified_at_hov'] === null);
+        ?>
+        <?php if ($pendingHandover !== null): ?>
+          <a href="/handover/<?= (int) $borrow['id_bor'] ?>" data-intent="primary" role="button">
+            <i class="fa-solid fa-keyboard" aria-hidden="true"></i>
+            <?= htmlspecialchars(ucfirst($pendingHandover['handover_type'])) ?> Verification
+          </a>
+        <?php endif; ?>
       </section>
     <?php endif; ?>
 

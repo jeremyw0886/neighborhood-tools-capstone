@@ -132,19 +132,17 @@ class NotificationController extends BaseController
         $toolId   = $ntf['related_tool_id'] ?? null;
         $borrowId = $ntf['id_bor_ntf'] ?? null;
 
+        $loanUrl = $borrowId ? '/dashboard/loan/' . (int) $borrowId : null;
+
         return match ($type) {
-            'request'  => $status === 'requested' && $toolId
-                ? '/tools/' . (int) $toolId
-                : '/dashboard/lender',
-            'approval' => $toolId
-                ? '/tools/' . (int) $toolId
-                : '/dashboard/borrower',
-            'denial'   => '/dashboard/borrower',
-            'due'      => '/dashboard/borrower',
+            'request'  => $loanUrl ?? '/dashboard/lender',
+            'approval' => $loanUrl ?? '/dashboard/borrower',
+            'denial'   => $loanUrl ?? '/dashboard/borrower',
+            'due'      => $loanUrl ?? '/dashboard/borrower',
             'return'   => $status === 'returned' && $borrowId
                 ? '/rate/' . (int) $borrowId
                 : '/dashboard/lender',
-            'rating'   => '/dashboard/history',
+            'rating'   => $loanUrl ?? '/dashboard/history',
             default    => '/notifications',
         };
     }

@@ -1342,6 +1342,10 @@
     padding: 0;
   }
 
+  #loan-status [data-handover-list]+a[role="button"] {
+    margin-top: 1rem;
+  }
+
   #loan-status [data-handover-record] {
     background: #fff;
     border: 1px solid var(--mountain-fog);

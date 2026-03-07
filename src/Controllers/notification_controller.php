@@ -50,6 +50,7 @@ class NotificationController extends BaseController
             'title'         => 'Notifications — NeighborhoodTools',
             'description'   => 'Your notifications and alerts.',
             'pageCss'       => ['pages.css'],
+            'pageJs'        => ['notifications.js'],
             'notifications' => $notifications,
             'totalCount'    => $totalCount,
             'page'          => $page,
@@ -179,13 +180,27 @@ class NotificationController extends BaseController
             // If validation fails, silently fall through to mark-all (null)
         }
 
+        $success = true;
+
         try {
             Notification::markRead(accountId: $userId, notificationIds: $notificationIds);
         } catch (\Throwable $e) {
             error_log('NotificationController::markRead — ' . $e->getMessage());
+            $success = false;
         }
 
-        // Redirect back to the notifications page (preserve current page number)
+        if ($this->isXhr()) {
+            $unread = 0;
+            try {
+                $unread = Notification::getUnreadCount($userId);
+            } catch (\Throwable) {}
+
+            $this->jsonResponse($success ? 200 : 500, [
+                'success' => $success,
+                'unread'  => $unread,
+            ]);
+        }
+
         $page = max(1, (int) ($_POST['page'] ?? 1));
         $this->redirect('/notifications' . ($page > 1 ? '?page=' . $page : ''));
     }

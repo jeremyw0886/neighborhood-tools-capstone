@@ -145,6 +145,10 @@ $filterUrl = static fn(?string $f): string =>
         </button>
       </form>
     <?php endif; ?>
+
+    <a href="/notifications/preferences" data-intent="secondary-outline">
+      <i class="fa-solid fa-sliders" aria-hidden="true"></i> Preferences
+    </a>
   </header>
 
   <nav aria-label="Filter notifications">

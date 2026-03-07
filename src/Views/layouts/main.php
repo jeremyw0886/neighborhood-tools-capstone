@@ -67,10 +67,10 @@
   <?php foreach ($cdnJs ?? [] as $cdnUrl): ?>
   <script src="<?= htmlspecialchars($cdnUrl) ?>" defer></script>
   <?php endforeach; ?>
-  <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
-  <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
   <?php $utilsJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'utils.js' : 'utils.min.js'; ?>
   <script src="/assets/js/<?= $utilsJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
+  <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
   <script src="/assets/js/usability-test.js" defer></script>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
   <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>

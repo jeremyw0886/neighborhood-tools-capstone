@@ -77,13 +77,27 @@ $isHero = !empty($heroPage);
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </button>
 
-      <a href="/notifications"
-         aria-label="Notifications<?= $unreadCount > 0 ? ' (' . htmlspecialchars((string) $unreadCount) . ' unread)' : '' ?>">
-        <i class="fa-solid fa-bell" aria-hidden="true"></i>
-        <?php if ($unreadCount > 0): ?>
-          <span><?= htmlspecialchars((string) $unreadCount) ?></span>
-        <?php endif; ?>
-      </a>
+      <div id="bell-wrapper">
+        <a href="/notifications"
+           aria-haspopup="menu"
+           aria-expanded="false"
+           aria-label="Notifications<?= $unreadCount > 0 ? ' (' . htmlspecialchars((string) $unreadCount) . ' unread)' : '' ?>">
+          <i class="fa-solid fa-bell" aria-hidden="true"></i>
+          <?php if ($unreadCount > 0): ?>
+            <span><?= htmlspecialchars((string) $unreadCount) ?></span>
+          <?php endif; ?>
+        </a>
+
+        <div id="bell-dropdown" role="menu" aria-label="Recent notifications" hidden>
+          <ul>
+          </ul>
+          <p hidden>You&rsquo;re all caught up!</p>
+          <a href="/notifications" role="menuitem">
+            View all notifications
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
 
       <ul id="user-actions-menu" role="menu">
         <?php if (!str_starts_with($currentPage, '/dashboard')): ?>

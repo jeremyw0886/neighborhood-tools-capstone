@@ -18,7 +18,7 @@
   // ─── Badge Helpers ──────────────────────────────────────────────────
 
   const getBellLink = () =>
-    document.querySelector('#user-actions > a[href="/notifications"]');
+    document.querySelector('#bell-wrapper > a[href="/notifications"]');
 
   const readBadgeCount = () => {
     const badge = getBellLink()?.querySelector('span');

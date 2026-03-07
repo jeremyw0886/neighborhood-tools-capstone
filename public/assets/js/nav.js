@@ -118,7 +118,7 @@
       }
 
       // Notification link — logged-in users (placed before Logout)
-      const bellLink = authSection.querySelector(':scope > a[href="/notifications"]');
+      const bellLink = authSection.querySelector('#bell-wrapper > a[href="/notifications"]');
       if (bellLink) {
         const a = document.createElement('a');
         a.href = '/notifications';
@@ -193,7 +193,17 @@
       ...menu.querySelectorAll('[role="menuitem"] a, [role="menuitem"] button')
     ];
 
+    const closeBellMenu = () => {
+      const bd = document.getElementById('bell-dropdown');
+      const bl = document.querySelector('#bell-wrapper > a[href="/notifications"]');
+      if (bd && !bd.hidden) {
+        bd.hidden = true;
+        bl?.setAttribute('aria-expanded', 'false');
+      }
+    };
+
     const open = () => {
+      closeBellMenu();
       menu.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
 
@@ -346,7 +356,7 @@
   // ─── Notification Badge Polling ───────────────────────────────────
 
   const initBadgePolling = () => {
-    const bellLink = document.querySelector('#user-actions > a[href="/notifications"]');
+    const bellLink = document.querySelector('#bell-wrapper > a[href="/notifications"]');
     if (!bellLink || !window.NT) return;
 
     const BASE_INTERVAL = 60_000;
@@ -383,6 +393,8 @@
     const poll = async () => {
       try {
         const response = await NT.fetch('/notifications/unread-count');
+        if (!response.ok) throw new Error(response.status);
+
         const data = await response.json();
 
         if (data.success) {
@@ -409,6 +421,207 @@
     });
 
     timerId = setTimeout(poll, BASE_INTERVAL);
+  };
+
+  // ─── Bell Dropdown ────────────────────────────────────────────────
+
+  const initBellDropdown = () => {
+    const wrapper = document.getElementById('bell-wrapper');
+    const bellLink = wrapper?.querySelector('a[href="/notifications"]');
+    const dropdown = document.getElementById('bell-dropdown');
+    if (!wrapper || !bellLink || !dropdown || !window.NT) return;
+
+    const list = dropdown.querySelector('ul');
+    const emptyMsg = dropdown.querySelector('p');
+    let loaded = false;
+    let loading = false;
+
+    const TYPE_ICONS = {
+      request: 'fa-hand',
+      approval: 'fa-circle-check',
+      denial: 'fa-circle-xmark',
+      due: 'fa-clock',
+      return: 'fa-rotate-left',
+      rating: 'fa-star',
+    };
+
+    const relativeTime = (hours) => {
+      if (hours < 1) return 'Just now';
+      if (hours === 1) return '1 hour ago';
+      if (hours < 24) return `${hours} hours ago`;
+      const days = Math.floor(hours / 24);
+      if (days === 1) return 'Yesterday';
+      if (days < 7) return `${days} days ago`;
+      return `${Math.floor(days / 7)}w ago`;
+    };
+
+    const renderItems = (items) => {
+      list.innerHTML = '';
+
+      for (const item of items) {
+        const li = document.createElement('li');
+
+        const a = document.createElement('a');
+        a.href = item.link;
+        a.setAttribute('role', 'menuitem');
+
+        const iconSpan = document.createElement('span');
+        const icon = document.createElement('i');
+        icon.className = `fa-solid ${TYPE_ICONS[item.type] || 'fa-bell'}`;
+        icon.setAttribute('aria-hidden', 'true');
+        iconSpan.appendChild(icon);
+
+        const textSpan = document.createElement('span');
+        const strong = document.createElement('strong');
+        strong.textContent = item.title;
+        const em = document.createElement('em');
+        em.textContent = relativeTime(item.hoursAgo);
+        textSpan.append(strong, em);
+
+        a.append(iconSpan, textSpan);
+        li.appendChild(a);
+        list.appendChild(li);
+      }
+    };
+
+    const updateContent = (items) => {
+      if (items.length > 0) {
+        renderItems(items);
+        list.hidden = false;
+        emptyMsg.hidden = true;
+      } else {
+        list.innerHTML = '';
+        list.hidden = true;
+        emptyMsg.hidden = false;
+      }
+    };
+
+    const fetchPreview = async () => {
+      if (loading) return;
+      loading = true;
+
+      try {
+        const res = await NT.fetch('/notifications/preview');
+        if (!res.ok) throw new Error(res.status);
+
+        const data = await res.json();
+
+        if (data.success) {
+          updateContent(data.items);
+          loaded = true;
+          announceBadge(data.unread);
+        }
+      } catch {
+        loaded = false;
+        updateContent([]);
+      } finally {
+        loading = false;
+      }
+    };
+
+    const isOpen = () => !dropdown.hidden;
+
+    const closeUserMenu = () => {
+      const um = document.getElementById('user-actions-menu');
+      const ut = document.getElementById('user-actions-toggle');
+      if (um && !um.hidden) {
+        um.hidden = true;
+        ut?.setAttribute('aria-expanded', 'false');
+      }
+    };
+
+    const open = () => {
+      closeUserMenu();
+      dropdown.hidden = false;
+      bellLink.setAttribute('aria-expanded', 'true');
+      fetchPreview();
+
+      requestAnimationFrame(() => {
+        const firstLink = list.querySelector('a')
+          || dropdown.querySelector(':scope > a');
+        firstLink?.focus();
+      });
+    };
+
+    const close = (returnFocus = true) => {
+      dropdown.hidden = true;
+      bellLink.setAttribute('aria-expanded', 'false');
+      if (returnFocus) bellLink.focus();
+    };
+
+    bellLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      isOpen() ? close() : open();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (isOpen() && !wrapper.contains(e.target)) {
+        close(false);
+      }
+    });
+
+    // Keyboard navigation
+    dropdown.addEventListener('keydown', (e) => {
+      const items = [...dropdown.querySelectorAll('a')];
+      const index = items.indexOf(document.activeElement);
+
+      switch (e.key) {
+        case 'ArrowDown': {
+          e.preventDefault();
+          const next = items[(index + 1) % items.length];
+          next?.focus();
+          break;
+        }
+        case 'ArrowUp': {
+          e.preventDefault();
+          const prev = items[(index - 1 + items.length) % items.length];
+          prev?.focus();
+          break;
+        }
+        case 'Home': {
+          e.preventDefault();
+          items[0]?.focus();
+          break;
+        }
+        case 'End': {
+          e.preventDefault();
+          items[items.length - 1]?.focus();
+          break;
+        }
+        case 'Escape': {
+          close();
+          break;
+        }
+        case 'Tab': {
+          close(false);
+          break;
+        }
+      }
+    });
+
+    // Live region for badge count announcements
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'visually-hidden';
+    wrapper.appendChild(liveRegion);
+
+    let lastAnnouncedCount = -1;
+
+    const announceBadge = (count) => {
+      if (count === lastAnnouncedCount) return;
+      lastAnnouncedCount = count;
+
+      liveRegion.textContent = count > 0
+        ? `${count} unread notification${count !== 1 ? 's' : ''}`
+        : 'No unread notifications';
+    };
+
+    // Re-fetch when badge polling updates the count
+    const observer = new MutationObserver(() => {
+      if (isOpen()) fetchPreview();
+    });
+    observer.observe(bellLink, { childList: true, subtree: true, characterData: true });
   };
 
   // ─── Keyboard Shortcut Overlay ──────────────────────────────────
@@ -537,6 +750,7 @@
   const init = () => {
     initHamburger();
     initDropdown();
+    initBellDropdown();
     initModals();
     initBadgePolling();
     initShortcutOverlay();

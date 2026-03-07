@@ -79,12 +79,20 @@
       padding-right: 1.25rem;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>a[href="/notifications"] {
+    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>a[href="/notifications"] {
       align-items: center;
       display: flex;
       justify-content: center;
       min-height: 2.75rem;
       min-width: 2.75rem;
+    }
+
+    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>#bell-dropdown {
+      left: auto;
+      position: fixed;
+      right: 0;
+      top: auto;
+      width: 100vw;
     }
 
     nav[aria-label="Main navigation"]>#user-actions>#user-actions-toggle,

@@ -87,17 +87,18 @@ use App\Core\ViewHelper;
         <tbody>
           <?php foreach ($lenderHistory as $row):
             $statusText = $row['borrow_status'] ?? $row['status_name_bst'] ?? $row['status'] ?? '—';
+            $otherName  = $row['borrower_name'] ?? $row['other_party_name'] ?? '—';
+            $otherId    = (int) ($row['borrower_id'] ?? $row['id_acc_bor'] ?? $row['other_party_id'] ?? 0);
           ?>
             <tr>
               <td><?= htmlspecialchars($row['tool_name_tol'] ?? $row['tool_name'] ?? '—') ?></td>
               <td>
-                <?php $borrowerId = (int) ($row['borrower_id'] ?? $row['id_acc_bor'] ?? 0); ?>
-                <?php if ($borrowerId > 0): ?>
-                  <a href="/profile/<?= htmlspecialchars((string) $borrowerId) ?>">
-                    <?= htmlspecialchars($row['borrower_name'] ?? '—') ?>
+                <?php if ($otherId > 0): ?>
+                  <a href="/profile/<?= htmlspecialchars((string) $otherId) ?>">
+                    <?= htmlspecialchars($otherName) ?>
                   </a>
                 <?php else: ?>
-                  <?= htmlspecialchars($row['borrower_name'] ?? '—') ?>
+                  <?= htmlspecialchars($otherName) ?>
                 <?php endif; ?>
               </td>
               <td>
@@ -184,17 +185,18 @@ use App\Core\ViewHelper;
         <tbody>
           <?php foreach ($borrowerHistory as $row):
             $statusText = $row['borrow_status'] ?? $row['status_name_bst'] ?? $row['status'] ?? '—';
+            $otherName  = $row['lender_name'] ?? $row['owner_name'] ?? $row['other_party_name'] ?? '—';
+            $otherId    = (int) ($row['lender_id'] ?? $row['owner_id'] ?? $row['other_party_id'] ?? 0);
           ?>
             <tr>
               <td><?= htmlspecialchars($row['tool_name_tol'] ?? $row['tool_name'] ?? '—') ?></td>
               <td>
-                <?php $lenderId = (int) ($row['lender_id'] ?? $row['owner_id'] ?? 0); ?>
-                <?php if ($lenderId > 0): ?>
-                  <a href="/profile/<?= htmlspecialchars((string) $lenderId) ?>">
-                    <?= htmlspecialchars($row['lender_name'] ?? $row['owner_name'] ?? '—') ?>
+                <?php if ($otherId > 0): ?>
+                  <a href="/profile/<?= htmlspecialchars((string) $otherId) ?>">
+                    <?= htmlspecialchars($otherName) ?>
                   </a>
                 <?php else: ?>
-                  <?= htmlspecialchars($row['lender_name'] ?? $row['owner_name'] ?? '—') ?>
+                  <?= htmlspecialchars($otherName) ?>
                 <?php endif; ?>
               </td>
               <td>

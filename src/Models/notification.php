@@ -9,6 +9,10 @@ use PDO;
 
 class Notification
 {
+    private const array REQUIRED_TYPES = ['request', 'approval', 'denial'];
+
+    private const array TOGGLEABLE_TYPES = ['due', 'return', 'rating'];
+
     private const array FILTER_CLAUSES = [
         'unread'   => 'AND ntf.is_read_ntf = FALSE',
         'request'  => "AND ntt.type_name_ntt = 'request'",
@@ -184,6 +188,108 @@ class Notification
     }
 
     /**
+     * Get notification preferences for toggleable types.
+     *
+     * @return array<string, bool> Keyed by type name, true = enabled
+     */
+    public static function getPreferences(int $accountId): array
+    {
+        $pdo = Database::connection();
+
+        $placeholders = implode(',', array_fill(0, count(self::TOGGLEABLE_TYPES), '?'));
+
+        $stmt = $pdo->prepare("
+            SELECT ntt.type_name_ntt, ntp.is_enabled_ntp
+            FROM notification_preference_ntp ntp
+            JOIN notification_type_ntt ntt ON ntp.id_ntt_ntp = ntt.id_ntt
+            WHERE ntp.id_acc_ntp = ?
+              AND ntt.type_name_ntt IN ({$placeholders})
+        ");
+
+        $params = [$accountId, ...self::TOGGLEABLE_TYPES];
+        $stmt->execute($params);
+
+        $rows = $stmt->fetchAll();
+
+        $prefs = [];
+        foreach (self::TOGGLEABLE_TYPES as $type) {
+            $prefs[$type] = true;
+        }
+        foreach ($rows as $row) {
+            $prefs[$row['type_name_ntt']] = (bool) $row['is_enabled_ntp'];
+        }
+
+        return $prefs;
+    }
+
+    /**
+     * Update notification preferences for toggleable types.
+     *
+     * @param array<string, bool> $prefs Keyed by type name, true = enabled
+     */
+    public static function updatePreferences(int $accountId, array $prefs): void
+    {
+        $pdo = Database::connection();
+
+        foreach ($prefs as $type => $enabled) {
+            if (!in_array($type, self::TOGGLEABLE_TYPES, true)) {
+                continue;
+            }
+
+            if ($enabled) {
+                $stmt = $pdo->prepare("
+                    DELETE ntp FROM notification_preference_ntp ntp
+                    JOIN notification_type_ntt ntt ON ntp.id_ntt_ntp = ntt.id_ntt
+                    WHERE ntp.id_acc_ntp = :account_id
+                      AND ntt.type_name_ntt = :type
+                ");
+            } else {
+                $stmt = $pdo->prepare("
+                    INSERT INTO notification_preference_ntp (id_acc_ntp, id_ntt_ntp, is_enabled_ntp)
+                    SELECT :account_id, id_ntt, FALSE
+                    FROM notification_type_ntt
+                    WHERE type_name_ntt = :type
+                    ON DUPLICATE KEY UPDATE is_enabled_ntp = FALSE
+                ");
+            }
+
+            $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+            $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+            $stmt->execute();
+        }
+    }
+
+    /**
+     * Check if a notification type is enabled for a user.
+     *
+     * @return bool True if the type is enabled (or required)
+     */
+    public static function isTypeEnabled(int $accountId, string $type): bool
+    {
+        if (in_array($type, self::REQUIRED_TYPES, true)) {
+            return true;
+        }
+
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT ntp.is_enabled_ntp
+            FROM notification_preference_ntp ntp
+            JOIN notification_type_ntt ntt ON ntp.id_ntt_ntp = ntt.id_ntt
+            WHERE ntp.id_acc_ntp = :account_id
+              AND ntt.type_name_ntt = :type
+        ");
+
+        $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row === false || (bool) $row['is_enabled_ntp'];
+    }
+
+    /**
      * Send a notification via sp_send_notification.
      *
      * @param  string $type             Notification type name (e.g. 'request', 'approval')
@@ -197,6 +303,10 @@ class Notification
         string $body,
         ?int $relatedBorrowId = null,
     ): ?int {
+        if (!self::isTypeEnabled($accountId, $type)) {
+            return null;
+        }
+
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare(

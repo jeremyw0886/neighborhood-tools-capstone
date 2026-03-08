@@ -400,6 +400,142 @@
     });
   }
 
+  // ─── Form: Client-Side Validation ─────────────────────────────────
+
+  /**
+   * Derive an error-element ID from a field's id or name.
+   *
+   * @param {HTMLElement} field
+   * @returns {string}
+   */
+  function errorIdFor(field) {
+    return `${(field.id || field.name).replace(/_/g, '-')}-error`;
+  }
+
+  /**
+   * Build a human-readable message from the Constraint Validation API.
+   *
+   * @param {HTMLElement} field
+   * @returns {string}
+   */
+  function validationMessage(field) {
+    const v = field.validity;
+
+    if (v.valueMissing) {
+      return field.tagName === 'SELECT'
+        ? 'Please select an option.'
+        : 'This field is required.';
+    }
+    if (v.typeMismatch && field.type === 'email') return 'Please enter a valid email address.';
+    if (v.typeMismatch) return 'Please enter a valid value.';
+    if (v.tooShort) return `Please enter at least ${field.minLength} characters.`;
+    if (v.tooLong) return `Please enter no more than ${field.maxLength} characters.`;
+    if (v.patternMismatch) return field.title || 'Please match the requested format.';
+    if (v.rangeUnderflow) return `Value must be at least ${field.min}.`;
+    if (v.rangeOverflow) return `Value must be no more than ${field.max}.`;
+    if (v.stepMismatch) return 'Please enter a valid value.';
+    if (v.badInput) return 'Please enter a valid value.';
+    return 'This field is invalid.';
+  }
+
+  /**
+   * Show an inline error for a field, matching server-rendered markup.
+   *
+   * @param {HTMLElement} field
+   */
+  function showFieldError(field) {
+    const id = errorIdFor(field);
+    if (document.getElementById(id)) return;
+
+    const tag = field.closest('.auth-card .form-group') ? 'span' : 'p';
+    const el = document.createElement(tag);
+    el.id = id;
+    el.setAttribute('role', 'alert');
+    el.textContent = validationMessage(field);
+
+    field.setAttribute('aria-invalid', 'true');
+
+    const describedBy = field.getAttribute('aria-describedby') ?? '';
+    if (!describedBy.includes(id)) {
+      if (!field.hasAttribute('data-orig-describedby')) {
+        field.dataset.origDescribedby = describedBy;
+      }
+      field.setAttribute('aria-describedby', describedBy ? `${describedBy} ${id}` : id);
+    }
+
+    const ref = field.parentNode.querySelector('.char-counter')
+      ?? field.parentNode.querySelector('.form-hint')
+      ?? field;
+    ref.after(el);
+
+    if (!field.hasAttribute('data-live-validate')) {
+      field.dataset.liveValidate = '';
+      const clear = () => { if (field.checkValidity()) clearFieldError(field); };
+      field.addEventListener('input', clear);
+      field.addEventListener('change', clear);
+    }
+  }
+
+  /**
+   * Remove a JS-rendered inline error for a field.
+   *
+   * @param {HTMLElement} field
+   */
+  function clearFieldError(field) {
+    const id = errorIdFor(field);
+    document.getElementById(id)?.remove();
+
+    field.removeAttribute('aria-invalid');
+
+    if (field.hasAttribute('data-orig-describedby')) {
+      const original = field.dataset.origDescribedby;
+      if (original) {
+        field.setAttribute('aria-describedby', original);
+      } else {
+        field.removeAttribute('aria-describedby');
+      }
+      delete field.dataset.origDescribedby;
+    }
+  }
+
+  /**
+   * Validate all fields in a form. Returns true when valid.
+   *
+   * @param {HTMLFormElement} form
+   * @returns {boolean}
+   */
+  function validateForm(form) {
+    const fields = form.querySelectorAll('input, select, textarea');
+    let firstInvalid = null;
+
+    for (const field of fields) {
+      if (field.type === 'hidden' || field.disabled || field.name === 'website') continue;
+
+      clearFieldError(field);
+
+      if (!field.checkValidity()) {
+        showFieldError(field);
+        firstInvalid ??= field;
+      }
+    }
+
+    firstInvalid?.focus();
+    return !firstInvalid;
+  }
+
+  /**
+   * Auto-validate novalidate POST forms on submit.
+   */
+  function initFormValidation() {
+    document.addEventListener('submit', (e) => {
+      const form = e.target;
+      if (!form.hasAttribute('novalidate')) return;
+      if (form.method?.toLowerCase() !== 'post') return;
+
+      if (!validateForm(form)) e.preventDefault();
+    });
+  }
+
   // ─── Form: Double-Submit Prevention ────────────────────────────────
 
   /**
@@ -427,7 +563,12 @@
       }
     });
 
-    window.addEventListener('pageshow', () => {
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted && document.querySelector('form[method="post"] input[name="csrf_token"]')) {
+        location.reload();
+        return;
+      }
+
       for (const btn of pendingButtons) {
         btn.disabled = false;
         if (btn.dataset.originalLabel) {
@@ -466,6 +607,7 @@
       trackDirty,
       charCounter,
       imagePreview,
+      validate: validateForm,
     }),
   });
 
@@ -474,6 +616,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     migrateFlashMessages();
     initPaginationScroll();
+    initFormValidation();
     initDoubleSubmitGuard();
     applyFocalPoints();
   });

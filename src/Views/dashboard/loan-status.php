@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dashboard — Loan detail page with lifecycle progress and actions.
  *
@@ -22,29 +23,29 @@ $stageIndex = $terminal ? -1 : array_search($status, $stages, true);
 $dueStatus = null;
 $timeLabel = null;
 if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
-    $secondsLeft = strtotime($borrow['due_at_bor']) - time();
-    $hoursLeft   = (int) ($secondsLeft / 3600);
-    $dueStatus   = match (true) {
-        $hoursLeft < 0   => 'overdue',
-        $hoursLeft <= 24 => 'due-soon',
-        default          => 'on-time',
-    };
+  $secondsLeft = strtotime($borrow['due_at_bor']) - time();
+  $hoursLeft   = (int) ($secondsLeft / 3600);
+  $dueStatus   = match (true) {
+    $hoursLeft < 0   => 'overdue',
+    $hoursLeft <= 24 => 'due-soon',
+    default          => 'on-time',
+  };
 
-    $absHours = abs($hoursLeft);
-    $timeLabel = match (true) {
-        $absHours >= 24 => (int) floor($absHours / 24) . 'd ' . ($absHours % 24) . 'h' . ($hoursLeft < 0 ? ' overdue' : ' left'),
-        $absHours > 0   => $absHours . 'h' . ($hoursLeft < 0 ? ' overdue' : ' left'),
-        default         => 'Due now',
-    };
+  $absHours = abs($hoursLeft);
+  $timeLabel = match (true) {
+    $absHours >= 24 => (int) floor($absHours / 24) . 'd ' . ($absHours % 24) . 'h' . ($hoursLeft < 0 ? ' overdue' : ' left'),
+    $absHours > 0   => $absHours . 'h' . ($hoursLeft < 0 ? ' overdue' : ' left'),
+    default         => 'Due now',
+  };
 }
 
 $statusLabel = match ($status) {
-    'requested' => 'Pending',
-    'approved'  => 'Approved',
-    'borrowed'  => 'Borrowed',
-    'returned'  => 'Returned',
-    'denied'    => 'Denied',
-    'cancelled' => 'Cancelled',
+  'requested' => 'Pending',
+  'approved'  => 'Approved',
+  'borrowed'  => 'Borrowed',
+  'returned'  => 'Returned',
+  'denied'    => 'Denied',
+  'cancelled' => 'Cancelled',
 };
 $statusSlug = $dueStatus ?? $status;
 $counterpartyLabel = $isLender ? 'Borrower' : 'Lender';
@@ -54,21 +55,24 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
 
 <section id="loan-status" aria-labelledby="loan-status-heading">
 
-  <header>
+  <nav aria-label="Back">
     <a href="<?= htmlspecialchars($backUrl) ?>">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </a>
+  </nav>
+
+  <header>
     <h1 id="loan-status-heading">
       <i class="fa-solid fa-timeline" aria-hidden="true"></i>
       <?= htmlspecialchars($borrow['tool_name_tol']) ?>
     </h1>
     <?php
-      $relationLabel = match ($status) {
-          'requested', 'denied', 'cancelled' => $isLender ? 'Requested by' : 'Requested from',
-          'approved'                         => $isLender ? 'Approved for' : 'Approved by',
-          'borrowed'                         => $isLender ? 'Lent to' : 'Borrowed from',
-          'returned'                         => $isLender ? 'Returned by' : 'Returned to',
-      };
+    $relationLabel = match ($status) {
+      'requested', 'denied', 'cancelled' => $isLender ? 'Requested by' : 'Requested from',
+      'approved'                         => $isLender ? 'Approved for' : 'Approved by',
+      'borrowed'                         => $isLender ? 'Lent to' : 'Borrowed from',
+      'returned'                         => $isLender ? 'Returned by' : 'Returned to',
+    };
     ?>
     <p>
       <?= $relationLabel ?>
@@ -98,7 +102,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
             <li aria-current="step" data-status="denied"><span>Denied</span></li>
           <?php elseif ($status === 'cancelled'): ?>
             <?php
-              $cancelledAfterApproval = $borrow['approved_at_bor'] !== null;
+            $cancelledAfterApproval = $borrow['approved_at_bor'] !== null;
             ?>
             <li data-completed><span>Requested</span></li>
             <?php if ($cancelledAfterApproval): ?>
@@ -112,25 +116,25 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
         <ol aria-label="Loan lifecycle">
           <?php foreach ($stages as $i => $stage): ?>
             <?php
-              $label = ucfirst($stage);
-              $attrs = '';
-              if ($i < $stageIndex) {
-                  $attrs = ' data-completed';
-              } elseif ($i === $stageIndex) {
-                  $attrs = ' aria-current="step"';
-                  if ($dueStatus !== null && $stage === 'borrowed') {
-                      $attrs .= match ($dueStatus) {
-                          'overdue'  => ' data-urgent',
-                          'due-soon' => ' data-warning',
-                          default    => '',
-                      };
-                  }
+            $label = ucfirst($stage);
+            $attrs = '';
+            if ($i < $stageIndex) {
+              $attrs = ' data-completed';
+            } elseif ($i === $stageIndex) {
+              $attrs = ' aria-current="step"';
+              if ($dueStatus !== null && $stage === 'borrowed') {
+                $attrs .= match ($dueStatus) {
+                  'overdue'  => ' data-urgent',
+                  'due-soon' => ' data-warning',
+                  default    => '',
+                };
               }
+            }
             ?>
             <li<?= $attrs ?>>
               <span><?= $label ?></span>
-            </li>
-          <?php endforeach; ?>
+              </li>
+            <?php endforeach; ?>
         </ol>
       <?php endif; ?>
 
@@ -149,9 +153,9 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
           Pickup Checklist
         </h2>
         <?php
-          $depositPaid    = $deposit === null || $deposit['deposit_status'] !== 'pending';
-          $pickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
-          $hasPickupCode  = $pickupHandover !== null;
+        $depositPaid    = $deposit === null || $deposit['deposit_status'] !== 'pending';
+        $pickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
+        $hasPickupCode  = $pickupHandover !== null;
         ?>
         <ul data-checklist>
           <li<?= $waiverSigned ? ' data-done' : '' ?>>
@@ -161,25 +165,25 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
             <?php else: ?>
               <a href="/waiver/<?= (int) $borrow['id_bor'] ?>">Sign waiver</a>
             <?php endif; ?>
-          </li>
-          <?php if ($deposit !== null): ?>
-            <li<?= $depositPaid ? ' data-done' : '' ?>>
-              <i class="fa-solid <?= $depositPaid ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
-              <?php if ($depositPaid): ?>
-                <span>Deposit paid</span>
-              <?php else: ?>
-                <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">Pay deposit ($<?= number_format((float) $deposit['amount_sdp'], 2) ?>)</a>
-              <?php endif; ?>
             </li>
-          <?php endif; ?>
-          <li<?= $hasPickupCode ? ' data-done' : '' ?>>
-            <i class="fa-solid <?= $hasPickupCode ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
-            <?php if ($hasPickupCode): ?>
-              <span>Handover code ready</span>
-            <?php else: ?>
-              <span>Awaiting handover code from lender</span>
-            <?php endif; ?>
-          </li>
+            <?php if ($deposit !== null): ?>
+              <li<?= $depositPaid ? ' data-done' : '' ?>>
+                <i class="fa-solid <?= $depositPaid ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+                <?php if ($depositPaid): ?>
+                  <span>Deposit paid</span>
+                <?php else: ?>
+                  <a href="/payments/deposit/<?= (int) $deposit['id_sdp'] ?>">Pay deposit ($<?= number_format((float) $deposit['amount_sdp'], 2) ?>)</a>
+                <?php endif; ?>
+                </li>
+              <?php endif; ?>
+              <li<?= $hasPickupCode ? ' data-done' : '' ?>>
+                <i class="fa-solid <?= $hasPickupCode ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+                <?php if ($hasPickupCode): ?>
+                  <span>Handover code ready</span>
+                <?php else: ?>
+                  <span>Awaiting handover code from lender</span>
+                <?php endif; ?>
+                </li>
         </ul>
         <?php if ($waiverSigned && $depositPaid && $hasPickupCode): ?>
           <a href="/handover/<?= (int) $borrow['id_bor'] ?>" data-intent="primary" role="button">
@@ -191,8 +195,8 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
 
     <?php if ($status === 'approved' && $isLender): ?>
       <?php
-        $pickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
-        $hasPickupCode  = $pickupHandover !== null;
+      $pickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
+      $hasPickupCode  = $pickupHandover !== null;
       ?>
       <section aria-labelledby="pickup-checklist-heading" data-loan-card>
         <h2 id="pickup-checklist-heading">
@@ -203,22 +207,22 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
           <li<?= $waiverSigned ? ' data-done' : '' ?>>
             <i class="fa-solid <?= $waiverSigned ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
             <span>Borrower <?= $waiverSigned ? 'signed' : 'needs to sign' ?> waiver</span>
-          </li>
-          <?php if ($deposit !== null): ?>
-            <?php $depositPaid = $deposit['deposit_status'] !== 'pending'; ?>
-            <li<?= $depositPaid ? ' data-done' : '' ?>>
-              <i class="fa-solid <?= $depositPaid ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
-              <span>Deposit <?= $depositPaid ? 'paid' : 'pending' ?></span>
             </li>
-          <?php endif; ?>
-          <li<?= $hasPickupCode ? ' data-done' : '' ?>>
-            <i class="fa-solid <?= $hasPickupCode ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
-            <?php if ($hasPickupCode): ?>
-              <span>Pickup code generated</span>
-            <?php else: ?>
-              <a href="/handover/<?= (int) $borrow['id_bor'] ?>">Generate pickup code</a>
-            <?php endif; ?>
-          </li>
+            <?php if ($deposit !== null): ?>
+              <?php $depositPaid = $deposit['deposit_status'] !== 'pending'; ?>
+              <li<?= $depositPaid ? ' data-done' : '' ?>>
+                <i class="fa-solid <?= $depositPaid ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+                <span>Deposit <?= $depositPaid ? 'paid' : 'pending' ?></span>
+                </li>
+              <?php endif; ?>
+              <li<?= $hasPickupCode ? ' data-done' : '' ?>>
+                <i class="fa-solid <?= $hasPickupCode ? 'fa-circle-check' : 'fa-circle' ?>" aria-hidden="true"></i>
+                <?php if ($hasPickupCode): ?>
+                  <span>Pickup code generated</span>
+                <?php else: ?>
+                  <a href="/handover/<?= (int) $borrow['id_bor'] ?>">Generate pickup code</a>
+                <?php endif; ?>
+                </li>
         </ul>
       </section>
     <?php endif; ?>
@@ -371,7 +375,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
           <?php endforeach; ?>
         </ul>
         <?php
-          $pendingHandover = array_find($handovers, static fn(array $h): bool => $h['verified_at_hov'] === null);
+        $pendingHandover = array_find($handovers, static fn(array $h): bool => $h['verified_at_hov'] === null);
         ?>
         <?php if ($pendingHandover !== null): ?>
           <a href="/handover/<?= (int) $borrow['id_bor'] ?>" data-intent="primary" role="button">
@@ -430,12 +434,12 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
     <?php endif; ?>
 
     <?php
-      $canApprove  = $status === 'requested' && $isLender;
-      $canCancel   = in_array($status, ['requested', 'approved'], true);
-      $canReturn   = $status === 'borrowed' && $isLender;
-      $canExtend   = $status === 'borrowed' && $isLender;
-      $canRemind   = $status === 'borrowed' && $isLender;
-      $hasActions  = $canApprove || $canCancel || $canReturn || $canExtend || $canRemind;
+    $canApprove  = $status === 'requested' && $isLender;
+    $canCancel   = in_array($status, ['requested', 'approved'], true);
+    $canReturn   = $status === 'borrowed' && $isLender;
+    $canExtend   = $status === 'borrowed' && $isLender;
+    $canRemind   = $status === 'borrowed' && $isLender;
+    $hasActions  = $canApprove || $canCancel || $canReturn || $canExtend || $canRemind;
     ?>
 
     <?php if ($hasActions): ?>
@@ -466,8 +470,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                 required
                 maxlength="1000"
                 rows="2"
-                placeholder="Why are you denying this request?"
-              ></textarea>
+                placeholder="Why are you denying this request?"></textarea>
               <button type="submit" data-intent="danger">Deny Request</button>
             </form>
           </details>
@@ -475,8 +478,8 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
 
         <?php if ($canReturn): ?>
           <?php
-            $returnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return');
-            $hasReturnCode  = $returnHandover !== null;
+          $returnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return');
+          $hasReturnCode  = $returnHandover !== null;
           ?>
           <?php if ($hasReturnCode): ?>
             <a href="/handover/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="info">
@@ -491,8 +494,8 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
 
         <?php if ($status === 'borrowed' && !$isLender): ?>
           <?php
-            $returnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return' && $h['verified_at_hov'] === null);
-            $hasReturnCode  = $returnHandover !== null;
+          $returnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return' && $h['verified_at_hov'] === null);
+          $hasReturnCode  = $returnHandover !== null;
           ?>
           <?php if ($hasReturnCode): ?>
             <a href="/handover/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="info">
@@ -520,8 +523,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                 required
                 min="1"
                 max="720"
-                placeholder="e.g. 24"
-              >
+                placeholder="e.g. 24">
               <label for="extend-reason">Reason</label>
               <textarea
                 id="extend-reason"
@@ -529,8 +531,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                 required
                 maxlength="1000"
                 rows="2"
-                placeholder="Why are you extending this loan?"
-              ></textarea>
+                placeholder="Why are you extending this loan?"></textarea>
               <button type="submit" data-intent="warning">Extend Loan</button>
             </form>
           </details>
@@ -559,8 +560,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                 required
                 maxlength="1000"
                 rows="2"
-                placeholder="Why are you cancelling?"
-              ></textarea>
+                placeholder="Why are you cancelling?"></textarea>
               <button type="submit" data-intent="danger">Cancel Request</button>
             </form>
           </details>
@@ -570,9 +570,9 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
 
     <?php if ($status === 'returned'): ?>
       <?php
-        $needsUserRating = !$hasRatedUser;
-        $needsToolRating = !$isLender && !$hasRatedTool;
-        $showRateSection = $needsUserRating || $needsToolRating;
+      $needsUserRating = !$hasRatedUser;
+      $needsToolRating = !$isLender && !$hasRatedTool;
+      $showRateSection = $needsUserRating || $needsToolRating;
       ?>
       <?php if ($showRateSection): ?>
         <section aria-labelledby="rate-heading" data-loan-card>
@@ -603,10 +603,10 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
           </h2>
           <?php foreach ($userRatings as $ur): ?>
             <?php
-              $isOwnRating = (int) $ur['rater_id'] === $authUser['id'];
-              $ratingLabel  = $isOwnRating
-                  ? 'You rated ' . htmlspecialchars($counterpartyName)
-                  : htmlspecialchars($ur['rater_name']) . ' rated you';
+            $isOwnRating = (int) $ur['rater_id'] === $authUser['id'];
+            $ratingLabel  = $isOwnRating
+              ? 'You rated ' . htmlspecialchars($counterpartyName)
+              : htmlspecialchars($ur['rater_name']) . ' rated you';
             ?>
             <article data-rating-card>
               <header>
@@ -632,8 +632,8 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
               <header>
                 <span>
                   <?= $isLender
-                      ? htmlspecialchars($toolRating['rater_name']) . ' rated '
-                      : 'You rated ' ?>
+                    ? htmlspecialchars($toolRating['rater_name']) . ' rated '
+                    : 'You rated ' ?>
                   <?= htmlspecialchars($toolRating['tool_name']) ?>
                 </span>
               </header>

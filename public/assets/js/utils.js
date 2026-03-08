@@ -400,6 +400,45 @@
     });
   }
 
+  // ─── Form: Double-Submit Prevention ────────────────────────────────
+
+  /**
+   * Disable the submit button on first click for all POST forms.
+   */
+  function initDoubleSubmitGuard() {
+    const pendingButtons = new Set();
+
+    document.addEventListener('submit', (e) => {
+      if (e.defaultPrevented) return;
+
+      const form = e.target;
+      if (form.method?.toLowerCase() !== 'post') return;
+
+      const btn = e.submitter
+        ?? form.querySelector('button[type="submit"], input[type="submit"], button:not([type])');
+      if (!btn || btn.disabled) return;
+
+      btn.disabled = true;
+      pendingButtons.add(btn);
+
+      if (btn.tagName === 'BUTTON') {
+        btn.dataset.originalLabel = btn.textContent;
+        btn.textContent = 'Submitting\u2026';
+      }
+    });
+
+    window.addEventListener('pageshow', () => {
+      for (const btn of pendingButtons) {
+        btn.disabled = false;
+        if (btn.dataset.originalLabel) {
+          btn.textContent = btn.dataset.originalLabel;
+          delete btn.dataset.originalLabel;
+        }
+      }
+      pendingButtons.clear();
+    });
+  }
+
   // ─── Pagination Smooth Scroll ──────────────────────────────────────
 
   function initPaginationScroll() {
@@ -435,6 +474,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     migrateFlashMessages();
     initPaginationScroll();
+    initDoubleSubmitGuard();
     applyFocalPoints();
   });
 

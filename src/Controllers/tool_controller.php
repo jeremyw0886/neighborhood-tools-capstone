@@ -931,7 +931,7 @@ class ToolController extends BaseController
             return null;
         }
 
-        ImageProcessor::resize($destination, 750);
+        ImageProcessor::resize($destination, 1600);
         $cardVariant = preg_replace('/\.(\w+)$/', '-400w.$1', $destination);
         copy($destination, $cardVariant);
         ImageProcessor::resize($cardVariant, 400);

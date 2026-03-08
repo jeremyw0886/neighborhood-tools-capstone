@@ -739,9 +739,9 @@ class ToolController extends BaseController
         $imageFilenames = [];
 
         foreach ($uploadedFiles as $file) {
-            $filename = $this->moveToolImage($file);
+            $result = $this->moveToolImage($file);
 
-            if ($filename === null) {
+            if ($result === null) {
                 foreach ($imageFilenames as $saved) {
                     $this->deleteToolImageFiles($saved['filename']);
                 }
@@ -751,7 +751,7 @@ class ToolController extends BaseController
                 $this->redirect('/tools/create');
             }
 
-            $imageFilenames[] = ['filename' => $filename, 'alt_text' => null];
+            $imageFilenames[] = ['filename' => $result['filename'], 'alt_text' => null, 'width' => $result['width']];
         }
 
         try {
@@ -909,9 +909,10 @@ class ToolController extends BaseController
      *
      * Generates a unique filename, resizes to 800w max, creates a
      * 400w card variant, and generates WebP versions of both.
-     * Returns the filename on success, null on failure.
+     *
+     * @return array{filename: string, width: ?int}|null
      */
-    private function moveToolImage(array $file): ?string
+    private function moveToolImage(array $file): ?array
     {
         $extensions = [
             'image/jpeg' => 'jpg',
@@ -940,7 +941,9 @@ class ToolController extends BaseController
             ImageProcessor::createWebpVariant($cardVariant);
         }
 
-        return $filename;
+        $width = ImageProcessor::getIntrinsicWidth($destination);
+
+        return ['filename' => $filename, 'width' => $width];
     }
 
     /**
@@ -1226,15 +1229,18 @@ class ToolController extends BaseController
             $this->redirect('/tools/' . $toolId . '/edit');
         }
 
-        $filename = $this->moveToolImage($_FILES['photo']);
+        $result = $this->moveToolImage($_FILES['photo']);
 
-        if ($filename === null) {
+        if ($result === null) {
             if ($json) {
                 $this->jsonResponse(500, ['error' => 'Failed to save image']);
             }
             $_SESSION['edit_tool_errors'] = ['photos' => 'Failed to save image'];
             $this->redirect('/tools/' . $toolId . '/edit');
         }
+
+        $filename = $result['filename'];
+        $width    = $result['width'];
 
         $altText   = isset($_POST['alt_text']) ? mb_substr(trim($_POST['alt_text']), 0, 255) : null;
         $altText   = $altText !== '' ? $altText : null;
@@ -1245,7 +1251,7 @@ class ToolController extends BaseController
         $focalY = isset($_POST['focal_y']) ? max(0, min(100, (int) $_POST['focal_y'])) : 50;
 
         try {
-            $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder, $focalX, $focalY);
+            $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder, $focalX, $focalY, $width);
 
             if ($json) {
                 $this->jsonResponse(200, [
@@ -1256,6 +1262,7 @@ class ToolController extends BaseController
                     'is_primary' => $isPrimary,
                     'focal_x'    => $focalX,
                     'focal_y'    => $focalY,
+                    'width'      => $width,
                 ]);
             }
 

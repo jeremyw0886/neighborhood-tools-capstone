@@ -878,7 +878,7 @@ class Tool
      * @param  array{tool_name: string, description: ?string, rental_fee: float,
      *               owner_id: int, category_id: int, condition: string,
      *               loan_duration: ?int,
-     *               image_filenames: array<array{filename: string, alt_text: ?string}>} $data
+     *               image_filenames: array<array{filename: string, alt_text: ?string, width: ?int}>} $data
      * @return int  The new tool's primary key (id_tol)
      */
     public static function create(array $data): int
@@ -947,18 +947,20 @@ class Tool
             if ($images !== []) {
                 $imgStmt = $pdo->prepare("
                     INSERT INTO tool_image_tim
-                        (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim)
-                    VALUES (:tool, :filename, :altText, :isPrimary, :sortOrder)
+                        (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim, width_tim)
+                    VALUES (:tool, :filename, :altText, :isPrimary, :sortOrder, :width)
                 ");
 
                 foreach ($images as $i => $img) {
                     $altText = $img['alt_text'] ?? null;
+                    $width   = $img['width'] ?? null;
 
                     $imgStmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
                     $imgStmt->bindValue(':filename', $img['filename'], PDO::PARAM_STR);
                     $imgStmt->bindValue(':altText', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
                     $imgStmt->bindValue(':isPrimary', $i === 0, PDO::PARAM_BOOL);
                     $imgStmt->bindValue(':sortOrder', $i + 1, PDO::PARAM_INT);
+                    $imgStmt->bindValue(':width', $width, $width !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
                     $imgStmt->execute();
                 }
             }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\ImageProcessor;
 use App\Models\AvailabilityBlock;
 use App\Models\Bookmark;
 use App\Models\SearchLog;
@@ -929,62 +930,17 @@ class ToolController extends BaseController
             return null;
         }
 
-        $this->resizeImage($destination, 750);
+        ImageProcessor::resize($destination, 750);
         $cardVariant = preg_replace('/\.(\w+)$/', '-400w.$1', $destination);
         copy($destination, $cardVariant);
-        $this->resizeImage($cardVariant, 400);
+        ImageProcessor::resize($cardVariant, 400);
 
         if ($ext !== 'webp') {
-            $this->createWebpVariant($destination);
-            $this->createWebpVariant($cardVariant);
+            ImageProcessor::createWebpVariant($destination);
+            ImageProcessor::createWebpVariant($cardVariant);
         }
 
         return $filename;
-    }
-
-    /**
-     * Resize an image file in-place to a maximum width.
-     *
-     * @param non-empty-string $path Absolute path to the image file
-     */
-    private function resizeImage(string $path, int $maxWidth): void
-    {
-        [$origW, $origH, $type] = getimagesize($path);
-
-        if ($origW <= $maxWidth) {
-            return;
-        }
-
-        $newW = $maxWidth;
-        $newH = (int) round($origH * ($maxWidth / $origW));
-
-        $source = match ($type) {
-            IMAGETYPE_JPEG => imagecreatefromjpeg($path),
-            IMAGETYPE_PNG  => imagecreatefrompng($path),
-            IMAGETYPE_WEBP => imagecreatefromwebp($path),
-            default        => null,
-        };
-
-        if ($source === null) {
-            return;
-        }
-
-        $canvas = imagecreatetruecolor($newW, $newH);
-
-        if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
-            imagealphablending($canvas, false);
-            imagesavealpha($canvas, true);
-            $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-            imagefill($canvas, 0, 0, $transparent);
-        }
-
-        imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
-
-        match ($type) {
-            IMAGETYPE_JPEG => imagejpeg($canvas, $path, 82),
-            IMAGETYPE_PNG  => imagepng($canvas, $path, 6),
-            IMAGETYPE_WEBP => imagewebp($canvas, $path, 82),
-        };
     }
 
     /**

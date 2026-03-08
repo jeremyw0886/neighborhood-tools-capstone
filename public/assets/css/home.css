@@ -9,11 +9,11 @@
   /* ── Home page body override ── */
   body:has(.home-page) {
     background: linear-gradient(180deg, var(--mountain-fog) 0%, var(--mountain-cloud) 100%);
+    grid-template-rows: 1fr auto;
   }
 
   /* ── Home wrapper ── */
   .home-page {
-    grid-row: span 2;
     margin: 0 auto;
     max-width: 1400px;
     text-align: center;
@@ -835,8 +835,11 @@
     .home-page > header > section {
       border-radius: 0;
       flex: none;
+      margin-left: 0;
+      margin-top: -1px;
       max-height: none;
       max-width: 100%;
+      padding: 1px 1.5rem 2rem;
       width: 100%;
     }
 

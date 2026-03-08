@@ -1390,6 +1390,7 @@ class Tool
         int $sortOrder,
         int $focalX = 50,
         int $focalY = 50,
+        ?int $width = null,
     ): int {
         $pdo = Database::connection();
         $pdo->beginTransaction();
@@ -1407,8 +1408,8 @@ class Tool
 
             $stmt = $pdo->prepare("
                 INSERT INTO tool_image_tim
-                    (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim, focal_x_tim, focal_y_tim)
-                VALUES (:toolId, :filename, :altText, :isPrimary, :sortOrder, :focalX, :focalY)
+                    (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim, focal_x_tim, focal_y_tim, width_tim)
+                VALUES (:toolId, :filename, :altText, :isPrimary, :sortOrder, :focalX, :focalY, :width)
             ");
             $stmt->bindValue(':toolId', $toolId, PDO::PARAM_INT);
             $stmt->bindValue(':filename', $filename, PDO::PARAM_STR);
@@ -1417,6 +1418,7 @@ class Tool
             $stmt->bindValue(':sortOrder', $sortOrder, PDO::PARAM_INT);
             $stmt->bindValue(':focalX', $focalX, PDO::PARAM_INT);
             $stmt->bindValue(':focalY', $focalY, PDO::PARAM_INT);
+            $stmt->bindValue(':width', $width, $width !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
             $stmt->execute();
 
             $imageId = (int) $pdo->lastInsertId();

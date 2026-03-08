@@ -687,7 +687,7 @@
           btn.setAttribute('data-visible', '');
         }
       },
-      { rootMargin: '-300px 0px 0px 0px' }
+      { rootMargin: '0px' }
     );
     observer.observe(sentinel);
 

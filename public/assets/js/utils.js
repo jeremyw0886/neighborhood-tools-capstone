@@ -595,6 +595,41 @@
     });
   }
 
+  // ─── Scroll-to-Top Button ───────────────────────────────────────────
+
+  function initScrollToTop() {
+    const main = document.getElementById('main-content');
+    if (!main) return;
+
+    const sentinel = document.createElement('div');
+    sentinel.setAttribute('aria-hidden', 'true');
+    setRule('scroll-sentinel', '#scroll-sentinel', 'height:1px;margin:0;padding:0;border:0');
+    sentinel.id = 'scroll-sentinel';
+    main.prepend(sentinel);
+
+    const btn = document.createElement('button');
+    btn.id = 'scroll-top';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Scroll to top');
+    document.body.appendChild(btn);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          btn.removeAttribute('data-visible');
+        } else {
+          btn.setAttribute('data-visible', '');
+        }
+      },
+      { rootMargin: '-300px 0px 0px 0px' }
+    );
+    observer.observe(sentinel);
+
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   // ─── Namespace ─────────────────────────────────────────────────────
 
   window.NT = Object.freeze({
@@ -619,6 +654,7 @@
     initFormValidation();
     initDoubleSubmitGuard();
     applyFocalPoints();
+    initScrollToTop();
   });
 
 })();

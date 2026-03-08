@@ -1914,6 +1914,62 @@
     button[aria-busy="true"]::after { animation: none; }
     [aria-busy="true"] { transition: none; }
     .fade-out { transition: none; }
+    #scroll-top { transition: none; }
+  }
+
+  /* --- Scroll-to-Top Button -------------------------------- */
+
+  #scroll-top {
+    align-items: center;
+    background: var(--mountain-pine-light);
+    border: 2px solid transparent;
+    border-radius: 50%;
+    bottom: 2rem;
+    color: var(--mountain-cream);
+    cursor: pointer;
+    display: flex;
+    font-size: 1.125rem;
+    gap: 0;
+    height: 2.75rem;
+    justify-content: center;
+    min-height: 0;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
+    position: fixed;
+    right: 2rem;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+    width: 2.75rem;
+    z-index: 900;
+
+    &[data-visible] {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    &:hover {
+      background: var(--mountain-pine);
+      transform: translateY(-2px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--mountain-gold);
+      outline-offset: 2px;
+    }
+
+    &::before {
+      border-left: 2.5px solid var(--mountain-cream);
+      border-top: 2.5px solid var(--mountain-cream);
+      content: '';
+      display: block;
+      height: 0.5rem;
+      transform: translateY(2px) rotate(45deg);
+      width: 0.5rem;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
   /* --- Heading Icons ---------------------------------------- */

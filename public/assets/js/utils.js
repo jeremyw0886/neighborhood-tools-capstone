@@ -352,6 +352,72 @@
     }
   }
 
+  // ─── Focus Management ──────────────────────────────────────────────
+
+  const FOCUSABLE = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(',');
+
+  /**
+   * Trap keyboard focus within a container.
+   *
+   * @param {HTMLElement} container
+   * @returns {() => void} release function
+   */
+  function trapFocus(container) {
+    const handler = (e) => {
+      if (e.key !== 'Tab') return;
+
+      const focusable = [...container.querySelectorAll(FOCUSABLE)]
+        .filter(el => el.offsetParent !== null);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    container.addEventListener('keydown', handler);
+    return () => container.removeEventListener('keydown', handler);
+  }
+
+  /**
+   * Announce a message to screen readers via a shared live region.
+   *
+   * @param {string} message
+   * @param {'polite'|'assertive'} priority
+   */
+  let announceRegion = null;
+
+  function announce(message, priority = 'polite') {
+    if (!announceRegion) {
+      announceRegion = document.createElement('div');
+      announceRegion.className = 'visually-hidden';
+      announceRegion.setAttribute('aria-live', 'polite');
+      announceRegion.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(announceRegion);
+    }
+
+    announceRegion.setAttribute('aria-live', priority);
+    announceRegion.textContent = '';
+
+    requestAnimationFrame(() => {
+      announceRegion.textContent = message;
+    });
+  }
+
   // ─── Non-Blocking Confirm Dialog ───────────────────────────────────
 
   /**
@@ -638,6 +704,7 @@
     confirm: ntConfirm,
     style: Object.freeze({ setRule, removeRule }),
     applyFocalPoints,
+    focus: Object.freeze({ trap: trapFocus, announce }),
     form: Object.freeze({
       trackDirty,
       charCounter,

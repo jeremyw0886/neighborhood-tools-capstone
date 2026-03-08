@@ -38,11 +38,14 @@
 
     const authSection = document.getElementById('user-actions');
     const authMenu = document.getElementById('user-actions-menu');
+    let releaseTrap = null;
 
     const open = () => {
       menu.classList.add('open');
       toggle.setAttribute('aria-expanded', 'true');
       document.body.classList.add('menu-open');
+
+      if (window.NT) releaseTrap = NT.focus.trap(menu);
 
       const firstLink = menu.querySelector('a');
       firstLink?.focus();
@@ -52,6 +55,11 @@
       menu.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('menu-open');
+
+      if (releaseTrap) {
+        releaseTrap();
+        releaseTrap = null;
+      }
 
       if (returnFocus) toggle.focus();
     };
@@ -599,22 +607,17 @@
       }
     });
 
-    // Live region for badge count announcements
-    const liveRegion = document.createElement('div');
-    liveRegion.setAttribute('aria-live', 'polite');
-    liveRegion.setAttribute('aria-atomic', 'true');
-    liveRegion.className = 'visually-hidden';
-    wrapper.appendChild(liveRegion);
-
     let lastAnnouncedCount = -1;
 
     const announceBadge = (count) => {
-      if (count === lastAnnouncedCount) return;
+      if (count === lastAnnouncedCount || !window.NT) return;
       lastAnnouncedCount = count;
 
-      liveRegion.textContent = count > 0
-        ? `${count} unread notification${count !== 1 ? 's' : ''}`
-        : 'No unread notifications';
+      NT.focus.announce(
+        count > 0
+          ? `${count} unread notification${count !== 1 ? 's' : ''}`
+          : 'No unread notifications'
+      );
     };
 
     // Re-fetch when badge polling updates the count

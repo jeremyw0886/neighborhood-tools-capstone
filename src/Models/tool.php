@@ -90,6 +90,7 @@ class Tool
                     av.is_deposit_required_tol,
                     av.default_deposit_amount_tol,
                     av.primary_image,
+                    av.primary_width,
                     COALESCE(rs.avg_rating, 0) AS avg_rating,
                     av.owner_name,
                     aim.file_name_aim AS owner_avatar,
@@ -140,7 +141,7 @@ class Tool
             SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
                    tool_condition, is_deposit_required_tol,
                    default_deposit_amount_tol, primary_image,
-                   avg_rating, rating_count, owner_name,
+                   primary_width, avg_rating, rating_count, owner_name,
                    owner_avatar, owner_vector_avatar
             FROM diversity
             WHERE owner_rank <= {$maxPerOwner}
@@ -191,6 +192,7 @@ class Tool
                     av.is_deposit_required_tol,
                     av.default_deposit_amount_tol,
                     av.primary_image,
+                    av.primary_width,
                     0 AS avg_rating,
                     0 AS rating_count,
                     av.owner_name,
@@ -218,7 +220,7 @@ class Tool
             SELECT id_tol, owner_id, tool_name_tol, rental_fee_tol,
                    tool_condition, is_deposit_required_tol,
                    default_deposit_amount_tol, primary_image,
-                   avg_rating, rating_count, owner_name,
+                   primary_width, avg_rating, rating_count, owner_name,
                    owner_avatar, owner_vector_avatar
             FROM unrated
             WHERE owner_rank <= 1
@@ -311,6 +313,7 @@ class Tool
                 aim.file_name_aim AS owner_avatar,
                 avv.file_name_avv AS owner_vector_avatar,
                 tim.file_name_tim AS primary_image,
+                tim.width_tim AS primary_width,
                 t.created_at_tol,
                 (SELECT COALESCE(AVG(trt.score_trt), 0)
                    FROM tool_rating_trt trt
@@ -467,6 +470,7 @@ class Tool
                 aim.file_name_aim AS owner_avatar,
                 avv.file_name_avv AS owner_vector_avatar,
                 tim.file_name_tim AS primary_image,
+                tim.width_tim AS primary_width,
                 t.created_at_tol,
                 (SELECT COALESCE(AVG(trt.score_trt), 0)
                    FROM tool_rating_trt trt
@@ -806,6 +810,7 @@ class Tool
                 td.owner_id,
                 td.tool_name_tol,
                 td.primary_image,
+                td.primary_width,
                 td.avg_rating,
                 td.rating_count,
                 td.availability_status,
@@ -1360,7 +1365,7 @@ class Tool
         $stmt = $pdo->prepare("
             SELECT id_tim, id_tol_tim, file_name_tim, alt_text_tim,
                    is_primary_tim, sort_order_tim, focal_x_tim, focal_y_tim,
-                   uploaded_at_tim
+                   width_tim, uploaded_at_tim
             FROM tool_image_tim
             WHERE id_tol_tim = :toolId
             ORDER BY sort_order_tim ASC, id_tim ASC

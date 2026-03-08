@@ -945,18 +945,33 @@ class ToolController extends BaseController
     }
 
     /**
-     * Delete a tool image and its 400w card variant from disk.
+     * Delete a tool image and all size/format variants from disk.
      */
     private function deleteToolImageFiles(string $filename): void
     {
-        $base = BASE_PATH . '/public/uploads/tools/' . $filename;
-        $card = preg_replace('/\.(\w+)$/', '-400w.$1', $base);
-        $baseWebp = preg_replace('/\.\w+$/', '.webp', $base);
-        $cardWebp = preg_replace('/\.\w+$/', '.webp', $card);
+        $dir  = BASE_PATH . '/public/uploads/tools/';
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext  = pathinfo($filename, PATHINFO_EXTENSION);
+        $isWebp = strtolower($ext) === 'webp';
 
-        foreach ([$base, $card, $baseWebp, $cardWebp] as $path) {
+        $variants = [
+            $filename,
+            "{$name}-1200w.{$ext}",
+            "{$name}-800w.{$ext}",
+            "{$name}-400w.{$ext}",
+        ];
+
+        foreach ($variants as $variant) {
+            $path = $dir . $variant;
             if (file_exists($path)) {
                 unlink($path);
+            }
+
+            if (!$isWebp) {
+                $webp = preg_replace('/\.\w+$/', '.webp', $path);
+                if (file_exists($webp)) {
+                    unlink($webp);
+                }
             }
         }
     }

@@ -1554,12 +1554,15 @@
     padding: 0;
 
     &>legend {
+      border-bottom: none;
       color: var(--mountain-pine);
+      float: none;
       font-size: 0.813rem;
       font-weight: 700;
       letter-spacing: 0.05em;
       margin-bottom: 0.75rem;
       text-transform: uppercase;
+      width: auto;
     }
   }
 
@@ -2036,6 +2039,18 @@
 
   fieldset textarea {
     resize: vertical;
+  }
+
+  fieldset > legend {
+    border-bottom: 1px solid var(--mountain-fog);
+    float: left;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  fieldset > legend + * {
+    clear: both;
   }
 
   fieldset label {

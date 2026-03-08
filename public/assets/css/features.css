@@ -171,7 +171,6 @@
           font-size: 0.813rem;
           font-weight: 600;
           letter-spacing: 0.02em;
-          padding: 0 0.5rem;
           text-transform: uppercase;
         }
 
@@ -656,7 +655,6 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding: 0 0.5rem;
         }
 
         &>div {
@@ -894,7 +892,6 @@
             color: var(--mountain-pine);
             font-size: 1rem;
             font-weight: 600;
-            padding: 0 0.5rem;
           }
 
           &>div {
@@ -1382,7 +1379,6 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding: 0 0.5rem;
         }
 
         &>div {
@@ -1757,7 +1753,6 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding: 0 0.5rem;
         }
 
         &>div {
@@ -2061,7 +2056,6 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding: 0 0.5rem;
         }
 
         &>label {
@@ -2293,7 +2287,6 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding: 0 0.5rem;
         }
 
         &>label {
@@ -2424,7 +2417,6 @@
           color: var(--mountain-pine);
           font-size: 1.125rem;
           font-weight: 600;
-          padding: 0 0.5rem;
         }
 
         &>p[data-field-error] {

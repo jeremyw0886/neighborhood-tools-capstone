@@ -944,38 +944,6 @@ class ToolController extends BaseController
     }
 
     /**
-     * Create a WebP variant of an image file.
-     *
-     * @param non-empty-string $path Absolute path to the source image
-     */
-    private function createWebpVariant(string $path): void
-    {
-        $info = getimagesize($path);
-        if ($info === false) {
-            return;
-        }
-
-        $source = match ($info[2]) {
-            IMAGETYPE_JPEG => imagecreatefromjpeg($path),
-            IMAGETYPE_PNG  => imagecreatefrompng($path),
-            default        => null,
-        };
-
-        if ($source === null) {
-            return;
-        }
-
-        $webpPath = preg_replace('/\.\w+$/', '.webp', $path);
-
-        if ($info[2] === IMAGETYPE_PNG) {
-            imagealphablending($source, true);
-            imagesavealpha($source, true);
-        }
-
-        imagewebp($source, $webpPath, 65);
-    }
-
-    /**
      * Delete a tool image and its 400w card variant from disk.
      */
     private function deleteToolImageFiles(string $filename): void

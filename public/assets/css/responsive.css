@@ -85,6 +85,11 @@
       justify-content: center;
       min-height: 2.75rem;
       min-width: 2.75rem;
+
+      &>span {
+        right: 0.0625rem;
+        top: 0.1875rem;
+      }
     }
 
     nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>#bell-dropdown {

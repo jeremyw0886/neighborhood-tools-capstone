@@ -932,9 +932,14 @@ class ToolController extends BaseController
         }
 
         ImageProcessor::resize($destination, 1600);
-        ImageProcessor::generateVariants($destination, [1200, 800, 400]);
 
         $width = ImageProcessor::getIntrinsicWidth($destination);
+        $created = ImageProcessor::generateVariants($destination, [1200, 800, 400]);
+
+        if ($created === [] && $width !== null && $width > 400) {
+            unlink($destination);
+            return null;
+        }
 
         return ['filename' => $filename, 'width' => $width];
     }

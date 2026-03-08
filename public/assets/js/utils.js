@@ -696,6 +696,43 @@
     });
   }
 
+  // ─── Lazy Image Fade-In ─────────────────────────────────────────────
+
+  function observeLazyImage(img) {
+    if (img.dataset.loaded !== undefined) return;
+
+    if (img.complete) {
+      img.dataset.loaded = '';
+    } else {
+      img.addEventListener('load', () => { img.dataset.loaded = ''; }, { once: true });
+      img.addEventListener('error', () => { img.dataset.loaded = ''; }, { once: true });
+    }
+  }
+
+  function initLazyFadeIn() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    for (const img of document.querySelectorAll('img[loading="lazy"]')) {
+      observeLazyImage(img);
+    }
+
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+
+          if (node.matches('img[loading="lazy"]')) {
+            observeLazyImage(node);
+          } else {
+            for (const img of node.querySelectorAll('img[loading="lazy"]')) {
+              observeLazyImage(img);
+            }
+          }
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
   // ─── Namespace ─────────────────────────────────────────────────────
 
   window.NT = Object.freeze({
@@ -722,6 +759,7 @@
     initDoubleSubmitGuard();
     applyFocalPoints();
     initScrollToTop();
+    initLazyFadeIn();
   });
 
 })();

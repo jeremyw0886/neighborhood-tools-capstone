@@ -1337,6 +1337,7 @@
 
   const mainFigure = document.getElementById('gallery-main');
   const mainImg = document.getElementById('gallery-main-img');
+  const mainSource = document.getElementById('gallery-main-source');
   const thumbList = document.getElementById('gallery-thumbs');
   const lightbox = document.getElementById('gallery-lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
@@ -1361,6 +1362,17 @@
       mainImg.src = btn.dataset.full;
       mainImg.srcset = btn.dataset.srcset || '';
       mainImg.alt = btn.dataset.alt || '';
+
+      if (mainSource) {
+        const webpSrcset = btn.dataset.srcsetWebp;
+        if (webpSrcset) {
+          mainSource.srcset = webpSrcset;
+          mainSource.hidden = false;
+        } else {
+          mainSource.srcset = '';
+          mainSource.hidden = true;
+        }
+      }
 
       const fx = btn.dataset.focalX ?? '50';
       const fy = btn.dataset.focalY ?? '50';

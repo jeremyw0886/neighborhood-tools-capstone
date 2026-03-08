@@ -9,16 +9,27 @@
     <?php if (!empty($tool['primary_image'])):
       $imgFile = htmlspecialchars($tool['primary_image']);
       $imgSmall = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image']));
+      $isWebp = str_ends_with($tool['primary_image'], '.webp');
+      $webpFile = $isWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', $tool['primary_image']));
+      $webpSmall = $isWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image'])));
       $focalX = (int) ($tool['primary_focal_x'] ?? 50);
       $focalY = (int) ($tool['primary_focal_y'] ?? 50);
       $focalAttrs = ($focalX !== 50 || $focalY !== 50) ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '';
+      $sizes = '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 4.5rem), (max-width: 1248px) calc(25vw - 3rem), 270px';
     ?>
-      <img src="/uploads/tools/<?= $imgSmall ?>"
-           srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 800w"
-           sizes="(max-width: 600px) calc(100vw - 3rem), (max-width: 640px) 47vw, 220px"
-           alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-           width="400" height="268"
-           <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $focalAttrs ?>>
+      <picture>
+        <?php if (!$isWebp): ?>
+          <source type="image/webp"
+                  srcset="/uploads/tools/<?= $webpSmall ?> 400w, /uploads/tools/<?= $webpFile ?> 750w"
+                  sizes="<?= $sizes ?>">
+        <?php endif; ?>
+        <img src="/uploads/tools/<?= $imgSmall ?>"
+             srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 750w"
+             sizes="<?= $sizes ?>"
+             alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
+             width="400" height="268"
+             <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $focalAttrs ?>>
+      </picture>
     <?php else: ?>
       <img src="/assets/images/tool-placeholder.svg"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"

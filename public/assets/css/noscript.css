@@ -1,4 +1,8 @@
 @layer components {
+  img[loading="lazy"] {
+    opacity: 1;
+  }
+
   @media (max-width: 800px) {
     nav[aria-label="Main navigation"]>#top-links {
       clip-path: none;

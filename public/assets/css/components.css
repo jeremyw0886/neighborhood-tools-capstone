@@ -2385,6 +2385,17 @@
     }
   }
 
+  /* --- Lazy Image Fade-In -------------------------------- */
+
+  img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+
+    &[data-loaded] {
+      opacity: 1;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     nav[aria-label="Back"]>a {
       transition: none;
@@ -2406,6 +2417,11 @@
     #error-fog {
       animation: none;
       opacity: 0.4;
+    }
+
+    img[loading="lazy"] {
+      opacity: 1;
+      transition: none;
     }
   }
 

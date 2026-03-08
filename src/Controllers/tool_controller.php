@@ -906,8 +906,9 @@ class ToolController extends BaseController
     /**
      * Move a validated tool image to the uploads directory.
      *
-     * Generates a unique filename, resizes to 800w max, and creates a
-     * 400w card variant. Returns the filename on success, null on failure.
+     * Generates a unique filename, resizes to 800w max, creates a
+     * 400w card variant, and generates WebP versions of both.
+     * Returns the filename on success, null on failure.
      */
     private function moveToolImage(array $file): ?string
     {
@@ -928,10 +929,15 @@ class ToolController extends BaseController
             return null;
         }
 
-        $this->resizeImage($destination, 800);
+        $this->resizeImage($destination, 750);
         $cardVariant = preg_replace('/\.(\w+)$/', '-400w.$1', $destination);
         copy($destination, $cardVariant);
         $this->resizeImage($cardVariant, 400);
+
+        if ($ext !== 'webp') {
+            $this->createWebpVariant($destination);
+            $this->createWebpVariant($cardVariant);
+        }
 
         return $filename;
     }
@@ -982,18 +988,51 @@ class ToolController extends BaseController
     }
 
     /**
+     * Create a WebP variant of an image file.
+     *
+     * @param non-empty-string $path Absolute path to the source image
+     */
+    private function createWebpVariant(string $path): void
+    {
+        $info = getimagesize($path);
+        if ($info === false) {
+            return;
+        }
+
+        $source = match ($info[2]) {
+            IMAGETYPE_JPEG => imagecreatefromjpeg($path),
+            IMAGETYPE_PNG  => imagecreatefrompng($path),
+            default        => null,
+        };
+
+        if ($source === null) {
+            return;
+        }
+
+        $webpPath = preg_replace('/\.\w+$/', '.webp', $path);
+
+        if ($info[2] === IMAGETYPE_PNG) {
+            imagealphablending($source, true);
+            imagesavealpha($source, true);
+        }
+
+        imagewebp($source, $webpPath, 65);
+    }
+
+    /**
      * Delete a tool image and its 400w card variant from disk.
      */
     private function deleteToolImageFiles(string $filename): void
     {
         $base = BASE_PATH . '/public/uploads/tools/' . $filename;
         $card = preg_replace('/\.(\w+)$/', '-400w.$1', $base);
+        $baseWebp = preg_replace('/\.\w+$/', '.webp', $base);
+        $cardWebp = preg_replace('/\.\w+$/', '.webp', $card);
 
-        if (file_exists($base)) {
-            unlink($base);
-        }
-        if (file_exists($card)) {
-            unlink($card);
+        foreach ([$base, $card, $baseWebp, $cardWebp] as $path) {
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
     }
 

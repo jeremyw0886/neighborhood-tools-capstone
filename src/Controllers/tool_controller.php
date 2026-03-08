@@ -932,14 +932,7 @@ class ToolController extends BaseController
         }
 
         ImageProcessor::resize($destination, 1600);
-        $cardVariant = preg_replace('/\.(\w+)$/', '-400w.$1', $destination);
-        copy($destination, $cardVariant);
-        ImageProcessor::resize($cardVariant, 400);
-
-        if ($ext !== 'webp') {
-            ImageProcessor::createWebpVariant($destination);
-            ImageProcessor::createWebpVariant($cardVariant);
-        }
+        ImageProcessor::generateVariants($destination, [1200, 800, 400]);
 
         $width = ImageProcessor::getIntrinsicWidth($destination);
 

@@ -1061,7 +1061,8 @@ class Tool
 
         $stmt = $pdo->prepare("
             UPDATE tool_tol
-            SET is_available_tol = FALSE
+            SET is_deleted_tol = TRUE,
+                is_available_tol = FALSE
             WHERE id_tol = :id
         ");
 

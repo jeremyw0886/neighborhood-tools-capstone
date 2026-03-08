@@ -304,4 +304,15 @@ $images            ??= [];
     <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
   </button>
 
+  <fieldset>
+    <legend>Danger Zone</legend>
+    <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/delete" id="delete-tool-form">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <p>Permanently remove this tool listing and all its images.</p>
+      <button type="submit" data-intent="danger">
+        <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete Tool
+      </button>
+    </form>
+  </fieldset>
+
 </section>

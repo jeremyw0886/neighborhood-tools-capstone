@@ -248,6 +248,35 @@ final class ImageProcessor
     }
 
     /**
+     * Build srcset and WebP srcset strings from variant data.
+     *
+     * @param array<int, array{file: string, webp?: string}> $variants
+     * @param string $urlPrefix URL path prefix (e.g., "/uploads/tools/")
+     * @return array{srcset: string, webpSrcset: string}
+     */
+    public static function buildSrcset(
+        array $variants,
+        string $urlPrefix = '/uploads/tools/',
+    ): array {
+        ksort($variants);
+
+        $srcsetParts = [];
+        $webpParts   = [];
+
+        foreach ($variants as $width => $v) {
+            $srcsetParts[] = $urlPrefix . $v['file'] . ' ' . $width . 'w';
+            if (isset($v['webp'])) {
+                $webpParts[] = $urlPrefix . $v['webp'] . ' ' . $width . 'w';
+            }
+        }
+
+        return [
+            'srcset'     => implode(', ', $srcsetParts),
+            'webpSrcset' => implode(', ', $webpParts),
+        ];
+    }
+
+    /**
      * Delete all variant files for a given image filename.
      *
      * @param string $filename  Base filename (e.g., "tool_xxx.jpg")

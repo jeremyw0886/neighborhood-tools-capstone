@@ -1066,12 +1066,69 @@ class Tool
         $stmt = $pdo->prepare("
             UPDATE tool_tol
             SET is_deleted_tol = TRUE,
-                is_available_tol = FALSE
+                is_available_tol = FALSE,
+                deleted_at_tol = NOW()
             WHERE id_tol = :id
         ");
 
         $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
         $stmt->execute();
+    }
+
+    /**
+     * Find tools soft-deleted at least $days ago with images still on disk.
+     *
+     * @param  int  $days  Minimum age in days since deletion
+     * @return array<int, array{id_tol: int, tool_name_tol: string}>
+     */
+    public static function getStaleDeleted(int $days): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT t.id_tol, t.tool_name_tol
+            FROM tool_tol t
+            INNER JOIN tool_image_tim ti ON ti.id_tol_tim = t.id_tol
+            WHERE t.is_deleted_tol = TRUE
+              AND t.deleted_at_tol <= NOW() - INTERVAL :days DAY
+        ");
+
+        $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Delete all image rows for a tool.
+     *
+     * @param  int  $toolId  Tool primary key
+     * @return array<string>  Filenames that were removed from DB
+     */
+    public static function deleteAllImages(int $toolId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT file_name_tim FROM tool_image_tim
+            WHERE id_tol_tim = :id
+        ");
+        $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $filenames = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        if ($filenames === []) {
+            return [];
+        }
+
+        $stmt = $pdo->prepare("
+            DELETE FROM tool_image_tim WHERE id_tol_tim = :id
+        ");
+        $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $filenames;
     }
 
     /**

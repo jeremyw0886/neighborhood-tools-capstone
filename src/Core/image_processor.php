@@ -188,4 +188,39 @@ final class ImageProcessor
         $size = getimagesize($path);
         return $size !== false ? $size[0] : null;
     }
+
+    /**
+     * Delete all variant files for a given image filename.
+     *
+     * @param string $filename  Base filename (e.g., "tool_xxx.jpg")
+     * @param string $uploadDir Subdirectory under public/uploads/
+     */
+    public static function deleteVariants(string $filename, string $uploadDir = 'tools'): void
+    {
+        $dir  = BASE_PATH . '/public/uploads/' . $uploadDir . '/';
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext  = pathinfo($filename, PATHINFO_EXTENSION);
+        $isWebp = strtolower($ext) === 'webp';
+
+        $variants = [
+            $filename,
+            "{$name}-1200w.{$ext}",
+            "{$name}-800w.{$ext}",
+            "{$name}-400w.{$ext}",
+        ];
+
+        foreach ($variants as $variant) {
+            $path = $dir . $variant;
+            if (file_exists($path)) {
+                unlink($path);
+            }
+
+            if (!$isWebp) {
+                $webp = preg_replace('/\.\w+$/', '.webp', $path);
+                if (file_exists($webp)) {
+                    unlink($webp);
+                }
+            }
+        }
+    }
 }

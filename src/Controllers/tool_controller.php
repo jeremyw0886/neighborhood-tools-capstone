@@ -960,31 +960,7 @@ class ToolController extends BaseController
      */
     private function deleteToolImageFiles(string $filename): void
     {
-        $dir  = BASE_PATH . '/public/uploads/tools/';
-        $name = pathinfo($filename, PATHINFO_FILENAME);
-        $ext  = pathinfo($filename, PATHINFO_EXTENSION);
-        $isWebp = strtolower($ext) === 'webp';
-
-        $variants = [
-            $filename,
-            "{$name}-1200w.{$ext}",
-            "{$name}-800w.{$ext}",
-            "{$name}-400w.{$ext}",
-        ];
-
-        foreach ($variants as $variant) {
-            $path = $dir . $variant;
-            if (file_exists($path)) {
-                unlink($path);
-            }
-
-            if (!$isWebp) {
-                $webp = preg_replace('/\.\w+$/', '.webp', $path);
-                if (file_exists($webp)) {
-                    unlink($webp);
-                }
-            }
-        }
+        ImageProcessor::deleteVariants($filename);
     }
 
     /**

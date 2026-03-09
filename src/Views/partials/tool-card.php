@@ -7,27 +7,30 @@
   data-deposit="<?= !empty($tool['is_deposit_required_tol']) ? number_format((float) ($tool['default_deposit_amount_tol'] ?? 0), 2) : '' ?>">
   <figure>
     <?php if (!empty($tool['primary_image'])):
-      $imgFile = htmlspecialchars($tool['primary_image']);
-      $imgSmall = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image']));
+      $variants = \App\Core\ImageProcessor::getAvailableVariants(
+          $tool['primary_image'],
+          $tool['primary_width'] ?? null,
+          [400, 800],
+      );
+      $srcsets = \App\Core\ImageProcessor::buildSrcset($variants);
       $isWebp = str_ends_with($tool['primary_image'], '.webp');
-      $webpFile = $isWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', $tool['primary_image']));
-      $webpSmall = $isWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', preg_replace('/\.(\w+)$/', '-400w.$1', $tool['primary_image'])));
+      $fallbackFile = $variants[array_key_first($variants)]['file'] ?? $tool['primary_image'];
       $focalX = (int) ($tool['primary_focal_x'] ?? 50);
       $focalY = (int) ($tool['primary_focal_y'] ?? 50);
       $focalAttrs = ($focalX !== 50 || $focalY !== 50) ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '';
-      $sizes = '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 4.5rem), (max-width: 1248px) calc(25vw - 3rem), 270px';
+      $sizes = '(max-width: 400px) calc(50vw - 1.25rem), (max-width: 600px) calc(100vw - 2rem), (max-width: 700px) calc(50vw - 2rem), 270px';
     ?>
       <picture>
-        <?php if (!$isWebp): ?>
+        <?php if (!$isWebp && $srcsets['webpSrcset'] !== ''): ?>
           <source type="image/webp"
-                  srcset="/uploads/tools/<?= $webpSmall ?> 400w, /uploads/tools/<?= $webpFile ?> 750w"
+                  srcset="<?= $srcsets['webpSrcset'] ?>"
                   sizes="<?= $sizes ?>">
         <?php endif; ?>
-        <img src="/uploads/tools/<?= $imgSmall ?>"
-             srcset="/uploads/tools/<?= $imgSmall ?> 400w, /uploads/tools/<?= $imgFile ?> 750w"
+        <img src="/uploads/tools/<?= htmlspecialchars($fallbackFile) ?>"
+             srcset="<?= $srcsets['srcset'] ?>"
              sizes="<?= $sizes ?>"
              alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-             width="400" height="268"
+             width="400" height="300"
              <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $focalAttrs ?>>
       </picture>
     <?php else: ?>

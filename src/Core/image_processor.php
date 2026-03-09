@@ -190,6 +190,64 @@ final class ImageProcessor
     }
 
     /**
+     * Build srcset data from variants that exist on disk.
+     *
+     * @param string $filename  Base image filename (e.g., "tool_xxx.jpg")
+     * @param ?int   $fullWidth Intrinsic width from DB (null = measure from file)
+     * @param int[]  $widths    Variant widths to check
+     * @param string $uploadDir Subdirectory under public/uploads/
+     * @return array<int, array{file: string, webp?: string}> Keyed by actual width
+     */
+    public static function getAvailableVariants(
+        string $filename,
+        ?int $fullWidth = null,
+        array $widths = [400, 800, 1200],
+        string $uploadDir = 'tools',
+    ): array {
+        $name  = pathinfo($filename, PATHINFO_FILENAME);
+        $ext   = pathinfo($filename, PATHINFO_EXTENSION);
+        $base  = BASE_PATH . '/public/uploads/' . $uploadDir . '/';
+        $isWebp = strtolower($ext) === 'webp';
+
+        $variants = [];
+
+        foreach ($widths as $w) {
+            $variantFile = "{$name}-{$w}w.{$ext}";
+            if (file_exists($base . $variantFile)) {
+                $entry = ['file' => $variantFile];
+                if (!$isWebp) {
+                    $webpFile = "{$name}-{$w}w.webp";
+                    if (file_exists($base . $webpFile)) {
+                        $entry['webp'] = $webpFile;
+                    }
+                }
+                $variants[$w] = $entry;
+            }
+        }
+
+        if ($fullWidth === null) {
+            $fullPath = $base . $filename;
+            if (file_exists($fullPath)) {
+                $size = getimagesize($fullPath);
+                $fullWidth = $size !== false ? $size[0] : null;
+            }
+        }
+
+        if ($fullWidth !== null) {
+            $entry = ['file' => $filename];
+            if (!$isWebp) {
+                $webpFull = "{$name}.webp";
+                if (file_exists($base . $webpFull)) {
+                    $entry['webp'] = $webpFull;
+                }
+            }
+            $variants[$fullWidth] = $entry;
+        }
+
+        return $variants;
+    }
+
+    /**
      * Delete all variant files for a given image filename.
      *
      * @param string $filename  Base filename (e.g., "tool_xxx.jpg")

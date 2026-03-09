@@ -42,31 +42,36 @@ $images        ??= [];
       <div id="tool-gallery" data-count="<?= count($images) ?>">
         <figure id="gallery-main">
           <?php if ($primaryImage !== null):
-            $mainFile  = htmlspecialchars($primaryImage['file_name_tim']);
-            $mainThumb = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $primaryImage['file_name_tim']));
-            $mainIsWebp = str_ends_with($primaryImage['file_name_tim'], '.webp');
-            $mainWebp  = $mainIsWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', $primaryImage['file_name_tim']));
-            $mainWebpThumb = $mainIsWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', preg_replace('/\.(\w+)$/', '-400w.$1', $primaryImage['file_name_tim'])));
+            $mainVariants = \App\Core\ImageProcessor::getAvailableVariants(
+                $primaryImage['file_name_tim'],
+                $primaryImage['width_tim'] ?? null,
+            );
+            $mainSrcsets = \App\Core\ImageProcessor::buildSrcset($mainVariants);
+            $mainIsWebp  = str_ends_with($primaryImage['file_name_tim'], '.webp');
+            $mainFallback = htmlspecialchars($primaryImage['file_name_tim']);
             $mainAlt   = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
             $mainFx    = (int) ($primaryImage['focal_x_tim'] ?? 50);
             $mainFy    = (int) ($primaryImage['focal_y_tim'] ?? 50);
             $mainSizes = '(max-width: 768px) 100vw, 600px';
+            $mainW     = $primaryImage['width_tim'] ?? 750;
+            $mainH     = (int) round($mainW / 1.5);
           ?>
-            <a href="/uploads/tools/<?= $mainFile ?>" data-lightbox-trigger>
+            <a href="/uploads/tools/<?= $mainFallback ?>" data-lightbox-trigger>
               <picture>
-                <?php if (!$mainIsWebp): ?>
+                <?php if (!$mainIsWebp && $mainSrcsets['webpSrcset'] !== ''): ?>
                   <source type="image/webp"
-                          srcset="/uploads/tools/<?= $mainWebpThumb ?> 400w, /uploads/tools/<?= $mainWebp ?> 750w"
+                          srcset="<?= $mainSrcsets['webpSrcset'] ?>"
                           sizes="<?= $mainSizes ?>"
                           id="gallery-main-source">
                 <?php endif; ?>
-                <img src="/uploads/tools/<?= $mainFile ?>"
-                     srcset="/uploads/tools/<?= $mainThumb ?> 400w, /uploads/tools/<?= $mainFile ?> 750w"
+                <img src="/uploads/tools/<?= $mainFallback ?>"
+                     srcset="<?= $mainSrcsets['srcset'] ?>"
                      sizes="<?= $mainSizes ?>"
                      alt="<?= $mainAlt ?>"
-                     width="750" height="503"
+                     width="<?= $mainW ?>" height="<?= $mainH ?>"
                      id="gallery-main-img"
-                     decoding="async"
+                     fetchpriority="high"
+                     decoding="sync"
                      <?= ($mainFx !== 50 || $mainFy !== 50) ? "data-focal-x=\"{$mainFx}\" data-focal-y=\"{$mainFy}\"" : '' ?>>
               </picture>
             </a>
@@ -83,18 +88,20 @@ $images        ??= [];
 
         <?php if ($extraImages !== []): ?>
           <ul id="gallery-thumbs" aria-label="Additional photos">
-            <?php if ($primaryImage !== null): ?>
+            <?php if ($primaryImage !== null):
+              $mainThumbSrc = htmlspecialchars($mainVariants[array_key_first($mainVariants)]['file'] ?? $primaryImage['file_name_tim']);
+            ?>
               <li>
                 <button type="button"
                         aria-current="true"
                         aria-label="<?= htmlspecialchars($primaryImage['alt_text_tim'] ?? 'Primary photo') ?>"
-                        data-full="/uploads/tools/<?= $mainFile ?>"
-                        data-srcset="/uploads/tools/<?= $mainThumb ?> 400w, /uploads/tools/<?= $mainFile ?> 750w"
-                        <?= !$mainIsWebp ? "data-srcset-webp=\"/uploads/tools/{$mainWebpThumb} 400w, /uploads/tools/{$mainWebp} 800w\"" : '' ?>
+                        data-full="/uploads/tools/<?= $mainFallback ?>"
+                        data-srcset="<?= htmlspecialchars($mainSrcsets['srcset']) ?>"
+                        <?= (!$mainIsWebp && $mainSrcsets['webpSrcset'] !== '') ? 'data-srcset-webp="' . htmlspecialchars($mainSrcsets['webpSrcset']) . '"' : '' ?>
                         data-alt="<?= $mainAlt ?>"
                         data-focal-x="<?= $mainFx ?>"
                         data-focal-y="<?= $mainFy ?>">
-                  <img src="/uploads/tools/<?= $mainThumb ?>"
+                  <img src="/uploads/tools/<?= $mainThumbSrc ?>"
                        alt=""
                        width="80" height="54"
                        loading="lazy"
@@ -104,30 +111,33 @@ $images        ??= [];
               </li>
             <?php endif; ?>
             <?php foreach ($extraImages as $extra):
-              $extraFile  = htmlspecialchars($extra['file_name_tim']);
-              $extraThumb = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $extra['file_name_tim']));
-              $extraIsWebp = str_ends_with($extra['file_name_tim'], '.webp');
-              $extraWebp  = $extraIsWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', $extra['file_name_tim']));
-              $extraWebpThumb = $extraIsWebp ? null : htmlspecialchars(preg_replace('/\.\w+$/', '.webp', preg_replace('/\.(\w+)$/', '-400w.$1', $extra['file_name_tim'])));
-              $extraAlt   = htmlspecialchars($extra['alt_text_tim'] ?? $tool['tool_name_tol']);
-              $extraFx    = (int) ($extra['focal_x_tim'] ?? 50);
-              $extraFy    = (int) ($extra['focal_y_tim'] ?? 50);
+              $exVariants = \App\Core\ImageProcessor::getAvailableVariants(
+                  $extra['file_name_tim'],
+                  $extra['width_tim'] ?? null,
+              );
+              $exSrcsets  = \App\Core\ImageProcessor::buildSrcset($exVariants);
+              $exIsWebp   = str_ends_with($extra['file_name_tim'], '.webp');
+              $exFile     = htmlspecialchars($extra['file_name_tim']);
+              $exThumbSrc = htmlspecialchars($exVariants[array_key_first($exVariants)]['file'] ?? $extra['file_name_tim']);
+              $exAlt      = htmlspecialchars($extra['alt_text_tim'] ?? $tool['tool_name_tol']);
+              $exFx       = (int) ($extra['focal_x_tim'] ?? 50);
+              $exFy       = (int) ($extra['focal_y_tim'] ?? 50);
             ?>
               <li>
                 <button type="button"
-                        aria-label="<?= $extraAlt ?>"
-                        data-full="/uploads/tools/<?= $extraFile ?>"
-                        data-srcset="/uploads/tools/<?= $extraThumb ?> 400w, /uploads/tools/<?= $extraFile ?> 750w"
-                        <?= !$extraIsWebp ? "data-srcset-webp=\"/uploads/tools/{$extraWebpThumb} 400w, /uploads/tools/{$extraWebp} 800w\"" : '' ?>
-                        data-alt="<?= $extraAlt ?>"
-                        data-focal-x="<?= $extraFx ?>"
-                        data-focal-y="<?= $extraFy ?>">
-                  <img src="/uploads/tools/<?= $extraThumb ?>"
+                        aria-label="<?= $exAlt ?>"
+                        data-full="/uploads/tools/<?= $exFile ?>"
+                        data-srcset="<?= htmlspecialchars($exSrcsets['srcset']) ?>"
+                        <?= (!$exIsWebp && $exSrcsets['webpSrcset'] !== '') ? 'data-srcset-webp="' . htmlspecialchars($exSrcsets['webpSrcset']) . '"' : '' ?>
+                        data-alt="<?= $exAlt ?>"
+                        data-focal-x="<?= $exFx ?>"
+                        data-focal-y="<?= $exFy ?>">
+                  <img src="/uploads/tools/<?= $exThumbSrc ?>"
                        alt=""
                        width="80" height="54"
                        loading="lazy"
                        decoding="async"
-                       <?= ($extraFx !== 50 || $extraFy !== 50) ? "data-focal-x=\"{$extraFx}\" data-focal-y=\"{$extraFy}\"" : '' ?>>
+                       <?= ($exFx !== 50 || $exFy !== 50) ? "data-focal-x=\"{$exFx}\" data-focal-y=\"{$exFy}\"" : '' ?>>
                 </button>
               </li>
             <?php endforeach; ?>

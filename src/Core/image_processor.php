@@ -62,8 +62,7 @@ final class ImageProcessor
             IMAGETYPE_WEBP => imagewebp($canvas, $path, self::WEBP_QUALITY),
         };
 
-        imagedestroy($source);
-        imagedestroy($canvas);
+        unset($source, $canvas);
     }
 
     /**
@@ -97,7 +96,7 @@ final class ImageProcessor
         }
 
         imagewebp($source, $webpPath, self::WEBP_QUALITY);
-        imagedestroy($source);
+        unset($source);
 
         return $webpPath;
     }

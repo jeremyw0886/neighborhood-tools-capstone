@@ -735,7 +735,7 @@
 
   // ─── Namespace ─────────────────────────────────────────────────────
 
-  window.NT = Object.freeze({
+  window.NT = {
     fetch: ntFetch,
     toast,
     confirm: ntConfirm,
@@ -748,7 +748,7 @@
       imagePreview,
       validate: validateForm,
     }),
-  });
+  };
 
   // ─── Init ──────────────────────────────────────────────────────────
 

@@ -736,9 +736,11 @@ class ToolController extends BaseController
             $this->redirect('/tools/create');
         }
 
+        $focalXValues = $_POST['focal_x'] ?? [];
+        $focalYValues = $_POST['focal_y'] ?? [];
         $imageFilenames = [];
 
-        foreach ($uploadedFiles as $file) {
+        foreach ($uploadedFiles as $i => $file) {
             $result = $this->moveToolImage($file);
 
             if ($result === null) {
@@ -751,7 +753,16 @@ class ToolController extends BaseController
                 $this->redirect('/tools/create');
             }
 
-            $imageFilenames[] = ['filename' => $result['filename'], 'alt_text' => null, 'width' => $result['width']];
+            $fx = isset($focalXValues[$i]) ? max(0, min(100, (int) $focalXValues[$i])) : 50;
+            $fy = isset($focalYValues[$i]) ? max(0, min(100, (int) $focalYValues[$i])) : 50;
+
+            $imageFilenames[] = [
+                'filename' => $result['filename'],
+                'alt_text' => null,
+                'width'    => $result['width'],
+                'focal_x'  => $fx,
+                'focal_y'  => $fy,
+            ];
         }
 
         try {

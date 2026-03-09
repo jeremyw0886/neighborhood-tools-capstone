@@ -163,22 +163,48 @@ $fuelTypes  ??= [];
     <fieldset>
       <legend>Photos</legend>
 
+      <p id="gallery-crop-hint">
+        <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
+        Use <strong>Reposition</strong> to adjust cropping. The first photo will be your primary listing image.
+      </p>
+
+      <ol id="photo-queue" hidden aria-label="Queued photo previews"></ol>
+
       <div id="photo-drop-zone">
         <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
-        <p>Drag images here or click to browse</p>
-        <p id="photo-upload-hint">JPEG, PNG, or WebP — max 5 MB each, up to 6 photos. The first photo will be your primary listing image.</p>
-        <label for="tool-photos" class="visually-hidden">Choose photos</label>
+        <p>Drag an image here or click to browse</p>
+        <p id="photo-queue-hint">JPEG, PNG, or WebP — max 5 MB each. 6 slots remaining.</p>
+        <label for="tool-photos" class="visually-hidden">Choose a photo</label>
         <input type="file"
                id="tool-photos"
                name="photos[]"
-               multiple
                accept="image/jpeg,image/png,image/webp"
                <?php if (isset($errors['photos'])): ?>aria-invalid="true"<?php endif; ?>>
       </div>
       <?php if (isset($errors['photos'])): ?>
         <p role="alert"><?= htmlspecialchars($errors['photos']) ?></p>
       <?php endif; ?>
-      <ul id="photo-preview-list" hidden aria-label="Selected photo previews"></ul>
+
+      <div id="photo-queue-data" hidden></div>
+
+      <dialog id="crop-dialog" aria-label="Position your photo">
+        <header>
+          <h2>Position Your Photo</h2>
+          <p>Drag to choose which part is visible in the 3:2 frame.</p>
+        </header>
+        <div id="crop-viewport" tabindex="0">
+          <img id="crop-preview" alt="Crop preview" draggable="false">
+          <div id="crop-frame" aria-hidden="true"></div>
+        </div>
+        <p id="crop-hint">Use arrow keys to nudge</p>
+        <footer>
+          <button type="button" data-crop-cancel>Cancel</button>
+          <button type="button" data-crop-confirm data-intent="primary">
+            <i class="fa-solid fa-plus"></i>
+            <span data-crop-label>Add</span>
+          </button>
+        </footer>
+      </dialog>
     </fieldset>
 
     <button type="submit" data-intent="success">

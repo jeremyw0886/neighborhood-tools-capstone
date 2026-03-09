@@ -1061,7 +1061,7 @@
       background: var(--mountain-cloud);
       border: 1px solid var(--mountain-fog);
       border-radius: 1rem;
-      margin-bottom: 1.25rem;
+      margin: 1.25rem 0;
       padding: 1.5rem;
 
       &>legend {
@@ -1225,7 +1225,7 @@
         margin: 0;
       }
 
-      & > :is(#add-photo-hint, #photo-upload-hint) {
+      & > :is(#add-photo-hint, #photo-upload-hint, #photo-queue-hint) {
         color: var(--mountain-mist);
         font-size: 0.75rem;
       }
@@ -1248,57 +1248,12 @@
       }
     }
 
-    & #photo-preview-list:not([hidden]) {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 0.75rem;
-      padding: 0;
-
-      & > li {
-        border: 1px solid var(--mountain-fog);
-        border-radius: 0.5rem;
-        list-style: none;
-        overflow: hidden;
-        position: relative;
-        width: 100px;
-
-        & img {
-          aspect-ratio: 3 / 2;
-          display: block;
-          object-fit: cover;
-          width: 100%;
-        }
-
-        & button {
-          align-items: center;
-          background: rgba(0, 0, 0, 0.6);
-          border: none;
-          border-radius: 50%;
-          color: #fff;
-          cursor: pointer;
-          display: flex;
-          font-size: 0.625rem;
-          height: 1.25rem;
-          justify-content: center;
-          position: absolute;
-          right: 0.25rem;
-          top: 0.25rem;
-          width: 1.25rem;
-
-          &:is(:hover, :focus-visible) {
-            background: var(--field-error);
-          }
-        }
-      }
-    }
-
     & form>button[type="submit"] {
       align-self: flex-start;
     }
   }
 
-  main>section[aria-labelledby="edit-tool-heading"] {
+  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) {
 
     & #gallery-crop-hint {
       align-items: center;
@@ -1312,7 +1267,7 @@
       padding: 0.5rem 0.75rem;
     }
 
-    & #gallery-manager {
+    & :is(#gallery-manager, #photo-queue) {
       display: grid;
       gap: 1rem;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -1389,7 +1344,7 @@
           font-weight: 600;
         }
 
-        & [data-reposition] {
+        & :is([data-reposition], [data-reposition-queue]) {
           align-items: center;
           background: none;
           border: 1px solid var(--mountain-fog);
@@ -1415,6 +1370,11 @@
             font-size: 0.813rem;
             width: 100%;
           }
+        }
+
+        & [data-remove-queue] {
+          font-size: 0.813rem;
+          width: 100%;
         }
       }
     }
@@ -1726,7 +1686,7 @@
       }
     }
 
-    main>section[aria-labelledby="edit-tool-heading"] #gallery-manager > li {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li {
       border-width: 2px;
     }
 
@@ -1734,7 +1694,7 @@
       border-width: 3px;
     }
 
-    main>section[aria-labelledby="edit-tool-heading"] #crop-dialog {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) #crop-dialog {
       border-width: 2px;
 
       & #crop-viewport {
@@ -1783,10 +1743,10 @@
       }
     }
 
-    main>section[aria-labelledby="edit-tool-heading"] #gallery-manager > li {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li {
       transition: none;
 
-      & [data-reposition] {
+      & :is([data-reposition], [data-reposition-queue]) {
         transition: none;
       }
     }
@@ -1862,7 +1822,7 @@
       grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
     }
 
-    main>section[aria-labelledby="edit-tool-heading"] #gallery-manager {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) {
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 
       & > li {
@@ -1870,7 +1830,7 @@
       }
     }
 
-    main>section[aria-labelledby="edit-tool-heading"] #crop-dialog {
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) #crop-dialog {
       width: auto;
 
       & #crop-viewport {

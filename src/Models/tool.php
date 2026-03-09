@@ -947,19 +947,23 @@ class Tool
             if ($images !== []) {
                 $imgStmt = $pdo->prepare("
                     INSERT INTO tool_image_tim
-                        (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim, width_tim)
-                    VALUES (:tool, :filename, :altText, :isPrimary, :sortOrder, :width)
+                        (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim, focal_x_tim, focal_y_tim, width_tim)
+                    VALUES (:tool, :filename, :altText, :isPrimary, :sortOrder, :focalX, :focalY, :width)
                 ");
 
                 foreach ($images as $i => $img) {
                     $altText = $img['alt_text'] ?? null;
                     $width   = $img['width'] ?? null;
+                    $focalX  = $img['focal_x'] ?? 50;
+                    $focalY  = $img['focal_y'] ?? 50;
 
                     $imgStmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
                     $imgStmt->bindValue(':filename', $img['filename'], PDO::PARAM_STR);
                     $imgStmt->bindValue(':altText', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
                     $imgStmt->bindValue(':isPrimary', $i === 0, PDO::PARAM_BOOL);
                     $imgStmt->bindValue(':sortOrder', $i + 1, PDO::PARAM_INT);
+                    $imgStmt->bindValue(':focalX', $focalX, PDO::PARAM_INT);
+                    $imgStmt->bindValue(':focalY', $focalY, PDO::PARAM_INT);
                     $imgStmt->bindValue(':width', $width, $width !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
                     $imgStmt->execute();
                 }

@@ -76,7 +76,7 @@
             minlength="3"
             maxlength="30"
             pattern="[a-z][a-z0-9_]*"
-            autocomplete="username"
+            autocomplete="off"
             autocapitalize="none"
             spellcheck="false"
             placeholder="e.g. your_username"

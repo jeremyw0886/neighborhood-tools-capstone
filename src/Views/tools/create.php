@@ -90,7 +90,8 @@ $fuelTypes  ??= [];
                min="0"
                max="9999"
                step="0.50"
-               value="<?= htmlspecialchars($old['rental_fee'] ?? '0.00') ?>"
+               placeholder="0.00"
+               value="<?= htmlspecialchars($old['rental_fee'] ?? '') ?>"
                <?php if (isset($errors['rental_fee'])): ?>aria-invalid="true" aria-describedby="tool-fee-error"<?php endif; ?>>
         <?php if (isset($errors['rental_fee'])): ?>
           <p id="tool-fee-error" role="alert"><?= htmlspecialchars($errors['rental_fee']) ?></p>
@@ -99,11 +100,12 @@ $fuelTypes  ??= [];
 
       <div>
         <label for="tool-condition">Condition <span aria-hidden="true">*</span></label>
-        <?php $selectedCondition = $old['condition'] ?? 'good'; ?>
+        <?php $selectedCondition = $old['condition'] ?? ''; ?>
         <select id="tool-condition"
                 name="condition"
                 required
                 <?php if (isset($errors['condition'])): ?>aria-invalid="true" aria-describedby="tool-condition-error"<?php endif; ?>>
+          <option value="" <?= $selectedCondition === '' ? 'selected' : '' ?> disabled>Select condition</option>
           <option value="new" <?= $selectedCondition === 'new' ? 'selected' : '' ?>>New</option>
           <option value="good" <?= $selectedCondition === 'good' ? 'selected' : '' ?>>Good</option>
           <option value="fair" <?= $selectedCondition === 'fair' ? 'selected' : '' ?>>Fair</option>

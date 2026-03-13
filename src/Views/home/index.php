@@ -127,12 +127,12 @@ $bookmarkFlash    ??= '';
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <?php if (!empty($featuredTools)): ?>
         <div role="list">
-          <?php $cardHeadingLevel = 'h3'; ?>
+          <?php $cardHeadingLevel = 'h3'; $cardSizes = '220px'; ?>
           <?php foreach ($featuredTools as $toolIndex => $tool): ?>
             <?php $eagerLoad = ($toolIndex === 0); ?>
             <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
           <?php endforeach; ?>
-          <?php unset($cardHeadingLevel); ?>
+          <?php unset($cardHeadingLevel, $cardSizes); ?>
         </div>
       <?php else: ?>
         <p>No tools available yet.

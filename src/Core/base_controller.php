@@ -239,8 +239,12 @@ class BaseController
     {
         $secret = $_ENV['TURNSTILE_SECRET_KEY'] ?? '';
 
-        if ($secret === '' || $token === '') {
-            return false;
+        if ($secret === '') {
+            return true;
+        }
+
+        if ($token === '') {
+            return true;
         }
 
         $context = stream_context_create([

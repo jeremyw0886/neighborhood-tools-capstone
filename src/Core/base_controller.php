@@ -21,8 +21,6 @@ class BaseController
     /**
      * Build the shared data array available to every view.
      *
-     * Views receive these variables automatically — no direct $_SESSION reads needed.
-     *
      * @return array{isLoggedIn: bool, authUser: ?array, csrfToken: string,
      *               currentPage: string, currentTos: ?array, tosAccepted: bool,
      *               unreadCount: int}
@@ -42,7 +40,7 @@ class BaseController
             ]
             : null;
 
-        // Cache TOS query — lightweight (single row) but no reason to repeat it
+        // Cache TOS query — lightweight
         if (!self::$tosCacheLoaded) {
             self::$cachedTos = Tos::getCurrent();
             self::$tosCacheLoaded = true;
@@ -55,7 +53,7 @@ class BaseController
             || !$isLoggedIn
             || Tos::hasUserAccepted(accountId: $authUser['id'], tosId: (int) $currentTos['id_tos']);
 
-        // Cache unread notification count — cheap indexed query, but no reason to repeat
+        // Cache unread notification count — cheap indexed query
         if (!self::$unreadCacheLoaded) {
             self::$cachedUnreadCount = $isLoggedIn
                 ? Notification::getUnreadCount($authUser['id'])
@@ -136,8 +134,6 @@ class BaseController
 
     /**
      * Read and clear a flash value from the session in one step.
-     *
-     * Controllers call this before render() so views never touch $_SESSION.
      */
     protected function flash(string $key, mixed $default = null): mixed
     {
@@ -173,8 +169,6 @@ class BaseController
 
     /**
      * Require one of the given roles; abort 403 if the user's role doesn't match.
-     *
-     * Uses the Role enum for type-safe comparison — no magic strings.
      */
     protected function requireRole(Role ...$roles): void
     {
@@ -189,9 +183,6 @@ class BaseController
 
     /**
      * Validate the CSRF token from a POST request against the session token.
-     *
-     * Call this at the top of any state-changing action (login, register,
-     * logout, form submissions, etc.).
      */
     protected function validateCsrf(): void
     {

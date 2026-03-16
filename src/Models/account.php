@@ -206,10 +206,52 @@ class Account
     }
 
     /**
+     * Find a non-deleted account by username — used for login authentication.
+     *
+     * @return ?array{id_acc: int, first_name_acc: string, last_name_acc: string,
+     *               username_acc: string, password_hash_acc: string,
+     *               role_name_rol: string, account_status: string, avatar: ?string}
+     */
+    public static function findByUsername(string $username): ?array
+    {
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                a.id_acc,
+                a.first_name_acc,
+                a.last_name_acc,
+                a.username_acc,
+                a.password_hash_acc,
+                a.zip_code_acc,
+                r.role_name_rol,
+                ast.status_name_ast AS account_status,
+                aim.file_name_aim      AS avatar,
+                avv.file_name_avv      AS vector_avatar
+            FROM active_account_v a
+            JOIN role_rol r            ON a.id_rol_acc = r.id_rol
+            JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+            LEFT JOIN account_image_aim aim
+                ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
+            LEFT JOIN avatar_vector_avv avv
+                ON a.id_avv_acc = avv.id_avv
+            WHERE a.username_acc = :username
+            LIMIT 1
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':username', $username);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Find an account by ID using the full profile view.
      *
-     * Returns the complete profile: name, role, status, neighborhood,
-     * avatar, bio, tool count, and ratings.
+     * @return ?array Full profile row from account_profile_v, or null.
      */
     public static function findById(int $id): ?array
     {

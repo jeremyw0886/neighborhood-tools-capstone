@@ -28,17 +28,17 @@
       </div>
 
       <div class="form-group">
-        <label for="email">Email Address</label>
+        <label for="username">Username</label>
         <input
-          type="email"
-          id="email"
-          name="email"
-          value="<?= htmlspecialchars($oldEmail ?? '') ?>"
+          type="text"
+          id="username"
+          name="username"
+          value="<?= htmlspecialchars($oldUsername ?? '') ?>"
           required
-          autocomplete="email"
+          autocomplete="username"
           autocapitalize="none"
           spellcheck="false"
-          placeholder="you@example.com"
+          placeholder="your_username"
         >
       </div>
 

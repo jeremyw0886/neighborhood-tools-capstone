@@ -34,10 +34,10 @@ class AuthController extends BaseController
             'turnstileSiteKey' => $turnstileSiteKey,
             'error'            => $_SESSION['auth_error'] ?? null,
             'authSuccess'      => $_SESSION['auth_success'] ?? null,
-            'oldEmail'         => $_SESSION['auth_old_email'] ?? '',
+            'oldUsername'      => $_SESSION['auth_old_username'] ?? '',
         ]);
 
-        unset($_SESSION['auth_error'], $_SESSION['auth_old_email'], $_SESSION['auth_success']);
+        unset($_SESSION['auth_error'], $_SESSION['auth_old_username'], $_SESSION['auth_success']);
     }
 
     /**
@@ -51,7 +51,7 @@ class AuthController extends BaseController
         $this->validateCsrf();
         $this->checkRateLimit('login', '/login', 'auth_error');
 
-        $email    = trim($_POST['email'] ?? '');
+        $username = strtolower(trim($_POST['username'] ?? ''));
         $password = $_POST['password'] ?? '';
         $honeypot = $_POST['website'] ?? '';
 
@@ -63,33 +63,32 @@ class AuthController extends BaseController
         $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
         if (!$this->verifyTurnstile($turnstileToken, 'login')) {
             $this->loginFailed(
-                email: $email,
+                username: $username,
                 message: 'Verification failed. Please try again.',
             );
         }
 
-        // Validate required fields
-        if ($email === '' || $password === '') {
+        if ($username === '' || $password === '') {
             $this->loginFailed(
-                email: $email,
-                message: 'Please enter both your email and password.',
+                username: $username,
+                message: 'Please enter both your username and password.',
             );
         }
 
-        $account = Account::findByEmail($email);
+        $account = Account::findByUsername($username);
 
         if ($account === null) {
             password_verify('dummy', '$2y$12$00000000000000000000000000000000000000000000000000000');
             $this->loginFailed(
-                email: $email,
-                message: 'Invalid email or password. Please try again.',
+                username: $username,
+                message: 'Invalid username or password. Please try again.',
             );
         }
 
         if (!Account::verifyPassword(input: $password, hash: $account['password_hash_acc'])) {
             $this->loginFailed(
-                email: $email,
-                message: 'Invalid email or password. Please try again.',
+                username: $username,
+                message: 'Invalid username or password. Please try again.',
             );
         }
 
@@ -104,7 +103,7 @@ class AuthController extends BaseController
         };
 
         if ($statusMessage !== null) {
-            $this->loginFailed(email: $email, message: $statusMessage);
+            $this->loginFailed(username: $username, message: $statusMessage);
         }
 
         // Success — populate session
@@ -539,12 +538,12 @@ class AuthController extends BaseController
     /**
      * Flash an error and redirect back to the login form.
      */
-    private function loginFailed(string $email, string $message): never
+    private function loginFailed(string $username, string $message): never
     {
         RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
 
-        $_SESSION['auth_error']     = $message;
-        $_SESSION['auth_old_email'] = $email;
+        $_SESSION['auth_error']        = $message;
+        $_SESSION['auth_old_username'] = $username;
         $this->redirect('/login');
     }
 

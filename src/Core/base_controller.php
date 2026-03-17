@@ -234,8 +234,10 @@ class BaseController
             return true;
         }
 
+        $jsEnabled = ($_POST['js_enabled'] ?? '') === '1';
+
         if ($token === '') {
-            return true;
+            return !$jsEnabled;
         }
 
         $context = stream_context_create([

@@ -13,6 +13,12 @@
   const existing = form.querySelector('[name="cf-turnstile-response"]');
   if (existing && existing.value) return;
 
+  const jsFlag = document.createElement('input');
+  jsFlag.type = 'hidden';
+  jsFlag.name = 'js_enabled';
+  jsFlag.value = '1';
+  form.appendChild(jsFlag);
+
   submit.disabled = true;
   submit.setAttribute('aria-busy', 'true');
 

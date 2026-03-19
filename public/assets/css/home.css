@@ -20,9 +20,7 @@
     width: 100%;
 
     & > header {
-      align-items: stretch;
-      display: flex;
-      flex-direction: row;
+      display: block;
     }
 
     & > main {
@@ -41,16 +39,15 @@
         var(--mountain-pine-dark) 0%,
         var(--mountain-pine) 40%,
         var(--mountain-pine-light) 100%);
-    border-end-end-radius: 2rem;
+    box-shadow: 0 8px 24px var(--shadow-pine);
     color: #fff;
     display: flex;
-    flex: 0 1 calc(70% + 50vw - 50%);
     flex-direction: column;
     gap: 0.5rem;
-    margin-left: calc(-50vw + 50%);
-    max-width: calc(70% + 50vw - 50%);
+    margin-inline: calc(-50vw + 50%);
     min-width: 0;
-    padding: 0 1.5rem 2rem calc(1.5rem + 50vw - 50%);
+    padding-block: 0 2rem;
+    padding-inline: calc(1.5rem + 50vw - 50%);
     position: relative;
 
     & > div a:not([role="button"]) {
@@ -821,35 +818,17 @@
   /* Tablet / narrow desktop */
   @media (max-width: 1024px) {
     .home-page {
-      display: flex;
-      flex-direction: column;
       max-width: 100%;
       width: auto;
     }
 
-    .home-page > header,
-    .home-page > main {
-      display: contents;
-    }
-
     .home-page > header > section {
-      border-radius: 0;
       flex: none;
       margin-left: 0;
       margin-top: -1px;
       max-height: none;
       max-width: 100%;
       padding: 1px 1.5rem 2rem;
-      width: 100%;
-    }
-
-    .home-page > header > aside {
-      align-self: stretch;
-      border-radius: 0.75rem;
-      flex: none;
-      height: 280px;
-      max-height: 280px;
-      max-width: 100%;
       width: 100%;
     }
 
@@ -870,27 +849,6 @@
     .home-page > main > section:last-of-type > div > a {
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
-    }
-
-    /* Reorder: hero → picks → members → neighbors */
-    .home-page > header > section[aria-label="Hero section"] {
-      order: 1;
-    }
-
-    .home-page > main > section:first-of-type {
-      order: 2;
-    }
-
-    .home-page > header > aside {
-      order: 3;
-    }
-
-    .home-page > header > aside > h2 span {
-      max-width: 100%;
-    }
-
-    .home-page > main > section:last-of-type {
-      order: 4;
     }
 
     .home-page > main > section:first-of-type,
@@ -1044,7 +1002,6 @@
   /* Small phone */
   @media (max-width: 400px) {
     .home-page > header > section {
-      border-end-end-radius: 1rem;
       gap: 1rem;
       padding: 0.75rem 0.75rem 1.25rem;
     }

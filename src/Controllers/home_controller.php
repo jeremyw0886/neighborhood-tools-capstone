@@ -70,7 +70,6 @@ class HomeController extends BaseController
             'nearbyMembers'    => $nearbyMembers,
             'isNearbyFallback' => $isNearbyFallback,
             'featuredTools'    => $featuredTools,
-            'topMembers'        => $topMembers,
             'friendlyNeighbors' => array_slice($topMembers, 0, 3),
             'bookmarkedIds'    => $bookmarkedIds,
             'bookmarkFlash'    => $this->flash('bookmark_flash'),

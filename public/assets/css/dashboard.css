@@ -1699,7 +1699,7 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
-  section[aria-labelledby="listed-tools-heading"]>div[role="list"]>article {
+  section[aria-labelledby="listed-tools-heading"]>div[role="list"]>div>article {
     flex: none;
     min-width: 0;
     width: auto;
@@ -1979,7 +1979,7 @@
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       }
 
-      &>div[role="list"]>article {
+      &>div[role="list"]>div>article {
         flex: none;
         min-width: 0;
         width: auto;

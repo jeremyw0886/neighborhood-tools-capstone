@@ -1,7 +1,8 @@
 <?php $isBookmarked = isset($bookmarkedIds) && in_array((int) $tool['id_tol'], $bookmarkedIds, true); ?>
 <?php $isEager = !empty($eagerLoad); $eagerLoad = false; ?>
 <?php $headingTag = $cardHeadingLevel ?? 'h2'; ?>
-<article role="listitem"
+<div role="listitem">
+<article
   data-condition="<?= htmlspecialchars($tool['tool_condition'] ?? '') ?>"
   data-owner="<?= htmlspecialchars($tool['owner_name'] ?? '') ?>"
   data-deposit="<?= !empty($tool['is_deposit_required_tol']) ? number_format((float) ($tool['default_deposit_amount_tol'] ?? 0), 2) : '' ?>">
@@ -50,12 +51,12 @@
       </button>
     </form>
   <?php elseif (!empty($isLoggedIn) && ($authUser['id'] ?? 0) === (int) ($tool['owner_id'] ?? 0)): ?>
-    <span aria-label="Your tool"><i class="fa-solid fa-user" aria-hidden="true"></i> YOUR TOOL</span>
+    <span data-badge="owner"><i class="fa-solid fa-user" aria-hidden="true"></i> YOUR TOOL</span>
   <?php endif; ?>
   <?php if (!empty($tool['is_lent_out'])): ?>
-    <span aria-label="Currently lent out">LENT OUT</span>
+    <span data-badge="lent">LENT OUT</span>
   <?php elseif (!empty($tool['is_new_arrival'])): ?>
-    <span aria-label="Just listed">JUST LISTED</span>
+    <span data-badge="new">JUST LISTED</span>
   <?php endif; ?>
   <div>
     <?php if (!empty($tool['category_name'])): ?>
@@ -82,7 +83,7 @@
         <span>No ratings yet</span>
       <?php endif; ?>
       <?php if (isset($tool['distance_miles'])): ?>
-        <span aria-label="<?= htmlspecialchars($tool['distance_miles']) ?> miles away">
+        <span role="img" aria-label="<?= htmlspecialchars($tool['distance_miles']) ?> miles away">
           <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
           <?= htmlspecialchars($tool['distance_miles']) ?> mi
         </span>
@@ -104,3 +105,4 @@
     </footer>
   </div>
 </article>
+</div>

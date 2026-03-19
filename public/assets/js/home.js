@@ -161,7 +161,7 @@
   }
 
   function cardFrom(el) {
-    return el?.closest?.('[role="listitem"]');
+    return el?.closest?.('article');
   }
 
   container.addEventListener('pointerover', (e) => {

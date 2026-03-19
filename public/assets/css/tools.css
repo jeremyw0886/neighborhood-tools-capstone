@@ -278,7 +278,7 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
 
-    & div[role="list"]>article {
+    & div[role="list"]>div>article {
       flex: none;
       height: 100%;
       min-width: 0;
@@ -291,7 +291,7 @@
       grid-template-columns: 1fr;
       gap: 0.75rem;
 
-      &>article {
+      &>div>article {
         flex-direction: row;
         height: auto;
         min-height: 0;
@@ -334,8 +334,8 @@
           gap: 1rem;
         }
 
-        &>span[aria-label="Just listed"],
-        &>span[aria-label="Currently lent out"] {
+        &>span[data-badge="new"],
+        &>span[data-badge="lent"] {
           left: 0.5rem;
           top: 0.5rem;
         }
@@ -349,7 +349,7 @@
           order: 3;
         }
 
-        &>span[aria-label="Your tool"] {
+        &>span[data-badge="owner"] {
           position: relative;
           top: auto;
           right: auto;
@@ -368,7 +368,7 @@
       & div[role="list"] {
         grid-template-columns: 1fr;
 
-        &>article>figure {
+        &>div>article>figure {
           aspect-ratio: 16 / 9;
           height: auto;
         }
@@ -378,7 +378,7 @@
         gap: 1.5rem;
         grid-template-columns: 1fr;
 
-        &>article {
+        &>div>article {
           flex-direction: column;
           height: auto;
           min-height: 310px;
@@ -412,7 +412,7 @@
             top: 0.5rem;
           }
 
-          &>span[aria-label="Your tool"] {
+          &>span[data-badge="owner"] {
             align-self: initial;
             margin-right: 0;
             order: initial;

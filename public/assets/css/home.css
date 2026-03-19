@@ -488,7 +488,7 @@
     }
 
     /* Pin carousel card width — base card rule in components.css handles the rest */
-    & > div > article {
+    & > div > div > article {
       width: 220px;
     }
   }

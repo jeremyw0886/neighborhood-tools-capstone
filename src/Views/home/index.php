@@ -128,6 +128,7 @@ $bookmarkFlash    ??= '';
                   <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
                   <?= htmlspecialchars($member['neighborhood'] ?? $selectedCity) ?>
                 </p>
+                <span aria-hidden="true">View Profile</span>
               </a>
             <?php endforeach; ?>
           <?php else: ?>

@@ -63,6 +63,7 @@ class ProfileController extends BaseController
 
         $profile = [
             'id'                 => (int) $account['id_acc'],
+            'username'           => $account['username_acc'],
             'full_name'          => $account['full_name'],
             'first_name'         => $account['first_name_acc'],
             'primary_image'      => $account['primary_image'],
@@ -108,8 +109,8 @@ class ProfileController extends BaseController
         }
 
         $this->render('profile/show', [
-            'title'         => htmlspecialchars($profile['full_name']) . ' — NeighborhoodTools',
-            'description'   => 'View ' . htmlspecialchars($profile['first_name']) . "'s profile, tools, and ratings on NeighborhoodTools.",
+            'title'         => htmlspecialchars($profile['username']) . ' — NeighborhoodTools',
+            'description'   => 'View ' . htmlspecialchars($profile['username']) . "'s profile, tools, and ratings on NeighborhoodTools.",
             'pageCss'       => ['dashboard.css'],
             'profile'       => $profile,
             'reputation'    => $reputation,

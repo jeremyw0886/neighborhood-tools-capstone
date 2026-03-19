@@ -20,13 +20,13 @@
 
 if (!empty($profile['vector_avatar'])) {
     $avatarSrc = '/uploads/vectors/' . $profile['vector_avatar'];
-    $avatarAlt = $profile['vector_avatar_alt'] ?? $profile['full_name'];
+    $avatarAlt = $profile['vector_avatar_alt'] ?? $profile['username'];
 } elseif (!empty($profile['primary_image'])) {
     $avatarSrc = '/uploads/profiles/' . $profile['primary_image'];
-    $avatarAlt = $profile['image_alt_text'] ?? $profile['full_name'];
+    $avatarAlt = $profile['image_alt_text'] ?? $profile['username'];
 } else {
     $avatarSrc = '/assets/images/avatar-placeholder.svg';
-    $avatarAlt = $profile['full_name'];
+    $avatarAlt = $profile['username'];
 }
 
 // Location string — "neighborhood, city, state" (omit missing segments)
@@ -61,7 +61,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
     decoding="async">
     
     <div>
-      <h1 id="profile-heading"><?= htmlspecialchars($profile['full_name']) ?></h1>
+      <h1 id="profile-heading"><?= htmlspecialchars($profile['username']) ?></h1>
       
       <?php if ($locationStr !== ''): ?>
         <p>
@@ -161,7 +161,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
   <section aria-labelledby="tools-heading">
     <h2 id="tools-heading">
       <i class="fa-solid fa-toolbox" aria-hidden="true"></i>
-      <?= htmlspecialchars($profile['first_name']) ?>&rsquo;s Tools
+      <?= htmlspecialchars($profile['username']) ?>&rsquo;s Tools
     </h2>
 
     <?php if ($totalTools > 0): ?>
@@ -274,7 +274,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
             <i class="fa-solid fa-plus" aria-hidden="true"></i> List Your First Tool
           </a>
         <?php else: ?>
-          <p><?= htmlspecialchars($profile['first_name']) ?> hasn&rsquo;t listed any tools yet.</p>
+          <p><?= htmlspecialchars($profile['username']) ?> hasn&rsquo;t listed any tools yet.</p>
         <?php endif; ?>
       </section>
 

@@ -3,7 +3,6 @@ $isNearbyFallback ??= false;
 $selectedCity     ??= 'Asheville';
 $nearbyMembers    ??= [];
 $featuredTools    ??= [];
-$topMembers        ??= [];
 $friendlyNeighbors ??= [];
 $bookmarkedIds     ??= [];
 $bookmarkFlash    ??= '';

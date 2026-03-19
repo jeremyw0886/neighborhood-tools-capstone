@@ -369,7 +369,7 @@
   /* ── MEMBER CARD (vertical link-card) ── */
   #member-list > a {
     align-items: center;
-    background: var(--mountain-cloud);
+    background: linear-gradient(160deg, #fdf8ef 0%, #f9f0de 100%);
     border: 1px solid rgba(139, 133, 120, 0.2);
     border-bottom: 3px solid var(--mountain-gold);
     border-radius: 1rem;
@@ -639,7 +639,7 @@
   /* ── NEIGHBOR CARD ── */
   .home-page > main > section:nth-of-type(3) > div > a {
     align-items: center;
-    background: var(--mountain-cloud);
+    background: linear-gradient(160deg, #f2f7f4 0%, #e6f0eb 100%);
     border: 1px solid rgba(139, 133, 120, 0.2);
     border-end-end-radius: 1.5rem;
     border-start-start-radius: 1.5rem;

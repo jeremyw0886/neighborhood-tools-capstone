@@ -1244,7 +1244,7 @@
   }
 
   div[role="list"]:not([data-vector-grid])>div>article:has(> figure) {
-    background: var(--mountain-cloud);
+    background: linear-gradient(160deg, var(--mountain-cloud) 0%, var(--mountain-cream) 100%);
     border: 1px solid rgba(139, 133, 120, 0.2);
     border-radius: 1rem 0 1rem 0;
     display: flex;

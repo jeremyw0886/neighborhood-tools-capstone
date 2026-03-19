@@ -33,6 +33,31 @@ $bookmarkFlash    ??= '';
         </form>
       </div>
     </section>
+  </header>
+
+  <main id="main-content">
+    <?php if (!empty($bookmarkFlash)): ?>
+      <p role="status" data-flash="success"><?= htmlspecialchars($bookmarkFlash) ?></p>
+    <?php endif; ?>
+
+    <section aria-labelledby="popular-heading">
+      <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
+      <?php if (!empty($featuredTools)): ?>
+        <div role="list">
+          <?php $cardHeadingLevel = 'h3'; $cardSizes = '220px'; ?>
+          <?php foreach ($featuredTools as $toolIndex => $tool): ?>
+            <?php $eagerLoad = ($toolIndex === 0); ?>
+            <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
+          <?php endforeach; ?>
+          <?php unset($cardHeadingLevel, $cardSizes); ?>
+        </div>
+      <?php else: ?>
+        <p>No tools available yet.
+          <a href="<?= $isLoggedIn ? '/tools/create' : '/register' ?>">Be the first to list one!</a>
+        </p>
+      <?php endif; ?>
+    </section>
+
     <aside aria-labelledby="sidebar-heading">
       <?php if ($isNearbyFallback): ?>
         <h2 id="sidebar-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Top Members</h2>
@@ -116,30 +141,6 @@ $bookmarkFlash    ??= '';
         <?php endif; ?>
       </section>
     </aside>
-  </header>
-
-  <main id="main-content">
-    <?php if (!empty($bookmarkFlash)): ?>
-      <p role="status" data-flash="success"><?= htmlspecialchars($bookmarkFlash) ?></p>
-    <?php endif; ?>
-
-    <section aria-labelledby="popular-heading">
-      <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
-      <?php if (!empty($featuredTools)): ?>
-        <div role="list">
-          <?php $cardHeadingLevel = 'h3'; $cardSizes = '220px'; ?>
-          <?php foreach ($featuredTools as $toolIndex => $tool): ?>
-            <?php $eagerLoad = ($toolIndex === 0); ?>
-            <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
-          <?php endforeach; ?>
-          <?php unset($cardHeadingLevel, $cardSizes); ?>
-        </div>
-      <?php else: ?>
-        <p>No tools available yet.
-          <a href="<?= $isLoggedIn ? '/tools/create' : '/register' ?>">Be the first to list one!</a>
-        </p>
-      <?php endif; ?>
-    </section>
 
     <section aria-labelledby="neighbors-heading">
       <h2 id="neighbors-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Friendly Neighbors</h2>

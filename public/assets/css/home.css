@@ -573,7 +573,7 @@
   }
 
   /* ── FRIENDLY NEIGHBORS ── */
-  .home-page > main > section:last-of-type {
+  .home-page > main > section:nth-of-type(3) {
     background: linear-gradient(180deg,
         transparent 0%,
         rgba(232, 228, 220, 0.5) 50%,
@@ -637,7 +637,7 @@
   }
 
   /* ── NEIGHBOR CARD ── */
-  .home-page > main > section:last-of-type > div > a {
+  .home-page > main > section:nth-of-type(3) > div > a {
     align-items: center;
     background: var(--mountain-cloud);
     border: 1px solid rgba(139, 133, 120, 0.2);
@@ -732,34 +732,91 @@
     }
   }
 
-  .home-page > main > section:last-of-type > p:last-of-type {
-    margin-top: 1.25rem;
-    text-align: center;
+  /* ── HOME CTA (split action) ── */
+  #home-cta {
+    margin: 0 auto;
+    max-width: 1400px;
+    padding: 3rem 1.5rem 4rem;
 
-    & a {
-      color: var(--mountain-pine);
-      font-weight: 600;
+    & > div {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(2, 1fr);
+      margin: 0 auto;
+      max-width: 800px;
+    }
+
+    & > div > a {
+      background: linear-gradient(180deg, var(--mountain-cloud) 0%, var(--mountain-fog) 100%);
+      border: 1px solid rgba(139, 133, 120, 0.2);
+      border-radius: 1.25rem;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
       text-decoration: none;
-      transition: color 0.2s ease;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 
       &:hover {
-        color: var(--mountain-gold-dark);
-      }
-
-      &:focus-visible {
-        border-radius: 0.25rem;
-        outline: 2px solid var(--mountain-gold);
-        outline-offset: 4px;
-      }
-
-      & i {
-        font-size: 0.85em;
-        margin-left: 0.25rem;
-        transition: transform 0.2s ease;
+        border-color: var(--mountain-gold);
+        box-shadow: 0 8px 24px var(--shadow-mountain);
       }
 
       @media (hover: hover) {
-        &:hover i {
+        &:hover {
+          transform: translateY(-4px);
+        }
+      }
+
+      &:focus-visible {
+        border-color: var(--mountain-gold);
+        outline: 3px solid var(--mountain-gold);
+        outline-offset: 2px;
+      }
+
+      & > i:first-child {
+        color: var(--mountain-pine);
+        font-size: 2rem;
+      }
+
+      & > h3 {
+        color: var(--mountain-pine);
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      & > p {
+        color: var(--mountain-mist);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      & > span {
+        border: 2px solid var(--mountain-pine);
+        border-radius: 2rem;
+        color: var(--mountain-pine);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: auto;
+        padding: 0.6rem 1.5rem;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        & > i {
+          margin-left: 0.25rem;
+          transition: transform 0.2s ease;
+        }
+      }
+
+      &:hover > span {
+        background: var(--mountain-pine);
+        color: #fff;
+      }
+
+      @media (hover: hover) {
+        &:hover > span > i {
           transform: translateX(3px);
         }
       }
@@ -769,14 +826,14 @@
   /* ── CONTAINER QUERIES — component-responsive card layouts ── */
 
   @container neighbor-grid (max-width: 700px) {
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a {
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
     }
   }
 
   @container neighbor-grid (max-width: 400px) {
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a {
       flex: 1 1 100%;
     }
   }
@@ -862,11 +919,11 @@
       padding: 0 0.5rem;
     }
 
-    .home-page > main > section:last-of-type > div {
+    .home-page > main > section:nth-of-type(3) > div {
       flex-wrap: wrap;
     }
 
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a {
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
     }
@@ -925,7 +982,7 @@
       gap: 1rem;
     }
 
-    .home-page > main > section:last-of-type > div {
+    .home-page > main > section:nth-of-type(3) > div {
       container-type: normal;
       flex-wrap: nowrap;
       overflow-x: auto;
@@ -937,11 +994,11 @@
       scrollbar-width: none;
     }
 
-    .home-page > main > section:last-of-type > div::-webkit-scrollbar {
+    .home-page > main > section:nth-of-type(3) > div::-webkit-scrollbar {
       display: none;
     }
 
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a {
       flex: 0 0 100%;
       max-width: none;
       min-width: 0;
@@ -952,12 +1009,9 @@
       margin-top: 0.5rem;
     }
 
-    .home-page > main > section:last-of-type > p:last-of-type {
-      margin-top: 1rem;
-    }
-
-    .home-page > main > section:last-of-type > p:last-of-type a {
-      font-size: 0.9rem;
+    #home-cta > div {
+      grid-template-columns: 1fr;
+      max-width: 400px;
     }
 
     #member-carousel > button {
@@ -1000,7 +1054,7 @@
       padding: 0.5rem 0.875rem;
     }
 
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a {
       padding: 1rem 0.75rem;
     }
   }
@@ -1024,19 +1078,25 @@
       border-color: var(--mountain-slate);
     }
 
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a,
+    #home-cta > div > a {
       border-color: var(--mountain-slate);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-page > main > section:last-of-type > div > a {
+    .home-page > main > section:nth-of-type(3) > div > a {
       transform: none;
       transition: none;
     }
 
-    .home-page > main > section:last-of-type > p:last-of-type a,
-    .home-page > main > section:last-of-type > p:last-of-type a i {
+    #home-cta > div > a {
+      transform: none;
+      transition: none;
+    }
+
+    #home-cta > div > a > span,
+    #home-cta > div > a > span > i {
       transition: none;
     }
 

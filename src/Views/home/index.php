@@ -212,11 +212,33 @@ $bookmarkFlash    ??= '';
           </p>
         <?php endif; ?>
       </div>
-      <?php if (!empty($friendlyNeighbors)): ?>
-        <p>
-          <a href="/tools">Browse tools from more neighbors <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-        </p>
-      <?php endif; ?>
+    </section>
+
+    <section id="home-cta" aria-labelledby="cta-heading">
+      <h2 id="cta-heading" class="visually-hidden">Get Started</h2>
+      <div>
+        <a href="/tools">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <h3>Find What You Need</h3>
+          <p>Browse tools shared by neighbors in your area. Why buy when you can borrow?</p>
+          <span aria-hidden="true">Browse Tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+        </a>
+        <?php if ($isLoggedIn): ?>
+          <a href="/tools/create">
+            <i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i>
+            <h3>Share What You Have</h3>
+            <p>List your tools and help a neighbor out. Earn trust, build community, and keep things out of landfills.</p>
+            <span aria-hidden="true">List a Tool <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+        <?php else: ?>
+          <a href="/register">
+            <i class="fa-solid fa-people-group" aria-hidden="true"></i>
+            <h3>Join the Community</h3>
+            <p>Create a free account to borrow and lend tools with your neighbors. It takes less than a minute.</p>
+            <span aria-hidden="true">Sign Up Free <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+        <?php endif; ?>
+      </div>
     </section>
   </main>
 </div>

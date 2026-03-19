@@ -85,10 +85,9 @@
     & > nav[data-hero] {
       width: 100%;
 
-      & > a:first-child svg {
-        display: block;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      & > a:first-child img {
         height: auto;
+        width: clamp(80px, 6vw + 40px, 120px);
       }
 
       & > #mobile-menu-toggle {

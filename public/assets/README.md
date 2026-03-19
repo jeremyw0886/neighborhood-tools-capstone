@@ -4,9 +4,7 @@ This directory contains placeholder and seed images used for development and dem
 
 ## Logo (`images/logo.svg`)
 
-Created with [ChatGPT](https://chatgpt.com/) (OpenAI) under a paid subscription.
-
-**License:** OpenAI assigns all right, title, and interest in generated output to the user. Commercial use is permitted. Full terms: <https://openai.com/policies/row-terms-of-use/>
+Designed by **Alyssa Companioni**.
 
 ## Placeholder SVGs (`images/avatar-placeholder.svg`, `images/tool-placeholder.svg`)
 

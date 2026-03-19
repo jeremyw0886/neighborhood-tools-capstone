@@ -58,11 +58,11 @@ $bookmarkFlash    ??= '';
       <?php endif; ?>
     </section>
 
-    <aside aria-labelledby="sidebar-heading">
+    <section aria-labelledby="members-heading">
       <?php if ($isNearbyFallback): ?>
-        <h2 id="sidebar-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Top Members</h2>
+        <h2 id="members-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Top Members</h2>
       <?php else: ?>
-        <h2 id="sidebar-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
+        <h2 id="members-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
       <?php endif; ?>
 
       <nav aria-label="Filter by city" id="location-toggle" hidden>
@@ -76,7 +76,7 @@ $bookmarkFlash    ??= '';
         </a>
       </nav>
 
-      <section aria-label="Members list" id="member-list" aria-live="polite">
+      <div id="member-list">
         <?php if (!empty($nearbyMembers)): ?>
           <?php foreach ($nearbyMembers as $member): ?>
             <?php $displayName = $member['username'] ?? $member['name'] ?? 'Member'; ?>
@@ -139,8 +139,8 @@ $bookmarkFlash    ??= '';
         <?php else: ?>
           <p>No members found in this area yet.</p>
         <?php endif; ?>
-      </section>
-    </aside>
+      </div>
+    </section>
 
     <section aria-labelledby="neighbors-heading">
       <h2 id="neighbors-heading"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Friendly Neighbors</h2>

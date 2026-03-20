@@ -249,6 +249,16 @@ class Account
     }
 
     /**
+     * Find a non-deleted account by username or email — used for flexible login.
+     *
+     * @return ?array Account row with role, status, and avatar, or null.
+     */
+    public static function findByLogin(string $input): ?array
+    {
+        return self::findByUsername($input) ?? self::findByEmail($input);
+    }
+
+    /**
      * Find an account by ID using the full profile view.
      *
      * @return ?array Full profile row from account_profile_v, or null.

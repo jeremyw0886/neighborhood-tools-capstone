@@ -4,6 +4,7 @@
       <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
       <h1>Log In</h1>
       <p>Welcome back! Sign in to manage your tools and borrows.</p>
+      <p id="login-hint">You can use either your username or email address.</p>
     </header>
 
     <?php if (!empty($authSuccess)): ?>
@@ -28,17 +29,19 @@
       </div>
 
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username">Username or Email</label>
         <input
           type="text"
           id="username"
           name="username"
           value="<?= htmlspecialchars($oldUsername ?? '') ?>"
           required
+          autofocus
           autocomplete="username"
           autocapitalize="none"
           spellcheck="false"
-          placeholder="your_username"
+          aria-describedby="login-hint"
+          placeholder="Username or email address"
         >
       </div>
 

@@ -71,24 +71,24 @@ class AuthController extends BaseController
         if ($username === '' || $password === '') {
             $this->loginFailed(
                 username: $username,
-                message: 'Please enter both your username and password.',
+                message: 'Please enter your username or email and password.',
             );
         }
 
-        $account = Account::findByUsername($username);
+        $account = Account::findByLogin($username);
 
         if ($account === null) {
             password_verify('dummy', '$2y$12$00000000000000000000000000000000000000000000000000000');
             $this->loginFailed(
                 username: $username,
-                message: 'Invalid username or password. Please try again.',
+                message: 'Invalid credentials. Please try again.',
             );
         }
 
         if (!Account::verifyPassword(input: $password, hash: $account['password_hash_acc'])) {
             $this->loginFailed(
                 username: $username,
-                message: 'Invalid username or password. Please try again.',
+                message: 'Invalid credentials. Please try again.',
             );
         }
 

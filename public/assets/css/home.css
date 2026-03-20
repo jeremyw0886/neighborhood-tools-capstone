@@ -1137,13 +1137,19 @@
       background: var(--mountain-pine-dark);
     }
 
-    .home-page > header > section > div > h1 {
+    .home-page > header > section > div > div:first-child > h1 {
       text-shadow: none;
     }
 
-    .home-page > header > section > div > p {
+    .home-page > header > section > div > div:first-child > p {
       opacity: 1;
       text-shadow: none;
+    }
+
+    .home-page > header > section > div > div:last-child {
+      backdrop-filter: none;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
     }
 
     #member-list > a {
@@ -1157,6 +1163,11 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .home-page > header > section > div > div:first-child,
+    .home-page > header > section > div > div:last-child {
+      animation: none;
+    }
+
     .home-page > main > section:nth-of-type(3) > div > a {
       transform: none;
       transition: none;

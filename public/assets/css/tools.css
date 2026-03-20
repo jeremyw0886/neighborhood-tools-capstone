@@ -115,7 +115,7 @@
       }
 
       &>fieldset:last-of-type {
-        align-items: end;
+        align-items: start;
         background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
         border-radius: 1rem;

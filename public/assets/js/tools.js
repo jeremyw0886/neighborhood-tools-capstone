@@ -54,6 +54,9 @@
 
   form.noValidate = true;
 
+  const applyBtn = form.querySelector('fieldset:last-of-type button[type="submit"]');
+  if (applyBtn) applyBtn.hidden = true;
+
   const zipField    = document.getElementById('filter-zip');
   const radiusField = document.getElementById('filter-radius');
 

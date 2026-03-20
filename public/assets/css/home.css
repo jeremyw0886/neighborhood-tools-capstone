@@ -65,7 +65,7 @@
       }
     }
 
-    & button:not([data-intent]) {
+    & button:not([data-intent]):not(#user-actions-toggle) {
       background: rgba(255, 255, 255, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.35);
       border-radius: 1.5rem;
@@ -88,20 +88,6 @@
         padding: 0.5rem;
       }
 
-      & > #user-actions > #user-actions-toggle {
-        border-radius: 0;
-        padding: var(--btn-min-h-md);
-
-        &:hover {
-          background: transparent;
-          border-color: transparent;
-          color: var(--mountain-gold);
-        }
-
-        & > .fa-chevron-down {
-          transition: transform 0.3s ease;
-        }
-      }
     }
   }
 

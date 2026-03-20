@@ -522,7 +522,7 @@ class ToolController extends BaseController
                 'description'   => $description !== '' ? $description : null,
                 'rental_fee'    => (float) $rentalFee,
                 'condition'     => $condition,
-                'loan_duration' => $loanDuration !== '' ? (int) $loanDuration : null,
+                'loan_duration' => $loanDuration !== '' ? (int) $loanDuration * 24 : null,
                 'fuel_type'     => $usesFuel && $fuelType !== '' ? $fuelType : null,
                 'category_id'   => $categoryId,
             ]);
@@ -781,7 +781,7 @@ class ToolController extends BaseController
                 'owner_id'        => $userId,
                 'category_id'     => $categoryId,
                 'condition'       => $condition,
-                'loan_duration'   => $loanDuration !== '' ? (int) $loanDuration : null,
+                'loan_duration'   => $loanDuration !== '' ? (int) $loanDuration * 24 : null,
                 'fuel_type'       => $usesFuel && $fuelType !== '' ? $fuelType : null,
                 'image_filenames' => $imageFilenames,
             ]);
@@ -873,8 +873,8 @@ class ToolController extends BaseController
             $errors['condition'] = 'Please select a valid condition.';
         }
 
-        if ($loanDuration !== '' && (!ctype_digit($loanDuration) || (int) $loanDuration < 1 || (int) $loanDuration > 720)) {
-            $errors['loan_duration'] = 'Loan duration must be between 1 and 720 hours.';
+        if ($loanDuration !== '' && (!ctype_digit($loanDuration) || (int) $loanDuration < 1 || (int) $loanDuration > 30)) {
+            $errors['loan_duration'] = 'Loan duration must be between 1 and 30 days.';
         }
 
         if ($usesFuel) {

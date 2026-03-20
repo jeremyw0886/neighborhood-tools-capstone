@@ -117,14 +117,14 @@ $fuelTypes  ??= [];
       </div>
 
       <div>
-        <label for="tool-duration">Loan Duration (hours)</label>
+        <label for="tool-duration">Loan Duration (days)</label>
         <input type="number"
                id="tool-duration"
                name="loan_duration"
                min="1"
-               max="720"
+               max="30"
                step="1"
-               value="<?= htmlspecialchars($old['loan_duration'] ?? '168') ?>"
+               value="<?= htmlspecialchars($old['loan_duration'] ?? '7') ?>"
                <?php if (isset($errors['loan_duration'])): ?>aria-invalid="true" aria-describedby="tool-duration-error"<?php endif; ?>>
         <?php if (isset($errors['loan_duration'])): ?>
           <p id="tool-duration-error" role="alert"><?= htmlspecialchars($errors['loan_duration']) ?></p>

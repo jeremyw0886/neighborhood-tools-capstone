@@ -165,7 +165,7 @@ use App\Core\ViewHelper;
                   </a>
                 </dd>
                 <dt>Duration</dt>
-                <dd><?= (int) $req['loan_duration_hours_bor'] ?> hrs</dd>
+                <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) $req['loan_duration_hours_bor'])) ?></dd>
                 <dt>Waiting</dt>
                 <dd><?= htmlspecialchars($waitLabel) ?></dd>
                 <dt>Rating</dt>
@@ -249,7 +249,7 @@ use App\Core\ViewHelper;
                   <small<?= $pickupUrgency !== null ? ' data-status="' . $pickupUrgency . '"' : '' ?>><?= htmlspecialchars($approvedAgoLabel) ?></small>
                 </dd>
                 <dt>Duration</dt>
-                <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>
+                <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) $pickup['loan_duration_hours_bor'])) ?></dd>
                 <?php if ($deposit !== null): ?>
                 <dt>Deposit</dt>
                 <dd>

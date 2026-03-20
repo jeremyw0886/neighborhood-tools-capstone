@@ -249,7 +249,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
         </dd>
 
         <dt>Duration</dt>
-        <dd><?= (int) $borrow['loan_duration_hours_bor'] ?> hours</dd>
+        <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) $borrow['loan_duration_hours_bor'])) ?></dd>
 
         <dt>Requested</dt>
         <dd>

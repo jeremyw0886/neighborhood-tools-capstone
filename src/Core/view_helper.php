@@ -32,6 +32,26 @@ class ViewHelper
     }
 
     /**
+     * Format a loan duration in hours as a human-readable string.
+     *
+     * @param  int $hours Duration in hours
+     * @return string Formatted duration (e.g. "2 days", "12 hours")
+     */
+    public static function formatDuration(int $hours): string
+    {
+        if ($hours >= 24 && $hours % 24 === 0) {
+            $days = $hours / 24;
+            return $days . ' ' . ($days === 1 ? 'day' : 'days');
+        }
+
+        if ($hours >= 24) {
+            error_log("Unexpected non-24-multiple duration: {$hours} hours");
+        }
+
+        return $hours . ' ' . ($hours === 1 ? 'hour' : 'hours');
+    }
+
+    /**
      * Build a pagination URL preserving current filter/sort params.
      *
      * @param  string $basePath     URL path (e.g. '/admin/users')

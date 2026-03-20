@@ -195,7 +195,7 @@ $images        ??= [];
           <?php endif; ?>
 
           <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Loan Duration</dt>
-          <dd><?= htmlspecialchars((string) (int) ($tool['default_loan_duration_hours_tol'] ?? 24)) ?> hours</dd>
+          <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) ($tool['default_loan_duration_hours_tol'] ?? 24))) ?></dd>
 
           <?php if (!empty($tool['fuel_type'])): ?>
             <dt><i class="fa-solid fa-gas-pump" aria-hidden="true"></i> Fuel Type</dt>
@@ -264,14 +264,14 @@ $images        ??= [];
 
             <div>
               <label for="loan-duration">
-                Duration (hours) <span aria-hidden="true">*</span>
+                Duration <span aria-hidden="true">*</span>
               </label>
               <select id="loan-duration"
                       name="loan_duration"
                       required
                       <?= !empty($borrowErrors['loan_duration']) ? 'aria-invalid="true" aria-describedby="duration-error"' : '' ?>>
                 <?php
-                  $options = [6, 12, 24, 48, 72, 120, 168, 336, 504, 720];
+                  $options = [24, 48, 72, 120, 168, 336, 504, 720];
                   $selected = (int) ($borrowOld['loan_duration'] ?? $defaultDuration);
 
                   if (!in_array($defaultDuration, $options, true)) {
@@ -281,7 +281,7 @@ $images        ??= [];
 
                   foreach ($options as $hours): ?>
                     <option value="<?= htmlspecialchars((string) $hours) ?>"<?= $hours === $selected ? ' selected' : '' ?>>
-                      <?= htmlspecialchars((string) $hours) ?> hours (<?= $hours < 24 ? $hours . 'h' : round($hours / 24, 1) . ' day' . (round($hours / 24, 1) !== 1.0 ? 's' : '') ?>)
+                      <?= htmlspecialchars(\App\Core\ViewHelper::formatDuration($hours)) ?>
                     </option>
                 <?php endforeach; ?>
               </select>

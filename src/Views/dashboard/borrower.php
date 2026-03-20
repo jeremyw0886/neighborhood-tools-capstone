@@ -143,7 +143,7 @@ use App\Core\ViewHelper;
                   <small<?= $pickupUrgency !== null ? ' data-status="' . $pickupUrgency . '"' : '' ?>><?= htmlspecialchars($approvedAgoLabel) ?></small>
                 </dd>
                 <dt>Duration</dt>
-                <dd><?= (int) $pickup['loan_duration_hours_bor'] ?> hrs</dd>
+                <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) $pickup['loan_duration_hours_bor'])) ?></dd>
               </dl>
               <footer data-actions>
                 <?php if (!$waiverSigned): ?>
@@ -345,7 +345,7 @@ use App\Core\ViewHelper;
                   </time>
                 </dd>
                 <dt>Duration</dt>
-                <dd><?= (int) $req['loan_duration_hours_bor'] ?> hrs</dd>
+                <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) $req['loan_duration_hours_bor'])) ?></dd>
               </dl>
               <footer data-actions>
                 <form method="post" action="/borrow/<?= (int) $req['id_bor'] ?>/cancel">

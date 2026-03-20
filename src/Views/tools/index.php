@@ -164,14 +164,12 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
   </form>
 
   <div aria-live="polite" aria-atomic="true">
-    <?php if (!empty($radiusAutoApplied) && $zip !== null): ?>
-      <p role="status">Showing tools within 50 miles of <strong><?= htmlspecialchars($zip) ?></strong></p>
-    <?php endif; ?>
     <?php if ($totalCount > 0): ?>
       <p>
-        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>-<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
+        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>&ndash;<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
         <strong><?= number_format($totalCount) ?></strong>
-        tool<?= $totalCount !== 1 ? 's' : '' ?>
+        tool<?= $totalCount !== 1 ? 's' : '' ?><?php if ($zip !== null && $radius !== null): ?>
+        within <strong><?= (int) $radius ?></strong> miles of <strong><?= htmlspecialchars($zip) ?></strong><?php endif; ?>
       </p>
     <?php else: ?>
       <p>No tools match your filters.</p>

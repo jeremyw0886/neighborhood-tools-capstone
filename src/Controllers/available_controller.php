@@ -180,6 +180,8 @@ class AvailableController extends BaseController
                 'totalCount'     => $totalCount,
                 'rangeStart'     => $rangeStart,
                 'rangeEnd'       => $rangeEnd,
+                'zip'            => $zip,
+                'radius'         => $radius,
             ];
 
             if ($categoryCounts !== null) {

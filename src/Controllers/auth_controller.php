@@ -22,6 +22,11 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
+        $returnUrl = $_GET['return'] ?? null;
+        if ($returnUrl !== null && !isset($_SESSION['redirect_after_login'])) {
+            $_SESSION['redirect_after_login'] = $returnUrl;
+        }
+
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
 
@@ -111,10 +116,15 @@ class AuthController extends BaseController
 
         RateLimiter::reset(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|login');
 
+        $returnUrl = $this->validateReturnUrl(
+            $_SESSION['redirect_after_login'] ?? null
+        );
+        unset($_SESSION['redirect_after_login']);
+
         session_regenerate_id(delete_old_session: true);
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
-        $this->redirect('/dashboard');
+        $this->redirect($returnUrl);
     }
 
     /**
@@ -124,6 +134,11 @@ class AuthController extends BaseController
     {
         if (!empty($_SESSION['logged_in'])) {
             $this->redirect('/dashboard');
+        }
+
+        $returnUrl = $_GET['return'] ?? null;
+        if ($returnUrl !== null && !isset($_SESSION['redirect_after_login'])) {
+            $_SESSION['redirect_after_login'] = $returnUrl;
         }
 
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
@@ -303,10 +318,15 @@ class AuthController extends BaseController
         $_SESSION['user_avatar']        = null;
         $_SESSION['user_vector_avatar'] = null;
 
+        $returnUrl = $this->validateReturnUrl(
+            $_SESSION['redirect_after_login'] ?? null
+        );
+        unset($_SESSION['redirect_after_login']);
+
         session_regenerate_id(delete_old_session: true);
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
-        $this->redirect('/dashboard');
+        $this->redirect($returnUrl);
     }
 
     /**
@@ -534,6 +554,38 @@ class AuthController extends BaseController
     // -------------------------------------------------------
     //  Private helpers
     // -------------------------------------------------------
+
+    /**
+     * Validate and sanitize a post-login return URL.
+     *
+     * @param ?string $url Raw URL from session or query param.
+     * @return string Safe local path, or /dashboard as fallback.
+     */
+    private function validateReturnUrl(?string $url): string
+    {
+        if ($url === null || $url === '') {
+            return '/dashboard';
+        }
+
+        $url = str_replace('\\', '/', $url);
+
+        $parsed = parse_url($url);
+
+        if (isset($parsed['scheme']) || isset($parsed['host'])) {
+            return '/dashboard';
+        }
+
+        if (!isset($parsed['path']) || $parsed['path'][0] !== '/') {
+            return '/dashboard';
+        }
+
+        $blocked = ['/login', '/register'];
+        if (in_array($parsed['path'], $blocked, true)) {
+            return '/dashboard';
+        }
+
+        return $url;
+    }
 
     /**
      * Flash an error and redirect back to the login form.

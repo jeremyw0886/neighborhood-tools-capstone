@@ -6,6 +6,7 @@ $featuredTools    ??= [];
 $friendlyNeighbors ??= [];
 $bookmarkedIds     ??= [];
 $bookmarkFlash    ??= '';
+$platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTools' => 0, 'completedBorrows' => 0];
 ?>
 
 <div class="home-page">
@@ -13,23 +14,46 @@ $bookmarkFlash    ??= '';
     <section aria-label="Hero section">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
       <div>
-        <h1 id="hero-heading">Share Tools,<br>
-          Build Community</h1>
-        <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
         <div>
-          <a href="/tools" role="button" data-intent="primary" data-size="lg"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools</a>
-          <?php if ($isLoggedIn): ?>
-            <a href="/tools/create" role="button" data-intent="secondary" data-size="lg"><i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool</a>
-          <?php else: ?>
-            <a href="/register" role="button" data-intent="success" data-size="lg"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
+          <h1 id="hero-heading">Share Tools, Build Community</h1>
+          <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
+          <?php if ($platformStats['availableTools'] > 0 || $platformStats['activeMembers'] > 0 || $platformStats['completedBorrows'] > 0): ?>
+            <ul aria-label="Platform highlights">
+              <li>
+                <i class="fa-solid fa-toolbox" aria-hidden="true"></i>
+                <strong data-target="<?= htmlspecialchars((string) $platformStats['availableTools']) ?>"><?= htmlspecialchars(number_format($platformStats['availableTools'])) ?></strong>
+                <span>Tools Available</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-people-group" aria-hidden="true"></i>
+                <strong data-target="<?= htmlspecialchars((string) $platformStats['activeMembers']) ?>"><?= htmlspecialchars(number_format($platformStats['activeMembers'])) ?></strong>
+                <span>Active Members</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                <strong data-target="<?= htmlspecialchars((string) $platformStats['completedBorrows']) ?>"><?= htmlspecialchars(number_format($platformStats['completedBorrows'])) ?></strong>
+                <span>Borrows This Month</span>
+              </li>
+            </ul>
           <?php endif; ?>
         </div>
-        <form role="search" aria-label="Search tools" action="/tools" method="get">
-          <label for="search-tools" class="visually-hidden">Search tools</label>
-          <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
-          <input type="search" id="search-tools" name="q" placeholder="Search tools near you ...">
-          <button type="submit" data-intent="primary" data-shape="pill"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
-        </form>
+
+        <div>
+          <form role="search" aria-label="Search tools" action="/tools" method="get">
+            <label for="search-tools" class="visually-hidden">Search tools</label>
+            <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="search" id="search-tools" name="q" placeholder="Search tools near you ..." autocomplete="off">
+            <button type="submit" data-intent="primary" data-shape="pill"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
+          </form>
+          <div>
+            <a href="/tools" role="button" data-intent="primary" data-size="lg"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Browse Tools</a>
+            <?php if ($isLoggedIn): ?>
+              <a href="/tools/create" role="button" data-intent="secondary" data-size="lg"><i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool</a>
+            <?php else: ?>
+              <a href="/register" role="button" data-intent="success" data-size="lg"><i class="fa-solid fa-mountain" aria-hidden="true"></i> Join Now</a>
+            <?php endif; ?>
+          </div>
+        </div>
       </div>
     </section>
   </header>

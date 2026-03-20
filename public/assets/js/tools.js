@@ -210,7 +210,7 @@
     const hasFilters = params.size > 0;
     const basePath = getBasePath();
 
-    const icon = emptyState.querySelector(':scope > i');
+    const icon = emptyState.querySelector(':scope > i, :scope > img');
     const h2   = emptyState.querySelector(':scope > h2');
 
     while (emptyState.lastChild) emptyState.lastChild.remove();

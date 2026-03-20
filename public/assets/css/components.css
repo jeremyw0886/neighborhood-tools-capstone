@@ -2100,6 +2100,47 @@
     }
   }
 
+  /* --- Search Autosuggest ---------------------------------- */
+
+  form[role="search"] {
+    position: relative;
+
+    & > ul[role="listbox"] {
+      background: var(--mountain-cloud);
+      border: 1px solid rgba(139, 133, 120, 0.2);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      left: 0;
+      list-style: none;
+      margin: 0.25rem 0 0;
+      max-height: 15rem;
+      overflow-y: auto;
+      padding: 0.25rem;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      z-index: 100;
+
+      &[hidden] {
+        display: none;
+      }
+
+      & > li {
+        border-radius: 0.5rem;
+        color: var(--mountain-charcoal);
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 0.625rem 1rem;
+        transition: background-color 0.15s ease;
+
+        &:hover,
+        &[aria-selected="true"] {
+          background: var(--mountain-fog);
+        }
+      }
+    }
+  }
+
   /* --- Tables ---------------------------------------------- */
 
   main table {

@@ -23,23 +23,14 @@ class AvailableController extends BaseController
 
         $term       = trim($_GET['q'] ?? '');
         $categoryId = ($_GET['category'] ?? '') !== '' ? (int) $_GET['category'] : null;
-        $zip        = trim($_GET['zip'] ?? '') !== '' ? trim($_GET['zip']) : null;
         $maxFee     = ($_GET['max_fee'] ?? '') !== '' ? (float) $_GET['max_fee'] : null;
-        $rawRadius  = (int) ($_GET['radius'] ?? 0);
-        $radius     = in_array($rawRadius, $allowedRadii, true) ? $rawRadius : null;
         $page       = max(1, (int) ($_GET['page'] ?? 1));
 
-        if ($zip !== null && !preg_match('/^\d{5}$/', $zip)) {
-            $zip = null;
-        }
-
-        if ($zip === null && $radius !== null && !empty($_SESSION['user_zip'])) {
-            $zip = $_SESSION['user_zip'];
-        }
-
-        if ($zip === null) {
-            $radius = null;
-        }
+        [
+            'radius'            => $radius,
+            'zip'               => $zip,
+            'radiusAutoApplied' => $radiusAutoApplied,
+        ] = self::resolveDefaultRadius($_GET, $_SESSION['user_zip'] ?? null, $allowedRadii);
 
         $zipWarning = '';
         if ($zip !== null) {
@@ -220,9 +211,10 @@ class AvailableController extends BaseController
             'sliderMax'     => $sliderMax,
             'sliderValue'   => $sliderValue,
             'bookmarkedIds' => $bookmarkedIds,
-            'zipWarning'    => $zipWarning,
-            'bookmarkFlash' => $this->flash('bookmark_flash'),
-            'availableOnly' => true,
+            'zipWarning'        => $zipWarning,
+            'radiusAutoApplied' => $radiusAutoApplied,
+            'bookmarkFlash'     => $this->flash('bookmark_flash'),
+            'availableOnly'     => true,
         ]);
     }
 }

@@ -438,6 +438,54 @@ class BaseController
     }
 
     /**
+     * Resolve radius/zip defaults for tool browsing.
+     *
+     * @param array    $get          The $_GET superglobal
+     * @param ?string  $userZip      Logged-in user's stored zip
+     * @param int[]    $allowedRadii Valid radius values
+     * @return array{radius: ?int, zip: ?string, radiusAutoApplied: bool}
+     */
+    protected static function resolveDefaultRadius(
+        array $get,
+        ?string $userZip,
+        array $allowedRadii,
+    ): array {
+        $userExplicitlySetRadius = array_key_exists('radius', $get);
+        $rawRadius  = (int) ($get['radius'] ?? 0);
+        $radius     = in_array($rawRadius, $allowedRadii, true) ? $rawRadius : null;
+
+        $zip = trim($get['zip'] ?? '') !== '' ? trim($get['zip']) : null;
+
+        if ($zip !== null && !preg_match('/^\d{5}$/', $zip)) {
+            $zip = null;
+        }
+
+        $radiusAutoApplied = false;
+
+        if (!$userExplicitlySetRadius && $radius === null
+            && !empty($userZip)) {
+            $radius = 50;
+            $zip    = $zip ?? $userZip;
+            $radiusAutoApplied = true;
+        }
+
+        if ($zip === null && $radius !== null && !empty($userZip)) {
+            $zip = $userZip;
+        }
+
+        if ($zip === null) {
+            $radius = null;
+            $radiusAutoApplied = false;
+        }
+
+        return [
+            'radius'            => $radius,
+            'zip'               => $zip,
+            'radiusAutoApplied' => $radiusAutoApplied,
+        ];
+    }
+
+    /**
      * Halt execution and display an error page.
      */
     protected function abort(int $code): never

@@ -21,6 +21,7 @@
  * @var ?float  $maxFee       Max rental fee or null
  * @var int     $sliderMax    Rounded ceiling for the fee range slider
  * @var int     $sliderValue  Current slider position
+ * @var bool    $radiusAutoApplied  True when 50-mile default was auto-applied
  * @var bool    $availableOnly  True when rendered by AvailableController
  */
 
@@ -164,6 +165,9 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
   </form>
 
   <div aria-live="polite" aria-atomic="true">
+    <?php if (!empty($radiusAutoApplied) && $zip !== null): ?>
+      <p role="status">Showing tools within 50 miles of <strong><?= htmlspecialchars($zip) ?></strong></p>
+    <?php endif; ?>
     <?php if ($totalCount > 0): ?>
       <p>
         Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>–<?= htmlspecialchars((string) $rangeEnd) ?></strong> of

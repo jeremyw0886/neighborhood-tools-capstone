@@ -158,7 +158,7 @@
   function updateResultCount(data) {
     if (!countArea) return;
 
-    const existing = countArea.querySelector(':scope > p');
+    const paragraphs = countArea.querySelectorAll(':scope > p:not([role="status"])');
     const p = document.createElement('p');
 
     if (data.totalCount > 0) {
@@ -172,10 +172,11 @@
       p.textContent = 'No tools match your filters.';
     }
 
+    const existing = paragraphs[paragraphs.length - 1];
     if (existing) {
       existing.replaceWith(p);
     } else {
-      countArea.prepend(p);
+      countArea.appendChild(p);
     }
   }
 

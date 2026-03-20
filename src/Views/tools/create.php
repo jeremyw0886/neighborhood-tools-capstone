@@ -195,7 +195,7 @@ $fuelTypes  ??= [];
           <p>Drag to choose which part is visible in the 3:2 frame.</p>
         </header>
         <div id="crop-viewport" tabindex="0">
-          <img id="crop-preview" alt="Crop preview" draggable="false">
+          <img id="crop-preview" src="data:," alt="Crop preview" draggable="false">
           <div id="crop-frame" aria-hidden="true"></div>
         </div>
         <p id="crop-hint">Use arrow keys to nudge</p>

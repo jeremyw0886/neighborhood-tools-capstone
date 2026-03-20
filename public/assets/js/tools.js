@@ -57,6 +57,9 @@
   const applyBtn = form.querySelector('fieldset:last-of-type button[type="submit"]');
   if (applyBtn) applyBtn.hidden = true;
 
+  const serverClearLink = form.querySelector('fieldset a[data-intent="ghost"]');
+  if (serverClearLink) serverClearLink.remove();
+
   const zipField    = document.getElementById('filter-zip');
   const radiusField = document.getElementById('filter-radius');
 
@@ -431,6 +434,8 @@
     currentPage = parseInt(new URLSearchParams(window.location.search).get('page') ?? '1', 10);
     fetchFiltered(true);
   });
+
+  updateClearButton();
 })();
 
 (function () {

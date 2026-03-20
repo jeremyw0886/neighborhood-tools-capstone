@@ -6,7 +6,10 @@
     <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/assets/images/logo.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
     <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
     <?php foreach ($cdnJs ?? [] as $cdn): ?>
     <?php $cdnOrigin = parse_url($cdn, PHP_URL_SCHEME) . '://' . parse_url($cdn, PHP_URL_HOST); ?>

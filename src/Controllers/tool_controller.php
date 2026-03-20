@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\ImageProcessor;
 use App\Models\AvailabilityBlock;
 use App\Models\Bookmark;
+use App\Models\Category;
 use App\Models\SearchLog;
 use App\Models\Tool;
 use App\Models\ZipCode;
@@ -351,7 +352,7 @@ class ToolController extends BaseController
         $fuelTypes  = [];
 
         try {
-            $categories = Tool::getCategories();
+            $categories = Category::getList();
             $fuelTypes  = Tool::getFuelTypes();
         } catch (\Throwable $e) {
             error_log('ToolController::create — ' . $e->getMessage());
@@ -415,7 +416,7 @@ class ToolController extends BaseController
         $fuelTypes  = [];
 
         try {
-            $categories = Tool::getCategories();
+            $categories = Category::getList();
             $fuelTypes  = Tool::getFuelTypes();
         } catch (\Throwable $e) {
             error_log('ToolController::edit categories — ' . $e->getMessage());

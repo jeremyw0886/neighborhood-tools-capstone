@@ -52,6 +52,20 @@ class Category
         return $stmt->fetchAll();
     }
 
+    /**
+     * @return array<int, array{id_cat: int, category_name_cat: string}>
+     */
+    public static function getList(): array
+    {
+        $pdo = Database::connection();
+
+        return $pdo->query("
+            SELECT id_cat, category_name_cat
+            FROM category_cat
+            ORDER BY category_name_cat ASC
+        ")->fetchAll();
+    }
+
     public static function getCount(): int
     {
         $pdo = Database::connection();

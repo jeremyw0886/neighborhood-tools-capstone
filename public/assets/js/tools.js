@@ -395,6 +395,7 @@
 
     e.preventDefault();
     form.reset();
+    document.getElementById('filter-max-fee')?.dispatchEvent(new Event('input', { bubbles: true }));
     syncZipRequired();
     currentPage = 1;
     fetchFiltered();

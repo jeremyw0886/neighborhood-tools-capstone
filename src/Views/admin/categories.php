@@ -100,7 +100,8 @@ $hasFilters  = $search !== null || $hasIcon !== null;
         <input type="search" id="cats-search" name="q"
                value="<?= htmlspecialchars($search ?? '') ?>"
                placeholder="Category name…"
-               autocomplete="off">
+               autocomplete="off"
+               data-suggest="admin" data-suggest-type="categories">
       </div>
 
       <div>

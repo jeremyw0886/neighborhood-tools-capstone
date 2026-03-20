@@ -76,7 +76,9 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
              name="q"
              placeholder="Search tools by name or description…"
              value="<?= htmlspecialchars($term) ?>"
-             autocomplete="off">
+             autocomplete="off"
+             data-suggest="tools"
+             <?= $isAvailable ? 'data-available-only' : '' ?>>
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         <span>Search</span>

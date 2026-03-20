@@ -77,6 +77,7 @@ class AdminController extends BaseController
             'title'         => 'Admin Dashboard — NeighborhoodTools',
             'description'   => 'Platform administration overview and management.',
             'pageCss'       => ['dashboard.css', 'admin.css'],
+            'pageJs'        => ['admin.js'],
             'stats'         => $stats,
             'trends'        => $trends,
             'range'         => $range,
@@ -144,6 +145,7 @@ class AdminController extends BaseController
             'title'        => 'Manage Users — NeighborhoodTools',
             'description'  => 'View and manage platform members.',
             'pageCss'      => ['admin.css'],
+            'pageJs'       => ['admin.js'],
             'users'        => $users,
             'totalCount'   => $totalCount,
             'page'         => $page,
@@ -369,6 +371,7 @@ class AdminController extends BaseController
             'title'         => 'Manage Tools — NeighborhoodTools',
             'description'   => 'View and manage listed tools.',
             'pageCss'       => ['admin.css'],
+            'pageJs'        => ['admin.js'],
             'tools'         => $tools,
             'totalCount'    => $totalCount,
             'page'          => $page,
@@ -440,6 +443,7 @@ class AdminController extends BaseController
             'title'         => 'Manage Deposits',
             'description'   => 'Admin deposit management',
             'pageCss'       => ['admin.css'],
+            'pageJs'        => ['admin.js'],
             'deposits'      => $deposits,
             'totalCount'    => $totalCount,
             'page'          => $page,
@@ -505,6 +509,7 @@ class AdminController extends BaseController
             'title'         => 'Manage Events — NeighborhoodTools',
             'description'   => 'View and manage community events.',
             'pageCss'       => ['admin.css'],
+            'pageJs'        => ['admin.js'],
             'events'        => $events,
             'totalCount'    => $totalCount,
             'page'          => $page,
@@ -575,6 +580,7 @@ class AdminController extends BaseController
             'title'        => 'Manage Incidents — NeighborhoodTools',
             'description'  => 'Review open incident reports.',
             'pageCss'      => ['admin.css'],
+            'pageJs'       => ['admin.js'],
             'incidents'    => $incidents,
             'totalCount'   => $totalCount,
             'page'         => $page,
@@ -634,6 +640,7 @@ class AdminController extends BaseController
             'title'          => 'Reports — NeighborhoodTools',
             'description'    => 'Platform reports and statistics.',
             'pageCss'        => ['admin.css'],
+            'pageJs'         => ['admin.js'],
             'neighborhoods'  => $neighborhoods,
             'totalCount'     => $totalCount,
             'page'           => $page,
@@ -658,6 +665,7 @@ class AdminController extends BaseController
             'title'       => 'Audit Log — NeighborhoodTools',
             'description' => 'Platform activity and audit trail.',
             'pageCss'     => ['admin.css'],
+            'pageJs'      => ['admin.js'],
         ]);
     }
 
@@ -703,6 +711,7 @@ class AdminController extends BaseController
             'title'        => 'Manage Terms of Service — NeighborhoodTools',
             'description'  => 'View and manage Terms of Service versions.',
             'pageCss'      => ['admin.css'],
+            'pageJs'       => ['admin.js'],
             'users'        => $users,
             'totalCount'   => $totalCount,
             'page'         => $page,
@@ -729,6 +738,7 @@ class AdminController extends BaseController
             'title'       => 'Create TOS Version — NeighborhoodTools',
             'description' => 'Publish a new Terms of Service version.',
             'pageCss'     => ['admin.css'],
+            'pageJs'      => ['admin.js'],
             'errors'      => $errors,
             'old'         => $old,
         ]);
@@ -970,6 +980,89 @@ class AdminController extends BaseController
      *
      * @return void
      */
+    /**
+     * Return JSON suggestions for admin search inputs.
+     */
+    public function suggest(): never
+    {
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+
+        $term = trim($_GET['q'] ?? '');
+        $type = $_GET['type'] ?? '';
+
+        if (mb_strlen($term) < 2) {
+            $this->jsonResponse(200, []);
+        }
+
+        $nameMap = [
+            'users'      => static fn (array $r) => $r['full_name'],
+            'tools'      => static fn (array $r) => $r['tool_name_tol'],
+            'deposits'   => static fn (array $r) => $r['tool_name_tol'] . ' — ' . $r['borrower_name'],
+            'categories' => static fn (array $r) => $r['category_name_cat'],
+            'icons'      => static fn (array $r) => $r['file_name_vec'],
+            'avatars'    => static fn (array $r) => $r['file_name_avv'],
+        ];
+
+        $modelMap = [
+            'users'      => static fn () => Account::adminSearch($term),
+            'tools'      => static fn () => Tool::adminSearch($term),
+            'deposits'   => static fn () => Deposit::adminSearch($term),
+            'categories' => static fn () => Category::adminSearch($term),
+            'icons'      => static fn () => VectorImage::adminSearch($term),
+            'avatars'    => static fn () => AvatarVector::adminSearch($term),
+        ];
+
+        if ($type === 'all') {
+            $this->jsonResponse(200, $this->suggestAll($term));
+        }
+
+        if (!isset($modelMap[$type])) {
+            $this->jsonResponse(200, []);
+        }
+
+        $rows = $modelMap[$type]();
+        $getName = $nameMap[$type];
+
+        $this->jsonResponse(200, array_map(
+            static fn (array $row) => $getName($row),
+            $rows
+        ));
+    }
+
+    /**
+     * Search across all admin entities and return labeled, linkable results.
+     *
+     * @return array<array{name: string, type: string, url: string}>
+     */
+    private function suggestAll(string $term): array
+    {
+        $results = [];
+
+        foreach (Account::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['full_name'], 'type' => 'user', 'url' => '/profile/' . $r['id_acc']];
+        }
+        foreach (Tool::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['tool_name_tol'], 'type' => 'tool', 'url' => '/tools/' . $r['id_tol']];
+        }
+        foreach (Category::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['category_name_cat'], 'type' => 'category', 'url' => '/admin/categories?q=' . urlencode($r['category_name_cat'])];
+        }
+        foreach (Dispute::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['tool_name_tol'] . ' — ' . $r['reporter_name'], 'type' => 'dispute', 'url' => '/disputes/' . $r['id_dsp']];
+        }
+        foreach (Event::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['event_name_evt'], 'type' => 'event', 'url' => '/events/' . $r['id_evt']];
+        }
+        foreach (Incident::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['tool_name_tol'] . ' — ' . $r['incident_type'], 'type' => 'incident', 'url' => '/incidents/' . $r['id_irt']];
+        }
+        foreach (Deposit::adminSearch($term, 2) as $r) {
+            $results[] = ['name' => $r['tool_name_tol'] . ' — ' . $r['borrower_name'], 'type' => 'deposit', 'url' => '/admin/deposits?q=' . urlencode($r['tool_name_tol'])];
+        }
+
+        return array_slice($results, 0, 7);
+    }
+
     public function search(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -1063,6 +1156,7 @@ class AdminController extends BaseController
             'title'       => 'Search Results — NeighborhoodTools',
             'description' => 'Admin search results.',
             'pageCss'     => ['admin.css'],
+            'pageJs'      => ['admin.js'],
             'term'        => $term,
             'results'     => $results,
             'totalCount'  => $totalCount,

@@ -61,6 +61,7 @@ class DisputeController extends BaseController
             'title'        => 'Manage Disputes — NeighborhoodTools',
             'description'  => 'Review and resolve open disputes.',
             'pageCss'      => ['admin.css'],
+            'pageJs'       => ['admin.js'],
             'disputes'     => $disputes,
             'totalCount'   => $totalCount,
             'page'         => $page,

@@ -116,7 +116,8 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           <input type="search" id="icons-search" name="icons_q"
                  value="<?= htmlspecialchars($iconsSearch ?? '') ?>"
                  placeholder="Filename, description, or category…"
-                 autocomplete="off">
+                 autocomplete="off"
+                 data-suggest="admin" data-suggest-type="icons">
         </div>
 
         <div>
@@ -310,7 +311,8 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           <input type="search" id="avatars-search" name="avatars_q"
                  value="<?= htmlspecialchars($avatarsSearch ?? '') ?>"
                  placeholder="Filename or description…"
-                 autocomplete="off">
+                 autocomplete="off"
+                 data-suggest="admin" data-suggest-type="avatars">
         </div>
 
         <div>

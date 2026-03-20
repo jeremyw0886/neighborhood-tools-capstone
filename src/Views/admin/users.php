@@ -105,7 +105,8 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
         <input type="search" id="users-search" name="q"
                value="<?= htmlspecialchars($search ?? '') ?>"
                placeholder="Name or email…"
-               autocomplete="off">
+               autocomplete="off"
+               data-suggest="admin" data-suggest-type="users">
       </div>
 
       <div>

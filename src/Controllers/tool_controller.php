@@ -223,6 +223,22 @@ class ToolController extends BaseController
     }
 
     /**
+     * Return JSON array of tool names matching a partial query.
+     */
+    public function suggest(): never
+    {
+        $term = trim($_GET['q'] ?? '');
+
+        if (mb_strlen($term) < 2) {
+            $this->jsonResponse(200, []);
+        }
+
+        $availableOnly = ($_GET['available'] ?? '') === '1';
+
+        $this->jsonResponse(200, Tool::suggestNames($term, availableOnly: $availableOnly));
+    }
+
+    /**
      * Show the authenticated user's bookmarked tools.
      *
      * Paginates bookmarks newest-first using the Bookmark model,

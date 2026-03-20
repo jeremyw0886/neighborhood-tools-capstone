@@ -276,7 +276,7 @@
     }
   }
 
-  async function fetchFiltered(replaceHistory = false) {
+  async function fetchFiltered({ replaceHistory = false, showLoading = true } = {}) {
     clearTimeout(debounceTimer);
 
     if (abortCtrl) abortCtrl.abort();
@@ -287,7 +287,11 @@
     const qs       = params.toString();
     const url      = qs ? `${basePath}?${qs}` : basePath;
 
-    showSkeletons();
+    if (showLoading) {
+      showSkeletons();
+    } else if (grid) {
+      NT.style.setRule('grid-lock', '#browse-page [role="list"]', `min-height:${grid.offsetHeight}px`);
+    }
 
     try {
       const res = await NT.fetch(url, { signal: abortCtrl.signal });
@@ -302,6 +306,8 @@
       if (grid) {
         grid.innerHTML = data.html;
       }
+
+      NT.style.removeRule('grid-lock');
 
       const currentPagination = getPaginationNav();
       if (currentPagination) {
@@ -343,6 +349,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err) {
+      NT.style.removeRule('grid-lock');
       if (err.name === 'AbortError') return;
       NT.toast('Something went wrong. Reloading\u2026', 'error');
       form.submit();
@@ -358,14 +365,14 @@
   function handleDebouncedInput() {
     clearTimeout(debounceTimer);
     currentPage = 1;
-    debounceTimer = setTimeout(fetchFiltered, DEBOUNCE_MS);
+    debounceTimer = setTimeout(() => fetchFiltered({ showLoading: false }), DEBOUNCE_MS);
   }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     clearTimeout(debounceTimer);
     currentPage = 1;
-    fetchFiltered();
+    fetchFiltered({ showLoading: false });
   });
 
   const category = document.getElementById('filter-category');
@@ -421,7 +428,7 @@
 
     syncZipRequired();
     currentPage = parseInt(params.get('page') ?? '1', 10);
-    fetchFiltered(true);
+    fetchFiltered({ replaceHistory: true });
   });
 
   window.addEventListener('beforeunload', () => {
@@ -433,7 +440,7 @@
     if (!e.persisted) return;
     abortCtrl = new AbortController();
     currentPage = parseInt(new URLSearchParams(window.location.search).get('page') ?? '1', 10);
-    fetchFiltered(true);
+    fetchFiltered({ replaceHistory: true });
   });
 
   updateClearButton();

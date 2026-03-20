@@ -85,7 +85,8 @@ $allActions  = [
         <input type="search" id="deposits-search" name="q"
           value="<?= htmlspecialchars($search ?? '') ?>"
           placeholder="Tool, borrower, or lender…"
-          autocomplete="off">
+          autocomplete="off"
+          data-suggest="admin" data-suggest-type="deposits">
       </div>
 
       <div>

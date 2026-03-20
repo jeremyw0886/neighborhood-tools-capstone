@@ -81,7 +81,8 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
         <input type="search" id="tools-search" name="q"
           value="<?= htmlspecialchars($search ?? '') ?>"
           placeholder="Tool name or owner…"
-          autocomplete="off">
+          autocomplete="off"
+          data-suggest="admin" data-suggest-type="tools">
       </div>
 
       <div>

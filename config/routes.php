@@ -55,6 +55,7 @@ return [
 
     // Tools
     'GET /tools'                   => [ToolController::class, 'index'],
+    'GET /tools/suggest'           => [ToolController::class, 'suggest'],
     'GET /tools/create'            => [ToolController::class, 'create'],
     'POST /tools'                  => [ToolController::class, 'store'],
     'GET /tools/{id}/availability'        => [ToolController::class, 'availability'],
@@ -152,6 +153,7 @@ return [
 
     // Admin
     'GET /admin'                   => [AdminController::class, 'dashboard'],
+    'GET /admin/suggest'           => [AdminController::class, 'suggest'],
     'GET /admin/search'            => [AdminController::class, 'search'],
     'GET /admin/users'                 => [AdminController::class, 'users'],
     'POST /admin/users/{id}/approve'   => [AdminController::class, 'approveUser'],

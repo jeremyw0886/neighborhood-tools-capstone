@@ -1794,4 +1794,32 @@ class Tool
 
         return (int) $stmt->fetchColumn();
     }
+
+    /**
+     * Return tool names matching a partial query.
+     *
+     * @param  string $term          Partial name typed by the user
+     * @param  int    $limit         Max suggestions to return
+     * @param  bool   $availableOnly Restrict to available_tool_v (excludes lent-out, pending accounts, etc.)
+     * @return array<array{id: int, name: string}>
+     */
+    public static function suggestNames(string $term, int $limit = 5, bool $availableOnly = false): array
+    {
+        $pdo = Database::connection();
+        $table = $availableOnly ? 'available_tool_v' : 'tool_tol';
+        $listedFilter = $availableOnly ? '' : ' AND is_available_tol = TRUE';
+
+        $stmt = $pdo->prepare("
+            SELECT id_tol AS id, tool_name_tol AS name
+            FROM {$table}
+            WHERE tool_name_tol LIKE CONCAT('%', :termName, '%'){$listedFilter}
+            ORDER BY tool_name_tol
+            LIMIT :lim
+        ");
+        $stmt->bindValue(':termName', $term, PDO::PARAM_STR);
+        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -14,18 +14,6 @@
   }
 })();
 
-(function () {
-  const radius = document.getElementById('filter-radius');
-  const zip = document.getElementById('filter-zip');
-  if (!radius || !zip) return;
-
-  function sync() {
-    zip.required = radius.value !== '';
-  }
-
-  sync();
-  radius.addEventListener('change', sync);
-})();
 
 (function () {
   const checkbox = document.getElementById('uses-fuel');
@@ -63,6 +51,20 @@
   const countArea  = page.querySelector('[aria-live="polite"]');
   const emptyState = page.querySelector('section[aria-label="No results"]');
   if (!form) return;
+
+  form.noValidate = true;
+
+  const zipField    = document.getElementById('filter-zip');
+  const radiusField = document.getElementById('filter-radius');
+
+  function syncZipRequired() {
+    if (!zipField || !radiusField) return;
+    zipField.required = radiusField.value !== '' && !(/^\d{5}$/).test(zipField.value);
+  }
+
+  syncZipRequired();
+  radiusField?.addEventListener('change', syncZipRequired);
+  zipField?.addEventListener('input', syncZipRequired);
 
   function getPaginationNav() {
     return page.querySelector('nav[aria-label="Pagination"]');
@@ -257,15 +259,13 @@
   });
 
   const category = document.getElementById('filter-category');
-  const radius   = document.getElementById('filter-radius');
   category?.addEventListener('change', handleImmediateChange);
-  radius?.addEventListener('change', handleImmediateChange);
+  radiusField?.addEventListener('change', handleImmediateChange);
 
   const search = document.getElementById('browse-search');
-  const zip    = document.getElementById('filter-zip');
   const maxFee = document.getElementById('filter-max-fee');
   search?.addEventListener('input', handleDebouncedInput);
-  zip?.addEventListener('input', handleDebouncedInput);
+  zipField?.addEventListener('input', handleDebouncedInput);
   maxFee?.addEventListener('input', handleDebouncedInput);
 
   page.addEventListener('click', (e) => {
@@ -285,6 +285,7 @@
 
     e.preventDefault();
     form.reset();
+    syncZipRequired();
     currentPage = 1;
     fetchFiltered();
   });
@@ -307,6 +308,7 @@
       }
     }
 
+    syncZipRequired();
     currentPage = parseInt(params.get('page') ?? '1', 10);
     fetchFiltered(true);
   });

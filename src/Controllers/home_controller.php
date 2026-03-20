@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Account;
 use App\Models\Bookmark;
+use App\Models\Neighborhood;
 use App\Models\Tool;
 
 class HomeController extends BaseController
@@ -61,11 +62,19 @@ class HomeController extends BaseController
             }
         }
 
+        try {
+            $platformStats = Neighborhood::getPlatformTotals();
+        } catch (\Exception) {
+            $platformStats = ['totalMembers' => 0, 'activeMembers' => 0, 'availableTools' => 0, 'completedBorrows' => 0];
+        }
+
         $this->render('home/index', [
             'title'            => 'NeighborhoodTools — Share Tools, Build Community',
+            'description'      => 'Borrow tools from your neighbors and lend yours when you\'re not using them. Join your local tool-sharing community today.',
             'heroPage'         => true,
             'pageCss'          => ['home.css'],
             'pageJs'           => ['home.js'],
+            'platformStats'    => $platformStats,
             'selectedCity'     => $selectedCity,
             'nearbyMembers'    => $nearbyMembers,
             'isNearbyFallback' => $isNearbyFallback,

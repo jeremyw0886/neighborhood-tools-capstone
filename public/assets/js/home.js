@@ -63,6 +63,56 @@
 })();
 
 /**
+ * Rotating subtitle crossfade — cycles hero subtitle every 4 seconds.
+ */
+(function () {
+  const subtitle = document.querySelector(
+    '.home-page > header > section > div > div:first-child > p'
+  );
+  if (!subtitle) return;
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reducedMotion.matches) return;
+
+  const lines = [
+    'Borrow tools from your neighbors. Lend yours when you\u2019re not using them.',
+    'Save money. Reduce waste. Build trust.',
+    'Your neighborhood\u2019s shared toolbox is just a click away.',
+  ];
+
+  let current = 0;
+  const INTERVAL = 6000;
+  const FADE = 300;
+  let timer = null;
+
+  function cycle() {
+    timer = setTimeout(() => {
+      subtitle.classList.add('fading');
+      setTimeout(() => {
+        current = (current + 1) % lines.length;
+        subtitle.textContent = lines[current];
+        requestAnimationFrame(() => {
+          subtitle.classList.remove('fading');
+        });
+        cycle();
+      }, FADE);
+    }, INTERVAL);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearTimeout(timer);
+      timer = null;
+    } else {
+      subtitle.classList.remove('fading');
+      if (!timer) cycle();
+    }
+  });
+
+  cycle();
+})();
+
+/**
  * Neighbor carousel — progressive enhancement for mobile.
  *
  * At ≤700px the CSS makes the neighbor grid a horizontal scroll-snap

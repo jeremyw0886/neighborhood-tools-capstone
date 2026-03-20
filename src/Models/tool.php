@@ -720,6 +720,117 @@ class Tool
     }
 
     /**
+     * Per-category counts with all non-category filters applied.
+     *
+     * @return array<int, int>  [category_id => tool_count]
+     */
+    public static function searchCountsByCategory(
+        string $term = '',
+        ?string $zip = null,
+        ?float $maxFee = null,
+        ?int $radius = null,
+        ?int $excludeOwnerId = null,
+        bool $excludeLentOut = false,
+    ): array {
+        $pdo = Database::connection();
+        $useDistance = $radius !== null && $zip !== null;
+
+        $where = [
+            't.is_available_tol = TRUE',
+            'a.id_ast_acc != fn_get_account_status_id(:deleted_status)',
+            'NOT EXISTS (
+                SELECT 1 FROM availability_block_avb avb
+                WHERE avb.id_tol_avb = t.id_tol
+                  AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
+            )',
+        ];
+
+        $joins = [
+            'JOIN account_acc a ON t.id_acc_tol = a.id_acc',
+            'JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat',
+        ];
+
+        if ($useDistance) {
+            $joins[] = 'JOIN zip_code_zpc z ON z.zip_code_zpc = a.zip_code_acc';
+            $joins[] = 'CROSS JOIN zip_code_zpc origin';
+            $where[] = 'origin.zip_code_zpc = :origin_zip';
+            $where[] = 'ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :meters_per_mile <= :radius';
+        }
+
+        $searchTerm = $term !== '' ? $term : null;
+
+        if ($searchTerm !== null) {
+            $where[] = 'MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(:term IN NATURAL LANGUAGE MODE)';
+        }
+
+        if ($zip !== null && !$useDistance) {
+            $where[] = 'a.zip_code_acc = :zip';
+        }
+
+        if ($maxFee !== null) {
+            $where[] = 't.rental_fee_tol <= :maxFee';
+        }
+
+        if ($excludeOwnerId !== null) {
+            $where[] = 't.id_acc_tol != :exclude_owner';
+        }
+
+        if ($excludeLentOut) {
+            $where[] = 'NOT EXISTS (
+                SELECT 1 FROM borrow_bor bl
+                 WHERE bl.id_tol_bor = t.id_tol
+                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
+            )';
+        }
+
+        $sql = 'SELECT tc.id_cat_tolcat AS category_id, COUNT(DISTINCT t.id_tol) AS tool_count '
+             . 'FROM tool_tol t '
+             . implode(' ', $joins) . ' '
+             . 'WHERE ' . implode(' AND ', $where) . ' '
+             . 'GROUP BY tc.id_cat_tolcat';
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':deleted_status', 'deleted', PDO::PARAM_STR);
+
+        if ($useDistance) {
+            $stmt->bindValue(':origin_zip', $zip);
+            $stmt->bindValue(':meters_per_mile', self::METERS_PER_MILE);
+            $stmt->bindValue(':radius', $radius, PDO::PARAM_INT);
+        }
+
+        if ($searchTerm !== null) {
+            $stmt->bindValue(':term', $searchTerm, PDO::PARAM_STR);
+        }
+
+        if ($zip !== null && !$useDistance) {
+            $stmt->bindValue(':zip', $zip, PDO::PARAM_STR);
+        }
+
+        if ($excludeOwnerId !== null) {
+            $stmt->bindValue(':exclude_owner', $excludeOwnerId, PDO::PARAM_INT);
+        }
+
+        if ($maxFee !== null) {
+            $stmt->bindValue(':maxFee', $maxFee, PDO::PARAM_STR);
+        }
+
+        if ($excludeLentOut) {
+            $stmt->bindValue(':bs_lent_filter', 'borrowed', PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+
+        $counts = [];
+
+        foreach ($stmt->fetchAll() as $row) {
+            $counts[(int) $row['category_id']] = (int) $row['tool_count'];
+        }
+
+        return $counts;
+    }
+
+    /**
      * Live per-category tool counts matching browse-page filtering.
      *
      * @param  ?int $excludeOwnerId  Omit tools owned by this account

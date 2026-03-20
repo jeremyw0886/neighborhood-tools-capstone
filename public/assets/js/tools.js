@@ -77,6 +77,31 @@
   const DEBOUNCE_MS    = 300;
   const SKELETON_COUNT = 6;
 
+  const categorySelect = document.getElementById('filter-category');
+  const defaultCounts  = new Map();
+
+  if (categorySelect) {
+    for (const opt of categorySelect.options) {
+      if (opt.value !== '') defaultCounts.set(opt.value, opt.textContent);
+    }
+  }
+
+  function updateCategoryCounts(counts) {
+    if (!categorySelect) return;
+
+    for (const opt of categorySelect.options) {
+      if (opt.value === '') continue;
+
+      if (counts) {
+        const name = (defaultCounts.get(opt.value) ?? opt.textContent).replace(/\s*\(\d+\)\s*$/, '');
+        const n = counts[opt.value] ?? 0;
+        opt.textContent = `${name} (${n})`;
+      } else {
+        opt.textContent = defaultCounts.get(opt.value) ?? opt.textContent;
+      }
+    }
+  }
+
   let debounceTimer  = null;
   let abortCtrl      = null;
   let currentPage    = 1;
@@ -213,6 +238,7 @@
 
       updateResultCount(data);
       updateClearButton();
+      updateCategoryCounts(data.categoryCounts ?? null);
 
       if (data.totalCount === 0 && grid) {
         grid.innerHTML = '';

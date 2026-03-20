@@ -170,14 +170,32 @@ class AvailableController extends BaseController
             $rangeStart = $totalCount > 0 ? (($page - 1) * self::PER_PAGE) + 1 : 0;
             $rangeEnd   = min($page * self::PER_PAGE, $totalCount);
 
-            $this->jsonResponse(200, [
+            $hasNonCategoryFilters = $term !== '' || $zip !== null || $maxFee !== null || $radius !== null;
+            $categoryCounts = $hasNonCategoryFilters
+                ? Tool::searchCountsByCategory(
+                    term: $term,
+                    zip: $zip,
+                    maxFee: $maxFee,
+                    radius: $radius,
+                    excludeOwnerId: $excludeOwnerId,
+                    excludeLentOut: true,
+                )
+                : null;
+
+            $response = [
                 'success'        => true,
                 'html'           => $cardsHtml,
                 'paginationHtml' => $paginationHtml,
                 'totalCount'     => $totalCount,
                 'rangeStart'     => $rangeStart,
                 'rangeEnd'       => $rangeEnd,
-            ]);
+            ];
+
+            if ($categoryCounts !== null) {
+                $response['categoryCounts'] = $categoryCounts;
+            }
+
+            $this->jsonResponse(200, $response);
         }
 
         $this->render('tools/index', [

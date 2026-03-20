@@ -100,6 +100,11 @@ $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
+      <?php if ($hasFilters): ?>
+        <a href="/admin/tos" role="button" data-intent="ghost">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+        </a>
+      <?php endif; ?>
     </fieldset>
   </form>
 

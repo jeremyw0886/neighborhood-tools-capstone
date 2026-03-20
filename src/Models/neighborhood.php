@@ -13,7 +13,7 @@ class Neighborhood
     private const float MAX_MATCH_DISTANCE = 10.0;
 
     /**
-     * Aggregate platform-wide member and tool totals from materialized neighborhood data.
+     * Live platform-wide totals for the hero trust signals.
      *
      * @return array{totalMembers: int, activeMembers: int, availableTools: int, completedBorrows: int}
      */
@@ -22,17 +22,27 @@ class Neighborhood
         $pdo = Database::connection();
 
         $row = $pdo->query(
-            'SELECT COALESCE(SUM(total_members), 0)        AS total_members,
-                    COALESCE(SUM(active_members), 0)        AS active_members,
-                    COALESCE(SUM(available_tools), 0)        AS available_tools,
-                    COALESCE(SUM(completed_borrows_30d), 0)  AS completed_borrows
-               FROM neighborhood_summary_fast_v'
+            'SELECT
+                (SELECT COUNT(*)
+                   FROM account_acc
+                  WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = \'active\')
+                ) AS active_members,
+                (SELECT COUNT(*)
+                   FROM tool_tol
+                  WHERE is_available_tol = TRUE
+                    AND is_deleted_tol = FALSE
+                ) AS available_tools,
+                (SELECT COUNT(*)
+                   FROM borrow_bor
+                  WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = \'returned\')
+                    AND returned_at_bor >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ) AS completed_borrows'
         )->fetch(PDO::FETCH_ASSOC);
 
         return [
-            'totalMembers'    => (int) $row['total_members'],
-            'activeMembers'   => (int) $row['active_members'],
-            'availableTools'  => (int) $row['available_tools'],
+            'totalMembers'     => (int) $row['active_members'],
+            'activeMembers'    => (int) $row['active_members'],
+            'availableTools'   => (int) $row['available_tools'],
             'completedBorrows' => (int) $row['completed_borrows'],
         ];
     }

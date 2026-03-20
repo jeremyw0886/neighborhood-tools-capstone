@@ -1,6 +1,68 @@
 'use strict';
 
 /**
+ * Trust signal count-up — animates stat numbers from 0 to target.
+ */
+(function () {
+  const list = document.querySelector(
+    '.home-page > header > section > div > div:first-child > ul'
+  );
+  if (!list) return;
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reducedMotion.matches) return;
+
+  const counters = list.querySelectorAll('strong[data-target]');
+  if (!counters.length) return;
+
+  const DURATION = 1200;
+
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target, 10);
+    if (!target || target <= 0) return;
+
+    el.textContent = '0';
+    const start = performance.now();
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / DURATION, 1);
+      const current = Math.round(easeOut(progress) * target);
+      el.textContent = current.toLocaleString();
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.disconnect();
+        for (const counter of counters) animateCounter(counter);
+      }
+    },
+    { threshold: 0.5 }
+  );
+
+  function startObserving() {
+    observer.observe(list);
+  }
+
+  const leftCol = list.parentElement;
+  if (leftCol?.classList.contains('animate-in')) {
+    leftCol.addEventListener('animationend', startObserving, { once: true });
+  } else {
+    startObserving();
+  }
+})();
+
+/**
  * Neighbor carousel — progressive enhancement for mobile.
  *
  * At ≤700px the CSS makes the neighbor grid a horizontal scroll-snap

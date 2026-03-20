@@ -217,7 +217,7 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
       <p>No tools match the current criteria.</p>
       <?php if ($hasFilters): ?>
         <a href="/admin/tools" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       <?php else: ?>
         <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">

@@ -275,7 +275,7 @@ $hasFilters = $type !== null || $deadlineMet !== null;
       <?php if ($hasFilters): ?>
         <p>No incidents match the current criteria.</p>
         <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       <?php else: ?>
         <p>All incidents have been resolved. The community is in good standing.</p>

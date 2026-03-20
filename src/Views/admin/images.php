@@ -160,7 +160,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
               'avatars_dir'    => strtolower($avatarsDir),
           ], static fn(?string $v): bool => $v !== null);
         ?>
-          <a href="/admin/images<?= $iconsClearParams !== [] ? '?' . http_build_query($iconsClearParams) : '' ?>">
+          <a href="/admin/images<?= $iconsClearParams !== [] ? '?' . http_build_query($iconsClearParams) : '' ?>" role="button" data-intent="ghost">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
           </a>
         <?php endif; ?>
@@ -243,7 +243,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
         <h3>No Icons Found</h3>
         <p>No category icons match the current filters.</p>
         <a href="/admin/images" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       </section>
     <?php else: ?>
@@ -355,7 +355,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
               'icons_dir'      => strtolower($iconsDir),
           ], static fn(?string $v): bool => $v !== null);
         ?>
-          <a href="/admin/images<?= $avatarsClearParams !== [] ? '?' . http_build_query($avatarsClearParams) : '' ?>">
+          <a href="/admin/images<?= $avatarsClearParams !== [] ? '?' . http_build_query($avatarsClearParams) : '' ?>" role="button" data-intent="ghost">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
           </a>
         <?php endif; ?>
@@ -460,7 +460,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
         <h3>No Avatars Found</h3>
         <p>No avatar vectors match the current filters.</p>
         <a href="/admin/images" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       </section>
     <?php else: ?>

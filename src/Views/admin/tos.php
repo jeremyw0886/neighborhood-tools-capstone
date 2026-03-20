@@ -46,6 +46,7 @@ $sortToColumn = [
 ];
 
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
+$hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 ?>
 
 <section aria-labelledby="admin-tos-heading">

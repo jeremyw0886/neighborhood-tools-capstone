@@ -45,6 +45,7 @@ $sortToColumn = [
 ];
 
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
+$hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 ?>
 
 <section aria-labelledby="admin-reports-heading">
@@ -85,6 +86,11 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
+      <?php if ($hasFilters): ?>
+        <a href="/admin/reports" role="button" data-intent="ghost">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+        </a>
+      <?php endif; ?>
     </fieldset>
   </form>
 

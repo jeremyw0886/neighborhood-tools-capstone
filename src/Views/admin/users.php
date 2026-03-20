@@ -288,7 +288,7 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
       <p>No platform members match the current criteria.</p>
       <?php if ($search !== null || $role !== null || $status !== null): ?>
         <a href="/admin/users" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       <?php else: ?>
         <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">

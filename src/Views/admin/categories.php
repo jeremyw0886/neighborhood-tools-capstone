@@ -135,6 +135,11 @@ $hasFilters  = $search !== null || $hasIcon !== null;
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
+      <?php if ($hasFilters): ?>
+        <a href="/admin/categories" role="button" data-intent="ghost">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+        </a>
+      <?php endif; ?>
     </fieldset>
   </form>
 
@@ -266,7 +271,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
         <h3>No Categories Found</h3>
         <p>No categories match the current filters.</p>
         <a href="/admin/categories" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       </section>
     <?php else: ?>

@@ -27,8 +27,9 @@ $rangeEnd   = min($page * $perPage, $totalCount);
 
 $basePath = '/admin/events';
 
-$allTimings = ['HAPPENING NOW', 'THIS WEEK', 'THIS MONTH', 'UPCOMING'];
-$totalAll   = array_sum($timingCounts);
+$allTimings  = ['HAPPENING NOW', 'THIS WEEK', 'THIS MONTH', 'UPCOMING'];
+$totalAll    = array_sum($timingCounts);
+$hasFilters  = $timing !== null;
 
 $sortLabels = [
     'start_at_evt'   => 'Start Date',
@@ -97,6 +98,11 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
       <button type="submit" data-intent="primary" data-shape="pill">
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
+      <?php if ($hasFilters): ?>
+        <a href="/admin/events" role="button" data-intent="ghost">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
+        </a>
+      <?php endif; ?>
     </fieldset>
   </form>
 

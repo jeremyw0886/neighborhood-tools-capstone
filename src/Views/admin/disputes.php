@@ -216,7 +216,7 @@ $hasFilters = $urgency !== null;
       <?php if ($urgency !== null): ?>
         <p>No disputes match the selected urgency level.</p>
         <a href="/admin/disputes" role="button" data-intent="ghost">
-          <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear Filters
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       <?php else: ?>
         <p>All disputes have been resolved. The community is in good standing.</p>

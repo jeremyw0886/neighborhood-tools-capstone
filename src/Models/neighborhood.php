@@ -15,23 +15,25 @@ class Neighborhood
     /**
      * Aggregate platform-wide member and tool totals from materialized neighborhood data.
      *
-     * @return array{totalMembers: int, activeMembers: int, availableTools: int}
+     * @return array{totalMembers: int, activeMembers: int, availableTools: int, completedBorrows: int}
      */
     public static function getPlatformTotals(): array
     {
         $pdo = Database::connection();
 
         $row = $pdo->query(
-            'SELECT COALESCE(SUM(total_members), 0)   AS total_members,
-                    COALESCE(SUM(active_members), 0)   AS active_members,
-                    COALESCE(SUM(available_tools), 0)   AS available_tools
+            'SELECT COALESCE(SUM(total_members), 0)        AS total_members,
+                    COALESCE(SUM(active_members), 0)        AS active_members,
+                    COALESCE(SUM(available_tools), 0)        AS available_tools,
+                    COALESCE(SUM(completed_borrows_30d), 0)  AS completed_borrows
                FROM neighborhood_summary_fast_v'
         )->fetch(PDO::FETCH_ASSOC);
 
         return [
-            'totalMembers'   => (int) $row['total_members'],
-            'activeMembers'  => (int) $row['active_members'],
-            'availableTools' => (int) $row['available_tools'],
+            'totalMembers'    => (int) $row['total_members'],
+            'activeMembers'   => (int) $row['active_members'],
+            'availableTools'  => (int) $row['available_tools'],
+            'completedBorrows' => (int) $row['completed_borrows'],
         ];
     }
 

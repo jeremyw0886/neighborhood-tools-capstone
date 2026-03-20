@@ -1,20 +1,23 @@
 .auth-card [data-password-toggle] {
-  position: relative;
+  display: grid;
 
   & > :is(input[type="password"], input[type="text"]) {
+    grid-column: 1;
+    grid-row: 2;
     padding-right: 3rem;
   }
 
   & > button[data-toggle-visibility] {
+    align-self: center;
     background: none;
     border: none;
     color: var(--mountain-slate);
     cursor: pointer;
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: end;
+    margin-right: 0.5rem;
     padding: 0.5rem;
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
 
     &:hover {
       color: var(--mountain-pine);

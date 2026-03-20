@@ -85,6 +85,8 @@
   const fields = document.querySelectorAll('input[type="password"]');
   if (!fields.length) return;
 
+  const buttons = [];
+
   for (const input of fields) {
     const group = input.closest('.form-group');
     if (!group) continue;
@@ -102,21 +104,26 @@
     btn.appendChild(icon);
 
     input.after(btn);
+    buttons.push({ btn, icon });
 
     btn.addEventListener('click', () => {
-      const showing = input.type === 'text';
-      input.type = showing ? 'password' : 'text';
-      icon.className = showing ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
-      btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+      const showing = fields[0].type === 'text';
+      const newType = showing ? 'password' : 'text';
+      const newIcon = showing ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+      const newLabel = showing ? 'Show password' : 'Hide password';
+
+      for (const f of fields) f.type = newType;
+      for (const b of buttons) {
+        b.icon.className = newIcon;
+        b.btn.setAttribute('aria-label', newLabel);
+      }
     });
   }
 
   const form = fields[0].closest('form');
   if (form) {
     form.addEventListener('submit', () => {
-      for (const input of fields) {
-        input.type = 'password';
-      }
+      for (const input of fields) input.type = 'password';
     });
   }
 })();

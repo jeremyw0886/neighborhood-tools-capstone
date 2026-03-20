@@ -1592,6 +1592,7 @@
       border: 1.5px solid var(--mountain-fog);
       border-radius: 0.5rem;
       color: var(--mountain-charcoal);
+      font-size: 0.938rem;
       min-height: 2.75rem;
       padding: 0.625rem 0.875rem;
       transition: border-color 0.2s, box-shadow 0.2s;

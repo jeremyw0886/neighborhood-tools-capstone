@@ -132,8 +132,9 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
       <div>
         <label for="filter-max-fee">
           <i class="fa-solid fa-dollar-sign" aria-hidden="true"></i>
-          Max Fee: <output for="filter-max-fee" id="fee-display">$<?= htmlspecialchars((string) $sliderValue) ?></output>
+          Max Fee:
         </label>
+        <output id="fee-display" for="filter-max-fee">$<?= htmlspecialchars((string) $sliderValue) ?></output>
         <input type="range"
                id="filter-max-fee"
                name="max_fee"
@@ -141,8 +142,6 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
                max="<?= htmlspecialchars((string) $sliderMax) ?>"
                step="1"
                value="<?= htmlspecialchars((string) $sliderValue) ?>"
-               aria-valuemin="0"
-               aria-valuemax="<?= htmlspecialchars((string) $sliderMax) ?>"
                aria-valuenow="<?= htmlspecialchars((string) $sliderValue) ?>"
                aria-valuetext="$<?= htmlspecialchars((string) $sliderValue) ?>">
         <span>
@@ -170,7 +169,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
     <?php endif; ?>
     <?php if ($totalCount > 0): ?>
       <p>
-        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>–<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
+        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>-<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
         <strong><?= number_format($totalCount) ?></strong>
         tool<?= $totalCount !== 1 ? 's' : '' ?>
       </p>
@@ -179,12 +178,14 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
     <?php endif; ?>
   </div>
 
-  <?php if (!empty($tools)): ?>
+  <?php $hasTools = !empty($tools); ?>
 
-    <div role="list">
-      <?php foreach ($tools as $tool): ?>
-        <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
-      <?php endforeach; ?>
+    <div role="list" <?= $hasTools ? '' : 'hidden' ?>>
+      <?php if ($hasTools): ?>
+        <?php foreach ($tools as $tool): ?>
+          <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
 
     <?php if ($totalPages > 1): ?>
@@ -268,19 +269,29 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
       </nav>
     <?php endif; ?>
 
-  <?php else: ?>
-
-    <section aria-label="No results">
+    <section aria-label="No results" <?= $hasTools ? 'hidden' : '' ?>>
       <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
       <h2>No Tools Found</h2>
-      <p>Try broadening your search or adjusting the filters above.</p>
       <?php if (!empty($filterParams)): ?>
+        <ul>
+          <?php if ($term !== ''): ?>
+            <li>No tools match &ldquo;<?= htmlspecialchars($term) ?>&rdquo; &mdash; try a broader search term</li>
+          <?php endif; ?>
+          <?php if ($radius !== null && $radius < 50): ?>
+            <li>
+              Try <a href="<?= htmlspecialchars($basePath) ?>?<?= http_build_query(array_merge($filterParams, ['radius' => 50])) ?>">increasing your search distance</a>
+            </li>
+          <?php endif; ?>
+          <?php if ($maxFee !== null): ?>
+            <li>Try raising or removing the max fee filter</li>
+          <?php endif; ?>
+        </ul>
         <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
           <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Clear All Filters
         </a>
+      <?php else: ?>
+        <p>No tools are currently available &mdash; check back soon.</p>
       <?php endif; ?>
     </section>
-
-  <?php endif; ?>
 
 </section>

@@ -413,6 +413,13 @@
     clearTimeout(debounceTimer);
     if (abortCtrl) abortCtrl.abort();
   });
+
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    abortCtrl = new AbortController();
+    currentPage = parseInt(new URLSearchParams(window.location.search).get('page') ?? '1', 10);
+    fetchFiltered(true);
+  });
 })();
 
 (function () {

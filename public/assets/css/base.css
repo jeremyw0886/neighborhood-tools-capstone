@@ -169,6 +169,7 @@
       --field-error:        var(--color-danger-600);
       --field-error-border: var(--color-danger-500);
       --notification-badge: var(--color-danger-600);
+      --placeholder-text:   #736a62;
   }
 
   /* --- Reset --- */
@@ -177,6 +178,10 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+  }
+
+  ::placeholder {
+      color: var(--placeholder-text);
   }
 
   /* --- Document --- */

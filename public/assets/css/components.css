@@ -1597,10 +1597,6 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       width: 100%;
 
-      &::placeholder {
-        color: var(--mountain-stone);
-      }
-
       &:focus {
         border-color: var(--mountain-pine-light);
         box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
@@ -2029,9 +2025,6 @@
       border-color: var(--field-error);
     }
 
-    &::placeholder {
-      color: var(--mountain-stone);
-    }
   }
 
   fieldset :is(input[type="text"], input[type="number"], select, textarea) {

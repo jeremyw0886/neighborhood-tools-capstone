@@ -270,7 +270,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
     <?php endif; ?>
 
     <section aria-label="No results" <?= $hasTools ? 'hidden' : '' ?>>
-      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <img src="/assets/images/empty-search.svg" alt="" width="200" height="200" role="presentation">
       <h2>No Tools Found</h2>
       <?php if (!empty($filterParams)): ?>
         <ul>

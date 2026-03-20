@@ -525,6 +525,13 @@
         margin-bottom: 1rem;
       }
 
+      &>img {
+        display: block;
+        margin: 0 auto 1rem;
+        max-width: 200px;
+        height: auto;
+      }
+
       &>h2 {
         color: var(--mountain-pine);
         margin-bottom: 0.5rem;

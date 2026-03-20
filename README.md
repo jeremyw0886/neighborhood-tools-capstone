@@ -43,23 +43,24 @@ neighborhoodtools/
 │       ├── images/            # SVGs and static images
 │       └── vendor/fontawesome/ # Self-hosted FA subset
 ├── src/
-│   ├── Core/                  # BaseController, Database, Role enum
+│   ├── Core/                  # BaseController, Database, Role enum, ImageProcessor, RateLimiter, Environment, ViewHelper
 │   ├── Controllers/           # Route handlers
 │   ├── Models/                # Data access (static methods, PDO)
 │   └── Views/
 │       ├── layouts/main.php   # Shared HTML shell
 │       ├── partials/          # Nav, tool cards, modals, content blocks
 │       └── {feature}/         # Page templates by feature
+├── usability_testing/          # Usability test plans, reports, and support files
 └── dumps/                     # SQL schema dump
 ```
 
 ## Implemented Features
 
-- **Home** &mdash; Hero section, featured tools, top members, location-based member sidebar
+- **Home** &mdash; Hero section, featured tools, top members, location-based member carousel
 - **Authentication** &mdash; Login, registration, logout with CSRF protection, honeypot, bcrypt hashing, password reset via email
-- **Tools** &mdash; Browse with search/filter/pagination, detail view, create, edit, delete, bookmarks, availability management, listing toggle
+- **Tools** &mdash; Browse with search/filter/pagination, detail view, create, edit, delete, multi-image upload with reorder and primary selection, bookmarks, availability management, listing toggle
 - **Dashboard** &mdash; Overview, lender view (listed tools + incoming requests), borrower view (active borrows), transaction history, loan status tracking
-- **Borrowing** &mdash; Request, approve, deny, cancel, extend
+- **Borrowing** &mdash; Request, approve, deny, cancel, extend, reminders
 - **Handover verification** &mdash; Pickup/return code confirmation
 - **Ratings** &mdash; Rate borrowers and lenders after transactions, rate tools
 - **Profiles** &mdash; Public member profiles with ratings, listed tools, bio, profile editing
@@ -69,27 +70,22 @@ neighborhoodtools/
 - **Incidents** &mdash; Member-facing damage/loss/injury reporting, detail view
 - **Waivers** &mdash; Borrow waiver, condition acknowledgment, liability release
 - **Categories** &mdash; Category browsing page
-- **Notifications** &mdash; Paginated notification feed with mark-all-read
-- **Admin** &mdash; Dashboard with platform stats, global search, user management (approve/deny/status), tool management, category CRUD with icon assignment, vector image library, avatar vector management, dispute/event/incident oversight, reports, audit log, TOS versioning
+- **Notifications** &mdash; Paginated notification feed with mark-all-read, notification preferences
+- **Admin** &mdash; Dashboard with platform stats, global search, user management (approve/deny/status), tool management, category CRUD with icon assignment, vector image library, avatar vector management, deposit management, dispute/event/incident oversight, reports, audit log, TOS versioning
 - **Terms of Service** &mdash; Versioned TOS with acceptance tracking
 - **Info Pages** &mdash; How-To, FAQ (available as standalone pages and modals)
-
-## In Progress
-
-- **Deposits view** &mdash; Admin-facing deposit management interface
-- **JavaScript enhancements** &mdash; Progressive UX improvements and client-side optimizations across existing features
 
 ## Coding Standards
 
 - **PHP:** PSR-12, strict types, prepared statements, `htmlspecialchars()` on all output
 - **CSS:** Design tokens, CSS nesting, `@layer` cascade, Grid/Flexbox, `clamp()`, no `!important`
 - **JS:** `'use strict'`, progressive enhancement (everything 'works' without JS)
-- **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings (color pallet to be updated for contrast)
+- **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings
 - **Security:** CSRF tokens, CSP/HSTS/X-Frame-Options headers, HttpOnly/Secure/SameSite cookies
 
 ## AI-Assisted Development
 
-[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, and usability testing support.
+[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, and usability testing support. Placeholder images were created using [Artlist AI](https://artlist.io).
 
 ## Local Development
 

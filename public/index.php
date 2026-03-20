@@ -83,7 +83,9 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Security headers
 header("Content-Security-Policy: default-src 'self'; script-src 'self' https://js.stripe.com https://challenges.cloudflare.com; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com; frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com; frame-ancestors 'none'");
-header('Cache-Control: no-cache');
+header(!empty($_SESSION['logged_in'])
+    ? 'Cache-Control: no-store, must-revalidate'
+    : 'Cache-Control: no-cache, private');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');

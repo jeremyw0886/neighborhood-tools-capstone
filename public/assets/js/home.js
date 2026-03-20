@@ -239,6 +239,7 @@
       controller = new AbortController();
 
       memberList.setAttribute('aria-busy', 'true');
+      memberList.setAttribute('aria-live', 'polite');
 
       try {
         const res = await fetch(`/?location=${encodeURIComponent(city)}`, {
@@ -251,7 +252,10 @@
         const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
         const fresh = doc.getElementById('member-list');
 
-        if (fresh) memberList.replaceChildren(...fresh.childNodes);
+        if (fresh) {
+          memberList.replaceChildren(...fresh.childNodes);
+          memberList.dispatchEvent(new CustomEvent('member-list:refresh'));
+        }
       } catch (err) {
         if (err.name !== 'AbortError') {
           const status = document.createElement('p');
@@ -263,38 +267,95 @@
       } finally {
         memberList.removeAttribute('aria-busy');
         controller = null;
+        // 3s heuristic: no reliable "announcement complete" event from screen
+        // readers — 3 seconds gives JAWS/VoiceOver enough time for longer lists
+        setTimeout(() => memberList.setAttribute('aria-live', 'off'), 3000);
       }
     });
   }
 })();
 
 /**
- * Sidebar scroll fade — hides the bottom gradient when
- * the member list is scrolled to the end.
+ * Member carousel — arrow navigation for desktop.
+ *
+ * At >700px, unhides prev/next arrow buttons and hides the native
+ * scrollbar. Scrolls by 3 card widths per click. At ≤700px, arrows
+ * stay hidden and CSS scroll-snap handles single-card swiping.
+ *
+ * Without JS the native scrollbar remains visible and functional.
  */
 (function () {
-  const section = document.getElementById('member-list');
-  if (!section) return;
+  const carousel = document.getElementById('member-carousel');
+  const memberList = document.getElementById('member-list');
+  if (!carousel || !memberList) return;
 
-  function checkScroll() {
-    const atEnd = section.scrollHeight - section.scrollTop - section.clientHeight < 4;
-    section.classList.toggle('scrolled-end', atEnd);
+  const prevBtn = carousel.querySelector('button[data-dir="prev"]');
+  const nextBtn = carousel.querySelector('button[data-dir="next"]');
+  if (!prevBtn || !nextBtn) return;
+
+  const desktop = window.matchMedia('(min-width: 701px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function updateArrowState() {
+    prevBtn.disabled = memberList.scrollLeft <= 1;
+    nextBtn.disabled =
+      memberList.scrollLeft + memberList.clientWidth >= memberList.scrollWidth - 1;
+  }
+
+  function resetCarousel() {
+    memberList.scrollLeft = 0;
+    updateArrowState();
   }
 
   let rafPending = false;
-  function scheduleCheck() {
+  function onScroll() {
     if (rafPending) return;
     rafPending = true;
     requestAnimationFrame(() => {
-      checkScroll();
+      updateArrowState();
       rafPending = false;
     });
   }
 
-  section.addEventListener('scroll', scheduleCheck, { passive: true });
+  function scrollByCards(direction) {
+    const first = memberList.firstElementChild;
+    if (!first) return;
+    const gap = parseFloat(getComputedStyle(memberList).gap) || 0;
+    const cardWidth = first.offsetWidth + gap;
+    memberList.scrollBy({
+      left: direction * cardWidth * 3,
+      behavior: reducedMotion.matches ? 'auto' : 'smooth'
+    });
+  }
 
-  scheduleCheck();
+  prevBtn.addEventListener('click', () => scrollByCards(-1));
+  nextBtn.addEventListener('click', () => scrollByCards(1));
 
-  const observer = new ResizeObserver(scheduleCheck);
-  observer.observe(section);
+  function activate() {
+    prevBtn.hidden = false;
+    nextBtn.hidden = false;
+    memberList.dataset.arrows = '';
+    memberList.addEventListener('scroll', onScroll, { passive: true });
+    resetCarousel();
+  }
+
+  function deactivate() {
+    prevBtn.hidden = true;
+    nextBtn.hidden = true;
+    delete memberList.dataset.arrows;
+    memberList.removeEventListener('scroll', onScroll);
+    resetCarousel();
+  }
+
+  memberList.addEventListener('member-list:refresh', () => {
+    requestAnimationFrame(resetCarousel);
+  });
+
+  function handleViewport(e) {
+    if (e.matches) activate();
+    else deactivate();
+  }
+
+  desktop.addEventListener('change', handleViewport);
+  handleViewport(desktop);
 })();

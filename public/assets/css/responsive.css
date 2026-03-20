@@ -12,7 +12,6 @@
 
     nav[aria-label="Main navigation"]>a:first-child img {
       padding-top: .4rem;
-      width: 70px;
     }
 
     nav[aria-label="Main navigation"]>#top-links {
@@ -138,10 +137,6 @@
   }
 
   @media (max-width: 400px) {
-    nav[aria-label="Main navigation"]>a:first-child img {
-      width: 32px;
-    }
-
     body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
       padding-left: 2rem;
     }

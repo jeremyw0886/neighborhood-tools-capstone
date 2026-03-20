@@ -286,7 +286,7 @@
       & img {
         flex-shrink: 0;
         height: auto;
-        width: 80px;
+        width: clamp(80px, 6vw + 40px, 120px);
       }
 
       & span {

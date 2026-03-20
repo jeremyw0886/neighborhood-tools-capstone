@@ -47,7 +47,6 @@
     margin-inline: calc(-50vw + 50%);
     min-width: 0;
     padding-block: 0 2rem;
-    padding-inline: calc(1.5rem + 50vw - 50%);
     position: relative;
 
     & > div a:not([role="button"]) {
@@ -85,18 +84,13 @@
     & > nav[data-hero] {
       width: 100%;
 
-      & > a:first-child img {
-        height: auto;
-        width: clamp(80px, 6vw + 40px, 120px);
-      }
-
       & > #mobile-menu-toggle {
         padding: 0.5rem;
       }
 
       & > #user-actions > #user-actions-toggle {
         border-radius: 0;
-        padding: 0;
+        padding: var(--btn-min-h-md);
 
         &:hover {
           background: transparent;

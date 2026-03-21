@@ -269,13 +269,13 @@ class Tool
         int $offset = 0,
         ?int $radius = null,
         ?int $excludeOwnerId = null,
-        bool $excludeLentOut = false,
+        bool $availableOnly = false,
     ): array {
         if ($radius !== null && $zip !== null) {
-            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius, $excludeOwnerId, $excludeLentOut);
+            return self::searchByDistance($term, $categoryId, $zip, $maxFee, $limit, $offset, $radius, $excludeOwnerId, $availableOnly);
         }
 
-        return self::searchStandard($term, $categoryId, $zip, $maxFee, $limit, $offset, $excludeOwnerId, $excludeLentOut);
+        return self::searchStandard($term, $categoryId, $zip, $maxFee, $limit, $offset, $excludeOwnerId, $availableOnly);
     }
 
     /**
@@ -291,11 +291,19 @@ class Tool
         int $limit,
         int $offset,
         ?int $excludeOwnerId = null,
-        bool $excludeLentOut = false,
+        bool $availableOnly = false,
     ): array {
         $pdo = Database::connection();
 
         $searchTerm = $term !== '' ? $term : null;
+
+        $lentOutCol = $availableOnly
+            ? ''
+            : "EXISTS (
+                    SELECT 1 FROM borrow_bor b
+                     WHERE b.id_tol_bor = t.id_tol
+                       AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
+                ) AS is_lent_out,";
 
         $select = "
             SELECT
@@ -321,11 +329,7 @@ class Tool
                 (SELECT COUNT(*)
                    FROM tool_rating_trt trt
                   WHERE trt.id_tol_trt = t.id_tol) AS rating_count,
-                EXISTS (
-                    SELECT 1 FROM borrow_bor b
-                     WHERE b.id_tol_bor = t.id_tol
-                       AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
-                ) AS is_lent_out,
+                {$lentOutCol}
                 (SELECT MAX(b.created_at_bor)
                    FROM borrow_bor b
                   WHERE b.id_tol_bor = t.id_tol) AS last_activity
@@ -348,6 +352,7 @@ class Tool
 
         $where = "
             WHERE t.is_available_tol = TRUE
+              AND t.is_deleted_tol = FALSE
               AND a.id_ast_acc != fn_get_account_status_id(:deleted_status)
               AND NOT EXISTS (
                   SELECT 1 FROM availability_block_avb avb
@@ -355,6 +360,18 @@ class Tool
                      AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
               )
         ";
+
+        if ($availableOnly) {
+            $where .= " AND NOT EXISTS (
+                SELECT 1 FROM borrow_bor ab
+                 WHERE ab.id_tol_bor = t.id_tol
+                   AND ab.id_bst_bor IN (
+                       fn_get_borrow_status_id('requested'),
+                       fn_get_borrow_status_id('approved'),
+                       fn_get_borrow_status_id('borrowed')
+                   )
+            )";
+        }
 
         if ($searchTerm !== null) {
             $where .= " AND MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(:term IN NATURAL LANGUAGE MODE)";
@@ -376,24 +393,23 @@ class Tool
             $where .= " AND t.id_acc_tol != :exclude_owner";
         }
 
-        if ($excludeLentOut) {
-            $where .= " AND NOT EXISTS (
-                SELECT 1 FROM borrow_bor bl
-                 WHERE bl.id_tol_bor = t.id_tol
-                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
-            )";
-        }
+        $orderBy = $availableOnly
+            ? " ORDER BY COALESCE(last_activity, t.created_at_tol) DESC, t.id_tol ASC"
+            : " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, t.id_tol ASC";
 
         $sql = $select . $joins . $where
-             . " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, t.id_tol ASC"
+             . $orderBy
              . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
 
         $stmt->bindValue(':deleted_status', 'deleted');
-        $stmt->bindValue(':bs_borrowed', 'borrowed');
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        if (!$availableOnly) {
+            $stmt->bindValue(':bs_borrowed', 'borrowed');
+        }
 
         if ($searchTerm !== null) {
             $stmt->bindValue(':term', $searchTerm);
@@ -413,10 +429,6 @@ class Tool
 
         if ($maxFee !== null) {
             $stmt->bindValue(':maxFee', $maxFee);
-        }
-
-        if ($excludeLentOut) {
-            $stmt->bindValue(':bs_lent_filter', 'borrowed');
         }
 
         $stmt->execute();
@@ -448,11 +460,19 @@ class Tool
         int $offset,
         int $radius,
         ?int $excludeOwnerId = null,
-        bool $excludeLentOut = false,
+        bool $availableOnly = false,
     ): array {
         $pdo = Database::connection();
 
         $searchTerm = $term !== '' ? $term : null;
+
+        $lentOutCol = $availableOnly
+            ? ''
+            : "EXISTS (
+                    SELECT 1 FROM borrow_bor b
+                     WHERE b.id_tol_bor = t.id_tol
+                       AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
+                ) AS is_lent_out,";
 
         $select = "
             SELECT
@@ -478,11 +498,7 @@ class Tool
                 (SELECT COUNT(*)
                    FROM tool_rating_trt trt
                   WHERE trt.id_tol_trt = t.id_tol) AS rating_count,
-                EXISTS (
-                    SELECT 1 FROM borrow_bor b
-                     WHERE b.id_tol_bor = t.id_tol
-                       AND b.id_bst_bor = fn_get_borrow_status_id(:bs_borrowed)
-                ) AS is_lent_out,
+                {$lentOutCol}
                 (SELECT MAX(b.created_at_bor)
                    FROM borrow_bor b
                   WHERE b.id_tol_bor = t.id_tol) AS last_activity,
@@ -513,6 +529,7 @@ class Tool
         $where = "
             WHERE origin.zip_code_zpc = :origin_zip
               AND t.is_available_tol = TRUE
+              AND t.is_deleted_tol = FALSE
               AND a.id_ast_acc != fn_get_account_status_id(:deleted_status)
               AND NOT EXISTS (
                   SELECT 1 FROM availability_block_avb avb
@@ -520,6 +537,18 @@ class Tool
                      AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
               )
         ";
+
+        if ($availableOnly) {
+            $where .= " AND NOT EXISTS (
+                SELECT 1 FROM borrow_bor ab
+                 WHERE ab.id_tol_bor = t.id_tol
+                   AND ab.id_bst_bor IN (
+                       fn_get_borrow_status_id('requested'),
+                       fn_get_borrow_status_id('approved'),
+                       fn_get_borrow_status_id('borrowed')
+                   )
+            )";
+        }
 
         if ($searchTerm !== null) {
             $where .= " AND MATCH(t.tool_name_tol, t.tool_description_tol) AGAINST(:term IN NATURAL LANGUAGE MODE)";
@@ -537,18 +566,14 @@ class Tool
             $where .= " AND t.id_acc_tol != :exclude_owner";
         }
 
-        if ($excludeLentOut) {
-            $where .= " AND NOT EXISTS (
-                SELECT 1 FROM borrow_bor bl
-                 WHERE bl.id_tol_bor = t.id_tol
-                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
-            )";
-        }
-
         $where .= " AND ST_Distance_Sphere(z.location_point_zpc, origin.location_point_zpc) / :mpm_filter <= :radius";
 
+        $orderBy = $availableOnly
+            ? " ORDER BY COALESCE(last_activity, t.created_at_tol) DESC, distance_miles ASC, t.id_tol ASC"
+            : " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, distance_miles ASC, t.id_tol ASC";
+
         $sql = $select . $joins . $where
-             . " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, distance_miles ASC, t.id_tol ASC"
+             . $orderBy
              . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
@@ -557,10 +582,13 @@ class Tool
         $stmt->bindValue(':mpm_filter', self::METERS_PER_MILE);
         $stmt->bindValue(':origin_zip', $originZip);
         $stmt->bindValue(':deleted_status', 'deleted');
-        $stmt->bindValue(':bs_borrowed', 'borrowed');
         $stmt->bindValue(':radius', $radius, PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        if (!$availableOnly) {
+            $stmt->bindValue(':bs_borrowed', 'borrowed');
+        }
 
         if ($searchTerm !== null) {
             $stmt->bindValue(':term', $searchTerm);
@@ -576,10 +604,6 @@ class Tool
 
         if ($maxFee !== null) {
             $stmt->bindValue(':maxFee', $maxFee);
-        }
-
-        if ($excludeLentOut) {
-            $stmt->bindValue(':bs_lent_filter', 'borrowed');
         }
 
         $stmt->execute();
@@ -618,13 +642,14 @@ class Tool
         ?float $maxFee = null,
         ?int $radius = null,
         ?int $excludeOwnerId = null,
-        bool $excludeLentOut = false,
+        bool $availableOnly = false,
     ): int {
         $pdo = Database::connection();
         $useDistance = $radius !== null && $zip !== null;
 
         $where = [
             't.is_available_tol = TRUE',
+            't.is_deleted_tol = FALSE',
             'a.id_ast_acc != fn_get_account_status_id(:deleted_status)',
             'NOT EXISTS (
                 SELECT 1 FROM availability_block_avb avb
@@ -632,6 +657,18 @@ class Tool
                   AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
             )',
         ];
+
+        if ($availableOnly) {
+            $where[] = 'NOT EXISTS (
+                SELECT 1 FROM borrow_bor ab
+                WHERE ab.id_tol_bor = t.id_tol
+                  AND ab.id_bst_bor IN (
+                      fn_get_borrow_status_id(\'requested\'),
+                      fn_get_borrow_status_id(\'approved\'),
+                      fn_get_borrow_status_id(\'borrowed\')
+                  )
+            )';
+        }
 
         $joins = [
             'JOIN account_acc a ON t.id_acc_tol = a.id_acc',
@@ -665,14 +702,6 @@ class Tool
 
         if ($excludeOwnerId !== null) {
             $where[] = 't.id_acc_tol != :exclude_owner';
-        }
-
-        if ($excludeLentOut) {
-            $where[] = 'NOT EXISTS (
-                SELECT 1 FROM borrow_bor bl
-                 WHERE bl.id_tol_bor = t.id_tol
-                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
-            )';
         }
 
         $sql = 'SELECT COUNT(DISTINCT t.id_tol) '
@@ -710,10 +739,6 @@ class Tool
             $stmt->bindValue(':maxFee', $maxFee, PDO::PARAM_STR);
         }
 
-        if ($excludeLentOut) {
-            $stmt->bindValue(':bs_lent_filter', 'borrowed', PDO::PARAM_STR);
-        }
-
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
@@ -730,13 +755,14 @@ class Tool
         ?float $maxFee = null,
         ?int $radius = null,
         ?int $excludeOwnerId = null,
-        bool $excludeLentOut = false,
+        bool $availableOnly = false,
     ): array {
         $pdo = Database::connection();
         $useDistance = $radius !== null && $zip !== null;
 
         $where = [
             't.is_available_tol = TRUE',
+            't.is_deleted_tol = FALSE',
             'a.id_ast_acc != fn_get_account_status_id(:deleted_status)',
             'NOT EXISTS (
                 SELECT 1 FROM availability_block_avb avb
@@ -744,6 +770,18 @@ class Tool
                   AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
             )',
         ];
+
+        if ($availableOnly) {
+            $where[] = 'NOT EXISTS (
+                SELECT 1 FROM borrow_bor ab
+                WHERE ab.id_tol_bor = t.id_tol
+                  AND ab.id_bst_bor IN (
+                      fn_get_borrow_status_id(\'requested\'),
+                      fn_get_borrow_status_id(\'approved\'),
+                      fn_get_borrow_status_id(\'borrowed\')
+                  )
+            )';
+        }
 
         $joins = [
             'JOIN account_acc a ON t.id_acc_tol = a.id_acc',
@@ -773,14 +811,6 @@ class Tool
 
         if ($excludeOwnerId !== null) {
             $where[] = 't.id_acc_tol != :exclude_owner';
-        }
-
-        if ($excludeLentOut) {
-            $where[] = 'NOT EXISTS (
-                SELECT 1 FROM borrow_bor bl
-                 WHERE bl.id_tol_bor = t.id_tol
-                   AND bl.id_bst_bor = fn_get_borrow_status_id(:bs_lent_filter)
-            )';
         }
 
         $sql = 'SELECT tc.id_cat_tolcat AS category_id, COUNT(DISTINCT t.id_tol) AS tool_count '
@@ -815,10 +845,6 @@ class Tool
             $stmt->bindValue(':maxFee', $maxFee, PDO::PARAM_STR);
         }
 
-        if ($excludeLentOut) {
-            $stmt->bindValue(':bs_lent_filter', 'borrowed', PDO::PARAM_STR);
-        }
-
         $stmt->execute();
 
         $counts = [];
@@ -836,12 +862,15 @@ class Tool
      * @param  ?int $excludeOwnerId  Omit tools owned by this account
      * @return array<int, int>       [category_id => tool_count]
      */
-    public static function getBrowseableCountsByCategory(?int $excludeOwnerId = null): array
-    {
+    public static function getBrowseableCountsByCategory(
+        ?int $excludeOwnerId = null,
+        bool $availableOnly = false,
+    ): array {
         $pdo = Database::connection();
 
         $where = [
             't.is_available_tol = TRUE',
+            't.is_deleted_tol = FALSE',
             'a.id_ast_acc != fn_get_account_status_id(:deleted_status)',
             'NOT EXISTS (
                 SELECT 1 FROM availability_block_avb avb
@@ -849,6 +878,18 @@ class Tool
                   AND NOW() BETWEEN avb.start_at_avb AND avb.end_at_avb
             )',
         ];
+
+        if ($availableOnly) {
+            $where[] = 'NOT EXISTS (
+                SELECT 1 FROM borrow_bor ab
+                WHERE ab.id_tol_bor = t.id_tol
+                  AND ab.id_bst_bor IN (
+                      fn_get_borrow_status_id(\'requested\'),
+                      fn_get_borrow_status_id(\'approved\'),
+                      fn_get_borrow_status_id(\'borrowed\')
+                  )
+            )';
+        }
 
         if ($excludeOwnerId !== null) {
             $where[] = 't.id_acc_tol != :exclude_owner';

@@ -65,7 +65,9 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
     </p>
   <?php endif; ?>
 
-  <form role="search" action="<?= htmlspecialchars($basePath) ?>" method="get" aria-label="Search and filter tools">
+  <form role="search" action="<?= htmlspecialchars($basePath) ?>" method="get" aria-label="Search and filter tools"
+        data-default-zip="<?= htmlspecialchars($userZip ?? '') ?>"
+        data-default-radius="<?= $radiusAutoApplied ? '50' : '' ?>">
 
     <fieldset aria-label="Search">
       <legend class="visually-hidden">Search</legend>

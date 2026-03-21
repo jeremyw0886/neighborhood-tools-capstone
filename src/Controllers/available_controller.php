@@ -43,8 +43,6 @@ class AvailableController extends BaseController
             }
         }
 
-        $excludeOwnerId = !empty($_SESSION['logged_in']) ? (int) $_SESSION['user_id'] : null;
-
         try {
             $totalCount = Tool::searchCount(
                 term: $term,
@@ -52,12 +50,11 @@ class AvailableController extends BaseController
                 zip: $zip,
                 maxFee: $maxFee,
                 radius: $radius,
-                excludeOwnerId: $excludeOwnerId,
-                excludeLentOut: true,
+                availableOnly: true,
             );
 
             $categories   = Tool::getCategories();
-            $browseCounts = Tool::getBrowseableCountsByCategory($excludeOwnerId);
+            $browseCounts = Tool::getBrowseableCountsByCategory(availableOnly: true);
 
             $totalPages = (int) ceil($totalCount / self::PER_PAGE) ?: 1;
 
@@ -75,8 +72,7 @@ class AvailableController extends BaseController
                 limit: self::PER_PAGE,
                 offset: $offset,
                 radius: $radius,
-                excludeOwnerId: $excludeOwnerId,
-                excludeLentOut: true,
+                availableOnly: true,
             );
 
             if ($tools !== []) {
@@ -168,8 +164,7 @@ class AvailableController extends BaseController
                     zip: $zip,
                     maxFee: $maxFee,
                     radius: $radius,
-                    excludeOwnerId: $excludeOwnerId,
-                    excludeLentOut: true,
+                    availableOnly: true,
                 )
                 : null;
 

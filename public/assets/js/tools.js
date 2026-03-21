@@ -142,6 +142,17 @@
   function hasActiveFilters() {
     const params = buildQueryString();
     params.delete('page');
+
+    const defaultZip    = form.dataset.defaultZip || '';
+    const defaultRadius = form.dataset.defaultRadius || '';
+
+    if (defaultZip && defaultRadius
+        && params.get('zip') === defaultZip
+        && params.get('radius') === defaultRadius) {
+      params.delete('zip');
+      params.delete('radius');
+    }
+
     return params.size > 0;
   }
 
@@ -401,7 +412,29 @@
     if (!clearLink) return;
 
     e.preventDefault();
-    form.reset();
+
+    for (const el of form.elements) {
+      if (!el.name || el.name === 'page' || el.type === 'hidden') continue;
+
+      if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+      } else if (el.type === 'range') {
+        el.value = el.max;
+      } else {
+        el.value = '';
+      }
+    }
+
+    const defaultZip    = form.dataset.defaultZip || '';
+    const defaultRadius = form.dataset.defaultRadius || '';
+
+    if (defaultZip && defaultRadius) {
+      const zf = document.getElementById('filter-zip');
+      const rf = document.getElementById('filter-radius');
+      if (zf) zf.value = defaultZip;
+      if (rf) rf.value = defaultRadius;
+    }
+
     document.getElementById('filter-max-fee')?.dispatchEvent(new Event('input', { bubbles: true }));
     syncZipRequired();
     currentPage = 1;

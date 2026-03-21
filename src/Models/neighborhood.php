@@ -28,9 +28,7 @@ class Neighborhood
                   WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = \'active\')
                 ) AS active_members,
                 (SELECT COUNT(*)
-                   FROM tool_tol
-                  WHERE is_available_tol = TRUE
-                    AND is_deleted_tol = FALSE
+                   FROM available_tool_v
                 ) AS available_tools,
                 (SELECT COUNT(*)
                    FROM borrow_bor

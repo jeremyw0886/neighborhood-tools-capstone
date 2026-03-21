@@ -29,14 +29,14 @@
 <details>
   <summary>How do I update my profile?</summary>
   <div>
-    <p>Visit your profile page and select the edit option. You can update your name, phone number, street address, ZIP code, bio, contact preference, and avatar. Your avatar can be chosen from the platform&rsquo;s curated illustration library or uploaded as a custom image.</p>
+    <p>Visit your profile page and select the edit option. You can update your first and last name, phone number, street address, ZIP code, bio, contact preference, and avatar. Choose an avatar from the platform&rsquo;s curated vector illustration library or upload your own photo.</p>
   </div>
 </details>
 
 <details>
   <summary>How do I find a tool?</summary>
   <div>
-    <p>Use the search bar on the homepage or the browse page to search by keyword. You can also filter by category, ZIP code, distance radius, and maximum rental fee. Results show only tools that are currently available&mdash;anything with an active loan or an availability block is automatically excluded.</p>
+    <p>Use the search bar on the homepage or the browse page to search by keyword&mdash;autocomplete suggestions appear as you type. You can also filter by category, ZIP code, distance radius, and maximum rental fee. Results show only tools that are currently available&mdash;anything with an active loan or an availability block is automatically excluded.</p>
   </div>
 </details>
 
@@ -118,9 +118,30 @@
 </details>
 
 <details>
+  <summary>Can I save tools to look at later?</summary>
+  <div>
+    <p>Yes. Bookmark any tool from its detail page or directly from search results. All of your bookmarks are accessible from a dedicated bookmarks page linked in the navigation. You can remove a bookmark at any time by toggling it off.</p>
+  </div>
+</details>
+
+<details>
+  <summary>What if I forget my password?</summary>
+  <div>
+    <p>Click the &ldquo;Forgot password?&rdquo; link on the login page and enter your email address. You&rsquo;ll receive an email with a secure, time-limited link to create a new password. If you don&rsquo;t see the email, check your spam folder.</p>
+  </div>
+</details>
+
+<details>
   <summary>How do notifications work?</summary>
   <div>
-    <p>You&rsquo;ll receive notifications for key actions&mdash;borrow requests, approvals, denials, upcoming due dates, returns, ratings, and more. The notification bell in the navigation bar shows your unread count. You can mark notifications as read individually or all at once from the notifications page.</p>
+    <p>You&rsquo;ll receive notifications for key actions&mdash;borrow requests, approvals, denials, upcoming due dates, returns, ratings, and more. The notification bell in the navigation bar shows your unread count and a quick preview dropdown. From the notifications page you can mark items as read, delete individual notifications, or clear all read notifications at once. Visit notification preferences to toggle optional alerts like due-date reminders, return confirmations, and rating notifications on or off.</p>
+  </div>
+</details>
+
+<details>
+  <summary>How many photos can I add to a tool listing?</summary>
+  <div>
+    <p>You can upload up to six photos per tool. Supported formats are JPEG, PNG, and WebP, with a maximum size of 5&nbsp;MB each. After uploading, you can reposition the focal point of each image to control how it&rsquo;s cropped in the listing grid. The first photo becomes the primary listing image, and you can reorder or replace photos at any time from the tool&rsquo;s edit page.</p>
   </div>
 </details>
 

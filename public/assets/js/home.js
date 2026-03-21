@@ -266,7 +266,7 @@
 
     tooltip.hidden = false;
     activeCard = card;
-    requestAnimationFrame(() => position(card));
+    position(card);
   }
 
   function hide() {
@@ -278,20 +278,17 @@
 
   function position(card) {
     const rect = card.getBoundingClientRect();
-    const tw = tooltip.offsetWidth;
-    const th = tooltip.offsetHeight;
+    const centerX = rect.left + rect.width / 2 + window.scrollX;
+    const above = rect.top > 50;
+    const top = above
+      ? rect.top + window.scrollY - 8
+      : rect.bottom + window.scrollY + 8;
 
-    let left = rect.left + rect.width / 2 - tw / 2;
-    let top = rect.top - th - 8;
-
-    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
-
-    if (top < 8) {
-      top = rect.bottom + 8;
-    }
-
-    tooltip.style.left = `${left + window.scrollX}px`;
-    tooltip.style.top  = `${top + window.scrollY}px`;
+    tooltip.style.left = `${centerX}px`;
+    tooltip.style.top = `${top}px`;
+    tooltip.style.transform = above
+      ? 'translate(-50%, -100%)'
+      : 'translateX(-50%)';
   }
 
   function cardFrom(el) {

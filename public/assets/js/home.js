@@ -434,8 +434,10 @@
   }
 
   function resetCarousel() {
-    memberList.scrollLeft = 0;
-    requestAnimationFrame(updateArrowState);
+    requestAnimationFrame(() => {
+      memberList.scrollLeft = 0;
+      updateArrowState();
+    });
   }
 
   let rafPending = false;

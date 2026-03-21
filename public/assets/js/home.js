@@ -1,6 +1,28 @@
 'use strict';
 
 /**
+ * Entrance animation — fades up left column and action card with stagger.
+ */
+(function () {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reducedMotion.matches) return;
+
+  const grid = document.querySelector(
+    '.home-page > header > section > div'
+  );
+  if (!grid) return;
+
+  const left = grid.querySelector(':scope > div:first-child');
+  const right = grid.querySelector(':scope > div:last-child');
+  if (!left || !right) return;
+
+  requestAnimationFrame(() => {
+    left.classList.add('animate-in');
+    right.classList.add('animate-in');
+  });
+})();
+
+/**
  * Trust signal count-up — animates stat numbers from 0 to target.
  */
 (function () {

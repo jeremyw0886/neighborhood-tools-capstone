@@ -101,6 +101,7 @@
     max-width: 1275px;
     padding: 1.5rem 3rem 2rem;
     text-align: left;
+    width: 100%;
 
     & > div:first-child {
       display: flex;
@@ -120,8 +121,10 @@
       & > p {
         color: var(--mountain-cream);
         font-size: clamp(0.85rem, 0.73rem + 0.5vw, 1.1rem);
+        min-height: 2lh;
         opacity: 0.95;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        width: 100%;
       }
 
       & > ul {
@@ -138,7 +141,7 @@
 
           & > i {
             color: var(--mountain-gold);
-            font-size: 1.1rem;
+            font-size: clamp(0.85rem, 0.75rem + 0.4vw, 1.1rem);
           }
 
           & > strong {
@@ -149,7 +152,7 @@
 
           & > span {
             color: var(--mountain-cream);
-            font-size: 0.75rem;
+            font-size: clamp(0.625rem, 0.55rem + 0.3vw, 0.75rem);
             letter-spacing: 0.03em;
             opacity: 0.85;
             text-transform: uppercase;
@@ -181,6 +184,7 @@
 
         & > a {
           flex: 1;
+          font-size: clamp(0.8rem, 0.7rem + 0.3vw, 0.875rem);
           text-align: center;
         }
 
@@ -266,7 +270,7 @@
     & > span {
       color: var(--mountain-mist);
       flex-shrink: 0;
-      font-size: 1rem;
+      font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
     }
 
     & input {
@@ -274,7 +278,7 @@
       border: none;
       color: var(--mountain-charcoal);
       flex: 1;
-      font-size: 1rem;
+      font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
       outline: none;
       padding: 0.625rem 0.75rem;
       width: 100%;
@@ -1015,6 +1019,12 @@
       & > div:first-child > ul {
         justify-content: center;
       }
+
+      & > div:last-child {
+        justify-self: center;
+        max-width: 28rem;
+        width: 100%;
+      }
     }
   }
 
@@ -1028,6 +1038,14 @@
 
     .home-page form[role="search"] {
       max-width: 100%;
+    }
+
+    .home-page > header > section > div > div:last-child {
+      padding: 1.25rem;
+    }
+
+    .home-page > header > section > div > div:last-child > div > a {
+      min-width: 0;
     }
 
     .home-page > main > section {
@@ -1090,11 +1108,42 @@
     }
   }
 
-  /* Small phone */
-  @media (max-width: 400px) {
-    .home-page > header > section {
-      gap: 1rem;
-      padding: 0.75rem 0.75rem 1.25rem;
+  /* Narrow phone — compact search button, stack CTA buttons */
+  @media (max-width: 575px) {
+    .home-page form[role="search"] button {
+      border-radius: 50%;
+      height: 2.25rem;
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0;
+      position: relative;
+      text-indent: -9999px;
+      width: 2.25rem;
+    }
+
+    .home-page form[role="search"] button > i {
+      display: none;
+    }
+
+    .home-page form[role="search"] button::after {
+      content: "\f002";
+      font-family: "Font Awesome 6 Free";
+      font-size: 0.9rem;
+      font-weight: 900;
+      left: 50%;
+      position: absolute;
+      text-indent: 0;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .home-page > header > section > div > div:last-child {
+      padding: 1rem;
+    }
+
+    .home-page > header > section > div > div:last-child > div {
+      flex-direction: column;
     }
 
     .home-page > header > section > div > div:first-child > ul {
@@ -1102,13 +1151,16 @@
       gap: 1rem;
       justify-content: center;
     }
+  }
 
-    .home-page > header > section > div > div:last-child > div {
-      flex-direction: column;
+  /* Small phone */
+  @media (max-width: 400px) {
+    .home-page > header > section {
+      gap: 1rem;
+      padding: 0.75rem 0.75rem 1.25rem;
     }
 
     .home-page > header > section > div > div > a {
-      font-size: 0.9rem;
       padding: 0.625rem 1.25rem;
     }
 
@@ -1117,12 +1169,10 @@
     }
 
     .home-page form[role="search"] input {
-      font-size: 0.9rem;
       padding: 0.5rem;
     }
 
     .home-page form[role="search"] button {
-      font-size: 0.8rem;
       padding: 0.5rem 0.875rem;
     }
 

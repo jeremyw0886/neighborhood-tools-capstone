@@ -15,7 +15,8 @@
       );
       $srcsets = \App\Core\ImageProcessor::buildSrcset($variants);
       $isWebp = str_ends_with($tool['primary_image'], '.webp');
-      $fallbackFile = $variants[array_key_first($variants)]['file'] ?? $tool['primary_image'];
+      $smallestWidth = array_key_first($variants) ?? 400;
+      $fallbackFile = $variants[$smallestWidth]['file'] ?? $tool['primary_image'];
       $focalX = (int) ($tool['primary_focal_x'] ?? 50);
       $focalY = (int) ($tool['primary_focal_y'] ?? 50);
       $focalAttrs = ($focalX !== 50 || $focalY !== 50) ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '';
@@ -31,7 +32,7 @@
              srcset="<?= $srcsets['srcset'] ?>"
              sizes="<?= $sizes ?>"
              alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-             width="400" height="300"
+             width="<?= $smallestWidth ?>" height="<?= (int) round($smallestWidth * 0.75) ?>"
              <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $focalAttrs ?>>
       </picture>
     <?php else: ?>

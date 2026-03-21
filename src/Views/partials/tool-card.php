@@ -11,7 +11,7 @@
       $variants = \App\Core\ImageProcessor::getAvailableVariants(
           $tool['primary_image'],
           $tool['primary_width'] ?? null,
-          [400, 800],
+          [220, 400, 800],
       );
       $srcsets = \App\Core\ImageProcessor::buildSrcset($variants);
       $isWebp = str_ends_with($tool['primary_image'], '.webp');

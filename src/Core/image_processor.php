@@ -294,6 +294,7 @@ final class ImageProcessor
             "{$name}-1200w.{$ext}",
             "{$name}-800w.{$ext}",
             "{$name}-400w.{$ext}",
+            "{$name}-220w.{$ext}",
         ];
 
         foreach ($variants as $variant) {

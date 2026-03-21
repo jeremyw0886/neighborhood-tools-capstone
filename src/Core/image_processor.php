@@ -11,7 +11,8 @@ final class ImageProcessor
 {
     private const int JPEG_QUALITY = 82;
     private const int PNG_COMPRESSION = 6;
-    private const int WEBP_QUALITY = 60;
+    private const int WEBP_QUALITY_HIGH = 78;
+    private const int WEBP_QUALITY_LOW = 60;
 
     /**
      * Resize an image file in-place to a maximum width.
@@ -71,7 +72,7 @@ final class ImageProcessor
      * @param non-empty-string $path Absolute path to the source image
      * @return ?string Path to the created WebP file, or null on failure
      */
-    public static function createWebpVariant(string $path): ?string
+    public static function createWebpVariant(string $path, ?int $quality = null): ?string
     {
         $info = getimagesize($path);
         if ($info === false) {
@@ -95,10 +96,18 @@ final class ImageProcessor
             imagesavealpha($source, true);
         }
 
-        imagewebp($source, $webpPath, self::WEBP_QUALITY);
+        imagewebp($source, $webpPath, $quality ?? self::webpQualityForWidth($info[0]));
         unset($source);
 
         return $webpPath;
+    }
+
+    /**
+     * Map image width to appropriate WebP quality.
+     */
+    private static function webpQualityForWidth(int $width): int
+    {
+        return $width <= 400 ? self::WEBP_QUALITY_LOW : self::WEBP_QUALITY_HIGH;
     }
 
     /**

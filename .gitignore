@@ -65,3 +65,4 @@ public/assets/js/usability-test.js
 
 # Build tools (not needed on server — output is committed)
 build-assets.php
+generate-220w-variants.php

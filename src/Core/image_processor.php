@@ -11,7 +11,7 @@ final class ImageProcessor
 {
     private const int JPEG_QUALITY = 82;
     private const int PNG_COMPRESSION = 6;
-    private const int WEBP_QUALITY = 72;
+    private const int WEBP_QUALITY = 60;
 
     /**
      * Resize an image file in-place to a maximum width.

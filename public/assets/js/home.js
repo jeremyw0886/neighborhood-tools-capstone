@@ -266,7 +266,7 @@
 
     tooltip.hidden = false;
     activeCard = card;
-    position(card);
+    requestAnimationFrame(() => position(card));
   }
 
   function hide() {

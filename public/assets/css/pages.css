@@ -279,16 +279,42 @@
     padding: 2rem 1.5rem;
 
     &>header {
-      align-items: center;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      justify-content: center;
       margin-bottom: 1.5rem;
 
       &>h1 {
+        align-items: center;
         color: var(--mountain-pine);
+        display: flex;
         font-family: Georgia, 'Times New Roman', serif;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+
+        &>i {
+          color: var(--mountain-pine-light);
+        }
+
+        &>[data-badge="unread"] {
+          background: var(--mountain-gold);
+          border-radius: 2rem;
+          color: var(--mountain-pine-dark);
+          font-family: system-ui, -apple-system, sans-serif;
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 0.2rem 0.625rem;
+        }
+      }
+
+      &>div {
+        align-items: center;
+        background: var(--mountain-cloud);
+        border: 1px solid var(--mountain-fog);
+        border-radius: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        padding: 0.75rem 1rem;
       }
 
       & [data-intent="danger-outline"] {
@@ -736,7 +762,7 @@
 
     }
 
-    &>header>[data-intent="secondary-outline"] {
+    &>header [data-intent="secondary-outline"] {
       border: 1px solid var(--mountain-pine-light);
       border-radius: 1.5rem;
       color: var(--mountain-pine-light);
@@ -948,7 +974,7 @@
       transition: none;
     }
 
-    main>section[aria-labelledby="notifications-heading"]>header>form>button,
+    main>section[aria-labelledby="notifications-heading"]>header>div>form>button,
     main>section[aria-labelledby="notifications-heading"]>header [data-intent="danger-outline"] {
       transition: none;
     }
@@ -977,7 +1003,7 @@
       transition: none;
     }
 
-    main>section[aria-labelledby="notifications-heading"]>header>[data-intent="secondary-outline"] {
+    main>section[aria-labelledby="notifications-heading"]>header [data-intent="secondary-outline"] {
       transition: none;
     }
 
@@ -1002,20 +1028,18 @@
       padding: 1.25rem 1.25rem;
     }
 
-    main>section[aria-labelledby="notifications-heading"]>header {
-      align-items: center;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
     main>section[aria-labelledby="notifications-heading"]>header>h1 {
       font-size: 1.5rem;
     }
 
-    main>section[aria-labelledby="notifications-heading"]>header>form>button,
-    main>section[aria-labelledby="notifications-heading"]>header>[data-intent="secondary-outline"] {
-      width: 100%;
+    main>section[aria-labelledby="notifications-heading"]>header>div {
+      flex-direction: column;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>header>div>form>button,
+    main>section[aria-labelledby="notifications-heading"]>header>div>[data-intent="secondary-outline"] {
       text-align: center;
+      width: 100%;
     }
 
     #notification-preferences {

@@ -205,7 +205,7 @@
     }
 
     const clearReadForm = form.closest(
-      'header > form[action$="/clear-read"]'
+      'header form[action$="/clear-read"]'
     );
     if (clearReadForm) {
       e.preventDefault();

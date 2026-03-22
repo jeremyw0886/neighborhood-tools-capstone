@@ -122,33 +122,38 @@ $filterUrl = static fn(?string $f): string =>
   <header>
     <h1 id="notifications-heading">
       <i class="fa-solid fa-bell" aria-hidden="true"></i> Notifications
+      <?php if ($unreadCount > 0): ?>
+        <span data-badge="unread"><?= htmlspecialchars((string) $unreadCount) ?> unread</span>
+      <?php endif; ?>
     </h1>
 
-    <?php if ($unreadCount > 0): ?>
-      <form action="/notifications/read" method="post">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-        <input type="hidden" name="page" value="<?= htmlspecialchars((string) $page) ?>">
-        <?php if ($filter !== null): ?>
-          <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
-        <?php endif; ?>
-        <button type="submit" data-intent="primary">
-          <i class="fa-solid fa-check-double" aria-hidden="true"></i> Mark all as read
-        </button>
-      </form>
-    <?php endif; ?>
+    <div>
+      <?php if ($unreadCount > 0): ?>
+        <form action="/notifications/read" method="post">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+          <input type="hidden" name="page" value="<?= htmlspecialchars((string) $page) ?>">
+          <?php if ($filter !== null): ?>
+            <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+          <?php endif; ?>
+          <button type="submit" data-intent="primary">
+            <i class="fa-solid fa-check-double" aria-hidden="true"></i> Mark all as read
+          </button>
+        </form>
+      <?php endif; ?>
 
-    <?php if ($totalCount > 0): ?>
-      <form action="/notifications/clear-read" method="post">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-        <button type="submit" data-intent="danger-outline">
-          <i class="fa-solid fa-trash" aria-hidden="true"></i> Clear read
-        </button>
-      </form>
-    <?php endif; ?>
+      <?php if ($totalCount > 0): ?>
+        <form action="/notifications/clear-read" method="post">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+          <button type="submit" data-intent="danger-outline">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i> Clear read
+          </button>
+        </form>
+      <?php endif; ?>
 
-    <a href="/notifications/preferences" data-intent="secondary-outline">
-      <i class="fa-solid fa-sliders" aria-hidden="true"></i> Preferences
-    </a>
+      <a href="/notifications/preferences" data-intent="secondary-outline">
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i> Preferences
+      </a>
+    </div>
   </header>
 
   <nav aria-label="Filter notifications">

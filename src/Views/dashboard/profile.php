@@ -39,11 +39,13 @@ $rangeEnd   = min($page * $perPage, $totalTools);
 ?>
 
 <div data-profile-card>
-  <img src="<?= htmlspecialchars($avatarSrc) ?>"
-       alt="<?= htmlspecialchars($avatarAlt) ?>"
-       width="150" height="150"
-       decoding="async">
-  <p><?= htmlspecialchars($profile['username']) ?></p>
+  <h2>
+    <img src="<?= htmlspecialchars($avatarSrc) ?>"
+         alt="<?= htmlspecialchars($avatarAlt) ?>"
+         width="150" height="150"
+         decoding="async">
+    <?= htmlspecialchars($profile['username']) ?>
+  </h2>
 
   <p>
     <?php if ($locationStr !== ''): ?>

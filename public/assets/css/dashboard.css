@@ -12,7 +12,9 @@
     [aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
     [aria-labelledby="history-heading"],
+    [aria-labelledby="profile-heading"],
     #loan-status,
+    #profile-edit,
     #bookmarks-page,
     #events-page) {
     margin: 0 auto;
@@ -175,7 +177,7 @@
         overflow-x: visible;
         padding-right: 1rem;
         position: sticky;
-        top: 6rem;
+        top: 8rem;
 
         &>ul {
           flex-direction: column;
@@ -1803,13 +1805,13 @@
 
   /* --- Profile -------------------------------------------- */
 
-  main>article[aria-labelledby="profile-heading"] {
+  main>:is(article, section)[aria-labelledby="profile-heading"] {
     --_header-min-h: 13rem;
     margin: 0 auto;
     max-width: 1100px;
     padding: 2rem 1.5rem;
 
-    &>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
+    & nav[aria-label="Dashboard navigation"] {
 
       &>ul>li>a {
         font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
@@ -1821,7 +1823,8 @@
       }
     }
 
-    &>header {
+    &>header:not(:has(> form)),
+    & [data-profile-card] {
       align-items: center;
       border-bottom: 1px solid var(--mountain-fog);
       display: flex;
@@ -1834,7 +1837,7 @@
       position: relative;
       text-align: center;
 
-      &>h1 {
+      &>:is(h1, h2) {
         align-items: center;
         color: var(--mountain-pine);
         display: flex;
@@ -1914,7 +1917,7 @@
       }
     }
 
-    &>[data-dashboard-body]>section[aria-labelledby="ratings-heading"] {
+    & section[aria-labelledby="ratings-heading"] {
       margin-bottom: 2rem;
 
       &>h2 {
@@ -1964,7 +1967,7 @@
       }
     }
 
-    &>[data-dashboard-body]>section[aria-labelledby="bio-heading"] {
+    & section[aria-labelledby="bio-heading"] {
       margin-bottom: 2rem;
 
       &>h2 {
@@ -1979,7 +1982,7 @@
       }
     }
 
-    &>[data-dashboard-body]>section[aria-labelledby="tools-heading"] {
+    & section[aria-labelledby="tools-heading"] {
 
       &>h2 {
         color: var(--mountain-pine);
@@ -2106,7 +2109,7 @@
   }
 
   @media (min-width: 1100px) {
-    main>article[aria-labelledby="profile-heading"]>[data-dashboard-body]:not(:has(> nav)) {
+    main>:is(article, section)[aria-labelledby="profile-heading"] [data-dashboard-body]:not(:has(> nav)) {
       display: block;
     }
   }
@@ -2496,7 +2499,9 @@
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
       #loan-status,
+      #profile-edit,
       #bookmarks-page,
       #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
       border-bottom-width: 3px;
@@ -2506,12 +2511,13 @@
       }
     }
 
-    main>article[aria-labelledby="profile-heading"] {
+    main>:is(article, section)[aria-labelledby="profile-heading"] {
 
-      &>header {
+      &>header:not(:has(> form)),
+      & [data-profile-card] {
         border-bottom-width: 2px;
 
-        &>h1>img {
+        &>:is(h1, h2)>img {
           border-width: 4px;
         }
 
@@ -2520,11 +2526,11 @@
         }
       }
 
-      &>[data-dashboard-body]>section[aria-labelledby="ratings-heading"]>div>div {
+      & section[aria-labelledby="ratings-heading"]>div>div {
         border-width: 2px;
       }
 
-      &>[data-dashboard-body]>section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>a {
+      & section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>a {
         border-color: var(--mountain-fog);
       }
     }
@@ -2584,6 +2590,10 @@
           display: none;
         }
       }
+
+      &+[data-dashboard-content] {
+        padding-top: 1rem;
+      }
     }
   }
 
@@ -2593,7 +2603,9 @@
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
       #loan-status,
+      #profile-edit,
       #bookmarks-page,
       #events-page) {
       padding: 1.25rem 1rem;
@@ -2603,7 +2615,9 @@
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
       #loan-status,
+      #profile-edit,
       #bookmarks-page,
       #events-page)>header>h1 {
       font-size: 1.5rem;
@@ -2613,7 +2627,9 @@
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
       #loan-status,
+      #profile-edit,
       #bookmarks-page,
       #events-page)>header {
       min-height: unset;
@@ -2796,33 +2812,33 @@
       display: none;
     }
 
-    main>article[aria-labelledby="profile-heading"] {
+    main>:is(article, section)[aria-labelledby="profile-heading"] {
       padding: 1.25rem 1rem;
     }
 
-    main>article[aria-labelledby="profile-heading"]>header>h1 {
+    main>:is(article, section)[aria-labelledby="profile-heading"] :is(header, [data-profile-card])>:is(h1, h2) {
       flex-direction: column;
       font-size: 1.5rem;
       gap: 0.5rem;
     }
 
-    main>article[aria-labelledby="profile-heading"]>header>a[href="/profile/edit"] {
+    main>:is(article, section)[aria-labelledby="profile-heading"] :is(header, [data-profile-card])>a[href="/profile/edit"] {
       margin-top: 0.25rem;
       position: static;
     }
 
-    main>article[aria-labelledby="profile-heading"]>section[aria-labelledby="ratings-heading"]>div {
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div {
       grid-template-columns: repeat(2, 1fr);
       gap: 0.75rem;
     }
 
-    main>article[aria-labelledby="profile-heading"]>section[aria-labelledby="tools-heading"]>div[role="list"] {
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[role="list"] {
       gap: 1rem;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 
-    main>article[aria-labelledby="profile-heading"]>section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>a>span,
-    main>article[aria-labelledby="profile-heading"]>section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>span[aria-disabled]>span {
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>a>span,
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>span[aria-disabled]>span {
       display: none;
     }
   }
@@ -2833,7 +2849,9 @@
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
       #loan-status,
+      #profile-edit,
       #bookmarks-page,
       #events-page) {
       padding: 0 0.75rem;
@@ -2843,7 +2861,9 @@
       [aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
       #loan-status,
+      #profile-edit,
       #bookmarks-page,
       #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a>i {
       display: none;
@@ -2866,15 +2886,15 @@
       grid-template-columns: 1fr;
     }
 
-    main>article[aria-labelledby="profile-heading"] {
+    main>:is(article, section)[aria-labelledby="profile-heading"] {
       padding: 0 0.75rem;
     }
 
-    main>article[aria-labelledby="profile-heading"]>section[aria-labelledby="ratings-heading"]>div {
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div {
       grid-template-columns: 1fr;
     }
 
-    main>article[aria-labelledby="profile-heading"]>section[aria-labelledby="tools-heading"]>div[role="list"] {
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[role="list"] {
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
   }

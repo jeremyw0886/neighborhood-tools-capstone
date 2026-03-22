@@ -2,7 +2,7 @@
 /**
  * Dashboard shell — renders nav, header, and includes the active content partial.
  *
- * @var string  $dashboardSection   Section key (overview|lender|borrower|history|loan-status)
+ * @var string  $dashboardSection   Section key (overview|lender|borrower|history|loan-status|bookmarks|events|profile|profile-edit)
  * @var string  $dashboardPartial   Absolute path to the content partial
  * @var string  $backUrl            URL for the back link
  * @var ?string $loanStatusHeading  Tool name heading for loan-status view
@@ -18,7 +18,19 @@ $sectionId = match($dashboardSection) {
     'borrower' => 'borrower-heading',
     'history' => 'history-heading',
     'loan-status' => 'loan-status-heading',
+    'bookmarks' => 'bookmarks-heading',
+    'events' => 'events-heading',
+    'profile' => 'profile-heading',
+    'profile-edit' => 'edit-profile-heading',
     default => 'dashboard-heading',
+};
+
+$sectionHtmlId = match($dashboardSection) {
+    'loan-status' => 'loan-status',
+    'bookmarks' => 'bookmarks-page',
+    'events' => 'events-page',
+    'profile-edit' => 'profile-edit',
+    default => null,
 };
 
 $sectionIcon = match($dashboardSection) {
@@ -27,6 +39,10 @@ $sectionIcon = match($dashboardSection) {
     'borrower' => 'fa-hand',
     'history' => 'fa-clock-rotate-left',
     'loan-status' => 'fa-timeline',
+    'bookmarks' => 'fa-bookmark',
+    'events' => 'fa-calendar-days',
+    'profile' => 'fa-id-card',
+    'profile-edit' => 'fa-user-pen',
     default => 'fa-gauge',
 };
 
@@ -36,6 +52,10 @@ $sectionLabel = match($dashboardSection) {
     'borrower' => 'My Borrows',
     'history' => 'Borrow History',
     'loan-status' => htmlspecialchars($loanStatusHeading ?? 'Loan Status'),
+    'bookmarks' => 'My Bookmarks',
+    'events' => 'Community Events',
+    'profile' => 'My Profile',
+    'profile-edit' => 'Edit Profile',
     default => 'Dashboard',
 };
 
@@ -44,12 +64,15 @@ $sectionSubtitle = match($dashboardSection) {
     'lender' => 'Manage your listed tools and respond to incoming borrow requests.',
     'borrower' => 'Track your active borrows, pending requests, and overdue items.',
     'history' => 'Review your past lending and borrowing activity.',
-    'loan-status' => null,
+    'bookmarks' => 'Tools you&rsquo;ve saved for later.',
+    'events' => 'Discover upcoming events in the Asheville and Hendersonville neighborhoods.',
+    'profile' => 'Your public profile, ratings, and listed tools.',
+    'profile-edit' => 'Update your personal information and profile details.',
     default => null,
 };
 ?>
 
-<section<?= $isLoanStatus ? ' id="loan-status"' : '' ?> aria-labelledby="<?= $sectionId ?>">
+<section<?= $sectionHtmlId !== null ? ' id="' . $sectionHtmlId . '"' : '' ?> aria-labelledby="<?= $sectionId ?>">
 
   <?php if (!$isOverview): ?>
     <nav aria-label="Back">

@@ -24,42 +24,25 @@ use App\Core\ViewHelper;
     </h2>
 
     <?php if (!empty($lenderHistory)): ?>
-      <form method="get" action="/dashboard/history" aria-label="Sort and filter lending history">
-        <fieldset>
-          <legend class="visually-hidden">Sort and filter options</legend>
-          <input type="hidden" name="borrow_sort" value="<?= htmlspecialchars($borrowSort['sort']) ?>">
-          <input type="hidden" name="borrow_dir" value="<?= htmlspecialchars(strtolower($borrowSort['dir'])) ?>">
-          <?php if ($borrowStatus !== null): ?>
-            <input type="hidden" name="borrow_status" value="<?= htmlspecialchars($borrowStatus) ?>">
-          <?php endif; ?>
-          <label>
-            Sort by
-            <select name="lend_sort">
-              <option value="requested_at_bor"<?= ViewHelper::selected($lendSort['sort'], 'requested_at_bor') ?>>Date</option>
-              <option value="tool_name_tol"<?= ViewHelper::selected($lendSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
-              <option value="borrower_name"<?= ViewHelper::selected($lendSort['sort'], 'borrower_name') ?>>Borrower</option>
-              <option value="borrow_status"<?= ViewHelper::selected($lendSort['sort'], 'borrow_status') ?>>Status</option>
-            </select>
-          </label>
-          <label>
-            Direction
-            <select name="lend_dir">
-              <option value="desc"<?= ViewHelper::selected(strtolower($lendSort['dir']), 'desc') ?>>Newest First</option>
-              <option value="asc"<?= ViewHelper::selected(strtolower($lendSort['dir']), 'asc') ?>>Oldest First</option>
-            </select>
-          </label>
-          <label>
-            Status
-            <select name="lend_status">
-              <option value=""<?= $lendStatus === null ? ' selected' : '' ?>>All</option>
-              <option value="returned"<?= ViewHelper::selected($lendStatus ?? '', 'returned') ?>>Returned</option>
-              <option value="denied"<?= ViewHelper::selected($lendStatus ?? '', 'denied') ?>>Denied</option>
-              <option value="cancelled"<?= ViewHelper::selected($lendStatus ?? '', 'cancelled') ?>>Cancelled</option>
-            </select>
-          </label>
-          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
-        </fieldset>
-      </form>
+      <?php
+        $paramPrefix = 'lend_';
+        $sortOptions = [
+            'requested_at_bor' => 'Date',
+            'tool_name_tol' => 'Tool Name',
+            'borrower_name' => 'Borrower',
+            'borrow_status' => 'Status',
+        ];
+        $currentSort = $lendSort['sort'];
+        $currentDir = strtolower($lendSort['dir']);
+        $filterOptions = ['' => 'All', 'returned' => 'Returned', 'denied' => 'Denied', 'cancelled' => 'Cancelled'];
+        $currentFilter = $lendStatus;
+        $preserveParams = [
+            'borrow_sort' => $borrowSort['sort'],
+            'borrow_dir' => strtolower($borrowSort['dir']),
+            'borrow_status' => $borrowStatus ?? '',
+        ];
+      ?>
+      <?php require BASE_PATH . '/src/Views/partials/sort-filter.php'; ?>
 
       <table>
         <caption class="visually-hidden">Your past activity as a lender</caption>
@@ -122,42 +105,25 @@ use App\Core\ViewHelper;
     </h2>
 
     <?php if (!empty($borrowerHistory)): ?>
-      <form method="get" action="/dashboard/history" aria-label="Sort and filter borrowing history">
-        <fieldset>
-          <legend class="visually-hidden">Sort and filter options</legend>
-          <input type="hidden" name="lend_sort" value="<?= htmlspecialchars($lendSort['sort']) ?>">
-          <input type="hidden" name="lend_dir" value="<?= htmlspecialchars(strtolower($lendSort['dir'])) ?>">
-          <?php if ($lendStatus !== null): ?>
-            <input type="hidden" name="lend_status" value="<?= htmlspecialchars($lendStatus) ?>">
-          <?php endif; ?>
-          <label>
-            Sort by
-            <select name="borrow_sort">
-              <option value="requested_at_bor"<?= ViewHelper::selected($borrowSort['sort'], 'requested_at_bor') ?>>Date</option>
-              <option value="tool_name_tol"<?= ViewHelper::selected($borrowSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
-              <option value="lender_name"<?= ViewHelper::selected($borrowSort['sort'], 'lender_name') ?>>Lender</option>
-              <option value="borrow_status"<?= ViewHelper::selected($borrowSort['sort'], 'borrow_status') ?>>Status</option>
-            </select>
-          </label>
-          <label>
-            Direction
-            <select name="borrow_dir">
-              <option value="desc"<?= ViewHelper::selected(strtolower($borrowSort['dir']), 'desc') ?>>Newest First</option>
-              <option value="asc"<?= ViewHelper::selected(strtolower($borrowSort['dir']), 'asc') ?>>Oldest First</option>
-            </select>
-          </label>
-          <label>
-            Status
-            <select name="borrow_status">
-              <option value=""<?= $borrowStatus === null ? ' selected' : '' ?>>All</option>
-              <option value="returned"<?= ViewHelper::selected($borrowStatus ?? '', 'returned') ?>>Returned</option>
-              <option value="denied"<?= ViewHelper::selected($borrowStatus ?? '', 'denied') ?>>Denied</option>
-              <option value="cancelled"<?= ViewHelper::selected($borrowStatus ?? '', 'cancelled') ?>>Cancelled</option>
-            </select>
-          </label>
-          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
-        </fieldset>
-      </form>
+      <?php
+        $paramPrefix = 'borrow_';
+        $sortOptions = [
+            'requested_at_bor' => 'Date',
+            'tool_name_tol' => 'Tool Name',
+            'lender_name' => 'Lender',
+            'borrow_status' => 'Status',
+        ];
+        $currentSort = $borrowSort['sort'];
+        $currentDir = strtolower($borrowSort['dir']);
+        $filterOptions = ['' => 'All', 'returned' => 'Returned', 'denied' => 'Denied', 'cancelled' => 'Cancelled'];
+        $currentFilter = $borrowStatus;
+        $preserveParams = [
+            'lend_sort' => $lendSort['sort'],
+            'lend_dir' => strtolower($lendSort['dir']),
+            'lend_status' => $lendStatus ?? '',
+        ];
+      ?>
+      <?php require BASE_PATH . '/src/Views/partials/sort-filter.php'; ?>
 
       <table>
         <caption class="visually-hidden">Your past activity as a borrower</caption>

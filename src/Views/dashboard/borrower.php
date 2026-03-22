@@ -18,7 +18,6 @@
  *   $authUser  array{id, name, first_name, role, avatar}
  */
 
-use App\Core\ViewHelper;
 ?>
 
 <?php if (!empty($borrowSuccess)): ?>
@@ -33,141 +32,13 @@ use App\Core\ViewHelper;
   <?php endif; ?>
 
   <?php if (!empty($overdue)): ?>
-    <section aria-labelledby="overdue-heading">
-      <h2 id="overdue-heading" data-urgent>
-        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-        Overdue (<?= count($overdue) ?>)
-      </h2>
-
-      <ul data-card-list>
-        <?php foreach ($overdue as $row): ?>
-          <?php
-            $daysOverdue  = (int) $row['days_overdue'];
-            $hoursOverdue = (int) $row['hours_overdue'];
-            $overdueLabel = $daysOverdue > 0
-              ? $daysOverdue . ' day' . ($daysOverdue !== 1 ? 's' : '')
-              : $hoursOverdue . ' hour' . ($hoursOverdue !== 1 ? 's' : '');
-          ?>
-          <li>
-            <article data-activity-card>
-              <header>
-                <a href="/dashboard/loan/<?= (int) $row['id_bor'] ?>">
-                  <?= htmlspecialchars($row['tool_name_tol']) ?>
-                </a>
-                <span data-status="overdue">Overdue</span>
-              </header>
-              <dl>
-                <dt>Lender</dt>
-                <dd>
-                  <a href="/profile/<?= (int) $row['lender_id'] ?>">
-                    <?= htmlspecialchars($row['lender_name']) ?>
-                  </a>
-                </dd>
-                <dt>Due Date</dt>
-                <dd>
-                  <time datetime="<?= htmlspecialchars($row['due_at_bor']) ?>">
-                    <?= htmlspecialchars(date('M j, g:ia', strtotime($row['due_at_bor']))) ?>
-                  </time>
-                </dd>
-                <dt>Overdue By</dt>
-                <dd><?= htmlspecialchars($overdueLabel) ?></dd>
-              </dl>
-            </article>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-    </section>
+    <?php $overdueRole = 'borrower'; ?>
+    <?php require BASE_PATH . '/src/Views/partials/overdue-list.php'; ?>
   <?php endif; ?>
 
   <?php if (!empty($awaitingPickup)): ?>
-    <section aria-labelledby="awaiting-pickup-heading">
-      <h2 id="awaiting-pickup-heading">
-        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
-        Awaiting Pickup (<?= count($awaitingPickup) ?>)
-      </h2>
-
-      <ul data-card-list>
-        <?php foreach ($awaitingPickup as $pickup): ?>
-          <?php
-            $pickupId      = (int) $pickup['id_bor'];
-            $waiverSigned  = $waiversByBorrow[$pickupId] ?? false;
-            $borrowDeposit = $depositsByBorrow[$pickupId] ?? null;
-            $handover      = $handoversByBorrow[$pickupId] ?? null;
-            $depositPaid   = $borrowDeposit === null || $borrowDeposit['deposit_status'] !== 'pending';
-            $approvedHoursAgo = (int) ((time() - strtotime($pickup['approved_at_bor'])) / 3600);
-            $approvedDaysAgo  = (int) floor($approvedHoursAgo / 24);
-            $pickupUrgency    = $approvedDaysAgo >= 3 ? 'overdue' : ($approvedDaysAgo >= 2 ? 'due-soon' : null);
-            $approvedAgoLabel = $approvedDaysAgo > 0
-              ? $approvedDaysAgo . ' day' . ($approvedDaysAgo !== 1 ? 's' : '') . ' ago'
-              : $approvedHoursAgo . 'h ago';
-          ?>
-          <li>
-            <article data-activity-card>
-              <header>
-                <a href="/dashboard/loan/<?= $pickupId ?>">
-                  <?= htmlspecialchars($pickup['tool_name_tol']) ?>
-                </a>
-                <span data-status="approved">Ready for Pickup</span>
-              </header>
-              <dl>
-                <dt>Lender</dt>
-                <dd>
-                  <a href="/profile/<?= (int) $pickup['lender_id'] ?>">
-                    <?= htmlspecialchars($pickup['lender_name']) ?>
-                  </a>
-                </dd>
-                <dt>Approved</dt>
-                <dd>
-                  <time datetime="<?= htmlspecialchars($pickup['approved_at_bor']) ?>">
-                    <?= htmlspecialchars(date('M j, g:ia', strtotime($pickup['approved_at_bor']))) ?>
-                  </time>
-                  <small<?= $pickupUrgency !== null ? ' data-status="' . $pickupUrgency . '"' : '' ?>><?= htmlspecialchars($approvedAgoLabel) ?></small>
-                </dd>
-                <dt>Duration</dt>
-                <dd><?= htmlspecialchars(\App\Core\ViewHelper::formatDuration((int) $pickup['loan_duration_hours_bor'])) ?></dd>
-              </dl>
-              <footer data-actions>
-                <?php if (!$waiverSigned): ?>
-                  <a href="/waiver/<?= $pickupId ?>" role="button" data-intent="warning">
-                    <i class="fa-solid fa-file-signature" aria-hidden="true"></i> Sign Waiver
-                  </a>
-                <?php elseif (!$depositPaid): ?>
-                  <a href="/payments/deposit/<?= (int) $borrowDeposit['id_sdp'] ?>" role="button" data-intent="warning">
-                    <i class="fa-solid fa-credit-card" aria-hidden="true"></i> Pay Deposit
-                  </a>
-                <?php elseif ($handover !== null): ?>
-                  <a href="/handover/<?= $pickupId ?>" role="button" data-intent="info">
-                    <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Pickup Code
-                  </a>
-                <?php else: ?>
-                  <span role="button" aria-disabled="true" data-intent="ghost">
-                    <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Pickup Code
-                  </span>
-                <?php endif; ?>
-                <details>
-                  <summary data-intent="danger">
-                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
-                  </summary>
-                  <form method="post" action="/borrow/<?= $pickupId ?>/cancel">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <label for="cancel-reason-<?= $pickupId ?>">Reason</label>
-                    <textarea
-                      id="cancel-reason-<?= $pickupId ?>"
-                      name="reason"
-                      required
-                      maxlength="1000"
-                      rows="2"
-                      placeholder="Why are you cancelling?"
-                    ></textarea>
-                    <button type="submit" data-intent="danger">Cancel Request</button>
-                  </form>
-                </details>
-              </footer>
-            </article>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-    </section>
+    <?php $pickupRole = 'borrower'; ?>
+    <?php require BASE_PATH . '/src/Views/partials/awaiting-pickup.php'; ?>
   <?php endif; ?>
 
   <section aria-labelledby="active-borrows-heading">
@@ -177,39 +48,24 @@ use App\Core\ViewHelper;
     </h2>
 
     <?php if (!empty($borrows)): ?>
-      <form method="get" action="/dashboard/borrower" aria-label="Sort and filter active borrows">
-        <fieldset>
-          <legend class="visually-hidden">Sort and filter options</legend>
-          <input type="hidden" name="req_sort" value="<?= htmlspecialchars($reqSort['sort']) ?>">
-          <input type="hidden" name="req_dir" value="<?= htmlspecialchars(strtolower($reqSort['dir'])) ?>">
-          <label>
-            Sort by
-            <select name="borrow_sort">
-              <option value="due_at_bor"<?= ViewHelper::selected($borrowSort['sort'], 'due_at_bor') ?>>Due Date</option>
-              <option value="tool_name_tol"<?= ViewHelper::selected($borrowSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
-              <option value="lender_name"<?= ViewHelper::selected($borrowSort['sort'], 'lender_name') ?>>Lender</option>
-              <option value="hours_until_due"<?= ViewHelper::selected($borrowSort['sort'], 'hours_until_due') ?>>Time Remaining</option>
-            </select>
-          </label>
-          <label>
-            Direction
-            <select name="borrow_dir">
-              <option value="asc"<?= ViewHelper::selected(strtolower($borrowSort['dir']), 'asc') ?>>Soonest First</option>
-              <option value="desc"<?= ViewHelper::selected(strtolower($borrowSort['dir']), 'desc') ?>>Latest First</option>
-            </select>
-          </label>
-          <label>
-            Status
-            <select name="borrow_status">
-              <option value=""<?= $borrowStatus === null ? ' selected' : '' ?>>All</option>
-              <option value="on-time"<?= ViewHelper::selected($borrowStatus ?? '', 'on-time') ?>>On Time</option>
-              <option value="due-soon"<?= ViewHelper::selected($borrowStatus ?? '', 'due-soon') ?>>Due Soon</option>
-              <option value="overdue"<?= ViewHelper::selected($borrowStatus ?? '', 'overdue') ?>>Overdue</option>
-            </select>
-          </label>
-          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
-        </fieldset>
-      </form>
+      <?php
+        $paramPrefix = 'borrow_';
+        $sortOptions = [
+            'due_at_bor' => 'Due Date',
+            'tool_name_tol' => 'Tool Name',
+            'lender_name' => 'Lender',
+            'hours_until_due' => 'Time Remaining',
+        ];
+        $currentSort = $borrowSort['sort'];
+        $currentDir = strtolower($borrowSort['dir']);
+        $filterOptions = ['' => 'All', 'on-time' => 'On Time', 'due-soon' => 'Due Soon', 'overdue' => 'Overdue'];
+        $currentFilter = $borrowStatus;
+        $preserveParams = [
+            'req_sort' => $reqSort['sort'],
+            'req_dir' => strtolower($reqSort['dir']),
+        ];
+      ?>
+      <?php require BASE_PATH . '/src/Views/partials/sort-filter.php'; ?>
 
       <ul data-card-list>
         <?php foreach ($borrows as $row): ?>
@@ -274,33 +130,25 @@ use App\Core\ViewHelper;
     </h2>
 
     <?php if (!empty($requests)): ?>
-      <form method="get" action="/dashboard/borrower" aria-label="Sort pending requests">
-        <fieldset>
-          <legend class="visually-hidden">Sort options</legend>
-          <input type="hidden" name="borrow_sort" value="<?= htmlspecialchars($borrowSort['sort']) ?>">
-          <input type="hidden" name="borrow_dir" value="<?= htmlspecialchars(strtolower($borrowSort['dir'])) ?>">
-          <?php if ($borrowStatus !== null): ?>
-            <input type="hidden" name="borrow_status" value="<?= htmlspecialchars($borrowStatus) ?>">
-          <?php endif; ?>
-          <label>
-            Sort by
-            <select name="req_sort">
-              <option value="requested_at_bor"<?= ViewHelper::selected($reqSort['sort'], 'requested_at_bor') ?>>Date Requested</option>
-              <option value="tool_name_tol"<?= ViewHelper::selected($reqSort['sort'], 'tool_name_tol') ?>>Tool Name</option>
-              <option value="lender_name"<?= ViewHelper::selected($reqSort['sort'], 'lender_name') ?>>Lender</option>
-              <option value="loan_duration_hours_bor"<?= ViewHelper::selected($reqSort['sort'], 'loan_duration_hours_bor') ?>>Duration</option>
-            </select>
-          </label>
-          <label>
-            Direction
-            <select name="req_dir">
-              <option value="desc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'desc') ?>>Newest First</option>
-              <option value="asc"<?= ViewHelper::selected(strtolower($reqSort['dir']), 'asc') ?>>Oldest First</option>
-            </select>
-          </label>
-          <button type="submit" data-intent="ghost" data-size="sm">Sort</button>
-        </fieldset>
-      </form>
+      <?php
+        $paramPrefix = 'req_';
+        $sortOptions = [
+            'requested_at_bor' => 'Date Requested',
+            'tool_name_tol' => 'Tool Name',
+            'lender_name' => 'Lender',
+            'loan_duration_hours_bor' => 'Duration',
+        ];
+        $currentSort = $reqSort['sort'];
+        $currentDir = strtolower($reqSort['dir']);
+        $filterOptions = null;
+        $currentFilter = null;
+        $preserveParams = [
+            'borrow_sort' => $borrowSort['sort'],
+            'borrow_dir' => strtolower($borrowSort['dir']),
+            'borrow_status' => $borrowStatus ?? '',
+        ];
+      ?>
+      <?php require BASE_PATH . '/src/Views/partials/sort-filter.php'; ?>
 
       <ul data-card-list>
         <?php foreach ($requests as $req): ?>

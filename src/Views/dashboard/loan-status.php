@@ -337,7 +337,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
         <ul data-handover-list>
           <?php foreach ($handovers as $hov): ?>
             <li>
-              <article data-handover-record>
+              <div data-handover-record>
                 <header>
                   <span data-handover-type><?= htmlspecialchars(ucfirst($hov['handover_type'])) ?></span>
                   <?php if ($hov['verified_at_hov'] !== null): ?>
@@ -370,7 +370,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                     <dd><?= htmlspecialchars($hov['condition_notes_hov']) ?></dd>
                   <?php endif; ?>
                 </dl>
-              </article>
+              </div>
             </li>
           <?php endforeach; ?>
         </ul>
@@ -609,15 +609,12 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
               : htmlspecialchars($ur['rater_name']) . ' rated you';
             ?>
             <article data-rating-card>
-              <header>
-                <span><?= $ratingLabel ?></span>
-                <span>as <?= htmlspecialchars(ucfirst($ur['role'])) ?></span>
-              </header>
-              <p aria-label="<?= (int) $ur['score'] ?> out of 5 stars">
+              <h3><?= $ratingLabel ?> <span>as <?= htmlspecialchars(ucfirst($ur['role'])) ?></span></h3>
+              <div role="img" aria-label="<?= (int) $ur['score'] ?> out of 5 stars">
                 <?php for ($i = 1; $i <= 5; $i++): ?>
                   <i class="fa-<?= $i <= (int) $ur['score'] ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
                 <?php endfor; ?>
-              </p>
+              </div>
               <?php if ($ur['review'] !== null && $ur['review'] !== ''): ?>
                 <blockquote><?= htmlspecialchars($ur['review']) ?></blockquote>
               <?php endif; ?>
@@ -629,19 +626,17 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
 
           <?php if ($toolRating !== null): ?>
             <article data-rating-card>
-              <header>
-                <span>
-                  <?= $isLender
-                    ? htmlspecialchars($toolRating['rater_name']) . ' rated '
-                    : 'You rated ' ?>
-                  <?= htmlspecialchars($toolRating['tool_name']) ?>
-                </span>
-              </header>
-              <p aria-label="<?= (int) $toolRating['score'] ?> out of 5 stars">
+              <h3>
+                <?= $isLender
+                  ? htmlspecialchars($toolRating['rater_name']) . ' rated '
+                  : 'You rated ' ?>
+                <?= htmlspecialchars($toolRating['tool_name']) ?>
+              </h3>
+              <div role="img" aria-label="<?= (int) $toolRating['score'] ?> out of 5 stars">
                 <?php for ($i = 1; $i <= 5; $i++): ?>
                   <i class="fa-<?= $i <= (int) $toolRating['score'] ? 'solid' : 'regular' ?> fa-star" aria-hidden="true"></i>
                 <?php endfor; ?>
-              </p>
+              </div>
               <?php if ($toolRating['review'] !== null && $toolRating['review'] !== ''): ?>
                 <blockquote><?= htmlspecialchars($toolRating['review']) ?></blockquote>
               <?php endif; ?>
@@ -655,5 +650,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
     <?php endif; ?>
 
   </div>
+
+</div>
 
 </section>

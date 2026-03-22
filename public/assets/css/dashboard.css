@@ -1637,25 +1637,24 @@
         margin-bottom: 0.75rem;
       }
 
-      &>header {
+      &>h3 {
         align-items: baseline;
+        color: var(--mountain-pine);
         display: flex;
         flex-wrap: wrap;
+        font-size: 0.875rem;
+        font-weight: 600;
         gap: 0.25rem 0.75rem;
         margin-bottom: 0.5rem;
 
-        &>span:first-child {
-          color: var(--mountain-pine);
-          font-weight: 600;
-        }
-
-        &>span:last-child {
+        &>span {
           color: var(--mountain-mist);
           font-size: 0.813rem;
+          font-weight: 400;
         }
       }
 
-      &>p {
+      &>[role="img"] {
         color: var(--mountain-gold-dark);
         display: flex;
         gap: 0.125rem;

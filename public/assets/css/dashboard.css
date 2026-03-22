@@ -136,7 +136,7 @@
 
     /* ── Section headings (h2s within sub-sections) ── */
 
-    &>[data-dashboard-body]>section>h2 {
+    [data-dashboard-content]>section>h2 {
       color: var(--mountain-pine);
       margin-bottom: 1rem;
 
@@ -151,7 +151,7 @@
 
     /* ── Sections spacing ── */
 
-    &>[data-dashboard-body]>section+section {
+    [data-dashboard-content]>section+section {
       margin-top: 2.5rem;
     }
   }

@@ -55,49 +55,52 @@ $rangeEnd   = min($page * $perPage, $totalTools);
   </nav>
 
   <header>
-    <img src="<?= htmlspecialchars($avatarSrc) ?>"
-    alt="<?= htmlspecialchars($avatarAlt) ?>"
-    width="150" height="150"
-    decoding="async">
-    
-    <div>
-      <h1 id="profile-heading"><?= htmlspecialchars($profile['username']) ?></h1>
-      
+    <h1 id="profile-heading">
+      <img src="<?= htmlspecialchars($avatarSrc) ?>"
+           alt="<?= htmlspecialchars($avatarAlt) ?>"
+           width="150" height="150"
+           decoding="async">
+      <?= htmlspecialchars($profile['username']) ?>
+    </h1>
+
+    <p>
       <?php if ($locationStr !== ''): ?>
-        <p>
+        <span>
           <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
           <?= htmlspecialchars($locationStr) ?>
-        </p>
-        <?php endif; ?>
-        
-        <p>
-          <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-          <time datetime="<?= htmlspecialchars($profile['member_since']) ?>">
-            Member since <?= date('F Y', strtotime($profile['member_since'])) ?>
-          </time>
-        </p>
-        
+        </span>
+      <?php endif; ?>
+      <span>
+        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+        <time datetime="<?= htmlspecialchars($profile['member_since']) ?>">
+          Member since <?= date('F Y', strtotime($profile['member_since'])) ?>
+        </time>
+      </span>
+    </p>
+
+    <?php if ($profile['active_tool_count'] > 0 || ($reputation !== null && (int) ($reputation['completed_borrows'] ?? 0) > 0)): ?>
+      <ul aria-label="Activity stats">
         <?php if ($profile['active_tool_count'] > 0): ?>
-          <p>
+          <li>
             <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
             <?= htmlspecialchars((string) $profile['active_tool_count']) ?> tool<?= $profile['active_tool_count'] !== 1 ? 's' : '' ?> listed
-          </p>
-          <?php endif; ?>
-          
-          <?php if ($reputation !== null && (int) ($reputation['completed_borrows'] ?? 0) > 0): ?>
-            <p>
-              <i class="fa-solid fa-handshake" aria-hidden="true"></i>
-              <?= (int) $reputation['completed_borrows'] ?> completed borrow<?= (int) $reputation['completed_borrows'] !== 1 ? 's' : '' ?>
-            </p>
-            <?php endif; ?>
-            
-            <?php if ($isOwnProfile): ?>
-              <a href="/profile/edit">
-                <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
-              </a>
-              <?php endif; ?>
-            </div>
-          </header>
+          </li>
+        <?php endif; ?>
+        <?php if ($reputation !== null && (int) ($reputation['completed_borrows'] ?? 0) > 0): ?>
+          <li>
+            <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+            <?= (int) $reputation['completed_borrows'] ?> completed borrow<?= (int) $reputation['completed_borrows'] !== 1 ? 's' : '' ?>
+          </li>
+        <?php endif; ?>
+      </ul>
+    <?php endif; ?>
+
+    <?php if ($isOwnProfile): ?>
+      <a href="/profile/edit">
+        <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
+      </a>
+    <?php endif; ?>
+  </header>
           
             <?php if ($isLoggedIn): ?>
               <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>

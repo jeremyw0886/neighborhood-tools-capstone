@@ -571,7 +571,7 @@
   [data-card-list] {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
     list-style: none;
     padding: 0;
   }

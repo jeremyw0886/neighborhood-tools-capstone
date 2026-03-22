@@ -274,7 +274,7 @@ class ToolController extends BaseController
         $this->renderDashboard('bookmarks', [
             'title'         => 'My Bookmarks — NeighborhoodTools',
             'description'   => 'Your saved tools — NeighborhoodTools',
-            'pageCss'       => ['dashboard.css', 'tools.css'],
+            'pageCss'       => ['tools.css', 'dashboard.css'],
             'pageJs'        => ['dashboard.js'],
             'bookmarks'     => $bookmarks,
             'totalCount'    => $totalCount,
@@ -387,8 +387,8 @@ class ToolController extends BaseController
         $this->renderDashboard('list-tool', [
             'title'            => 'List a Tool — NeighborhoodTools',
             'description'      => 'List a tool for your neighbors to borrow — NeighborhoodTools',
-            'pageCss'          => ['dashboard.css', 'tools.css'],
-            'pageJs'           => ['dashboard.js', 'tools.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
+            'pageCss'          => ['tools.css', 'dashboard.css'],
+            'pageJs'           => ['tools.js', 'dashboard.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'categories'       => $categories,
@@ -462,10 +462,11 @@ class ToolController extends BaseController
             error_log('ToolController::edit images — ' . $e->getMessage());
         }
 
-        $this->render('tools/edit', [
+        $this->renderDashboard('edit-tool', [
             'title'             => 'Edit ' . htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
-            'pageCss'           => ['tools.css'],
-            'pageJs'            => ['tools.js'],
+            'description'       => 'Edit your tool listing — NeighborhoodTools',
+            'pageCss'           => ['tools.css', 'dashboard.css'],
+            'pageJs'            => ['tools.js', 'dashboard.js'],
             'tool'              => $tool,
             'images'            => $images,
             'categories'        => $categories,

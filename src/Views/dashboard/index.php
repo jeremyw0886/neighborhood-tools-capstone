@@ -2,7 +2,7 @@
 /**
  * Dashboard shell — renders nav, header, and includes the active content partial.
  *
- * @var string  $dashboardSection   Section key (overview|lender|borrower|history|loan-status|list-tool|bookmarks|events|profile|profile-edit)
+ * @var string  $dashboardSection   Section key (overview|lender|borrower|history|loan-status|list-tool|edit-tool|bookmarks|events|profile|profile-edit)
  * @var string  $dashboardPartial   Absolute path to the content partial
  * @var string  $backUrl            URL for the back link
  * @var ?string $loanStatusHeading  Tool name heading for loan-status view
@@ -19,6 +19,7 @@ $sectionId = match($dashboardSection) {
     'history' => 'history-heading',
     'loan-status' => 'loan-status-heading',
     'list-tool' => 'create-tool-heading',
+    'edit-tool' => 'edit-tool-heading',
     'bookmarks' => 'bookmarks-heading',
     'events' => 'events-heading',
     'profile' => 'profile-heading',
@@ -29,6 +30,7 @@ $sectionId = match($dashboardSection) {
 $sectionHtmlId = match($dashboardSection) {
     'loan-status' => 'loan-status',
     'list-tool' => 'list-tool',
+    'edit-tool' => 'edit-tool',
     'bookmarks' => 'bookmarks-page',
     'events' => 'events-page',
     'profile-edit' => 'profile-edit',
@@ -42,6 +44,7 @@ $sectionIcon = match($dashboardSection) {
     'history' => 'fa-clock-rotate-left',
     'loan-status' => 'fa-timeline',
     'list-tool' => 'fa-plus',
+    'edit-tool' => 'fa-pen-to-square',
     'bookmarks' => 'fa-bookmark',
     'events' => 'fa-calendar-days',
     'profile' => 'fa-id-card',
@@ -56,6 +59,7 @@ $sectionLabel = match($dashboardSection) {
     'history' => 'Borrow History',
     'loan-status' => htmlspecialchars($loanStatusHeading ?? 'Loan Status'),
     'list-tool' => 'List a Tool',
+    'edit-tool' => 'Edit Tool',
     'bookmarks' => 'My Bookmarks',
     'events' => 'Community Events',
     'profile' => 'My Profile',
@@ -69,6 +73,7 @@ $sectionSubtitle = match($dashboardSection) {
     'borrower' => 'Track your active borrows, pending requests, and overdue items.',
     'history' => 'Review your past lending and borrowing activity.',
     'list-tool' => 'Share your tools with your neighbors. Fill out the details below to get started.',
+    'edit-tool' => isset($tool) ? 'Update the details for <strong>' . htmlspecialchars($tool['tool_name_tol']) . '</strong>.' : null,
     'bookmarks' => 'Tools you&rsquo;ve saved for later.',
     'events' => 'Discover upcoming events in the Asheville and Hendersonville neighborhoods.',
     'profile' => 'Your public profile, ratings, and listed tools.',

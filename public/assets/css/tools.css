@@ -1101,7 +1101,7 @@
 
     /* ── Form layout ── */
 
-    & form {
+    & form:not([role="search"]) {
       display: flex;
       flex-direction: column;
     }

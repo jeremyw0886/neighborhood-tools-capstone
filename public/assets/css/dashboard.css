@@ -15,6 +15,7 @@
     [aria-labelledby="profile-heading"],
     #loan-status,
     #list-tool,
+    #edit-tool,
     #profile-edit,
     #bookmarks-page,
     #events-page) {
@@ -2504,6 +2505,7 @@
       [aria-labelledby="profile-heading"],
       #loan-status,
       #list-tool,
+      #edit-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
@@ -2609,6 +2611,7 @@
       [aria-labelledby="profile-heading"],
       #loan-status,
       #list-tool,
+      #edit-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page) {
@@ -2622,6 +2625,7 @@
       [aria-labelledby="profile-heading"],
       #loan-status,
       #list-tool,
+      #edit-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>header>h1 {
@@ -2635,6 +2639,7 @@
       [aria-labelledby="profile-heading"],
       #loan-status,
       #list-tool,
+      #edit-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>header {
@@ -2858,6 +2863,7 @@
       [aria-labelledby="profile-heading"],
       #loan-status,
       #list-tool,
+      #edit-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page) {
@@ -2871,6 +2877,7 @@
       [aria-labelledby="profile-heading"],
       #loan-status,
       #list-tool,
+      #edit-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a>i {

@@ -1,33 +1,57 @@
 'use strict';
 
-(function () {
-  document.addEventListener('submit', function (e) {
-    const form = e.target;
+class AdminDeleteConfirm {
+  static #instance = null;
 
-    if (!form.matches('[data-category-delete], [data-delete-form]')) {
-      return;
-    }
+  #abortController = new AbortController();
+  #pending = false;
+
+  constructor() {
+    document.addEventListener('submit', this.#handleSubmit, { signal: this.#abortController.signal });
+  }
+
+  /** @returns {AdminDeleteConfirm|null} */
+  static init() {
+    if (AdminDeleteConfirm.#instance) return AdminDeleteConfirm.#instance;
+    return (AdminDeleteConfirm.#instance = new AdminDeleteConfirm());
+  }
+
+  destroy() {
+    this.#abortController.abort();
+    AdminDeleteConfirm.#instance = null;
+  }
+
+  /** @param {SubmitEvent} e */
+  #handleSubmit = async (e) => {
+    const form = e.target;
+    if (!form.matches('[data-category-delete], [data-delete-form]')) return;
 
     const button = form.querySelector('button[data-confirm]');
+    if (!button) return;
 
-    if (!button) {
-      return;
+    e.preventDefault();
+
+    if (this.#pending) return;
+    this.#pending = true;
+
+    try {
+      const message = button.getAttribute('data-confirm');
+      const confirmed = await NT.confirm(`${message}\n\nProceed with deletion?`);
+      if (!confirmed) return;
+
+      if (!form.querySelector('input[name="force"]')) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'force';
+        input.value = '1';
+        form.appendChild(input);
+      }
+
+      form.submit();
+    } finally {
+      this.#pending = false;
     }
+  };
+}
 
-    const message = button.getAttribute('data-confirm');
-
-    if (!confirm(message + '\n\nProceed with deletion?')) {
-      e.preventDefault();
-      return;
-    }
-
-    const existing = form.querySelector('input[name="force"]');
-    if (!existing) {
-      const input = document.createElement('input');
-      input.type  = 'hidden';
-      input.name  = 'force';
-      input.value = '1';
-      form.appendChild(input);
-    }
-  });
-})();
+AdminDeleteConfirm.init();

@@ -1,50 +1,87 @@
 'use strict';
 
-(function () {
-  const widget = document.querySelector('.cf-turnstile');
-  if (!widget) return;
+class TurnstileGuard {
+  static #instance = null;
 
-  const form = widget.closest('form');
-  if (!form) return;
+  /** @type {HTMLFormElement} */
+  #form;
+  /** @type {HTMLButtonElement} */
+  #submit;
+  #verified = false;
+  #timerId = null;
 
-  const submit = form.querySelector('[type="submit"]');
-  if (!submit) return;
+  /**
+   * @param {HTMLFormElement} form
+   * @param {HTMLButtonElement} submit
+   */
+  constructor(form, submit) {
+    this.#form = form;
+    this.#submit = submit;
 
-  const existing = form.querySelector('[name="cf-turnstile-response"]');
-  if (existing && existing.value) return;
+    const jsFlag = document.createElement('input');
+    jsFlag.type = 'hidden';
+    jsFlag.name = 'js_enabled';
+    jsFlag.value = '1';
+    this.#form.appendChild(jsFlag);
 
-  const jsFlag = document.createElement('input');
-  jsFlag.type = 'hidden';
-  jsFlag.name = 'js_enabled';
-  jsFlag.value = '1';
-  form.appendChild(jsFlag);
+    this.#submit.disabled = true;
+    this.#submit.setAttribute('aria-busy', 'true');
 
-  submit.disabled = true;
-  submit.setAttribute('aria-busy', 'true');
+    window.onTurnstileVerify = this.#handleVerify;
+    window.onTurnstileExpire = this.#handleExpire;
+    window.onTurnstileError = this.#handleError;
 
-  let verified = false;
-
-  function enable() {
-    submit.disabled = false;
-    submit.removeAttribute('aria-busy');
+    this.#timerId = setTimeout(() => {
+      if (!this.#verified) this.#enable();
+    }, 5000);
   }
 
-  window.onTurnstileVerify = function () {
-    verified = true;
-    enable();
+  /** @returns {TurnstileGuard|null} */
+  static init() {
+    if (TurnstileGuard.#instance) return TurnstileGuard.#instance;
+
+    const widget = document.querySelector('.cf-turnstile');
+    if (!widget) return null;
+
+    const form = widget.closest('form');
+    if (!form) return null;
+
+    const submit = form.querySelector('[type="submit"]');
+    if (!submit) return null;
+
+    const existing = form.querySelector('[name="cf-turnstile-response"]');
+    if (existing && existing.value) return null;
+
+    return (TurnstileGuard.#instance = new TurnstileGuard(form, submit));
+  }
+
+  destroy() {
+    clearTimeout(this.#timerId);
+    window.onTurnstileVerify = null;
+    window.onTurnstileExpire = null;
+    window.onTurnstileError = null;
+    TurnstileGuard.#instance = null;
+  }
+
+  #enable() {
+    this.#submit.disabled = false;
+    this.#submit.removeAttribute('aria-busy');
+  }
+
+  #handleVerify = () => {
+    this.#verified = true;
+    this.#enable();
   };
 
-  window.onTurnstileExpire = function () {
-    verified = false;
-    submit.disabled = true;
-    submit.setAttribute('aria-busy', 'true');
+  #handleExpire = () => {
+    this.#verified = false;
+    this.#submit.disabled = true;
+    this.#submit.setAttribute('aria-busy', 'true');
   };
 
-  window.onTurnstileError = function () {
-    enable();
+  #handleError = () => {
+    this.#enable();
   };
+}
 
-  setTimeout(() => {
-    if (!verified) enable();
-  }, 5000);
-})();
+TurnstileGuard.init();

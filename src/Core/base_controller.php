@@ -163,6 +163,10 @@ class BaseController
     protected function requireAuth(): void
     {
         if (empty($_SESSION['logged_in'])) {
+            if ($this->isXhr() || $this->wantsJson()) {
+                $this->jsonResponse(401, ['success' => false, 'message' => 'Session expired.']);
+            }
+
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
             }

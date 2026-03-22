@@ -112,6 +112,7 @@ class ProfileController extends BaseController
             'title'         => htmlspecialchars($profile['username']) . ' — NeighborhoodTools',
             'description'   => 'View ' . htmlspecialchars($profile['username']) . "'s profile, tools, and ratings on NeighborhoodTools.",
             'pageCss'       => ['dashboard.css'],
+            'pageJs'        => ['dashboard.js'],
             'profile'       => $profile,
             'reputation'    => $reputation,
             'isOwnProfile'  => $isOwnProfile,

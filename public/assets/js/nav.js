@@ -637,6 +637,7 @@
       ['g then d', 'Go to Dashboard'],
       ['g then t', 'Go to Tools'],
       ['g then n', 'Go to Notifications'],
+      ['Alt then \u2190', 'Go back (dashboard)'],
     ];
 
     let dialog = null;

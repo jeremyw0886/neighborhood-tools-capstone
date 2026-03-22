@@ -72,6 +72,7 @@ class EventController extends BaseController
             'title'          => 'Community Events — NeighborhoodTools',
             'description'    => 'Upcoming community events in the Asheville and Hendersonville areas.',
             'pageCss'        => ['dashboard.css', 'features.css'],
+            'pageJs'         => ['dashboard.js'],
             'events'         => $events,
             'totalCount'     => $totalCount,
             'page'           => $page,

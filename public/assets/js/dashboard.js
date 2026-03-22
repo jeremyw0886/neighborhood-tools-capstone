@@ -1,0 +1,339 @@
+'use strict';
+
+/**
+ * Dashboard navigation enhancements — smooth transitions, prefetch,
+ * keyboard shortcut, and swipe-to-go-back.
+ *
+ * Progressive enhancement: all navigation works without JS via normal links.
+ */
+
+(() => {
+
+  const TRANSITION_MS = 250;
+  const PREFETCH_DELAY = 100;
+  const PREFETCH_TTL = 30_000;
+  const SWIPE_THRESHOLD = 80;
+  const CACHE_LIMIT = 8;
+
+  const DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loan\/\d+))?|profile\/\d+|bookmarks|events)$/;
+
+  const mainEl = document.getElementById('main-content');
+  if (!mainEl) return;
+
+  let transitioning = false;
+  let currentAbort = null;
+  let navIndex = 0;
+
+  const prefetchCache = new Map();
+
+  // ─── Helpers ─────────────────────────────────────────────────────────
+
+  /** @param {string} url */
+  const isDashboardUrl = (url) => {
+    try {
+      const path = new URL(url, location.origin).pathname;
+      return DASHBOARD_RE.test(path);
+    } catch { return false; }
+  };
+
+  /** @param {HTMLAnchorElement} link */
+  const shouldIntercept = (link) => {
+    if (!link?.href) return false;
+    if (link.target === '_blank' || link.hasAttribute('download')) return false;
+    return isDashboardUrl(link.href);
+  };
+
+  /**
+   * Fetch a page and return parsed #main-content innerHTML + title.
+   *
+   * @param {string} url
+   * @param {AbortSignal} [signal]
+   * @returns {Promise<{html: string, title: string}|null>}
+   */
+  const fetchPage = async (url, signal) => {
+    const cached = prefetchCache.get(url);
+    if (cached && Date.now() - cached.time < PREFETCH_TTL) {
+      return cached.data;
+    }
+
+    const response = await NT.fetch(url, {
+      signal,
+      timeout: 8_000,
+      headers: { Accept: 'text/html' },
+    });
+
+    if (!response.ok) return null;
+
+    const text = await response.text();
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const newMain = doc.getElementById('main-content');
+    if (!newMain) return null;
+
+    const stylesheets = [...doc.querySelectorAll('link[rel="stylesheet"]')]
+      .map((link) => link.getAttribute('href'))
+      .filter(Boolean);
+
+    const data = { html: newMain.innerHTML, title: doc.title, stylesheets };
+
+    if (prefetchCache.size >= CACHE_LIMIT) {
+      const oldest = prefetchCache.keys().next().value;
+      prefetchCache.delete(oldest);
+    }
+    prefetchCache.set(url, { data, time: Date.now() });
+
+    return data;
+  };
+
+  /**
+   * Inject any stylesheets the target page needs that aren't already loaded.
+   * Returns a promise that resolves once all new sheets have loaded.
+   *
+   * @param {string[]} needed — href values from the fetched page
+   * @returns {Promise<void>}
+   */
+  const syncStylesheets = (needed) => {
+    const current = new Set(
+      [...document.querySelectorAll('head link[rel="stylesheet"]')]
+        .map((l) => l.getAttribute('href'))
+        .filter(Boolean),
+    );
+
+    const loads = [];
+
+    for (const href of needed) {
+      if (current.has(href)) continue;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      loads.push(new Promise((resolve) => {
+        link.onload = resolve;
+        link.onerror = resolve;
+      }));
+      document.head.appendChild(link);
+    }
+
+    return loads.length > 0 ? Promise.all(loads) : Promise.resolve();
+  };
+
+  /** Re-initialize JS behaviors on new content. */
+  const reinit = () => {
+    NT.applyFocalPoints();
+
+    for (const flash of mainEl.querySelectorAll('[data-flash]')) {
+      const type = flash.getAttribute('data-flash');
+      NT.toast(flash.textContent.trim(), type);
+      flash.remove();
+    }
+
+    for (const input of mainEl.querySelectorAll('input[data-suggest="tools"]')) {
+      if (!input.id) continue;
+      const availableOnly = input.hasAttribute('data-available-only');
+      NT.autosuggest({
+        inputId: input.id,
+        fetchUrl: (q) => `/tools/suggest?q=${encodeURIComponent(q)}${availableOnly ? '&available=1' : ''}`,
+        labelKey: 'name',
+        onSelect: (item) => { window.location.href = `/tools/${item.id}`; },
+      });
+    }
+
+    for (const img of mainEl.querySelectorAll('img[loading="lazy"]')) {
+      if (img.complete && img.naturalWidth > 0) {
+        img.setAttribute('data-loaded', '');
+      } else {
+        img.addEventListener('load', () => img.setAttribute('data-loaded', ''), { once: true });
+      }
+    }
+  };
+
+  // ─── Transition ──────────────────────────────────────────────────────
+
+  /**
+   * Navigate to a dashboard URL with a slide transition.
+   *
+   * @param {string} url
+   * @param {'forward'|'back'} direction
+   * @param {boolean} pushHistory
+   */
+  const navigate = async (url, direction = 'forward', pushHistory = true) => {
+    if (transitioning) {
+      currentAbort?.abort();
+    }
+
+    transitioning = true;
+    const abort = new AbortController();
+    currentAbort = abort;
+
+    const slideOut = direction === 'back' ? 'slide-out-right' : 'slide-out-left';
+    const slideIn = direction === 'back' ? 'slide-in-left' : 'slide-in-right';
+
+    try {
+      const [data] = await Promise.all([
+        fetchPage(url, abort.signal),
+        new Promise((resolve) => {
+          mainEl.setAttribute('data-transition', slideOut);
+          const done = () => resolve();
+          mainEl.addEventListener('transitionend', done, { once: true });
+          setTimeout(done, TRANSITION_MS + 50);
+        }),
+      ]);
+
+      if (!data) {
+        mainEl.removeAttribute('data-transition');
+        location.assign(url);
+        return;
+      }
+
+      if (pushHistory) {
+        navIndex++;
+        history.pushState({ dashNav: true, idx: navIndex }, '', url);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      await syncStylesheets(data.stylesheets);
+
+      mainEl.innerHTML = data.html;
+      document.title = data.title;
+
+      mainEl.setAttribute('data-transition', slideIn);
+
+      // Force browser to paint the start position before animating in
+      mainEl.offsetHeight;
+      mainEl.removeAttribute('data-transition');
+
+      reinit();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        mainEl.removeAttribute('data-transition');
+        location.assign(url);
+      }
+    } finally {
+      transitioning = false;
+      currentAbort = null;
+    }
+  };
+
+  // ─── 1. Click Interception ───────────────────────────────────────────
+
+  const initTransitions = () => {
+    history.replaceState({ dashNav: true, idx: navIndex }, '');
+
+    mainEl.addEventListener('click', (e) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+      const link = e.target.closest('a[href]');
+      if (!link || !shouldIntercept(link)) return;
+      if (link.closest('form')) return;
+
+      e.preventDefault();
+
+      const isBack = !!link.closest('nav[aria-label="Back"]');
+      navigate(link.href, isBack ? 'back' : 'forward');
+    });
+
+    window.addEventListener('popstate', (e) => {
+      if (!e.state?.dashNav) return;
+      if (!isDashboardUrl(location.href)) {
+        location.reload();
+        return;
+      }
+
+      const direction = (e.state.idx ?? 0) < navIndex ? 'back' : 'forward';
+      navIndex = e.state.idx ?? 0;
+      navigate(location.href, direction, false);
+    });
+  };
+
+  // ─── 2. Prefetch on Hover / Focus ───────────────────────────────────
+
+  const initPrefetch = () => {
+    let hoverTimer = null;
+
+    const startPrefetch = (link) => {
+      if (!shouldIntercept(link)) return;
+      if (prefetchCache.has(link.href)) return;
+
+      hoverTimer = setTimeout(() => {
+        fetchPage(link.href).catch(() => {});
+      }, PREFETCH_DELAY);
+    };
+
+    const cancelPrefetch = () => {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    };
+
+    mainEl.addEventListener('pointerenter', (e) => {
+      const link = e.target.closest('a[href]');
+      if (link) startPrefetch(link);
+    }, true);
+
+    mainEl.addEventListener('pointerleave', (e) => {
+      if (e.target.closest('a[href]')) cancelPrefetch();
+    }, true);
+
+    mainEl.addEventListener('focusin', (e) => {
+      const link = e.target.closest('a[href]');
+      if (link) startPrefetch(link);
+    });
+
+    mainEl.addEventListener('focusout', (e) => {
+      if (e.target.closest('a[href]')) cancelPrefetch();
+    });
+  };
+
+  // ─── 3. Alt+Left Keyboard Shortcut ──────────────────────────────────
+
+  const initKeyboardShortcut = () => {
+    document.addEventListener('keydown', (e) => {
+      if (!e.altKey || e.key !== 'ArrowLeft') return;
+      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+      const backLink = mainEl.querySelector('nav[aria-label="Back"] a[href]');
+      if (!backLink || !shouldIntercept(backLink)) return;
+
+      e.preventDefault();
+      navigate(backLink.href, 'back');
+    });
+  };
+
+  // ─── 4. Swipe-to-Go-Back ────────────────────────────────────────────
+
+  const initSwipeGesture = () => {
+    let startX = 0;
+    let startY = 0;
+
+    mainEl.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    mainEl.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length !== 1) return;
+
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = Math.abs(e.changedTouches[0].clientY - startY);
+
+      if (dx < SWIPE_THRESHOLD || dx < dy * 2) return;
+
+      const backLink = mainEl.querySelector('nav[aria-label="Back"] a[href]');
+      if (!backLink || !shouldIntercept(backLink)) return;
+
+      navigate(backLink.href, 'back');
+    }, { passive: true });
+  };
+
+  // ─── Init ────────────────────────────────────────────────────────────
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducedMotion) {
+    document.documentElement.style.setProperty('--_dash-transition-ms', '0ms');
+  }
+
+  initTransitions();
+  initPrefetch();
+  initKeyboardShortcut();
+  initSwipeGesture();
+
+})();

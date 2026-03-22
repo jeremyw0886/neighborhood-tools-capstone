@@ -275,6 +275,7 @@ class ToolController extends BaseController
             'title'         => 'My Bookmarks — NeighborhoodTools',
             'description'   => 'Your saved tools — NeighborhoodTools',
             'pageCss'       => ['dashboard.css', 'tools.css'],
+            'pageJs'        => ['dashboard.js'],
             'bookmarks'     => $bookmarks,
             'totalCount'    => $totalCount,
             'page'          => $page,

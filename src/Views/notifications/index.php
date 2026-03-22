@@ -141,7 +141,7 @@ $filterUrl = static fn(?string $f): string =>
         </form>
       <?php endif; ?>
 
-      <?php if ($totalCount > 0): ?>
+      <?php if ($totalCount > $unreadCount): ?>
         <form action="/notifications/clear-read" method="post">
           <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
           <button type="submit" data-intent="danger-outline">

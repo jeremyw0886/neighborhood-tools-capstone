@@ -99,7 +99,7 @@
     });
 
   const cleanUpEmptyGroups = () => {
-    for (const h3 of [...section.querySelectorAll('h3')]) {
+    for (const h3 of [...section.querySelectorAll(':scope > h2')]) {
       const ol = h3.nextElementSibling;
       if (ol?.tagName === 'OL' && ol.children.length === 0) {
         ol.remove();
@@ -158,7 +158,7 @@
     setBadgeCount(Math.max(0, previousCount - 1));
     li.removeAttribute('data-unread');
 
-    const heading = li.querySelector('article > div > a > h2');
+    const heading = li.querySelector('article > div > a > h3');
     if (heading) heading.style.fontWeight = '';
 
     const srLabel = li.querySelector('.visually-hidden');

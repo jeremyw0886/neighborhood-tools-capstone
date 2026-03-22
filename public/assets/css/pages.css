@@ -374,7 +374,7 @@
       }
     }
 
-    &>h3 {
+    &>h2 {
       border-bottom: 1px solid var(--mountain-fog);
       color: var(--mountain-stone);
       font-size: 0.75rem;
@@ -389,7 +389,7 @@
       background: var(--mountain-cream, #fff);
     }
 
-    &>h3:first-of-type {
+    &>h2:first-of-type {
       padding-top: 0;
     }
 
@@ -412,8 +412,8 @@
             padding-left: calc(1rem - 3px);
           }
 
-          & article>div>a>h2,
-          & article>div>h2 {
+          & article>div>a>h3,
+          & article>div>h3 {
             font-weight: 700;
           }
         }
@@ -461,7 +461,7 @@
             &>a {
               text-decoration: none;
 
-              &>h2 {
+              &>h3 {
                 color: var(--mountain-pine);
                 font-size: 0.938rem;
                 font-weight: 600;
@@ -470,13 +470,13 @@
                 transition: color 0.15s, text-decoration-color 0.15s;
               }
 
-              &:is(:hover, :focus-visible)>h2 {
+              &:is(:hover, :focus-visible)>h3 {
                 color: var(--mountain-gold-dark);
                 text-decoration-color: var(--mountain-gold-dark);
               }
             }
 
-            &>h2 {
+            &>h3 {
               color: var(--mountain-pine);
               font-size: 0.938rem;
               font-weight: 600;
@@ -903,7 +903,7 @@
 
     main>section[aria-labelledby="notifications-heading"] {
 
-      &>h3 {
+      &>h2 {
         border-bottom-width: 2px;
       }
 
@@ -944,7 +944,7 @@
       transition: none;
     }
 
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>a>h2 {
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>a>h3 {
       transition: none;
     }
 

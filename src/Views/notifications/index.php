@@ -200,7 +200,7 @@ $filterUrl = static fn(?string $f): string =>
         endif;
         $currentGroup = $group;
     ?>
-    <h3><?= htmlspecialchars($group) ?></h3>
+    <h2><?= htmlspecialchars($group) ?></h2>
     <ol start="<?= $itemIndex ?>">
     <?php endif; ?>
         <li data-type="<?= htmlspecialchars($type) ?>"<?= $isRead ? '' : ' data-unread' ?>>
@@ -211,7 +211,7 @@ $filterUrl = static fn(?string $f): string =>
 
             <div>
               <a href="<?= htmlspecialchars($link) ?>">
-                <h2><?= htmlspecialchars($ntf['title_ntf']) ?></h2>
+                <h3><?= htmlspecialchars($ntf['title_ntf']) ?></h3>
               </a>
 
               <?php if (!empty($ntf['body_ntf'])): ?>

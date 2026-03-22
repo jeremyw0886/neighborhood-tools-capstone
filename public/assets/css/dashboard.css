@@ -14,6 +14,7 @@
     [aria-labelledby="history-heading"],
     [aria-labelledby="profile-heading"],
     #loan-status,
+    #list-tool,
     #profile-edit,
     #bookmarks-page,
     #events-page) {
@@ -71,6 +72,7 @@
         margin: 1.25rem auto 0;
         max-width: 480px;
         padding: 0.25rem 0.25rem 0.25rem 1rem;
+        width: 100%;
         transition: border-color 0.25s, box-shadow 0.25s;
 
         &:focus-within {
@@ -2501,6 +2503,7 @@
       [aria-labelledby="history-heading"],
       [aria-labelledby="profile-heading"],
       #loan-status,
+      #list-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
@@ -2605,6 +2608,7 @@
       [aria-labelledby="history-heading"],
       [aria-labelledby="profile-heading"],
       #loan-status,
+      #list-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page) {
@@ -2617,6 +2621,7 @@
       [aria-labelledby="history-heading"],
       [aria-labelledby="profile-heading"],
       #loan-status,
+      #list-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>header>h1 {
@@ -2629,6 +2634,7 @@
       [aria-labelledby="history-heading"],
       [aria-labelledby="profile-heading"],
       #loan-status,
+      #list-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>header {
@@ -2851,6 +2857,7 @@
       [aria-labelledby="history-heading"],
       [aria-labelledby="profile-heading"],
       #loan-status,
+      #list-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page) {
@@ -2863,6 +2870,7 @@
       [aria-labelledby="history-heading"],
       [aria-labelledby="profile-heading"],
       #loan-status,
+      #list-tool,
       #profile-edit,
       #bookmarks-page,
       #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a>i {

@@ -15,7 +15,7 @@
   const SWIPE_THRESHOLD = 80;
   const CACHE_LIMIT = 8;
 
-  const DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loan\/\d+))?|profile\/\d+|bookmarks|events)$/;
+  const DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loan\/\d+))?|tools\/create|profile\/\d+|bookmarks|events)$/;
 
   const mainEl = document.getElementById('main-content');
   if (!mainEl) return;

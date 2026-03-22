@@ -384,10 +384,11 @@ class ToolController extends BaseController
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
 
-        $this->render('tools/create', [
+        $this->renderDashboard('list-tool', [
             'title'            => 'List a Tool — NeighborhoodTools',
-            'pageCss'          => ['tools.css'],
-            'pageJs'           => ['tools.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
+            'description'      => 'List a tool for your neighbors to borrow — NeighborhoodTools',
+            'pageCss'          => ['dashboard.css', 'tools.css'],
+            'pageJs'           => ['dashboard.js', 'tools.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'categories'       => $categories,

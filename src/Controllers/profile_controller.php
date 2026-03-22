@@ -108,7 +108,7 @@ class ProfileController extends BaseController
             $page = $totalPages;
         }
 
-        $this->render('profile/show', [
+        $data = [
             'title'         => htmlspecialchars($profile['username']) . ' — NeighborhoodTools',
             'description'   => 'View ' . htmlspecialchars($profile['username']) . "'s profile, tools, and ratings on NeighborhoodTools.",
             'pageCss'       => ['dashboard.css'],
@@ -122,7 +122,13 @@ class ProfileController extends BaseController
             'totalPages'    => $totalPages,
             'perPage'       => self::PER_PAGE,
             'profileNotice' => $this->flash('profile_notice'),
-        ]);
+        ];
+
+        if ($isOwnProfile) {
+            $this->renderDashboard('profile', $data);
+        } else {
+            $this->render('profile/show', $data);
+        }
     }
 
     /**
@@ -158,7 +164,7 @@ class ProfileController extends BaseController
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
 
-        $this->render('profile/edit', [
+        $this->renderDashboard('profile-edit', [
             'title'            => 'Edit Profile — NeighborhoodTools',
             'description'      => 'Edit your NeighborhoodTools profile.',
             'pageCss'          => ['dashboard.css'],
@@ -171,7 +177,6 @@ class ProfileController extends BaseController
             'avatarVectors'    => $avatarVectors,
             'errors'           => $errors,
             'old'              => $old,
-            'backUrl'          => '/profile/' . $userId,
         ]);
     }
 

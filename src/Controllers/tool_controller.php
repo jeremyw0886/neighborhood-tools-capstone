@@ -271,7 +271,7 @@ class ToolController extends BaseController
         // Every tool on this page is bookmarked — derive IDs from fetched results
         $bookmarkedIds = array_column($bookmarks, 'id_tol');
 
-        $this->render('tools/bookmarks', [
+        $this->renderDashboard('bookmarks', [
             'title'         => 'My Bookmarks — NeighborhoodTools',
             'description'   => 'Your saved tools — NeighborhoodTools',
             'pageCss'       => ['dashboard.css', 'tools.css'],

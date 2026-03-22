@@ -68,7 +68,7 @@ class EventController extends BaseController
         $eventFlash = $_SESSION['event_flash'] ?? '';
         unset($_SESSION['event_flash']);
 
-        $this->render('events/index', [
+        $data = [
             'title'          => 'Community Events — NeighborhoodTools',
             'description'    => 'Upcoming community events in the Asheville and Hendersonville areas.',
             'pageCss'        => ['dashboard.css', 'features.css'],
@@ -85,7 +85,13 @@ class EventController extends BaseController
             'eventFlash'     => $eventFlash,
             'attendedIds'    => $attendedIds,
             'attendeeCounts' => $attendeeCounts,
-        ]);
+        ];
+
+        if (!empty($_SESSION['logged_in'])) {
+            $this->renderDashboard('events', $data);
+        } else {
+            $this->render('events/index', $data);
+        }
     }
 
     /**

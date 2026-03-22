@@ -111,6 +111,55 @@ class BaseController
         ];
     }
 
+    protected const array DASHBOARD_SECTIONS = [
+        'overview', 'lender', 'borrower', 'history', 'loan-status',
+        'bookmarks', 'events', 'profile', 'profile-edit',
+    ];
+
+    /**
+     * Render a dashboard view through the shell or as a partial for XHR.
+     *
+     * @param string $section One of DASHBOARD_SECTIONS
+     * @param array  $data    Variables for the view
+     */
+    protected function renderDashboard(string $section, array $data = []): void
+    {
+        if (!in_array($section, self::DASHBOARD_SECTIONS, true)) {
+            $this->abort(404);
+        }
+
+        $partial = BASE_PATH . '/src/Views/dashboard/' . $section . '.php';
+        $data['dashboardSection'] = $section;
+        $data['dashboardPartial'] = $partial;
+
+        if ($this->isXhr()) {
+            $this->renderPartial($partial, $data);
+            return;
+        }
+
+        $this->render('dashboard/index', $data);
+    }
+
+    /**
+     * Render a partial view without the layout.
+     *
+     * @param string $partialPath Absolute path to the partial file
+     * @param array  $data        Variables to extract into the partial
+     */
+    protected function renderPartial(string $partialPath, array $data = []): void
+    {
+        header('X-Partial: 1');
+
+        if (isset($data['title'])) {
+            header('X-Page-Title: ' . rawurlencode($data['title']));
+        }
+
+        $data = array_merge($this->getSharedData(), $data);
+        extract($data);
+
+        require $partialPath;
+    }
+
     /**
      * Render a view inside the main layout.
      *

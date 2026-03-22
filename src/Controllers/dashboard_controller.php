@@ -59,7 +59,7 @@ class DashboardController extends BaseController
             }
         }
 
-        $this->render('dashboard/index', [
+        $this->renderDashboard('overview', [
             'title'               => 'Dashboard — NeighborhoodTools',
             'description'         => 'Your NeighborhoodTools dashboard — manage borrows, tools, and activity.',
             'pageCss'             => ['dashboard.css'],
@@ -158,7 +158,7 @@ class DashboardController extends BaseController
             }
         }
 
-        $this->render('dashboard/lender', [
+        $this->renderDashboard('lender', [
             'title'              => 'My Tools — NeighborhoodTools',
             'description'        => 'Manage your listed tools and incoming borrow requests.',
             'pageCss'            => ['dashboard.css'],
@@ -262,7 +262,7 @@ class DashboardController extends BaseController
             }
         }
 
-        $this->render('dashboard/borrower', [
+        $this->renderDashboard('borrower', [
             'title'              => 'My Borrows — NeighborhoodTools',
             'description'        => 'Track your active borrows and pending requests.',
             'pageCss'            => ['dashboard.css'],
@@ -332,7 +332,7 @@ class DashboardController extends BaseController
             ? Rating::getRatedBorrowIds($returnedIds, $userId)
             : [];
 
-        $this->render('dashboard/history', [
+        $this->renderDashboard('history', [
             'title'           => 'Borrow History — NeighborhoodTools',
             'description'     => 'View your past lending and borrowing activity.',
             'pageCss'         => ['dashboard.css'],
@@ -398,21 +398,63 @@ class DashboardController extends BaseController
             error_log('DashboardController::loanStatus (details) — ' . $e->getMessage());
         }
 
-        $this->render('dashboard/loan-status', [
-            'title'            => 'Loan Status — NeighborhoodTools',
-            'description'      => 'Track the status of your borrow.',
-            'pageCss'          => ['dashboard.css'],
-            'pageJs'           => ['dashboard.js'],
-            'borrow'           => $borrow,
-            'extensions'       => $extensions,
-            'handovers'        => $handovers,
-            'deposit'          => $deposit,
-            'waiverSigned'     => $waiverSigned,
-            'userRatings'      => $userRatings,
-            'toolRating'       => $toolRating,
-            'hasRatedUser'     => $hasRatedUser,
-            'hasRatedTool'     => $hasRatedTool,
-            'handoverSuccess'  => $this->flash('handover_success'),
+        $isLender  = (int) $borrow['lender_id'] === $userId;
+        $status    = $borrow['borrow_status'];
+
+        $counterpartyId   = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['lender_id'];
+        $counterpartyName = $isLender ? $borrow['borrower_name'] : $borrow['lender_name'];
+
+        $statusLabel = match ($status) {
+            'requested' => 'Pending',
+            'approved'  => 'Approved',
+            'borrowed'  => 'Borrowed',
+            'returned'  => 'Returned',
+            'denied'    => 'Denied',
+            'cancelled' => 'Cancelled',
+        };
+
+        $dueStatus = null;
+        if ($status === 'borrowed' && $borrow['due_at_bor'] !== null) {
+            $hoursLeft = (int) ((strtotime($borrow['due_at_bor']) - time()) / 3600);
+            $dueStatus = match (true) {
+                $hoursLeft < 0   => 'overdue',
+                $hoursLeft <= 24 => 'due-soon',
+                default          => 'on-time',
+            };
+        }
+
+        $statusSlug = $dueStatus ?? $status;
+
+        $relationLabel = match ($status) {
+            'requested', 'denied', 'cancelled' => $isLender ? 'Requested by' : 'Requested from',
+            'approved'                         => $isLender ? 'Approved for' : 'Approved by',
+            'borrowed'                         => $isLender ? 'Lent to' : 'Borrowed from',
+            'returned'                         => $isLender ? 'Returned by' : 'Returned to',
+        };
+
+        $loanStatusSubtitle = '<p>'
+            . $relationLabel
+            . ' <a href="/profile/' . $counterpartyId . '">' . htmlspecialchars($counterpartyName) . '</a>'
+            . ' <span data-status="' . htmlspecialchars($statusSlug) . '">' . htmlspecialchars($statusLabel) . '</span>'
+            . '</p>';
+
+        $this->renderDashboard('loan-status', [
+            'title'               => 'Loan Status — NeighborhoodTools',
+            'description'         => 'Track the status of your borrow.',
+            'pageCss'             => ['dashboard.css'],
+            'pageJs'              => ['dashboard.js'],
+            'borrow'              => $borrow,
+            'extensions'          => $extensions,
+            'handovers'           => $handovers,
+            'deposit'             => $deposit,
+            'waiverSigned'        => $waiverSigned,
+            'userRatings'         => $userRatings,
+            'toolRating'          => $toolRating,
+            'hasRatedUser'        => $hasRatedUser,
+            'hasRatedTool'        => $hasRatedTool,
+            'handoverSuccess'     => $this->flash('handover_success'),
+            'loanStatusHeading'   => $borrow['tool_name_tol'],
+            'loanStatusSubtitle'  => $loanStatusSubtitle,
         ]);
     }
 

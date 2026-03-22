@@ -48,7 +48,7 @@ neighborhoodtools/
 │   ├── Models/                # Data access (static methods, PDO)
 │   └── Views/
 │       ├── layouts/main.php   # Shared HTML shell
-│       ├── partials/          # Nav, tool cards, modals, content blocks
+│       ├── partials/          # Nav, dashboard nav, tool cards, sort-filter, overdue/pickup lists, modals, content blocks
 │       └── {feature}/         # Page templates by feature
 ├── usability_testing/          # Usability test plans, reports, and support files
 └── dumps/                     # SQL schema dump
@@ -59,11 +59,11 @@ neighborhoodtools/
 - **Home** &mdash; Hero section, featured tools, top members, location-based member carousel
 - **Authentication** &mdash; Login, registration, logout with CSRF protection, honeypot, bcrypt hashing, password reset via email
 - **Tools** &mdash; Browse with search/filter/pagination, detail view, create, edit, delete, multi-image upload with reorder and primary selection, bookmarks, availability management, listing toggle
-- **Dashboard** &mdash; Overview, lender view (listed tools + incoming requests), borrower view (active borrows), transaction history, loan status tracking
+- **Dashboard** &mdash; Unified shell with partial content swaps (XHR for fast navigation), overview, lender view (listed tools + incoming requests), borrower view (active borrows), transaction history, loan status tracking, integrated profile/bookmarks/events via shared navigation
 - **Borrowing** &mdash; Request, approve, deny, cancel, extend, reminders
 - **Handover verification** &mdash; Pickup/return code confirmation
 - **Ratings** &mdash; Rate borrowers and lenders after transactions, rate tools
-- **Profiles** &mdash; Public member profiles with ratings, listed tools, bio, profile editing
+- **Profiles** &mdash; Public member profiles with ratings, listed tools, bio; own-profile and editing render through the dashboard shell, other users' profiles render standalone
 - **Payments/deposits** &mdash; Security deposit handling with Stripe integration, payment history
 - **Disputes** &mdash; Member-facing dispute filing, detail view, messaging
 - **Events** &mdash; Community events with detail view, creation, RSVP

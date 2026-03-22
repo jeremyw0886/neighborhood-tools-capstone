@@ -271,11 +271,11 @@ use App\Core\ViewHelper;
                   </span>
                 <?php elseif ($handover !== null): ?>
                   <a href="/handover/<?= $pickupId ?>" role="button" data-intent="info">
-                    <i class="fa-solid fa-key" aria-hidden="true"></i> Your Code
+                    <i class="fa-solid fa-key" aria-hidden="true"></i> Your Pickup Code
                   </a>
                 <?php else: ?>
                   <a href="/handover/<?= $pickupId ?>" role="button" data-intent="info">
-                    <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Code
+                    <i class="fa-solid fa-key" aria-hidden="true"></i> Generate Pickup Code
                   </a>
                 <?php endif; ?>
                 <details>
@@ -390,11 +390,11 @@ use App\Core\ViewHelper;
                 <?php $handover = $handoversByBorrow[(int) $row['id_bor']] ?? null; ?>
                 <?php if ($handover !== null): ?>
                   <a href="/handover/<?= (int) $row['id_bor'] ?>" role="button" data-intent="info">
-                    <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Code
+                    <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Enter Return Code
                   </a>
                 <?php else: ?>
                   <span role="button" aria-disabled="true" data-intent="ghost">
-                    <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Code
+                    <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Awaiting Return Code
                   </span>
                 <?php endif; ?>
                 <?php if ($dueStatus === 'OVERDUE' || $dueStatus === 'DUE SOON'): ?>

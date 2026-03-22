@@ -476,6 +476,23 @@ class HandoverController extends BaseController
                 body: $userName . ' verified the ' . $typeLabel . ' of ' . $toolName . '.',
                 relatedBorrowId: $id,
             );
+
+            if (!$isPickup) {
+                $lenderId     = (int) $handover['lender_id'];
+                $borrowerName = $handover['borrower_name'] ?? 'The borrower';
+                $deposit      = Deposit::findByBorrowId($id);
+                $body         = $deposit !== null
+                    ? $borrowerName . ' has returned ' . $toolName . '. Your deposit hold has been released.'
+                    : $borrowerName . ' has returned ' . $toolName . '.';
+
+                Notification::send(
+                    accountId: $lenderId,
+                    type: 'return',
+                    title: 'Tool Returned',
+                    body: $body,
+                    relatedBorrowId: $id,
+                );
+            }
         } catch (\Throwable $e) {
             error_log('HandoverController::confirm notification — ' . $e->getMessage());
         }

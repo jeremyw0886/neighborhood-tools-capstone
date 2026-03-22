@@ -590,6 +590,30 @@
         flex-direction: column;
         gap: 0.75rem;
         min-width: 0;
+        position: relative;
+
+        &>form {
+          position: absolute;
+          right: 0.5rem;
+          top: 0.5rem;
+          z-index: 1;
+
+          &>button {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            color: var(--mountain-pine);
+            font-size: 1rem;
+            height: 2.75rem;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+            width: 2.75rem;
+
+            &:hover {
+              background: var(--mountain-gold);
+              color: #fff;
+              transform: scale(1.1);
+            }
+          }
+        }
 
         & #gallery-main {
 
@@ -720,10 +744,7 @@
           }
         }
 
-        &>form>button>i.fa-bookmark {
-          color: var(--mountain-gold);
-        }
-      }
+}
 
       & #gallery-lightbox {
         background: transparent;
@@ -923,6 +944,11 @@
 
           &:has(> select) {
             display: grid;
+
+            &>select {
+              grid-column: 1;
+              grid-row: 2;
+            }
 
             &::after {
               align-self: center;

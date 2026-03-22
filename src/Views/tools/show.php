@@ -40,6 +40,16 @@ $images        ??= [];
       ?>
 
       <div id="tool-gallery" data-count="<?= count($images) ?>">
+        <?php if (!empty($isLoggedIn) && ($authUser['id'] ?? 0) !== (int) $tool['owner_id']): ?>
+          <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+            <button type="submit"
+                    data-shape="icon"
+                    aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
+              <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
+            </button>
+          </form>
+        <?php endif; ?>
         <figure id="gallery-main">
           <?php if ($primaryImage !== null):
             $mainVariants = \App\Core\ImageProcessor::getAvailableVariants(
@@ -211,17 +221,6 @@ $images        ??= [];
           <dd data-availability="<?= htmlspecialchars(strtolower($status)) ?>"><?= htmlspecialchars($status) ?></dd>
         </dl>
 
-        <?php if (!empty($isLoggedIn) && ($authUser['id'] ?? 0) !== (int) $tool['owner_id']): ?>
-          <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/bookmark">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-            <button type="submit"
-                    data-intent="ghost"
-                    aria-label="<?= $isBookmarked ? 'Remove bookmark for' : 'Bookmark' ?> <?= htmlspecialchars($tool['tool_name_tol']) ?>">
-              <i class="fa-<?= $isBookmarked ? 'solid' : 'regular' ?> fa-bookmark" aria-hidden="true"></i>
-              <?= $isBookmarked ? 'Bookmarked' : 'Bookmark' ?>
-            </button>
-          </form>
-        <?php endif; ?>
       </div>
     </header>
 

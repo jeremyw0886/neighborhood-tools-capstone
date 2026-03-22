@@ -17,26 +17,7 @@
 use App\Core\ViewHelper;
 ?>
 
-<section aria-labelledby="history-heading">
-
-  <nav aria-label="Back">
-    <a href="<?= htmlspecialchars($backUrl) ?>">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-    </a>
-  </nav>
-
-  <header>
-    <h1 id="history-heading">
-      <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-      Borrow History
-    </h1>
-    <p>Review your past lending and borrowing activity.</p>
-    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
-
-  <section aria-labelledby="lending-history-heading">
+<section aria-labelledby="lending-history-heading">
     <h2 id="lending-history-heading">
       <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
       Lending History
@@ -231,6 +212,3 @@ use App\Core\ViewHelper;
       <p>No borrowing history yet. <a href="/tools">Browse tools</a> to find something to borrow.</p>
     <?php endif; ?>
   </section>
-
-</div>
-</section>

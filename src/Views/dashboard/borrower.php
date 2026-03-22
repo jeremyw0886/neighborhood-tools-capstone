@@ -21,26 +21,7 @@
 use App\Core\ViewHelper;
 ?>
 
-<section aria-labelledby="borrower-heading">
-
-  <nav aria-label="Back">
-    <a href="<?= htmlspecialchars($backUrl) ?>">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-    </a>
-  </nav>
-
-  <header>
-    <h1 id="borrower-heading">
-      <i class="fa-solid fa-hand" aria-hidden="true"></i>
-      My Borrows
-    </h1>
-    <p>Track your active borrows, pending requests, and overdue items.</p>
-    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
-
-  <?php if (!empty($borrowSuccess)): ?>
+<?php if (!empty($borrowSuccess)): ?>
     <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
 
@@ -363,6 +344,3 @@ use App\Core\ViewHelper;
       <p>No pending requests.</p>
     <?php endif; ?>
   </section>
-
-</div>
-</section>

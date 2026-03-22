@@ -53,37 +53,7 @@ $counterpartyName  = $isLender ? $borrow['borrower_name'] : $borrow['lender_name
 $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['lender_id'];
 ?>
 
-<section id="loan-status" aria-labelledby="loan-status-heading">
-
-  <nav aria-label="Back">
-    <a href="<?= htmlspecialchars($backUrl) ?>">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-    </a>
-  </nav>
-
-  <header>
-    <h1 id="loan-status-heading">
-      <i class="fa-solid fa-timeline" aria-hidden="true"></i>
-      <?= htmlspecialchars($borrow['tool_name_tol']) ?>
-    </h1>
-    <?php
-    $relationLabel = match ($status) {
-      'requested', 'denied', 'cancelled' => $isLender ? 'Requested by' : 'Requested from',
-      'approved'                         => $isLender ? 'Approved for' : 'Approved by',
-      'borrowed'                         => $isLender ? 'Lent to' : 'Borrowed from',
-      'returned'                         => $isLender ? 'Returned by' : 'Returned to',
-    };
-    ?>
-    <p>
-      <?= $relationLabel ?>
-      <a href="/profile/<?= $counterpartyId ?>"><?= htmlspecialchars($counterpartyName) ?></a>
-      <span data-status="<?= htmlspecialchars($statusSlug) ?>"><?= htmlspecialchars($statusLabel) ?></span>
-    </p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
-
-  <?php if (!empty($handoverSuccess)): ?>
+<?php if (!empty($handoverSuccess)): ?>
     <p role="status" data-flash="success"><?= htmlspecialchars($handoverSuccess) ?></p>
   <?php endif; ?>
 
@@ -650,7 +620,3 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
     <?php endif; ?>
 
   </div>
-
-</div>
-
-</section>

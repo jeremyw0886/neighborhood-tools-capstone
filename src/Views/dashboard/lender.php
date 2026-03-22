@@ -26,26 +26,7 @@
 use App\Core\ViewHelper;
 ?>
 
-<section aria-labelledby="lender-heading">
-
-  <nav aria-label="Back">
-    <a href="<?= htmlspecialchars($backUrl) ?>">
-      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-    </a>
-  </nav>
-
-  <header>
-    <h1 id="lender-heading">
-      <i class="fa-solid fa-hand-holding" aria-hidden="true"></i>
-      My Tools
-    </h1>
-    <p>Manage your listed tools and respond to incoming borrow requests.</p>
-    <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
-
-  <?php if (!empty($borrowSuccess)): ?>
+<?php if (!empty($borrowSuccess)): ?>
     <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
 
@@ -572,6 +553,3 @@ use App\Core\ViewHelper;
       </a>
     <?php endif; ?>
   </section>
-
-</div>
-</section>

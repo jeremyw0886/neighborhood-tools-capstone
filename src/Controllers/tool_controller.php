@@ -786,6 +786,9 @@ class ToolController extends BaseController
             $fx = isset($focalXValues[$i]) ? max(0, min(100, (int) $focalXValues[$i])) : 50;
             $fy = isset($focalYValues[$i]) ? max(0, min(100, (int) $focalYValues[$i])) : 50;
 
+            $sourcePath = BASE_PATH . '/public/uploads/tools/' . $result['filename'];
+            ImageProcessor::generateVariants($sourcePath, focalX: $fx, focalY: $fy);
+
             $imageFilenames[] = [
                 'filename' => $result['filename'],
                 'alt_text' => null,

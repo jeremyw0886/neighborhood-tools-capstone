@@ -1,32 +1,245 @@
 'use strict';
 
-/**
- * Notifications page — progressive JS enhancements.
- *
- * Intercepts per-item mark-as-read form submissions via fetch,
- * updates the UI without a full page reload, and keeps the nav
- * badge count in sync with optimistic updates and rollback on failure.
- */
-(() => {
-  if (!window.NT) return;
+// ─── Swipe To Read ───────────────────────────────────────────────────
 
-  const section = document.querySelector(
-    'section[aria-labelledby="notifications-heading"]'
-  );
-  if (!section) return;
+class SwipeToRead {
+  static #idCounter = 0;
+  static #THRESHOLD = 80;
+  static #TRAY_WIDTH = 72;
+  static #REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
 
-  // ─── Badge Helpers ──────────────────────────────────────────────────
+  /** @type {HTMLLIElement} */
+  #li;
+  #onConfirm;
+  #swipeId;
+  #state = null;
+  #abortController = new AbortController();
 
-  const getBellLink = () =>
-    document.querySelector('#bell-wrapper > a[href="/notifications"]');
+  /**
+   * @param {HTMLLIElement} li
+   * @param {(form: HTMLFormElement) => void} onConfirm
+   */
+  constructor(li, onConfirm) {
+    this.#li = li;
+    this.#onConfirm = onConfirm;
+    this.#swipeId = String(++SwipeToRead.#idCounter);
+    li.dataset.swipeId = this.#swipeId;
 
-  const readBadgeCount = () => {
-    const badge = getBellLink()?.querySelector('span');
-    return badge ? parseInt(badge.textContent, 10) || 0 : 0;
+    const { signal } = this.#abortController;
+    li.addEventListener('touchstart', this.#handleTouchStart, { signal, passive: true });
+    li.addEventListener('touchmove', this.#handleTouchMove, { signal, passive: false });
+    li.addEventListener('touchend', this.#handleTouchEnd, { signal });
+    li.addEventListener('touchcancel', this.#handleTouchCancel, { signal });
+  }
+
+  destroy() {
+    this.#abortController.abort();
+    NT.style.removeRule(`swipe-${this.#swipeId}`);
+    this.#li.querySelector('[data-swipe-tray]')?.remove();
+    this.#li.classList.remove('swiping');
+  }
+
+  #articleSelector() {
+    return `section[aria-labelledby="notifications-heading"] > ol > li[data-swipe-id="${this.#swipeId}"] > article`;
+  }
+
+  #ensureTray() {
+    if (this.#li.querySelector('[data-swipe-tray]')) return;
+    const tray = document.createElement('div');
+    tray.setAttribute('data-swipe-tray', '');
+    tray.setAttribute('aria-hidden', 'true');
+    tray.innerHTML = '<i class="fa-solid fa-check"></i>';
+    this.#li.appendChild(tray);
+  }
+
+  #snapTranslate(x, callback) {
+    const key = `swipe-${this.#swipeId}`;
+    const selector = this.#articleSelector();
+
+    if (SwipeToRead.#REDUCED_MOTION.matches) {
+      NT.style.setRule(key, selector, `transform:translateX(${x}px)`);
+      callback?.();
+      return;
+    }
+
+    NT.style.setRule(
+      key, selector,
+      `transform:translateX(${x}px);transition:transform 0.25s ease`
+    );
+
+    if (callback) {
+      const article = this.#li.querySelector('article');
+      const done = () => {
+        article?.removeEventListener('transitionend', done);
+        callback();
+      };
+      article?.addEventListener('transitionend', done);
+      setTimeout(done, 300);
+    }
+  }
+
+  #reset() {
+    this.#snapTranslate(0, () => {
+      NT.style.removeRule(`swipe-${this.#swipeId}`);
+      this.#li.querySelector('[data-swipe-tray]')?.remove();
+      this.#li.classList.remove('swiping');
+    });
+  }
+
+  #confirm() {
+    const form = this.#li.querySelector('footer > form');
+    if (!form) return;
+
+    this.#snapTranslate(-this.#li.offsetWidth, () => {
+      this.#onConfirm(form);
+      NT.style.removeRule(`swipe-${this.#swipeId}`);
+      this.#li.querySelector('[data-swipe-tray]')?.remove();
+      this.#li.classList.remove('swiping');
+    });
+  }
+
+  #handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    this.#state = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      currentX: 0,
+      locked: false,
+    };
+    this.#ensureTray();
   };
 
-  const setBadgeCount = (count) => {
-    const bellLink = getBellLink();
+  /** @param {TouchEvent} e */
+  #handleTouchMove = (e) => {
+    if (!this.#state) return;
+
+    const touch = e.touches[0];
+    const dx = touch.clientX - this.#state.startX;
+    const dy = touch.clientY - this.#state.startY;
+
+    if (!this.#state.locked) {
+      if (Math.abs(dy) > Math.abs(dx)) {
+        this.#state = null;
+        return;
+      }
+      if (Math.abs(dx) > 10) {
+        this.#state.locked = true;
+        this.#li.classList.add('swiping');
+      } else {
+        return;
+      }
+    }
+
+    e.preventDefault();
+
+    const clampedX = Math.min(0, Math.max(-SwipeToRead.#TRAY_WIDTH - 20, dx));
+    this.#state.currentX = clampedX;
+
+    NT.style.setRule(
+      `swipe-${this.#swipeId}`,
+      this.#articleSelector(),
+      `transform:translateX(${clampedX}px);transition:none`
+    );
+  };
+
+  #handleTouchEnd = () => {
+    if (!this.#state || !this.#state.locked) {
+      this.#state = null;
+      return;
+    }
+
+    const { currentX } = this.#state;
+    this.#state = null;
+
+    if (Math.abs(currentX) >= SwipeToRead.#THRESHOLD) {
+      this.#confirm();
+    } else {
+      this.#reset();
+    }
+  };
+
+  #handleTouchCancel = () => {
+    if (this.#state?.locked) {
+      this.#reset();
+    }
+    this.#state = null;
+  };
+}
+
+// ─── Notification Manager ────────────────────────────────────────────
+
+class NotificationManager {
+  static #instance = null;
+  static #REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
+
+  /** @type {HTMLElement} */
+  #section;
+  /** @type {SwipeToRead[]} */
+  #swipeInstances = [];
+  #removalIdCounter = 0;
+  /** @type {AbortController|null} */
+  #filterController = null;
+  #abortController = new AbortController();
+
+  /** @param {HTMLElement} section */
+  constructor(section) {
+    this.#section = section;
+    this.#bind();
+    this.#createSwipeInstances();
+  }
+
+  /** @returns {NotificationManager|null} */
+  static init() {
+    if (NotificationManager.#instance) return NotificationManager.#instance;
+    if (!window.NT) return null;
+    const section = document.querySelector(
+      'section[aria-labelledby="notifications-heading"]'
+    );
+    if (!section) return null;
+    return (NotificationManager.#instance = new NotificationManager(section));
+  }
+
+  destroy() {
+    this.#destroySwipeInstances();
+    this.#filterController?.abort();
+    this.#abortController.abort();
+    NotificationManager.#instance = null;
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#section.addEventListener('submit', this.#handleSubmit, { signal });
+    this.#section.addEventListener('click', this.#handleClick, { signal });
+    window.addEventListener('popstate', this.#handlePopstate, { signal });
+  }
+
+  #createSwipeInstances() {
+    this.#destroySwipeInstances();
+    for (const li of this.#section.querySelectorAll('ol > li[data-unread]')) {
+      this.#swipeInstances.push(
+        new SwipeToRead(li, (form) => this.#handleMarkRead(form))
+      );
+    }
+  }
+
+  #destroySwipeInstances() {
+    for (const s of this.#swipeInstances) s.destroy();
+    this.#swipeInstances = [];
+  }
+
+  // ── Badge Helpers ──
+
+  #getBellLink() {
+    return document.querySelector('#bell-wrapper > a[href="/notifications"]');
+  }
+
+  #readBadgeCount() {
+    const badge = this.#getBellLink()?.querySelector('span');
+    return badge ? parseInt(badge.textContent, 10) || 0 : 0;
+  }
+
+  #setBadgeCount(count) {
+    const bellLink = this.#getBellLink();
     if (!bellLink) return;
 
     let badge = bellLink.querySelector('span');
@@ -52,40 +265,33 @@
       if (icon) mobileBell.appendChild(icon);
       mobileBell.append(count > 0 ? ` Notifications (${count})` : ' Notifications');
     }
-  };
+  }
 
-  // ─── Shared State ─────────────────────────────────────────────────
+  // ── Shared Helpers ──
 
-  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  let removalIdCounter = 0;
-
-  // ─── Shared Helpers ────────────────────────────────────────────────
-
-  const animateRemoval = (li) =>
-    new Promise((resolve) => {
-      if (prefersReducedMotion.matches) {
+  #animateRemoval(li) {
+    return new Promise((resolve) => {
+      if (NotificationManager.#REDUCED_MOTION.matches) {
         li.remove();
         resolve();
         return;
       }
 
-      const id = ++removalIdCounter;
+      const id = ++this.#removalIdCounter;
       const key = `removal-${id}`;
       li.dataset.removalId = String(id);
       const selector =
         `section[aria-labelledby="notifications-heading"] > ol > li[data-removal-id="${id}"]`;
 
       NT.style.setRule(
-        key,
-        selector,
-        `overflow: hidden; max-height: ${li.offsetHeight}px; transition: max-height 0.3s ease, opacity 0.3s ease`
+        key, selector,
+        `overflow:hidden;max-height:${li.offsetHeight}px;transition:max-height 0.3s ease,opacity 0.3s ease`
       );
 
       requestAnimationFrame(() => {
         NT.style.setRule(
-          key,
-          selector,
-          'overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease'
+          key, selector,
+          'overflow:hidden;max-height:0;opacity:0;transition:max-height 0.3s ease,opacity 0.3s ease'
         );
 
         const done = () => {
@@ -97,26 +303,26 @@
         setTimeout(done, 350);
       });
     });
+  }
 
-  const cleanUpEmptyGroups = () => {
-    for (const h3 of [...section.querySelectorAll(':scope > h2')]) {
-      const ol = h3.nextElementSibling;
+  #cleanUpEmptyGroups() {
+    for (const h of [...this.#section.querySelectorAll(':scope > h2')]) {
+      const ol = h.nextElementSibling;
       if (ol?.tagName === 'OL' && ol.children.length === 0) {
         ol.remove();
-        h3.remove();
+        h.remove();
       }
     }
-  };
+  }
 
-  const handleEmptyPage = () => {
-    const remaining = section.querySelectorAll('ol > li');
+  #handleEmptyPage() {
+    const remaining = this.#section.querySelectorAll('ol > li');
     if (remaining.length > 0) return;
+    this.#swapContent(location.href, false);
+  }
 
-    swapContent(location.href, false);
-  };
-
-  const updateSummary = (delta) => {
-    const liveRegion = section.querySelector('div[aria-live]');
+  #updateSummary(delta) {
+    const liveRegion = this.#section.querySelector('div[aria-live]');
     if (!liveRegion) return;
 
     const strong = liveRegion.querySelectorAll('strong');
@@ -134,32 +340,29 @@
 
     const rangeEl = strong[0];
     const rangeText = rangeEl.textContent;
-    const [startStr] = rangeText.split('–');
+    const [startStr] = rangeText.split('\u2013');
     const start = parseInt(startStr, 10) || 1;
-    const items = section.querySelectorAll('ol > li').length;
+    const items = this.#section.querySelectorAll('ol > li').length;
     rangeEl.textContent = `${start}\u2013${start + items - 1}`;
 
     const p = liveRegion.querySelector('p');
     if (p) {
       p.lastChild.textContent = total !== 1 ? ' notifications' : ' notification';
     }
-  };
+  }
 
-  // ─── Mark-as-Read Interception ──────────────────────────────────────
+  // ── Action Handlers ──
 
-  const handleMarkRead = async (form) => {
+  async #handleMarkRead(form) {
     const li = form.closest('li[data-unread]');
     if (!li) return;
 
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
 
-    const previousCount = readBadgeCount();
-    setBadgeCount(Math.max(0, previousCount - 1));
+    const previousCount = this.#readBadgeCount();
+    this.#setBadgeCount(Math.max(0, previousCount - 1));
     li.removeAttribute('data-unread');
-
-    const heading = li.querySelector('article > div > a > h3');
-    if (heading) heading.style.fontWeight = '';
 
     const srLabel = li.querySelector('.visually-hidden');
 
@@ -170,52 +373,18 @@
 
       if (!data.success) throw new Error('Server returned failure');
 
-      setBadgeCount(data.unread);
+      this.#setBadgeCount(data.unread);
       form.remove();
       srLabel?.remove();
     } catch {
       li.setAttribute('data-unread', '');
-      if (heading) heading.style.fontWeight = '700';
-      setBadgeCount(previousCount);
+      this.#setBadgeCount(previousCount);
       button.disabled = false;
       NT.toast('Could not mark notification as read. Please try again.', 'error');
     }
-  };
+  }
 
-  section.addEventListener('submit', (e) => {
-    const form = e.target.closest('form');
-    if (!form) return;
-
-    const markReadForm = form.closest(
-      'li[data-unread] > article > div > footer > form[action$="/read"]'
-    );
-    if (markReadForm) {
-      e.preventDefault();
-      handleMarkRead(markReadForm);
-      return;
-    }
-
-    const deleteForm = form.closest(
-      'li > article > div > footer > form[action$="/delete"]'
-    );
-    if (deleteForm) {
-      e.preventDefault();
-      handleDelete(deleteForm);
-      return;
-    }
-
-    const clearReadForm = form.closest(
-      'header form[action$="/clear-read"]'
-    );
-    if (clearReadForm) {
-      e.preventDefault();
-      handleClearRead(clearReadForm);
-    }
-  });
-
-  // ─── Delete Interception ───────────────────────────────────────────
-
-  const handleDelete = async (form) => {
+  async #handleDelete(form) {
     const li = form.closest('li');
     if (!li) return;
 
@@ -223,8 +392,8 @@
     button.disabled = true;
 
     const wasUnread = li.hasAttribute('data-unread');
-    const previousCount = readBadgeCount();
-    if (wasUnread) setBadgeCount(Math.max(0, previousCount - 1));
+    const previousCount = this.#readBadgeCount();
+    if (wasUnread) this.#setBadgeCount(Math.max(0, previousCount - 1));
 
     try {
       const body = new FormData(form);
@@ -233,21 +402,19 @@
 
       if (!data.success) throw new Error('Server returned failure');
 
-      setBadgeCount(data.unread);
-      updateSummary(-1);
-      await animateRemoval(li);
-      cleanUpEmptyGroups();
-      handleEmptyPage();
+      this.#setBadgeCount(data.unread);
+      this.#updateSummary(-1);
+      await this.#animateRemoval(li);
+      this.#cleanUpEmptyGroups();
+      this.#handleEmptyPage();
     } catch {
-      if (wasUnread) setBadgeCount(previousCount);
+      if (wasUnread) this.#setBadgeCount(previousCount);
       button.disabled = false;
       NT.toast('Could not delete notification. Please try again.', 'error');
     }
-  };
+  }
 
-  // ─── Clear-Read Interception ──────────────────────────────────────
-
-  const handleClearRead = async (form) => {
+  async #handleClearRead(form) {
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
 
@@ -258,185 +425,35 @@
 
       if (!data.success) throw new Error('Server returned failure');
 
-      setBadgeCount(data.unread);
+      this.#setBadgeCount(data.unread);
 
-      const readItems = section.querySelectorAll('ol > li:not([data-unread])');
-      const removals = [...readItems].map(animateRemoval);
-      updateSummary(-readItems.length);
+      const readItems = this.#section.querySelectorAll('ol > li:not([data-unread])');
+      const removals = [...readItems].map((li) => this.#animateRemoval(li));
+      this.#updateSummary(-readItems.length);
       await Promise.all(removals);
-      cleanUpEmptyGroups();
+      this.#cleanUpEmptyGroups();
 
       form.remove();
-      handleEmptyPage();
+      this.#handleEmptyPage();
     } catch {
       button.disabled = false;
       NT.toast('Could not clear read notifications. Please try again.', 'error');
     }
-  };
+  }
 
-  // ─── Swipe-to-Mark-Read Gesture ────────────────────────────────────
+  // ── Content Swap ──
 
-  const SWIPE_THRESHOLD = 80;
-  const TRAY_WIDTH = 72;
+  async #swapContent(url, pushState = true) {
+    this.#filterController?.abort();
+    this.#filterController = new AbortController();
 
-  let swipeState = null;
-  let swipeIdCounter = 0;
-
-  const ensureSwipeId = (li) => {
-    if (!li.dataset.swipeId) {
-      li.dataset.swipeId = String(++swipeIdCounter);
-    }
-    return li.dataset.swipeId;
-  };
-
-  const ensureTray = (li) => {
-    if (li.querySelector('[data-swipe-tray]')) return;
-
-    const tray = document.createElement('div');
-    tray.setAttribute('data-swipe-tray', '');
-    tray.setAttribute('aria-hidden', 'true');
-    tray.innerHTML = '<i class="fa-solid fa-check"></i>';
-    li.appendChild(tray);
-  };
-
-  const snapSwipeTranslate = (li, x, callback) => {
-    const id = ensureSwipeId(li);
-    const key = `swipe-${id}`;
-    const selector =
-      `section[aria-labelledby="notifications-heading"] > ol > li[data-swipe-id="${id}"] > article`;
-
-    if (prefersReducedMotion.matches) {
-      NT.style.setRule(key, selector, `transform: translateX(${x}px)`);
-      callback?.();
-      return;
-    }
-
-    NT.style.setRule(
-      key,
-      selector,
-      `transform: translateX(${x}px); transition: transform 0.25s ease`
+    const filterNav = this.#section.querySelector(
+      'nav[aria-label="Filter notifications"]'
     );
-
-    if (callback) {
-      const handler = () => {
-        li.querySelector('article')
-          ?.removeEventListener('transitionend', handler);
-        callback();
-      };
-      li.querySelector('article')?.addEventListener('transitionend', handler);
-      setTimeout(handler, 300);
-    }
-  };
-
-  const resetSwipe = (li) => {
-    snapSwipeTranslate(li, 0, () => {
-      const id = li.dataset.swipeId;
-      if (id) NT.style.removeRule(`swipe-${id}`);
-      li.querySelector('[data-swipe-tray]')?.remove();
-      li.classList.remove('swiping');
-    });
-  };
-
-  const confirmSwipe = (li) => {
-    const form = li.querySelector('footer > form');
-    if (!form) return;
-
-    snapSwipeTranslate(li, -li.offsetWidth, () => {
-      handleMarkRead(form);
-      const id = li.dataset.swipeId;
-      if (id) NT.style.removeRule(`swipe-${id}`);
-      li.querySelector('[data-swipe-tray]')?.remove();
-      li.classList.remove('swiping');
-    });
-  };
-
-  section.addEventListener('touchstart', (e) => {
-    const li = e.target.closest('li[data-unread]');
-    if (!li) return;
-
-    const touch = e.touches[0];
-    swipeState = {
-      li,
-      startX: touch.clientX,
-      startY: touch.clientY,
-      currentX: 0,
-      locked: false,
-    };
-
-    ensureTray(li);
-  }, { passive: true });
-
-  section.addEventListener('touchmove', (e) => {
-    if (!swipeState) return;
-
-    const touch = e.touches[0];
-    const dx = touch.clientX - swipeState.startX;
-    const dy = touch.clientY - swipeState.startY;
-
-    if (!swipeState.locked) {
-      if (Math.abs(dy) > Math.abs(dx)) {
-        swipeState = null;
-        return;
-      }
-      if (Math.abs(dx) > 10) {
-        swipeState.locked = true;
-        swipeState.li.classList.add('swiping');
-      } else {
-        return;
-      }
-    }
-
-    e.preventDefault();
-
-    const clampedX = Math.min(0, Math.max(-TRAY_WIDTH - 20, dx));
-    swipeState.currentX = clampedX;
-
-    const id = ensureSwipeId(swipeState.li);
-    const selector =
-      `section[aria-labelledby="notifications-heading"] > ol > li[data-swipe-id="${id}"] > article`;
-    NT.style.setRule(
-      `swipe-${id}`,
-      selector,
-      `transform: translateX(${clampedX}px); transition: none`
-    );
-  }, { passive: false });
-
-  section.addEventListener('touchend', () => {
-    if (!swipeState || !swipeState.locked) {
-      swipeState = null;
-      return;
-    }
-
-    const { li, currentX } = swipeState;
-    swipeState = null;
-
-    if (Math.abs(currentX) >= SWIPE_THRESHOLD) {
-      confirmSwipe(li);
-    } else {
-      resetSwipe(li);
-    }
-  });
-
-  section.addEventListener('touchcancel', () => {
-    if (swipeState?.locked) {
-      resetSwipe(swipeState.li);
-    }
-    swipeState = null;
-  });
-
-  // ─── Fetch-Based Filter & Pagination Swap ────────────────────────────
-
-  let filterController = null;
-
-  const swapContent = async (url, pushState = true) => {
-    filterController?.abort();
-    filterController = new AbortController();
-
-    const filterNav = section.querySelector('nav[aria-label="Filter notifications"]');
     filterNav?.setAttribute('aria-busy', 'true');
 
     try {
-      const res = await NT.fetch(url, { signal: filterController.signal });
+      const res = await NT.fetch(url, { signal: this.#filterController.signal });
       const html = await res.text();
 
       const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -445,39 +462,75 @@
       );
       if (!fresh) throw new Error('Section not found in response');
 
-      const backNav = section.querySelector('nav[aria-label="Back"]');
-      section.innerHTML = '';
-      if (backNav) section.appendChild(backNav);
+      const backNav = this.#section.querySelector('nav[aria-label="Back"]');
+      this.#section.innerHTML = '';
+      if (backNav) this.#section.appendChild(backNav);
 
       for (const child of [...fresh.children]) {
         if (child.matches('nav[aria-label="Back"]')) continue;
-        section.appendChild(document.adoptNode(child));
+        this.#section.appendChild(document.adoptNode(child));
       }
 
       if (pushState) history.pushState(null, '', url);
 
-      swipeState = null;
-      swipeIdCounter = 0;
+      this.#createSwipeInstances();
     } catch (err) {
       if (err.name === 'AbortError') return;
       filterNav?.removeAttribute('aria-busy');
       NT.toast('Could not load notifications. Please try again.', 'error');
     }
+  }
+
+  // ── Event Handlers ──
+
+  #handleSubmit = (e) => {
+    const form = e.target.closest('form');
+    if (!form) return;
+
+    const markReadForm = form.closest(
+      'li[data-unread] > article > div > footer > form[action$="/read"]'
+    );
+    if (markReadForm) {
+      e.preventDefault();
+      this.#handleMarkRead(markReadForm);
+      return;
+    }
+
+    const deleteForm = form.closest(
+      'li > article > div > footer > form[action$="/delete"]'
+    );
+    if (deleteForm) {
+      e.preventDefault();
+      this.#handleDelete(deleteForm);
+      return;
+    }
+
+    const clearReadForm = form.closest('header form[action$="/clear-read"]');
+    if (clearReadForm) {
+      e.preventDefault();
+      this.#handleClearRead(clearReadForm);
+    }
   };
 
-  section.addEventListener('click', (e) => {
+  #handleClick = (e) => {
     const filterLink = e.target.closest(
       'nav[aria-label="Filter notifications"] a[href]'
     );
-    const paginationLink = e.target.closest('nav[aria-label="Pagination"] a[href]');
+    const paginationLink = e.target.closest(
+      'nav[aria-label="Pagination"] a[href]'
+    );
     const link = filterLink || paginationLink;
     if (!link) return;
 
     e.preventDefault();
-    swapContent(link.href);
-  });
+    this.#swapContent(link.href);
+  };
 
-  window.addEventListener('popstate', () => {
-    swapContent(location.href, false);
-  });
-})();
+  #handlePopstate = () => {
+    this.#swapContent(location.href, false);
+  };
+}
+
+// ─── Init ────────────────────────────────────────────────────────────
+
+NotificationManager.init();

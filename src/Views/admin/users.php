@@ -33,8 +33,9 @@ $rangeEnd   = min($page * $perPage, $totalCount);
 
 $basePath = '/admin/users';
 
-$actorRole = $authUser['role'];
-$actorId   = $authUser['id'];
+$actorRole    = $authUser['role'];
+$actorId      = $authUser['id'];
+$isSuperAdmin = $actorRole === 'super_admin';
 
 $canToggleStatus = static function (array $user) use ($actorRole, $actorId): bool {
     if ((int) $user['id_acc'] === $actorId) {
@@ -126,6 +127,7 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
           <option value="active"<?= $status === 'active' ? ' selected' : '' ?>>Active</option>
           <option value="suspended"<?= $status === 'suspended' ? ' selected' : '' ?>>Suspended</option>
           <option value="pending"<?= $status === 'pending' ? ' selected' : '' ?>>Pending</option>
+          <option value="deleted"<?= $status === 'deleted' ? ' selected' : '' ?>>Deleted</option>
         </select>
       </div>
 
@@ -188,6 +190,8 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
         <?php foreach ($users as $user):
           $isPending   = $user['account_status'] === 'pending';
           $isSuspended = $user['account_status'] === 'suspended';
+          $isDeleted   = $user['account_status'] === 'deleted';
+          $isPurged    = (int) ($user['is_purged_acc'] ?? 0) === 1;
           $userRole    = $user['role_name_rol'];
           $roleLabel   = match ($userRole) {
               'super_admin' => 'Super Admin',
@@ -195,7 +199,7 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
               default       => 'Member',
           };
         ?>
-          <tr<?php if ($isPending) echo ' data-pending'; elseif ($isSuspended) echo ' data-suspended'; ?>>
+          <tr<?php if ($isPurged) echo ' data-purged'; elseif ($isDeleted) echo ' data-deleted'; elseif ($isPending) echo ' data-pending'; elseif ($isSuspended) echo ' data-suspended'; ?>>
             <td data-label="Member">
               <a href="/profile/<?= (int) $user['id_acc'] ?>">
                 <?= htmlspecialchars($user['full_name']) ?>
@@ -203,9 +207,29 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
               <small><?= htmlspecialchars($user['email_address_acc']) ?></small>
             </td>
             <td data-label="Role">
-              <span data-role="<?= htmlspecialchars($userRole) ?>">
-                <?= htmlspecialchars($roleLabel) ?>
-              </span>
+              <?php if ($isSuperAdmin && $userRole !== 'super_admin'
+                        && (int) $user['id_acc'] !== $actorId): ?>
+                <form method="post"
+                      action="/admin/users/<?= (int) $user['id_acc'] ?>/role"
+                      data-role-form>
+                  <input type="hidden" name="csrf_token"
+                         value="<?= htmlspecialchars($csrfToken) ?>">
+                  <input type="hidden" name="return_to"
+                         value="<?= htmlspecialchars($_SERVER['QUERY_STRING'] ?? '') ?>">
+                  <select name="role"
+                          aria-label="Role for <?= htmlspecialchars($user['full_name']) ?>"
+                          data-role-select
+                          data-original="<?= htmlspecialchars($userRole) ?>">
+                    <option value="member"<?= $userRole === 'member' ? ' selected' : '' ?>>Member</option>
+                    <option value="admin"<?= $userRole === 'admin' ? ' selected' : '' ?>>Admin</option>
+                  </select>
+                  <button type="submit" data-intent="primary" data-size="sm">Update</button>
+                </form>
+              <?php else: ?>
+                <span data-role="<?= htmlspecialchars($userRole) ?>">
+                  <?= htmlspecialchars($roleLabel) ?>
+                </span>
+              <?php endif; ?>
             </td>
             <td data-label="Status">
               <span data-status="<?= htmlspecialchars($user['account_status']) ?>">
@@ -227,7 +251,28 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
               </time>
             </td>
             <td>
-              <?php if ($isPending): ?>
+              <?php if ($isPurged): ?>
+                <div data-actions>
+                  <span data-badge="purged">Purged</span>
+                </div>
+              <?php elseif ($isDeleted && $isSuperAdmin && (int) $user['id_acc'] !== $actorId && $userRole !== 'super_admin'): ?>
+                <div data-actions>
+                  <button type="button"
+                          data-purge-trigger
+                          data-purge-id="<?= (int) $user['id_acc'] ?>"
+                          data-purge-name="<?= htmlspecialchars($user['full_name']) ?>"
+                          data-intent="danger"
+                          data-size="sm">
+                    <i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i> Purge
+                  </button>
+                  <noscript>
+                    <a href="/admin/users/<?= (int) $user['id_acc'] ?>/purge-confirm?<?= htmlspecialchars($_SERVER['QUERY_STRING'] ?? '') ?>"
+                       data-intent="danger" data-size="sm">
+                      Purge
+                    </a>
+                  </noscript>
+                </div>
+              <?php elseif ($isPending): ?>
                 <div data-actions>
                   <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/approve">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -297,6 +342,41 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
       <?php endif; ?>
     </section>
 
+  <?php endif; ?>
+
+  <?php if ($isSuperAdmin): ?>
+    <dialog data-role-confirm aria-labelledby="role-confirm-title">
+      <form method="dialog">
+        <h2 id="role-confirm-title">Confirm Role Change</h2>
+        <p data-role-confirm-message></p>
+        <footer>
+          <button type="submit" value="cancel" data-intent="ghost">Cancel</button>
+          <button type="submit" value="confirm" data-intent="primary">Confirm</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog data-purge-confirm aria-labelledby="purge-confirm-title">
+      <form method="post" data-purge-form>
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+        <input type="hidden" name="return_to" value="<?= htmlspecialchars($_SERVER['QUERY_STRING'] ?? '') ?>">
+        <h2 id="purge-confirm-title">Permanently Purge Account</h2>
+        <p>This will <strong>permanently anonymize</strong> this account, resolve all active borrows,
+           release held deposits, dismiss open disputes and incidents, and soft-delete all their tools.
+           This action cannot be undone.</p>
+        <p>Type <strong data-purge-expected-name></strong> to confirm:</p>
+        <input type="text"
+               name="confirm_name"
+               data-purge-name-input
+               autocomplete="off"
+               required
+               aria-label="Type the account name to confirm purge">
+        <footer>
+          <button type="button" data-intent="ghost" data-purge-cancel>Cancel</button>
+          <button type="submit" data-intent="danger" data-purge-submit disabled>Purge Account</button>
+        </footer>
+      </form>
+    </dialog>
   <?php endif; ?>
 
 </div>

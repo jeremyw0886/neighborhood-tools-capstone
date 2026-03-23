@@ -1,282 +1,404 @@
 'use strict';
 
-/**
- * Entrance animation — fades up left column and action card with stagger.
- */
-(function () {
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (reducedMotion.matches) return;
+// ─── Entrance Animation ──────────────────────────────────────────────
 
-  const grid = document.querySelector(
-    '.home-page > header > section > div'
-  );
-  if (!grid) return;
+class EntranceAnimation {
+  static #instance = null;
 
-  const left = grid.querySelector(':scope > div:first-child');
-  const right = grid.querySelector(':scope > div:last-child');
-  if (!left || !right) return;
-
-  requestAnimationFrame(() => {
-    left.classList.add('animate-in');
-    right.classList.add('animate-in');
-  });
-})();
-
-/**
- * Trust signal count-up — animates stat numbers from 0 to target.
- */
-(function () {
-  const list = document.querySelector(
-    '.home-page > header > section > div > div:first-child > ul'
-  );
-  if (!list) return;
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (reducedMotion.matches) return;
-
-  const counters = list.querySelectorAll('strong[data-target]');
-  if (!counters.length) return;
-
-  const DURATION = 1200;
-
-  function easeOut(t) {
-    return 1 - Math.pow(1 - t, 3);
+  /**
+   * @param {HTMLElement} left
+   * @param {HTMLElement} right
+   */
+  constructor(left, right) {
+    requestAnimationFrame(() => {
+      left.classList.add('animate-in');
+      right.classList.add('animate-in');
+    });
   }
 
-  function animateCounter(el) {
+  /** @returns {EntranceAnimation|null} */
+  static init() {
+    if (EntranceAnimation.#instance) return EntranceAnimation.#instance;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+
+    const grid = document.querySelector('.home-page > header > section > div');
+    if (!grid) return null;
+
+    const left = grid.querySelector(':scope > div:first-child');
+    const right = grid.querySelector(':scope > div:last-child');
+    if (!left || !right) return null;
+
+    return (EntranceAnimation.#instance = new EntranceAnimation(left, right));
+  }
+
+  destroy() {
+    EntranceAnimation.#instance = null;
+  }
+}
+
+// ─── Counter Animation ───────────────────────────────────────────────
+
+class CounterAnimation {
+  static #instance = null;
+  static #DURATION = 1200;
+
+  /** @type {IntersectionObserver} */
+  #observer;
+  /** @type {NodeList} */
+  #counters;
+  #abortController = new AbortController();
+
+  /**
+   * @param {HTMLElement} list
+   * @param {NodeList} counters
+   */
+  constructor(list, counters) {
+    this.#counters = counters;
+
+    this.#observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          this.#observer.disconnect();
+          for (const counter of this.#counters) CounterAnimation.#animateCounter(counter);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    const leftCol = list.parentElement;
+    if (leftCol?.classList.contains('animate-in')) {
+      leftCol.addEventListener(
+        'animationend',
+        () => this.#observer.observe(list),
+        { once: true, signal: this.#abortController.signal }
+      );
+    } else {
+      this.#observer.observe(list);
+    }
+  }
+
+  /** @returns {CounterAnimation|null} */
+  static init() {
+    if (CounterAnimation.#instance) return CounterAnimation.#instance;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+
+    const list = document.querySelector(
+      '.home-page > header > section > div > div:first-child > ul'
+    );
+    if (!list) return null;
+
+    const counters = list.querySelectorAll('strong[data-target]');
+    if (!counters.length) return null;
+
+    return (CounterAnimation.#instance = new CounterAnimation(list, counters));
+  }
+
+  destroy() {
+    this.#observer.disconnect();
+    this.#abortController.abort();
+    CounterAnimation.#instance = null;
+  }
+
+  static #easeOut(t) {
+    return 1 - (1 - t) ** 3;
+  }
+
+  /** @param {HTMLElement} el */
+  static #animateCounter(el) {
     const target = parseInt(el.dataset.target, 10);
     if (!target || target <= 0) return;
 
     el.textContent = '0';
     const start = performance.now();
 
-    function tick(now) {
+    const tick = (now) => {
       const elapsed = now - start;
-      const progress = Math.min(elapsed / DURATION, 1);
-      const current = Math.round(easeOut(progress) * target);
+      const progress = Math.min(elapsed / CounterAnimation.#DURATION, 1);
+      const current = Math.round(CounterAnimation.#easeOut(progress) * target);
       el.textContent = current.toLocaleString();
       if (progress < 1) requestAnimationFrame(tick);
-    }
+    };
 
     requestAnimationFrame(tick);
   }
+}
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        observer.disconnect();
-        for (const counter of counters) animateCounter(counter);
-      }
-    },
-    { threshold: 0.5 }
-  );
+// ─── Subtitle Rotator ────────────────────────────────────────────────
 
-  function startObserving() {
-    observer.observe(list);
-  }
+class SubtitleRotator {
+  static #instance = null;
 
-  const leftCol = list.parentElement;
-  if (leftCol?.classList.contains('animate-in')) {
-    leftCol.addEventListener('animationend', startObserving, { once: true });
-  } else {
-    startObserving();
-  }
-})();
-
-/**
- * Rotating subtitle crossfade — cycles hero subtitle every 4 seconds.
- */
-(function () {
-  const subtitle = document.querySelector(
-    '.home-page > header > section > div > div:first-child > p'
-  );
-  if (!subtitle) return;
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (reducedMotion.matches) return;
-
-  const lines = [
+  static #LINES = [
     'Borrow tools from your neighbors. Lend yours when you\u2019re not using them.',
     'Save money. Reduce waste. Build trust.',
     'Your neighborhood\u2019s shared toolbox is just a click away.',
   ];
 
-  let current = 0;
-  const INTERVAL = 6000;
-  const FADE = 300;
-  let timer = null;
+  static #INTERVAL = 6000;
+  static #FADE = 300;
 
-  function cycle() {
-    timer = setTimeout(() => {
-      subtitle.classList.add('fading');
-      setTimeout(() => {
-        current = (current + 1) % lines.length;
-        subtitle.textContent = lines[current];
-        requestAnimationFrame(() => {
-          subtitle.classList.remove('fading');
-        });
-        cycle();
-      }, FADE);
-    }, INTERVAL);
-  }
+  /** @type {HTMLElement} */
+  #subtitle;
+  #current = 0;
+  #cycleTimer = null;
+  #fadeTimer = null;
+  #abortController = new AbortController();
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      clearTimeout(timer);
-      timer = null;
-    } else {
-      subtitle.classList.remove('fading');
-      if (!timer) cycle();
-    }
-  });
+  /** @param {HTMLElement} subtitle */
+  constructor(subtitle) {
+    this.#subtitle = subtitle;
 
-  cycle();
-})();
-
-/**
- * Neighbor carousel — progressive enhancement for mobile.
- *
- * At ≤700px the CSS makes the neighbor grid a horizontal scroll-snap
- * container showing one card at a time. This script adds clickable dot
- * indicators and keeps them in sync via IntersectionObserver.
- *
- * The dot nav is only inserted into the DOM at ≤700px and removed
- * above that breakpoint — no CSS hide/show needed.
- *
- * Without JS the cards still scroll and snap — dots simply won't appear.
- */
-(function () {
-  const MQ = window.matchMedia('(max-width: 700px)');
-  const section = document.querySelector('[aria-labelledby="neighbors-heading"]');
-  if (!section) return;
-
-  const grid = section.querySelector(':scope > div');
-  if (!grid) return;
-
-  const cards = grid.querySelectorAll(':scope > a');
-  if (cards.length < 2) return;
-
-  /* ── Build dot nav (not yet in DOM) ── */
-  const nav = document.createElement('nav');
-  nav.setAttribute('aria-label', 'Neighbor card navigation');
-  nav.className = 'carousel-dots';
-
-  const dots = Array.from(cards, (_, i) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.setAttribute('aria-label', `Card ${i + 1} of ${cards.length}`);
-    btn.addEventListener('click', () => {
-      cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    document.addEventListener('visibilitychange', this.#handleVisibility, {
+      signal: this.#abortController.signal,
     });
-    nav.appendChild(btn);
-    return btn;
-  });
 
-  /* ── Track visible card ── */
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-
-        const index = Array.from(cards).indexOf(entry.target);
-        if (index === -1) continue;
-
-        for (let i = 0; i < dots.length; i++) {
-          const isActive = i === index;
-          dots[i].classList.toggle('active', isActive);
-          dots[i].setAttribute('aria-current', isActive ? 'true' : 'false');
-        }
-      }
-    },
-    { root: grid, threshold: 0.5 }
-  );
-
-  /* ── Activate / deactivate on viewport change ── */
-  function activate() {
-    grid.after(nav);
-    for (const card of cards) observer.observe(card);
-    dots[0].classList.add('active');
-    dots[0].setAttribute('aria-current', 'true');
+    this.#cycle();
   }
 
-  function deactivate() {
-    nav.remove();
-    for (const card of cards) observer.unobserve(card);
-    for (const dot of dots) {
+  /** @returns {SubtitleRotator|null} */
+  static init() {
+    if (SubtitleRotator.#instance) return SubtitleRotator.#instance;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+
+    const subtitle = document.querySelector(
+      '.home-page > header > section > div > div:first-child > p'
+    );
+    if (!subtitle) return null;
+
+    return (SubtitleRotator.#instance = new SubtitleRotator(subtitle));
+  }
+
+  destroy() {
+    clearTimeout(this.#cycleTimer);
+    clearTimeout(this.#fadeTimer);
+    this.#abortController.abort();
+    SubtitleRotator.#instance = null;
+  }
+
+  #cycle() {
+    this.#cycleTimer = setTimeout(() => {
+      this.#subtitle.classList.add('fading');
+      this.#fadeTimer = setTimeout(() => {
+        this.#current = (this.#current + 1) % SubtitleRotator.#LINES.length;
+        this.#subtitle.textContent = SubtitleRotator.#LINES[this.#current];
+        requestAnimationFrame(() => {
+          this.#subtitle.classList.remove('fading');
+        });
+        this.#cycle();
+      }, SubtitleRotator.#FADE);
+    }, SubtitleRotator.#INTERVAL);
+  }
+
+  #handleVisibility = () => {
+    if (document.hidden) {
+      clearTimeout(this.#cycleTimer);
+      clearTimeout(this.#fadeTimer);
+      this.#cycleTimer = null;
+    } else {
+      this.#subtitle.classList.remove('fading');
+      if (!this.#cycleTimer) this.#cycle();
+    }
+  };
+}
+
+// ─── Neighbor Carousel ───────────────────────────────────────────────
+
+class NeighborCarousel {
+  static #instance = null;
+
+  /** @type {HTMLElement} */
+  #grid;
+  /** @type {NodeList} */
+  #cards;
+  /** @type {HTMLElement} */
+  #nav;
+  /** @type {HTMLButtonElement[]} */
+  #dots;
+  /** @type {IntersectionObserver} */
+  #observer;
+  /** @type {MediaQueryList} */
+  #mq;
+  #abortController = new AbortController();
+
+  /** @param {HTMLElement} section */
+  constructor(section) {
+    this.#grid = section.querySelector(':scope > div');
+    this.#cards = this.#grid.querySelectorAll(':scope > a');
+    this.#mq = window.matchMedia('(max-width: 700px)');
+
+    this.#nav = document.createElement('nav');
+    this.#nav.setAttribute('aria-label', 'Neighbor card navigation');
+    this.#nav.className = 'carousel-dots';
+
+    const { signal } = this.#abortController;
+
+    this.#dots = Array.from(this.#cards, (_, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Card ${i + 1} of ${this.#cards.length}`);
+      btn.addEventListener('click', () => {
+        this.#cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }, { signal });
+      this.#nav.appendChild(btn);
+      return btn;
+    });
+
+    this.#observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const index = Array.from(this.#cards).indexOf(entry.target);
+          if (index === -1) continue;
+          for (let i = 0; i < this.#dots.length; i++) {
+            const isActive = i === index;
+            this.#dots[i].classList.toggle('active', isActive);
+            this.#dots[i].setAttribute('aria-current', isActive ? 'true' : 'false');
+          }
+        }
+      },
+      { root: this.#grid, threshold: 0.5 }
+    );
+
+    this.#mq.addEventListener('change', this.#handleViewport, { signal });
+    this.#handleViewport(this.#mq);
+  }
+
+  /** @returns {NeighborCarousel|null} */
+  static init() {
+    if (NeighborCarousel.#instance) return NeighborCarousel.#instance;
+    const section = document.querySelector('[aria-labelledby="neighbors-heading"]');
+    if (!section) return null;
+    const grid = section.querySelector(':scope > div');
+    if (!grid) return null;
+    if (grid.querySelectorAll(':scope > a').length < 2) return null;
+    return (NeighborCarousel.#instance = new NeighborCarousel(section));
+  }
+
+  destroy() {
+    this.#observer.disconnect();
+    this.#abortController.abort();
+    this.#nav.remove();
+    NeighborCarousel.#instance = null;
+  }
+
+  #activate() {
+    this.#grid.after(this.#nav);
+    for (const card of this.#cards) this.#observer.observe(card);
+    this.#dots[0].classList.add('active');
+    this.#dots[0].setAttribute('aria-current', 'true');
+  }
+
+  #deactivate() {
+    this.#nav.remove();
+    for (const card of this.#cards) this.#observer.unobserve(card);
+    for (const dot of this.#dots) {
       dot.classList.remove('active');
       dot.removeAttribute('aria-current');
     }
   }
 
-  function handleViewport(e) {
-    if (e.matches) activate();
-    else deactivate();
+  #handleViewport = (e) => {
+    if (e.matches) this.#activate();
+    else this.#deactivate();
+  };
+}
+
+// ─── Tool Preview ────────────────────────────────────────────────────
+
+class ToolPreview {
+  static #instance = null;
+
+  /** @type {HTMLElement} */
+  #container;
+  /** @type {HTMLDivElement} */
+  #tooltip;
+  #activeCard = null;
+  #hideTimeout = null;
+  #abortController = new AbortController();
+
+  /** @param {HTMLElement} container */
+  constructor(container) {
+    this.#container = container;
+
+    this.#tooltip = document.createElement('div');
+    this.#tooltip.className = 'tool-preview';
+    this.#tooltip.setAttribute('role', 'tooltip');
+    this.#tooltip.hidden = true;
+    document.body.appendChild(this.#tooltip);
+
+    this.#bind();
   }
 
-  MQ.addEventListener('change', handleViewport);
-  handleViewport(MQ);
-})();
+  /** @returns {ToolPreview|null} */
+  static init() {
+    if (ToolPreview.#instance) return ToolPreview.#instance;
+    const section = document.querySelector('[aria-labelledby="popular-heading"]');
+    if (!section) return null;
+    const container = section.querySelector(':scope > div[role="list"]');
+    if (!container) return null;
+    return (ToolPreview.#instance = new ToolPreview(container));
+  }
 
-/**
- * Featured tool card hover previews — shows condition, fee, and owner
- * in a tooltip on pointer hover or keyboard focus.
- *
- * Touch devices are excluded — tap navigates to the tool page as normal.
- * Without JS the cards work identically; this is purely additive.
- */
-(function () {
-  const section = document.querySelector('[aria-labelledby="popular-heading"]');
-  if (!section) return;
+  destroy() {
+    clearTimeout(this.#hideTimeout);
+    this.#abortController.abort();
+    this.#tooltip.remove();
+    if (window.NT) NT.style.removeRule('tool-preview-pos');
+    ToolPreview.#instance = null;
+  }
 
-  const container = section.querySelector(':scope > div[role="list"]');
-  if (!container) return;
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#container.addEventListener('pointerover', this.#handlePointerOver, { signal });
+    this.#container.addEventListener('pointerout', this.#handlePointerOut, { signal });
+    this.#container.addEventListener('focusin', this.#handleFocusIn, { signal });
+    this.#container.addEventListener('focusout', this.#handleFocusOut, { signal });
+    document.addEventListener('keydown', this.#handleEscape, { signal });
+    window.addEventListener('scroll', this.#handleScroll, { signal, passive: true });
+  }
 
-  const tooltip = document.createElement('div');
-  tooltip.className = 'tool-preview';
-  tooltip.setAttribute('role', 'tooltip');
-  tooltip.hidden = true;
-  document.body.appendChild(tooltip);
-
-  let activeCard = null;
-  let hideTimeout = null;
-
-  function conditionLabel(raw) {
+  static #conditionLabel(raw) {
     const map = { 'new': 'New', 'good': 'Good', 'fair': 'Fair', 'poor': 'Poor' };
     return map[raw?.toLowerCase()] ?? raw ?? '';
   }
 
-  function show(card) {
+  static #cardFrom(el) {
+    return el?.closest?.('article');
+  }
+
+  #show(card) {
     const condition = card.dataset.condition;
-    const owner     = card.dataset.owner;
-    const deposit   = card.dataset.deposit;
+    const owner = card.dataset.owner;
+    const deposit = card.dataset.deposit;
 
     if (!condition && !owner) return;
 
-    clearTimeout(hideTimeout);
+    clearTimeout(this.#hideTimeout);
 
-    tooltip.innerHTML =
+    this.#tooltip.innerHTML =
       (condition
-        ? `<span data-condition="${condition.toLowerCase()}">${conditionLabel(condition)}</span>`
+        ? `<span data-condition="${condition.toLowerCase()}">${ToolPreview.#conditionLabel(condition)}</span>`
         : '') +
       (deposit
         ? `<span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> $${deposit} deposit</span>`
         : '') +
       (owner ? `<span>${owner}</span>` : '');
 
-    tooltip.hidden = false;
-    activeCard = card;
-    position(card);
+    this.#tooltip.hidden = false;
+    this.#activeCard = card;
+    this.#position(card);
   }
 
-  function hide() {
-    hideTimeout = setTimeout(() => {
-      tooltip.hidden = true;
-      activeCard = null;
+  #hide() {
+    this.#hideTimeout = setTimeout(() => {
+      this.#tooltip.hidden = true;
+      this.#activeCard = null;
+      if (window.NT) NT.style.removeRule('tool-preview-pos');
     }, 80);
   }
 
-  function position(card) {
+  #position(card) {
     const rect = card.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2 + window.scrollX;
     const above = rect.top > 50;
@@ -284,211 +406,282 @@
       ? rect.top + window.scrollY - 8
       : rect.bottom + window.scrollY + 8;
 
-    tooltip.style.left = `${centerX}px`;
-    tooltip.style.top = `${top}px`;
-    tooltip.style.transform = above
-      ? 'translate(-50%, -100%)'
-      : 'translateX(-50%)';
-  }
-
-  function cardFrom(el) {
-    return el?.closest?.('article');
-  }
-
-  container.addEventListener('pointerover', (e) => {
-    if (e.pointerType === 'touch') return;
-    const card = cardFrom(e.target);
-    if (card && card !== activeCard) show(card);
-  });
-
-  container.addEventListener('pointerout', (e) => {
-    if (e.pointerType === 'touch') return;
-    const card = cardFrom(e.target);
-    if (!card || card !== activeCard) return;
-    const related = cardFrom(e.relatedTarget);
-    if (related !== card) hide();
-  });
-
-  container.addEventListener('focusin', (e) => {
-    const card = cardFrom(e.target);
-    if (card) show(card);
-  });
-
-  container.addEventListener('focusout', (e) => {
-    const card = cardFrom(e.target);
-    if (card && card === activeCard) hide();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && activeCard) {
-      tooltip.hidden = true;
-      activeCard = null;
+    if (window.NT) {
+      NT.style.setRule(
+        'tool-preview-pos',
+        '.tool-preview',
+        `left:${centerX}px;top:${top}px;transform:${above ? 'translate(-50%,-100%)' : 'translateX(-50%)'}`
+      );
     }
-  });
+  }
 
-  window.addEventListener('scroll', () => {
-    if (activeCard) position(activeCard);
-  }, { passive: true });
-})();
+  #handlePointerOver = (e) => {
+    if (e.pointerType === 'touch') return;
+    const card = ToolPreview.#cardFrom(e.target);
+    if (card && card !== this.#activeCard) this.#show(card);
+  };
 
-/**
- * Location toggle — progressive enhancement.
- *
- * Unhides the city toggle nav and intercepts clicks to swap
- * the member list via fetch + DOMParser instead of a full
- * page reload.
- *
- * Without JS the toggle stays hidden and the server-rendered
- * default city shows — graceful degradation.
- */
-(function () {
-  const toggle = document.getElementById('location-toggle');
-  if (!toggle) return;
+  #handlePointerOut = (e) => {
+    if (e.pointerType === 'touch') return;
+    const card = ToolPreview.#cardFrom(e.target);
+    if (!card || card !== this.#activeCard) return;
+    const related = ToolPreview.#cardFrom(e.relatedTarget);
+    if (related !== card) this.#hide();
+  };
 
-  const memberList = document.getElementById('member-list');
-  if (!memberList) return;
+  #handleFocusIn = (e) => {
+    const card = ToolPreview.#cardFrom(e.target);
+    if (card) this.#show(card);
+  };
 
-  toggle.removeAttribute('hidden');
+  #handleFocusOut = (e) => {
+    const card = ToolPreview.#cardFrom(e.target);
+    if (card && card === this.#activeCard) this.#hide();
+  };
 
-  const links = toggle.querySelectorAll('a[data-city]');
-  const lastLink = links[links.length - 1];
-  let controller = null;
+  #handleEscape = (e) => {
+    if (e.key === 'Escape' && this.#activeCard) {
+      this.#tooltip.hidden = true;
+      this.#activeCard = null;
+      if (window.NT) NT.style.removeRule('tool-preview-pos');
+    }
+  };
 
-  toggle.dataset.active = toggle.querySelector('a:last-child[aria-current="true"]') ? 'end' : 'start';
+  #handleScroll = () => {
+    if (this.#activeCard) this.#position(this.#activeCard);
+  };
+}
 
-  for (const link of links) {
-    link.addEventListener('click', async (e) => {
-      e.preventDefault();
+// ─── Location Toggle ─────────────────────────────────────────────────
 
-      const city = link.dataset.city;
+class LocationToggle {
+  static #instance = null;
 
-      for (const l of links) l.removeAttribute('aria-current');
-      link.setAttribute('aria-current', 'true');
-      toggle.dataset.active = link === lastLink ? 'end' : 'start';
+  /** @type {HTMLElement} */
+  #toggle;
+  /** @type {HTMLElement} */
+  #memberList;
+  /** @type {NodeList} */
+  #links;
+  /** @type {HTMLAnchorElement} */
+  #lastLink;
+  #abortController = new AbortController();
+  /** @type {AbortController|null} */
+  #fetchController = null;
+  #ariaLiveTimer = null;
 
-      if (controller) controller.abort();
-      controller = new AbortController();
+  /**
+   * @param {HTMLElement} toggle
+   * @param {HTMLElement} memberList
+   */
+  constructor(toggle, memberList) {
+    this.#toggle = toggle;
+    this.#memberList = memberList;
+    this.#links = toggle.querySelectorAll('a[data-city]');
+    this.#lastLink = this.#links[this.#links.length - 1];
 
-      memberList.setAttribute('aria-busy', 'true');
-      memberList.setAttribute('aria-live', 'polite');
+    toggle.removeAttribute('hidden');
+    toggle.dataset.active = toggle.querySelector('a:last-child[aria-current="true"]') ? 'end' : 'start';
 
-      try {
-        const res = await fetch(`/?location=${encodeURIComponent(city)}`, {
-          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]),
-          headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
+    const { signal } = this.#abortController;
+    for (const link of this.#links) {
+      link.addEventListener('click', this.#handleClick, { signal });
+    }
+  }
 
-        if (!res.ok) throw new Error(res.statusText);
+  /** @returns {LocationToggle|null} */
+  static init() {
+    if (LocationToggle.#instance) return LocationToggle.#instance;
+    const toggle = document.getElementById('location-toggle');
+    if (!toggle) return null;
+    const memberList = document.getElementById('member-list');
+    if (!memberList) return null;
+    return (LocationToggle.#instance = new LocationToggle(toggle, memberList));
+  }
 
-        const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
-        const fresh = doc.getElementById('member-list');
+  destroy() {
+    clearTimeout(this.#ariaLiveTimer);
+    this.#fetchController?.abort();
+    this.#abortController.abort();
+    LocationToggle.#instance = null;
+  }
 
-        if (fresh) {
-          memberList.replaceChildren(...fresh.childNodes);
-          memberList.dispatchEvent(new CustomEvent('member-list:refresh'));
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          const status = document.createElement('p');
-          status.setAttribute('role', 'status');
-          status.textContent = 'Refreshing\u2026';
-          memberList.replaceChildren(status);
-          window.location.href = link.href;
-        }
-      } finally {
-        memberList.removeAttribute('aria-busy');
-        controller = null;
-        // 3s heuristic: no reliable "announcement complete" event from screen
-        // readers — 3 seconds gives JAWS/VoiceOver enough time for longer lists
-        setTimeout(() => memberList.setAttribute('aria-live', 'off'), 3000);
+  #handleClick = async (e) => {
+    e.preventDefault();
+
+    const link = e.currentTarget;
+    const city = link.dataset.city;
+
+    for (const l of this.#links) l.removeAttribute('aria-current');
+    link.setAttribute('aria-current', 'true');
+    this.#toggle.dataset.active = link === this.#lastLink ? 'end' : 'start';
+
+    this.#fetchController?.abort();
+    this.#fetchController = new AbortController();
+
+    this.#memberList.setAttribute('aria-busy', 'true');
+    this.#memberList.setAttribute('aria-live', 'polite');
+
+    try {
+      const res = await NT.fetch(`/?location=${encodeURIComponent(city)}`, {
+        signal: AbortSignal.any([this.#fetchController.signal, AbortSignal.timeout(10_000)]),
+        headers: { Accept: 'text/html' },
+      });
+
+      if (!res.ok) throw new Error(res.statusText);
+
+      const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      const fresh = doc.getElementById('member-list');
+
+      if (fresh) {
+        this.#memberList.replaceChildren(...fresh.childNodes);
+        this.#memberList.dispatchEvent(new CustomEvent('member-list:refresh'));
       }
-    });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        const status = document.createElement('p');
+        status.setAttribute('role', 'status');
+        status.textContent = 'Refreshing\u2026';
+        this.#memberList.replaceChildren(status);
+        window.location.href = link.href;
+      }
+    } finally {
+      this.#memberList.removeAttribute('aria-busy');
+      this.#fetchController = null;
+      this.#ariaLiveTimer = setTimeout(
+        () => this.#memberList.setAttribute('aria-live', 'off'),
+        3_000
+      );
+    }
+  };
+}
+
+// ─── Member Carousel ─────────────────────────────────────────────────
+
+class MemberCarousel {
+  static #instance = null;
+
+  /** @type {HTMLElement} */
+  #memberList;
+  /** @type {HTMLButtonElement} */
+  #prevBtn;
+  /** @type {HTMLButtonElement} */
+  #nextBtn;
+  /** @type {MediaQueryList} */
+  #desktop;
+  /** @type {MediaQueryList} */
+  #reducedMotion;
+  #rafPending = false;
+  #abortController = new AbortController();
+
+  /**
+   * @param {HTMLElement} carousel
+   * @param {HTMLElement} memberList
+   */
+  constructor(carousel, memberList) {
+    this.#memberList = memberList;
+    this.#prevBtn = carousel.querySelector('button[data-dir="prev"]');
+    this.#nextBtn = carousel.querySelector('button[data-dir="next"]');
+    this.#desktop = window.matchMedia('(min-width: 701px)');
+    this.#reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    this.#bind();
+    this.#handleViewport(this.#desktop);
   }
-})();
 
-/**
- * Member carousel — arrow navigation for desktop.
- *
- * At >700px, unhides prev/next arrow buttons and hides the native
- * scrollbar. Scrolls by 3 card widths per click. At ≤700px, arrows
- * stay hidden and CSS scroll-snap handles single-card swiping.
- *
- * Without JS the native scrollbar remains visible and functional.
- */
-(function () {
-  const carousel = document.getElementById('member-carousel');
-  const memberList = document.getElementById('member-list');
-  if (!carousel || !memberList) return;
-
-  const prevBtn = carousel.querySelector('button[data-dir="prev"]');
-  const nextBtn = carousel.querySelector('button[data-dir="next"]');
-  if (!prevBtn || !nextBtn) return;
-
-  const desktop = window.matchMedia('(min-width: 701px)');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  function updateArrowState() {
-    prevBtn.disabled = memberList.scrollLeft <= 1;
-    nextBtn.disabled =
-      memberList.scrollLeft + memberList.clientWidth >= memberList.scrollWidth - 1;
+  /** @returns {MemberCarousel|null} */
+  static init() {
+    if (MemberCarousel.#instance) return MemberCarousel.#instance;
+    const carousel = document.getElementById('member-carousel');
+    const memberList = document.getElementById('member-list');
+    if (!carousel || !memberList) return null;
+    const prevBtn = carousel.querySelector('button[data-dir="prev"]');
+    const nextBtn = carousel.querySelector('button[data-dir="next"]');
+    if (!prevBtn || !nextBtn) return null;
+    return (MemberCarousel.#instance = new MemberCarousel(carousel, memberList));
   }
 
-  function resetCarousel() {
+  destroy() {
+    this.#abortController.abort();
+    MemberCarousel.#instance = null;
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#prevBtn.addEventListener('click', this.#handlePrev, { signal });
+    this.#nextBtn.addEventListener('click', this.#handleNext, { signal });
+    this.#memberList.addEventListener('member-list:refresh', this.#handleRefresh, { signal });
+    this.#memberList.addEventListener('scroll', this.#handleScroll, { signal, passive: true });
+    this.#desktop.addEventListener('change', this.#handleViewport, { signal });
+  }
+
+  #updateArrowState() {
+    this.#prevBtn.disabled = this.#memberList.scrollLeft <= 1;
+    this.#nextBtn.disabled =
+      this.#memberList.scrollLeft + this.#memberList.clientWidth >= this.#memberList.scrollWidth - 1;
+  }
+
+  #resetCarousel() {
     requestAnimationFrame(() => {
-      memberList.scrollLeft = 0;
-      updateArrowState();
+      this.#memberList.scrollLeft = 0;
+      this.#updateArrowState();
     });
   }
 
-  let rafPending = false;
-  function onScroll() {
-    if (rafPending) return;
-    rafPending = true;
-    requestAnimationFrame(() => {
-      updateArrowState();
-      rafPending = false;
-    });
-  }
-
-  function scrollByCards(direction) {
-    const first = memberList.firstElementChild;
+  #scrollByCards(direction) {
+    const first = this.#memberList.firstElementChild;
     if (!first) return;
-    const gap = parseFloat(getComputedStyle(memberList).gap) || 0;
+    const gap = parseFloat(getComputedStyle(this.#memberList).gap) || 0;
     const cardWidth = first.offsetWidth + gap;
-    memberList.scrollBy({
+    this.#memberList.scrollBy({
       left: direction * cardWidth * 3,
-      behavior: reducedMotion.matches ? 'auto' : 'smooth'
+      behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',
     });
   }
 
-  prevBtn.addEventListener('click', () => scrollByCards(-1));
-  nextBtn.addEventListener('click', () => scrollByCards(1));
-
-  function activate() {
-    prevBtn.hidden = false;
-    nextBtn.hidden = false;
-    memberList.dataset.arrows = '';
-    memberList.addEventListener('scroll', onScroll, { passive: true });
-    resetCarousel();
+  #activate() {
+    this.#prevBtn.hidden = false;
+    this.#nextBtn.hidden = false;
+    this.#memberList.dataset.arrows = '';
+    this.#resetCarousel();
   }
 
-  function deactivate() {
-    prevBtn.hidden = true;
-    nextBtn.hidden = true;
-    delete memberList.dataset.arrows;
-    memberList.removeEventListener('scroll', onScroll);
-    resetCarousel();
+  #deactivate() {
+    this.#prevBtn.hidden = true;
+    this.#nextBtn.hidden = true;
+    delete this.#memberList.dataset.arrows;
+    this.#resetCarousel();
   }
 
-  memberList.addEventListener('member-list:refresh', () => {
-    requestAnimationFrame(resetCarousel);
-  });
+  #handlePrev = () => this.#scrollByCards(-1);
 
-  function handleViewport(e) {
-    if (e.matches) activate();
-    else deactivate();
-  }
+  #handleNext = () => this.#scrollByCards(1);
 
-  desktop.addEventListener('change', handleViewport);
-  handleViewport(desktop);
-})();
+  #handleRefresh = () => {
+    requestAnimationFrame(() => this.#resetCarousel());
+  };
+
+  #handleScroll = () => {
+    if (this.#rafPending) return;
+    this.#rafPending = true;
+    requestAnimationFrame(() => {
+      this.#updateArrowState();
+      this.#rafPending = false;
+    });
+  };
+
+  #handleViewport = (e) => {
+    if (e.matches) this.#activate();
+    else this.#deactivate();
+  };
+}
+
+// ─── Init ────────────────────────────────────────────────────────────
+
+EntranceAnimation.init();
+CounterAnimation.init();
+SubtitleRotator.init();
+NeighborCarousel.init();
+ToolPreview.init();
+LocationToggle.init();
+MemberCarousel.init();

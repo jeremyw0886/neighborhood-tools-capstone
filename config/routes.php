@@ -34,6 +34,9 @@ return [
     // Home
     'GET /'                        => [HomeController::class, 'index'],
 
+    // Sitemap
+    'GET /sitemap.xml'             => [PageController::class, 'sitemap'],
+
     // Authentication
     'GET /login'                   => [AuthController::class, 'showLogin'],
     'POST /login'                  => [AuthController::class, 'login'],

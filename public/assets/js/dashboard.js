@@ -23,6 +23,7 @@ class DashboardRouter {
   #hoverTimer = null;
   #swipeStartX = 0;
   #swipeStartY = 0;
+  #currentUrl = location.href;
   #abortController = new AbortController();
 
   /** @param {HTMLElement} mainEl */
@@ -255,7 +256,7 @@ class DashboardRouter {
         'text/html',
       );
 
-      this.#cacheSet(location.href, {
+      this.#cacheSet(this.#currentUrl, {
         doc: outDoc,
         title: document.title,
         stylesheets: [...document.querySelectorAll('head link[rel="stylesheet"]')]
@@ -296,6 +297,7 @@ class DashboardRouter {
       }
 
       document.title = data.title;
+      this.#currentUrl = url;
       this.#updateNavActiveState(url);
 
       this.#navigating = false;

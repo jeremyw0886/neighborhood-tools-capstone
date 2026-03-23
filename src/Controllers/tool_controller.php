@@ -948,9 +948,6 @@ class ToolController extends BaseController
     /**
      * Move a validated tool image to the uploads directory.
      *
-     * Generates a unique filename, resizes to 800w max, creates a
-     * 400w card variant, and generates WebP versions of both.
-     *
      * @return array{filename: string, width: ?int}|null
      */
     private function moveToolImage(array $file): ?array
@@ -975,12 +972,6 @@ class ToolController extends BaseController
         ImageProcessor::resize($destination, 1600);
 
         $width = ImageProcessor::getIntrinsicWidth($destination);
-        $created = ImageProcessor::generateVariants($destination);
-
-        if ($created === [] && $width !== null && $width > 400) {
-            unlink($destination);
-            return null;
-        }
 
         return ['filename' => $filename, 'width' => $width];
     }

@@ -311,7 +311,10 @@ class BrowseFilter {
       link.href = this.#getBasePath();
       link.setAttribute('role', 'button');
       link.dataset.intent = 'ghost';
-      link.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear Filters';
+      const icon = document.createElement('i');
+      icon.className = 'fa-solid fa-xmark';
+      icon.setAttribute('aria-hidden', 'true');
+      link.append(icon, ' Clear Filters');
       fieldset.appendChild(link);
     } else if (!active && existing) {
       existing.remove();
@@ -1353,6 +1356,18 @@ class GalleryManager {
   static #ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   static #MAX_SIZE = 5 * 1024 * 1024;
 
+  static #setPrimaryLabel(label, isPrimary) {
+    label.textContent = '';
+    if (isPrimary) {
+      const starIcon = document.createElement('i');
+      starIcon.className = 'fa-solid fa-star';
+      starIcon.setAttribute('aria-hidden', 'true');
+      label.append(starIcon, ' Primary');
+    } else {
+      label.textContent = 'Primary';
+    }
+  }
+
   /** @type {HTMLElement} */
   #fieldset;
   #toolId;
@@ -1811,7 +1826,7 @@ class GalleryManager {
         if (promoted) {
           promoted.checked = true;
           const label = promoted.nextElementSibling;
-          if (label) label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
+          if (label) GalleryManager.#setPrimaryLabel(label, true);
         }
       }
 
@@ -1864,11 +1879,7 @@ class GalleryManager {
         const label = r?.nextElementSibling;
         if (!label) continue;
 
-        if (r.value === imageId) {
-          label.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i> Primary';
-        } else {
-          label.textContent = 'Primary';
-        }
+        GalleryManager.#setPrimaryLabel(label, r.value === imageId);
       }
 
       NT.toast('Primary photo updated.', 'success');

@@ -5,7 +5,6 @@
  * Variables from ProfileController::show():
  *   $profile       array   Public-safe fields from account_profile_v
  *   $reputation    ?array  Detail from user_reputation_v (live, counts, overall avg)
- *   $isOwnProfile  bool    Whether the logged-in user is viewing their own profile
  *   $tools         array   Tool rows from Tool::getByOwner()
  *   $totalTools    int     Total tools owned (for pagination)
  *   $page          int     Current page (1-based)
@@ -95,19 +94,10 @@ $rangeEnd   = min($page * $perPage, $totalTools);
       </ul>
     <?php endif; ?>
 
-    <?php if ($isOwnProfile): ?>
-      <a href="/profile/edit">
-        <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Edit Profile
-      </a>
-    <?php endif; ?>
   </header>
-          
-            <?php if ($isLoggedIn): ?>
-              <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
-            <?php else: ?>
-              <div data-dashboard-body>
-            <?php endif; ?>
-          
+
+  <div data-dashboard-body>
+
             <?php if (!empty($profileNotice)): ?>
               <p role="status" data-flash="success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <?= htmlspecialchars($profileNotice) ?></p>
             <?php endif; ?>
@@ -271,14 +261,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
       <section aria-label="No tools">
         <i class="fa-solid fa-toolbox" aria-hidden="true"></i>
         <h3>No Tools Listed</h3>
-        <?php if ($isOwnProfile): ?>
-          <p>You haven&rsquo;t listed any tools yet. Share your tools with the community!</p>
-          <a href="/tools/create" role="button" data-intent="primary">
-            <i class="fa-solid fa-plus" aria-hidden="true"></i> List Your First Tool
-          </a>
-        <?php else: ?>
-          <p><?= htmlspecialchars($profile['username']) ?> hasn&rsquo;t listed any tools yet.</p>
-        <?php endif; ?>
+        <p><?= htmlspecialchars($profile['username']) ?> hasn&rsquo;t listed any tools yet.</p>
       </section>
 
     <?php endif; ?>

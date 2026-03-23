@@ -1,34 +1,5 @@
 <?php
 
-/**
- * Admin — Deposit management with filtering, sorting, and incident flags.
- *
- * Variables from AdminController::deposits():
- *   $deposits       array   Rows from Deposit::getAdminList()
- *   $totalCount     int     Total deposits matching current filters
- *   $page           int     Current page (1-based)
- *   $totalPages     int     Total pages
- *   $perPage        int     Results per page (12)
- *   $search         ?string Active search query or null
- *   $status         ?string Active status filter or null
- *   $action         ?string Active action filter or null
- *   $incidentsOnly  bool    Whether filtering to deposits with incidents
- *   $sort           string  Active sort column
- *   $dir            string  Active sort direction (ASC|DESC)
- *   $filterParams   array   Non-null filter params for pagination URLs
- *
- * Each deposit row contains:
- *   id_sdp, amount_sdp, deposit_status, payment_provider,
- *   held_at_sdp, released_at_sdp, forfeited_at_sdp, forfeited_amount_sdp,
- *   created_at_sdp, days_held, action_required, id_tol, tool_name_tol,
- *   id_bor_sdp, borrow_status, borrower_id, borrower_name, lender_id,
- *   lender_name, incident_count
- *
- * Shared data:
- *   $currentPage  string
- *   $backUrl      string
- */
-
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
@@ -63,18 +34,6 @@ $allActions  = [
     'PAYMENT PENDING', 'RELEASED', 'FORFEITED', 'PARTIAL RELEASE', 'REVIEW NEEDED',
 ];
 ?>
-
-<section aria-labelledby="admin-deposits-heading">
-
-  <header>
-    <h1 id="admin-deposits-heading">
-      <i class="fa-solid fa-vault" aria-hidden="true"></i>
-      Manage Deposits
-    </h1>
-    <p>Security deposits across all borrows with status tracking, action flags, and incident history.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="get" action="/admin/deposits" role="search" aria-label="Filter and sort deposits" data-admin-filters>
     <fieldset>
@@ -260,6 +219,3 @@ $allActions  = [
     </div>
 
   <?php endif; ?>
-
-  </div>
-</section>

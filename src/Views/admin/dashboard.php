@@ -5,18 +5,6 @@ $range         ??= 14;
 $allowedRanges ??= [7, 14, 30];
 ?>
 
-<section aria-labelledby="admin-heading">
-
-  <header>
-    <h1 id="admin-heading">
-      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-      Admin Dashboard
-    </h1>
-    <p>Platform overview and management tools.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
-
   <section aria-labelledby="admin-summary-heading">
     <h2 id="admin-summary-heading" class="visually-hidden">Platform Summary</h2>
 
@@ -204,6 +192,3 @@ $allowedRanges ??= [7, 14, 30];
       </li>
     </ul>
   </section>
-
-</div>
-</section>

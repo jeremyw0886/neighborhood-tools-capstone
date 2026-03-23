@@ -1,27 +1,4 @@
 <?php
-/**
- * Admin — Open incident listing with sorting, type/deadline filters, and urgency badges.
- *
- * Variables from AdminController::incidents():
- *   $incidents    array   Rows from Incident::getOpen() via open_incident_v
- *   $totalCount   int     Total open incidents matching filters
- *   $page         int     Current page (1-based)
- *   $totalPages   int     Total pages
- *   $perPage      int     Results per page (12)
- *   $type         ?string Active incident type filter, or null
- *   $deadlineMet  ?bool   Deadline filter: true = met, false = missed, null = all
- *   $sort         string  Active sort column
- *   $dir          string  Active sort direction (ASC|DESC)
- *   $filterParams array   Non-null filter params for pagination URLs
- *
- * Each incident row contains:
- *   id_irt, subject_irt, description_irt, incident_type, incident_occurred_at_irt,
- *   created_at_irt, days_open, is_reported_within_deadline_irt,
- *   estimated_damage_amount_irt, reporter_id, reporter_name,
- *   id_bor_irt, tool_name_tol, borrower_id, borrower_name,
- *   lender_id, lender_name, related_disputes,
- *   deposit_amount, deposit_status
- */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
@@ -76,18 +53,6 @@ $deadlineValue = match ($deadlineMet) {
 
 $hasFilters = $type !== null || $deadlineMet !== null;
 ?>
-
-<section aria-labelledby="admin-incidents-heading">
-
-  <header>
-    <h1 id="admin-incidents-heading">
-      <i class="fa-solid fa-flag" aria-hidden="true"></i>
-      Manage Incidents
-    </h1>
-    <p>Review and resolve open incident reports.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="get" action="/admin/incidents" role="search" aria-label="Filter and sort incidents" data-admin-filters>
     <fieldset>
@@ -286,6 +251,3 @@ $hasFilters = $type !== null || $deadlineMet !== null;
     </section>
 
   <?php endif; ?>
-
-</div>
-</section>

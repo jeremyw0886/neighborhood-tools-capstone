@@ -1,27 +1,4 @@
 <?php
-/**
- * Admin — Reports with sortable neighborhood statistics from neighborhood_summary_fast_v.
- *
- * Variables from AdminController::reports():
- *   $neighborhoods  array   Rows from Neighborhood::getSummaryList()
- *   $totalCount     int     Total neighborhoods
- *   $page           int     Current page (1-based)
- *   $totalPages     int     Total pages
- *   $perPage        int     Results per page (12)
- *   $sort           string  Active sort column
- *   $dir            string  Active sort direction (ASC|DESC)
- *   $filterParams   array   Non-null filter params for pagination URLs
- *
- * Each neighborhood row contains:
- *   id_nbh, neighborhood_name_nbh, city_name_nbh, state_code_sta,
- *   total_members, active_members, verified_members,
- *   total_tools, available_tools, active_borrows,
- *   completed_borrows_30d, upcoming_events, zip_codes, refreshed_at
- *
- * Shared data:
- *   $currentPage  string
- *   $backUrl      string
- */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
@@ -47,18 +24,6 @@ $sortToColumn = [
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 ?>
-
-<section aria-labelledby="admin-reports-heading">
-
-  <header>
-    <h1 id="admin-reports-heading">
-      <i class="fa-solid fa-chart-bar" aria-hidden="true"></i>
-      Reports
-    </h1>
-    <p>Neighborhood statistics and community health metrics.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="get" action="/admin/reports" role="search" aria-label="Sort neighborhood reports" data-admin-filters>
     <fieldset>
@@ -193,6 +158,3 @@ $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 
     <?php endif; ?>
   </section>
-
-</div>
-</section>

@@ -1,28 +1,4 @@
 <?php
-/**
- * Admin — TOS management with sortable non-compliant user listing.
- *
- * Variables from AdminController::tos():
- *   $users        array   Rows from Tos::getNonCompliantUsers() via tos_acceptance_required_v
- *   $totalCount   int     Total non-compliant users
- *   $page         int     Current page (1-based)
- *   $totalPages   int     Total pages
- *   $perPage      int     Results per page (12)
- *   $sort         string  Active sort column
- *   $dir          string  Active sort direction (ASC|DESC)
- *   $filterParams array   Non-null filter params for pagination URLs
- *
- * Each user row contains:
- *   id_acc, full_name, email_address_acc, account_status,
- *   last_login_at_acc, created_at_acc,
- *   last_tos_accepted_at, last_accepted_version
- *
- * Shared data:
- *   $currentTos   ?array  Current TOS version from getSharedData()
- *   $currentPage  string
- *   $backUrl      string
- */
-
 $flash      = $_SESSION['admin_tos_flash'] ?? null;
 unset($_SESSION['admin_tos_flash']);
 
@@ -48,18 +24,6 @@ $sortToColumn = [
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 ?>
-
-<section aria-labelledby="admin-tos-heading">
-
-  <header>
-    <h1 id="admin-tos-heading">
-      <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
-      Manage Terms of Service
-    </h1>
-    <p>Current version details and member acceptance status.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <?php if ($flash !== null): ?>
     <p data-flash role="status"><?= htmlspecialchars($flash) ?></p>
@@ -233,6 +197,3 @@ $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 
     <?php endif; ?>
   </section>
-
-</div>
-</section>

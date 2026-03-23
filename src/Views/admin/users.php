@@ -1,35 +1,4 @@
 <?php
-/**
- * Admin — User management with reputation data and role info.
- *
- * Variables from AdminController::users():
- *   $users        array   Rows from Account::getAllForAdmin() (reputation + role_name_rol)
- *   $totalCount   int     Total members matching current filters
- *   $page         int     Current page (1-based)
- *   $totalPages   int     Total pages
- *   $perPage      int     Results per page (12)
- *   $flash        ?string One-time status message (approve/deny/status feedback)
- *   $search       ?string Active search query or null
- *   $role         ?string Active role filter or null
- *   $status       ?string Active status filter or null
- *   $tab          string  Active tab ('active'|'deleted')
- *   $deletedCount int     Total deleted accounts (for tab badge)
- *   $sort         string  Active sort column
- *   $dir          string  Active sort direction (ASC|DESC)
- *   $filterParams array   Non-null filter params for pagination URLs
- *
- * Each user row contains:
- *   id_acc, full_name, email_address_acc, account_status, role_name_rol,
- *   member_since, lender_avg_rating, lender_rating_count,
- *   borrower_avg_rating, borrower_rating_count, overall_avg_rating,
- *   total_rating_count, tools_owned, completed_borrows, refreshed_at
- *
- * Shared data:
- *   $csrfToken    string
- *   $currentPage  string
- *   $authUser     array{id: int, role: string, ...}
- */
-
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
@@ -83,18 +52,6 @@ $isDeletedTab = $tab === 'deleted';
 $ariaSortDir  = $dir === 'ASC' ? 'ascending' : 'descending';
 $hasFilters   = $search !== null || $role !== null || ($status !== null && !$isDeletedTab);
 ?>
-
-<section aria-labelledby="admin-users-heading">
-
-  <header>
-    <h1 id="admin-users-heading">
-      <i class="fa-solid fa-users" aria-hidden="true"></i>
-      Manage Users
-    </h1>
-    <p>Platform members with rating summaries and account status management.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <?php if ($flash !== null): ?>
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
@@ -412,6 +369,3 @@ $hasFilters   = $search !== null || $role !== null || ($status !== null && !$isD
       </form>
     </dialog>
   <?php endif; ?>
-
-</div>
-</section>

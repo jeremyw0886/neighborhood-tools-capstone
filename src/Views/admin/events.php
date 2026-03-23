@@ -1,27 +1,4 @@
 <?php
-/**
- * Admin — Event management with timing filter and sortable columns.
- *
- * Variables from AdminController::events():
- *   $events         array   Rows from Event::getUpcoming() with attendee_count
- *   $totalCount     int     Total events matching current filter
- *   $page           int     Current page (1-based)
- *   $totalPages     int     Total pages
- *   $perPage        int     Results per page (12)
- *   $timing         ?string Active timing filter (uppercase) or null
- *   $timingCounts   array   Timing label => count for filter options
- *   $sort           string  Active sort column
- *   $dir            string  Active sort direction (ASC|DESC)
- *   $filterParams   array   Non-null filter params for pagination URLs
- *
- * Each event row contains:
- *   id_evt, event_name_evt, event_description_evt, event_address_evt,
- *   start_at_evt, end_at_evt, days_until_event, event_timing,
- *   neighborhood_id, neighborhood_name_nbh, city_name_nbh, state_code_sta,
- *   creator_id, creator_name, created_at_evt, updated_at_evt, last_updated_by,
- *   attendee_count
- */
-
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
@@ -45,18 +22,6 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
     return ' aria-sort="' . ($dir === 'ASC' ? 'ascending' : 'descending') . '"';
 };
 ?>
-
-<section aria-labelledby="admin-events-heading">
-
-  <header>
-    <h1 id="admin-events-heading">
-      <i class="fa-solid fa-calendar" aria-hidden="true"></i>
-      Manage Events
-    </h1>
-    <p>View and manage upcoming community events.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="get" action="/admin/events" role="search" aria-label="Filter and sort events" data-admin-filters>
     <fieldset>
@@ -194,6 +159,3 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
     </section>
 
   <?php endif; ?>
-
-</div>
-</section>

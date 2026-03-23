@@ -1,34 +1,4 @@
 <?php
-
-/**
- * Admin — Tool management with analytics from tool_statistics_fast_v.
- *
- * Variables from AdminController::tools():
- *   $tools         array   Rows from Tool::getAdminList() via tool_statistics_fast_v
- *   $totalCount    int     Total tools matching current filters
- *   $page          int     Current page (1-based)
- *   $totalPages    int     Total pages
- *   $perPage       int     Results per page (12)
- *   $search        ?string Active search query or null
- *   $condition     ?string Active condition filter or null
- *   $incidentsOnly bool    Whether filtering to tools with incidents
- *   $sort          string  Active sort column
- *   $dir           string  Active sort direction (ASC|DESC)
- *   $filterParams  array   Non-null filter params for pagination URLs
- *
- * Each tool row contains:
- *   id_tol, tool_name_tol, owner_id, owner_name, tool_condition,
- *   rental_fee_tol, estimated_value_tol, created_at_tol,
- *   avg_rating, rating_count, five_star_count,
- *   total_borrows, completed_borrows, cancelled_borrows, denied_borrows,
- *   total_hours_borrowed, last_borrowed_at,
- *   incident_count, refreshed_at
- *
- * Shared data:
- *   $currentPage  string
- *   $backUrl      string
- */
-
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
@@ -59,18 +29,6 @@ $sortToColumn = [
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
 ?>
-
-<section aria-labelledby="admin-tools-heading">
-
-  <header>
-    <h1 id="admin-tools-heading">
-      <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
-      Manage Tools
-    </h1>
-    <p>Platform-wide tool listings with borrow statistics, ratings, and incident counts.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="get" action="/admin/tools" role="search" aria-label="Filter and sort tools" data-admin-filters>
     <fieldset>
@@ -227,6 +185,3 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
     </section>
 
   <?php endif; ?>
-
-  </div>
-</section>

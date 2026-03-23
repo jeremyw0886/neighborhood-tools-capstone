@@ -1,28 +1,4 @@
 <?php
-/**
- * Admin — Image management (category icons + avatar vectors).
- *
- * Variables from AdminController::images():
- *   $categoryVectors     array   Paginated category icon rows
- *   $avatarVectors       array   Paginated avatar vector rows
- *   $flash               ?string
- *   $iconsPage           int     Current category icons page
- *   $iconsTotalPages     int     Total category icons pages
- *   $iconsTotalCount     int     Total category icon count
- *   $iconsSearch         ?string Active search query for icons
- *   $iconsAssigned       ?string Active assignment filter ('yes'|'no'|null)
- *   $iconsSort           string  Active sort column for icons
- *   $iconsDir            string  Active sort direction for icons (ASC|DESC)
- *   $iconsFilterParams   array   Filter params for icon pagination links
- *   $avatarsPage         int     Current avatar vectors page
- *   $avatarsTotalPages   int     Total avatar vectors pages
- *   $avatarsTotalCount   int     Total avatar vector count
- *   $avatarsSearch       ?string Active search query for avatars
- *   $avatarsStatus       ?string Active status filter ('active'|'inactive'|null)
- *   $avatarsSort         string  Active sort column for avatars
- *   $avatarsDir          string  Active sort direction for avatars (ASC|DESC)
- *   $avatarsFilterParams array   Filter params for avatar pagination links
- */
 
 $iconsSortLabels = [
     'file_name_vec'     => 'Filename',
@@ -40,18 +16,6 @@ $avatarsSortLabels = [
 $iconsHasFilters   = $iconsSearch !== null || $iconsAssigned !== null;
 $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 ?>
-
-<section aria-labelledby="admin-images-heading">
-
-  <header>
-    <h1 id="admin-images-heading">
-      <i class="fa-solid fa-images" aria-hidden="true"></i>
-      Manage Images
-    </h1>
-    <p>Upload and manage category icons and profile avatar vectors.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <?php if ($flash): ?>
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
@@ -468,6 +432,3 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
     <?php endif; ?>
 
   </details>
-
-</div>
-</section>

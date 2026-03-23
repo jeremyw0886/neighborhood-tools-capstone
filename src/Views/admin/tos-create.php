@@ -1,15 +1,4 @@
 <?php
-/**
- * Admin — Create new TOS version (Super Admin only).
- *
- * Variables from AdminController::showCreateTos():
- *   $errors  array  Keyed by field name
- *   $old     array  Sticky values (version, title, content, summary, effectiveAt)
- *
- * Shared data:
- *   $csrfToken  string
- */
-
 $hasError = static fn(string $field): bool => isset($errors[$field]);
 
 $errorId = static fn(string $field): string => $field . '-error';
@@ -17,18 +6,6 @@ $errorId = static fn(string $field): string => $field . '-error';
 $oldVal = static fn(string $field): string =>
     htmlspecialchars($old[$field] ?? '');
 ?>
-
-<section aria-labelledby="admin-tos-create-heading">
-
-  <header>
-    <h1 id="admin-tos-create-heading">
-      <i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i>
-      Create TOS Version
-    </h1>
-    <p>Publish a new Terms of Service version. The current active version will be superseded.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="post" action="/admin/tos" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -113,6 +90,3 @@ $oldVal = static fn(string $field): string =>
       <a href="/admin/tos">Cancel</a>
     </div>
   </form>
-
-</div>
-</section>

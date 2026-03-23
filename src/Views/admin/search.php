@@ -1,28 +1,4 @@
 <?php
-/**
- * Admin — Global search results grouped by entity type.
- *
- * Variables from AdminController::search():
- *   $term        string  The search query
- *   $results     array   Keyed by entity: users, tools, categories, icons, avatars, disputes, events, incidents, deposits, neighborhoods
- *   $totalCount  int     Sum of all result counts
- *
- * Return shapes per entity:
- *   users:         id_acc, full_name, email_address_acc, role_name_rol, account_status
- *   tools:         id_tol, tool_name_tol, owner_name, tool_condition, rental_fee_tol
- *   categories:    id_cat, category_name_cat, total_tools, available_tools
- *   icons:         id_vec, file_name_vec, description_text_vec, assigned_category
- *   avatars:       id_avv, file_name_avv, description_text_avv, is_active_avv
- *   disputes:      id_dsp, tool_name_tol, reporter_name, borrower_name, lender_name, dispute_status, days_open
- *   events:        id_evt, event_name_evt, start_at_evt, event_address_evt, event_timing
- *   incidents:     id_irt, incident_type, tool_name_tol, reporter_name, borrower_name, lender_name, incident_status, days_open
- *   deposits:      id_sdp, amount_sdp, deposit_status, tool_name_tol, borrower_name, lender_name, action_required
- *   neighborhoods: id_nbh, neighborhood_name_nbh, city_name_nbh, state_code_sta, active_members
- *
- * Shared data:
- *   $currentPage  string
- */
-
 $sections = [
     'users' => [
         'icon'  => 'fa-users',
@@ -76,25 +52,6 @@ $sections = [
     ],
 ];
 ?>
-
-<section id="admin-search-page" aria-labelledby="admin-search-heading">
-
-  <header>
-    <h1 id="admin-search-heading">
-      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      Search Results
-    </h1>
-    <?php if ($term !== ''): ?>
-      <p>
-        <strong><?= number_format($totalCount) ?></strong> result<?= $totalCount !== 1 ? 's' : '' ?>
-        for &#8220;<?= htmlspecialchars($term) ?>&#8221;
-      </p>
-    <?php else: ?>
-      <p>Enter a search term to find users, tools, categories, images, disputes, events, incidents, deposits, and neighborhoods.</p>
-    <?php endif; ?>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <?php if ($term !== '' && $totalCount === 0): ?>
 
@@ -364,6 +321,3 @@ $sections = [
     <?php endforeach; ?>
 
   <?php endif; ?>
-
-</div>
-</section>

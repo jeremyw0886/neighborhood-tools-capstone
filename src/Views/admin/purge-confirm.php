@@ -1,29 +1,7 @@
 <?php
-/**
- * Admin — No-JS purge confirmation page.
- *
- * Variables from AdminController::showPurgeConfirm():
- *   $account   array   Account row from findByIdIncludeDeleted()
- *   $returnTo  string  Query string to preserve on redirect
- *
- * Shared data:
- *   $csrfToken string
- */
-
 $fullName  = htmlspecialchars($account['full_name']);
 $accountId = (int) $account['id_acc'];
 ?>
-
-<section aria-labelledby="purge-confirm-heading">
-
-  <header>
-    <h1 id="purge-confirm-heading">
-      <i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i>
-      Permanently Purge Account
-    </h1>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="post" action="/admin/users/<?= $accountId ?>/purge">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -61,5 +39,3 @@ $accountId = (int) $account['id_acc'];
       </div>
     </fieldset>
   </form>
-
-</section>

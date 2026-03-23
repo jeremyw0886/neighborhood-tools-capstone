@@ -1,31 +1,4 @@
 <?php
-/**
- * Admin — Open dispute listing with urgency filter and sort.
- *
- * Variables from DisputeController::index():
- *   $disputes     array   Rows from Dispute::getAll() via open_dispute_v
- *   $totalCount   int     Total open disputes matching current filters
- *   $page         int     Current page (1-based)
- *   $totalPages   int     Total pages
- *   $perPage      int     Results per page (12)
- *   $urgency      ?string Active urgency filter or null
- *   $sort         string  Active sort column
- *   $dir          string  Active sort direction (ASC|DESC)
- *   $filterParams array   Non-null filter params for pagination URLs
- *
- * Each dispute row contains:
- *   id_dsp, subject_text_dsp, created_at_dsp, days_open,
- *   reporter_id, reporter_name, reporter_email,
- *   id_bor_dsp (borrow ID), tool_name_tol,
- *   borrower_id, borrower_name, lender_id, lender_name,
- *   message_count, last_message_at, related_incidents,
- *   deposit_amount, deposit_status
- *
- * Shared data:
- *   $currentPage  string
- *   $backUrl      string
- */
-
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
 
@@ -53,18 +26,6 @@ $sortLabels = [
 
 $hasFilters = $urgency !== null;
 ?>
-
-<section aria-labelledby="admin-disputes-heading">
-
-  <header>
-    <h1 id="admin-disputes-heading">
-      <i class="fa-solid fa-gavel" aria-hidden="true"></i>
-      Manage Disputes
-    </h1>
-    <p>Review and resolve open disputes between members.</p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
 
   <form method="get" action="/admin/disputes" aria-label="Filter and sort disputes" data-admin-filters>
     <fieldset>
@@ -227,6 +188,3 @@ $hasFilters = $urgency !== null;
     </section>
 
   <?php endif; ?>
-
-</div>
-</section>

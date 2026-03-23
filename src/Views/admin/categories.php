@@ -1,22 +1,4 @@
 <?php
-/**
- * Admin — Category management (create, edit, delete, icon assignment).
- *
- * Variables from AdminController::categories():
- *   $categories   array   Rows from Category::getAllWithIconsFiltered() + tool_count
- *   $vectors      array   Rows from VectorImage::getAll()
- *   $flash        ?string
- *   $totalCount   int     Total categories matching filters
- *   $search       ?string Active search query
- *   $hasIcon      ?string Active icon filter ('yes'|'no'|null)
- *   $sort         string  Active sort column
- *   $dir          string  Active sort direction (ASC|DESC)
- *   $filterParams array   Non-null filter params for pagination links
- *   $createErrors array   Validation errors for create form
- *   $createOld    array   Old input for create form
- *   $editErrors   array   Validation errors for edit form (keyed by category ID)
- *   $editOld      array   Old input for edit form (keyed by category ID)
- */
 
 $sortLabels = [
     'category_name_cat' => 'Category Name',
@@ -32,21 +14,11 @@ $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
 $hasFilters  = $search !== null || $hasIcon !== null;
 ?>
 
-<section aria-labelledby="admin-categories-heading">
-
-  <header>
-    <h1 id="admin-categories-heading">
-      <i class="fa-solid fa-tags" aria-hidden="true"></i>
-      Manage Categories
-    </h1>
-    <p>Create, edit, and delete tool categories. <a href="/admin/images">Manage images</a></p>
-  </header>
-
-  <?php require BASE_PATH . '/src/Views/partials/admin-nav.php'; ?>
-
   <?php if ($flash): ?>
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
+
+  <a href="/admin/images" data-intent="ghost"><i class="fa-solid fa-images" aria-hidden="true"></i> Manage images</a>
 
   <section aria-labelledby="add-category-heading" data-category-create>
     <h2 id="add-category-heading">
@@ -279,6 +251,3 @@ $hasFilters  = $search !== null || $hasIcon !== null;
     <?php endif; ?>
 
   </section>
-
-</div>
-</section>

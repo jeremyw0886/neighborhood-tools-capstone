@@ -18,6 +18,7 @@ use App\Models\Tos;
 use App\Models\VectorImage;
 use App\Models\AvatarVector;
 use App\Models\Deposit;
+use App\Models\Notification;
 
 class AdminController extends BaseController
 {
@@ -310,6 +311,100 @@ class AdminController extends BaseController
         }
 
         $this->redirect('/admin/users');
+    }
+
+    /**
+     * Change a user's role (super admin only).
+     *
+     * @param string $id
+     */
+    public function updateUserRole(string $id): void
+    {
+        $this->requireRole(Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        $redirectUrl = $this->buildSafeAdminRedirect();
+
+        try {
+            $account = Account::findById($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateUserRole — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($account === null) {
+            $this->abort(404);
+        }
+
+        if ($accountId === (int) $_SESSION['user_id']) {
+            $_SESSION['admin_users_flash'] = 'You cannot modify your own role.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ($account['role_name_rol'] === 'super_admin') {
+            $_SESSION['admin_users_flash'] = 'Super admin roles cannot be modified.';
+            $this->redirect($redirectUrl);
+        }
+
+        $newRole = Role::tryFrom($_POST['role'] ?? '');
+
+        if ($newRole === null || $newRole === Role::SuperAdmin) {
+            $_SESSION['admin_users_flash'] = 'Invalid role selected.';
+            $this->redirect($redirectUrl);
+        }
+
+        $oldRole  = $account['role_name_rol'];
+        $fullName = $account['full_name'];
+
+        if ($oldRole === $newRole->value) {
+            $_SESSION['admin_users_flash'] = 'No changes made.';
+            $this->redirect($redirectUrl);
+        }
+
+        try {
+            Account::updateRole($accountId, $newRole);
+
+            $action = $newRole->value === 'admin' ? 'promoted to Admin' : 'changed to Member';
+
+            Notification::send(
+                accountId: $accountId,
+                type: 'role_change',
+                title: 'Your role has been updated',
+                body: "You have been {$action}.",
+            );
+
+            $_SESSION['admin_users_flash'] = "{$fullName} has been {$action}.";
+        } catch (\Throwable $e) {
+            error_log('AdminController::updateUserRole — ' . $e->getMessage());
+            $_SESSION['admin_users_flash'] = 'Failed to update role.';
+        }
+
+        $this->redirect($redirectUrl);
+    }
+
+    /**
+     * Build a safe redirect URL back to /admin/users preserving filters.
+     */
+    private function buildSafeAdminRedirect(): string
+    {
+        $returnTo = $_POST['return_to'] ?? '';
+        $base     = '/admin/users';
+
+        if ($returnTo === '') {
+            return $base;
+        }
+
+        parse_str($returnTo, $params);
+        $allowed  = ['page', 'role', 'status', 'search'];
+        $filtered = array_intersect_key($params, array_flip($allowed));
+
+        return $filtered !== [] ? $base . '?' . http_build_query($filtered) : $base;
     }
 
     private const array TOOLS_SORT_FIELDS        = ['tool_name_tol', 'owner_name', 'tool_condition', 'rental_fee_tol', 'avg_rating', 'total_borrows', 'incident_count', 'created_at_tol'];

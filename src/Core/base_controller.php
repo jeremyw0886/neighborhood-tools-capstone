@@ -133,7 +133,10 @@ class BaseController
         $data['dashboardPartial'] = $partial;
 
         if ($this->isXhr()) {
-            $this->renderPartial($partial, $data);
+            $this->renderPartial(
+                BASE_PATH . '/src/Views/dashboard/index.php',
+                $data,
+            );
             return;
         }
 
@@ -152,6 +155,17 @@ class BaseController
 
         if (isset($data['title'])) {
             header('X-Page-Title: ' . rawurlencode($data['title']));
+        }
+
+        if (!empty($data['pageCss'])) {
+            $isDev = ($_ENV['APP_ENV'] ?? 'production') === 'development';
+            $hrefs = array_map(
+                static fn(string $file): string =>
+                    '/assets/css/' . ($isDev ? $file : str_replace('.css', '.min.css', $file))
+                    . '?v=' . ASSET_VERSION,
+                $data['pageCss'],
+            );
+            header('X-Page-Css: ' . implode(', ', $hrefs));
         }
 
         $data = array_merge($this->getSharedData(), $data);

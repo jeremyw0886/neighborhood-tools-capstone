@@ -109,7 +109,7 @@ class DashboardRouter {
    *
    * @param {string} url
    * @param {AbortSignal} [signal]
-   * @returns {Promise<{html: string, title: string, stylesheets: string[]}|null>}
+   * @returns {Promise<{doc: Document, title: string, stylesheets: string[], partial: boolean}|null>}
    */
   async #fetchPage(url, signal) {
     const cached = this.#cacheGet(url);
@@ -118,13 +118,24 @@ class DashboardRouter {
     const response = await NT.fetch(url, {
       signal,
       timeout: 8_000,
-      headers: { Accept: 'text/html' },
+      headers: { Accept: 'text/html', 'X-Requested-With': 'XMLHttpRequest' },
     });
 
     if (!response.ok) return null;
 
     const text = await response.text();
     const doc = new DOMParser().parseFromString(text, 'text/html');
+    const isPartial = response.headers.get('X-Partial') === '1';
+
+    if (isPartial) {
+      const title = decodeURIComponent(response.headers.get('X-Page-Title') ?? '');
+      const cssHeader = response.headers.get('X-Page-Css') ?? '';
+      const stylesheets = cssHeader ? cssHeader.split(',').map((s) => s.trim()) : [];
+      const data = { doc, title, stylesheets, partial: true };
+      this.#cacheSet(url, data);
+      return data;
+    }
+
     const newMain = doc.getElementById('main-content');
     if (!newMain) return null;
 
@@ -132,7 +143,7 @@ class DashboardRouter {
       .map((link) => link.getAttribute('href'))
       .filter(Boolean);
 
-    const data = { html: newMain.innerHTML, title: doc.title, stylesheets };
+    const data = { doc, title: doc.title, stylesheets, partial: false };
     this.#cacheSet(url, data);
     return data;
   }
@@ -198,6 +209,26 @@ class DashboardRouter {
     document.dispatchEvent(new CustomEvent('dashboard:content-swapped'));
   }
 
+  /**
+   * Update dashboard nav active state after a content swap.
+   *
+   * @param {string} url
+   */
+  #updateNavActiveState(url) {
+    const nav = document.querySelector('[data-dashboard-body] > nav');
+    if (!nav) return;
+
+    const path = new URL(url, location.origin).pathname;
+
+    for (const a of nav.querySelectorAll('a[aria-current]')) {
+      a.removeAttribute('aria-current');
+    }
+
+    const match = nav.querySelector(`a[href="${CSS.escape(path)}"]`)
+      ?? nav.querySelector(`a[href="${CSS.escape(path.replace(/\/\d+$/, ''))}"]`);
+    match?.setAttribute('aria-current', 'page');
+  }
+
   // ── Navigation ──
 
   /**
@@ -219,12 +250,18 @@ class DashboardRouter {
     const slideIn = direction === 'back' ? 'slide-in-left' : 'slide-in-right';
 
     try {
+      const outDoc = new DOMParser().parseFromString(
+        `<div id="main-content">${this.#mainEl.innerHTML}</div>`,
+        'text/html',
+      );
+
       this.#cacheSet(location.href, {
-        html: this.#mainEl.innerHTML,
+        doc: outDoc,
         title: document.title,
         stylesheets: [...document.querySelectorAll('head link[rel="stylesheet"]')]
           .map((l) => l.getAttribute('href'))
           .filter(Boolean),
+        partial: false,
       });
 
       const [data] = await Promise.all([
@@ -251,8 +288,15 @@ class DashboardRouter {
 
       await DashboardRouter.#syncStylesheets(data.stylesheets);
 
-      this.#mainEl.innerHTML = data.html;
+      if (data.partial) {
+        this.#mainEl.replaceChildren(...Array.from(data.doc.body.childNodes));
+      } else {
+        const newMain = data.doc.getElementById('main-content');
+        this.#mainEl.replaceChildren(...Array.from(newMain.childNodes));
+      }
+
       document.title = data.title;
+      this.#updateNavActiveState(url);
 
       this.#navigating = false;
       this.#currentAbort = null;

@@ -76,6 +76,33 @@ if (isset($_SESSION['last_activity'])
 }
 $_SESSION['last_activity'] = time();
 
+// Re-verify role and account status from DB on every request
+if (!empty($_SESSION['logged_in'])) {
+    $refreshStmt = \App\Core\Database::connection()->prepare(
+        'SELECT r.role_name_rol, s.status_name_ast
+         FROM account_acc a
+         JOIN role_rol r ON a.id_rol_acc = r.id_rol
+         JOIN account_status_ast s ON a.id_ast_acc = s.id_ast
+         WHERE a.id_acc = :id
+         LIMIT 1'
+    );
+    $refreshStmt->bindValue(':id', (int) $_SESSION['user_id'], \PDO::PARAM_INT);
+    $refreshStmt->execute();
+    $currentAccount = $refreshStmt->fetch(\PDO::FETCH_ASSOC);
+
+    if (!$currentAccount || $currentAccount['status_name_ast'] !== 'active') {
+        session_unset();
+        session_destroy();
+        session_start($sessionOptions);
+        header('Location: /login');
+        exit;
+    }
+
+    if ($currentAccount['role_name_rol'] !== ($_SESSION['user_role'] ?? '')) {
+        $_SESSION['user_role'] = $currentAccount['role_name_rol'];
+    }
+}
+
 // Generate CSRF token if one doesn't exist
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

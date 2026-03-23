@@ -169,7 +169,7 @@ final class ImageProcessor
     }
 
     /**
-     * Generate size variants and WebP copies for a source image.
+     * Generate size variants (cropped to 3:2) and WebP copies for a source image.
      *
      * @param non-empty-string $sourcePath Absolute path to the full-size image
      * @param int[] $widths Variant widths to generate
@@ -178,6 +178,8 @@ final class ImageProcessor
     public static function generateVariants(
         string $sourcePath,
         array $widths = self::VARIANT_WIDTHS,
+        int $focalX = 50,
+        int $focalY = 50,
     ): array {
         $size = getimagesize($sourcePath);
         if ($size === false) {
@@ -207,7 +209,7 @@ final class ImageProcessor
                 }
                 $created[] = $variantPath;
 
-                self::resize($variantPath, $w);
+                self::cropResize($variantPath, $w, $focalX, $focalY);
 
                 if (!$isWebp) {
                     $webpPath = self::createWebpVariant($variantPath);

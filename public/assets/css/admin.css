@@ -1152,6 +1152,50 @@
 
   main>section[aria-labelledby="admin-users-heading"] {
 
+    & nav[data-user-tabs] {
+      border-bottom: 2px solid var(--mountain-fog);
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+
+      & a {
+        border-bottom: 2px solid transparent;
+        color: var(--mountain-mist);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: -2px;
+        padding: 0.625rem 1.25rem;
+        text-decoration: none;
+        transition: color 0.2s, border-color 0.2s;
+
+        &:is(:hover, :focus-visible) {
+          color: var(--mountain-pine);
+        }
+
+        &[aria-current="page"] {
+          border-bottom-color: var(--mountain-pine);
+          color: var(--mountain-pine);
+          font-weight: 600;
+        }
+
+        & span[data-count] {
+          background: var(--mountain-fog);
+          border-radius: 2rem;
+          color: var(--mountain-slate);
+          font-size: 0.7rem;
+          font-weight: 600;
+          margin-left: 0.35rem;
+          padding: 0.1rem 0.45rem;
+          vertical-align: middle;
+        }
+
+        &[aria-current="page"] span[data-count] {
+          background: var(--mountain-pine);
+          color: var(--mountain-cream);
+        }
+      }
+    }
+
     & div[aria-live] {
       margin-bottom: 1rem;
 

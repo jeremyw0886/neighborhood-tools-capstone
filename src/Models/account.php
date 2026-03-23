@@ -37,13 +37,13 @@ class Account
         }
 
         if ($status !== null) {
-            $where[]          = 'r.account_status = :status';
+            $where[]          = 'ast.status_name_ast = :status';
             $params[':status'] = $status;
         }
 
         if ($search !== null) {
-            $where[]            = '(r.full_name LIKE CONCAT(\'%\', :search1, \'%\')
-                                 OR r.email_address_acc LIKE CONCAT(\'%\', :search2, \'%\'))';
+            $where[]            = "(CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :search1, '%')
+                                 OR a.email_address_acc LIKE CONCAT('%', :search2, '%'))";
             $params[':search1'] = $search;
             $params[':search2'] = $search;
         }
@@ -51,15 +51,35 @@ class Account
         $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $qualified = match ($sort) {
-            'role_name_rol' => 'rol.role_name_rol',
-            default         => 'r.' . $sort,
+            'role_name_rol'    => 'rol.role_name_rol',
+            'full_name'        => "CONCAT(a.first_name_acc, ' ', a.last_name_acc)",
+            'account_status'   => 'ast.status_name_ast',
+            'email_address_acc' => 'a.email_address_acc',
+            'member_since'     => 'a.created_at_acc',
+            default            => 'r.' . $sort,
         };
 
         $sql = "
-            SELECT r.*, rol.role_name_rol, a.is_purged_acc
-            FROM user_reputation_v r
-            JOIN account_acc a     ON r.id_acc = a.id_acc
-            JOIN role_rol rol      ON a.id_rol_acc = rol.id_rol
+            SELECT
+                a.id_acc,
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
+                a.email_address_acc,
+                ast.status_name_ast AS account_status,
+                a.created_at_acc    AS member_since,
+                a.is_purged_acc,
+                rol.role_name_rol,
+                COALESCE(r.lender_avg_rating, 0)     AS lender_avg_rating,
+                COALESCE(r.lender_rating_count, 0)    AS lender_rating_count,
+                COALESCE(r.borrower_avg_rating, 0)    AS borrower_avg_rating,
+                COALESCE(r.borrower_rating_count, 0)   AS borrower_rating_count,
+                r.overall_avg_rating,
+                COALESCE(r.total_rating_count, 0)     AS total_rating_count,
+                COALESCE(r.tools_owned, 0)            AS tools_owned,
+                COALESCE(r.completed_borrows, 0)      AS completed_borrows
+            FROM account_acc a
+            JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+            JOIN role_rol rol           ON a.id_rol_acc = rol.id_rol
+            LEFT JOIN user_reputation_v r ON a.id_acc = r.id_acc
             $whereClause
             ORDER BY $qualified $dir
             LIMIT :limit OFFSET :offset
@@ -124,32 +144,35 @@ class Account
     ): int {
         $pdo = Database::connection();
 
-        $joins  = '';
         $where  = [];
         $params = [];
 
         if ($role !== null) {
-            $joins = 'JOIN account_acc a ON r.id_acc = a.id_acc
-                      JOIN role_rol rol  ON a.id_rol_acc = rol.id_rol';
             $where[]        = 'rol.role_name_rol = :role';
             $params[':role'] = $role;
         }
 
         if ($status !== null) {
-            $where[]          = 'r.account_status = :status';
+            $where[]          = 'ast.status_name_ast = :status';
             $params[':status'] = $status;
         }
 
         if ($search !== null) {
-            $where[]            = '(r.full_name LIKE CONCAT(\'%\', :search1, \'%\')
-                                 OR r.email_address_acc LIKE CONCAT(\'%\', :search2, \'%\'))';
+            $where[]            = "(CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :search1, '%')
+                                 OR a.email_address_acc LIKE CONCAT('%', :search2, '%'))";
             $params[':search1'] = $search;
             $params[':search2'] = $search;
         }
 
         $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_reputation_v r $joins $whereClause");
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM account_acc a
+            JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+            JOIN role_rol rol           ON a.id_rol_acc = rol.id_rol
+            $whereClause
+        ");
 
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);

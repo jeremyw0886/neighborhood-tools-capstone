@@ -9,7 +9,7 @@ use PDO;
 
 class Notification
 {
-    private const array REQUIRED_TYPES = ['request', 'approval', 'denial'];
+    private const array REQUIRED_TYPES = ['request', 'approval', 'denial', 'role_change'];
 
     private const array TOGGLEABLE_TYPES = ['due', 'return', 'rating'];
 

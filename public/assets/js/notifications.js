@@ -48,7 +48,10 @@ class SwipeToRead {
     const tray = document.createElement('div');
     tray.setAttribute('data-swipe-tray', '');
     tray.setAttribute('aria-hidden', 'true');
-    tray.innerHTML = '<i class="fa-solid fa-check"></i>';
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-check';
+    icon.setAttribute('aria-hidden', 'true');
+    tray.appendChild(icon);
     this.#li.appendChild(tray);
   }
 

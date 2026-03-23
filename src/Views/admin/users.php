@@ -296,6 +296,20 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
                         <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Activate
                       </button>
                     </form>
+                    <?php if ($isSuperAdmin && $userRole !== 'super_admin'): ?>
+                      <form method="post"
+                            action="/admin/users/<?= (int) $user['id_acc'] ?>/delete"
+                            data-delete-user-form>
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                        <input type="hidden" name="return_to" value="<?= htmlspecialchars($_SERVER['QUERY_STRING'] ?? '') ?>">
+                        <button type="submit"
+                                data-intent="danger"
+                                data-size="sm"
+                                data-delete-user-name="<?= htmlspecialchars($user['full_name']) ?>">
+                          <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
+                        </button>
+                      </form>
+                    <?php endif; ?>
                   <?php else: ?>
                     <form method="post" action="/admin/users/<?= (int) $user['id_acc'] ?>/status">
                       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">

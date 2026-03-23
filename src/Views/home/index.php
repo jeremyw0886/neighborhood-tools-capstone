@@ -67,7 +67,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <?php if (!empty($featuredTools)): ?>
         <div role="list">
-          <?php $cardHeadingLevel = 'h3'; $cardSizes = '220px'; ?>
+          <?php $cardHeadingLevel = 'h3'; $cardSizes = '270px'; ?>
           <?php foreach ($featuredTools as $toolIndex => $tool): ?>
             <?php $eagerLoad = ($toolIndex === 0); ?>
             <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>

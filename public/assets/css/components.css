@@ -1262,7 +1262,7 @@
     scroll-snap-align: start;
     text-align: start;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-    width: 220px;
+    width: 270px;
 
     &:hover,
     &:has(:focus-visible) {

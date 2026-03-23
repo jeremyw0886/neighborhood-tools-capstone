@@ -11,7 +11,7 @@
       $variants = \App\Core\ImageProcessor::getAvailableVariants(
           $tool['primary_image'],
           $tool['primary_width'] ?? null,
-          [220, 400, 800],
+          \App\Core\ImageProcessor::VARIANT_WIDTHS,
       );
       $srcsets = \App\Core\ImageProcessor::buildSrcset($variants);
       $isWebp = str_ends_with($tool['primary_image'], '.webp');
@@ -20,7 +20,7 @@
       $focalX = (int) ($tool['primary_focal_x'] ?? 50);
       $focalY = (int) ($tool['primary_focal_y'] ?? 50);
       $focalAttrs = ($focalX !== 50 || $focalY !== 50) ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '';
-      $sizes = $cardSizes ?? '(max-width: 400px) calc(50vw - 1.25rem), (max-width: 600px) calc(100vw - 2rem), (max-width: 700px) calc(50vw - 2rem), 270px';
+      $sizes = $cardSizes ?? '(max-width: 400px) calc(50vw - 1.25rem), (max-width: 600px) calc(100vw - 2rem), (max-width: 700px) calc((100vw - 4rem) / 3), 270px';
     ?>
       <picture>
         <?php if (!$isWebp && $srcsets['webpSrcset'] !== ''): ?>

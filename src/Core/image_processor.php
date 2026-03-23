@@ -13,6 +13,8 @@ final class ImageProcessor
     private const int PNG_COMPRESSION = 6;
     private const int WEBP_QUALITY = 75;
 
+    public const array VARIANT_WIDTHS = [1200, 800, 400];
+
     /**
      * Resize an image file in-place to a maximum width.
      *
@@ -110,7 +112,7 @@ final class ImageProcessor
      */
     public static function generateVariants(
         string $sourcePath,
-        array $widths = [1200, 800, 400],
+        array $widths = self::VARIANT_WIDTHS,
     ): array {
         $size = getimagesize($sourcePath);
         if ($size === false) {
@@ -201,7 +203,7 @@ final class ImageProcessor
     public static function getAvailableVariants(
         string $filename,
         ?int $fullWidth = null,
-        array $widths = [400, 800, 1200],
+        array $widths = self::VARIANT_WIDTHS,
         string $uploadDir = 'tools',
     ): array {
         $name  = pathinfo($filename, PATHINFO_FILENAME);
@@ -289,13 +291,10 @@ final class ImageProcessor
         $ext  = pathinfo($filename, PATHINFO_EXTENSION);
         $isWebp = strtolower($ext) === 'webp';
 
-        $variants = [
-            $filename,
-            "{$name}-1200w.{$ext}",
-            "{$name}-800w.{$ext}",
-            "{$name}-400w.{$ext}",
-            "{$name}-220w.{$ext}",
-        ];
+        $variants = [$filename];
+        foreach (self::VARIANT_WIDTHS as $w) {
+            $variants[] = "{$name}-{$w}w.{$ext}";
+        }
 
         foreach ($variants as $variant) {
             $path = $dir . $variant;

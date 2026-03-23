@@ -68,7 +68,9 @@ $totalAll   = array_sum($timingCounts);
     <?php require BASE_PATH . '/src/Views/partials/tool-search.php'; ?>
   </header>
 
-  <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
+  <?php if (!empty($isLoggedIn)): ?>
+    <?php require BASE_PATH . '/src/Views/partials/dashboard-nav.php'; ?>
+  <?php endif; ?>
 
   <?php if ($eventSuccess !== ''): ?>
     <p role="alert"><?= htmlspecialchars($eventSuccess) ?></p>

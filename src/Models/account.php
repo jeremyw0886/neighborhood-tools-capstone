@@ -25,11 +25,16 @@ class Account
         ?string $role = null,
         ?string $status = null,
         ?string $search = null,
+        bool $excludeDeleted = true,
     ): array {
         $pdo = Database::connection();
 
         $where  = [];
         $params = [];
+
+        if ($excludeDeleted) {
+            $where[] = "ast.status_name_ast != 'deleted'";
+        }
 
         if ($role !== null) {
             $where[]        = 'rol.role_name_rol = :role';
@@ -141,11 +146,16 @@ class Account
         ?string $role = null,
         ?string $status = null,
         ?string $search = null,
+        bool $excludeDeleted = true,
     ): int {
         $pdo = Database::connection();
 
         $where  = [];
         $params = [];
+
+        if ($excludeDeleted) {
+            $where[] = "ast.status_name_ast != 'deleted'";
+        }
 
         if ($role !== null) {
             $where[]        = 'rol.role_name_rol = :role';

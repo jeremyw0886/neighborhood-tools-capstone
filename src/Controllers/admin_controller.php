@@ -91,6 +91,7 @@ class AdminController extends BaseController
     private const array USERS_SORT_FIELDS     = ['full_name', 'role_name_rol', 'account_status', 'overall_avg_rating', 'tools_owned', 'member_since'];
     private const array USERS_ALLOWED_ROLES    = ['member', 'admin', 'super_admin'];
     private const array USERS_ALLOWED_STATUSES = ['active', 'suspended', 'pending', 'deleted'];
+    private const array USERS_ACTIVE_STATUSES  = ['active', 'suspended', 'pending'];
 
     /**
      * User management — paginated, sortable, filterable list of platform members.
@@ -104,18 +105,26 @@ class AdminController extends BaseController
         $flash = $_SESSION['admin_users_flash'] ?? null;
         unset($_SESSION['admin_users_flash']);
 
+        $tab = ($_GET['tab'] ?? '') === 'deleted' ? 'deleted' : 'active';
+
         $search     = $this->parseSearchQuery();
         $sortParams = $this->parseSortParams('', self::USERS_SORT_FIELDS, 'full_name', 'ASC');
 
         $rawRole = $_GET['role'] ?? '';
         $role    = in_array($rawRole, self::USERS_ALLOWED_ROLES, true) ? $rawRole : null;
 
-        $rawStatus = $_GET['status'] ?? '';
-        $status    = in_array($rawStatus, self::USERS_ALLOWED_STATUSES, true) ? $rawStatus : null;
+        if ($tab === 'deleted') {
+            $status    = 'deleted';
+            $excludeDeleted = false;
+        } else {
+            $rawStatus = $_GET['status'] ?? '';
+            $status    = in_array($rawStatus, self::USERS_ACTIVE_STATUSES, true) ? $rawStatus : null;
+            $excludeDeleted = true;
+        }
 
         try {
             $page       = max(1, (int) ($_GET['page'] ?? 1));
-            $totalCount = Account::getFilteredCount($role, $status, $search);
+            $totalCount = Account::getFilteredCount($role, $status, $search, $excludeDeleted);
             $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
             $page       = min($page, $totalPages);
             $offset     = ($page - 1) * self::PER_PAGE;
@@ -127,6 +136,7 @@ class AdminController extends BaseController
                 role:   $role,
                 status: $status,
                 search: $search,
+                excludeDeleted: $excludeDeleted,
             );
         } catch (\Throwable $e) {
             error_log('AdminController::users — ' . $e->getMessage());
@@ -136,10 +146,17 @@ class AdminController extends BaseController
             $users      = [];
         }
 
+        $deletedCount = 0;
+        try {
+            $deletedCount = Account::getFilteredCount(status: 'deleted', excludeDeleted: false);
+        } catch (\Throwable) {
+        }
+
         $filterParams = array_filter([
+            'tab'    => $tab === 'deleted' ? 'deleted' : null,
             'q'      => $search,
             'role'   => $role,
-            'status' => $status,
+            'status' => $tab === 'active' ? $status : null,
             'sort'   => $sortParams['sort'],
             'dir'    => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
@@ -157,7 +174,9 @@ class AdminController extends BaseController
             'flash'        => $flash,
             'search'       => $search,
             'role'         => $role,
-            'status'       => $status,
+            'status'       => $tab === 'active' ? $status : null,
+            'tab'          => $tab,
+            'deletedCount' => $deletedCount,
             'sort'         => $sortParams['sort'],
             'dir'          => $sortParams['dir'],
             'filterParams' => $filterParams,

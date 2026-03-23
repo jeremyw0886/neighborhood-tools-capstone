@@ -1,44 +1,84 @@
 'use strict';
 
-(function () {
-  const zipInput = document.getElementById('zip_code');
-  const select   = document.getElementById('neighborhood_id');
+class NeighborhoodLookup {
+  static #instance = null;
 
-  if (!zipInput || !select) return;
+  /** @type {HTMLInputElement} */
+  #zipInput;
+  /** @type {HTMLSelectElement} */
+  #select;
+  /** @type {Node[]} */
+  #savedOptions;
+  #generation = 0;
+  #abortController = new AbortController();
+  #fetchController = null;
 
-  const savedOptions = [...select.children].map(child => child.cloneNode(true));
-  let generation = 0;
+  /**
+   * @param {HTMLInputElement} zipInput
+   * @param {HTMLSelectElement} select
+   */
+  constructor(zipInput, select) {
+    this.#zipInput = zipInput;
+    this.#select = select;
+    this.#savedOptions = [...select.children].map((child) => child.cloneNode(true));
 
-  function restoreFullList() {
-    select.replaceChildren(...savedOptions.map(node => node.cloneNode(true)));
+    this.#zipInput.addEventListener('input', this.#handleInput, { signal: this.#abortController.signal });
+
+    if (/^\d{5}$/.test(zipInput.value.trim())) {
+      this.#lookup();
+    }
   }
 
-  async function handleZipChange() {
-    const zip = zipInput.value.trim();
-    const token = ++generation;
+  /** @returns {NeighborhoodLookup|null} */
+  static init() {
+    if (NeighborhoodLookup.#instance) return NeighborhoodLookup.#instance;
+    const zipInput = document.getElementById('zip_code');
+    const select = document.getElementById('neighborhood_id');
+    if (!zipInput || !select) return null;
+    return (NeighborhoodLookup.#instance = new NeighborhoodLookup(zipInput, select));
+  }
+
+  destroy() {
+    this.#abortController.abort();
+    this.#fetchController?.abort();
+    NeighborhoodLookup.#instance = null;
+  }
+
+  #handleInput = () => {
+    this.#lookup();
+  };
+
+  async #lookup() {
+    const zip = this.#zipInput.value.trim();
+    const token = ++this.#generation;
 
     if (!/^\d{5}$/.test(zip)) {
-      restoreFullList();
+      this.#restoreFullList();
       return;
     }
 
+    this.#fetchController?.abort();
+    this.#fetchController = new AbortController();
+
     try {
-      const res = await NT.fetch(`/api/neighborhoods/${encodeURIComponent(zip)}`);
-      if (token !== generation) return;
+      const res = await NT.fetch(`/api/neighborhoods/${encodeURIComponent(zip)}`, {
+        signal: this.#fetchController.signal,
+      });
+      if (token !== this.#generation) return;
 
       if (!res.ok) {
-        restoreFullList();
+        this.#restoreFullList();
         return;
       }
 
       const neighborhoods = await res.json();
 
       if (!neighborhoods.length) {
-        restoreFullList();
+        this.#restoreFullList();
         return;
       }
 
-      const current = select.value;
+      const current = this.#select.value;
       const grouped = {};
 
       for (const n of neighborhoods) {
@@ -66,64 +106,94 @@
         fragment.appendChild(group);
       }
 
-      select.replaceChildren(fragment);
-    } catch {
-      if (token !== generation) return;
+      this.#select.replaceChildren(fragment);
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+      if (token !== this.#generation) return;
       NT.toast('Could not load neighborhoods for that ZIP code.', 'error');
-      restoreFullList();
+      this.#restoreFullList();
     }
   }
 
-  zipInput.addEventListener('input', handleZipChange);
-
-  if (/^\d{5}$/.test(zipInput.value.trim())) {
-    handleZipChange();
+  #restoreFullList() {
+    this.#select.replaceChildren(...this.#savedOptions.map((node) => node.cloneNode(true)));
   }
-})();
+}
 
-(function () {
-  const fields = document.querySelectorAll('input[type="password"]');
-  if (!fields.length) return;
+class PasswordToggle {
+  static #instance = null;
 
-  const buttons = [];
+  /** @type {NodeListOf<HTMLInputElement>} */
+  #fields;
+  /** @type {Array<{btn: HTMLButtonElement, icon: HTMLElement}>} */
+  #buttons = [];
+  #abortController = new AbortController();
 
-  for (const input of fields) {
-    const group = input.closest('.form-group');
-    if (!group) continue;
+  /** @param {NodeListOf<HTMLInputElement>} fields */
+  constructor(fields) {
+    this.#fields = fields;
+    const { signal } = this.#abortController;
 
-    group.setAttribute('data-password-toggle', '');
+    for (const input of fields) {
+      const group = input.closest('.form-group');
+      if (!group) continue;
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.setAttribute('data-toggle-visibility', '');
-    btn.setAttribute('aria-label', 'Show password');
+      group.setAttribute('data-password-toggle', '');
 
-    const icon = document.createElement('i');
-    icon.className = 'fa-regular fa-eye';
-    icon.setAttribute('aria-hidden', 'true');
-    btn.appendChild(icon);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('data-toggle-visibility', '');
+      btn.setAttribute('aria-label', 'Show password');
 
-    input.after(btn);
-    buttons.push({ btn, icon });
+      const icon = document.createElement('i');
+      icon.className = 'fa-regular fa-eye';
+      icon.setAttribute('aria-hidden', 'true');
+      btn.appendChild(icon);
 
-    btn.addEventListener('click', () => {
-      const showing = fields[0].type === 'text';
-      const newType = showing ? 'password' : 'text';
-      const newIcon = showing ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
-      const newLabel = showing ? 'Show password' : 'Hide password';
+      input.after(btn);
+      this.#buttons.push({ btn, icon });
 
-      for (const f of fields) f.type = newType;
-      for (const b of buttons) {
-        b.icon.className = newIcon;
-        b.btn.setAttribute('aria-label', newLabel);
-      }
-    });
+      btn.addEventListener('click', this.#handleToggle, { signal });
+    }
+
+    const form = fields[0].closest('form');
+    if (form) {
+      form.addEventListener('submit', this.#handleSubmit, { signal });
+    }
   }
 
-  const form = fields[0].closest('form');
-  if (form) {
-    form.addEventListener('submit', () => {
-      for (const input of fields) input.type = 'password';
-    });
+  /** @returns {PasswordToggle|null} */
+  static init() {
+    if (PasswordToggle.#instance) return PasswordToggle.#instance;
+    const fields = document.querySelectorAll('input[type="password"]');
+    if (!fields.length) return null;
+    return (PasswordToggle.#instance = new PasswordToggle(fields));
   }
-})();
+
+  destroy() {
+    this.#abortController.abort();
+    for (const { btn } of this.#buttons) btn.remove();
+    this.#buttons = [];
+    PasswordToggle.#instance = null;
+  }
+
+  #handleToggle = () => {
+    const showing = this.#fields[0].type === 'text';
+    const newType = showing ? 'password' : 'text';
+    const newIcon = showing ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+    const newLabel = showing ? 'Show password' : 'Hide password';
+
+    for (const f of this.#fields) f.type = newType;
+    for (const b of this.#buttons) {
+      b.icon.className = newIcon;
+      b.btn.setAttribute('aria-label', newLabel);
+    }
+  };
+
+  #handleSubmit = () => {
+    for (const input of this.#fields) input.type = 'password';
+  };
+}
+
+NeighborhoodLookup.init();
+PasswordToggle.init();

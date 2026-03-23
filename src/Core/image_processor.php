@@ -15,8 +15,10 @@ final class ImageProcessor
 
     public const array VARIANT_WIDTHS = [820, 750, 540];
 
+    private const float ASPECT_RATIO = 3 / 2;
+
     /**
-     * Resize an image file in-place to a maximum width.
+     * Resize an image file in-place to a maximum width, preserving aspect ratio.
      *
      * @param non-empty-string $path Absolute path to the image file
      */
@@ -36,18 +38,80 @@ final class ImageProcessor
         $newW = $maxWidth;
         $newH = (int) round($origH * ($maxWidth / $origW));
 
-        $source = match ($type) {
+        $source = self::loadImage($path, $type);
+        if ($source === null) {
+            return;
+        }
+
+        $canvas = self::createCanvas($newW, $newH, $type);
+        imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+        self::saveImage($canvas, $path, $type);
+
+        unset($source, $canvas);
+    }
+
+    /**
+     * Crop to 3:2 around a focal point, then resize to target width.
+     *
+     * @param non-empty-string $path Absolute path to the image file
+     */
+    public static function cropResize(string $path, int $targetWidth, int $focalX = 50, int $focalY = 50): void
+    {
+        $info = getimagesize($path);
+        if ($info === false) {
+            return;
+        }
+
+        [$origW, $origH, $type] = $info;
+
+        $targetH = (int) round($targetWidth / self::ASPECT_RATIO);
+        $sourceRatio = $origW / $origH;
+
+        if ($sourceRatio > self::ASPECT_RATIO) {
+            $cropH = $origH;
+            $cropW = (int) round($origH * self::ASPECT_RATIO);
+        } else {
+            $cropW = $origW;
+            $cropH = (int) round($origW / self::ASPECT_RATIO);
+        }
+
+        $cropX = (int) round(($origW - $cropW) * ($focalX / 100));
+        $cropY = (int) round(($origH - $cropH) * ($focalY / 100));
+
+        $cropX = max(0, min($cropX, $origW - $cropW));
+        $cropY = max(0, min($cropY, $origH - $cropH));
+
+        $source = self::loadImage($path, $type);
+        if ($source === null) {
+            return;
+        }
+
+        $canvas = self::createCanvas($targetWidth, $targetH, $type);
+        imagecopyresampled($canvas, $source, 0, 0, $cropX, $cropY, $targetWidth, $targetH, $cropW, $cropH);
+        self::saveImage($canvas, $path, $type);
+
+        unset($source, $canvas);
+    }
+
+    /**
+     * @return \GdImage|null
+     */
+    private static function loadImage(string $path, int $type): ?\GdImage
+    {
+        return match ($type) {
             IMAGETYPE_JPEG => imagecreatefromjpeg($path),
             IMAGETYPE_PNG  => imagecreatefrompng($path),
             IMAGETYPE_WEBP => imagecreatefromwebp($path),
             default        => null,
         };
+    }
 
-        if ($source === null) {
-            return;
-        }
-
-        $canvas = imagecreatetruecolor($newW, $newH);
+    /**
+     * @return \GdImage
+     */
+    private static function createCanvas(int $width, int $height, int $type): \GdImage
+    {
+        $canvas = imagecreatetruecolor($width, $height);
 
         if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
             imagealphablending($canvas, false);
@@ -56,15 +120,16 @@ final class ImageProcessor
             imagefill($canvas, 0, 0, $transparent);
         }
 
-        imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+        return $canvas;
+    }
 
+    private static function saveImage(\GdImage $image, string $path, int $type): void
+    {
         match ($type) {
-            IMAGETYPE_JPEG => imagejpeg($canvas, $path, self::JPEG_QUALITY),
-            IMAGETYPE_PNG  => imagepng($canvas, $path, self::PNG_COMPRESSION),
-            IMAGETYPE_WEBP => imagewebp($canvas, $path, self::WEBP_QUALITY),
+            IMAGETYPE_JPEG => imagejpeg($image, $path, self::JPEG_QUALITY),
+            IMAGETYPE_PNG  => imagepng($image, $path, self::PNG_COMPRESSION),
+            IMAGETYPE_WEBP => imagewebp($image, $path, self::WEBP_QUALITY),
         };
-
-        unset($source, $canvas);
     }
 
     /**

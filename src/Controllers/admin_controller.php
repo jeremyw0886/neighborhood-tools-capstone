@@ -391,6 +391,61 @@ class AdminController extends BaseController
     }
 
     /**
+     * Soft-delete a suspended user account (super admin only).
+     *
+     * @param string $id
+     */
+    public function deleteUser(string $id): void
+    {
+        $this->requireRole(Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        $redirectUrl = $this->buildSafeAdminRedirect();
+
+        try {
+            $account = Account::findById($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::deleteUser — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($account === null) {
+            $this->abort(404);
+        }
+
+        if ($accountId === (int) $_SESSION['user_id']) {
+            $_SESSION['admin_users_flash'] = 'You cannot delete your own account.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ($account['role_name_rol'] === 'super_admin') {
+            $_SESSION['admin_users_flash'] = 'Super admin accounts cannot be deleted.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ($account['account_status'] !== 'suspended') {
+            $_SESSION['admin_users_flash'] = 'Only suspended accounts can be deleted.';
+            $this->redirect($redirectUrl);
+        }
+
+        try {
+            Account::updateStatus($accountId, 'deleted');
+            $_SESSION['admin_users_flash'] = $account['full_name'] . ' has been deleted.';
+        } catch (\Throwable $e) {
+            error_log('AdminController::deleteUser — ' . $e->getMessage());
+            $_SESSION['admin_users_flash'] = 'Failed to delete account.';
+        }
+
+        $this->redirect($redirectUrl);
+    }
+
+    /**
      * Build a safe redirect URL back to /admin/users preserving filters.
      */
     private function buildSafeAdminRedirect(): string

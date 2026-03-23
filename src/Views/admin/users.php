@@ -12,6 +12,8 @@
  *   $search       ?string Active search query or null
  *   $role         ?string Active role filter or null
  *   $status       ?string Active status filter or null
+ *   $tab          string  Active tab ('active'|'deleted')
+ *   $deletedCount int     Total deleted accounts (for tab badge)
  *   $sort         string  Active sort column
  *   $dir          string  Active sort direction (ASC|DESC)
  *   $filterParams array   Non-null filter params for pagination URLs

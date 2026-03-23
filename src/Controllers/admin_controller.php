@@ -456,6 +456,7 @@ class AdminController extends BaseController
         try {
             Account::updateStatus($accountId, 'deleted');
             $_SESSION['admin_users_flash'] = $account['full_name'] . ' has been deleted.';
+            $this->redirect('/admin/users?tab=deleted');
         } catch (\Throwable $e) {
             error_log('AdminController::deleteUser — ' . $e->getMessage());
             $_SESSION['admin_users_flash'] = 'Failed to delete account.';
@@ -477,7 +478,7 @@ class AdminController extends BaseController
         }
 
         parse_str($returnTo, $params);
-        $allowed  = ['page', 'role', 'status', 'search'];
+        $allowed  = ['tab', 'page', 'role', 'status', 'search'];
         $filtered = array_intersect_key($params, array_flip($allowed));
 
         return $filtered !== [] ? $base . '?' . http_build_query($filtered) : $base;

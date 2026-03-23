@@ -116,6 +116,50 @@ class RoleChangeConfirm {
 
 RoleChangeConfirm.init();
 
+class DeleteUserConfirm {
+  static #instance = null;
+
+  #abortController = new AbortController();
+  #pending = false;
+
+  constructor() {
+    document.addEventListener('submit', this.#handleSubmit, { signal: this.#abortController.signal });
+  }
+
+  /** @returns {DeleteUserConfirm|null} */
+  static init() {
+    if (DeleteUserConfirm.#instance) return DeleteUserConfirm.#instance;
+    if (!document.querySelector('[data-delete-user-form]')) return null;
+    return (DeleteUserConfirm.#instance = new DeleteUserConfirm());
+  }
+
+  /** @param {SubmitEvent} e */
+  #handleSubmit = async (e) => {
+    const form = e.target;
+    if (!form.matches('[data-delete-user-form]')) return;
+
+    e.preventDefault();
+
+    if (this.#pending) return;
+    this.#pending = true;
+
+    try {
+      const button = form.querySelector('[data-delete-user-name]');
+      const name = button?.dataset.deleteUserName ?? 'this user';
+      const confirmed = await NT.confirm(
+        `Delete ${name}?\n\nThis soft-deletes the account. You can purge it permanently afterward.`
+      );
+      if (!confirmed) return;
+
+      form.submit();
+    } finally {
+      this.#pending = false;
+    }
+  };
+}
+
+DeleteUserConfirm.init();
+
 class PurgeConfirm {
   static #instance = null;
 

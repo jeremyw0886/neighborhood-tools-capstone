@@ -332,10 +332,12 @@ final class ImageProcessor
         $srcsetParts = [];
         $webpParts   = [];
 
+        $version = defined('ASSET_VERSION') ? '?v=' . ASSET_VERSION : '';
+
         foreach ($variants as $width => $v) {
-            $srcsetParts[] = $urlPrefix . $v['file'] . ' ' . $width . 'w';
+            $srcsetParts[] = $urlPrefix . $v['file'] . $version . ' ' . $width . 'w';
             if (isset($v['webp'])) {
-                $webpParts[] = $urlPrefix . $v['webp'] . ' ' . $width . 'w';
+                $webpParts[] = $urlPrefix . $v['webp'] . $version . ' ' . $width . 'w';
             }
         }
 

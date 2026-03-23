@@ -74,7 +74,7 @@ $images        ??= [];
                           sizes="<?= $mainSizes ?>"
                           id="gallery-main-source">
                 <?php endif; ?>
-                <img src="/uploads/tools/<?= $mainFallback ?>"
+                <img src="/uploads/tools/<?= $mainFallback ?>?v=<?= ASSET_VERSION ?>"
                      srcset="<?= $mainSrcsets['srcset'] ?>"
                      sizes="<?= $mainSizes ?>"
                      alt="<?= $mainAlt ?>"

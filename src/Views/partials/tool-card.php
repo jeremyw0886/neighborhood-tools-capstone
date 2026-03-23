@@ -28,7 +28,7 @@
                   srcset="<?= $srcsets['webpSrcset'] ?>"
                   sizes="<?= $sizes ?>">
         <?php endif; ?>
-        <img src="/uploads/tools/<?= htmlspecialchars($fallbackFile) ?>"
+        <img src="/uploads/tools/<?= htmlspecialchars($fallbackFile) ?>?v=<?= ASSET_VERSION ?>"
              srcset="<?= $srcsets['srcset'] ?>"
              sizes="<?= $sizes ?>"
              alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"

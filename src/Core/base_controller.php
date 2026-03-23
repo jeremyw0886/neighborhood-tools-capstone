@@ -306,8 +306,14 @@ class BaseController
 
         $jsEnabled = ($_POST['js_enabled'] ?? '') === '1';
 
+        if ($jsEnabled) {
+            $_SESSION['js_capable'] = true;
+        }
+
+        $requireToken = $jsEnabled || !empty($_SESSION['js_capable']);
+
         if ($token === '') {
-            return !$jsEnabled;
+            return !$requireToken;
         }
 
         $context = stream_context_create([

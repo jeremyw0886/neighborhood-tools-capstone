@@ -57,7 +57,7 @@ class DisputeController extends BaseController
             'dir'     => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/disputes', [
+        $this->renderAdmin('disputes', [
             'title'        => 'Manage Disputes — NeighborhoodTools',
             'description'  => 'Review and resolve open disputes.',
             'pageCss'      => ['admin.css'],

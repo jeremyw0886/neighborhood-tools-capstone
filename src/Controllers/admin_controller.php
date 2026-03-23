@@ -76,7 +76,7 @@ class AdminController extends BaseController
             $trends = [];
         }
 
-        $this->render('admin/dashboard', [
+        $this->renderAdmin('dashboard', [
             'title'         => 'Admin Dashboard — NeighborhoodTools',
             'description'   => 'Platform administration overview and management.',
             'pageCss'       => ['dashboard.css', 'admin.css'],
@@ -161,7 +161,7 @@ class AdminController extends BaseController
             'dir'    => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/users', [
+        $this->renderAdmin('users', [
             'title'        => 'Manage Users — NeighborhoodTools',
             'description'  => 'View and manage platform members.',
             'pageCss'      => ['admin.css'],
@@ -748,9 +748,10 @@ class AdminController extends BaseController
             $this->abort(403);
         }
 
-        $this->render('admin/purge-confirm', [
+        $this->renderAdmin('purge-confirm', [
             'title'    => 'Confirm Account Purge',
-            'pageCss'  => ['admin'],
+            'pageCss'  => ['admin.css'],
+            'pageJs'   => ['admin.js'],
             'account'  => $account,
             'returnTo' => $_SERVER['QUERY_STRING'] ?? '',
         ]);
@@ -811,7 +812,7 @@ class AdminController extends BaseController
             'dir'       => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/tools', [
+        $this->renderAdmin('tools', [
             'title'         => 'Manage Tools — NeighborhoodTools',
             'description'   => 'View and manage listed tools.',
             'pageCss'       => ['admin.css'],
@@ -883,7 +884,7 @@ class AdminController extends BaseController
             'incidents' => $incidentsOnly ? '1' : null,
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/deposits', [
+        $this->renderAdmin('deposits', [
             'title'         => 'Manage Deposits',
             'description'   => 'Admin deposit management',
             'pageCss'       => ['admin.css'],
@@ -949,7 +950,7 @@ class AdminController extends BaseController
             'dir'    => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/events', [
+        $this->renderAdmin('events', [
             'title'         => 'Manage Events — NeighborhoodTools',
             'description'   => 'View and manage community events.',
             'pageCss'       => ['admin.css'],
@@ -962,7 +963,7 @@ class AdminController extends BaseController
             'timing'        => $timing,
             'timingCounts'  => $timingCounts,
             'sort'          => $sortParams['sort'],
-            'dir'           => $sortParams['dir'],
+            'dir'          => $sortParams['dir'],
             'filterParams'  => $filterParams,
         ]);
     }
@@ -1020,7 +1021,7 @@ class AdminController extends BaseController
             'dir'      => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/incidents', [
+        $this->renderAdmin('incidents', [
             'title'        => 'Manage Incidents — NeighborhoodTools',
             'description'  => 'Review open incident reports.',
             'pageCss'      => ['admin.css'],
@@ -1080,7 +1081,7 @@ class AdminController extends BaseController
             'dir'  => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/reports', [
+        $this->renderAdmin('reports', [
             'title'          => 'Reports — NeighborhoodTools',
             'description'    => 'Platform reports and statistics.',
             'pageCss'        => ['admin.css'],
@@ -1105,7 +1106,7 @@ class AdminController extends BaseController
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
 
-        $this->render('admin/audit-log', [
+        $this->renderAdmin('audit-log', [
             'title'       => 'Audit Log — NeighborhoodTools',
             'description' => 'Platform activity and audit trail.',
             'pageCss'     => ['admin.css'],
@@ -1151,7 +1152,7 @@ class AdminController extends BaseController
             'dir'  => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/tos', [
+        $this->renderAdmin('tos', [
             'title'        => 'Manage Terms of Service — NeighborhoodTools',
             'description'  => 'View and manage Terms of Service versions.',
             'pageCss'      => ['admin.css'],
@@ -1178,7 +1179,7 @@ class AdminController extends BaseController
         $old    = $_SESSION['tos_create_old'] ?? [];
         unset($_SESSION['tos_create_errors'], $_SESSION['tos_create_old']);
 
-        $this->render('admin/tos-create', [
+        $this->renderAdmin('tos-create', [
             'title'       => 'Create TOS Version — NeighborhoodTools',
             'description' => 'Publish a new Terms of Service version.',
             'pageCss'     => ['admin.css'],
@@ -1317,7 +1318,7 @@ class AdminController extends BaseController
             'dir'  => $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/categories', [
+        $this->renderAdmin('categories', [
             'title'        => 'Manage Categories — NeighborhoodTools',
             'description'  => 'Manage tool categories and vector image icons.',
             'pageCss'      => ['admin.css'],
@@ -1596,14 +1597,19 @@ class AdminController extends BaseController
 
         $totalCount = array_sum(array_map('count', $results));
 
-        $this->render('admin/search', [
-            'title'       => 'Search Results — NeighborhoodTools',
-            'description' => 'Admin search results.',
-            'pageCss'     => ['admin.css'],
-            'pageJs'      => ['admin.js'],
-            'term'        => $term,
-            'results'     => $results,
-            'totalCount'  => $totalCount,
+        $adminDescription = $term !== ''
+            ? number_format($totalCount) . ' result' . ($totalCount !== 1 ? 's' : '') . " for \u{201C}" . htmlspecialchars($term) . "\u{201D}"
+            : 'Enter a search term to find users, tools, categories, images, disputes, events, incidents, deposits, and neighborhoods.';
+
+        $this->renderAdmin('search', [
+            'title'            => 'Search Results — NeighborhoodTools',
+            'description'      => 'Admin search results.',
+            'pageCss'          => ['admin.css'],
+            'pageJs'           => ['admin.js'],
+            'adminDescription' => $adminDescription,
+            'term'             => $term,
+            'results'          => $results,
+            'totalCount'       => $totalCount,
         ]);
     }
 
@@ -1865,7 +1871,7 @@ class AdminController extends BaseController
             'icons_page'     => $iconsPage > 1 ? $iconsPage : null,
         ], static fn(mixed $v): bool => $v !== null);
 
-        $this->render('admin/images', [
+        $this->renderAdmin('images', [
             'title'               => 'Manage Images — NeighborhoodTools',
             'description'         => 'Manage category icons and profile avatar vectors.',
             'pageCss'             => ['admin.css'],

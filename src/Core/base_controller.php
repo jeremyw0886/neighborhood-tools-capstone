@@ -111,6 +111,24 @@ class BaseController
         ];
     }
 
+    protected const array ADMIN_SECTIONS = [
+        'dashboard'      => ['heading' => 'Admin Dashboard',           'description' => 'Platform overview and management tools.',                                                      'icon' => 'fa-solid fa-shield-halved',      'id' => 'admin-heading'],
+        'users'          => ['heading' => 'Manage Users',              'description' => 'Platform members with rating summaries and account status management.',                         'icon' => 'fa-solid fa-users',              'id' => 'admin-users-heading'],
+        'tools'          => ['heading' => 'Manage Tools',              'description' => 'Platform-wide tool listings with borrow statistics, ratings, and incident counts.',              'icon' => 'fa-solid fa-screwdriver-wrench', 'id' => 'admin-tools-heading'],
+        'disputes'       => ['heading' => 'Manage Disputes',           'description' => 'Review and resolve open disputes between members.',                                             'icon' => 'fa-solid fa-gavel',              'id' => 'admin-disputes-heading'],
+        'events'         => ['heading' => 'Manage Events',             'description' => 'View and manage upcoming community events.',                                                    'icon' => 'fa-solid fa-calendar',           'id' => 'admin-events-heading'],
+        'incidents'      => ['heading' => 'Manage Incidents',          'description' => 'Review and resolve open incident reports.',                                                     'icon' => 'fa-solid fa-flag',               'id' => 'admin-incidents-heading'],
+        'deposits'       => ['heading' => 'Manage Deposits',           'description' => 'Security deposits across all borrows with status tracking, action flags, and incident history.', 'icon' => 'fa-solid fa-vault',              'id' => 'admin-deposits-heading'],
+        'images'         => ['heading' => 'Manage Images',             'description' => 'Upload and manage category icons and profile avatar vectors.',                                  'icon' => 'fa-solid fa-images',             'id' => 'admin-images-heading'],
+        'categories'     => ['heading' => 'Manage Categories',         'description' => 'Create, edit, and delete tool categories.',                                                    'icon' => 'fa-solid fa-tags',               'id' => 'admin-categories-heading'],
+        'reports'        => ['heading' => 'Reports',                   'description' => 'Neighborhood statistics and community health metrics.',                                         'icon' => 'fa-solid fa-chart-bar',          'id' => 'admin-reports-heading'],
+        'audit-log'      => ['heading' => 'Audit Log',                 'description' => 'Platform activity and audit trail.',                                                            'icon' => 'fa-solid fa-clipboard-list',     'id' => 'admin-audit-heading'],
+        'tos'            => ['heading' => 'Manage Terms of Service',   'description' => 'Current version details and member acceptance status.',                                         'icon' => 'fa-solid fa-file-contract',      'id' => 'admin-tos-heading'],
+        'tos-create'     => ['heading' => 'Create TOS Version',        'description' => 'Publish a new Terms of Service version. The current active version will be superseded.',        'icon' => 'fa-solid fa-file-circle-plus',   'id' => 'admin-tos-create-heading'],
+        'search'         => ['heading' => 'Search Results',            'description' => '',                                                                                              'icon' => 'fa-solid fa-magnifying-glass',   'id' => 'admin-search-heading'],
+        'purge-confirm'  => ['heading' => 'Permanently Purge Account', 'description' => '',                                                                                              'icon' => 'fa-solid fa-skull-crossbones',   'id' => 'purge-confirm-heading'],
+    ];
+
     protected const array DASHBOARD_SECTIONS = [
         'overview', 'lender', 'borrower', 'history', 'loan-status',
         'list-tool', 'edit-tool', 'bookmarks', 'events', 'profile', 'profile-edit',
@@ -141,6 +159,39 @@ class BaseController
         }
 
         $this->render('dashboard/index', $data);
+    }
+
+    /**
+     * Render an admin view through the shell or as a partial for XHR.
+     *
+     * @param string $section One of ADMIN_SECTIONS
+     * @param array  $data    Variables for the view
+     */
+    protected function renderAdmin(string $section, array $data = []): void
+    {
+        if (!isset(self::ADMIN_SECTIONS[$section])) {
+            $this->abort(404);
+        }
+
+        $meta    = self::ADMIN_SECTIONS[$section];
+        $partial = BASE_PATH . '/src/Views/admin/' . $section . '.php';
+
+        $data['adminSection']   = $section;
+        $data['adminPartial']   = $partial;
+        $data['adminSectionId'] = $meta['id'];
+        $data['adminHeading']     ??= $meta['heading'];
+        $data['adminDescription'] ??= $meta['description'];
+        $data['adminIcon']        ??= $meta['icon'];
+
+        if ($this->isXhr()) {
+            header('X-Admin-Heading: ' . rawurlencode($data['adminHeading']));
+            header('X-Admin-Icon: ' . $data['adminIcon']);
+            header('X-Admin-Description: ' . rawurlencode($data['adminDescription']));
+            $this->renderPartial($partial, $data);
+            return;
+        }
+
+        $this->render('admin/index', $data);
     }
 
     /**

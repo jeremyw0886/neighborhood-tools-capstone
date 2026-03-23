@@ -56,7 +56,7 @@ class Account
 
         $sql = "
             SELECT r.*, rol.role_name_rol
-            FROM user_reputation_fast_v r
+            FROM user_reputation_v r
             JOIN account_acc a     ON r.id_acc = a.id_acc
             JOIN role_rol rol      ON a.id_rol_acc = rol.id_rol
             $whereClause
@@ -148,7 +148,7 @@ class Account
 
         $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_reputation_fast_v r $joins $whereClause");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_reputation_v r $joins $whereClause");
 
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);

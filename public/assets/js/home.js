@@ -211,6 +211,8 @@ class NeighborCarousel {
   #grid;
   /** @type {NodeList} */
   #cards;
+  /** @type {HTMLAnchorElement[]} */
+  #cardsArray;
   /** @type {HTMLElement} */
   #nav;
   /** @type {HTMLButtonElement[]} */
@@ -225,6 +227,7 @@ class NeighborCarousel {
   constructor(section) {
     this.#grid = section.querySelector(':scope > div');
     this.#cards = this.#grid.querySelectorAll(':scope > a');
+    this.#cardsArray = Array.from(this.#cards);
     this.#mq = window.matchMedia('(max-width: 700px)');
 
     this.#nav = document.createElement('nav');
@@ -248,7 +251,7 @@ class NeighborCarousel {
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const index = Array.from(this.#cards).indexOf(entry.target);
+          const index = this.#cardsArray.indexOf(entry.target);
           if (index === -1) continue;
           for (let i = 0; i < this.#dots.length; i++) {
             const isActive = i === index;

@@ -1393,7 +1393,6 @@
 
           &:is(:hover, :focus-visible) {
             border-color: var(--mountain-pine-light);
-            color: var(--mountain-pine);
           }
         }
 
@@ -1510,10 +1509,10 @@
       }
     }
 
-    &>nav[aria-label="Related actions"] {
+    & nav[aria-label="Related actions"] {
       text-align: center;
 
-      &>a {
+      & > a {
         align-items: center;
         background: var(--mountain-gold);
         border-radius: 0.5rem;

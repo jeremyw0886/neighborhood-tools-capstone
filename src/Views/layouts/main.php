@@ -74,8 +74,12 @@
   <script src="/assets/js/<?= $utilsJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
   <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
   <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
-  <link rel="stylesheet" href="/assets/css/usability-test.css">
-  <script src="/assets/js/usability-test.js" defer></script>
+  <?php if (isset($_GET['test'])): ?>
+  <?php $utCss = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.css' : 'usability-test.min.css'; ?>
+  <link rel="stylesheet" href="/assets/css/<?= $utCss ?>">
+  <?php $utJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.js' : 'usability-test.min.js'; ?>
+  <script src="/assets/js/<?= $utJs ?>" defer></script>
+  <?php endif; ?>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
   <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>
   <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer></script>

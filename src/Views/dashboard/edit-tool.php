@@ -167,7 +167,7 @@ $images            ??= [];
 
   <p id="gallery-crop-hint">
     <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
-    Drag cards to reorder. Use <strong>Reposition</strong> to adjust cropping.
+    <span>Drag cards to reorder. Use <strong>Reposition</strong> to adjust cropping.</span>
   </p>
 
   <?php if ($images !== []): ?>

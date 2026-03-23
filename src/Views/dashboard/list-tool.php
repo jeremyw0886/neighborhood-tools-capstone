@@ -152,7 +152,7 @@ $fuelTypes  ??= [];
 
     <p id="gallery-crop-hint">
       <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
-      Use <strong>Reposition</strong> to adjust cropping. The first photo will be your primary listing image.
+      <span>Use <strong>Reposition</strong> to adjust cropping. The first photo will be your primary listing image.</span>
     </p>
 
     <ol id="photo-queue" hidden aria-label="Queued photo previews"></ol>

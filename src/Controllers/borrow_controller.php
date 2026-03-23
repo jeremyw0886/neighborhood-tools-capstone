@@ -10,6 +10,7 @@ use App\Models\Borrow;
 use App\Models\Deposit;
 use App\Models\Notification;
 use App\Models\Tool;
+use App\Models\ZipCode;
 
 class BorrowController extends BaseController
 {
@@ -74,6 +75,12 @@ class BorrowController extends BaseController
 
         if ((int) $tool['owner_id'] === $userId) {
             $_SESSION['borrow_errors'] = ['general' => 'You cannot borrow your own tool.'];
+            $this->redirect('/tools/' . $toolId);
+        }
+
+        $borrowerZip = $_SESSION['user_zip'] ?? '';
+        if ($borrowerZip === '' || !ZipCode::exists($borrowerZip)) {
+            $_SESSION['borrow_errors'] = ['general' => 'Your ZIP code is not in our service area. Update your ZIP code in your profile to borrow tools.'];
             $this->redirect('/tools/' . $toolId);
         }
 

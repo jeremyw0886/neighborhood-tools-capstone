@@ -2206,7 +2206,7 @@
           }
         }
 
-        &> :is(input[type="text"], input[type="tel"], select, textarea) {
+        &> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea) {
           background: var(--mountain-cream);
           border: 1.5px solid var(--mountain-fog);
           border-radius: 0.5rem;
@@ -2224,9 +2224,26 @@
           &[aria-invalid="true"] {
             border-color: var(--field-error-border);
           }
+
+          &[readonly] {
+            background: var(--mountain-fog);
+            color: var(--mountain-mist);
+            cursor: default;
+
+            &:focus {
+              border-color: var(--mountain-fog);
+              box-shadow: none;
+            }
+
+            & + p {
+              color: var(--mountain-mist);
+              font-size: 0.813rem;
+              margin-top: 0.25rem;
+            }
+          }
         }
 
-        &> :is(input[type="text"], input[type="tel"], select) {
+        &> :is(input[type="text"], input[type="email"], input[type="tel"], select) {
           min-height: 2.75rem;
         }
 

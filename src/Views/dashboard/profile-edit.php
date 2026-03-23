@@ -36,6 +36,32 @@ if (!empty($profile['vector_avatar'])) {
 <form action="/profile/edit" method="post" enctype="multipart/form-data" novalidate>
   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
   <fieldset>
+    <legend>Account</legend>
+
+    <div>
+      <label for="username">Username</label>
+      <input type="text"
+        id="username"
+        readonly
+        aria-describedby="username-hint"
+        value="<?= htmlspecialchars($profile['username_acc']) ?>"
+        tabindex="-1">
+      <p id="username-hint">Cannot be changed</p>
+    </div>
+
+    <div>
+      <label for="email">Email Address</label>
+      <input type="email"
+        id="email"
+        readonly
+        aria-describedby="email-hint"
+        value="<?= htmlspecialchars($profile['email_address_acc']) ?>"
+        tabindex="-1">
+      <p id="email-hint">Cannot be changed</p>
+    </div>
+  </fieldset>
+
+  <fieldset>
     <legend>Personal Information</legend>
 
     <div>

@@ -576,6 +576,8 @@ class Account
         $sql = "
             SELECT
                 a.id_acc,
+                a.username_acc,
+                a.email_address_acc,
                 a.first_name_acc,
                 a.last_name_acc,
                 a.phone_number_acc,

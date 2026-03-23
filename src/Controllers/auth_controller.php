@@ -707,8 +707,8 @@ class AuthController extends BaseController
             $errors['username'] = 'Username must be at least 3 characters.';
         } elseif (mb_strlen($data['username']) > 30) {
             $errors['username'] = 'Username must be 30 characters or fewer.';
-        } elseif (!preg_match('/^[a-z][a-z0-9_]*$/', $data['username'])) {
-            $errors['username'] = 'Username must start with a letter and contain only lowercase letters, numbers, and underscores.';
+        } elseif (!preg_match('/^[a-z][a-z0-9._-]*$/', $data['username'])) {
+            $errors['username'] = 'Username must start with a letter and contain only lowercase letters, numbers, underscores, hyphens, and periods.';
         }
 
         if ($data['email'] === '') {

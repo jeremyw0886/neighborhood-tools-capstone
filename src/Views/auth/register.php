@@ -75,15 +75,15 @@
             required
             minlength="3"
             maxlength="30"
-            pattern="[a-z][a-z0-9_]*"
+            pattern="[a-z][a-z0-9._\-]*"
             autocomplete="off"
             autocapitalize="none"
             spellcheck="false"
-            placeholder="e.g. your_username"
+            placeholder="e.g. jane.doe"
             aria-describedby="username-hint<?= !empty($errors['username']) ? ' username-error' : '' ?>"
             <?= !empty($errors['username']) ? 'aria-invalid="true"' : '' ?>
           >
-          <span id="username-hint" class="form-hint">Lowercase letters, numbers, and underscores only</span>
+          <span id="username-hint" class="form-hint">Lowercase letters, numbers, underscores, hyphens, and periods</span>
           <?php if (!empty($errors['username'])): ?>
             <span id="username-error" role="alert"><?= htmlspecialchars($errors['username']) ?></span>
           <?php endif; ?>

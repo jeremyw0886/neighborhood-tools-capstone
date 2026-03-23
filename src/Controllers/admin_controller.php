@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\Database;
 use App\Core\Role;
 use App\Models\Account;
+use App\Models\Borrow;
 use App\Models\Category;
 use App\Models\Dispute;
 use App\Models\Event;
@@ -405,6 +407,278 @@ class AdminController extends BaseController
         $filtered = array_intersect_key($params, array_flip($allowed));
 
         return $filtered !== [] ? $base . '?' . http_build_query($filtered) : $base;
+    }
+
+    /**
+     * Permanently anonymize a soft-deleted account (super admin only).
+     *
+     * @param string $id
+     */
+    public function purgeUser(string $id): void
+    {
+        $this->requireRole(Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        $redirectUrl = $this->buildSafeAdminRedirect();
+
+        try {
+            $account = Account::findByIdIncludeDeleted($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::purgeUser — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($account === null) {
+            $this->abort(404);
+        }
+
+        if ($accountId === (int) $_SESSION['user_id']) {
+            $_SESSION['admin_users_flash'] = 'You cannot purge your own account.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ($account['role_name_rol'] === 'super_admin') {
+            $_SESSION['admin_users_flash'] = 'Super admin accounts cannot be purged.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ($account['account_status'] !== 'deleted') {
+            $_SESSION['admin_users_flash'] = 'Only soft-deleted accounts can be purged.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ((int) $account['is_purged_acc'] === 1) {
+            $_SESSION['admin_users_flash'] = 'This account has already been purged.';
+            $this->redirect($redirectUrl);
+        }
+
+        $confirmName = trim($_POST['confirm_name'] ?? '');
+
+        if (mb_strtolower($confirmName) !== mb_strtolower($account['full_name'])) {
+            $_SESSION['admin_users_flash'] = 'Name does not match. Purge cancelled.';
+            $this->redirect($redirectUrl);
+        }
+
+        $avatarPath   = $account['avatar'] ?? null;
+        $originalName = $account['full_name'];
+        $adminId      = (int) $_SESSION['user_id'];
+        $pdo          = Database::connection();
+
+        try {
+            $pdo->beginTransaction();
+
+            $this->resolveActiveBorrows($accountId, $adminId, $pdo);
+            $this->releaseHeldDeposits($accountId, $pdo);
+            $this->dismissOpenDisputes($accountId, $adminId, $pdo);
+            $this->closeOpenIncidents($accountId, $adminId, $pdo);
+
+            Tool::softDeleteByOwner($accountId);
+            Account::purge($accountId);
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('AdminController::purgeUser — ' . $e->getMessage());
+            $_SESSION['admin_users_flash'] = 'Failed to purge account. Please try again.';
+            $this->redirect($redirectUrl);
+        }
+
+        if ($avatarPath !== null) {
+            $filePath = BASE_PATH . '/public/uploads/avatars/' . basename($avatarPath);
+            if (is_file($filePath)) {
+                if (!@unlink($filePath)) {
+                    error_log("AdminController::purgeUser — failed to delete avatar: {$filePath}");
+                }
+            }
+        }
+
+        $_SESSION['admin_users_flash'] = "Account #{$accountId} ({$originalName}) has been permanently anonymized.";
+        $this->redirect($redirectUrl);
+    }
+
+    /**
+     * Cancel/close all non-terminal borrows involving the purged account.
+     */
+    private function resolveActiveBorrows(int $accountId, int $adminId, \PDO $pdo): void
+    {
+        $stmt = $pdo->prepare("
+            SELECT b.id_bor, b.id_acc_bor AS borrower_id, t.id_acc_tol AS lender_id,
+                   bst.status_name_bst AS status
+            FROM borrow_bor b
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+            WHERE (b.id_acc_bor = :id1 OR t.id_acc_tol = :id2)
+              AND bst.status_name_bst IN ('requested', 'approved', 'borrowed')
+        ");
+        $stmt->bindValue(':id1', $accountId, \PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $borrows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($borrows as $borrow) {
+            $borrowId = (int) $borrow['id_bor'];
+            $status   = $borrow['status'];
+
+            $counterpartyId = ((int) $borrow['borrower_id'] === $accountId)
+                ? (int) $borrow['lender_id']
+                : (int) $borrow['borrower_id'];
+
+            if ($status === 'requested' || $status === 'approved') {
+                Borrow::cancel($borrowId, $adminId, 'Account purged by administrator');
+            } elseif ($status === 'borrowed') {
+                Borrow::completeReturn($borrowId);
+            }
+
+            Notification::send(
+                accountId: $counterpartyId,
+                type: 'role_change',
+                title: 'Borrow administratively closed',
+                body: 'A borrow you were involved in has been administratively closed.',
+            );
+        }
+    }
+
+    /**
+     * Release deposits held for borrows involving the purged account.
+     */
+    private function releaseHeldDeposits(int $accountId, \PDO $pdo): void
+    {
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT b.id_bor
+            FROM borrow_bor b
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            JOIN security_deposit_sdp sdp ON sdp.id_bor_sdp = b.id_bor
+            JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+            WHERE (b.id_acc_bor = :id1 OR t.id_acc_tol = :id2)
+              AND dps.status_name_dps = 'held'
+        ");
+        $stmt->bindValue(':id1', $accountId, \PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($rows as $row) {
+            Deposit::release((int) $row['id_bor']);
+        }
+    }
+
+    /**
+     * Dismiss open disputes involving the purged account.
+     */
+    private function dismissOpenDisputes(int $accountId, int $adminId, \PDO $pdo): void
+    {
+        $stmt = $pdo->prepare("
+            SELECT d.id_dsp
+            FROM dispute_dsp d
+            JOIN dispute_status_dst dst ON d.id_dst_dsp = dst.id_dst
+            JOIN borrow_bor b ON d.id_bor_dsp = b.id_bor
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            WHERE dst.status_name_dst = 'open'
+              AND (d.id_acc_dsp = :id1 OR b.id_acc_bor = :id2 OR t.id_acc_tol = :id3)
+        ");
+        $stmt->bindValue(':id1', $accountId, \PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, \PDO::PARAM_INT);
+        $stmt->bindValue(':id3', $accountId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $disputes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($disputes as $dispute) {
+            $disputeId = (int) $dispute['id_dsp'];
+
+            Dispute::addMessage($disputeId, $adminId, 'resolution', 'Account purged by administrator. Dispute dismissed.', true);
+
+            $update = $pdo->prepare("
+                UPDATE dispute_dsp
+                SET id_dst_dsp = (SELECT id_dst FROM dispute_status_dst WHERE status_name_dst = 'dismissed'),
+                    resolved_at_dsp = NOW()
+                WHERE id_dsp = :id
+            ");
+            $update->bindValue(':id', $disputeId, \PDO::PARAM_INT);
+            $update->execute();
+        }
+    }
+
+    /**
+     * Close open incidents involving the purged account.
+     */
+    private function closeOpenIncidents(int $accountId, int $adminId, \PDO $pdo): void
+    {
+        $stmt = $pdo->prepare("
+            SELECT irt.id_irt
+            FROM incident_report_irt irt
+            JOIN borrow_bor b ON irt.id_bor_irt = b.id_bor
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            WHERE irt.resolved_at_irt IS NULL
+              AND (irt.id_acc_irt = :id1 OR b.id_acc_bor = :id2 OR t.id_acc_tol = :id3)
+        ");
+        $stmt->bindValue(':id1', $accountId, \PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, \PDO::PARAM_INT);
+        $stmt->bindValue(':id3', $accountId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $incidents = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($incidents as $incident) {
+            $update = $pdo->prepare("
+                UPDATE incident_report_irt
+                SET resolved_at_irt = NOW(),
+                    id_acc_resolved_by_irt = :admin_id,
+                    resolution_notes_irt = 'Account purged by administrator.'
+                WHERE id_irt = :id
+            ");
+            $update->bindValue(':admin_id', $adminId, \PDO::PARAM_INT);
+            $update->bindValue(':id', (int) $incident['id_irt'], \PDO::PARAM_INT);
+            $update->execute();
+        }
+    }
+
+    /**
+     * No-JS fallback purge confirmation page (super admin only).
+     *
+     * @param string $id
+     */
+    public function showPurgeConfirm(string $id): void
+    {
+        $this->requireRole(Role::SuperAdmin);
+
+        $accountId = (int) $id;
+
+        if ($accountId < 1) {
+            $this->abort(404);
+        }
+
+        try {
+            $account = Account::findByIdIncludeDeleted($accountId);
+        } catch (\Throwable $e) {
+            error_log('AdminController::showPurgeConfirm — ' . $e->getMessage());
+            $this->abort(500);
+        }
+
+        if ($account === null) {
+            $this->abort(404);
+        }
+
+        if ($accountId === (int) $_SESSION['user_id']
+            || $account['role_name_rol'] === 'super_admin'
+            || $account['account_status'] !== 'deleted'
+            || (int) $account['is_purged_acc'] === 1
+        ) {
+            $this->abort(403);
+        }
+
+        $this->render('admin/purge-confirm', [
+            'title'    => 'Confirm Account Purge',
+            'pageCss'  => ['admin'],
+            'account'  => $account,
+            'returnTo' => $_SERVER['QUERY_STRING'] ?? '',
+        ]);
     }
 
     private const array TOOLS_SORT_FIELDS        = ['tool_name_tol', 'owner_name', 'tool_condition', 'rental_fee_tol', 'avg_rating', 'total_borrows', 'incident_count', 'created_at_tol'];

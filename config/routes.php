@@ -160,6 +160,7 @@ return [
     'POST /admin/users/{id}/deny'      => [AdminController::class, 'denyUser'],
     'POST /admin/users/{id}/status'    => [AdminController::class, 'updateUserStatus'],
     'POST /admin/users/{id}/role'      => [AdminController::class, 'updateUserRole'],
+    'POST /admin/users/{id}/delete'    => [AdminController::class, 'deleteUser'],
     'GET /admin/users/{id}/purge-confirm' => [AdminController::class, 'showPurgeConfirm'],
     'POST /admin/users/{id}/purge'     => [AdminController::class, 'purgeUser'],
     'GET /admin/tools'             => [AdminController::class, 'tools'],

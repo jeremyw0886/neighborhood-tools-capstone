@@ -1,60 +1,119 @@
 'use strict';
 
-/**
- * Dashboard navigation enhancements — smooth transitions, prefetch,
- * keyboard shortcut, and swipe-to-go-back.
- *
- * Progressive enhancement: all navigation works without JS via normal links.
- */
+// ─── Dashboard Router ────────────────────────────────────────────────
 
-(() => {
+class DashboardRouter {
+  static #instance = null;
+  static #TRANSITION_MS = 250;
+  static #PREFETCH_DELAY = 100;
+  static #PREFETCH_TTL = 30_000;
+  static #SWIPE_THRESHOLD = 80;
+  static #CACHE_LIMIT = 8;
+  static #DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loan\/\d+))?|tools\/create|tools\/\d+\/edit|profile\/\d+|bookmarks|events)$/;
 
-  const TRANSITION_MS = 250;
-  const PREFETCH_DELAY = 100;
-  const PREFETCH_TTL = 30_000;
-  const SWIPE_THRESHOLD = 80;
-  const CACHE_LIMIT = 8;
+  /** @type {HTMLElement} */
+  #mainEl;
+  /** @type {Map<string, {data: Object, time: number}>} */
+  #cache = new Map();
+  /** @type {AbortController|null} */
+  #currentAbort = null;
+  #navigating = false;
+  #navId = 0;
+  #navIndex = 0;
+  #hoverTimer = null;
+  #swipeStartX = 0;
+  #swipeStartY = 0;
+  #abortController = new AbortController();
 
-  const DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loan\/\d+))?|tools\/create|tools\/\d+\/edit|profile\/\d+|bookmarks|events)$/;
+  /** @param {HTMLElement} mainEl */
+  constructor(mainEl) {
+    this.#mainEl = mainEl;
 
-  const mainEl = document.getElementById('main-content');
-  if (!mainEl) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      NT.style.setRule('dash-reduced-motion', ':root', '--_dash-transition-ms:0ms');
+    }
 
-  let transitioning = false;
-  let currentAbort = null;
-  let navIndex = 0;
+    history.replaceState({ dashNav: true, idx: this.#navIndex }, '');
+    this.#bind();
+  }
 
-  const prefetchCache = new Map();
+  /** @returns {DashboardRouter|null} */
+  static init() {
+    if (DashboardRouter.#instance) return DashboardRouter.#instance;
+    if (!window.NT) return null;
+    const mainEl = document.getElementById('main-content');
+    if (!mainEl) return null;
+    return (DashboardRouter.#instance = new DashboardRouter(mainEl));
+  }
 
-  // ─── Helpers ─────────────────────────────────────────────────────────
+  destroy() {
+    clearTimeout(this.#hoverTimer);
+    this.#currentAbort?.abort();
+    this.#abortController.abort();
+    NT.style.removeRule('dash-reduced-motion');
+    DashboardRouter.#instance = null;
+  }
 
-  /** @param {string} url */
-  const isDashboardUrl = (url) => {
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#mainEl.addEventListener('click', this.#handleClick, { signal });
+    window.addEventListener('popstate', this.#handlePopstate, { signal });
+    this.#mainEl.addEventListener('pointerenter', this.#handlePointerEnter, { signal, capture: true });
+    this.#mainEl.addEventListener('pointerleave', this.#handlePointerLeave, { signal, capture: true });
+    this.#mainEl.addEventListener('focusin', this.#handleFocusIn, { signal });
+    this.#mainEl.addEventListener('focusout', this.#handleFocusOut, { signal });
+    document.addEventListener('keydown', this.#handleKeydown, { signal });
+    this.#mainEl.addEventListener('touchstart', this.#handleTouchStart, { signal, passive: true });
+    this.#mainEl.addEventListener('touchend', this.#handleTouchEnd, { signal, passive: true });
+  }
+
+  // ── Helpers ──
+
+  static #isDashboardUrl(url) {
     try {
       const path = new URL(url, location.origin).pathname;
-      return DASHBOARD_RE.test(path);
+      return DashboardRouter.#DASHBOARD_RE.test(path);
     } catch { return false; }
-  };
+  }
 
-  /** @param {HTMLAnchorElement} link */
-  const shouldIntercept = (link) => {
+  static #shouldIntercept(link) {
     if (!link?.href) return false;
     if (link.target === '_blank' || link.hasAttribute('download')) return false;
-    return isDashboardUrl(link.href);
-  };
+    return DashboardRouter.#isDashboardUrl(link.href);
+  }
+
+  // ── Cache ──
+
+  #cacheGet(url) {
+    const entry = this.#cache.get(url);
+    if (!entry) return null;
+    if (Date.now() - entry.time >= DashboardRouter.#PREFETCH_TTL) {
+      this.#cache.delete(url);
+      return null;
+    }
+    return entry.data;
+  }
+
+  #cacheSet(url, data) {
+    if (this.#cache.size >= DashboardRouter.#CACHE_LIMIT) {
+      const oldest = this.#cache.keys().next().value;
+      this.#cache.delete(oldest);
+    }
+    this.#cache.set(url, { data, time: Date.now() });
+  }
+
+  // ── Fetch & Sync ──
 
   /**
-   * Fetch a page and return parsed #main-content innerHTML + title.
+   * Fetch a page and return parsed content.
    *
    * @param {string} url
    * @param {AbortSignal} [signal]
-   * @returns {Promise<{html: string, title: string}|null>}
+   * @returns {Promise<{html: string, title: string, stylesheets: string[]}|null>}
    */
-  const fetchPage = async (url, signal) => {
-    const cached = prefetchCache.get(url);
-    if (cached && Date.now() - cached.time < PREFETCH_TTL) {
-      return cached.data;
-    }
+  async #fetchPage(url, signal) {
+    const cached = this.#cacheGet(url);
+    if (cached) return cached;
 
     const response = await NT.fetch(url, {
       signal,
@@ -74,24 +133,17 @@
       .filter(Boolean);
 
     const data = { html: newMain.innerHTML, title: doc.title, stylesheets };
-
-    if (prefetchCache.size >= CACHE_LIMIT) {
-      const oldest = prefetchCache.keys().next().value;
-      prefetchCache.delete(oldest);
-    }
-    prefetchCache.set(url, { data, time: Date.now() });
-
+    this.#cacheSet(url, data);
     return data;
-  };
+  }
 
   /**
-   * Inject any stylesheets the target page needs that aren't already loaded.
-   * Returns a promise that resolves once all new sheets have loaded.
+   * Inject stylesheets the target page needs that aren't already loaded.
    *
-   * @param {string[]} needed — href values from the fetched page
+   * @param {string[]} needed
    * @returns {Promise<void>}
    */
-  const syncStylesheets = (needed) => {
+  static #syncStylesheets(needed) {
     const current = new Set(
       [...document.querySelectorAll('head link[rel="stylesheet"]')]
         .map((l) => l.getAttribute('href'))
@@ -113,19 +165,18 @@
     }
 
     return loads.length > 0 ? Promise.all(loads) : Promise.resolve();
-  };
+  }
 
-  /** Re-initialize JS behaviors on new content. */
-  const reinit = () => {
+  #reinit() {
     NT.applyFocalPoints();
 
-    for (const flash of mainEl.querySelectorAll('[data-flash]')) {
+    for (const flash of this.#mainEl.querySelectorAll('[data-flash]')) {
       const type = flash.getAttribute('data-flash');
       NT.toast(flash.textContent.trim(), type);
       flash.remove();
     }
 
-    for (const input of mainEl.querySelectorAll('input[data-suggest="tools"]')) {
+    for (const input of this.#mainEl.querySelectorAll('input[data-suggest="tools"]')) {
       if (!input.id) continue;
       const availableOnly = input.hasAttribute('data-available-only');
       NT.autosuggest({
@@ -136,16 +187,18 @@
       });
     }
 
-    for (const img of mainEl.querySelectorAll('img[loading="lazy"]')) {
+    for (const img of this.#mainEl.querySelectorAll('img[loading="lazy"]')) {
       if (img.complete && img.naturalWidth > 0) {
         img.setAttribute('data-loaded', '');
       } else {
         img.addEventListener('load', () => img.setAttribute('data-loaded', ''), { once: true });
       }
     }
-  };
 
-  // ─── Transition ──────────────────────────────────────────────────────
+    document.dispatchEvent(new CustomEvent('dashboard:content-swapped'));
+  }
+
+  // ── Navigation ──
 
   /**
    * Navigate to a dashboard URL with a slide transition.
@@ -154,186 +207,182 @@
    * @param {'forward'|'back'} direction
    * @param {boolean} pushHistory
    */
-  const navigate = async (url, direction = 'forward', pushHistory = true) => {
-    if (transitioning) {
-      currentAbort?.abort();
-    }
+  async #navigate(url, direction = 'forward', pushHistory = true) {
+    if (this.#navigating) return;
+    this.#navigating = true;
 
-    transitioning = true;
+    const id = ++this.#navId;
     const abort = new AbortController();
-    currentAbort = abort;
+    this.#currentAbort = abort;
 
     const slideOut = direction === 'back' ? 'slide-out-right' : 'slide-out-left';
     const slideIn = direction === 'back' ? 'slide-in-left' : 'slide-in-right';
 
     try {
+      this.#cacheSet(location.href, {
+        html: this.#mainEl.innerHTML,
+        title: document.title,
+        stylesheets: [...document.querySelectorAll('head link[rel="stylesheet"]')]
+          .map((l) => l.getAttribute('href'))
+          .filter(Boolean),
+      });
+
       const [data] = await Promise.all([
-        fetchPage(url, abort.signal),
+        this.#fetchPage(url, abort.signal),
         new Promise((resolve) => {
-          mainEl.setAttribute('data-transition', slideOut);
-          const done = () => resolve();
-          mainEl.addEventListener('transitionend', done, { once: true });
-          setTimeout(done, TRANSITION_MS + 50);
+          this.#mainEl.setAttribute('data-transition', slideOut);
+          this.#mainEl.addEventListener('transitionend', resolve, { once: true });
+          setTimeout(resolve, DashboardRouter.#TRANSITION_MS + 50);
         }),
       ]);
 
       if (!data) {
-        mainEl.removeAttribute('data-transition');
+        this.#mainEl.removeAttribute('data-transition');
         location.assign(url);
         return;
       }
 
       if (pushHistory) {
-        navIndex++;
-        history.pushState({ dashNav: true, idx: navIndex }, '', url);
+        this.#navIndex++;
+        history.pushState({ dashNav: true, idx: this.#navIndex }, '', url);
       }
 
       window.scrollTo({ top: 0, behavior: 'instant' });
 
-      await syncStylesheets(data.stylesheets);
+      await DashboardRouter.#syncStylesheets(data.stylesheets);
 
-      mainEl.innerHTML = data.html;
+      this.#mainEl.innerHTML = data.html;
       document.title = data.title;
 
-      mainEl.setAttribute('data-transition', slideIn);
+      this.#navigating = false;
+      this.#currentAbort = null;
 
-      // Force browser to paint the start position before animating in
-      mainEl.offsetHeight;
-      mainEl.removeAttribute('data-transition');
+      this.#mainEl.setAttribute('data-transition', slideIn);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (id === this.#navId) {
+            this.#mainEl.removeAttribute('data-transition');
+          }
+        });
+      });
 
-      reinit();
+      this.#reinit();
     } catch (err) {
       if (err.name !== 'AbortError') {
-        mainEl.removeAttribute('data-transition');
+        this.#mainEl.removeAttribute('data-transition');
         location.assign(url);
       }
     } finally {
-      transitioning = false;
-      currentAbort = null;
-    }
-  };
-
-  // ─── 1. Click Interception ───────────────────────────────────────────
-
-  const initTransitions = () => {
-    history.replaceState({ dashNav: true, idx: navIndex }, '');
-
-    mainEl.addEventListener('click', (e) => {
-      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
-
-      const link = e.target.closest('a[href]');
-      if (!link || !shouldIntercept(link)) return;
-      if (link.closest('form')) return;
-
-      e.preventDefault();
-
-      const isBack = !!link.closest('nav[aria-label="Back"]');
-      navigate(link.href, isBack ? 'back' : 'forward');
-    });
-
-    window.addEventListener('popstate', (e) => {
-      if (!e.state?.dashNav) return;
-      if (!isDashboardUrl(location.href)) {
-        location.reload();
-        return;
+      if (id === this.#navId) {
+        this.#navigating = false;
+        this.#currentAbort = null;
       }
-
-      const direction = (e.state.idx ?? 0) < navIndex ? 'back' : 'forward';
-      navIndex = e.state.idx ?? 0;
-      navigate(location.href, direction, false);
-    });
-  };
-
-  // ─── 2. Prefetch on Hover / Focus ───────────────────────────────────
-
-  const initPrefetch = () => {
-    let hoverTimer = null;
-
-    const startPrefetch = (link) => {
-      if (!shouldIntercept(link)) return;
-      if (prefetchCache.has(link.href)) return;
-
-      hoverTimer = setTimeout(() => {
-        fetchPage(link.href).catch(() => {});
-      }, PREFETCH_DELAY);
-    };
-
-    const cancelPrefetch = () => {
-      clearTimeout(hoverTimer);
-      hoverTimer = null;
-    };
-
-    mainEl.addEventListener('pointerenter', (e) => {
-      const link = e.target.closest('a[href]');
-      if (link) startPrefetch(link);
-    }, true);
-
-    mainEl.addEventListener('pointerleave', (e) => {
-      if (e.target.closest('a[href]')) cancelPrefetch();
-    }, true);
-
-    mainEl.addEventListener('focusin', (e) => {
-      const link = e.target.closest('a[href]');
-      if (link) startPrefetch(link);
-    });
-
-    mainEl.addEventListener('focusout', (e) => {
-      if (e.target.closest('a[href]')) cancelPrefetch();
-    });
-  };
-
-  // ─── 3. Alt+Left Keyboard Shortcut ──────────────────────────────────
-
-  const initKeyboardShortcut = () => {
-    document.addEventListener('keydown', (e) => {
-      if (!e.altKey || e.key !== 'ArrowLeft') return;
-      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-
-      const backLink = mainEl.querySelector('nav[aria-label="Back"] a[href]');
-      if (!backLink || !shouldIntercept(backLink)) return;
-
-      e.preventDefault();
-      navigate(backLink.href, 'back');
-    });
-  };
-
-  // ─── 4. Swipe-to-Go-Back ────────────────────────────────────────────
-
-  const initSwipeGesture = () => {
-    let startX = 0;
-    let startY = 0;
-
-    mainEl.addEventListener('touchstart', (e) => {
-      if (e.touches.length !== 1) return;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    }, { passive: true });
-
-    mainEl.addEventListener('touchend', (e) => {
-      if (e.changedTouches.length !== 1) return;
-
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = Math.abs(e.changedTouches[0].clientY - startY);
-
-      if (dx < SWIPE_THRESHOLD || dx < dy * 2) return;
-
-      const backLink = mainEl.querySelector('nav[aria-label="Back"] a[href]');
-      if (!backLink || !shouldIntercept(backLink)) return;
-
-      navigate(backLink.href, 'back');
-    }, { passive: true });
-  };
-
-  // ─── Init ────────────────────────────────────────────────────────────
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reducedMotion) {
-    document.documentElement.style.setProperty('--_dash-transition-ms', '0ms');
+    }
   }
 
-  initTransitions();
-  initPrefetch();
-  initKeyboardShortcut();
-  initSwipeGesture();
+  // ── Event Handlers ──
 
-})();
+  #handleClick = (e) => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    if (link.closest('form')) return;
+
+    const isBack = !!link.closest('nav[aria-label="Back"]');
+
+    if (isBack) {
+      e.preventDefault();
+      const dest = DashboardRouter.#isDashboardUrl(link.href) ? link.href : '/dashboard';
+      this.#navigate(dest, 'back');
+      return;
+    }
+
+    if (!DashboardRouter.#shouldIntercept(link)) return;
+
+    e.preventDefault();
+    this.#navigate(link.href, 'forward');
+  };
+
+  #handlePopstate = (e) => {
+    if (!e.state?.dashNav) return;
+    if (!DashboardRouter.#isDashboardUrl(location.href)) {
+      location.reload();
+      return;
+    }
+
+    const direction = (e.state.idx ?? 0) < this.#navIndex ? 'back' : 'forward';
+    this.#navIndex = e.state.idx ?? 0;
+    this.#navigate(location.href, direction, false);
+  };
+
+  #startPrefetch(link) {
+    if (!DashboardRouter.#shouldIntercept(link)) return;
+    if (this.#cache.has(link.href)) return;
+
+    this.#hoverTimer = setTimeout(() => {
+      this.#fetchPage(link.href).catch(() => {});
+    }, DashboardRouter.#PREFETCH_DELAY);
+  }
+
+  #cancelPrefetch() {
+    clearTimeout(this.#hoverTimer);
+    this.#hoverTimer = null;
+  }
+
+  #handlePointerEnter = (e) => {
+    const link = e.target.closest('a[href]');
+    if (link) this.#startPrefetch(link);
+  };
+
+  #handlePointerLeave = (e) => {
+    if (e.target.closest('a[href]')) this.#cancelPrefetch();
+  };
+
+  #handleFocusIn = (e) => {
+    const link = e.target.closest('a[href]');
+    if (link) this.#startPrefetch(link);
+  };
+
+  #handleFocusOut = (e) => {
+    if (e.target.closest('a[href]')) this.#cancelPrefetch();
+  };
+
+  /** @param {KeyboardEvent} e */
+  #handleKeydown = (e) => {
+    if (!e.altKey || e.key !== 'ArrowLeft') return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+    const backLink = this.#mainEl.querySelector('nav[aria-label="Back"] a[href]');
+    if (!backLink || !DashboardRouter.#shouldIntercept(backLink)) return;
+
+    e.preventDefault();
+    this.#navigate(backLink.href, 'back');
+  };
+
+  /** @param {TouchEvent} e */
+  #handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    this.#swipeStartX = e.touches[0].clientX;
+    this.#swipeStartY = e.touches[0].clientY;
+  };
+
+  /** @param {TouchEvent} e */
+  #handleTouchEnd = (e) => {
+    if (e.changedTouches.length !== 1) return;
+
+    const dx = e.changedTouches[0].clientX - this.#swipeStartX;
+    const dy = Math.abs(e.changedTouches[0].clientY - this.#swipeStartY);
+
+    if (dx < DashboardRouter.#SWIPE_THRESHOLD || dx < dy * 2) return;
+
+    const backLink = this.#mainEl.querySelector('nav[aria-label="Back"] a[href]');
+    if (!backLink || !DashboardRouter.#shouldIntercept(backLink)) return;
+
+    this.#navigate(backLink.href, 'back');
+  };
+}
+
+// ─── Init ────────────────────────────────────────────────────────────
+
+DashboardRouter.init();

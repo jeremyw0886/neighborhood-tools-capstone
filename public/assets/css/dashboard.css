@@ -2387,45 +2387,74 @@
 
   #main-content {
     --_dash-transition-ms: 250ms;
-  }
+    --_dash-slide: opacity var(--_dash-transition-ms) ease, transform var(--_dash-transition-ms) ease;
 
-  #main-content[data-transition="slide-out-left"] {
-    opacity: 0;
-    transform: translateX(-3rem);
-    transition: opacity var(--_dash-transition-ms) ease, transform var(--_dash-transition-ms) ease;
-  }
+    &[data-transition="slide-out-left"] > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        opacity: 0;
+        transform: translateX(-3rem);
+        transition: var(--_dash-slide);
+      }
+    }
 
-  #main-content[data-transition="slide-out-right"] {
-    opacity: 0;
-    transform: translateX(3rem);
-    transition: opacity var(--_dash-transition-ms) ease, transform var(--_dash-transition-ms) ease;
-  }
+    &[data-transition="slide-out-right"] > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        opacity: 0;
+        transform: translateX(3rem);
+        transition: var(--_dash-slide);
+      }
+    }
 
-  #main-content[data-transition="slide-in-left"] {
-    opacity: 0;
-    transform: translateX(-3rem);
-  }
+    &[data-transition="slide-in-left"] > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        opacity: 0;
+        transform: translateX(-3rem);
+      }
+    }
 
-  #main-content[data-transition="slide-in-right"] {
-    opacity: 0;
-    transform: translateX(3rem);
-  }
+    &[data-transition="slide-in-right"] > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        opacity: 0;
+        transform: translateX(3rem);
+      }
+    }
 
-  #main-content:not([data-transition]) {
-    opacity: 1;
-    transform: translateX(0);
-    transition: opacity var(--_dash-transition-ms) ease, transform var(--_dash-transition-ms) ease;
+    &:not([data-transition]) > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        opacity: 1;
+        transform: translateX(0);
+        transition: var(--_dash-slide);
+      }
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
 
-    #main-content[data-transition] {
-      transform: none;
-      transition: none;
+    #main-content[data-transition] > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        transform: none;
+        transition: none;
+      }
     }
 
-    #main-content:not([data-transition]) {
-      transition: none;
+    #main-content:not([data-transition]) > section {
+      & > header > h1,
+      & > header > p,
+      & > [data-dashboard-body] > [data-dashboard-content] {
+        transition: none;
+      }
     }
 
     header>form[role="search"]>fieldset,

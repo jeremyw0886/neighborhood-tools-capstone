@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
+use App\Core\Role;
 use PDO;
 
 class Account
@@ -55,7 +56,7 @@ class Account
         };
 
         $sql = "
-            SELECT r.*, rol.role_name_rol
+            SELECT r.*, rol.role_name_rol, a.is_purged_acc
             FROM user_reputation_v r
             JOIN account_acc a     ON r.id_acc = a.id_acc
             JOIN role_rol rol      ON a.id_rol_acc = rol.id_rol
@@ -798,6 +799,130 @@ class Account
         $stmt->bindValue(':status', $status);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();
+    }
+
+    /**
+     * Change an account's role.
+     *
+     * @param int  $accountId
+     * @param Role $role
+     * @return bool
+     */
+    public static function updateRole(int $accountId, Role $role): bool
+    {
+        if ($role === Role::SuperAdmin) {
+            throw new \InvalidArgumentException('Cannot assign super_admin role via updateRole()');
+        }
+
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_acc
+            SET id_rol_acc = (SELECT id_rol FROM role_rol WHERE role_name_rol = :role)
+            WHERE id_acc = :id
+        ");
+
+        $stmt->bindValue(':role', $role->value);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Find an account by ID, including deleted accounts.
+     *
+     * @return ?array Account row with role and status, or null.
+     */
+    public static function findByIdIncludeDeleted(int $id): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT
+                a.id_acc,
+                a.first_name_acc,
+                a.last_name_acc,
+                CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS full_name,
+                a.email_address_acc,
+                a.username_acc,
+                a.is_purged_acc,
+                aim.file_name_aim AS avatar,
+                r.role_name_rol,
+                s.status_name_ast AS account_status
+            FROM account_acc a
+            JOIN role_rol r            ON a.id_rol_acc = r.id_rol
+            JOIN account_status_ast s  ON a.id_ast_acc = s.id_ast
+            LEFT JOIN account_image_aim aim
+                ON a.id_acc = aim.id_acc_aim AND aim.is_primary_aim = TRUE
+            WHERE a.id_acc = :id
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Anonymize a soft-deleted account, replacing all PII with placeholders.
+     *
+     * @param int $accountId
+     * @return bool
+     */
+    public static function purge(int $accountId): bool
+    {
+        $pdo = Database::connection();
+
+        $guard = $pdo->prepare("
+            SELECT s.status_name_ast
+            FROM account_acc a
+            JOIN account_status_ast s ON a.id_ast_acc = s.id_ast
+            WHERE a.id_acc = :id
+            LIMIT 1
+        ");
+        $guard->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $guard->execute();
+        $row = $guard->fetch();
+
+        if ($row === false || $row['status_name_ast'] !== 'deleted') {
+            return false;
+        }
+
+        $randomHash = password_hash(bin2hex(random_bytes(32)), PASSWORD_BCRYPT);
+
+        $stmt = $pdo->prepare("
+            UPDATE account_acc
+            SET first_name_acc     = 'Deleted',
+                last_name_acc      = 'User',
+                email_address_acc  = CONCAT('deleted_', id_acc, '@removed.local'),
+                username_acc       = CONCAT('deleted_user_', id_acc),
+                password_hash_acc  = :hash,
+                phone_number_acc   = NULL,
+                street_address_acc = NULL,
+                id_avv_acc         = NULL,
+                is_purged_acc      = TRUE
+            WHERE id_acc = :id
+        ");
+
+        $stmt->bindValue(':hash', $randomHash);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $changed = $stmt->rowCount() > 0;
+
+        $bio = $pdo->prepare("DELETE FROM account_bio_abi WHERE id_acc_abi = :id");
+        $bio->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $bio->execute();
+
+        $img = $pdo->prepare("DELETE FROM account_image_aim WHERE id_acc_aim = :id");
+        $img->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $img->execute();
+
+        return $changed;
     }
 
     /**

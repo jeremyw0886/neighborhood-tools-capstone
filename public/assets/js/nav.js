@@ -1,770 +1,904 @@
 'use strict';
 
-/**
- * Navigation JavaScript — hamburger menu, unified mobile menu, user-actions dropdown,
- * and <dialog> modal system.
- *
- * Progressive enhancement: without this script, nav links navigate normally,
- * dropdown items remain visible, and [data-modal] links go to full pages.
- *
- * Mobile (<=700px):
- *   The hamburger merges both #top-links and #user-actions into a single
- *   slide-down panel. Auth items (greeting, Dashboard, Notifications, Logout
- *   —or— Login, Sign Up) are cloned into #top-links by JS, separated by a
- *   visual divider. The ellipsis toggle and its floating dropdown are hidden
- *   via CSS. The notification bell remains visible in the nav bar for quick
- *   access. Items are added/removed when the viewport crosses the 700px
- *   breakpoint (e.g. device rotation).
- *
- * Desktop (>700px):
- *   Hamburger is hidden. #top-links and #user-actions render side by side.
- *   The ellipsis toggle opens a floating dropdown menu for account actions.
- *
- * @see src/Views/partials/nav.php   — nav HTML structure
- * @see src/Views/layouts/main.php   — <dialog> modal partials
- * @see public/assets/css/responsive.css — unified mobile menu CSS
- */
+// ─── Hamburger Mobile Menu ───────────────────────────────────────────
 
-(() => {
+class HamburgerMenu {
+  static #instance = null;
 
-  // ─── Hamburger Mobile Menu ──────────────────────────────────────────
+  /** @type {HTMLButtonElement} */
+  #toggle;
+  /** @type {HTMLUListElement} */
+  #menu;
+  /** @type {HTMLElement|null} */
+  #authSection;
+  /** @type {HTMLElement|null} */
+  #authMenu;
+  /** @type {MediaQueryList} */
+  #mobile;
+  #releaseTrap = null;
+  #abortController = new AbortController();
 
-  const initHamburger = () => {
-    const toggle = document.getElementById('mobile-menu-toggle');
-    const menu = document.getElementById('top-links');
-    if (!toggle || !menu) return;
+  /**
+   * @param {HTMLButtonElement} toggle
+   * @param {HTMLUListElement} menu
+   */
+  constructor(toggle, menu) {
+    this.#toggle = toggle;
+    this.#menu = menu;
+    this.#authSection = document.getElementById('user-actions');
+    this.#authMenu = document.getElementById('user-actions-menu');
+    this.#mobile = window.matchMedia('(max-width: 700px)');
 
     toggle.closest('nav').classList.add('js-nav');
 
-    const authSection = document.getElementById('user-actions');
-    const authMenu = document.getElementById('user-actions-menu');
-    let releaseTrap = null;
+    if (this.#mobile.matches) this.#buildMobileAuthItems();
 
-    const open = () => {
-      menu.classList.add('open');
-      toggle.setAttribute('aria-expanded', 'true');
-      document.body.classList.add('menu-open');
+    this.#bind();
+  }
 
-      if (window.NT) releaseTrap = NT.focus.trap(menu);
+  /** @returns {HamburgerMenu|null} */
+  static init() {
+    if (HamburgerMenu.#instance) return HamburgerMenu.#instance;
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const menu = document.getElementById('top-links');
+    if (!toggle || !menu) return null;
+    return (HamburgerMenu.#instance = new HamburgerMenu(toggle, menu));
+  }
 
-      const firstLink = menu.querySelector('a');
-      firstLink?.focus();
+  destroy() {
+    this.#abortController.abort();
+    if (this.#releaseTrap) {
+      this.#releaseTrap();
+      this.#releaseTrap = null;
+    }
+    HamburgerMenu.#instance = null;
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#toggle.addEventListener('click', this.#handleToggleClick, { signal });
+    document.addEventListener('keydown', this.#handleEscape, { signal });
+    document.addEventListener('click', this.#handleOutsideClick, { signal });
+    this.#mobile.addEventListener('change', this.#handleViewportChange, { signal });
+  }
+
+  #isOpen() {
+    return this.#menu.classList.contains('open');
+  }
+
+  #open() {
+    this.#menu.classList.add('open');
+    this.#toggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('menu-open');
+
+    if (window.NT) this.#releaseTrap = NT.focus.trap(this.#menu);
+
+    this.#menu.querySelector('a')?.focus();
+  }
+
+  #close(returnFocus = true) {
+    this.#menu.classList.remove('open');
+    this.#toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('menu-open');
+
+    if (this.#releaseTrap) {
+      this.#releaseTrap();
+      this.#releaseTrap = null;
+    }
+
+    if (returnFocus) this.#toggle.focus();
+  }
+
+  #buildMobileAuthItems() {
+    if (this.#menu.querySelector('[data-mobile-auth]')) return;
+
+    const addLi = () => {
+      const li = document.createElement('li');
+      li.dataset.mobileAuth = '';
+      this.#menu.appendChild(li);
+      return li;
     };
 
-    const close = (returnFocus = true) => {
-      menu.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('menu-open');
+    const sep = addLi();
+    sep.dataset.separator = '';
+    sep.setAttribute('aria-hidden', 'true');
 
-      if (releaseTrap) {
-        releaseTrap();
-        releaseTrap = null;
+    if (!this.#authSection) return;
+
+    const toggleBtn = document.getElementById('user-actions-toggle');
+    if (toggleBtn) {
+      const span = document.createElement('span');
+      for (const node of toggleBtn.childNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE &&
+            node.classList?.contains('fa-chevron-down')) continue;
+        span.appendChild(node.cloneNode(true));
       }
+      addLi().appendChild(span);
+    }
 
-      if (returnFocus) toggle.focus();
-    };
+    const loginLink = this.#authSection.querySelector(':scope > a[role="button"]');
+    if (loginLink) {
+      const a = loginLink.cloneNode(true);
+      a.removeAttribute('role');
+      addLi().appendChild(a);
+    }
 
-    const isOpen = () => menu.classList.contains('open');
+    const signUpLink = this.#authSection.querySelector(':scope > a[href="/register"]');
+    if (signUpLink) {
+      addLi().appendChild(signUpLink.cloneNode(true));
+    }
 
-    // ── Unified mobile menu: merge auth actions into hamburger ──
-
-    const mobile = window.matchMedia('(max-width: 700px)');
-
-    const buildMobileAuthItems = () => {
-      if (menu.querySelector('[data-mobile-auth]')) return;
-
-      // Helper — create <li data-mobile-auth>, append to #top-links
-      const addLi = () => {
-        const li = document.createElement('li');
-        li.dataset.mobileAuth = '';
-        menu.appendChild(li);
-        return li;
-      };
-
-      // Visual divider between navigation links and auth section
-      const sep = addLi();
-      sep.dataset.separator = '';
-      sep.setAttribute('aria-hidden', 'true');
-
-      if (!authSection) return;
-
-      // Greeting — logged-in users (extracted from the toggle button)
-      const toggleBtn = document.getElementById('user-actions-toggle');
-      if (toggleBtn) {
-        const span = document.createElement('span');
-        for (const node of toggleBtn.childNodes) {
-          // Skip the chevron icon — not needed in the mobile menu
-          if (node.nodeType === Node.ELEMENT_NODE &&
-              node.classList?.contains('fa-chevron-down')) continue;
-          span.appendChild(node.cloneNode(true));
-        }
-        addLi().appendChild(span);
+    if (this.#authMenu) {
+      for (const item of [...this.#authMenu.children]) {
+        const clone = item.cloneNode(true);
+        clone.dataset.mobileAuth = '';
+        clone.removeAttribute('role');
+        this.#menu.appendChild(clone);
       }
+    }
 
-      // Login link — logged-out users
-      const loginLink = authSection.querySelector(':scope > a[role="button"]');
-      if (loginLink) {
-        const a = loginLink.cloneNode(true);
-        a.removeAttribute('role');
-        addLi().appendChild(a);
-      }
+    const bellLink = this.#authSection.querySelector('#bell-wrapper > a[href="/notifications"]');
+    if (bellLink) {
+      const a = document.createElement('a');
+      a.href = '/notifications';
 
-      // Sign Up link — logged-out users (direct child, not in a dropdown)
-      const signUpLink = authSection.querySelector(':scope > a[href="/register"]');
-      if (signUpLink) {
-        addLi().appendChild(signUpLink.cloneNode(true));
-      }
+      const icon = document.createElement('i');
+      icon.className = 'fa-solid fa-bell';
+      icon.setAttribute('aria-hidden', 'true');
+      a.appendChild(icon);
 
-      // Dropdown menu items (Dashboard / Admin / Logout)
-      if (authMenu) {
-        for (const item of [...authMenu.children]) {
-          const clone = item.cloneNode(true);
-          clone.dataset.mobileAuth = '';
-          clone.removeAttribute('role');
-          menu.appendChild(clone);
-        }
-      }
+      const badge = bellLink.querySelector('span');
+      const count = badge?.textContent.trim();
+      a.append(count ? ` Notifications (${count})` : ' Notifications');
 
-      // Notification link — logged-in users (placed before Logout)
-      const bellLink = authSection.querySelector('#bell-wrapper > a[href="/notifications"]');
-      if (bellLink) {
-        const a = document.createElement('a');
-        a.href = '/notifications';
+      const li = document.createElement('li');
+      li.dataset.mobileAuth = '';
+      li.appendChild(a);
 
-        const icon = document.createElement('i');
-        icon.className = 'fa-solid fa-bell';
-        icon.setAttribute('aria-hidden', 'true');
-        a.appendChild(icon);
+      const allAuth = this.#menu.querySelectorAll('[data-mobile-auth]');
+      const last = allAuth[allAuth.length - 1];
+      this.#menu.insertBefore(li, last);
+    }
+  }
 
-        const badge = bellLink.querySelector('span');
-        const count = badge?.textContent.trim();
-        a.append(count ? ` Notifications (${count})` : ' Notifications');
+  #removeMobileAuthItems() {
+    for (const el of this.#menu.querySelectorAll('[data-mobile-auth]')) {
+      el.remove();
+    }
+  }
 
-        const li = document.createElement('li');
-        li.dataset.mobileAuth = '';
-        li.appendChild(a);
-
-        // Insert before Logout (last auth item) so order matches the plan
-        const allAuth = menu.querySelectorAll('[data-mobile-auth]');
-        const last = allAuth[allAuth.length - 1];
-        menu.insertBefore(li, last);
-      }
-    };
-
-    const removeMobileAuthItems = () => {
-      for (const el of menu.querySelectorAll('[data-mobile-auth]')) {
-        el.remove();
-      }
-    };
-
-    // Build on init if already mobile; sync on viewport change
-    if (mobile.matches) buildMobileAuthItems();
-
-    mobile.addEventListener('change', (e) => {
-      if (e.matches) {
-        buildMobileAuthItems();
-      } else {
-        removeMobileAuthItems();
-        if (isOpen()) close(false);
-      }
-    });
-
-    // ── Event listeners ──
-
-    toggle.addEventListener('click', () => {
-      isOpen() ? close() : open();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isOpen()) {
-        close();
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (isOpen() && !menu.contains(e.target) && !toggle.contains(e.target)) {
-        close(false);
-      }
-    });
+  #handleToggleClick = () => {
+    this.#isOpen() ? this.#close() : this.#open();
   };
 
-  // ─── User Actions Dropdown ─────────────────────────────────────────
+  #handleEscape = (e) => {
+    if (e.key === 'Escape' && this.#isOpen()) this.#close();
+  };
 
-  const initDropdown = () => {
+  #handleOutsideClick = (e) => {
+    if (this.#isOpen() && !this.#menu.contains(e.target) && !this.#toggle.contains(e.target)) {
+      this.#close(false);
+    }
+  };
+
+  #handleViewportChange = (e) => {
+    if (e.matches) {
+      this.#buildMobileAuthItems();
+    } else {
+      this.#removeMobileAuthItems();
+      if (this.#isOpen()) this.#close(false);
+    }
+  };
+}
+
+// ─── User Actions Dropdown ───────────────────────────────────────────
+
+class UserDropdown {
+  static #instance = null;
+
+  /** @type {HTMLButtonElement} */
+  #toggle;
+  /** @type {HTMLElement} */
+  #menu;
+  #abortController = new AbortController();
+
+  /**
+   * @param {HTMLButtonElement} toggle
+   * @param {HTMLElement} menu
+   */
+  constructor(toggle, menu) {
+    this.#toggle = toggle;
+    this.#menu = menu;
+    menu.hidden = true;
+    this.#bind();
+  }
+
+  /** @returns {UserDropdown|null} */
+  static init() {
+    if (UserDropdown.#instance) return UserDropdown.#instance;
     const toggle = document.getElementById('user-actions-toggle');
     const menu = document.getElementById('user-actions-menu');
-    if (!toggle || !menu) return;
+    if (!toggle || !menu) return null;
+    return (UserDropdown.#instance = new UserDropdown(toggle, menu));
+  }
 
-    menu.hidden = true;
+  destroy() {
+    this.#abortController.abort();
+    UserDropdown.#instance = null;
+  }
 
-    const getItems = () => [
-      ...menu.querySelectorAll('[role="menuitem"] a, [role="menuitem"] button')
-    ];
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#toggle.addEventListener('click', this.#handleToggleClick, { signal });
+    this.#menu.addEventListener('keydown', this.#handleKeydown, { signal });
+    document.addEventListener('click', this.#handleOutsideClick, { signal });
+  }
 
-    const closeBellMenu = () => {
-      const bd = document.getElementById('bell-dropdown');
-      const bl = document.querySelector('#bell-wrapper > a[href="/notifications"]');
-      if (bd && !bd.hidden) {
-        bd.hidden = true;
-        bl?.setAttribute('aria-expanded', 'false');
-      }
-    };
+  #getItems() {
+    return [...this.#menu.querySelectorAll('[role="menuitem"] a, [role="menuitem"] button')];
+  }
 
-    const open = () => {
-      closeBellMenu();
-      menu.hidden = false;
-      toggle.setAttribute('aria-expanded', 'true');
+  #isOpen() {
+    return !this.#menu.hidden;
+  }
 
-      const items = getItems();
-      items[0]?.focus();
-    };
+  #closeBellMenu() {
+    const bd = document.getElementById('bell-dropdown');
+    const bl = document.querySelector('#bell-wrapper > a[href="/notifications"]');
+    if (bd && !bd.hidden) {
+      bd.hidden = true;
+      bl?.setAttribute('aria-expanded', 'false');
+    }
+  }
 
-    const close = (returnFocus = true) => {
-      menu.hidden = true;
-      toggle.setAttribute('aria-expanded', 'false');
+  #open() {
+    this.#closeBellMenu();
+    this.#menu.hidden = false;
+    this.#toggle.setAttribute('aria-expanded', 'true');
+    this.#getItems()[0]?.focus();
+  }
 
-      if (returnFocus) toggle.focus();
-    };
+  #close(returnFocus = true) {
+    this.#menu.hidden = true;
+    this.#toggle.setAttribute('aria-expanded', 'false');
+    if (returnFocus) this.#toggle.focus();
+  }
 
-    const isOpen = () => !menu.hidden;
-
-    toggle.addEventListener('click', () => {
-      isOpen() ? close() : open();
-    });
-
-    // Keyboard navigation within the dropdown menu
-    menu.addEventListener('keydown', (e) => {
-      const items = getItems();
-      const index = items.indexOf(document.activeElement);
-
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault();
-          const next = items[(index + 1) % items.length];
-          next?.focus();
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          const prev = items[(index - 1 + items.length) % items.length];
-          prev?.focus();
-          break;
-        }
-        case 'Home': {
-          e.preventDefault();
-          items[0]?.focus();
-          break;
-        }
-        case 'End': {
-          e.preventDefault();
-          items[items.length - 1]?.focus();
-          break;
-        }
-        case 'Escape': {
-          close();
-          break;
-        }
-        case 'Tab': {
-          close(false);
-          break;
-        }
-      }
-    });
-
-    // Click outside closes the dropdown
-    document.addEventListener('click', (e) => {
-      if (isOpen() && !menu.contains(e.target) && !toggle.contains(e.target)) {
-        close(false);
-      }
-    });
+  #handleToggleClick = () => {
+    this.#isOpen() ? this.#close() : this.#open();
   };
 
-  // ─── Dialog Modal System ────────────────────────────────────────────
+  /** @param {KeyboardEvent} e */
+  #handleKeydown = (e) => {
+    const items = this.#getItems();
+    const index = items.indexOf(document.activeElement);
 
-  const initModals = () => {
-    let activeTrigger = null;
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        items[(index + 1) % items.length]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        items[(index - 1 + items.length) % items.length]?.focus();
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        items[0]?.focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+        break;
+      }
+      case 'Escape': {
+        this.#close();
+        break;
+      }
+      case 'Tab': {
+        this.#close(false);
+        break;
+      }
+    }
+  };
 
-    // Open: event delegation on [data-modal] links
-    document.addEventListener('click', (e) => {
-      const trigger = e.target.closest('[data-modal]');
-      if (!trigger) return;
+  #handleOutsideClick = (e) => {
+    if (this.#isOpen() && !this.#menu.contains(e.target) && !this.#toggle.contains(e.target)) {
+      this.#close(false);
+    }
+  };
+}
 
+// ─── Modal System ────────────────────────────────────────────────────
+
+class ModalSystem {
+  static #instance = null;
+
+  #activeTrigger = null;
+  #scrollY = 0;
+  #abortController = new AbortController();
+
+  constructor() {
+    this.#bind();
+  }
+
+  /** @returns {ModalSystem|null} */
+  static init() {
+    if (ModalSystem.#instance) return ModalSystem.#instance;
+    return (ModalSystem.#instance = new ModalSystem());
+  }
+
+  destroy() {
+    this.#abortController.abort();
+    if (window.NT) NT.style.removeRule('modal-scroll-lock');
+    document.body.classList.remove('modal-scroll-lock', 'modal-active');
+    ModalSystem.#instance = null;
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+    document.addEventListener('click', this.#handleClick, { signal });
+    document.addEventListener('close', this.#handleClose, { signal, capture: true });
+  }
+
+  #handleClick = (e) => {
+    const trigger = e.target.closest('[data-modal]');
+    if (trigger) {
       const name = trigger.dataset.modal;
       const dialog = document.getElementById(`modal-${name}`);
       if (!dialog || !(dialog instanceof HTMLDialogElement)) return;
 
       e.preventDefault();
 
-      // Only one modal open at a time
       const current = document.querySelector('dialog[open]');
-      if (current && current !== dialog) {
-        current.close();
-      }
+      if (current && current !== dialog) current.close();
 
-      activeTrigger = trigger;
+      this.#activeTrigger = trigger;
       dialog.showModal();
       document.body.classList.add('modal-active');
 
-      // Focus the close button inside the dialog header
-      const closeBtn = dialog.querySelector('header button');
-      closeBtn?.focus();
+      this.#scrollY = window.scrollY;
+      document.body.classList.add('modal-scroll-lock');
+      if (window.NT) {
+        NT.style.setRule(
+          'modal-scroll-lock',
+          'body.modal-scroll-lock',
+          `position:fixed;top:-${this.#scrollY}px;width:100%`
+        );
+      }
 
-      document.dispatchEvent(
-        new CustomEvent('modal:open', { detail: { name } })
-      );
-    });
+      dialog.querySelector('header button')?.focus();
 
-    // Close button: event delegation on close buttons inside dialog headers
-    document.addEventListener('click', (e) => {
-      const closeBtn = e.target.closest('dialog header button');
-      if (!closeBtn) return;
+      document.dispatchEvent(new CustomEvent('modal:open', { detail: { name } }));
+      return;
+    }
 
-      const dialog = closeBtn.closest('dialog');
-      dialog?.close();
-    });
+    const closeBtn = e.target.closest('dialog header button');
+    if (closeBtn) {
+      closeBtn.closest('dialog')?.close();
+      return;
+    }
 
-    // Backdrop click: clicks outside the dialog's visible content area
-    document.addEventListener('click', (e) => {
-      if (!(e.target instanceof HTMLDialogElement) || !e.target.open) return;
-
+    if (e.target instanceof HTMLDialogElement && e.target.open) {
       const rect = e.target.getBoundingClientRect();
       const clickedInside =
         e.clientX >= rect.left &&
         e.clientX <= rect.right &&
         e.clientY >= rect.top &&
         e.clientY <= rect.bottom;
-
-      if (!clickedInside) {
-        e.target.close();
-      }
-    });
-
-    // Cleanup on close — fires for Escape (native), .close(), and form method="dialog".
-    document.addEventListener(
-      'close',
-      (e) => {
-        if (!(e.target instanceof HTMLDialogElement)) return;
-
-        document.body.classList.remove('modal-active');
-
-        const name = e.target.id?.replace('modal-', '');
-        document.dispatchEvent(
-          new CustomEvent('modal:close', { detail: { name } })
-        );
-
-        if (activeTrigger) {
-          activeTrigger.focus();
-          activeTrigger = null;
-        }
-      },
-      true // capture phase — close event does not bubble
-    );
+      if (!clickedInside) e.target.close();
+    }
   };
 
-  // ─── Notification Badge Polling ───────────────────────────────────
+  #handleClose = (e) => {
+    if (!(e.target instanceof HTMLDialogElement)) return;
 
-  const initBadgePolling = () => {
+    document.body.classList.remove('modal-active', 'modal-scroll-lock');
+    if (window.NT) NT.style.removeRule('modal-scroll-lock');
+    window.scrollTo(0, this.#scrollY);
+
+    const name = e.target.id?.replace('modal-', '');
+    document.dispatchEvent(new CustomEvent('modal:close', { detail: { name } }));
+
+    if (this.#activeTrigger) {
+      this.#activeTrigger.focus();
+      this.#activeTrigger = null;
+    }
+  };
+}
+
+// ─── Badge Poller ────────────────────────────────────────────────────
+
+class BadgePoller {
+  static #instance = null;
+  static #BASE_INTERVAL = 60_000;
+  static #MAX_INTERVAL = 300_000;
+  static #MAX_ERRORS = 10;
+
+  /** @type {HTMLAnchorElement} */
+  #bellLink;
+  #interval;
+  #consecutiveErrors = 0;
+  #timerId = null;
+  #abortController = new AbortController();
+
+  /** @param {HTMLAnchorElement} bellLink */
+  constructor(bellLink) {
+    this.#bellLink = bellLink;
+    this.#interval = BadgePoller.#BASE_INTERVAL;
+
+    document.addEventListener('visibilitychange', this.#handleVisibility, {
+      signal: this.#abortController.signal,
+    });
+
+    this.#timerId = setTimeout(this.#poll, BadgePoller.#BASE_INTERVAL);
+  }
+
+  /** @returns {BadgePoller|null} */
+  static init() {
+    if (BadgePoller.#instance) return BadgePoller.#instance;
     const bellLink = document.querySelector('#bell-wrapper > a[href="/notifications"]');
-    if (!bellLink || !window.NT) return;
+    if (!bellLink || !window.NT) return null;
+    return (BadgePoller.#instance = new BadgePoller(bellLink));
+  }
 
-    const BASE_INTERVAL = 60_000;
-    const MAX_INTERVAL = 300_000;
-    let interval = BASE_INTERVAL;
-    let consecutiveErrors = 0;
-    let timerId = null;
+  destroy() {
+    clearTimeout(this.#timerId);
+    this.#abortController.abort();
+    BadgePoller.#instance = null;
+  }
 
-    const updateBadge = (count) => {
-      let badge = bellLink.querySelector('span');
+  #updateBadge(count) {
+    let badge = this.#bellLink.querySelector('span');
 
-      if (count > 0) {
-        if (!badge) {
-          badge = document.createElement('span');
-          bellLink.appendChild(badge);
-        }
-        badge.textContent = count;
-        bellLink.setAttribute('aria-label', `Notifications (${count} unread)`);
-      } else {
-        badge?.remove();
-        bellLink.setAttribute('aria-label', 'Notifications');
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        this.#bellLink.appendChild(badge);
+      }
+      badge.textContent = count;
+      this.#bellLink.setAttribute('aria-label', `Notifications (${count} unread)`);
+    } else {
+      badge?.remove();
+      this.#bellLink.setAttribute('aria-label', 'Notifications');
+    }
+
+    const mobileBell = document.querySelector('[data-mobile-auth] a[href="/notifications"]');
+    if (mobileBell) {
+      const icon = mobileBell.querySelector('i');
+      mobileBell.textContent = '';
+      if (icon) mobileBell.appendChild(icon);
+      mobileBell.append(count > 0 ? ` Notifications (${count})` : ' Notifications');
+    }
+  }
+
+  #poll = async () => {
+    try {
+      const response = await NT.fetch('/notifications/unread-count');
+      if (!response.ok) throw new Error(response.status);
+
+      const data = await response.json();
+
+      if (data.success) {
+        this.#updateBadge(data.unread);
+        this.#consecutiveErrors = 0;
+        this.#interval = BadgePoller.#BASE_INTERVAL;
+      }
+    } catch {
+      this.#consecutiveErrors++;
+
+      if (this.#consecutiveErrors >= BadgePoller.#MAX_ERRORS) {
+        this.#timerId = null;
+        return;
       }
 
-      // Update mobile menu clone if it exists
-      const mobileBell = document.querySelector('[data-mobile-auth] a[href="/notifications"]');
-      if (mobileBell) {
-        const icon = mobileBell.querySelector('i');
-        mobileBell.textContent = '';
-        if (icon) mobileBell.appendChild(icon);
-        mobileBell.append(count > 0 ? ` Notifications (${count})` : ' Notifications');
-      }
-    };
+      this.#interval = Math.min(
+        BadgePoller.#BASE_INTERVAL * 2 ** this.#consecutiveErrors,
+        BadgePoller.#MAX_INTERVAL
+      );
+    }
 
-    const poll = async () => {
-      try {
-        const response = await NT.fetch('/notifications/unread-count');
-        if (!response.ok) throw new Error(response.status);
-
-        const data = await response.json();
-
-        if (data.success) {
-          updateBadge(data.unread);
-          consecutiveErrors = 0;
-          interval = BASE_INTERVAL;
-        }
-      } catch {
-        consecutiveErrors++;
-        interval = Math.min(BASE_INTERVAL * 2 ** consecutiveErrors, MAX_INTERVAL);
-      }
-
-      timerId = setTimeout(poll, interval);
-    };
-
-    // Pause when tab is hidden, resume when visible
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        clearTimeout(timerId);
-        timerId = null;
-      } else if (!timerId) {
-        poll();
-      }
-    });
-
-    timerId = setTimeout(poll, BASE_INTERVAL);
+    this.#timerId = setTimeout(this.#poll, this.#interval);
   };
 
-  // ─── Bell Dropdown ────────────────────────────────────────────────
+  #handleVisibility = () => {
+    if (document.visibilityState === 'hidden') {
+      clearTimeout(this.#timerId);
+      this.#timerId = null;
+    } else if (!this.#timerId && this.#consecutiveErrors < BadgePoller.#MAX_ERRORS) {
+      this.#poll();
+    }
+  };
+}
 
-  const initBellDropdown = () => {
+// ─── Bell Dropdown ───────────────────────────────────────────────────
+
+class BellDropdown {
+  static #instance = null;
+
+  static #TYPE_ICONS = {
+    request: 'fa-hand',
+    approval: 'fa-circle-check',
+    denial: 'fa-circle-xmark',
+    due: 'fa-clock',
+    return: 'fa-rotate-left',
+    rating: 'fa-star',
+  };
+
+  /** @type {HTMLElement} */
+  #wrapper;
+  /** @type {HTMLAnchorElement} */
+  #bellLink;
+  /** @type {HTMLElement} */
+  #dropdown;
+  /** @type {HTMLUListElement} */
+  #list;
+  /** @type {HTMLParagraphElement} */
+  #emptyMsg;
+  #loading = false;
+  #lastAnnouncedCount = -1;
+  /** @type {MutationObserver} */
+  #observer;
+  #abortController = new AbortController();
+  /** @type {AbortController|null} */
+  #fetchController = null;
+
+  /**
+   * @param {HTMLElement} wrapper
+   * @param {HTMLAnchorElement} bellLink
+   * @param {HTMLElement} dropdown
+   */
+  constructor(wrapper, bellLink, dropdown) {
+    this.#wrapper = wrapper;
+    this.#bellLink = bellLink;
+    this.#dropdown = dropdown;
+    this.#list = dropdown.querySelector('ul');
+    this.#emptyMsg = dropdown.querySelector('p');
+
+    this.#observer = new MutationObserver(() => {
+      if (this.#isOpen()) this.#fetchPreview();
+    });
+    this.#observer.observe(bellLink, { childList: true, subtree: true, characterData: true });
+
+    this.#bind();
+  }
+
+  /** @returns {BellDropdown|null} */
+  static init() {
+    if (BellDropdown.#instance) return BellDropdown.#instance;
     const wrapper = document.getElementById('bell-wrapper');
     const bellLink = wrapper?.querySelector('a[href="/notifications"]');
     const dropdown = document.getElementById('bell-dropdown');
-    if (!wrapper || !bellLink || !dropdown || !window.NT) return;
-
-    const list = dropdown.querySelector('ul');
-    const emptyMsg = dropdown.querySelector('p');
-    let loaded = false;
-    let loading = false;
-
-    const TYPE_ICONS = {
-      request: 'fa-hand',
-      approval: 'fa-circle-check',
-      denial: 'fa-circle-xmark',
-      due: 'fa-clock',
-      return: 'fa-rotate-left',
-      rating: 'fa-star',
-    };
-
-    const relativeTime = (hours) => {
-      if (hours < 1) return 'Just now';
-      if (hours === 1) return '1 hour ago';
-      if (hours < 24) return `${hours} hours ago`;
-      const days = Math.floor(hours / 24);
-      if (days === 1) return 'Yesterday';
-      if (days < 7) return `${days} days ago`;
-      return `${Math.floor(days / 7)}w ago`;
-    };
-
-    const renderItems = (items) => {
-      list.innerHTML = '';
-
-      for (const item of items) {
-        const li = document.createElement('li');
-
-        const a = document.createElement('a');
-        a.href = item.link;
-        a.setAttribute('role', 'menuitem');
-
-        const iconSpan = document.createElement('span');
-        const icon = document.createElement('i');
-        icon.className = `fa-solid ${TYPE_ICONS[item.type] || 'fa-bell'}`;
-        icon.setAttribute('aria-hidden', 'true');
-        iconSpan.appendChild(icon);
-
-        const textSpan = document.createElement('span');
-        const strong = document.createElement('strong');
-        strong.textContent = item.title;
-        const em = document.createElement('em');
-        em.textContent = relativeTime(item.hoursAgo);
-        textSpan.append(strong, em);
-
-        a.append(iconSpan, textSpan);
-        li.appendChild(a);
-        list.appendChild(li);
-      }
-    };
-
-    const updateContent = (items) => {
-      if (items.length > 0) {
-        renderItems(items);
-        list.hidden = false;
-        emptyMsg.hidden = true;
-      } else {
-        list.innerHTML = '';
-        list.hidden = true;
-        emptyMsg.hidden = false;
-      }
-    };
-
-    const fetchPreview = async () => {
-      if (loading) return;
-      loading = true;
-
-      try {
-        const res = await NT.fetch('/notifications/preview');
-        if (!res.ok) throw new Error(res.status);
-
-        const data = await res.json();
-
-        if (data.success) {
-          updateContent(data.items);
-          loaded = true;
-          announceBadge(data.unread);
-        }
-      } catch {
-        loaded = false;
-        updateContent([]);
-      } finally {
-        loading = false;
-      }
-    };
-
-    const isOpen = () => !dropdown.hidden;
-
-    const closeUserMenu = () => {
-      const um = document.getElementById('user-actions-menu');
-      const ut = document.getElementById('user-actions-toggle');
-      if (um && !um.hidden) {
-        um.hidden = true;
-        ut?.setAttribute('aria-expanded', 'false');
-      }
-    };
-
-    const open = () => {
-      closeUserMenu();
-      dropdown.hidden = false;
-      bellLink.setAttribute('aria-expanded', 'true');
-      fetchPreview();
-
-      requestAnimationFrame(() => {
-        const firstLink = list.querySelector('a')
-          || dropdown.querySelector(':scope > a');
-        firstLink?.focus();
-      });
-    };
-
-    const close = (returnFocus = true) => {
-      dropdown.hidden = true;
-      bellLink.setAttribute('aria-expanded', 'false');
-      if (returnFocus) bellLink.focus();
-    };
-
-    bellLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      isOpen() ? close() : open();
-    });
-
-    document.addEventListener('click', (e) => {
-      if (isOpen() && !wrapper.contains(e.target)) {
-        close(false);
-      }
-    });
-
-    // Keyboard navigation
-    dropdown.addEventListener('keydown', (e) => {
-      const items = [...dropdown.querySelectorAll('a')];
-      const index = items.indexOf(document.activeElement);
-
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault();
-          const next = items[(index + 1) % items.length];
-          next?.focus();
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          const prev = items[(index - 1 + items.length) % items.length];
-          prev?.focus();
-          break;
-        }
-        case 'Home': {
-          e.preventDefault();
-          items[0]?.focus();
-          break;
-        }
-        case 'End': {
-          e.preventDefault();
-          items[items.length - 1]?.focus();
-          break;
-        }
-        case 'Escape': {
-          close();
-          break;
-        }
-        case 'Tab': {
-          close(false);
-          break;
-        }
-      }
-    });
-
-    let lastAnnouncedCount = -1;
-
-    const announceBadge = (count) => {
-      if (count === lastAnnouncedCount || !window.NT) return;
-      lastAnnouncedCount = count;
-
-      NT.focus.announce(
-        count > 0
-          ? `${count} unread notification${count !== 1 ? 's' : ''}`
-          : 'No unread notifications'
-      );
-    };
-
-    // Re-fetch when badge polling updates the count
-    const observer = new MutationObserver(() => {
-      if (isOpen()) fetchPreview();
-    });
-    observer.observe(bellLink, { childList: true, subtree: true, characterData: true });
-  };
-
-  // ─── Keyboard Shortcut Overlay ──────────────────────────────────
-
-  const initShortcutOverlay = () => {
-    const shortcuts = [
-      ['?', 'Show this help'],
-      ['/', 'Focus search'],
-      ['g then h', 'Go to Home'],
-      ['g then d', 'Go to Dashboard'],
-      ['g then t', 'Go to Tools'],
-      ['g then n', 'Go to Notifications'],
-      ['Alt then \u2190', 'Go back (dashboard)'],
-    ];
-
-    let dialog = null;
-    let pendingG = false;
-    let gTimer = null;
-
-    const isTyping = () => {
-      const el = document.activeElement;
-      if (!el) return false;
-      const tag = el.tagName;
-      return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
-    };
-
-    const buildDialog = () => {
-      dialog = document.createElement('dialog');
-      dialog.id = 'keyboard-shortcuts';
-      dialog.setAttribute('aria-label', 'Keyboard shortcuts');
-
-      const header = document.createElement('header');
-      const h2 = document.createElement('h2');
-      h2.textContent = 'Keyboard Shortcuts';
-      const closeBtn = document.createElement('button');
-      closeBtn.type = 'button';
-      closeBtn.setAttribute('aria-label', 'Close');
-      const closeIcon = document.createElement('i');
-      closeIcon.className = 'fa-solid fa-xmark';
-      closeIcon.setAttribute('aria-hidden', 'true');
-      closeBtn.appendChild(closeIcon);
-      closeBtn.addEventListener('click', () => dialog.close());
-      header.append(h2, closeBtn);
-
-      const dl = document.createElement('dl');
-      dl.className = 'shortcut-list';
-
-      for (const [key, desc] of shortcuts) {
-        const dt = document.createElement('dt');
-        for (const part of key.split(' then ')) {
-          const kbd = document.createElement('kbd');
-          kbd.textContent = part;
-          dt.appendChild(kbd);
-          dt.append(' ');
-        }
-        const dd = document.createElement('dd');
-        dd.textContent = desc;
-        dl.append(dt, dd);
-      }
-
-      dialog.append(header, dl);
-      document.body.appendChild(dialog);
-      return dialog;
-    };
-
-    document.addEventListener('keydown', (e) => {
-      if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
-
-      // Handle "g then X" chord
-      if (pendingG) {
-        pendingG = false;
-        clearTimeout(gTimer);
-
-        const routes = { h: '/', d: '/dashboard', t: '/tools', n: '/notifications' };
-        const dest = routes[e.key];
-        if (dest && window.location.pathname !== dest) {
-          window.location.href = dest;
-        }
-        return;
-      }
-
-      if (e.key === 'g') {
-        pendingG = true;
-        gTimer = setTimeout(() => { pendingG = false; }, 1_000);
-        return;
-      }
-
-      if (e.key === '?') {
-        e.preventDefault();
-        if (!dialog) buildDialog();
-        dialog.showModal();
-        return;
-      }
-
-      if (e.key === '/') {
-        const search = document.querySelector('input[name="q"], input[type="search"]');
-        if (search) {
-          e.preventDefault();
-          search.focus();
-        }
-      }
-    });
-  };
-
-  // ─── Modal Scroll Lock (iOS hardening) ──────────────────────────
-
-  const initModalScrollLock = () => {
-    let scrollY = 0;
-
-    document.addEventListener('modal:open', () => {
-      scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-    });
-
-    document.addEventListener('modal:close', () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      window.scrollTo(0, scrollY);
-    });
-  };
-
-  // ─── Init ───────────────────────────────────────────────────────────
-
-  const init = () => {
-    initHamburger();
-    initDropdown();
-    initBellDropdown();
-    initModals();
-    initBadgePolling();
-    initShortcutOverlay();
-    initModalScrollLock();
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+    if (!wrapper || !bellLink || !dropdown || !window.NT) return null;
+    return (BellDropdown.#instance = new BellDropdown(wrapper, bellLink, dropdown));
   }
 
-})();
+  destroy() {
+    this.#observer.disconnect();
+    this.#fetchController?.abort();
+    this.#abortController.abort();
+    BellDropdown.#instance = null;
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#bellLink.addEventListener('click', this.#handleBellClick, { signal });
+    document.addEventListener('click', this.#handleOutsideClick, { signal });
+    this.#dropdown.addEventListener('keydown', this.#handleKeydown, { signal });
+  }
+
+  #isOpen() {
+    return !this.#dropdown.hidden;
+  }
+
+  #closeUserMenu() {
+    const um = document.getElementById('user-actions-menu');
+    const ut = document.getElementById('user-actions-toggle');
+    if (um && !um.hidden) {
+      um.hidden = true;
+      ut?.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  #open() {
+    this.#closeUserMenu();
+    this.#dropdown.hidden = false;
+    this.#bellLink.setAttribute('aria-expanded', 'true');
+    this.#fetchPreview();
+
+    requestAnimationFrame(() => {
+      const firstLink = this.#list.querySelector('a')
+        || this.#dropdown.querySelector(':scope > a');
+      firstLink?.focus();
+    });
+  }
+
+  #close(returnFocus = true) {
+    this.#dropdown.hidden = true;
+    this.#bellLink.setAttribute('aria-expanded', 'false');
+    if (returnFocus) this.#bellLink.focus();
+  }
+
+  static #relativeTime(hours) {
+    if (hours < 1) return 'Just now';
+    if (hours === 1) return '1 hour ago';
+    if (hours < 24) return `${hours} hours ago`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    return `${Math.floor(days / 7)}w ago`;
+  }
+
+  #renderItems(items) {
+    this.#list.innerHTML = '';
+
+    for (const item of items) {
+      const li = document.createElement('li');
+
+      const a = document.createElement('a');
+      a.href = item.link;
+      a.setAttribute('role', 'menuitem');
+
+      const iconSpan = document.createElement('span');
+      const icon = document.createElement('i');
+      icon.className = `fa-solid ${BellDropdown.#TYPE_ICONS[item.type] || 'fa-bell'}`;
+      icon.setAttribute('aria-hidden', 'true');
+      iconSpan.appendChild(icon);
+
+      const textSpan = document.createElement('span');
+      const strong = document.createElement('strong');
+      strong.textContent = item.title;
+      const em = document.createElement('em');
+      em.textContent = BellDropdown.#relativeTime(item.hoursAgo);
+      textSpan.append(strong, em);
+
+      a.append(iconSpan, textSpan);
+      li.appendChild(a);
+      this.#list.appendChild(li);
+    }
+  }
+
+  #updateContent(items) {
+    if (items.length > 0) {
+      this.#renderItems(items);
+      this.#list.hidden = false;
+      this.#emptyMsg.hidden = true;
+    } else {
+      this.#list.innerHTML = '';
+      this.#list.hidden = true;
+      this.#emptyMsg.hidden = false;
+    }
+  }
+
+  async #fetchPreview() {
+    if (this.#loading) return;
+    this.#loading = true;
+    this.#fetchController?.abort();
+    this.#fetchController = new AbortController();
+
+    try {
+      const res = await NT.fetch('/notifications/preview', {
+        signal: this.#fetchController.signal,
+      });
+      if (!res.ok) throw new Error(res.status);
+
+      const data = await res.json();
+
+      if (data.success) {
+        this.#updateContent(data.items);
+        this.#announceBadge(data.unread);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        this.#updateContent([]);
+      }
+    } finally {
+      this.#loading = false;
+    }
+  }
+
+  #announceBadge(count) {
+    if (count === this.#lastAnnouncedCount) return;
+    this.#lastAnnouncedCount = count;
+
+    NT.focus.announce(
+      count > 0
+        ? `${count} unread notification${count !== 1 ? 's' : ''}`
+        : 'No unread notifications'
+    );
+  }
+
+  #handleBellClick = (e) => {
+    e.preventDefault();
+    this.#isOpen() ? this.#close() : this.#open();
+  };
+
+  #handleOutsideClick = (e) => {
+    if (this.#isOpen() && !this.#wrapper.contains(e.target)) {
+      this.#close(false);
+    }
+  };
+
+  /** @param {KeyboardEvent} e */
+  #handleKeydown = (e) => {
+    const items = [...this.#dropdown.querySelectorAll('a')];
+    const index = items.indexOf(document.activeElement);
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        items[(index + 1) % items.length]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        items[(index - 1 + items.length) % items.length]?.focus();
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        items[0]?.focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+        break;
+      }
+      case 'Escape': {
+        this.#close();
+        break;
+      }
+      case 'Tab': {
+        this.#close(false);
+        break;
+      }
+    }
+  };
+}
+
+// ─── Shortcut Overlay ────────────────────────────────────────────────
+
+class ShortcutOverlay {
+  static #instance = null;
+
+  static #SHORTCUTS = [
+    ['?', 'Show this help'],
+    ['/', 'Focus search'],
+    ['g then h', 'Go to Home'],
+    ['g then d', 'Go to Dashboard'],
+    ['g then t', 'Go to Tools'],
+    ['g then n', 'Go to Notifications'],
+    ['Alt then \u2190', 'Go back (dashboard)'],
+  ];
+
+  /** @type {HTMLDialogElement|null} */
+  #dialog = null;
+  #pendingG = false;
+  #gTimer = null;
+  #abortController = new AbortController();
+
+  constructor() {
+    document.addEventListener('keydown', this.#handleKeydown, {
+      signal: this.#abortController.signal,
+    });
+  }
+
+  /** @returns {ShortcutOverlay|null} */
+  static init() {
+    if (ShortcutOverlay.#instance) return ShortcutOverlay.#instance;
+    return (ShortcutOverlay.#instance = new ShortcutOverlay());
+  }
+
+  destroy() {
+    clearTimeout(this.#gTimer);
+    this.#abortController.abort();
+    this.#dialog?.remove();
+    ShortcutOverlay.#instance = null;
+  }
+
+  #isTyping() {
+    const el = document.activeElement;
+    if (!el) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
+  }
+
+  #buildDialog() {
+    this.#dialog = document.createElement('dialog');
+    this.#dialog.id = 'keyboard-shortcuts';
+    this.#dialog.setAttribute('aria-label', 'Keyboard shortcuts');
+
+    const header = document.createElement('header');
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Keyboard Shortcuts';
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close');
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fa-solid fa-xmark';
+    closeIcon.setAttribute('aria-hidden', 'true');
+    closeBtn.appendChild(closeIcon);
+    closeBtn.addEventListener('click', () => this.#dialog.close(), {
+      signal: this.#abortController.signal,
+    });
+    header.append(h2, closeBtn);
+
+    const dl = document.createElement('dl');
+    dl.className = 'shortcut-list';
+
+    for (const [key, desc] of ShortcutOverlay.#SHORTCUTS) {
+      const dt = document.createElement('dt');
+      for (const part of key.split(' then ')) {
+        const kbd = document.createElement('kbd');
+        kbd.textContent = part;
+        dt.appendChild(kbd);
+        dt.append(' ');
+      }
+      const dd = document.createElement('dd');
+      dd.textContent = desc;
+      dl.append(dt, dd);
+    }
+
+    this.#dialog.append(header, dl);
+    document.body.appendChild(this.#dialog);
+  }
+
+  /** @param {KeyboardEvent} e */
+  #handleKeydown = (e) => {
+    if (this.#isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (this.#pendingG) {
+      this.#pendingG = false;
+      clearTimeout(this.#gTimer);
+
+      const routes = { h: '/', d: '/dashboard', t: '/tools', n: '/notifications' };
+      const dest = routes[e.key];
+      if (dest && window.location.pathname !== dest) {
+        window.location.href = dest;
+      }
+      return;
+    }
+
+    if (e.key === 'g') {
+      this.#pendingG = true;
+      this.#gTimer = setTimeout(() => { this.#pendingG = false; }, 1_000);
+      return;
+    }
+
+    if (e.key === '?') {
+      e.preventDefault();
+      if (!this.#dialog) this.#buildDialog();
+      this.#dialog.showModal();
+      return;
+    }
+
+    if (e.key === '/') {
+      const search = document.querySelector('input[name="q"], input[type="search"]');
+      if (search) {
+        e.preventDefault();
+        search.focus();
+      }
+    }
+  };
+}
+
+// ─── Init ────────────────────────────────────────────────────────────
+
+const init = () => {
+  HamburgerMenu.init();
+  UserDropdown.init();
+  BellDropdown.init();
+  ModalSystem.init();
+  BadgePoller.init();
+  ShortcutOverlay.init();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

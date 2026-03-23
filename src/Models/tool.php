@@ -1228,6 +1228,31 @@ class Tool
     }
 
     /**
+     * Soft-delete all tools belonging to an account.
+     *
+     * @param int $accountId
+     * @return int Number of tools affected
+     */
+    public static function softDeleteByOwner(int $accountId): int
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE tool_tol
+            SET is_deleted_tol   = TRUE,
+                is_available_tol = FALSE,
+                deleted_at_tol   = NOW()
+            WHERE id_acc_tol = :accountId
+              AND is_deleted_tol = FALSE
+        ");
+
+        $stmt->bindValue(':accountId', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->rowCount();
+    }
+
+    /**
      * Find tools soft-deleted at least $days ago with images still on disk.
      *
      * @param  int  $days  Minimum age in days since deletion

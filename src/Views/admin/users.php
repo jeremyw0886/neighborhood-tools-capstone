@@ -77,8 +77,9 @@ $sortToColumn = [
     'member_since'       => 5,
 ];
 
-$ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
-$hasFilters  = $search !== null || $role !== null || $status !== null;
+$isDeletedTab = $tab === 'deleted';
+$ariaSortDir  = $dir === 'ASC' ? 'ascending' : 'descending';
+$hasFilters   = $search !== null || $role !== null || ($status !== null && !$isDeletedTab);
 ?>
 
 <section aria-labelledby="admin-users-heading">
@@ -97,9 +98,25 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
 
+  <nav aria-label="User list tabs" data-user-tabs>
+    <a href="/admin/users"<?= !$isDeletedTab ? ' aria-current="page"' : '' ?>>
+      <i class="fa-solid fa-users" aria-hidden="true"></i> Active Users
+    </a>
+    <a href="/admin/users?tab=deleted"<?= $isDeletedTab ? ' aria-current="page"' : '' ?>>
+      <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Deleted
+      <?php if ($deletedCount > 0): ?>
+        <span data-count><?= number_format($deletedCount) ?></span>
+      <?php endif; ?>
+    </a>
+  </nav>
+
   <form method="get" action="/admin/users" role="search" aria-label="Filter and sort users" data-admin-filters>
     <fieldset>
       <legend class="visually-hidden">Filter and sort users</legend>
+
+      <?php if ($isDeletedTab): ?>
+        <input type="hidden" name="tab" value="deleted">
+      <?php endif; ?>
 
       <div>
         <label for="users-search">Search</label>
@@ -120,16 +137,17 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
         </select>
       </div>
 
-      <div>
-        <label for="users-status">Status</label>
-        <select id="users-status" name="status">
-          <option value="">All Statuses</option>
-          <option value="active"<?= $status === 'active' ? ' selected' : '' ?>>Active</option>
-          <option value="suspended"<?= $status === 'suspended' ? ' selected' : '' ?>>Suspended</option>
-          <option value="pending"<?= $status === 'pending' ? ' selected' : '' ?>>Pending</option>
-          <option value="deleted"<?= $status === 'deleted' ? ' selected' : '' ?>>Deleted</option>
-        </select>
-      </div>
+      <?php if (!$isDeletedTab): ?>
+        <div>
+          <label for="users-status">Status</label>
+          <select id="users-status" name="status">
+            <option value="">All Statuses</option>
+            <option value="active"<?= $status === 'active' ? ' selected' : '' ?>>Active</option>
+            <option value="suspended"<?= $status === 'suspended' ? ' selected' : '' ?>>Suspended</option>
+            <option value="pending"<?= $status === 'pending' ? ' selected' : '' ?>>Pending</option>
+          </select>
+        </div>
+      <?php endif; ?>
 
       <div>
         <label for="users-sort">Sort By</label>
@@ -154,7 +172,7 @@ $hasFilters  = $search !== null || $role !== null || $status !== null;
         <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
       </button>
       <?php if ($hasFilters): ?>
-        <a href="<?= htmlspecialchars($basePath) ?>" role="button" data-intent="ghost">
+        <a href="<?= htmlspecialchars($basePath . ($isDeletedTab ? '?tab=deleted' : '')) ?>" role="button" data-intent="ghost">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i> Clear
         </a>
       <?php endif; ?>

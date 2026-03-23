@@ -1271,6 +1271,19 @@ class ToolController extends BaseController
         $focalX = isset($_POST['focal_x']) ? max(0, min(100, (int) $_POST['focal_x'])) : 50;
         $focalY = isset($_POST['focal_y']) ? max(0, min(100, (int) $_POST['focal_y'])) : 50;
 
+        $sourcePath = BASE_PATH . '/public/uploads/tools/' . $filename;
+        $created = ImageProcessor::generateVariants($sourcePath, focalX: $focalX, focalY: $focalY);
+
+        if ($created === [] && $width !== null && $width > 540) {
+            $this->deleteToolImageFiles($filename);
+            $errorMsg = 'Failed to generate image variants';
+            if ($json) {
+                $this->jsonResponse(500, ['error' => $errorMsg]);
+            }
+            $_SESSION['edit_tool_errors'] = ['photos' => $errorMsg];
+            $this->redirect('/tools/' . $toolId . '/edit');
+        }
+
         try {
             $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder, $focalX, $focalY, $width);
 

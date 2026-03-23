@@ -575,6 +575,8 @@ class ScrollToTop {
 
   /** @type {IntersectionObserver} */
   #observer;
+  /** @type {HTMLElement} */
+  #main;
   /** @type {HTMLButtonElement} */
   #btn;
   /** @type {HTMLDivElement} */
@@ -583,6 +585,8 @@ class ScrollToTop {
 
   /** @param {HTMLElement} main */
   constructor(main) {
+    this.#main = main;
+
     this.#sentinel = document.createElement('div');
     this.#sentinel.setAttribute('aria-hidden', 'true');
     this.#sentinel.id = 'scroll-sentinel';
@@ -608,7 +612,9 @@ class ScrollToTop {
     );
     this.#observer.observe(this.#sentinel);
 
-    this.#btn.addEventListener('click', this.#handleClick, { signal: this.#abortController.signal });
+    const { signal } = this.#abortController;
+    this.#btn.addEventListener('click', this.#handleClick, { signal });
+    document.addEventListener('dashboard:content-swapped', this.#handleContentSwap, { signal });
   }
 
   /** @returns {ScrollToTop|null} */
@@ -630,6 +636,14 @@ class ScrollToTop {
 
   #handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  #handleContentSwap = () => {
+    if (!this.#sentinel.isConnected) {
+      this.#main.prepend(this.#sentinel);
+      this.#observer.observe(this.#sentinel);
+    }
+    this.#btn.removeAttribute('data-visible');
   };
 }
 

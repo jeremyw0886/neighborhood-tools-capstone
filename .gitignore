@@ -67,3 +67,4 @@ public/assets/js/usability-test.js
 build-assets.php
 generate-220w-variants.php
 rewebp.php
+generate-missing-variants.php

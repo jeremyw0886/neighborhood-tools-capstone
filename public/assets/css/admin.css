@@ -1166,6 +1166,7 @@
     }
 
     & table {
+      --card-cols: 1fr;
 
       & tbody tr[data-pending] {
         border-left: 3px solid var(--mountain-gold);
@@ -3616,7 +3617,7 @@
       border-radius: 0.75rem;
       display: grid;
       gap: 0.625rem 0.75rem;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: var(--card-cols, repeat(3, 1fr));
       padding: 1.25rem 1.5rem;
       transition: border-color 0.2s;
 
@@ -3624,6 +3625,8 @@
         border-color: var(--mountain-pine-light);
       }
     }
+
+
 
     & tbody tr td {
       display: block;

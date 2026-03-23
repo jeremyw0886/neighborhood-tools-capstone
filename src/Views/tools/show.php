@@ -62,7 +62,7 @@ $images        ??= [];
             $mainAlt   = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
             $mainFx    = (int) ($primaryImage['focal_x_tim'] ?? 50);
             $mainFy    = (int) ($primaryImage['focal_y_tim'] ?? 50);
-            $mainSizes = '(max-width: 768px) 100vw, 600px';
+            $mainSizes = '(max-width: 700px) calc(100vw - 3rem), 410px';
             $mainW     = $primaryImage['width_tim'] ?? 750;
             $mainH     = (int) round($mainW / 1.5);
           ?>

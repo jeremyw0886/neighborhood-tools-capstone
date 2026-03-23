@@ -13,7 +13,7 @@ final class ImageProcessor
     private const int PNG_COMPRESSION = 6;
     private const int WEBP_QUALITY = 75;
 
-    public const array VARIANT_WIDTHS = [1200, 800, 600, 400];
+    public const array VARIANT_WIDTHS = [820, 750, 540];
 
     /**
      * Resize an image file in-place to a maximum width.

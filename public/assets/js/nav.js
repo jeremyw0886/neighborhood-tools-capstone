@@ -418,16 +418,12 @@ class BadgePoller {
   static #MAX_INTERVAL = 300_000;
   static #MAX_ERRORS = 10;
 
-  /** @type {HTMLAnchorElement} */
-  #bellLink;
   #interval;
   #consecutiveErrors = 0;
   #timerId = null;
   #abortController = new AbortController();
 
-  /** @param {HTMLAnchorElement} bellLink */
-  constructor(bellLink) {
-    this.#bellLink = bellLink;
+  constructor() {
     this.#interval = BadgePoller.#BASE_INTERVAL;
 
     document.addEventListener('visibilitychange', this.#handleVisibility, {
@@ -440,39 +436,14 @@ class BadgePoller {
   /** @returns {BadgePoller|null} */
   static init() {
     if (BadgePoller.#instance) return BadgePoller.#instance;
-    const bellLink = document.querySelector('#bell-wrapper > a[href="/notifications"]');
-    if (!bellLink || !window.NT) return null;
-    return (BadgePoller.#instance = new BadgePoller(bellLink));
+    if (!document.querySelector('#bell-wrapper > a[href="/notifications"]') || !window.NT) return null;
+    return (BadgePoller.#instance = new BadgePoller());
   }
 
   destroy() {
     clearTimeout(this.#timerId);
     this.#abortController.abort();
     BadgePoller.#instance = null;
-  }
-
-  #updateBadge(count) {
-    let badge = this.#bellLink.querySelector('span');
-
-    if (count > 0) {
-      if (!badge) {
-        badge = document.createElement('span');
-        this.#bellLink.appendChild(badge);
-      }
-      badge.textContent = count;
-      this.#bellLink.setAttribute('aria-label', `Notifications (${count} unread)`);
-    } else {
-      badge?.remove();
-      this.#bellLink.setAttribute('aria-label', 'Notifications');
-    }
-
-    const mobileBell = document.querySelector('[data-mobile-auth] a[href="/notifications"]');
-    if (mobileBell) {
-      const icon = mobileBell.querySelector('i');
-      mobileBell.textContent = '';
-      if (icon) mobileBell.appendChild(icon);
-      mobileBell.append(count > 0 ? ` Notifications (${count})` : ' Notifications');
-    }
   }
 
   #poll = async () => {
@@ -483,7 +454,7 @@ class BadgePoller {
       const data = await response.json();
 
       if (data.success) {
-        this.#updateBadge(data.unread);
+        NT.badge.set(data.unread);
         this.#consecutiveErrors = 0;
         this.#interval = BadgePoller.#BASE_INTERVAL;
       }

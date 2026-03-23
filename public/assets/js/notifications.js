@@ -232,42 +232,12 @@ class NotificationManager {
 
   // ── Badge Helpers ──
 
-  #getBellLink() {
-    return document.querySelector('#bell-wrapper > a[href="/notifications"]');
-  }
-
   #readBadgeCount() {
-    const badge = this.#getBellLink()?.querySelector('span');
-    return badge ? parseInt(badge.textContent, 10) || 0 : 0;
+    return NT.badge.read();
   }
 
   #setBadgeCount(count) {
-    const bellLink = this.#getBellLink();
-    if (!bellLink) return;
-
-    let badge = bellLink.querySelector('span');
-
-    if (count > 0) {
-      if (!badge) {
-        badge = document.createElement('span');
-        bellLink.appendChild(badge);
-      }
-      badge.textContent = count;
-      bellLink.setAttribute('aria-label', `Notifications (${count} unread)`);
-    } else {
-      badge?.remove();
-      bellLink.setAttribute('aria-label', 'Notifications');
-    }
-
-    const mobileBell = document.querySelector(
-      '[data-mobile-auth] a[href="/notifications"]'
-    );
-    if (mobileBell) {
-      const icon = mobileBell.querySelector('i');
-      mobileBell.textContent = '';
-      if (icon) mobileBell.appendChild(icon);
-      mobileBell.append(count > 0 ? ` Notifications (${count})` : ' Notifications');
-    }
+    NT.badge.set(count);
   }
 
   // ── Shared Helpers ──

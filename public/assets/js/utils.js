@@ -1051,6 +1051,60 @@ const initAdminSuggest = () => {
   }
 };
 
+// ─── Badge Manager ───────────────────────────────────────────────────
+
+class BadgeManager {
+  #getBellLink() {
+    return document.querySelector('#bell-wrapper > a[href="/notifications"]');
+  }
+
+  /**
+   * Update the notification badge count in both desktop and mobile nav.
+   *
+   * @param {number} count
+   */
+  set(count) {
+    const bellLink = this.#getBellLink();
+    if (!bellLink) return;
+
+    let badge = bellLink.querySelector('span');
+
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        bellLink.appendChild(badge);
+      }
+      badge.textContent = count;
+      bellLink.setAttribute('aria-label', `Notifications (${count} unread)`);
+    } else {
+      badge?.remove();
+      bellLink.setAttribute('aria-label', 'Notifications');
+    }
+
+    const mobileBell = document.querySelector(
+      '[data-mobile-auth] a[href="/notifications"]'
+    );
+    if (mobileBell) {
+      const icon = mobileBell.querySelector('i');
+      mobileBell.textContent = '';
+      if (icon) mobileBell.appendChild(icon);
+      mobileBell.append(count > 0 ? ` Notifications (${count})` : ' Notifications');
+    }
+  }
+
+  /**
+   * Read the current badge count from the DOM.
+   *
+   * @returns {number}
+   */
+  read() {
+    const badge = this.#getBellLink()?.querySelector('span');
+    return badge ? parseInt(badge.textContent, 10) || 0 : 0;
+  }
+}
+
+const badgeManager = new BadgeManager();
+
 // ─── Namespace ────────────────────────────────────────────────────────
 
 window.NT = {
@@ -1063,6 +1117,10 @@ window.NT = {
     removeRule: (key) => styleManager.removeRule(key),
   }),
   applyFocalPoints: (root) => styleManager.applyFocalPoints(root),
+  badge: Object.freeze({
+    set: (count) => badgeManager.set(count),
+    read: () => badgeManager.read(),
+  }),
   focus: Object.freeze({
     trap: (container) => focusManager.trap(container),
     announce: (message, priority) => focusManager.announce(message, priority),

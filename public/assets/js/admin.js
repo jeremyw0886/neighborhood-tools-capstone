@@ -55,3 +55,119 @@ class AdminDeleteConfirm {
 }
 
 AdminDeleteConfirm.init();
+
+class RoleChangeConfirm {
+  static #instance = null;
+
+  #dialog = document.querySelector('[data-role-confirm]');
+  #message = this.#dialog?.querySelector('[data-role-confirm-message]');
+  #pendingForm = null;
+  #pendingSelect = null;
+  #abortController = new AbortController();
+
+  constructor() {
+    const opts = { signal: this.#abortController.signal };
+    document.addEventListener('submit', this.#handleSubmit, opts);
+    this.#dialog.addEventListener('close', this.#handleClose, opts);
+  }
+
+  /** @returns {RoleChangeConfirm|null} */
+  static init() {
+    if (RoleChangeConfirm.#instance) return RoleChangeConfirm.#instance;
+    if (!document.querySelector('[data-role-confirm]')) return null;
+    return (RoleChangeConfirm.#instance = new RoleChangeConfirm());
+  }
+
+  /** @param {SubmitEvent} e */
+  #handleSubmit = (e) => {
+    const form = e.target;
+    if (!form.matches('[data-role-form]')) return;
+
+    const select = form.querySelector('[data-role-select]');
+    if (!select) return;
+
+    const original = select.dataset.original;
+    if (select.value === original) return;
+
+    e.preventDefault();
+
+    const label = select.getAttribute('aria-label') ?? '';
+    const name = label.replace(/^Role for /, '');
+    const fromLabel = original === 'admin' ? 'Admin' : 'Member';
+    const toLabel = select.value === 'admin' ? 'Admin' : 'Member';
+
+    this.#message.textContent = `Change ${name} from ${fromLabel} to ${toLabel}?`;
+    this.#pendingForm = form;
+    this.#pendingSelect = select;
+    this.#dialog.showModal();
+  };
+
+  #handleClose = () => {
+    if (this.#dialog.returnValue === 'confirm' && this.#pendingForm) {
+      this.#pendingForm.submit();
+    } else if (this.#pendingSelect) {
+      this.#pendingSelect.value = this.#pendingSelect.dataset.original;
+    }
+
+    this.#pendingForm = null;
+    this.#pendingSelect = null;
+  };
+}
+
+RoleChangeConfirm.init();
+
+class PurgeConfirm {
+  static #instance = null;
+
+  #dialog = document.querySelector('[data-purge-confirm]');
+  #form = this.#dialog?.querySelector('[data-purge-form]');
+  #nameDisplay = this.#dialog?.querySelector('[data-purge-expected-name]');
+  #nameInput = this.#dialog?.querySelector('[data-purge-name-input]');
+  #submitBtn = this.#dialog?.querySelector('[data-purge-submit]');
+  #cancelBtn = this.#dialog?.querySelector('[data-purge-cancel]');
+  #expectedName = '';
+  #abortController = new AbortController();
+
+  constructor() {
+    const opts = { signal: this.#abortController.signal };
+    document.addEventListener('click', this.#handleTrigger, opts);
+    this.#nameInput.addEventListener('input', this.#handleInput, opts);
+    this.#cancelBtn.addEventListener('click', this.#handleCancel, opts);
+    this.#dialog.addEventListener('cancel', this.#handleCancel, opts);
+  }
+
+  /** @returns {PurgeConfirm|null} */
+  static init() {
+    if (PurgeConfirm.#instance) return PurgeConfirm.#instance;
+    if (!document.querySelector('[data-purge-confirm]')) return null;
+    return (PurgeConfirm.#instance = new PurgeConfirm());
+  }
+
+  /** @param {MouseEvent} e */
+  #handleTrigger = (e) => {
+    const btn = e.target.closest('[data-purge-trigger]');
+    if (!btn) return;
+
+    const id = btn.dataset.purgeId;
+    this.#expectedName = btn.dataset.purgeName;
+
+    this.#form.action = `/admin/users/${encodeURIComponent(id)}/purge`;
+    this.#nameDisplay.textContent = this.#expectedName;
+    this.#nameInput.value = '';
+    this.#submitBtn.disabled = true;
+    this.#dialog.showModal();
+  };
+
+  #handleInput = () => {
+    this.#submitBtn.disabled =
+      this.#nameInput.value.trim().toLowerCase() !== this.#expectedName.toLowerCase();
+  };
+
+  #handleCancel = () => {
+    this.#dialog.close();
+    this.#nameInput.value = '';
+    this.#submitBtn.disabled = true;
+  };
+}
+
+PurgeConfirm.init();

@@ -187,7 +187,7 @@ $fuelTypes  ??= [];
       <footer>
         <button type="button" data-crop-cancel>Cancel</button>
         <button type="button" data-crop-confirm data-intent="primary">
-          <i class="fa-solid fa-plus"></i>
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
           <span data-crop-label>Add</span>
         </button>
       </footer>

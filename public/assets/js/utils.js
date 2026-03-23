@@ -597,7 +597,8 @@ class ScrollToTop {
 
     this.#observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        const scrollable = document.documentElement.scrollHeight > document.documentElement.clientHeight;
+        if (entry.isIntersecting || !scrollable) {
           this.#btn.removeAttribute('data-visible');
         } else {
           this.#btn.setAttribute('data-visible', '');

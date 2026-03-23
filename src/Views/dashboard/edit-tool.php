@@ -191,7 +191,7 @@ $images            ??= [];
                width="400" height="268"
                loading="lazy"
                decoding="async"
-               <?= ($focalX !== 50 || $focalY !== 50) ? "data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '' ?>>
+               <?= ($focalX !== 50 || $focalY !== 50) ? 'data-focal-x="' . htmlspecialchars((string) $focalX) . '" data-focal-y="' . htmlspecialchars((string) $focalY) . '"' : '' ?>>
 
           <div>
             <label for="alt-text-<?= $imgId ?>">

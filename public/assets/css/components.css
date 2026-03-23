@@ -680,6 +680,12 @@
             background: var(--mountain-fog);
             color: var(--mountain-pine-dark);
           }
+
+          &[aria-current="page"] {
+            background: var(--mountain-fog);
+            color: var(--mountain-pine);
+            font-weight: 600;
+          }
         }
       }
     }

@@ -100,9 +100,8 @@ $isHero = !empty($heroPage);
       </div>
 
       <ul id="user-actions-menu" role="menu">
-        <?php if (!str_starts_with($currentPage, '/dashboard')): ?>
           <li role="menuitem">
-            <a href="/dashboard">
+            <a href="/dashboard"<?= str_starts_with($currentPage, '/dashboard') ? ' aria-current="page"' : '' ?>>
               <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard
             </a>
           </li>
@@ -123,12 +122,11 @@ $isHero = !empty($heroPage);
           </li>
           <?php if (\App\Core\Role::tryFrom($authUser['role'])?->isAdmin()): ?>
             <li role="menuitem">
-              <a href="/admin">
+              <a href="/admin"<?= str_starts_with($currentPage, '/admin') ? ' aria-current="page"' : '' ?>>
                 <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Admin
               </a>
             </li>
           <?php endif; ?>
-        <?php endif; ?>
         <li role="menuitem">
           <form action="/logout" method="post">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">

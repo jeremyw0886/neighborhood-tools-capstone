@@ -346,34 +346,55 @@ final class ImageProcessor
     }
 
     /**
-     * Delete all variant files for a given image filename.
+     * Delete sized variant files only (keeps the original).
      *
      * @param string $filename  Base filename (e.g., "tool_xxx.jpg")
      * @param string $uploadDir Subdirectory under public/uploads/
      */
-    public static function deleteVariants(string $filename, string $uploadDir = 'tools'): void
+    public static function deleteVariantsOnly(string $filename, string $uploadDir = 'tools'): void
     {
         $dir  = BASE_PATH . '/public/uploads/' . $uploadDir . '/';
         $name = pathinfo($filename, PATHINFO_FILENAME);
         $ext  = pathinfo($filename, PATHINFO_EXTENSION);
         $isWebp = strtolower($ext) === 'webp';
 
-        $variants = [$filename];
         foreach (self::VARIANT_WIDTHS as $w) {
-            $variants[] = "{$name}-{$w}w.{$ext}";
-        }
-
-        foreach ($variants as $variant) {
-            $path = $dir . $variant;
+            $path = $dir . "{$name}-{$w}w.{$ext}";
             if (file_exists($path)) {
                 unlink($path);
             }
 
             if (!$isWebp) {
-                $webp = preg_replace('/\.\w+$/', '.webp', $path);
+                $webp = $dir . "{$name}-{$w}w.webp";
                 if (file_exists($webp)) {
                     unlink($webp);
                 }
+            }
+        }
+    }
+
+    /**
+     * Delete all files for an image (original + variants).
+     *
+     * @param string $filename  Base filename (e.g., "tool_xxx.jpg")
+     * @param string $uploadDir Subdirectory under public/uploads/
+     */
+    public static function deleteVariants(string $filename, string $uploadDir = 'tools'): void
+    {
+        self::deleteVariantsOnly($filename, $uploadDir);
+
+        $dir  = BASE_PATH . '/public/uploads/' . $uploadDir . '/';
+        $path = $dir . $filename;
+        if (file_exists($path)) {
+            unlink($path);
+        }
+
+        $isWebp = strtolower(pathinfo($filename, PATHINFO_EXTENSION)) === 'webp';
+        if (!$isWebp) {
+            $name = pathinfo($filename, PATHINFO_FILENAME);
+            $webp = $dir . $name . '.webp';
+            if (file_exists($webp)) {
+                unlink($webp);
             }
         }
     }

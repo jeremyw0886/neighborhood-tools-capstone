@@ -1485,7 +1485,16 @@ class ToolController extends BaseController
             }
 
             if (isset($body['focal_x'], $body['focal_y'])) {
-                Tool::updateFocalPoint($imageId, (int) $body['focal_x'], (int) $body['focal_y']);
+                $focalX = max(0, min(100, (int) $body['focal_x']));
+                $focalY = max(0, min(100, (int) $body['focal_y']));
+                Tool::updateFocalPoint($imageId, $focalX, $focalY);
+
+                $image = Tool::getImageById($imageId);
+                if ($image !== null) {
+                    $sourcePath = BASE_PATH . '/public/uploads/tools/' . $image['file_name_tim'];
+                    ImageProcessor::deleteVariantsOnly($image['file_name_tim']);
+                    ImageProcessor::generateVariants($sourcePath, focalX: $focalX, focalY: $focalY);
+                }
             }
 
             $this->jsonResponse(200, ['success' => true]);

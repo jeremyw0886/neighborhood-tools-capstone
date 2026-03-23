@@ -1841,6 +1841,28 @@ class Tool
     }
 
     /**
+     * Fetch a single image record by ID.
+     *
+     * @return ?array{file_name_tim: string, focal_x_tim: int, focal_y_tim: int}
+     */
+    public static function getImageById(int $imageId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT file_name_tim, focal_x_tim, focal_y_tim
+            FROM tool_image_tim
+            WHERE id_tim = :id
+        ");
+        $stmt->bindValue(':id', $imageId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Count images attached to a tool (for enforcing the 6-image cap).
      *
      * @param  int $toolId  Tool primary key

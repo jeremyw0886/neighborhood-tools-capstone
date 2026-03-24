@@ -187,6 +187,7 @@ class BaseController
             header('X-Admin-Heading: ' . rawurlencode($data['adminHeading']));
             header('X-Admin-Icon: ' . $data['adminIcon']);
             header('X-Admin-Description: ' . rawurlencode($data['adminDescription']));
+            header('X-Admin-Section-Id: ' . $data['adminSectionId']);
             $this->renderPartial($partial, $data);
             return;
         }

@@ -18,7 +18,14 @@ class AdminDeleteConfirm {
 
   destroy() {
     this.#abortController.abort();
-    AdminDeleteConfirm.#instance = null;
+  }
+
+  static reinit() {
+    if (AdminDeleteConfirm.#instance) {
+      AdminDeleteConfirm.#instance.destroy();
+      AdminDeleteConfirm.#instance = null;
+    }
+    return AdminDeleteConfirm.init();
   }
 
   /** @param {SubmitEvent} e */
@@ -78,6 +85,18 @@ class RoleChangeConfirm {
     return (RoleChangeConfirm.#instance = new RoleChangeConfirm());
   }
 
+  destroy() {
+    this.#abortController.abort();
+  }
+
+  static reinit() {
+    if (RoleChangeConfirm.#instance) {
+      RoleChangeConfirm.#instance.destroy();
+      RoleChangeConfirm.#instance = null;
+    }
+    return RoleChangeConfirm.init();
+  }
+
   /** @param {SubmitEvent} e */
   #handleSubmit = (e) => {
     const form = e.target;
@@ -131,6 +150,18 @@ class DeleteUserConfirm {
     if (DeleteUserConfirm.#instance) return DeleteUserConfirm.#instance;
     if (!document.querySelector('[data-delete-user-form]')) return null;
     return (DeleteUserConfirm.#instance = new DeleteUserConfirm());
+  }
+
+  destroy() {
+    this.#abortController.abort();
+  }
+
+  static reinit() {
+    if (DeleteUserConfirm.#instance) {
+      DeleteUserConfirm.#instance.destroy();
+      DeleteUserConfirm.#instance = null;
+    }
+    return DeleteUserConfirm.init();
   }
 
   /** @param {SubmitEvent} e */
@@ -187,6 +218,18 @@ class PurgeConfirm {
     return (PurgeConfirm.#instance = new PurgeConfirm());
   }
 
+  destroy() {
+    this.#abortController.abort();
+  }
+
+  static reinit() {
+    if (PurgeConfirm.#instance) {
+      PurgeConfirm.#instance.destroy();
+      PurgeConfirm.#instance = null;
+    }
+    return PurgeConfirm.init();
+  }
+
   /** @param {MouseEvent} e */
   #handleTrigger = (e) => {
     const btn = e.target.closest('[data-purge-trigger]');
@@ -215,3 +258,302 @@ class PurgeConfirm {
 }
 
 PurgeConfirm.init();
+
+class AdminRouter {
+  static #instance = null;
+
+  static #ADMIN_PATTERN = /^\/admin(?:\/|$)/;
+  static #PREFETCH_TTL = 30_000;
+  static #MAX_CACHE = 8;
+  static #REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
+
+  #content = document.querySelector('[data-admin-content]');
+  #header = document.querySelector('[data-admin-header]');
+  #section = document.querySelector('main > section[aria-labelledby]');
+  #nav = document.querySelector('[data-admin-body] > nav');
+  #abortController = null;
+  #prefetchCache = new Map();
+  #ac = new AbortController();
+
+  #loadedCss = new Set(
+    [...document.querySelectorAll('link[rel="stylesheet"]')].map(l => l.href)
+  );
+
+  constructor() {
+    const opts = { signal: this.#ac.signal };
+    document.addEventListener('click', this.#handleClick, opts);
+    document.addEventListener('submit', this.#handleSubmit, opts);
+    window.addEventListener('popstate', this.#handlePopstate, opts);
+
+    this.#nav?.addEventListener('pointerenter', this.#handleHover, { ...opts, capture: true });
+  }
+
+  /** @returns {AdminRouter|null} */
+  static init() {
+    if (AdminRouter.#instance) return AdminRouter.#instance;
+    if (!document.querySelector('[data-admin-content]')) return null;
+    return (AdminRouter.#instance = new AdminRouter());
+  }
+
+  /** @param {MouseEvent} e */
+  #handleClick = (e) => {
+    const link = e.target.closest('a[href]');
+    if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+    const url = new URL(link.href, location.origin);
+    if (url.origin !== location.origin) return;
+    if (!AdminRouter.#ADMIN_PATTERN.test(url.pathname)) return;
+
+    e.preventDefault();
+    this.#navigateTo(url.href);
+  };
+
+  /** @param {SubmitEvent} e */
+  #handleSubmit = (e) => {
+    const form = e.target;
+    if (form.method !== 'get' || !form.matches('[data-admin-filters]')) return;
+
+    e.preventDefault();
+    const url = new URL(form.action, location.origin);
+    new FormData(form).forEach((v, k) => {
+      if (v !== '') url.searchParams.set(k, v);
+    });
+    this.#navigateTo(url.href);
+  };
+
+  /** @param {PopStateEvent} _e */
+  #handlePopstate = (_e) => {
+    if (AdminRouter.#ADMIN_PATTERN.test(location.pathname)) {
+      this.#navigateTo(location.href, false);
+    }
+  };
+
+  /** @param {PointerEvent} e */
+  #handleHover = (e) => {
+    const link = e.target.closest?.('a[href]');
+    if (!link) return;
+
+    const url = new URL(link.href, location.origin);
+    if (url.origin !== location.origin) return;
+    if (!AdminRouter.#ADMIN_PATTERN.test(url.pathname)) return;
+
+    this.#prefetch(url.href);
+  };
+
+  /**
+   * @param {string} url
+   * @param {boolean} pushState
+   */
+  async #navigateTo(url, pushState = true) {
+    this.#abortController?.abort();
+    this.#abortController = new AbortController();
+
+    if (!this.#content) {
+      location.href = url;
+      return;
+    }
+
+    this.#content.setAttribute('aria-busy', 'true');
+    this.#content.setAttribute('data-transition', 'fade-out');
+
+    try {
+      let html, heading, icon, description, sectionId, title, css;
+      const cached = this.#prefetchCache.get(url);
+      if (cached && Date.now() - cached.time < AdminRouter.#PREFETCH_TTL && cached.isPartial) {
+        html = cached.html;
+        ({ heading, icon, description, sectionId, title, css } = cached);
+      } else {
+        const res = await fetch(url, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          signal: this.#abortController.signal,
+        });
+
+        if (!res.ok) {
+          location.href = url;
+          return;
+        }
+
+        html = await res.text();
+
+        if (res.headers.get('X-Partial') !== '1') {
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const newContent = doc.querySelector('[data-admin-content]');
+          if (newContent) {
+            html = newContent.innerHTML;
+          } else {
+            location.href = url;
+            return;
+          }
+        }
+
+        heading = decodeURIComponent(res.headers.get('X-Admin-Heading') ?? '');
+        icon = res.headers.get('X-Admin-Icon') ?? '';
+        description = decodeURIComponent(res.headers.get('X-Admin-Description') ?? '');
+        sectionId = res.headers.get('X-Admin-Section-Id') ?? '';
+        title = decodeURIComponent(res.headers.get('X-Page-Title') ?? '');
+        css = res.headers.get('X-Page-Css');
+      }
+
+      await this.#waitForAnimation();
+
+      this.#updateHeader(heading, icon, description, sectionId);
+      this.#updatePageTitle(title);
+      this.#ensureCss(css);
+      this.#content.innerHTML = html;
+      this.#content.setAttribute('data-transition', 'fade-in');
+      this.#content.removeAttribute('aria-busy');
+
+      if (pushState) {
+        history.pushState({}, '', url);
+      }
+
+      this.#updateNavActiveState(url);
+      AdminRouter.#reinit();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      this.#content.focus({ preventScroll: true });
+
+      this.#content.addEventListener('animationend', () => {
+        this.#content.removeAttribute('data-transition');
+      }, { once: true });
+
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        this.#content.removeAttribute('aria-busy');
+        this.#content.removeAttribute('data-transition');
+        location.href = url;
+      }
+    }
+  }
+
+  /**
+   * @param {string} heading
+   * @param {string} icon
+   * @param {string} description
+   * @param {string} sectionId
+   */
+  #updateHeader(heading, icon, description, sectionId) {
+    if (!this.#header) return;
+
+    const h1 = this.#header.querySelector('h1');
+    const p = this.#header.querySelector('p');
+    const i = h1?.querySelector('i');
+
+    if (sectionId && this.#section) {
+      this.#section.setAttribute('aria-labelledby', sectionId);
+      if (h1) h1.id = sectionId;
+    }
+
+    if (h1 && heading) {
+      if (i) {
+        i.className = icon;
+        h1.childNodes[h1.childNodes.length - 1].textContent = ' ' + heading;
+      } else {
+        h1.textContent = heading;
+      }
+    }
+
+    if (description) {
+      if (p) {
+        p.textContent = description;
+        p.hidden = false;
+      } else {
+        const newP = document.createElement('p');
+        newP.textContent = description;
+        this.#header.appendChild(newP);
+      }
+    } else if (p) {
+      p.hidden = true;
+    }
+  }
+
+  /** @param {string} title */
+  #updatePageTitle(title) {
+    if (title) document.title = title;
+  }
+
+  /** @param {string} cssHeader */
+  #ensureCss(cssHeader) {
+    if (!cssHeader) return;
+    cssHeader.split(',').map(s => s.trim()).filter(Boolean).forEach(href => {
+      const absolute = new URL(href, location.origin).href;
+      if (this.#loadedCss.has(absolute)) return;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      document.head.appendChild(link);
+      this.#loadedCss.add(absolute);
+    });
+  }
+
+  /** @param {string} url */
+  #updateNavActiveState(url) {
+    if (!this.#nav) return;
+    const path = new URL(url, location.origin).pathname;
+
+    this.#nav.querySelectorAll('a[aria-current]').forEach(a => a.removeAttribute('aria-current'));
+
+    let match = this.#nav.querySelector(`a[href="${CSS.escape(path)}"]`);
+    if (!match && path.startsWith('/admin/tos')) {
+      match = this.#nav.querySelector('a[href="/admin/tos"]');
+    }
+    match?.setAttribute('aria-current', 'page');
+  }
+
+  /** @returns {Promise<void>} */
+  #waitForAnimation() {
+    if (AdminRouter.#REDUCED_MOTION.matches) return Promise.resolve();
+
+    return new Promise(resolve => {
+      this.#content.addEventListener('animationend', resolve, { once: true });
+      setTimeout(resolve, 200);
+    });
+  }
+
+  /** @param {string} url */
+  #prefetch(url) {
+    if (this.#prefetchCache.has(url)) return;
+
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(res => {
+        const isPartial = res.headers.get('X-Partial') === '1';
+        const entry = {
+          html: null,
+          time: Date.now(),
+          isPartial,
+          heading: decodeURIComponent(res.headers.get('X-Admin-Heading') ?? ''),
+          icon: res.headers.get('X-Admin-Icon') ?? '',
+          description: decodeURIComponent(res.headers.get('X-Admin-Description') ?? ''),
+          sectionId: res.headers.get('X-Admin-Section-Id') ?? '',
+          title: decodeURIComponent(res.headers.get('X-Page-Title') ?? ''),
+          css: res.headers.get('X-Page-Css') ?? '',
+        };
+        return res.text().then(html => { entry.html = html; return entry; });
+      })
+      .then(entry => {
+        if (this.#prefetchCache.size >= AdminRouter.#MAX_CACHE) {
+          const oldest = this.#prefetchCache.keys().next().value;
+          this.#prefetchCache.delete(oldest);
+        }
+        this.#prefetchCache.set(url, entry);
+        setTimeout(() => this.#prefetchCache.delete(url), AdminRouter.#PREFETCH_TTL);
+      })
+      .catch(() => {});
+  }
+
+  static #reinit() {
+    AdminDeleteConfirm.reinit();
+    RoleChangeConfirm.reinit();
+    DeleteUserConfirm.reinit();
+    PurgeConfirm.reinit();
+
+    const content = document.querySelector('[data-admin-content]');
+    if (content) {
+      for (const flash of content.querySelectorAll('[data-flash]')) {
+        NT.toast(flash.textContent.trim(), flash.getAttribute('data-flash'));
+        flash.remove();
+      }
+    }
+  }
+}
+
+AdminRouter.init();

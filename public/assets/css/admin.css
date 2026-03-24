@@ -25,7 +25,8 @@
     [aria-labelledby="admin-audit-heading"],
     [aria-labelledby="admin-tos-heading"],
     [aria-labelledby="admin-tos-create-heading"],
-    [aria-labelledby="admin-search-heading"]) {
+    [aria-labelledby="admin-search-heading"],
+    [aria-labelledby="purge-confirm-heading"]) {
     margin: 0 auto;
     max-width: 1100px;
     padding: 2rem 1.5rem;
@@ -57,15 +58,15 @@
 
     /* ── Section headings ── */
 
-    &>[data-admin-body]>section>h2,
-    &>[data-admin-body]>details>summary>h2 {
+    &>[data-admin-body]>[data-admin-content]>section>h2,
+    &>[data-admin-body]>[data-admin-content]>details>summary>h2 {
       color: var(--mountain-pine);
       margin-bottom: 1rem;
     }
 
     /* ── Collapsible sections ── */
 
-    &>[data-admin-body]>details>summary {
+    &>[data-admin-body]>[data-admin-content]>details>summary {
       cursor: pointer;
       list-style: none;
       margin-bottom: 1rem;
@@ -84,13 +85,13 @@
       }
     }
 
-    &>[data-admin-body]>details[open]>summary>h2>[data-chevron] {
+    &>[data-admin-body]>[data-admin-content]>details[open]>summary>h2>[data-chevron] {
       rotate: 180deg;
     }
 
     /* ── Section spacing ── */
 
-    &>[data-admin-body]> :is(section, details)+ :is(section, details) {
+    &>[data-admin-body]>[data-admin-content]> :is(section, details)+ :is(section, details) {
       margin-top: 2.5rem;
     }
   }
@@ -3455,7 +3456,7 @@
 
   /* ── Search results page ── */
 
-  #admin-search-page {
+  main>section[aria-labelledby="admin-search-heading"] {
 
     & section[aria-label="No results"] {
       padding: 4rem 0;
@@ -3641,8 +3642,8 @@
       [aria-labelledby="admin-events-heading"],
       [aria-labelledby="admin-categories-heading"],
       [aria-labelledby="admin-deposits-heading"]),
-    main > section:is([aria-labelledby="admin-reports-heading"]) > section:is([aria-labelledby="neighborhood-stats-heading"]),
-    main > section:is([aria-labelledby="admin-tos-heading"]) > section:is([aria-labelledby="tos-noncompliant-heading"])) table {
+    main > section:is([aria-labelledby="admin-reports-heading"]) section:is([aria-labelledby="neighborhood-stats-heading"]),
+    main > section:is([aria-labelledby="admin-tos-heading"]) section:is([aria-labelledby="tos-noncompliant-heading"])) table {
     display: block;
 
     & thead {
@@ -3751,7 +3752,7 @@
   }
 
   :is(main > section[aria-labelledby="admin-events-heading"],
-    main > section[aria-labelledby="admin-events-heading"] > section[aria-labelledby]) table tbody {
+    main > section[aria-labelledby="admin-events-heading"] section[aria-labelledby]) table tbody {
     grid-template-columns: 1fr;
   }
 
@@ -3759,8 +3760,36 @@
     grid-column: 1 / -1;
   }
 
-  main > section[aria-labelledby="admin-reports-heading"] > section[aria-labelledby="neighborhood-stats-heading"] table tbody tr td:last-child {
+  main > section[aria-labelledby="admin-reports-heading"] section[aria-labelledby="neighborhood-stats-heading"] table tbody tr td:last-child {
     grid-column: 1 / -1;
+  }
+
+  /* ── SPA content wrapper + transitions ── */
+
+  [data-admin-content] {
+    min-height: 50vh;
+  }
+
+  [data-admin-content]:focus {
+    outline: none;
+  }
+
+  [data-admin-content][data-transition="fade-out"] {
+    animation: admin-fade-out 150ms ease-in forwards;
+  }
+
+  [data-admin-content][data-transition="fade-in"] {
+    animation: admin-fade-in 150ms ease-out forwards;
+  }
+
+  @keyframes admin-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  @keyframes admin-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   /* --- Responsive ----------------------------------------- */
@@ -3816,7 +3845,8 @@
       [aria-labelledby="admin-audit-heading"],
       [aria-labelledby="admin-tos-heading"],
       [aria-labelledby="admin-tos-create-heading"],
-      [aria-labelledby="admin-search-heading"]) {
+      [aria-labelledby="admin-search-heading"],
+      [aria-labelledby="purge-confirm-heading"]) {
       padding: 1.25rem 1rem;
     }
 
@@ -3833,7 +3863,8 @@
       [aria-labelledby="admin-audit-heading"],
       [aria-labelledby="admin-tos-heading"],
       [aria-labelledby="admin-tos-create-heading"],
-      [aria-labelledby="admin-search-heading"])>header>h1 {
+      [aria-labelledby="admin-search-heading"],
+      [aria-labelledby="purge-confirm-heading"])>header>h1 {
       font-size: 1.5rem;
     }
 
@@ -3881,8 +3912,8 @@
         [aria-labelledby="admin-events-heading"],
         [aria-labelledby="admin-categories-heading"],
         [aria-labelledby="admin-deposits-heading"]),
-      main > section:is([aria-labelledby="admin-reports-heading"]) > section:is([aria-labelledby="neighborhood-stats-heading"]),
-      main > section:is([aria-labelledby="admin-tos-heading"]) > section:is([aria-labelledby="tos-noncompliant-heading"])) table tbody tr {
+      main > section:is([aria-labelledby="admin-reports-heading"]) section:is([aria-labelledby="neighborhood-stats-heading"]),
+      main > section:is([aria-labelledby="admin-tos-heading"]) section:is([aria-labelledby="tos-noncompliant-heading"])) table tbody tr {
       grid-template-columns: 1fr 1fr;
     }
 
@@ -3946,7 +3977,8 @@
       [aria-labelledby="admin-audit-heading"],
       [aria-labelledby="admin-tos-heading"],
       [aria-labelledby="admin-tos-create-heading"],
-      [aria-labelledby="admin-search-heading"]) {
+      [aria-labelledby="admin-search-heading"],
+      [aria-labelledby="purge-confirm-heading"]) {
       padding: 0 0.75rem;
     }
 
@@ -3975,7 +4007,8 @@
       [aria-labelledby="admin-tos-heading"],
       [aria-labelledby="admin-tos-create-heading"],
       [aria-labelledby="admin-reports-heading"],
-      [aria-labelledby="admin-search-heading"]) a,
+      [aria-labelledby="admin-search-heading"],
+      [aria-labelledby="purge-confirm-heading"]) a,
     nav[aria-label="Admin navigation"] a {
       transition: none;
     }
@@ -4002,7 +4035,7 @@
     }
 
     main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"])>div[role="list"]>article {
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>article {
       transition: none;
     }
 
@@ -4045,8 +4078,13 @@
       transition: none;
     }
 
-    #admin-search-page>section>div[role="list"]>article {
+    main>section[aria-labelledby="admin-search-heading"] section>div[role="list"]>article {
       transition: none;
+    }
+
+    [data-admin-content][data-transition="fade-out"],
+    [data-admin-content][data-transition="fade-in"] {
+      animation: none;
     }
   }
 
@@ -4067,7 +4105,7 @@
     }
 
     main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"])>div[role="list"]>article {
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>article {
       border-width: 2px;
     }
 

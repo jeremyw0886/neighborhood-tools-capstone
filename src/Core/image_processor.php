@@ -13,7 +13,7 @@ final class ImageProcessor
     private const int PNG_COMPRESSION = 6;
     private const int WEBP_QUALITY = 75;
 
-    public const array VARIANT_WIDTHS = [820, 750, 540];
+    public const array VARIANT_WIDTHS = [820, 750, 540, 360];
 
     private const float ASPECT_RATIO = 3 / 2;
 

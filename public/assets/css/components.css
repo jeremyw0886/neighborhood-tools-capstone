@@ -2339,7 +2339,7 @@
 
     dialog>header {
       background: var(--mountain-cloud);
-      padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
+      padding-top: 0.625rem;
       position: sticky;
       top: 0;
       z-index: 1;
@@ -2349,7 +2349,7 @@
       background: var(--mountain-cloud);
       bottom: 0;
       flex-direction: column;
-      padding-bottom: calc(0.625rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: 0.625rem;
       position: sticky;
       z-index: 1;
     }

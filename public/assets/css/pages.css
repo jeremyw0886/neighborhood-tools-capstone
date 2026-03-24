@@ -307,7 +307,7 @@
 
       &>div {
         align-items: center;
-        background: var(--mountain-cloud);
+        background: rgba(255, 255, 255, 0.34);
         border: 1px solid var(--mountain-fog);
         border-radius: 0.75rem;
         display: flex;

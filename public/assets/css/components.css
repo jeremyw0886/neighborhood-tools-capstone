@@ -374,11 +374,11 @@
           color: var(--mountain-gold);
         }
 
-        & i {
-          font-size: 0.85em;
-          opacity: 0.8;
-        }
+      & i {
+        font-size: 0.85em;
+        opacity: 0.8;
       }
+    }
 
       &>li[data-separator] {
         background: rgba(255, 255, 255, 0.2);
@@ -465,6 +465,12 @@
         }
       }
     }
+  }
+
+  nav[aria-label="Main navigation"] i.fa-solid,
+  nav[aria-label="Main navigation"] i.fa-regular {
+    text-align: center;
+    width: 1.25em;
   }
 
   nav[aria-label="Main navigation"]:not([data-hero]) {

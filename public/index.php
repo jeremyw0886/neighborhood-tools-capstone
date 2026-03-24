@@ -108,8 +108,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Security headers
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://js.stripe.com https://challenges.cloudflare.com; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com; frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com; frame-ancestors 'none'; manifest-src 'self' data:");
+// Dynamic cache control (security headers served via .htaccess)
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 $privatePrefixes = ['/dashboard', '/profile', '/admin', '/notifications', '/payments', '/disputes', '/incidents', '/waivers', '/handover'];
 $isPrivatePage = !empty($_SESSION['logged_in']) && array_any(
@@ -119,14 +118,6 @@ $isPrivatePage = !empty($_SESSION['logged_in']) && array_any(
 header($isPrivatePage
     ? 'Cache-Control: no-cache, private, must-revalidate'
     : 'Cache-Control: no-cache, private');
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")');
-
-if ($isHttps) {
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-}
 
 // Get request method and URI — support _method override for HTML forms
 $method = $_SERVER['REQUEST_METHOD'];

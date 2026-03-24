@@ -39,7 +39,8 @@ AddDefaultCharset UTF-8
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
     Header set X-XSS-Protection "0"
-    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\")"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' https://challenges.cloudflare.com/turnstile/ https://js.stripe.com; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com/turnstile/ https://api.stripe.com; frame-src https://challenges.cloudflare.com/ https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; manifest-src 'self' data:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'"
 </IfModule>
 
 # Block access to sensitive files

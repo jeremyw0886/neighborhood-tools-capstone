@@ -350,7 +350,7 @@ class BaseController
      */
     protected function verifyTurnstile(string $token, string $action): bool
     {
-        $secret = $_ENV['TURNSTILE_SECRET_KEY'] ?? '';
+        $secret = trim($_ENV['TURNSTILE_SECRET_KEY'] ?? '');
 
         if ($secret === '') {
             return true;
@@ -375,7 +375,6 @@ class BaseController
                 'content' => http_build_query([
                     'secret'   => $secret,
                     'response' => $token,
-                    'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
                 ]),
                 'timeout' => 5,
             ],
@@ -389,18 +388,31 @@ class BaseController
 
         if ($response === false) {
             error_log('Turnstile verification request failed');
-            return true;
+            return false;
         }
 
         $result = json_decode($response, true);
 
         if (!is_array($result)) {
             error_log('Turnstile returned invalid JSON');
-            return true;
+            return false;
         }
 
         if (empty($result['success'])) {
             error_log('Turnstile verification failed: ' . json_encode($result['error-codes'] ?? []));
+            return false;
+        }
+
+        $hostname = $this->normalizeHostname($result['hostname'] ?? '');
+        $allowedHostnames = $this->getAllowedTurnstileHostnames();
+
+        if ($hostname === '') {
+            error_log('Turnstile hostname missing from verification response');
+            return false;
+        }
+
+        if ($allowedHostnames !== [] && !in_array($hostname, $allowedHostnames, true)) {
+            error_log("Turnstile hostname mismatch: '{$hostname}'");
             return false;
         }
 
@@ -410,6 +422,59 @@ class BaseController
         }
 
         return true;
+    }
+
+    /**
+     * Build the allowlist of expected Turnstile hostnames for this environment.
+     *
+     * Sources:
+     * - TURNSTILE_ALLOWED_HOSTNAMES (comma-separated)
+     * - APP_URL host
+     * - current request host
+     *
+     * @return string[]
+     */
+    protected function getAllowedTurnstileHostnames(): array
+    {
+        $hostnames = [];
+
+        $configured = trim($_ENV['TURNSTILE_ALLOWED_HOSTNAMES'] ?? '');
+        if ($configured !== '') {
+            foreach (explode(',', $configured) as $entry) {
+                $host = $this->normalizeHostname($entry);
+                if ($host !== '') {
+                    $hostnames[] = $host;
+                }
+            }
+        }
+
+        $appUrlHost = $this->normalizeHostname($_ENV['APP_URL'] ?? '');
+        if ($appUrlHost !== '') {
+            $hostnames[] = $appUrlHost;
+        }
+
+        $requestHost = $this->normalizeHostname($_SERVER['HTTP_HOST'] ?? '');
+        if ($requestHost !== '') {
+            $hostnames[] = $requestHost;
+        }
+
+        return array_values(array_unique($hostnames));
+    }
+
+    /**
+     * Normalize a hostname or URL into a lowercase host without port brackets.
+     */
+    protected function normalizeHostname(string $value): string
+    {
+        $value = trim(strtolower($value));
+        if ($value === '') {
+            return '';
+        }
+
+        $candidate = str_contains($value, '://') ? $value : 'http://' . $value;
+        $host = parse_url($candidate, PHP_URL_HOST);
+
+        return is_string($host) ? trim($host, '[]') : '';
     }
 
     /**

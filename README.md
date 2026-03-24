@@ -17,7 +17,7 @@ NeighborhoodTools lets neighbors share and borrow tools from each other. Members
 | Database     | MySQL 8 &mdash; views for reads, stored procedures for writes                   |
 | Frontend     | Vanilla HTML5, CSS, JavaScript (ES6+)                                           |
 | Icons        | Font Awesome 6.5.0 (self-hosted subset)                                         |
-| Server       | Apache with mod_rewrite, SiteGround hosting                                     |
+| Server       | Apache or nginx, SiteGround hosting                                             |
 | Payments     | Stripe (`stripe/stripe-php`)                                                    |
 | Dependencies | Composer &mdash; `vlucas/phpdotenv`, `stripe/stripe-php`, classmap autoloading  |
 
@@ -89,14 +89,15 @@ neighborhoodtools/
 
 ## Local Development
 
-Requires a local Apache/PHP/MySQL stack such as MAMP PRO (macOS) or Laragon (Windows) with PHP 8.4+ and MySQL 8.
+Requires a local PHP/MySQL stack with PHP 8.4+ and MySQL 8. Apache works out of the box with the checked-in `.htaccess`; for nginx, use `public/` as the document root and mirror the rewrite/security headers in `config/nginx/neighborhoodtools.local.conf.example`.
 
 1. Clone the repo
 2. `composer install`
 3. Copy `.env.example` to `.env` and configure database credentials
 4. Import `dumps/warren-jeremy-dump-phase3.sql`
-5. Point Apache document root to `public/`
-6. Visit `http://localhost:8888`
+5. Point your web server document root to `public/`
+6. Set `APP_URL`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `TURNSTILE_ALLOWED_HOSTNAMES` in `.env` for your local hostname
+7. Visit your local host, for example `https://neighborhoodtools.local:8890`
 
 After adding new PHP classes (controllers, models), regenerate the autoloader:
 

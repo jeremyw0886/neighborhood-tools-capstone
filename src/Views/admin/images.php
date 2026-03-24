@@ -21,7 +21,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
 
-  <details open aria-labelledby="category-icons-heading">
+  <details aria-labelledby="category-icons-heading">
     <summary>
       <h2 id="category-icons-heading">
         <i class="fa-solid fa-tags" aria-hidden="true"></i>
@@ -149,7 +149,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                    width="80" height="80"
                    loading="lazy" decoding="async">
             </figure>
-            <p data-filename><?= htmlspecialchars($vec['file_name_vec']) ?></p>
+            <h3 data-filename><?= htmlspecialchars($vec['file_name_vec']) ?></h3>
             <p data-meta>
               <time datetime="<?= htmlspecialchars($vec['uploaded_at_vec']) ?>">
                 <?= htmlspecialchars(date('M j, Y', strtotime($vec['uploaded_at_vec']))) ?>
@@ -216,7 +216,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 
   </details>
 
-  <details open aria-labelledby="avatar-vectors-heading">
+  <details aria-labelledby="avatar-vectors-heading">
     <summary>
       <h2 id="avatar-vectors-heading">
         <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
@@ -344,12 +344,12 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
                    width="80" height="80"
                    loading="lazy" decoding="async">
             </figure>
-            <p data-filename>
+            <h3 data-filename>
               <?= htmlspecialchars($avt['file_name_avv']) ?>
               <?php if (!(int) $avt['is_active_avv']): ?>
                 <span data-badge="inactive">Inactive</span>
               <?php endif; ?>
-            </p>
+            </h3>
             <p data-meta>
               <time datetime="<?= htmlspecialchars($avt['uploaded_at_avv']) ?>">
                 <?= htmlspecialchars(date('M j, Y', strtotime($avt['uploaded_at_avv']))) ?>

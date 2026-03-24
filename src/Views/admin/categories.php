@@ -18,13 +18,14 @@ $hasFilters  = $search !== null || $hasIcon !== null;
     <p role="status" data-flash><?= htmlspecialchars($flash) ?></p>
   <?php endif; ?>
 
-  <a href="/admin/images" data-intent="ghost"><i class="fa-solid fa-images" aria-hidden="true"></i> Manage images</a>
-
   <section aria-labelledby="add-category-heading" data-category-create>
-    <h2 id="add-category-heading">
-      <i class="fa-solid fa-plus" aria-hidden="true"></i>
-      Add Category
-    </h2>
+    <header>
+      <h2 id="add-category-heading">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Add Category
+      </h2>
+      <a href="/admin/images" data-manage-images><i class="fa-solid fa-images" aria-hidden="true"></i> Manage images <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
 
     <form method="post" action="/admin/categories">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -38,7 +39,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                  maxlength="100"
                  required
                  autocomplete="off"
-                 aria-describedby="<?= !empty($createErrors['category_name']) ? 'new-cat-name-error' : '' ?>">
+                 <?= !empty($createErrors['category_name']) ? 'aria-describedby="new-cat-name-error"' : '' ?>>
           <?php if (!empty($createErrors['category_name'])): ?>
             <p id="new-cat-name-error" data-field-error><?= htmlspecialchars($createErrors['category_name']) ?></p>
           <?php endif; ?>
@@ -198,7 +199,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                              value="<?= htmlspecialchars($catOld['category_name'] ?? $cat['category_name_cat']) ?>"
                              maxlength="100"
                              required
-                             aria-describedby="<?= !empty($catErrors['category_name']) ? 'edit-cat-error-' . $catId : '' ?>">
+                             <?= !empty($catErrors['category_name']) ? 'aria-describedby="edit-cat-error-' . $catId . '"' : '' ?>>
                       <?php if (!empty($catErrors['category_name'])): ?>
                         <p id="edit-cat-error-<?= $catId ?>" data-field-error><?= htmlspecialchars($catErrors['category_name']) ?></p>
                       <?php endif; ?>

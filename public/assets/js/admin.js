@@ -396,6 +396,7 @@ class AdminRouter {
 
       await this.#waitForAnimation();
 
+      this.#saveDetailsState();
       this.#updateHeader(heading, icon, description, sectionId);
       this.#updatePageTitle(title);
       this.#ensureCss(css);
@@ -409,6 +410,7 @@ class AdminRouter {
 
       this.#updateNavActiveState(url);
       AdminRouter.#reinit();
+      this.#restoreDetailsState();
       window.scrollTo({ top: 0, behavior: 'instant' });
       this.#content.focus({ preventScroll: true });
 
@@ -538,6 +540,26 @@ class AdminRouter {
         setTimeout(() => this.#prefetchCache.delete(url), AdminRouter.#PREFETCH_TTL);
       })
       .catch(() => {});
+  }
+
+  #saveDetailsState() {
+    if (!this.#content) return;
+    const state = {};
+    for (const d of this.#content.querySelectorAll('details[aria-labelledby]')) {
+      state[d.getAttribute('aria-labelledby')] = d.open;
+    }
+    sessionStorage.setItem('admin-details', JSON.stringify(state));
+  }
+
+  #restoreDetailsState() {
+    if (!this.#content) return;
+    try {
+      const state = JSON.parse(sessionStorage.getItem('admin-details') ?? '{}');
+      for (const d of this.#content.querySelectorAll('details[aria-labelledby]')) {
+        const key = d.getAttribute('aria-labelledby');
+        if (key in state) d.open = state[key];
+      }
+    } catch { /* ignore */ }
   }
 
   static #reinit() {

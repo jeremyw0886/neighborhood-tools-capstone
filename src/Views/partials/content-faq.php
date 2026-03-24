@@ -7,9 +7,6 @@
  *   - partials/modal-faq.php  (inside <dialog>)
  *   - pages/faq.php           (standalone page)
  *
- * Static HTML only — no DB queries, no PHP variables needed.
- * Markup relies on components.css styling: <details>/<summary> accordion,
- * with answer content wrapped in <div> for border + padding.
  */
 ?>
 <details>

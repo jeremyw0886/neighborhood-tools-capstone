@@ -117,7 +117,7 @@ $isPrivatePage = !empty($_SESSION['logged_in']) && array_any(
     static fn(string $prefix): bool => str_starts_with($requestPath, $prefix)
 );
 header($isPrivatePage
-    ? 'Cache-Control: no-store, must-revalidate'
+    ? 'Cache-Control: no-cache, private, must-revalidate'
     : 'Cache-Control: no-cache, private');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');

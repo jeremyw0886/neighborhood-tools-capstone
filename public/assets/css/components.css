@@ -1564,6 +1564,7 @@
   .cf-turnstile {
     display: flex;
     justify-content: center;
+    min-height: 65px;
     width: 100%;
   }
 

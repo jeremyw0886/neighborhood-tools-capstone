@@ -113,7 +113,7 @@ define('CSP_NONCE', base64_encode(random_bytes(16)));
 
 // CSP header — nonce-based script-src with strict-dynamic propagation
 $cspNonce = CSP_NONCE;
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com; frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self' data:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com; frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self' data:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; trusted-types default; require-trusted-types-for 'script'");
 
 // Dynamic cache control (remaining security headers served via .htaccess)
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';

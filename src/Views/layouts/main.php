@@ -79,9 +79,9 @@
   <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php if (isset($_GET['test'])): ?>
   <?php $utCss = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.css' : 'usability-test.min.css'; ?>
-  <link rel="stylesheet" href="/assets/css/<?= $utCss ?>">
+  <link rel="stylesheet" href="/assets/css/<?= $utCss ?>?v=<?= ASSET_VERSION ?>">
   <?php $utJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.js' : 'usability-test.min.js'; ?>
-  <script src="/assets/js/<?= $utJs ?>" defer nonce="<?= CSP_NONCE ?>"></script>
+  <script src="/assets/js/<?= $utJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endif; ?>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
   <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>

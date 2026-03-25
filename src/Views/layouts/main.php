@@ -69,7 +69,7 @@
   ?>
 
   <?php $ttJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'trusted-types.js' : 'trusted-types.min.js'; ?>
-  <script src="/assets/js/<?= $ttJs ?>?v=<?= ASSET_VERSION ?>" nonce="<?= CSP_NONCE ?>"></script>
+  <script src="/assets/js/<?= $ttJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php foreach ($cdnJs ?? [] as $cdnUrl): ?>
   <script src="<?= htmlspecialchars($cdnUrl) ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endforeach; ?>

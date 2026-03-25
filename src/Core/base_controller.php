@@ -353,41 +353,47 @@ class BaseController
         $secret = trim($_ENV['TURNSTILE_SECRET_KEY'] ?? '');
 
         if ($secret === '') {
+            if (($_ENV['APP_DEBUG'] ?? 'false') !== 'true') {
+                error_log('Turnstile secret key not configured — verification skipped');
+            }
             return true;
         }
 
         $jsEnabled = ($_POST['js_enabled'] ?? '') === '1';
 
-        if ($jsEnabled) {
-            $_SESSION['js_capable'] = true;
-        }
-
-        $requireToken = $jsEnabled || !empty($_SESSION['js_capable']);
-
         if ($token === '') {
-            return !$requireToken;
+            return !$jsEnabled;
         }
 
-        $context = stream_context_create([
-            'http' => [
-                'method'  => 'POST',
-                'header'  => 'Content-Type: application/x-www-form-urlencoded',
-                'content' => http_build_query([
-                    'secret'   => $secret,
-                    'response' => $token,
-                ]),
-                'timeout' => 5,
-            ],
+        $payload = [
+            'secret'          => $secret,
+            'response'        => $token,
+            'remoteip'        => $_SERVER['REMOTE_ADDR'] ?? '',
+            'idempotency_key' => bin2hex(random_bytes(16)),
+        ];
+
+        $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query($payload),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 5,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
         ]);
 
-        $response = @file_get_contents(
-            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-            false,
-            $context,
-        );
+        $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        if ($response === false) {
-            error_log('Turnstile verification request failed');
+        if ($response === false || $response === '') {
+            error_log('Turnstile verification request failed: ' . $curlError);
+            return false;
+        }
+
+        if ($httpCode !== 200) {
+            error_log("Turnstile siteverify returned HTTP {$httpCode}");
             return false;
         }
 
@@ -451,11 +457,6 @@ class BaseController
         $appUrlHost = $this->normalizeHostname($_ENV['APP_URL'] ?? '');
         if ($appUrlHost !== '') {
             $hostnames[] = $appUrlHost;
-        }
-
-        $requestHost = $this->normalizeHostname($_SERVER['HTTP_HOST'] ?? '');
-        if ($requestHost !== '') {
-            $hostnames[] = $requestHost;
         }
 
         return array_values(array_unique($hostnames));

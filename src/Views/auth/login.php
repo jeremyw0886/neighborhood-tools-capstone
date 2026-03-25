@@ -59,13 +59,13 @@
         <a href="/forgot-password" class="forgot-link">Forgot your password?</a>
       </div>
 
+      <?php if (!empty($turnstileSiteKey)): ?>
+        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="login"></div>
+      <?php endif; ?>
+
       <button type="submit" data-intent="primary" data-size="lg" data-width="full">
         <i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> Log In
       </button>
-
-      <?php if (!empty($turnstileSiteKey)): ?>
-        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="login" data-appearance="interaction-only" data-theme="light" data-callback="onTurnstileVerify" data-expired-callback="onTurnstileExpire" data-error-callback="onTurnstileError"></div>
-      <?php endif; ?>
     </form>
 
     <footer>

@@ -198,7 +198,4 @@ $fuelTypes  ??= [];
     <i class="fa-solid fa-check" aria-hidden="true"></i> List Tool
   </button>
 
-  <?php if (!empty($turnstileSiteKey)): ?>
-    <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="tool_create" data-appearance="interaction-only" data-theme="light" data-callback="onTurnstileVerify" data-expired-callback="onTurnstileExpire" data-error-callback="onTurnstileError"></div>
-  <?php endif; ?>
 </form>

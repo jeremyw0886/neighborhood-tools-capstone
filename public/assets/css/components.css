@@ -1562,11 +1562,8 @@
   }
 
   .cf-turnstile {
-    align-items: flex-start;
     display: flex;
     justify-content: center;
-    margin-top: 0.5rem;
-    min-height: 72px;
     width: 100%;
   }
 

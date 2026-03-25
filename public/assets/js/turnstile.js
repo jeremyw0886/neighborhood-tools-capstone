@@ -1,22 +1,28 @@
 'use strict';
 
 class TurnstileGuard {
-  static #instance = null;
-
   /** @type {HTMLFormElement} */
   #form;
   /** @type {HTMLButtonElement} */
   #submit;
+  /** @type {HTMLDivElement} */
+  #widget;
+  /** @type {?string} */
+  #widgetId = null;
   #verified = false;
   #timerId = null;
+  #timedOut = false;
+  #errorRetried = false;
 
   /**
    * @param {HTMLFormElement} form
    * @param {HTMLButtonElement} submit
+   * @param {HTMLDivElement} widget
    */
-  constructor(form, submit) {
+  constructor(form, submit, widget) {
     this.#form = form;
     this.#submit = submit;
+    this.#widget = widget;
 
     const jsFlag = document.createElement('input');
     jsFlag.type = 'hidden';
@@ -27,40 +33,58 @@ class TurnstileGuard {
     this.#submit.disabled = true;
     this.#submit.setAttribute('aria-busy', 'true');
 
-    window.onTurnstileVerify = this.#handleVerify;
-    window.onTurnstileExpire = this.#handleExpire;
-    window.onTurnstileError = this.#handleError;
+    this.#render();
 
     this.#timerId = setTimeout(() => {
-      if (!this.#verified) this.#enable();
+      if (!this.#verified) {
+        this.#timedOut = true;
+        this.#enable();
+      }
     }, 5000);
   }
 
-  /** @returns {TurnstileGuard|null} */
+  static #counter = 0;
+  /** @type {TurnstileGuard[]} */
+  static #instances = [];
+  static #guardedWidgets = new WeakSet();
+
+  /** @returns {TurnstileGuard[]} */
   static init() {
-    if (TurnstileGuard.#instance) return TurnstileGuard.#instance;
+    if (typeof turnstile === 'undefined') return TurnstileGuard.#instances;
 
-    const widget = document.querySelector('.cf-turnstile');
-    if (!widget) return null;
+    const widgets = document.querySelectorAll('.cf-turnstile');
 
-    const form = widget.closest('form');
-    if (!form) return null;
+    for (const widget of widgets) {
+      if (TurnstileGuard.#guardedWidgets.has(widget)) continue;
 
-    const submit = form.querySelector('[type="submit"]');
-    if (!submit) return null;
+      const form = widget.closest('form');
+      if (!form) continue;
 
-    const existing = form.querySelector('[name="cf-turnstile-response"]');
-    if (existing && existing.value) return null;
+      const submit = form.querySelector('[type="submit"]');
+      if (!submit) continue;
 
-    return (TurnstileGuard.#instance = new TurnstileGuard(form, submit));
+      TurnstileGuard.#guardedWidgets.add(widget);
+      TurnstileGuard.#instances.push(new TurnstileGuard(form, submit, widget));
+    }
+
+    return TurnstileGuard.#instances;
   }
 
-  destroy() {
-    clearTimeout(this.#timerId);
-    window.onTurnstileVerify = null;
-    window.onTurnstileExpire = null;
-    window.onTurnstileError = null;
-    TurnstileGuard.#instance = null;
+  #render() {
+    const sitekey = this.#widget.dataset.sitekey ?? '';
+    const action = this.#widget.dataset.action ?? '';
+
+    this.#widgetId = turnstile.render(this.#widget, {
+      sitekey,
+      action,
+      callback: this.#handleVerify,
+      'expired-callback': this.#handleExpire,
+      'error-callback': this.#handleError,
+      appearance: 'interaction-only',
+      theme: 'light',
+      retry: 'auto',
+      language: 'auto',
+    });
   }
 
   #enable() {
@@ -68,18 +92,40 @@ class TurnstileGuard {
     this.#submit.removeAttribute('aria-busy');
   }
 
+  #disable() {
+    this.#submit.disabled = true;
+    this.#submit.setAttribute('aria-busy', 'true');
+  }
+
   #handleVerify = () => {
     this.#verified = true;
+    this.#timedOut = false;
+    this.#errorRetried = false;
+    clearTimeout(this.#timerId);
     this.#enable();
   };
 
   #handleExpire = () => {
     this.#verified = false;
-    this.#submit.disabled = true;
-    this.#submit.setAttribute('aria-busy', 'true');
+
+    if (!this.#timedOut) {
+      this.#disable();
+    }
+
+    if (this.#widgetId !== null) {
+      turnstile.reset(this.#widgetId);
+    }
   };
 
   #handleError = () => {
+    clearTimeout(this.#timerId);
+
+    if (!this.#errorRetried && this.#widgetId !== null) {
+      this.#errorRetried = true;
+      turnstile.reset(this.#widgetId);
+      return;
+    }
+
     this.#enable();
   };
 }

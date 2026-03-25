@@ -28,7 +28,7 @@ class AuthController extends BaseController
         }
 
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
-        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
+        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
 
         $this->render('auth/login', [
             'title'            => 'Log In — NeighborhoodTools',
@@ -142,7 +142,7 @@ class AuthController extends BaseController
         }
 
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
-        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
+        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
 
         $this->render('auth/register', [
             'title'            => 'Sign Up — NeighborhoodTools',
@@ -384,11 +384,18 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
+        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
+        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
+
         $this->render('auth/forgot-password', [
-            'title'       => 'Forgot Password — NeighborhoodTools',
-            'description' => 'Request a password reset link for your NeighborhoodTools account.',
-            'success'     => $_SESSION['forgot_success'] ?? null,
-            'error'       => $_SESSION['forgot_error'] ?? null,
+            'title'            => 'Forgot Password — NeighborhoodTools',
+            'description'      => 'Request a password reset link for your NeighborhoodTools account.',
+            'pageCss'          => ['auth.css'],
+            'pageJs'           => $turnstileSiteKey !== '' ? ['auth.js', 'turnstile.js'] : ['auth.js'],
+            'cdnJs'            => $cdnJs,
+            'turnstileSiteKey' => $turnstileSiteKey,
+            'success'          => $_SESSION['forgot_success'] ?? null,
+            'error'            => $_SESSION['forgot_error'] ?? null,
         ]);
 
         unset($_SESSION['forgot_success'], $_SESSION['forgot_error']);
@@ -406,6 +413,12 @@ class AuthController extends BaseController
         $this->validateCsrf();
 
         if (($_POST['website'] ?? '') !== '') {
+            $this->redirect('/forgot-password');
+        }
+
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!$this->verifyTurnstile($turnstileToken, 'forgot_password')) {
+            $_SESSION['forgot_error'] = 'Verification failed. Please try again.';
             $this->redirect('/forgot-password');
         }
 
@@ -474,13 +487,18 @@ class AuthController extends BaseController
             $this->redirect('/forgot-password');
         }
 
+        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
+        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
+
         $this->render('auth/reset-password', [
-            'title'       => 'Reset Password — NeighborhoodTools',
-            'description' => 'Choose a new password for your NeighborhoodTools account.',
-            'pageCss'     => ['auth.css'],
-            'pageJs'      => ['auth.js'],
-            'token'       => $token,
-            'error'       => $_SESSION['reset_error'] ?? null,
+            'title'            => 'Reset Password — NeighborhoodTools',
+            'description'      => 'Choose a new password for your NeighborhoodTools account.',
+            'pageCss'          => ['auth.css'],
+            'pageJs'           => $turnstileSiteKey !== '' ? ['auth.js', 'turnstile.js'] : ['auth.js'],
+            'cdnJs'            => $cdnJs,
+            'turnstileSiteKey' => $turnstileSiteKey,
+            'token'            => $token,
+            'error'            => $_SESSION['reset_error'] ?? null,
         ]);
 
         unset($_SESSION['reset_error']);
@@ -498,6 +516,12 @@ class AuthController extends BaseController
 
         if (($_POST['website'] ?? '') !== '') {
             $this->redirect('/login');
+        }
+
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!$this->verifyTurnstile($turnstileToken, 'reset_password')) {
+            $_SESSION['reset_error'] = 'Verification failed. Please try again.';
+            $this->redirect('/reset-password?token=' . urlencode($_POST['token'] ?? ''));
         }
 
         $this->checkRateLimit(

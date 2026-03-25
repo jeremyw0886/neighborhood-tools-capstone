@@ -338,15 +338,10 @@ class ToolController extends BaseController
             error_log('ToolController::show images — ' . $e->getMessage());
         }
 
-        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
-        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
-
         $this->render('tools/show', [
             'title'            => $tool['tool_name_tol'] . ' — NeighborhoodTools',
             'pageCss'          => ['tools.css'],
-            'pageJs'           => ['tools.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
-            'cdnJs'            => $cdnJs,
-            'turnstileSiteKey' => $turnstileSiteKey,
+            'pageJs'           => ['tools.js'],
             'tool'             => $tool,
             'images'           => $images,
             'isBookmarked'     => $isBookmarked,
@@ -381,16 +376,11 @@ class ToolController extends BaseController
         $old    = $_SESSION['tool_old'] ?? [];
         unset($_SESSION['tool_errors'], $_SESSION['tool_old']);
 
-        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
-        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
-
         $this->renderDashboard('list-tool', [
             'title'            => 'List a Tool — NeighborhoodTools',
             'description'      => 'List a tool for your neighbors to borrow — NeighborhoodTools',
             'pageCss'          => ['tools.css', 'dashboard.css'],
-            'pageJs'           => ['tools.js', 'dashboard.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
-            'cdnJs'            => $cdnJs,
-            'turnstileSiteKey' => $turnstileSiteKey,
+            'pageJs'           => ['tools.js', 'dashboard.js'],
             'categories'       => $categories,
             'fuelTypes'        => $fuelTypes,
             'errors'           => $errors,
@@ -713,12 +703,6 @@ class ToolController extends BaseController
     {
         $this->requireAuth();
         $this->validateCsrf();
-
-        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
-        if (!$this->verifyTurnstile($turnstileToken, 'tool_create')) {
-            $_SESSION['tool_errors'] = ['general' => 'Verification failed. Please try again.'];
-            $this->redirect('/tools/create');
-        }
 
         $userId = (int) $_SESSION['user_id'];
 

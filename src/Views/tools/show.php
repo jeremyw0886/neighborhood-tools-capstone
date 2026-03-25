@@ -314,9 +314,6 @@ $images        ??= [];
             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Request
           </button>
 
-          <?php if (!empty($turnstileSiteKey)): ?>
-            <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="borrow_request" data-appearance="interaction-only" data-theme="light" data-callback="onTurnstileVerify" data-expired-callback="onTurnstileExpire" data-error-callback="onTurnstileError"></div>
-          <?php endif; ?>
         </form>
       </section>
     <?php elseif (!empty($isLoggedIn) && !$isOwner && $status !== 'AVAILABLE'): ?>

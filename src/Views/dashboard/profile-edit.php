@@ -9,7 +9,6 @@
  *   $avatarVectors   array   Available vector avatars
  *   $errors          array   Field-keyed validation errors (empty on first load)
  *   $old             array   Previous input values for sticky fields (empty on first load)
- *   $turnstileSiteKey string Cloudflare Turnstile site key
  *   $csrfToken       string  CSRF token from shared data
  */
 
@@ -249,7 +248,4 @@ if (!empty($profile['vector_avatar'])) {
     <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
   </button>
 
-  <?php if (!empty($turnstileSiteKey)): ?>
-    <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="profile_update" data-appearance="interaction-only" data-theme="light" data-callback="onTurnstileVerify" data-expired-callback="onTurnstileExpire" data-error-callback="onTurnstileError"></div>
-  <?php endif; ?>
 </form>

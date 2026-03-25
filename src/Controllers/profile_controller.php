@@ -161,16 +161,10 @@ class ProfileController extends BaseController
         $old    = $_SESSION['profile_old'] ?? [];
         unset($_SESSION['profile_errors'], $_SESSION['profile_old']);
 
-        $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
-        $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [];
-
         $this->renderDashboard('profile-edit', [
             'title'            => 'Edit Profile — NeighborhoodTools',
             'description'      => 'Edit your NeighborhoodTools profile.',
             'pageCss'          => ['dashboard.css'],
-            'pageJs'           => $turnstileSiteKey !== '' ? ['turnstile.js'] : [],
-            'cdnJs'            => $cdnJs,
-            'turnstileSiteKey' => $turnstileSiteKey,
             'profile'          => $profile,
             'preferences'      => $preferences,
             'meta'             => $meta,
@@ -190,12 +184,6 @@ class ProfileController extends BaseController
     {
         $this->requireAuth();
         $this->validateCsrf();
-
-        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
-        if (!$this->verifyTurnstile($turnstileToken, 'profile_update')) {
-            $_SESSION['profile_errors'] = ['general' => 'Verification failed. Please try again.'];
-            $this->redirect('/profile/edit');
-        }
 
         $userId = (int) $_SESSION['user_id'];
 

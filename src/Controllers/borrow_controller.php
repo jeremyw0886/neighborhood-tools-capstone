@@ -41,12 +41,6 @@ class BorrowController extends BaseController
             'Too many borrow requests. Please try again in {minutes}.',
         );
 
-        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
-        if (!$this->verifyTurnstile($turnstileToken, 'borrow_request')) {
-            $_SESSION['borrow_errors'] = ['general' => 'Verification failed. Please try again.'];
-            $this->redirect('/tools/' . $toolId);
-        }
-
         $loanDuration = (int) ($_POST['loan_duration'] ?? 0);
         $notes        = trim($_POST['notes'] ?? '');
 

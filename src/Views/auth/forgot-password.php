@@ -42,6 +42,10 @@
         >
       </div>
 
+      <?php if (!empty($turnstileSiteKey)): ?>
+        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="forgot_password"></div>
+      <?php endif; ?>
+
       <button type="submit" data-intent="primary" data-size="lg" data-width="full">
         <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Reset Link
       </button>

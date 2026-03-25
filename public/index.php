@@ -108,7 +108,14 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Dynamic cache control (security headers served via .htaccess)
+// Generate per-request CSP nonce for script-src
+define('CSP_NONCE', base64_encode(random_bytes(16)));
+
+// CSP header — nonce-based script-src with strict-dynamic propagation
+$cspNonce = CSP_NONCE;
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com; frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self' data:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests");
+
+// Dynamic cache control (remaining security headers served via .htaccess)
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 $privatePrefixes = ['/dashboard', '/profile', '/admin', '/notifications', '/payments', '/disputes', '/incidents', '/waivers', '/handover'];
 $isPrivatePage = !empty($_SESSION['logged_in']) && array_any(

@@ -69,21 +69,21 @@
   ?>
 
   <?php foreach ($cdnJs ?? [] as $cdnUrl): ?>
-  <script src="<?= htmlspecialchars($cdnUrl) ?>" defer></script>
+  <script src="<?= htmlspecialchars($cdnUrl) ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endforeach; ?>
   <?php $utilsJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'utils.js' : 'utils.min.js'; ?>
-  <script src="/assets/js/<?= $utilsJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <script src="/assets/js/<?= $utilsJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
-  <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php if (isset($_GET['test'])): ?>
   <?php $utCss = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.css' : 'usability-test.min.css'; ?>
   <link rel="stylesheet" href="/assets/css/<?= $utCss ?>">
   <?php $utJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.js' : 'usability-test.min.js'; ?>
-  <script src="/assets/js/<?= $utJs ?>" defer></script>
+  <script src="/assets/js/<?= $utJs ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endif; ?>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
   <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>
-  <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer></script>
+  <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endforeach; ?>
 
 </body>

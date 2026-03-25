@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
     <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
-    <link rel="icon" href="/assets/images/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="data:application/manifest+json,<?= rawurlencode(file_get_contents(BASE_PATH . '/public/site.webmanifest')) ?>">
     <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>

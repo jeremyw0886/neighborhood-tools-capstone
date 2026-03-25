@@ -37,7 +37,7 @@ if ($appConfig['debug']) {
     error_reporting(E_ALL);
     ini_set('display_errors', '1');
 } else {
-    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+    error_reporting(E_ALL & ~E_DEPRECATED);
     ini_set('display_errors', '0');
 }
 

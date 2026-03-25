@@ -148,9 +148,11 @@
             border: 1px solid var(--mountain-fog);
             border-radius: 0.5rem;
             color: var(--mountain-charcoal);
+            font-size: 0.938rem;
             min-height: 2.75rem;
             padding: 0.5rem 0.75rem;
             transition: border-color 0.25s, box-shadow 0.25s;
+            width: 100%;
 
             &:focus {
               border-color: var(--mountain-pine-light);

@@ -62,6 +62,7 @@ CLAUDE.md
 # Usability test files (temporary, delete after testing)
 public/usability-test-*.html
 public/assets/js/usability-test.js
+warren-jeremy-phase4/
 
 # Build tools (not needed on server — output is committed)
 build-assets.php

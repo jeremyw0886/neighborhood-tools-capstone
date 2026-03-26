@@ -86,6 +86,8 @@ return [
     'POST /borrow/{id}/remind'     => [BorrowController::class, 'remind'],
 
     // Profile
+    'PATCH /profile/image'         => [ProfileController::class, 'repositionImage'],
+    'POST /profile/image/delete'   => [ProfileController::class, 'removeImage'],
     'GET /profile/edit'            => [ProfileController::class, 'edit'],
     'POST /profile/edit'           => [ProfileController::class, 'update'],
     'GET /profile/{id}'            => [ProfileController::class, 'show'],

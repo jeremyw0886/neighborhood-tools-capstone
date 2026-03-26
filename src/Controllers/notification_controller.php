@@ -176,6 +176,10 @@ class NotificationController extends BaseController
         $userId     = (int) $_SESSION['user_id'];
         $isLender   = $borrowId && ((int) ($ntf['related_lender_id'] ?? 0)) === $userId;
 
+        if ($borrowId === null && $type === 'request') {
+            return '/tools';
+        }
+
         $loanUrl = $borrowId ? '/dashboard/loan/' . (int) $borrowId : null;
 
         return match ($type) {

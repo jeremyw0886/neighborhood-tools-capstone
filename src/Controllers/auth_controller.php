@@ -8,6 +8,7 @@ use App\Core\BaseController;
 use App\Core\RateLimiter;
 use App\Models\Account;
 use App\Models\Neighborhood;
+use App\Models\Notification;
 use App\Models\PasswordReset;
 use App\Models\ZipCode;
 
@@ -325,6 +326,15 @@ class AuthController extends BaseController
 
         session_regenerate_id(delete_old_session: true);
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+        Notification::send(
+            accountId: $newId,
+            type: 'request',
+            title: 'Welcome to NeighborhoodTools!',
+            body: "Thanks for joining, {$data['first_name']}! "
+                . "We're glad to have you in the neighborhood. "
+                . 'Start by browsing tools nearby or listing one of your own.',
+        );
 
         $this->redirect($returnUrl);
     }

@@ -66,13 +66,21 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
     <section aria-labelledby="popular-heading">
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <?php if (!empty($featuredTools)): ?>
-        <div role="list">
-          <?php $cardHeadingLevel = 'h3'; $cardSizes = '270px'; ?>
-          <?php foreach ($featuredTools as $toolIndex => $tool): ?>
-            <?php $eagerLoad = ($toolIndex === 0); ?>
-            <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
-          <?php endforeach; ?>
-          <?php unset($cardHeadingLevel, $cardSizes); ?>
+        <div id="popular-carousel">
+          <button type="button" aria-label="Previous tools" hidden data-dir="prev">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+          </button>
+          <div id="popular-list" role="list">
+            <?php $cardHeadingLevel = 'h3'; $cardSizes = '270px'; ?>
+            <?php foreach ($featuredTools as $toolIndex => $tool): ?>
+              <?php $eagerLoad = ($toolIndex === 0); ?>
+              <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
+            <?php endforeach; ?>
+            <?php unset($cardHeadingLevel, $cardSizes); ?>
+          </div>
+          <button type="button" aria-label="Next tools" hidden data-dir="next">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
         </div>
       <?php else: ?>
         <p>No tools available yet.

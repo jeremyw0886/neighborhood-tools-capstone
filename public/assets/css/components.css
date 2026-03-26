@@ -607,6 +607,17 @@
                 white-space: nowrap;
               }
 
+              &>p {
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                color: var(--mountain-slate);
+                display: -webkit-box;
+                font-size: 0.8125rem;
+                line-height: 1.4;
+                margin-top: 0.25rem;
+                overflow: hidden;
+              }
+
               &>em {
                 color: var(--mountain-stone);
                 display: block;

@@ -272,3 +272,22 @@ if (!empty($profile['vector_avatar'])) {
   </button>
 
 </form>
+
+<dialog id="crop-dialog" aria-label="Position your photo">
+  <header>
+    <h2>Position Your Photo</h2>
+    <p>Drag to choose which part is visible in the square frame.</p>
+  </header>
+  <div id="crop-viewport" tabindex="0">
+    <img id="crop-preview" src="data:," alt="Crop preview" draggable="false">
+    <div id="crop-frame" aria-hidden="true"></div>
+  </div>
+  <p id="crop-hint">Use arrow keys to nudge</p>
+  <footer>
+    <button type="button" data-crop-cancel>Cancel</button>
+    <button type="button" data-crop-confirm data-intent="primary">
+      <i class="fa-solid fa-camera" aria-hidden="true"></i>
+      <span data-crop-label>Set Photo</span>
+    </button>
+  </footer>
+</dialog>

@@ -438,6 +438,170 @@ class DashboardRouter {
   };
 }
 
+// ─── Profile Photo Manager ──────────────────────────────────────────
+
+class ProfilePhotoManager {
+  static #instance = null;
+
+  /** @type {HTMLElement} */
+  #container;
+  /** @type {HTMLInputElement} */
+  #fileInput;
+  /** @type {HTMLInputElement} */
+  #focalXInput;
+  /** @type {HTMLInputElement} */
+  #focalYInput;
+  /** @type {HTMLImageElement|null} */
+  #previewImg;
+
+  #abortController = new AbortController();
+
+  /** @param {HTMLElement} container */
+  constructor(container) {
+    this.#container = container;
+    this.#fileInput = container.querySelector('input[type="file"]');
+    this.#focalXInput = container.querySelector('input[name="focal_x"]');
+    this.#focalYInput = container.querySelector('input[name="focal_y"]');
+    this.#previewImg = container.querySelector('figure img');
+
+    this.#bind();
+  }
+
+  /** @returns {ProfilePhotoManager|null} */
+  static init() {
+    if (ProfilePhotoManager.#instance) return ProfilePhotoManager.#instance;
+    const container = document.querySelector('[data-profile-photo-upload]');
+    if (!container) return null;
+    return (ProfilePhotoManager.#instance = new ProfilePhotoManager(container));
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+
+    this.#fileInput.addEventListener('change', this.#handleFileChange, { signal });
+
+    const repoBtn = this.#container.querySelector('[data-reposition-photo]');
+    repoBtn?.addEventListener('click', this.#handleReposition, { signal });
+
+    if (NT.crop) {
+      NT.crop.onConfirm((mode, data) => {
+        if (mode === 'upload') {
+          this.#focalXInput.value = data.focalX;
+          this.#focalYInput.value = data.focalY;
+          this.#showPreview(data.file, data.focalX, data.focalY);
+          NT.crop.close();
+        } else if (mode === 'reposition') {
+          this.#handleRepositionConfirm(data.focalX, data.focalY);
+        }
+      });
+    }
+  }
+
+  #handleFileChange = () => {
+    const file = this.#fileInput.files?.[0];
+    if (!file) return;
+
+    if (!ProfilePhotoManager.#validateFile(file)) {
+      this.#fileInput.value = '';
+      return;
+    }
+
+    if (NT.crop) {
+      NT.crop.openUpload(file, { icon: 'fa-solid fa-camera', label: 'Set Photo', aspectRatio: 1 });
+    }
+  };
+
+  #handleReposition = () => {
+    if (!this.#previewImg || !NT.crop) return;
+    const fx = parseInt(this.#previewImg.dataset.focalX, 10) || 50;
+    const fy = parseInt(this.#previewImg.dataset.focalY, 10) || 50;
+    NT.crop.openReposition(this.#previewImg.src, fx, fy, 'profile', { aspectRatio: 1 });
+  };
+
+  /**
+   * PATCH new focal point to server and update preview on success.
+   *
+   * @param {number} focalX
+   * @param {number} focalY
+   */
+  async #handleRepositionConfirm(focalX, focalY) {
+    NT.crop.setConfirmState(true, true);
+    try {
+      const response = await NT.fetch('/profile/image', {
+        method: 'PATCH',
+        body: JSON.stringify({ focal_x: focalX, focal_y: focalY }),
+      });
+
+      if (!response.ok) {
+        NT.toast('Failed to update photo position.', 'error');
+        NT.crop.setConfirmState(false, false);
+        return;
+      }
+
+      this.#focalXInput.value = focalX;
+      this.#focalYInput.value = focalY;
+
+      if (this.#previewImg) {
+        this.#previewImg.dataset.focalX = focalX;
+        this.#previewImg.dataset.focalY = focalY;
+        NT.applyFocalPoints(this.#container);
+      }
+
+      NT.crop.close();
+    } catch {
+      NT.toast('Failed to update photo position.', 'error');
+      NT.crop.setConfirmState(false, false);
+    }
+  }
+
+  /**
+   * Show a client-side preview of the selected file before form submission.
+   *
+   * @param {File} file
+   * @param {number} focalX
+   * @param {number} focalY
+   */
+  #showPreview(file, focalX, focalY) {
+    const url = URL.createObjectURL(file);
+
+    if (this.#previewImg) {
+      this.#previewImg.src = url;
+      this.#previewImg.dataset.focalX = focalX;
+      this.#previewImg.dataset.focalY = focalY;
+      NT.applyFocalPoints(this.#container);
+    } else {
+      const figure = document.createElement('figure');
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'Photo preview';
+      img.width = 150;
+      img.height = 150;
+      img.dataset.focalX = focalX;
+      img.dataset.focalY = focalY;
+      const caption = document.createElement('figcaption');
+      caption.textContent = 'New photo — save the form to apply.';
+      figure.append(img, caption);
+      this.#container.querySelector('label[for="avatar"]').after(figure);
+      this.#previewImg = img;
+      NT.applyFocalPoints(this.#container);
+    }
+  }
+
+  static #validateFile(file) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      NT.toast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
+      return false;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      NT.toast('File exceeds the 5 MB limit.', 'error');
+      return false;
+    }
+    return true;
+  }
+}
+
 // ─── Init ────────────────────────────────────────────────────────────
 
 DashboardRouter.init();
+ProfilePhotoManager.init();

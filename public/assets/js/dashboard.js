@@ -339,8 +339,12 @@ class DashboardRouter {
 
     if (isBack) {
       e.preventDefault();
-      const dest = DashboardRouter.#isDashboardUrl(link.href) ? link.href : '/dashboard';
-      this.#navigate(dest, 'back');
+      if (this.#navIndex > 0) {
+        history.back();
+      } else {
+        const dest = DashboardRouter.#isDashboardUrl(link.href) ? link.href : '/dashboard';
+        this.#navigate(dest, 'back');
+      }
       return;
     }
 

@@ -137,7 +137,7 @@ class BorrowController extends BaseController
         }
 
         $_SESSION['borrow_success'] = 'Your borrow request has been sent! The lender will review it shortly.';
-        $this->redirect('/dashboard');
+        $this->redirect('/dashboard/borrower');
     }
 
     /**

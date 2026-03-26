@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\ImageProcessor;
 use App\Models\Account;
 use App\Models\AvatarVector;
 use App\Models\Tool;
@@ -15,6 +16,8 @@ class ProfileController extends BaseController
     private const int PER_PAGE = 3;
 
     private const int MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+    private const array PROFILE_VARIANT_WIDTHS = [360, 150, 80];
 
     private const array ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -247,16 +250,28 @@ class ProfileController extends BaseController
 
             if ($imageFilename !== null) {
                 $altText = $firstName . ' ' . $lastName . "'s profile photo";
+                $focalX  = max(0, min(100, (int) ($_POST['focal_x'] ?? 50)));
+                $focalY  = max(0, min(100, (int) ($_POST['focal_y'] ?? 50)));
+
+                $sourcePath = BASE_PATH . '/public/uploads/profiles/' . $imageFilename;
+                ImageProcessor::generateVariants(
+                    $sourcePath,
+                    widths: self::PROFILE_VARIANT_WIDTHS,
+                    focalX: $focalX,
+                    focalY: $focalY,
+                    aspectRatio: 1.0,
+                );
 
                 $oldImage = Account::getPrimaryImage($userId);
 
-                Account::saveProfileImage($userId, $imageFilename, $altText);
+                Account::saveProfileImage($userId, $imageFilename, $altText, $focalX, $focalY);
 
                 if ($oldImage !== null) {
-                    $oldPath = BASE_PATH . '/public/uploads/profiles/' . $oldImage['file_name_aim'];
-                    if (is_file($oldPath)) {
-                        unlink($oldPath);
-                    }
+                    ImageProcessor::deleteVariants(
+                        $oldImage['file_name_aim'],
+                        uploadDir: 'profiles',
+                        widths: self::PROFILE_VARIANT_WIDTHS,
+                    );
                 }
 
                 $_SESSION['user_avatar'] = $imageFilename;
@@ -287,10 +302,11 @@ class ProfileController extends BaseController
             error_log('ProfileController::update — ' . $e->getMessage());
 
             if ($imageFilename !== null) {
-                $uploaded = BASE_PATH . '/public/uploads/profiles/' . $imageFilename;
-                if (is_file($uploaded)) {
-                    unlink($uploaded);
-                }
+                ImageProcessor::deleteVariants(
+                    $imageFilename,
+                    uploadDir: 'profiles',
+                    widths: self::PROFILE_VARIANT_WIDTHS,
+                );
             }
 
             $_SESSION['profile_errors'] = ['general' => 'Something went wrong. Please try again.'];
@@ -300,6 +316,114 @@ class ProfileController extends BaseController
 
         $_SESSION['profile_notice'] = 'Profile updated successfully.';
         $this->redirect('/profile/' . $userId);
+    }
+
+    /**
+     * Reposition the focal point on an existing profile image (AJAX).
+     */
+    public function repositionImage(): void
+    {
+        $this->requireAuth();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        $json = json_decode(file_get_contents('php://input'), true);
+        if (!is_array($json)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request body.']);
+            return;
+        }
+
+        $csrfToken = $json['csrf_token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Invalid CSRF token.']);
+            return;
+        }
+
+        $focalX = max(0, min(100, (int) ($json['focal_x'] ?? 50)));
+        $focalY = max(0, min(100, (int) ($json['focal_y'] ?? 50)));
+
+        try {
+            $image = Account::getPrimaryImage($userId);
+            if ($image === null) {
+                http_response_code(404);
+                echo json_encode(['error' => 'No profile image found.']);
+                return;
+            }
+
+            Account::updateProfileFocalPoint($userId, $focalX, $focalY);
+
+            $filename   = $image['file_name_aim'];
+            $sourcePath = BASE_PATH . '/public/uploads/profiles/' . $filename;
+
+            ImageProcessor::deleteVariantsOnly(
+                $filename,
+                uploadDir: 'profiles',
+                widths: self::PROFILE_VARIANT_WIDTHS,
+            );
+
+            ImageProcessor::generateVariants(
+                $sourcePath,
+                widths: self::PROFILE_VARIANT_WIDTHS,
+                focalX: $focalX,
+                focalY: $focalY,
+                aspectRatio: 1.0,
+            );
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'focal_x' => $focalX,
+                'focal_y' => $focalY,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('ProfileController::repositionImage — ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to reposition image.']);
+        }
+    }
+
+    /**
+     * Remove the user's profile image and all its variants.
+     */
+    public function removeImage(): void
+    {
+        $this->requireAuth();
+        $this->validateCsrf();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $image = Account::getPrimaryImage($userId);
+        } catch (\Throwable $e) {
+            error_log('ProfileController::removeImage — ' . $e->getMessage());
+            $_SESSION['profile_notice'] = 'Something went wrong. Please try again.';
+            $this->redirect('/profile/edit');
+        }
+
+        if ($image === null) {
+            $_SESSION['profile_notice'] = 'No profile image to remove.';
+            $this->redirect('/profile/edit');
+        }
+
+        try {
+            ImageProcessor::deleteVariants(
+                $image['file_name_aim'],
+                uploadDir: 'profiles',
+                widths: self::PROFILE_VARIANT_WIDTHS,
+            );
+
+            Account::deleteProfileImage($userId);
+
+            $_SESSION['user_avatar'] = null;
+            $_SESSION['profile_notice'] = 'Profile photo removed.';
+        } catch (\Throwable $e) {
+            error_log('ProfileController::removeImage — ' . $e->getMessage());
+            $_SESSION['profile_notice'] = 'Something went wrong. Please try again.';
+        }
+
+        $this->redirect('/profile/edit');
     }
 
     /**

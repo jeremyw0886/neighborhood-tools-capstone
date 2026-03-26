@@ -1050,4 +1050,20 @@ class Account
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    /**
+     * Delete the primary image record for an account.
+     */
+    public static function deleteProfileImage(int $accountId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            DELETE FROM account_image_aim
+            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+        ");
+
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
 }

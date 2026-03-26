@@ -621,6 +621,8 @@ class Account
                 abi.bio_text_abi,
                 aim.file_name_aim           AS primary_image,
                 aim.alt_text_aim            AS image_alt_text,
+                aim.focal_x_aim,
+                aim.focal_y_aim,
                 a.id_avv_acc,
                 avv.file_name_avv           AS vector_avatar,
                 avv.description_text_avv    AS vector_avatar_alt
@@ -774,8 +776,13 @@ class Account
      * If a primary image already exists for this account, updates it.
      * Otherwise inserts a new row with is_primary_aim = TRUE.
      */
-    public static function saveProfileImage(int $accountId, string $filename, ?string $altText = null): void
-    {
+    public static function saveProfileImage(
+        int $accountId,
+        string $filename,
+        ?string $altText = null,
+        int $focalX = 50,
+        int $focalY = 50,
+    ): void {
         $pdo = Database::connection();
 
         $existing = $pdo->prepare("
@@ -794,12 +801,16 @@ class Account
             $stmt = $pdo->prepare("
                 UPDATE account_image_aim
                 SET file_name_aim = :filename,
-                    alt_text_aim  = :alt
+                    alt_text_aim  = :alt,
+                    focal_x_aim   = :focal_x,
+                    focal_y_aim   = :focal_y
                 WHERE id_aim = :aim_id
             ");
 
             $stmt->bindValue(':filename', $filename);
             $stmt->bindValue(':alt', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':focal_x', $focalX, PDO::PARAM_INT);
+            $stmt->bindValue(':focal_y', $focalY, PDO::PARAM_INT);
             $stmt->bindValue(':aim_id', (int) $current['id_aim'], PDO::PARAM_INT);
             $stmt->execute();
 
@@ -807,13 +818,16 @@ class Account
         }
 
         $stmt = $pdo->prepare("
-            INSERT INTO account_image_aim (id_acc_aim, file_name_aim, alt_text_aim, is_primary_aim)
-            VALUES (:id, :filename, :alt, TRUE)
+            INSERT INTO account_image_aim
+                (id_acc_aim, file_name_aim, alt_text_aim, is_primary_aim, focal_x_aim, focal_y_aim)
+            VALUES (:id, :filename, :alt, TRUE, :focal_x, :focal_y)
         ");
 
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->bindValue(':filename', $filename);
         $stmt->bindValue(':alt', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':focal_x', $focalX, PDO::PARAM_INT);
+        $stmt->bindValue(':focal_y', $focalY, PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -994,14 +1008,16 @@ class Account
     }
 
     /**
-     * Get the current primary image filename for an account.
+     * Get the current primary image data for an account.
+     *
+     * @return ?array{file_name_aim: string, focal_x_aim: int, focal_y_aim: int}
      */
-    public static function getPrimaryImage(int $accountId): ?string
+    public static function getPrimaryImage(int $accountId): ?array
     {
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare("
-            SELECT file_name_aim
+            SELECT file_name_aim, focal_x_aim, focal_y_aim
             FROM account_image_aim
             WHERE id_acc_aim = :id AND is_primary_aim = TRUE
             LIMIT 1
@@ -1012,6 +1028,26 @@ class Account
 
         $row = $stmt->fetch();
 
-        return $row !== false ? $row['file_name_aim'] : null;
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Update the focal point for an account's primary image.
+     */
+    public static function updateProfileFocalPoint(int $accountId, int $focalX, int $focalY): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_image_aim
+            SET focal_x_aim = :focal_x,
+                focal_y_aim = :focal_y
+            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+        ");
+
+        $stmt->bindValue(':focal_x', $focalX, PDO::PARAM_INT);
+        $stmt->bindValue(':focal_y', $focalY, PDO::PARAM_INT);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
     }
 }

@@ -253,7 +253,7 @@ class ProfileController extends BaseController
                 Account::saveProfileImage($userId, $imageFilename, $altText);
 
                 if ($oldImage !== null) {
-                    $oldPath = BASE_PATH . '/public/uploads/profiles/' . $oldImage;
+                    $oldPath = BASE_PATH . '/public/uploads/profiles/' . $oldImage['file_name_aim'];
                     if (is_file($oldPath)) {
                         unlink($oldPath);
                     }

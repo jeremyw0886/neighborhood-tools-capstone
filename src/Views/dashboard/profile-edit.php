@@ -173,16 +173,27 @@ if (!empty($profile['vector_avatar'])) {
         placeholder="Tell your neighbors a bit about yourself…"><?= htmlspecialchars($old['bio'] ?? $profile['bio_text_abi'] ?? '') ?></textarea>
     </div>
 
-    <div>
+    <div data-profile-photo-upload>
       <label for="avatar">Profile Photo</label>
       <?php if ($profile['primary_image']): ?>
+        <?php
+          $photoSrc = '/uploads/profiles/' . htmlspecialchars($profile['primary_image']);
+          $photoAlt = $profile['image_alt_text'] ?? $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
+        ?>
         <figure>
-          <img src="<?= htmlspecialchars($avatarSrc) ?>"
-            alt="<?= htmlspecialchars($avatarAlt) ?>"
+          <img src="<?= $photoSrc ?>"
+            alt="<?= htmlspecialchars($photoAlt) ?>"
             width="150" height="150"
-            decoding="async">
+            loading="lazy" decoding="async"
+            data-focal-x="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>"
+            data-focal-y="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
           <figcaption>Current photo — upload a new file to replace it.</figcaption>
         </figure>
+        <div>
+          <button type="button" data-reposition-photo>
+            <i class="fa-solid fa-crop" aria-hidden="true"></i> Reposition
+          </button>
+        </div>
       <?php endif; ?>
       <input type="file"
         id="avatar"
@@ -192,7 +203,19 @@ if (!empty($profile['vector_avatar'])) {
       <?php if (isset($errors['avatar'])): ?>
         <p id="avatar-error" role="alert"><?= htmlspecialchars($errors['avatar']) ?></p>
       <?php endif; ?>
+      <input type="hidden" name="focal_x" value="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>">
+      <input type="hidden" name="focal_y" value="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
     </div>
+    <?php if ($profile['primary_image']): ?>
+      <div>
+        <form action="/profile/image/delete" method="post">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+          <button type="submit" data-intent="danger-subtle">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove Photo
+          </button>
+        </form>
+      </div>
+    <?php endif; ?>
   </fieldset>
 
   <?php if ($avatarVectors !== []): ?>

@@ -168,6 +168,7 @@ class ProfileController extends BaseController
             'title'            => 'Edit Profile — NeighborhoodTools',
             'description'      => 'Edit your NeighborhoodTools profile.',
             'pageCss'          => ['dashboard.css'],
+            'pageJs'           => ['image-crop.js', 'dashboard.js'],
             'profile'          => $profile,
             'preferences'      => $preferences,
             'meta'             => $meta,

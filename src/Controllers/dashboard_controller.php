@@ -180,6 +180,7 @@ class DashboardController extends BaseController
             'lentSort'                => $lentSort,
             'borrowSuccess'      => $this->flash('borrow_success'),
             'borrowErrors'       => $this->flash('borrow_errors', []),
+            'lenderNotice'       => $this->flash('lender_notice'),
         ]);
     }
 

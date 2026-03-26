@@ -175,7 +175,7 @@ $images            ??= [];
       <?php foreach ($images as $image):
         $imgId      = (int) $image['id_tim'];
         $filename   = htmlspecialchars($image['file_name_tim']);
-        $thumb      = htmlspecialchars(preg_replace('/\.(\w+)$/', '-400w.$1', $image['file_name_tim']));
+        $thumb      = htmlspecialchars(preg_replace('/\.(\w+)$/', '-360w.$1', $image['file_name_tim']));
         $altText    = htmlspecialchars($image['alt_text_tim'] ?? '');
         $isPrimary  = !empty($image['is_primary_tim']);
         $focalX     = (int) ($image['focal_x_tim'] ?? 50);
@@ -292,11 +292,24 @@ $images            ??= [];
 
 <fieldset>
   <legend>Danger Zone</legend>
-  <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/delete" id="delete-tool-form">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-    <p>Permanently remove this tool listing and all its images.</p>
-    <button type="submit" data-intent="danger">
-      <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete Tool
-    </button>
-  </form>
+  <p>Permanently remove this tool listing and all its images.</p>
+  <button type="button" data-intent="danger" data-open-delete-dialog>
+    <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete Tool
+  </button>
+
+  <dialog id="delete-tool-dialog" aria-label="Confirm tool deletion">
+    <header>
+      <h2>Delete Tool</h2>
+    </header>
+    <p>Are you sure you want to permanently delete <strong><?= htmlspecialchars($tool['tool_name_tol']) ?></strong>? This action cannot be undone.</p>
+    <footer>
+      <button type="button" data-close-delete-dialog>Cancel</button>
+      <form method="post" action="/tools/<?= (int) $tool['id_tol'] ?>/delete">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+        <button type="submit" data-intent="danger">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
+        </button>
+      </form>
+    </footer>
+  </dialog>
 </fieldset>

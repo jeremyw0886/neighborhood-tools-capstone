@@ -25,7 +25,11 @@
 
 ?>
 
-<?php if (!empty($borrowSuccess)): ?>
+<?php if (!empty($lenderNotice)): ?>
+    <p role="status" data-flash="success"><?= htmlspecialchars($lenderNotice) ?></p>
+  <?php endif; ?>
+
+  <?php if (!empty($borrowSuccess)): ?>
     <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
 

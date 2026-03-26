@@ -642,8 +642,15 @@ class ToolController extends BaseController
         }
 
         try {
+            $filenames = Tool::deleteAllImages($toolId);
+
+            foreach ($filenames as $filename) {
+                $this->deleteToolImageFiles($filename);
+            }
+
             Tool::softDelete($toolId);
-            $this->redirect('/tools');
+            $_SESSION['lender_notice'] = 'Tool deleted successfully.';
+            $this->redirect('/dashboard/lender');
         } catch (\Throwable $e) {
             error_log('ToolController::delete — ' . $e->getMessage());
             $this->abort(500);

@@ -1407,7 +1407,7 @@ class GalleryManager {
     if (GalleryManager.#instance) return GalleryManager.#instance;
     const gallery = document.getElementById('gallery-manager');
     const fieldset = gallery?.closest('fieldset')
-      ?? document.querySelector('section[aria-labelledby="edit-tool-heading"] > fieldset:last-of-type');
+      ?? document.querySelector('section[aria-labelledby="edit-tool-heading"] fieldset:last-of-type');
     if (!fieldset) return null;
     const toolId = gallery?.dataset.toolId ?? document.getElementById('add-photo')?.dataset.toolId;
     if (!toolId) return null;
@@ -1488,7 +1488,7 @@ class GalleryManager {
   }
 
   #buildLiHtml(img) {
-    const thumb = GalleryManager.#escapeAttr(img.filename.replace(/\.(\w+)$/, '-400w.$1'));
+    const thumb = GalleryManager.#escapeAttr(img.filename.replace(/\.(\w+)$/, '-360w.$1'));
     const altSafe = GalleryManager.#escapeAttr(img.alt_text || '');
     const csrfToken = GalleryManager.#escapeAttr(document.querySelector('meta[name="csrf-token"]')?.content ?? '');
     const fx = img.focal_x ?? 50;
@@ -2200,6 +2200,35 @@ class GalleryViewer {
   }
 }
 
+// ─── Delete Tool Confirmation ────────────────────────────────────────
+
+class DeleteToolDialog {
+  static #instance = null;
+
+  /** @type {HTMLDialogElement} */
+  #dialog;
+  #abortController = new AbortController();
+
+  /** @param {HTMLDialogElement} dialog */
+  constructor(dialog) {
+    this.#dialog = dialog;
+    const { signal } = this.#abortController;
+
+    document.querySelector('[data-open-delete-dialog]')
+      ?.addEventListener('click', () => this.#dialog.showModal(), { signal });
+
+    dialog.querySelector('[data-close-delete-dialog]')
+      ?.addEventListener('click', () => this.#dialog.close(), { signal });
+  }
+
+  static init() {
+    if (DeleteToolDialog.#instance) return DeleteToolDialog.#instance;
+    const dialog = document.getElementById('delete-tool-dialog');
+    if (!dialog) return null;
+    return (DeleteToolDialog.#instance = new DeleteToolDialog(dialog));
+  }
+}
+
 // ─── Init ────────────────────────────────────────────────────────────
 
 BrowseModeToggle.init();
@@ -2211,3 +2240,4 @@ ImageCrop.init();
 PhotoQueue.init();
 GalleryManager.init();
 GalleryViewer.init();
+DeleteToolDialog.init();

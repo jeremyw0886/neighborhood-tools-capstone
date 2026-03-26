@@ -190,7 +190,7 @@ class AvailableController extends BaseController
             'title'         => 'Available Tools — NeighborhoodTools',
             'description'   => 'Browse tools available to borrow right now from your neighbors in the Asheville and Hendersonville areas.',
             'pageCss'       => ['tools.css'],
-            'pageJs'        => ['tools.js'],
+            'pageJs'        => ['image-crop.js', 'tools.js'],
             'tools'         => $tools,
             'categories'    => $categories,
             'browseCounts'  => $browseCounts,

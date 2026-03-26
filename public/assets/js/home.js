@@ -744,10 +744,10 @@ class PopularCarousel {
   }
 
   #scrollByCards(direction) {
-    const first = this.#list.firstElementChild;
-    if (!first) return;
+    const card = this.#list.querySelector('article');
+    if (!card) return;
     const gap = parseFloat(getComputedStyle(this.#list).gap) || 0;
-    const cardWidth = first.offsetWidth + gap;
+    const cardWidth = card.offsetWidth + gap;
     this.#list.scrollBy({
       left: direction * cardWidth * 3,
       behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',

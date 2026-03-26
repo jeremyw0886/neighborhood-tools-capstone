@@ -204,6 +204,8 @@ class BaseController
     protected function renderPartial(string $partialPath, array $data = []): void
     {
         header('X-Partial: 1');
+        header('Cache-Control: no-store');
+        header('Vary: X-Requested-With');
 
         if (isset($data['title'])) {
             header('X-Page-Title: ' . rawurlencode($data['title']));

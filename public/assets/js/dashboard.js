@@ -351,7 +351,12 @@ class DashboardRouter {
   };
 
   #handlePopstate = (e) => {
-    if (!e.state?.dashNav) return;
+    if (!e.state?.dashNav) {
+      if (DashboardRouter.#isDashboardUrl(location.href)) {
+        location.reload();
+      }
+      return;
+    }
     if (!DashboardRouter.#isDashboardUrl(location.href)) {
       location.reload();
       return;

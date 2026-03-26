@@ -338,7 +338,7 @@ class ToolPreview {
     if (ToolPreview.#instance) return ToolPreview.#instance;
     const section = document.querySelector('[aria-labelledby="popular-heading"]');
     if (!section) return null;
-    const container = section.querySelector(':scope > div[role="list"]');
+    const container = document.getElementById('popular-list');
     if (!container) return null;
     return (ToolPreview.#instance = new ToolPreview(container));
   }
@@ -679,6 +679,120 @@ class MemberCarousel {
   };
 }
 
+// ─── Popular Carousel ─────────────────────────────────────────────────
+
+class PopularCarousel {
+  static #instance = null;
+
+  /** @type {HTMLElement} */
+  #list;
+  /** @type {HTMLButtonElement} */
+  #prevBtn;
+  /** @type {HTMLButtonElement} */
+  #nextBtn;
+  /** @type {MediaQueryList} */
+  #desktop;
+  /** @type {MediaQueryList} */
+  #reducedMotion;
+  #rafPending = false;
+  #abortController = new AbortController();
+
+  /**
+   * @param {HTMLElement} carousel
+   * @param {HTMLElement} list
+   */
+  constructor(carousel, list) {
+    this.#list = list;
+    this.#prevBtn = carousel.querySelector('button[data-dir="prev"]');
+    this.#nextBtn = carousel.querySelector('button[data-dir="next"]');
+    this.#desktop = window.matchMedia('(min-width: 701px)');
+    this.#reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    this.#bind();
+    this.#handleViewport(this.#desktop);
+  }
+
+  /** @returns {PopularCarousel|null} */
+  static init() {
+    if (PopularCarousel.#instance) return PopularCarousel.#instance;
+    const carousel = document.getElementById('popular-carousel');
+    const list = document.getElementById('popular-list');
+    if (!carousel || !list) return null;
+    const prevBtn = carousel.querySelector('button[data-dir="prev"]');
+    const nextBtn = carousel.querySelector('button[data-dir="next"]');
+    if (!prevBtn || !nextBtn) return null;
+    return (PopularCarousel.#instance = new PopularCarousel(carousel, list));
+  }
+
+  destroy() {
+    this.#abortController.abort();
+    PopularCarousel.#instance = null;
+  }
+
+  #bind() {
+    const { signal } = this.#abortController;
+    this.#prevBtn.addEventListener('click', this.#handlePrev, { signal });
+    this.#nextBtn.addEventListener('click', this.#handleNext, { signal });
+    this.#list.addEventListener('scroll', this.#handleScroll, { signal, passive: true });
+    this.#desktop.addEventListener('change', this.#handleViewport, { signal });
+  }
+
+  #updateArrowState() {
+    this.#prevBtn.disabled = this.#list.scrollLeft <= 1;
+    this.#nextBtn.disabled =
+      this.#list.scrollLeft + this.#list.clientWidth >= this.#list.scrollWidth - 1;
+  }
+
+  #scrollByCards(direction) {
+    const first = this.#list.firstElementChild;
+    if (!first) return;
+    const gap = parseFloat(getComputedStyle(this.#list).gap) || 0;
+    const cardWidth = first.offsetWidth + gap;
+    this.#list.scrollBy({
+      left: direction * cardWidth * 3,
+      behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',
+    });
+  }
+
+  #activate() {
+    this.#prevBtn.hidden = false;
+    this.#nextBtn.hidden = false;
+    this.#list.dataset.arrows = '';
+    requestAnimationFrame(() => {
+      this.#list.scrollLeft = 0;
+      this.#updateArrowState();
+    });
+  }
+
+  #deactivate() {
+    this.#prevBtn.hidden = true;
+    this.#nextBtn.hidden = true;
+    delete this.#list.dataset.arrows;
+    requestAnimationFrame(() => {
+      this.#list.scrollLeft = 0;
+      this.#updateArrowState();
+    });
+  }
+
+  #handlePrev = () => this.#scrollByCards(-1);
+
+  #handleNext = () => this.#scrollByCards(1);
+
+  #handleScroll = () => {
+    if (this.#rafPending) return;
+    this.#rafPending = true;
+    requestAnimationFrame(() => {
+      this.#updateArrowState();
+      this.#rafPending = false;
+    });
+  };
+
+  #handleViewport = (e) => {
+    if (e.matches) this.#activate();
+    else this.#deactivate();
+  };
+}
+
 // ─── Init ────────────────────────────────────────────────────────────
 
 EntranceAnimation.init();
@@ -686,5 +800,6 @@ CounterAnimation.init();
 SubtitleRotator.init();
 NeighborCarousel.init();
 ToolPreview.init();
+PopularCarousel.init();
 LocationToggle.init();
 MemberCarousel.init();

@@ -571,22 +571,68 @@
       }
     }
 
-    & > div {
+  }
+
+  #popular-carousel {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+
+    & > button {
+      align-items: center;
+      background: var(--mountain-pine);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
       display: flex;
-      gap: 1.5rem;
-      max-width: 100%;
-      min-width: 0;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      padding: 0.5rem 0 0.75rem;
-      scroll-padding-left: 1rem;
-      scroll-padding-right: 1rem;
-      scroll-snap-type: x mandatory;
-      scrollbar-gutter: stable both-edges;
-      scrollbar-width: thin;
+      flex-shrink: 0;
+      height: 44px;
+      justify-content: center;
+      padding: 0;
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+      width: 44px;
+
+      &:hover {
+        background: var(--mountain-pine-dark);
+      }
+
+      &:focus-visible {
+        outline: 3px solid var(--mountain-gold);
+        outline-offset: 2px;
+      }
+
+      &:disabled {
+        cursor: default;
+        opacity: 0.3;
+      }
+
+      &[hidden] {
+        display: none;
+      }
+    }
+  }
+
+  #popular-list {
+    display: flex;
+    flex: 1;
+    gap: 1.5rem;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 0.5rem 0 0.75rem;
+    scroll-padding-left: 1rem;
+    scroll-padding-right: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-gutter: stable both-edges;
+    scrollbar-width: thin;
+
+    &[data-arrows] {
+      scroll-snap-type: none;
+      scrollbar-width: none;
     }
 
-    & > div > div > article {
+    & > div > article {
       width: 270px;
     }
   }
@@ -1065,8 +1111,13 @@
       margin-bottom: 1rem;
     }
 
-    .home-page > main > section:first-of-type > div {
+    #popular-list {
       gap: 1rem;
+      scroll-snap-type: x mandatory;
+    }
+
+    #popular-carousel > button {
+      display: none;
     }
 
     .home-page > main > section:nth-of-type(3) > div {
@@ -1251,7 +1302,8 @@
       transition: none;
     }
 
-    #member-carousel > button {
+    #member-carousel > button,
+    #popular-carousel > button {
       transition: none;
     }
   }

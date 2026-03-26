@@ -1094,7 +1094,8 @@ class Tool
             $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
             $stmt->execute();
 
-            $images = $data['image_filenames'] ?? [];
+            $images       = $data['image_filenames'] ?? [];
+            $primaryIndex = $data['primary_index'] ?? 0;
 
             if ($images !== []) {
                 $imgStmt = $pdo->prepare("
@@ -1112,7 +1113,7 @@ class Tool
                     $imgStmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
                     $imgStmt->bindValue(':filename', $img['filename'], PDO::PARAM_STR);
                     $imgStmt->bindValue(':altText', $altText, $altText !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-                    $imgStmt->bindValue(':isPrimary', $i === 0, PDO::PARAM_BOOL);
+                    $imgStmt->bindValue(':isPrimary', $i === $primaryIndex, PDO::PARAM_BOOL);
                     $imgStmt->bindValue(':sortOrder', $i + 1, PDO::PARAM_INT);
                     $imgStmt->bindValue(':focalX', $focalX, PDO::PARAM_INT);
                     $imgStmt->bindValue(':focalY', $focalY, PDO::PARAM_INT);

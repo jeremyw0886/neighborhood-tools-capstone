@@ -757,8 +757,10 @@ class ToolController extends BaseController
             $this->redirect('/tools/create');
         }
 
-        $focalXValues = $_POST['focal_x'] ?? [];
-        $focalYValues = $_POST['focal_y'] ?? [];
+        $focalXValues  = $_POST['focal_x'] ?? [];
+        $focalYValues  = $_POST['focal_y'] ?? [];
+        $altTextValues = $_POST['alt_text'] ?? [];
+        $primaryIndex  = max(0, (int) ($_POST['primary_index'] ?? 0));
         $imageFilenames = [];
 
         foreach ($uploadedFiles as $i => $file) {
@@ -776,17 +778,24 @@ class ToolController extends BaseController
 
             $fx = isset($focalXValues[$i]) ? max(0, min(100, (int) $focalXValues[$i])) : 50;
             $fy = isset($focalYValues[$i]) ? max(0, min(100, (int) $focalYValues[$i])) : 50;
+            $alt = isset($altTextValues[$i]) && trim($altTextValues[$i]) !== ''
+                ? mb_substr(trim($altTextValues[$i]), 0, 255)
+                : null;
 
             $sourcePath = BASE_PATH . '/public/uploads/tools/' . $result['filename'];
             ImageProcessor::generateVariants($sourcePath, focalX: $fx, focalY: $fy);
 
             $imageFilenames[] = [
                 'filename' => $result['filename'],
-                'alt_text' => null,
+                'alt_text' => $alt,
                 'width'    => $result['width'],
                 'focal_x'  => $fx,
                 'focal_y'  => $fy,
             ];
+        }
+
+        if ($primaryIndex >= count($imageFilenames)) {
+            $primaryIndex = 0;
         }
 
         try {
@@ -800,6 +809,7 @@ class ToolController extends BaseController
                 'loan_duration'   => $loanDuration !== '' ? (int) $loanDuration * 24 : null,
                 'fuel_type'       => $usesFuel && $fuelType !== '' ? $fuelType : null,
                 'image_filenames' => $imageFilenames,
+                'primary_index'   => $primaryIndex,
             ]);
 
             $_SESSION['tool_saved'] = true;

@@ -1301,6 +1301,10 @@
       margin-bottom: 1rem;
       padding: 0.5rem 0.75rem;
 
+      &[hidden] {
+        display: none;
+      }
+
       & > i {
         flex-shrink: 0;
         line-height: 1.4;

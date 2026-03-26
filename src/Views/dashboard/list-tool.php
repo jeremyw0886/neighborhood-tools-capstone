@@ -150,9 +150,9 @@ $fuelTypes  ??= [];
   <fieldset>
     <legend>Photos</legend>
 
-    <p id="gallery-crop-hint">
+    <p id="gallery-crop-hint" hidden>
       <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
-      <span>Use <strong>Reposition</strong> to adjust cropping. The first photo will be your primary listing image.</span>
+      <span>Drag cards to reorder. Use <strong>Reposition</strong> to adjust cropping.</span>
     </p>
 
     <ol id="photo-queue" hidden aria-label="Queued photo previews"></ol>

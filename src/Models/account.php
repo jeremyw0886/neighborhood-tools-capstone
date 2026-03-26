@@ -788,6 +788,7 @@ class Account
         $existing->bindValue(':id', $accountId, PDO::PARAM_INT);
         $existing->execute();
         $current = $existing->fetch();
+        $existing->closeCursor();
 
         if ($current !== false) {
             $stmt = $pdo->prepare("

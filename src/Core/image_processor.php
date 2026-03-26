@@ -51,12 +51,18 @@ final class ImageProcessor
     }
 
     /**
-     * Crop to 3:2 around a focal point, then resize to target width.
+     * Crop to a target aspect ratio around a focal point, then resize to target width.
      *
      * @param non-empty-string $path Absolute path to the image file
+     * @param ?float $aspectRatio Width/height ratio (null = 3:2, 1.0 = square)
      */
-    public static function cropResize(string $path, int $targetWidth, int $focalX = 50, int $focalY = 50): void
-    {
+    public static function cropResize(
+        string $path,
+        int $targetWidth,
+        int $focalX = 50,
+        int $focalY = 50,
+        ?float $aspectRatio = null,
+    ): void {
         $info = getimagesize($path);
         if ($info === false) {
             return;
@@ -64,15 +70,16 @@ final class ImageProcessor
 
         [$origW, $origH, $type] = $info;
 
-        $targetH = (int) round($targetWidth / self::ASPECT_RATIO);
+        $ratio = $aspectRatio ?? self::ASPECT_RATIO;
+        $targetH = (int) round($targetWidth / $ratio);
         $sourceRatio = $origW / $origH;
 
-        if ($sourceRatio > self::ASPECT_RATIO) {
+        if ($sourceRatio > $ratio) {
             $cropH = $origH;
-            $cropW = (int) round($origH * self::ASPECT_RATIO);
+            $cropW = (int) round($origH * $ratio);
         } else {
             $cropW = $origW;
-            $cropH = (int) round($origW / self::ASPECT_RATIO);
+            $cropH = (int) round($origW / $ratio);
         }
 
         $cropX = (int) round(($origW - $cropW) * ($focalX / 100));
@@ -169,10 +176,11 @@ final class ImageProcessor
     }
 
     /**
-     * Generate size variants (cropped to 3:2) and WebP copies for a source image.
+     * Generate size variants and WebP copies for a source image.
      *
      * @param non-empty-string $sourcePath Absolute path to the full-size image
      * @param int[] $widths Variant widths to generate
+     * @param ?float $aspectRatio Width/height ratio (null = 3:2, 1.0 = square)
      * @return string[] Paths of all created files (empty on failure)
      */
     public static function generateVariants(
@@ -180,6 +188,7 @@ final class ImageProcessor
         array $widths = self::VARIANT_WIDTHS,
         int $focalX = 50,
         int $focalY = 50,
+        ?float $aspectRatio = null,
     ): array {
         $size = getimagesize($sourcePath);
         if ($size === false) {
@@ -209,7 +218,7 @@ final class ImageProcessor
                 }
                 $created[] = $variantPath;
 
-                self::cropResize($variantPath, $w, $focalX, $focalY);
+                self::cropResize($variantPath, $w, $focalX, $focalY, $aspectRatio);
 
                 if (!$isWebp) {
                     $webpPath = self::createWebpVariant($variantPath);
@@ -352,15 +361,19 @@ final class ImageProcessor
      *
      * @param string $filename  Base filename (e.g., "tool_xxx.jpg")
      * @param string $uploadDir Subdirectory under public/uploads/
+     * @param int[]  $widths    Variant widths to delete
      */
-    public static function deleteVariantsOnly(string $filename, string $uploadDir = 'tools'): void
-    {
+    public static function deleteVariantsOnly(
+        string $filename,
+        string $uploadDir = 'tools',
+        array $widths = self::VARIANT_WIDTHS,
+    ): void {
         $dir  = BASE_PATH . '/public/uploads/' . $uploadDir . '/';
         $name = pathinfo($filename, PATHINFO_FILENAME);
         $ext  = pathinfo($filename, PATHINFO_EXTENSION);
         $isWebp = strtolower($ext) === 'webp';
 
-        foreach (self::VARIANT_WIDTHS as $w) {
+        foreach ($widths as $w) {
             $path = $dir . "{$name}-{$w}w.{$ext}";
             if (file_exists($path)) {
                 unlink($path);
@@ -380,10 +393,14 @@ final class ImageProcessor
      *
      * @param string $filename  Base filename (e.g., "tool_xxx.jpg")
      * @param string $uploadDir Subdirectory under public/uploads/
+     * @param int[]  $widths    Variant widths to delete
      */
-    public static function deleteVariants(string $filename, string $uploadDir = 'tools'): void
-    {
-        self::deleteVariantsOnly($filename, $uploadDir);
+    public static function deleteVariants(
+        string $filename,
+        string $uploadDir = 'tools',
+        array $widths = self::VARIANT_WIDTHS,
+    ): void {
+        self::deleteVariantsOnly($filename, $uploadDir, $widths);
 
         $dir  = BASE_PATH . '/public/uploads/' . $uploadDir . '/';
         $path = $dir . $filename;

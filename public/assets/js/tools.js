@@ -743,6 +743,10 @@ class PhotoQueue {
     PhotoQueue.#instance = null;
   }
 
+  static teardown() {
+    PhotoQueue.#instance?.destroy();
+  }
+
   #bind() {
     const { signal } = this.#abortController;
 
@@ -1194,6 +1198,10 @@ class GalleryManager {
   destroy() {
     this.#abortController.abort();
     GalleryManager.#instance = null;
+  }
+
+  static teardown() {
+    GalleryManager.#instance?.destroy();
   }
 
   #setBusy(state) {
@@ -1817,6 +1825,10 @@ class GalleryViewer {
     GalleryViewer.#instance = null;
   }
 
+  static teardown() {
+    GalleryViewer.#instance?.destroy();
+  }
+
   #setActiveThumb(index) {
     this.#currentIndex = index;
 
@@ -1999,6 +2011,15 @@ class DeleteToolDialog {
       ?.addEventListener('click', () => this.#dialog.close(), { signal });
   }
 
+  destroy() {
+    this.#abortController.abort();
+    DeleteToolDialog.#instance = null;
+  }
+
+  static teardown() {
+    DeleteToolDialog.#instance?.destroy();
+  }
+
   static init() {
     if (DeleteToolDialog.#instance) return DeleteToolDialog.#instance;
     const dialog = document.getElementById('delete-tool-dialog');
@@ -2018,3 +2039,16 @@ PhotoQueue.init();
 GalleryManager.init();
 GalleryViewer.init();
 DeleteToolDialog.init();
+
+document.addEventListener('dashboard:content-swapped', () => {
+  PhotoQueue.teardown();
+  GalleryManager.teardown();
+  GalleryViewer.teardown();
+  DeleteToolDialog.teardown();
+  setTimeout(() => {
+    PhotoQueue.init();
+    GalleryManager.init();
+    GalleryViewer.init();
+    DeleteToolDialog.init();
+  }, 0);
+});

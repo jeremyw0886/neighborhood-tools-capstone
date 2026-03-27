@@ -251,8 +251,9 @@ class BaseController
             header('X-Page-Title: ' . rawurlencode($data['title']));
         }
 
+        $isDev = ($_ENV['APP_ENV'] ?? 'production') === 'development';
+
         if (!empty($data['pageCss'])) {
-            $isDev = ($_ENV['APP_ENV'] ?? 'production') === 'development';
             $hrefs = array_map(
                 static fn(string $file): string =>
                     '/assets/css/' . ($isDev ? $file : str_replace('.css', '.min.css', $file))
@@ -260,6 +261,16 @@ class BaseController
                 $data['pageCss'],
             );
             header('X-Page-Css: ' . implode(', ', $hrefs));
+        }
+
+        if (!empty($data['pageJs'])) {
+            $srcs = array_map(
+                static fn(string $file): string =>
+                    '/assets/js/' . ($isDev ? $file : str_replace('.js', '.min.js', $file))
+                    . '?v=' . ASSET_VERSION,
+                $data['pageJs'],
+            );
+            header('X-Page-Js: ' . implode(', ', $srcs));
         }
 
         $data = array_merge($this->getSharedData(), $data);

@@ -132,7 +132,9 @@ class DashboardRouter {
       const title = decodeURIComponent(response.headers.get('X-Page-Title') ?? '');
       const cssHeader = response.headers.get('X-Page-Css') ?? '';
       const stylesheets = cssHeader ? cssHeader.split(',').map((s) => s.trim()) : [];
-      const data = { doc, title, stylesheets, partial: true };
+      const jsHeader = response.headers.get('X-Page-Js') ?? '';
+      const scripts = jsHeader ? jsHeader.split(',').map((s) => s.trim()) : [];
+      const data = { doc, title, stylesheets, scripts, partial: true };
       this.#cacheSet(url, data);
       return data;
     }
@@ -144,7 +146,11 @@ class DashboardRouter {
       .map((link) => link.getAttribute('href'))
       .filter(Boolean);
 
-    const data = { doc, title: doc.title, stylesheets, partial: false };
+    const scripts = [...doc.querySelectorAll('script[src]')]
+      .map((s) => s.getAttribute('src'))
+      .filter(Boolean);
+
+    const data = { doc, title: doc.title, stylesheets, scripts, partial: false };
     this.#cacheSet(url, data);
     return data;
   }
@@ -177,6 +183,31 @@ class DashboardRouter {
     }
 
     return loads.length > 0 ? Promise.all(loads) : Promise.resolve();
+  }
+
+  /**
+   * Load page-specific scripts that aren't already present.
+   *
+   * @param {string[]} needed
+   * @returns {Promise<void>}
+   */
+  static async #syncScripts(needed) {
+    const current = new Set(
+      [...document.querySelectorAll('head script[src]')]
+        .map((s) => s.getAttribute('src'))
+        .filter(Boolean),
+    );
+
+    for (const src of needed) {
+      if (current.has(src)) continue;
+      await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = resolve;
+        document.head.appendChild(script);
+      });
+    }
   }
 
   #reinit() {
@@ -262,6 +293,9 @@ class DashboardRouter {
         stylesheets: [...document.querySelectorAll('head link[rel="stylesheet"]')]
           .map((l) => l.getAttribute('href'))
           .filter(Boolean),
+        scripts: [...document.querySelectorAll('head script[src]')]
+          .map((s) => s.getAttribute('src'))
+          .filter(Boolean),
         partial: false,
       });
 
@@ -299,6 +333,8 @@ class DashboardRouter {
       document.title = data.title;
       this.#currentUrl = url;
       this.#updateNavActiveState(url);
+
+      await DashboardRouter.#syncScripts(data.scripts);
 
       this.#navigating = false;
       this.#currentAbort = null;
@@ -712,6 +748,6 @@ ProfilePhotoManager.init();
 
 document.addEventListener('dashboard:content-swapped', () => {
   ProfilePhotoManager.teardown();
-  ImageCrop.reinit();
+  if (typeof ImageCrop !== 'undefined') ImageCrop.reinit();
   ProfilePhotoManager.init();
 });

@@ -567,6 +567,7 @@
 
         &>li {
           border-bottom: 1px solid var(--mountain-fog);
+          text-align: left;
 
           &:last-child {
             border-bottom: none;

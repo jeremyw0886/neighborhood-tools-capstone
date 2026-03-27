@@ -20,12 +20,22 @@ class PlatformStats
      */
     public static function getAdminDashboardCounts(): array
     {
+        $pdo = Database::connection();
+
+        $row = $pdo->query("
+            SELECT
+                (SELECT COUNT(*) FROM open_dispute_v) AS open_disputes,
+                (SELECT COUNT(*) FROM pending_deposit_v) AS pending_deposits,
+                (SELECT COUNT(*) FROM open_incident_v) AS open_incidents,
+                (SELECT COUNT(*) FROM upcoming_event_v) AS upcoming_events
+        ")->fetch(PDO::FETCH_ASSOC);
+
         return [
             ...Neighborhood::getPlatformTotals(),
-            'openDisputes'    => Dispute::getFilteredCount(),
-            'pendingDeposits' => Deposit::getPendingCount(),
-            'openIncidents'   => Incident::getFilteredOpenCount(),
-            'upcomingEvents'  => Event::getUpcomingCount(),
+            'openDisputes'    => (int) $row['open_disputes'],
+            'pendingDeposits' => (int) $row['pending_deposits'],
+            'openIncidents'   => (int) $row['open_incidents'],
+            'upcomingEvents'  => (int) $row['upcoming_events'],
         ];
     }
 

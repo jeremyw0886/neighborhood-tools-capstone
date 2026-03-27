@@ -503,6 +503,30 @@ class Account
      *               neighborhood: ?string, is_top_member: int,
      *               distance_miles: float}>
      */
+    /**
+     * Session-cached wrapper around getNearbyMembers().
+     *
+     * @param  int $ttl  Cache lifetime in seconds
+     * @return array
+     */
+    public static function getCachedNearbyMembers(string $city, int $limit = 10, ?int $excludeAccountId = null, int $ttl = 300): array
+    {
+        $cacheKey   = '_nearby_' . strtolower($city);
+        $cacheTimeKey = $cacheKey . '_at';
+
+        if (isset($_SESSION[$cacheKey], $_SESSION[$cacheTimeKey])
+            && time() - $_SESSION[$cacheTimeKey] < $ttl
+        ) {
+            return $_SESSION[$cacheKey];
+        }
+
+        $members = self::getNearbyMembers($city, $limit, $excludeAccountId);
+        $_SESSION[$cacheKey]     = $members;
+        $_SESSION[$cacheTimeKey] = time();
+
+        return $members;
+    }
+
     public static function getNearbyMembers(string $city, int $limit = 10, ?int $excludeAccountId = null): array
     {
         $pdo = Database::connection();

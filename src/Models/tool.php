@@ -9,6 +9,8 @@ use PDO;
 
 class Tool
 {
+    private static ?array $browseCountsCache = null;
+
     private const int PRIOR_WEIGHT = 3;
     private const string PRIOR_MEAN = '3.5';
     private const int MAX_PER_OWNER = 2;
@@ -68,13 +70,6 @@ class Tool
     {
         $pdo = Database::connection();
 
-        $borrowedId = $pdo->query(
-            "SELECT fn_get_borrow_status_id('borrowed')"
-        )->fetchColumn();
-        $returnedId = $pdo->query(
-            "SELECT fn_get_borrow_status_id('returned')"
-        )->fetchColumn();
-
         $pw = self::PRIOR_WEIGHT;
         $pm = self::PRIOR_MEAN;
         $maxPerOwner = self::MAX_PER_OWNER;
@@ -116,7 +111,10 @@ class Tool
                     SELECT id_tol_bor,
                            COUNT(*) AS borrow_count
                     FROM borrow_bor
-                    WHERE id_bst_bor IN (:bs_borrowed_id, :bs_returned_id)
+                    WHERE id_bst_bor IN (
+                        (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'borrowed'),
+                        (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = 'returned')
+                    )
                     GROUP BY id_tol_bor
                 ) bc ON av.id_tol = bc.id_tol_bor
                 LEFT JOIN account_image_aim aim
@@ -150,8 +148,6 @@ class Tool
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':bs_borrowed_id', $borrowedId, PDO::PARAM_INT);
-        $stmt->bindValue(':bs_returned_id', $returnedId, PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -866,6 +862,10 @@ class Tool
         ?int $excludeOwnerId = null,
         bool $availableOnly = false,
     ): array {
+        if (self::$browseCountsCache !== null) {
+            return self::$browseCountsCache;
+        }
+
         $pdo = Database::connection();
 
         $where = [
@@ -916,6 +916,8 @@ class Tool
         foreach ($stmt->fetchAll() as $row) {
             $counts[(int) $row['category_id']] = (int) $row['tool_count'];
         }
+
+        self::$browseCountsCache = $counts;
 
         return $counts;
     }

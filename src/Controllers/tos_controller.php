@@ -66,6 +66,7 @@ class TosController extends BaseController
 
         try {
             Tos::recordAcceptance(accountId: $accountId, tosId: $tosId);
+            $_SESSION['_tos_accepted_' . $tosId] = true;
         } catch (\Throwable $e) {
             error_log('TosController::accept — ' . $e->getMessage());
             $this->abort(500);

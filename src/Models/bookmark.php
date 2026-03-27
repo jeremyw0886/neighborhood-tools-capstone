@@ -43,22 +43,26 @@ class Bookmark
                 bv.bookmarked_at,
                 aim.file_name_aim AS owner_avatar,
                 avv.file_name_avv AS owner_vector_avatar,
-                (SELECT c.category_name_cat
-                 FROM tool_category_tolcat tc
-                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 WHERE tc.id_tol_tolcat = bv.tool_id
-                 ORDER BY c.category_name_cat LIMIT 1) AS category_name,
-                (SELECT vec.file_name_vec
-                 FROM tool_category_tolcat tc
-                 JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
-                 LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
-                 WHERE tc.id_tol_tolcat = bv.tool_id
-                 ORDER BY c.category_name_cat LIMIT 1) AS category_icon
+                cat_agg.category_name,
+                cat_agg.category_icon
             FROM user_bookmarks_v bv
             LEFT JOIN account_image_aim aim
                 ON aim.id_acc_aim = bv.owner_id AND aim.is_primary_aim = 1
             LEFT JOIN account_acc acc_avv ON bv.owner_id = acc_avv.id_acc
             LEFT JOIN avatar_vector_avv avv ON acc_avv.id_avv_acc = avv.id_avv
+            LEFT JOIN (
+                SELECT
+                    tc.id_tol_tolcat,
+                    MIN(c.category_name_cat) AS category_name,
+                    SUBSTRING_INDEX(
+                        GROUP_CONCAT(vec.file_name_vec ORDER BY c.category_name_cat SEPARATOR '||'),
+                        '||', 1
+                    ) AS category_icon
+                FROM tool_category_tolcat tc
+                JOIN category_cat c ON tc.id_cat_tolcat = c.id_cat
+                LEFT JOIN vector_image_vec vec ON c.id_vec_cat = vec.id_vec
+                GROUP BY tc.id_tol_tolcat
+            ) cat_agg ON cat_agg.id_tol_tolcat = bv.tool_id
             WHERE bv.user_id = :userId
             ORDER BY bv.bookmarked_at DESC
             LIMIT :limit OFFSET :offset

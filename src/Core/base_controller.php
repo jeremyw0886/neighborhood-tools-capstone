@@ -79,10 +79,19 @@ class BaseController
 
         $currentTos = self::$cachedTos;
 
-        // Safe default: if no active TOS exists, treat as accepted so users aren't blocked
-        $tosAccepted = $currentTos === null
-            || !$isLoggedIn
-            || Tos::hasUserAccepted(accountId: $authUser['id'], tosId: (int) $currentTos['id_tos']);
+        $tosAccepted = true;
+
+        if ($currentTos !== null && $isLoggedIn) {
+            $tosId    = (int) $currentTos['id_tos'];
+            $cacheKey = '_tos_accepted_' . $tosId;
+
+            if (isset($_SESSION[$cacheKey])) {
+                $tosAccepted = $_SESSION[$cacheKey];
+            } else {
+                $tosAccepted = Tos::hasUserAccepted(accountId: $authUser['id'], tosId: $tosId);
+                $_SESSION[$cacheKey] = $tosAccepted;
+            }
+        }
 
         // Cache unread notification count — cheap indexed query
         if (!self::$unreadCacheLoaded) {

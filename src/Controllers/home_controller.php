@@ -38,7 +38,7 @@ class HomeController extends BaseController
             ?? 'Asheville';
 
         try {
-            $nearbyMembers = Account::getNearbyMembers($selectedCity, 10, $currentUserId);
+            $nearbyMembers = Account::getCachedNearbyMembers($selectedCity, 10, $currentUserId);
             $isNearbyFallback = empty($nearbyMembers);
         } catch (\Exception $e) {
             error_log('getNearbyMembers failed: ' . $e->getMessage());
@@ -63,7 +63,7 @@ class HomeController extends BaseController
         }
 
         try {
-            $platformStats = Neighborhood::getPlatformTotals();
+            $platformStats = Neighborhood::getCachedPlatformTotals();
         } catch (\Exception) {
             $platformStats = ['totalMembers' => 0, 'activeMembers' => 0, 'availableTools' => 0, 'completedBorrows' => 0];
         }

@@ -45,6 +45,27 @@ class Neighborhood
         ];
     }
 
+    /**
+     * Session-cached wrapper around getPlatformTotals().
+     *
+     * @param  int $ttl  Cache lifetime in seconds
+     * @return array{totalMembers: int, activeMembers: int, availableTools: int, completedBorrows: int}
+     */
+    public static function getCachedPlatformTotals(int $ttl = 60): array
+    {
+        if (isset($_SESSION['_platform_totals'], $_SESSION['_platform_totals_at'])
+            && time() - $_SESSION['_platform_totals_at'] < $ttl
+        ) {
+            return $_SESSION['_platform_totals'];
+        }
+
+        $totals = self::getPlatformTotals();
+        $_SESSION['_platform_totals']    = $totals;
+        $_SESSION['_platform_totals_at'] = time();
+
+        return $totals;
+    }
+
     private const array SUMMARY_SORT_FIELDS = [
         'neighborhood_name_nbh',
         'active_members',

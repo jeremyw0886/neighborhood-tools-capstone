@@ -33,6 +33,7 @@ class ImageCrop {
   #savedScrollY = 0;
   #onConfirmCallback = null;
 
+  #confirmed = false;
   #dragging = false;
   #startX = 0;
   #startY = 0;
@@ -112,18 +113,22 @@ class ImageCrop {
       URL.revokeObjectURL(this.#objectUrl);
       this.#objectUrl = null;
     }
+    const wasConfirmed = this.#confirmed;
     this.#file = null;
     this.#mode = null;
     this.#layout = null;
     this.#repositionImageId = null;
     this.#aspectRatio = 1.5;
+    this.#confirmed = false;
     NT.style.removeRule('crop-preview');
     NT.style.removeRule('crop-frame-size');
     NT.style.removeRule('crop-frame-pos');
-    const fi = document.getElementById('add-photo')
-      ?? document.getElementById('tool-photos')
-      ?? document.getElementById('avatar');
-    if (fi) fi.value = '';
+    if (!wasConfirmed) {
+      const fi = document.getElementById('add-photo')
+        ?? document.getElementById('tool-photos')
+        ?? document.getElementById('avatar');
+      if (fi) fi.value = '';
+    }
   }
 
   #closeCropDialog() {
@@ -311,6 +316,7 @@ class ImageCrop {
   };
 
   #handleConfirm = () => {
+    this.#confirmed = true;
     if (this.#onConfirmCallback) {
       this.#onConfirmCallback(this.#mode, {
         file: this.#file,

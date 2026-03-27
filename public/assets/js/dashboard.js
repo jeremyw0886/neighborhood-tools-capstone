@@ -513,11 +513,9 @@ class ProfilePhotoManager {
   #handleFileChange = () => {
     const file = this.#fileInput.files?.[0];
     if (!file) return;
+    this.#fileInput.value = '';
 
-    if (!ProfilePhotoManager.#validateFile(file)) {
-      this.#fileInput.value = '';
-      return;
-    }
+    if (!ProfilePhotoManager.#validateFile(file)) return;
 
     if (NT.crop) {
       NT.crop.openUpload(file, { icon: 'fa-solid fa-camera', label: 'Set Photo', aspectRatio: 1 });

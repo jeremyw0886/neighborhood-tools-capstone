@@ -1716,7 +1716,8 @@ class GalleryManager {
     fileInput.addEventListener('change', () => {
       const file = fileInput.files?.[0];
       if (!file) return;
-      if (!GalleryManager.#validateFile(file)) { fileInput.value = ''; return; }
+      fileInput.value = '';
+      if (!GalleryManager.#validateFile(file)) return;
       NT.crop?.openUpload(file);
     }, { signal });
 

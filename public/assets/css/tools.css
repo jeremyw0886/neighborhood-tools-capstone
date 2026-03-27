@@ -1424,103 +1424,6 @@
       }
     }
 
-    & #crop-dialog {
-      background: var(--mountain-cream);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 1rem;
-      box-shadow: 0 8px 32px var(--shadow-pine);
-      max-width: 90vw;
-      padding: 0;
-      width: 32rem;
-
-      &::backdrop {
-        background: rgba(0, 0, 0, 0.6);
-      }
-
-      & > header {
-        padding: 1.25rem 1.5rem 0.5rem;
-        text-align: center;
-
-        & > h2 {
-          color: var(--mountain-pine);
-          font-size: 1.125rem;
-          margin: 0;
-        }
-
-        & > p {
-          color: var(--mountain-mist);
-          font-size: 0.813rem;
-          margin: 0.25rem 0 0;
-        }
-      }
-
-      & #crop-viewport {
-        background: var(--mountain-slate);
-        border: 1px solid var(--mountain-fog);
-        border-radius: 0.5rem;
-        cursor: grab;
-        display: flex;
-        align-items: center;
-        height: 22rem;
-        justify-content: center;
-        margin: 0.75rem 1.5rem;
-        overflow: hidden;
-        position: relative;
-        touch-action: none;
-
-        &:active {
-          cursor: grabbing;
-        }
-
-        &:focus-visible {
-          box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.2);
-          outline: none;
-        }
-      }
-
-      & #crop-preview {
-        height: auto;
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain;
-        pointer-events: none;
-        position: absolute;
-        user-select: none;
-        width: auto;
-      }
-
-      & #crop-frame {
-        border: 2px solid white;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
-        pointer-events: none;
-        position: absolute;
-      }
-
-      & #crop-hint {
-        color: var(--mountain-mist);
-        font-size: 0.75rem;
-        margin: 0;
-        padding: 0 1.5rem 0.25rem;
-        text-align: center;
-      }
-
-      & > footer {
-        display: flex;
-        gap: 0.75rem;
-        justify-content: flex-end;
-        padding: 0.75rem 1.5rem 1.25rem;
-
-        & > button {
-          min-width: 5.5rem;
-        }
-
-        & > button[data-crop-confirm]:disabled {
-          cursor: not-allowed;
-          opacity: 0.6;
-        }
-      }
-    }
-
     & nav[aria-label="Related actions"] {
       text-align: center;
 
@@ -1777,14 +1680,6 @@
       border-width: 3px;
     }
 
-    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) #crop-dialog {
-      border-width: 2px;
-
-      & #crop-viewport {
-        border-width: 2px;
-      }
-    }
-
   }
 
   /* ── Reduced motion ── */
@@ -1913,26 +1808,6 @@
       }
     }
 
-    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) #crop-dialog {
-      width: auto;
-
-      & #crop-viewport {
-        height: 16rem;
-        margin-inline: 1rem;
-      }
-
-      & > header {
-        padding-inline: 1rem;
-      }
-
-      & #crop-hint {
-        padding-inline: 1rem;
-      }
-
-      & > footer {
-        padding-inline: 1rem;
-      }
-    }
   }
 
   @media (max-width: 400px) {

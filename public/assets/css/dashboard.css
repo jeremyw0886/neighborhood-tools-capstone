@@ -2393,6 +2393,21 @@
       }
     }
 
+    & [data-reposition-photo] {
+      background: transparent;
+      border-color: var(--mountain-pine-light);
+      color: var(--mountain-pine);
+      font-size: 0.813rem;
+      min-height: 2rem;
+      padding: 0 0.75rem;
+
+      &:is(:hover, :focus-visible) {
+        background: var(--mountain-pine);
+        border-color: var(--mountain-pine);
+        color: #fff;
+      }
+    }
+
     & form>button[type="submit"] {
       align-self: flex-start;
     }

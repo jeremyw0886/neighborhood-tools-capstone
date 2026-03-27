@@ -9,7 +9,7 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="data:application/manifest+json,<?= rawurlencode(file_get_contents(BASE_PATH . '/public/site.webmanifest')) ?>">
+    <link rel="manifest" href="/site.webmanifest">
     <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
     <?php foreach ($cdnJs ?? [] as $cdn): ?>
@@ -59,13 +59,9 @@
   <?php require BASE_PATH . '/src/Views/partials/footer.php'; ?>
 
   <?php
-    $modalPartials = ['modal-how-to.php', 'modal-faq.php', 'modal-tos.php'];
-    foreach ($modalPartials as $modal) {
-        $path = BASE_PATH . '/src/Views/partials/' . $modal;
-        if (file_exists($path)) {
-            require $path;
-        }
-    }
+    require BASE_PATH . '/src/Views/partials/modal-how-to.php';
+    require BASE_PATH . '/src/Views/partials/modal-faq.php';
+    require BASE_PATH . '/src/Views/partials/modal-tos.php';
   ?>
 
   <?php $ttJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'trusted-types.js' : 'trusted-types.min.js'; ?>

@@ -76,30 +76,40 @@ if (isset($_SESSION['last_activity'])
 }
 $_SESSION['last_activity'] = time();
 
-// Re-verify role and account status from DB on every request
+// Re-verify role and account status from DB (TTL-cached for read requests)
 if (!empty($_SESSION['logged_in'])) {
-    $refreshStmt = \App\Core\Database::connection()->prepare(
-        'SELECT r.role_name_rol, s.status_name_ast
-         FROM account_acc a
-         JOIN role_rol r ON a.id_rol_acc = r.id_rol
-         JOIN account_status_ast s ON a.id_ast_acc = s.id_ast
-         WHERE a.id_acc = :id
-         LIMIT 1'
-    );
-    $refreshStmt->bindValue(':id', (int) $_SESSION['user_id'], \PDO::PARAM_INT);
-    $refreshStmt->execute();
-    $currentAccount = $refreshStmt->fetch(\PDO::FETCH_ASSOC);
+    $isWriteRequest = !in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true);
+    $roleTtl        = 10;
+    $needsRefresh   = $isWriteRequest
+        || !isset($_SESSION['_role_verified_at'])
+        || (time() - $_SESSION['_role_verified_at']) >= $roleTtl;
 
-    if (!$currentAccount || $currentAccount['status_name_ast'] !== 'active') {
-        session_unset();
-        session_destroy();
-        session_start($sessionOptions);
-        header('Location: /login');
-        exit;
-    }
+    if ($needsRefresh) {
+        $refreshStmt = \App\Core\Database::connection()->prepare(
+            'SELECT r.role_name_rol, s.status_name_ast
+             FROM account_acc a
+             JOIN role_rol r ON a.id_rol_acc = r.id_rol
+             JOIN account_status_ast s ON a.id_ast_acc = s.id_ast
+             WHERE a.id_acc = :id
+             LIMIT 1'
+        );
+        $refreshStmt->bindValue(':id', (int) $_SESSION['user_id'], \PDO::PARAM_INT);
+        $refreshStmt->execute();
+        $currentAccount = $refreshStmt->fetch(\PDO::FETCH_ASSOC);
 
-    if ($currentAccount['role_name_rol'] !== ($_SESSION['user_role'] ?? '')) {
-        $_SESSION['user_role'] = $currentAccount['role_name_rol'];
+        if (!$currentAccount || $currentAccount['status_name_ast'] !== 'active') {
+            session_unset();
+            session_destroy();
+            session_start($sessionOptions);
+            header('Location: /login');
+            exit;
+        }
+
+        if ($currentAccount['role_name_rol'] !== ($_SESSION['user_role'] ?? '')) {
+            $_SESSION['user_role'] = $currentAccount['role_name_rol'];
+        }
+
+        $_SESSION['_role_verified_at'] = time();
     }
 }
 
@@ -113,7 +123,7 @@ define('CSP_NONCE', base64_encode(random_bytes(16)));
 
 // CSP header — nonce-based script-src with strict-dynamic propagation
 $cspNonce = CSP_NONCE;
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com; frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self' data:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; trusted-types default; require-trusted-types-for 'script'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com; frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self'; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; trusted-types default; require-trusted-types-for 'script'");
 
 // Dynamic cache control (remaining security headers served via .htaccess)
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';

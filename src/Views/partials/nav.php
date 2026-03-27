@@ -72,7 +72,14 @@ $isHero = !empty($heroPage);
               type="button"
               aria-haspopup="true"
               aria-expanded="false">
-        <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+        <?php if ($authUser['nav_avatar'] !== null): ?>
+          <img src="<?= htmlspecialchars($authUser['nav_avatar']) ?>"
+               alt=""
+               width="28" height="28"
+               decoding="async">
+        <?php else: ?>
+          <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+        <?php endif; ?>
         Hello, <?= htmlspecialchars($authUser['first_name']) ?>
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </button>

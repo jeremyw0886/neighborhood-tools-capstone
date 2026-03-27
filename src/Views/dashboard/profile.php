@@ -13,6 +13,9 @@
  *   $profileNotice string  Flash success message
  */
 
+$hasPhoto = !empty($profile['primary_image']) && empty($profile['vector_avatar']);
+$avatarSrcsets ??= null;
+
 if (!empty($profile['vector_avatar'])) {
     $avatarSrc = '/uploads/vectors/' . $profile['vector_avatar'];
     $avatarAlt = $profile['vector_avatar_alt'] ?? $profile['username'];
@@ -23,6 +26,12 @@ if (!empty($profile['vector_avatar'])) {
     $avatarSrc = '/assets/images/avatar-placeholder.svg';
     $avatarAlt = $profile['username'];
 }
+
+$focalX = (int) ($profile['focal_x'] ?? 50);
+$focalY = (int) ($profile['focal_y'] ?? 50);
+$focalAttrs = ($hasPhoto && ($focalX !== 50 || $focalY !== 50))
+    ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\""
+    : '';
 
 $locationParts = array_filter([
     $profile['neighborhood'],
@@ -40,10 +49,27 @@ $rangeEnd   = min($page * $perPage, $totalTools);
 
 <div data-profile-card>
   <h2>
-    <img src="<?= htmlspecialchars($avatarSrc) ?>"
-         alt="<?= htmlspecialchars($avatarAlt) ?>"
-         width="150" height="150"
-         decoding="async">
+    <?php if ($hasPhoto && $avatarSrcsets !== null): ?>
+      <?php $isWebp = str_ends_with($profile['primary_image'], '.webp'); ?>
+      <picture>
+        <?php if (!$isWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
+          <source type="image/webp"
+                  srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
+                  sizes="150px">
+        <?php endif; ?>
+        <img src="<?= htmlspecialchars($avatarSrc) ?>?v=<?= ASSET_VERSION ?>"
+             srcset="<?= $avatarSrcsets['srcset'] ?>"
+             sizes="150px"
+             alt="<?= htmlspecialchars($avatarAlt) ?>"
+             width="150" height="150"
+             decoding="async"<?= $focalAttrs ?>>
+      </picture>
+    <?php else: ?>
+      <img src="<?= htmlspecialchars($avatarSrc) ?>"
+           alt="<?= htmlspecialchars($avatarAlt) ?>"
+           width="150" height="150"
+           decoding="async">
+    <?php endif; ?>
     <?= htmlspecialchars($profile['username']) ?>
   </h2>
 

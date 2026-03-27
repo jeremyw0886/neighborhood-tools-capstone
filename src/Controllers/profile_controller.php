@@ -71,6 +71,8 @@ class ProfileController extends BaseController
             'first_name'         => $account['first_name_acc'],
             'primary_image'      => $account['primary_image'],
             'image_alt_text'     => $account['image_alt_text'],
+            'focal_x'           => (int) ($account['focal_x'] ?? 50),
+            'focal_y'           => (int) ($account['focal_y'] ?? 50),
             'vector_avatar'      => $account['vector_avatar'] ?? null,
             'vector_avatar_alt'  => $account['vector_avatar_alt'] ?? null,
             'bio'                => $account['bio_text_abi'],
@@ -111,20 +113,37 @@ class ProfileController extends BaseController
             $page = $totalPages;
         }
 
+        $avatarSrcsets = null;
+        $avatarVariants = null;
+
+        if (!empty($profile['primary_image'])) {
+            $avatarVariants = ImageProcessor::getAvailableVariants(
+                $profile['primary_image'],
+                widths: self::PROFILE_VARIANT_WIDTHS,
+                uploadDir: 'profiles',
+            );
+            $avatarSrcsets = ImageProcessor::buildSrcset(
+                $avatarVariants,
+                urlPrefix: '/uploads/profiles/',
+            );
+        }
+
         $data = [
-            'title'         => htmlspecialchars($profile['username']) . ' — NeighborhoodTools',
-            'description'   => 'View ' . htmlspecialchars($profile['username']) . "'s profile, tools, and ratings on NeighborhoodTools.",
-            'pageCss'       => ['dashboard.css'],
-            'pageJs'        => ['dashboard.js'],
-            'profile'       => $profile,
-            'reputation'    => $reputation,
-            'isOwnProfile'  => $isOwnProfile,
-            'tools'         => $tools,
-            'totalTools'    => $totalTools,
-            'page'          => $page,
-            'totalPages'    => $totalPages,
-            'perPage'       => self::PER_PAGE,
-            'profileNotice' => $this->flash('profile_notice'),
+            'title'          => htmlspecialchars($profile['username']) . ' — NeighborhoodTools',
+            'description'    => 'View ' . htmlspecialchars($profile['username']) . "'s profile, tools, and ratings on NeighborhoodTools.",
+            'pageCss'        => ['dashboard.css'],
+            'pageJs'         => ['dashboard.js'],
+            'profile'        => $profile,
+            'reputation'     => $reputation,
+            'isOwnProfile'   => $isOwnProfile,
+            'tools'          => $tools,
+            'totalTools'     => $totalTools,
+            'page'           => $page,
+            'totalPages'     => $totalPages,
+            'perPage'        => self::PER_PAGE,
+            'profileNotice'  => $this->flash('profile_notice'),
+            'avatarSrcsets'  => $avatarSrcsets,
+            'avatarVariants' => $avatarVariants,
         ];
 
         if ($isOwnProfile) {
@@ -164,6 +183,21 @@ class ProfileController extends BaseController
         $old    = $_SESSION['profile_old'] ?? [];
         unset($_SESSION['profile_errors'], $_SESSION['profile_old']);
 
+        $avatarSrcsets = null;
+        $avatarVariants = null;
+
+        if (!empty($profile['primary_image'])) {
+            $avatarVariants = ImageProcessor::getAvailableVariants(
+                $profile['primary_image'],
+                widths: self::PROFILE_VARIANT_WIDTHS,
+                uploadDir: 'profiles',
+            );
+            $avatarSrcsets = ImageProcessor::buildSrcset(
+                $avatarVariants,
+                urlPrefix: '/uploads/profiles/',
+            );
+        }
+
         $this->renderDashboard('profile-edit', [
             'title'            => 'Edit Profile — NeighborhoodTools',
             'description'      => 'Edit your NeighborhoodTools profile.',
@@ -175,6 +209,8 @@ class ProfileController extends BaseController
             'avatarVectors'    => $avatarVectors,
             'errors'           => $errors,
             'old'              => $old,
+            'avatarSrcsets'    => $avatarSrcsets,
+            'avatarVariants'   => $avatarVariants,
         ]);
     }
 

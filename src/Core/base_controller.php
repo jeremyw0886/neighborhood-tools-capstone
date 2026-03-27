@@ -29,6 +29,18 @@ class BaseController
     {
         $isLoggedIn = !empty($_SESSION['logged_in']);
 
+        $navAvatar = null;
+
+        if ($isLoggedIn) {
+            if (!empty($_SESSION['user_vector_avatar'])) {
+                $navAvatar = '/uploads/vectors/' . $_SESSION['user_vector_avatar'];
+            } elseif (!empty($_SESSION['user_avatar'])) {
+                $name = pathinfo($_SESSION['user_avatar'], PATHINFO_FILENAME);
+                $ext  = pathinfo($_SESSION['user_avatar'], PATHINFO_EXTENSION);
+                $navAvatar = '/uploads/profiles/' . $name . '-80w.' . $ext;
+            }
+        }
+
         $authUser = $isLoggedIn
             ? [
                 'id'            => (int) $_SESSION['user_id'],
@@ -37,6 +49,7 @@ class BaseController
                 'role'          => $_SESSION['user_role'] ?? 'member',
                 'avatar'        => $_SESSION['user_avatar'] ?? null,
                 'vector_avatar' => $_SESSION['user_vector_avatar'] ?? null,
+                'nav_avatar'    => $navAvatar,
             ]
             : null;
 

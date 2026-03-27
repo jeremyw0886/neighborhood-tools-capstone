@@ -179,14 +179,35 @@ if (!empty($profile['vector_avatar'])) {
         <?php
           $photoSrc = '/uploads/profiles/' . htmlspecialchars($profile['primary_image']);
           $photoAlt = $profile['image_alt_text'] ?? $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
+          $editFocalX = (int) ($profile['focal_x_aim'] ?? 50);
+          $editFocalY = (int) ($profile['focal_y_aim'] ?? 50);
+          $editFocalAttrs = ($editFocalX !== 50 || $editFocalY !== 50)
+              ? " data-focal-x=\"{$editFocalX}\" data-focal-y=\"{$editFocalY}\""
+              : '';
+          $editIsWebp = str_ends_with($profile['primary_image'], '.webp');
+          $avatarSrcsets ??= null;
         ?>
         <figure>
-          <img src="<?= $photoSrc ?>"
-            alt="<?= htmlspecialchars($photoAlt) ?>"
-            width="150" height="150"
-            loading="lazy" decoding="async"
-            data-focal-x="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>"
-            data-focal-y="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
+          <?php if ($avatarSrcsets !== null): ?>
+            <picture>
+              <?php if (!$editIsWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
+                <source type="image/webp"
+                        srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
+                        sizes="150px">
+              <?php endif; ?>
+              <img src="<?= $photoSrc ?>?v=<?= ASSET_VERSION ?>"
+                srcset="<?= $avatarSrcsets['srcset'] ?>"
+                sizes="150px"
+                alt="<?= htmlspecialchars($photoAlt) ?>"
+                width="150" height="150"
+                loading="lazy" decoding="async"<?= $editFocalAttrs ?>>
+            </picture>
+          <?php else: ?>
+            <img src="<?= $photoSrc ?>"
+              alt="<?= htmlspecialchars($photoAlt) ?>"
+              width="150" height="150"
+              loading="lazy" decoding="async"<?= $editFocalAttrs ?>>
+          <?php endif; ?>
           <figcaption>Current photo — upload a new file to replace it.</figcaption>
         </figure>
         <div>

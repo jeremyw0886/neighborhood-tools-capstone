@@ -318,6 +318,7 @@ class AuthController extends BaseController
         $_SESSION['user_zip']           = $data['zip_code'];
         $_SESSION['user_avatar']        = null;
         $_SESSION['user_vector_avatar'] = null;
+        $_SESSION['user_nav_avatar']    = null;
 
         $returnUrl = $this->validateReturnUrl(
             $_SESSION['redirect_after_login'] ?? null
@@ -650,6 +651,8 @@ class AuthController extends BaseController
         $_SESSION['user_zip']             = $account['zip_code_acc'];
         $_SESSION['user_avatar']          = $account['avatar'];
         $_SESSION['user_vector_avatar']   = $account['vector_avatar'] ?? null;
+
+        self::refreshNavAvatar();
     }
 
     /**

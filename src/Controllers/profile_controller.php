@@ -338,6 +338,8 @@ class ProfileController extends BaseController
             $_SESSION['user_name']       = $firstName . ' ' . $lastName;
             $_SESSION['user_first_name'] = $firstName;
             $_SESSION['user_zip']        = $zipCode;
+
+            self::refreshNavAvatar();
         } catch (\Throwable $e) {
             error_log('ProfileController::update — ' . $e->getMessage());
 
@@ -470,6 +472,7 @@ class ProfileController extends BaseController
             Account::deleteProfileImage($userId);
 
             $_SESSION['user_avatar'] = null;
+            self::refreshNavAvatar();
             $_SESSION['profile_notice'] = 'Profile photo removed.';
         } catch (\Throwable $e) {
             error_log('ProfileController::removeImage — ' . $e->getMessage());

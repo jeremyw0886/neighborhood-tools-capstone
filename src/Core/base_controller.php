@@ -19,6 +19,27 @@ class BaseController
     private static bool $unreadCacheLoaded = false;
 
     /**
+     * Recompute and cache the nav avatar URL in the session.
+     *
+     * Call after any change to user_avatar or user_vector_avatar.
+     */
+    protected static function refreshNavAvatar(): void
+    {
+        if (!empty($_SESSION['user_vector_avatar'])) {
+            $_SESSION['user_nav_avatar'] = '/uploads/vectors/' . $_SESSION['user_vector_avatar'];
+        } elseif (!empty($_SESSION['user_avatar'])) {
+            $name = pathinfo($_SESSION['user_avatar'], PATHINFO_FILENAME);
+            $ext  = pathinfo($_SESSION['user_avatar'], PATHINFO_EXTENSION);
+            $variant = $name . '-80w.' . $ext;
+            $_SESSION['user_nav_avatar'] = file_exists(BASE_PATH . '/public/uploads/profiles/' . $variant)
+                ? '/uploads/profiles/' . $variant
+                : '/uploads/profiles/' . $_SESSION['user_avatar'];
+        } else {
+            $_SESSION['user_nav_avatar'] = null;
+        }
+    }
+
+    /**
      * Build the shared data array available to every view.
      *
      * @return array{isLoggedIn: bool, authUser: ?array, csrfToken: string,
@@ -32,16 +53,7 @@ class BaseController
         $navAvatar = null;
 
         if ($isLoggedIn) {
-            if (!empty($_SESSION['user_vector_avatar'])) {
-                $navAvatar = '/uploads/vectors/' . $_SESSION['user_vector_avatar'];
-            } elseif (!empty($_SESSION['user_avatar'])) {
-                $name = pathinfo($_SESSION['user_avatar'], PATHINFO_FILENAME);
-                $ext  = pathinfo($_SESSION['user_avatar'], PATHINFO_EXTENSION);
-                $variant = $name . '-80w.' . $ext;
-                $navAvatar = file_exists(BASE_PATH . '/public/uploads/profiles/' . $variant)
-                    ? '/uploads/profiles/' . $variant
-                    : '/uploads/profiles/' . $_SESSION['user_avatar'];
-            }
+            $navAvatar = $_SESSION['user_nav_avatar'] ?? null;
         }
 
         $authUser = $isLoggedIn

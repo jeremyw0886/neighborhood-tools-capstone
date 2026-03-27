@@ -475,6 +475,15 @@ class ProfilePhotoManager {
     return (ProfilePhotoManager.#instance = new ProfilePhotoManager(container));
   }
 
+  destroy() {
+    this.#abortController.abort();
+    ProfilePhotoManager.#instance = null;
+  }
+
+  static teardown() {
+    ProfilePhotoManager.#instance?.destroy();
+  }
+
   #bind() {
     const { signal } = this.#abortController;
 
@@ -605,3 +614,9 @@ class ProfilePhotoManager {
 
 DashboardRouter.init();
 ProfilePhotoManager.init();
+
+document.addEventListener('dashboard:content-swapped', () => {
+  ProfilePhotoManager.teardown();
+  ImageCrop.reinit();
+  ProfilePhotoManager.init();
+});

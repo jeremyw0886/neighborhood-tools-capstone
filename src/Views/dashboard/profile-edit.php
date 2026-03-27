@@ -24,10 +24,29 @@ if (!empty($profile['vector_avatar'])) {
 }
 ?>
 
+<?php
+$errorFieldMap = [
+    'first_name'         => 'first-name',
+    'last_name'          => 'last-name',
+    'phone'              => 'phone',
+    'street_address'     => 'street-address',
+    'zip_code'           => 'zip-code',
+    'contact_preference' => 'contact-preference',
+    'bio'                => 'bio',
+    'avatar'             => 'avatar',
+];
+?>
 <?php if (!empty($errors)): ?>
   <ul role="alert" aria-label="Form errors">
-    <?php foreach ($errors as $msg): ?>
-      <li><?= htmlspecialchars($msg) ?></li>
+    <?php foreach ($errors as $field => $msg): ?>
+      <?php $anchor = $errorFieldMap[$field] ?? ''; ?>
+      <li>
+        <?php if ($anchor !== ''): ?>
+          <a href="#<?= $anchor ?>"><?= htmlspecialchars($msg) ?></a>
+        <?php else: ?>
+          <?= htmlspecialchars($msg) ?>
+        <?php endif; ?>
+      </li>
     <?php endforeach; ?>
   </ul>
 <?php endif; ?>
@@ -227,16 +246,6 @@ if (!empty($profile['vector_avatar'])) {
       <input type="hidden" name="focal_x" value="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>">
       <input type="hidden" name="focal_y" value="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
     </div>
-    <?php if ($profile['primary_image']): ?>
-      <div>
-        <form action="/profile/image/delete" method="post">
-          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-          <button type="submit" data-intent="danger-subtle">
-            <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove Photo
-          </button>
-        </form>
-      </div>
-    <?php endif; ?>
   </fieldset>
 
   <?php if ($avatarVectors !== []): ?>
@@ -293,6 +302,15 @@ if (!empty($profile['vector_avatar'])) {
   </button>
 
 </form>
+
+<?php if ($profile['primary_image']): ?>
+  <form action="/profile/image/delete" method="post">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+    <button type="submit" data-intent="danger-subtle">
+      <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove Photo
+    </button>
+  </form>
+<?php endif; ?>
 
 <dialog id="crop-dialog" aria-label="Position your photo">
   <header>

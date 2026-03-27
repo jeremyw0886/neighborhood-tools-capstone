@@ -6,8 +6,10 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\ImageProcessor;
+use App\Core\RateLimiter;
 use App\Models\Account;
 use App\Models\AvatarVector;
+use App\Models\Neighborhood;
 use App\Models\Tool;
 
 class ProfileController extends BaseController
@@ -224,6 +226,7 @@ class ProfileController extends BaseController
     {
         $this->requireAuth();
         $this->validateCsrf();
+        $this->checkRateLimit('profile_update', '/profile/edit', 'profile_errors.general');
 
         $userId = (int) $_SESSION['user_id'];
 
@@ -245,7 +248,7 @@ class ProfileController extends BaseController
             'bio'                => $bio,
         ];
 
-        $errors = $this->validateProfileInput($firstName, $lastName, $phone, $streetAddress, $zipCode, $preference);
+        $errors = $this->validateProfileInput($firstName, $lastName, $phone, $streetAddress, $zipCode, $preference, $bio);
 
         $hasImage = isset($_FILES['avatar'])
             && $_FILES['avatar']['error'] !== UPLOAD_ERR_NO_FILE;
@@ -351,6 +354,7 @@ class ProfileController extends BaseController
             $this->redirect('/profile/edit');
         }
 
+        RateLimiter::increment(($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|profile_update');
         $_SESSION['profile_notice'] = 'Profile updated successfully.';
         $this->redirect('/profile/' . $userId);
     }
@@ -361,6 +365,17 @@ class ProfileController extends BaseController
     public function repositionImage(): void
     {
         $this->requireAuth();
+        header('Content-Type: application/json');
+
+        $ip  = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $key = $ip . '|profile_image';
+        $cfg = (require BASE_PATH . '/config/rate-limit.php')['profile_image'] ?? null;
+
+        if ($cfg !== null && RateLimiter::tooManyAttempts($key, $cfg['max_attempts'], $cfg['window_seconds'])) {
+            http_response_code(429);
+            echo json_encode(['error' => 'Too many requests. Please try again later.']);
+            return;
+        }
 
         $userId = (int) $_SESSION['user_id'];
 
@@ -371,7 +386,7 @@ class ProfileController extends BaseController
             return;
         }
 
-        $csrfToken = $json['csrf_token'] ?? '';
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $json['csrf_token'] ?? '';
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
             http_response_code(403);
             echo json_encode(['error' => 'Invalid CSRF token.']);
@@ -408,7 +423,8 @@ class ProfileController extends BaseController
                 aspectRatio: 1.0,
             );
 
-            header('Content-Type: application/json');
+            RateLimiter::increment($key);
+
             echo json_encode([
                 'success' => true,
                 'focal_x' => $focalX,
@@ -475,6 +491,7 @@ class ProfileController extends BaseController
         string $streetAddress,
         string $zipCode,
         string $preference,
+        string $bio = '',
     ): array {
         $errors = [];
 
@@ -492,6 +509,8 @@ class ProfileController extends BaseController
 
         if ($phone !== '' && mb_strlen($phone) > 20) {
             $errors['phone'] = 'Phone number must be 20 characters or fewer.';
+        } elseif ($phone !== '' && !preg_match('/^[\d\s()+\-\.]+$/', $phone)) {
+            $errors['phone'] = 'Phone number contains invalid characters.';
         }
 
         if ($streetAddress !== '' && mb_strlen($streetAddress) > 255) {
@@ -502,10 +521,16 @@ class ProfileController extends BaseController
             $errors['zip_code'] = 'ZIP code is required.';
         } elseif (!preg_match('/^\d{5}(-\d{4})?$/', $zipCode)) {
             $errors['zip_code'] = 'Please enter a valid 5-digit ZIP code.';
+        } elseif (Neighborhood::getByZipCode(substr($zipCode, 0, 5)) === []) {
+            $errors['zip_code'] = 'This ZIP code is not in a supported neighborhood.';
         }
 
         if (!in_array($preference, self::VALID_PREFERENCES, true)) {
             $errors['contact_preference'] = 'Please select a valid contact preference.';
+        }
+
+        if ($bio !== '' && mb_strlen($bio) > 2000) {
+            $errors['bio'] = 'Bio must be 2,000 characters or fewer.';
         }
 
         return $errors;

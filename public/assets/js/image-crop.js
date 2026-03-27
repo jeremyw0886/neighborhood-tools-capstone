@@ -85,6 +85,11 @@ class ImageCrop {
     ImageCrop.#instance = null;
   }
 
+  static reinit() {
+    ImageCrop.#instance?.destroy();
+    ImageCrop.init();
+  }
+
   #bind() {
     const { signal } = this.#abortController;
     this.#viewport.addEventListener('pointerdown', this.#handlePointerDown, { signal });
@@ -115,7 +120,9 @@ class ImageCrop {
     NT.style.removeRule('crop-preview');
     NT.style.removeRule('crop-frame-size');
     NT.style.removeRule('crop-frame-pos');
-    const fi = document.getElementById('add-photo') ?? document.getElementById('tool-photos');
+    const fi = document.getElementById('add-photo')
+      ?? document.getElementById('tool-photos')
+      ?? document.getElementById('avatar');
     if (fi) fi.value = '';
   }
 

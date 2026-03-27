@@ -23,4 +23,12 @@ return [
         'max_attempts'   => 5,
         'window_seconds' => 900,
     ],
+    'profile_update' => [
+        'max_attempts'   => 10,
+        'window_seconds' => 900,
+    ],
+    'profile_image' => [
+        'max_attempts'   => 10,
+        'window_seconds' => 900,
+    ],
 ];

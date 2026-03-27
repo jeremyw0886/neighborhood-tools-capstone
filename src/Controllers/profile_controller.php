@@ -315,25 +315,22 @@ class ProfileController extends BaseController
                 }
 
                 $_SESSION['user_avatar'] = $imageFilename;
+            }
 
+            $avatarChoice = $_POST['avatar_vector'] ?? '';
+
+            if ($avatarChoice === '' || $avatarChoice === 'none' || $avatarChoice === 'photo') {
                 Account::setVectorAvatar($userId, null);
                 $_SESSION['user_vector_avatar'] = null;
             } else {
-                $avatarChoice = $_POST['avatar_vector'] ?? '';
+                $avatarVectorId = (int) $avatarChoice;
 
-                if ($avatarChoice === '' || $avatarChoice === 'none') {
-                    Account::setVectorAvatar($userId, null);
-                    $_SESSION['user_vector_avatar'] = null;
-                } else {
-                    $avatarVectorId = (int) $avatarChoice;
+                if ($avatarVectorId > 0) {
+                    $vector = AvatarVector::findById($avatarVectorId);
 
-                    if ($avatarVectorId > 0) {
-                        $vector = AvatarVector::findById($avatarVectorId);
-
-                        if ($vector !== null) {
-                            Account::setVectorAvatar($userId, $avatarVectorId);
-                            $_SESSION['user_vector_avatar'] = $vector['file_name_avv'];
-                        }
+                    if ($vector !== null) {
+                        Account::setVectorAvatar($userId, $avatarVectorId);
+                        $_SESSION['user_vector_avatar'] = $vector['file_name_avv'];
                     }
                 }
             }

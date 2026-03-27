@@ -1847,7 +1847,7 @@
         font-family: Georgia, 'Times New Roman', serif;
         gap: 0.75rem;
 
-        &>img {
+        & img {
           aspect-ratio: 1;
           border: 3px solid var(--mountain-gold);
           border-radius: 50%;
@@ -2305,10 +2305,13 @@
         display: grid;
         gap: 0.75rem;
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        margin-top: 1.25rem;
 
         &>label {
           cursor: pointer;
           display: grid;
+          gap: 0.25rem;
+          justify-items: center;
           place-items: center;
 
           &>input[type="radio"] {
@@ -2337,9 +2340,19 @@
             }
           }
 
+          &>small {
+            color: var(--mountain-mist);
+            font-size: 0.75rem;
+          }
+
           &>input[type="radio"]:checked+span {
             border-color: var(--mountain-pine);
             box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.25);
+          }
+
+          &>input[type="radio"]:checked ~ small {
+            color: var(--mountain-pine);
+            font-weight: 600;
           }
 
           &>input[type="radio"]:focus-visible+span {
@@ -2583,7 +2596,7 @@
       & [data-profile-card] {
         border-bottom-width: 2px;
 
-        &>:is(h1, h2)>img {
+        &>:is(h1, h2) img {
           border-width: 4px;
         }
 

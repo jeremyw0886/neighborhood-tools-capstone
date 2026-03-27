@@ -193,7 +193,7 @@ $errorFieldMap = [
     </div>
 
     <div data-profile-photo-upload>
-      <label for="avatar">Profile Photo</label>
+      <label for="avatar">Upload a Photo</label>
       <?php if ($profile['primary_image']): ?>
         <?php
           $photoSrc = '/uploads/profiles/' . htmlspecialchars($profile['primary_image']);
@@ -246,25 +246,36 @@ $errorFieldMap = [
       <input type="hidden" name="focal_x" value="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>">
       <input type="hidden" name="focal_y" value="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
     </div>
-  </fieldset>
 
-  <?php if ($avatarVectors !== []): ?>
-    <fieldset>
-      <legend>Choose an Avatar</legend>
-      <div data-avatar-grid role="radiogroup" aria-label="Avatar selection">
+    <?php
+      $hasPhoto = !empty($profile['primary_image']);
+      $hasVector = !empty($profile['id_avv_acc']);
+      $photoThumbSrc = '';
+      if ($hasPhoto) {
+          $thumbName = pathinfo($profile['primary_image'], PATHINFO_FILENAME);
+          $thumbExt  = pathinfo($profile['primary_image'], PATHINFO_EXTENSION);
+          $thumbPath = '/uploads/profiles/' . $thumbName . '-80w.' . $thumbExt;
+          $photoThumbSrc = $thumbPath;
+      }
+    ?>
+    <?php if ($hasPhoto || $avatarVectors !== []): ?>
+      <div data-avatar-grid role="radiogroup" aria-label="Display avatar selection">
 
-        <label>
-          <input type="radio"
-            name="avatar_vector"
-            value="none"
-            <?= empty($profile['id_avv_acc']) ? 'checked' : '' ?>>
-          <span>
-            <img src="/assets/images/avatar-placeholder.svg"
-              alt="No avatar"
-              width="64" height="64"
-              decoding="async">
-          </span>
-        </label>
+        <?php if ($hasPhoto): ?>
+          <label data-photo-choice>
+            <input type="radio"
+              name="avatar_vector"
+              value="photo"
+              <?= !$hasVector ? 'checked' : '' ?>>
+            <span>
+              <img src="<?= htmlspecialchars($photoThumbSrc) ?>?v=<?= ASSET_VERSION ?>"
+                alt="My photo"
+                width="64" height="64"
+                decoding="async">
+            </span>
+            <small>My Photo</small>
+          </label>
+        <?php endif; ?>
 
         <?php foreach ($avatarVectors as $av): ?>
           <label>
@@ -281,9 +292,23 @@ $errorFieldMap = [
           </label>
         <?php endforeach; ?>
 
+        <label>
+          <input type="radio"
+            name="avatar_vector"
+            value="none"
+            <?= !$hasPhoto && !$hasVector ? 'checked' : '' ?>>
+          <span>
+            <img src="/assets/images/avatar-placeholder.svg"
+              alt="Default avatar"
+              width="64" height="64"
+              decoding="async">
+          </span>
+          <small>Default</small>
+        </label>
+
       </div>
-    </fieldset>
-  <?php endif; ?>
+    <?php endif; ?>
+  </fieldset>
 
   <?php if ($meta !== []): ?>
     <fieldset>

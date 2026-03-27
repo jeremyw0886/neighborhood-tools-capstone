@@ -498,6 +498,7 @@ class ProfilePhotoManager {
           this.#focalXInput.value = data.focalX;
           this.#focalYInput.value = data.focalY;
           this.#showPreview(data.file, data.focalX, data.focalY);
+          this.#selectPhotoRadio(data.file);
           NT.crop.close();
         } else if (mode === 'reposition') {
           this.#handleRepositionConfirm(data.focalX, data.focalY);
@@ -594,6 +595,44 @@ class ProfilePhotoManager {
       this.#previewImg = img;
       NT.applyFocalPoints(this.#container);
     }
+  }
+
+  /**
+   * Select (or create) the "My Photo" radio in the avatar grid after a new upload.
+   *
+   * @param {File} file
+   */
+  #selectPhotoRadio(file) {
+    const grid = this.#container.closest('fieldset')?.querySelector('[data-avatar-grid]');
+    if (!grid) return;
+
+    let radio = grid.querySelector('input[name="avatar_vector"][value="photo"]');
+
+    if (!radio) {
+      const label = document.createElement('label');
+      label.dataset.photoChoice = '';
+      radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'avatar_vector';
+      radio.value = 'photo';
+      const span = document.createElement('span');
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = 'My photo';
+      img.width = 64;
+      img.height = 64;
+      img.decoding = 'async';
+      span.append(img);
+      const small = document.createElement('small');
+      small.textContent = 'My Photo';
+      label.append(radio, span, small);
+      grid.prepend(label);
+    } else {
+      const img = radio.closest('label')?.querySelector('img');
+      if (img) img.src = URL.createObjectURL(file);
+    }
+
+    radio.checked = true;
   }
 
   static #validateFile(file) {

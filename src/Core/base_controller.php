@@ -37,7 +37,10 @@ class BaseController
             } elseif (!empty($_SESSION['user_avatar'])) {
                 $name = pathinfo($_SESSION['user_avatar'], PATHINFO_FILENAME);
                 $ext  = pathinfo($_SESSION['user_avatar'], PATHINFO_EXTENSION);
-                $navAvatar = '/uploads/profiles/' . $name . '-80w.' . $ext;
+                $variant = $name . '-80w.' . $ext;
+                $navAvatar = file_exists(BASE_PATH . '/public/uploads/profiles/' . $variant)
+                    ? '/uploads/profiles/' . $variant
+                    : '/uploads/profiles/' . $_SESSION['user_avatar'];
             }
         }
 

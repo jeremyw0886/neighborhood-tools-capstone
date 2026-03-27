@@ -492,13 +492,16 @@ class ProfilePhotoManager {
     const repoBtn = this.#container.querySelector('[data-reposition-photo]');
     repoBtn?.addEventListener('click', this.#handleReposition, { signal });
 
+    const removeBtn = this.#container.querySelector('[data-remove-photo]');
+    removeBtn?.addEventListener('click', this.#handleRemovePhoto, { signal });
+
     if (NT.crop) {
       NT.crop.onConfirm((mode, data) => {
         if (mode === 'upload') {
           this.#focalXInput.value = data.focalX;
           this.#focalYInput.value = data.focalY;
           this.#showPreview(data.file, data.focalX, data.focalY);
-          this.#selectPhotoRadio(data.file);
+          this.#selectPhotoRadio(data.file, data.focalX, data.focalY);
           NT.crop.close();
         } else if (mode === 'reposition') {
           this.#handleRepositionConfirm(data.focalX, data.focalY);
@@ -526,6 +529,15 @@ class ProfilePhotoManager {
     const fx = parseInt(this.#previewImg.dataset.focalX, 10) || 50;
     const fy = parseInt(this.#previewImg.dataset.focalY, 10) || 50;
     NT.crop.openReposition(this.#previewImg.src, fx, fy, 'profile', { aspectRatio: 1 });
+  };
+
+  #handleRemovePhoto = async () => {
+    const response = await NT.fetch('/profile/image/delete', { method: 'POST' });
+    if (response.ok) {
+      window.location.reload();
+    } else {
+      NT.toast('Failed to remove photo.', 'error');
+    }
   };
 
   /**
@@ -565,15 +577,50 @@ class ProfilePhotoManager {
   }
 
   /**
+   * Generate a square canvas thumbnail from a File with focal-point cropping.
+   *
+   * @param {File} file
+   * @param {number} size - Output pixel size (use 2x for retina)
+   * @param {number} focalX
+   * @param {number} focalY
+   * @returns {Promise<string>} Object URL of the generated thumbnail blob
+   */
+  static async #createThumbnail(file, size, focalX, focalY) {
+    const source = await createImageBitmap(file);
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext('2d');
+
+    const sw = source.width;
+    const sh = source.height;
+    const crop = Math.min(sw, sh);
+    const cx = Math.round((sw - crop) * (focalX / 100));
+    const cy = Math.round((sh - crop) * (focalY / 100));
+
+    ctx.drawImage(source, cx, cy, crop, crop, 0, 0, size, size);
+    source.close();
+
+    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+    return URL.createObjectURL(blob);
+  }
+
+  /**
    * Show a client-side preview of the selected file before form submission.
    *
    * @param {File} file
    * @param {number} focalX
    * @param {number} focalY
    */
-  #showPreview(file, focalX, focalY) {
-    const url = URL.createObjectURL(file);
+  async #showPreview(file, focalX, focalY) {
+    const url = await ProfilePhotoManager.#createThumbnail(file, 240, focalX, focalY);
+    this.#applyPreviewUrl(url, focalX, focalY);
+  }
 
+  /**
+   * @param {string} url
+   * @param {number} focalX
+   * @param {number} focalY
+   */
+  #applyPreviewUrl(url, focalX, focalY) {
     if (this.#previewImg) {
       this.#previewImg.src = url;
       this.#previewImg.dataset.focalX = focalX;
@@ -584,16 +631,13 @@ class ProfilePhotoManager {
       const img = document.createElement('img');
       img.src = url;
       img.alt = 'Photo preview';
-      img.width = 150;
-      img.height = 150;
-      img.dataset.focalX = focalX;
-      img.dataset.focalY = focalY;
-      const caption = document.createElement('figcaption');
-      caption.textContent = 'New photo — save the form to apply.';
-      figure.append(img, caption);
-      this.#container.querySelector('label[for="avatar"]').after(figure);
+      img.width = 120;
+      img.height = 120;
+      figure.append(img);
+      const controlDiv = this.#container.querySelector('div');
+      if (controlDiv) controlDiv.before(figure);
+      else this.#container.prepend(figure);
       this.#previewImg = img;
-      NT.applyFocalPoints(this.#container);
     }
   }
 
@@ -602,10 +646,24 @@ class ProfilePhotoManager {
    *
    * @param {File} file
    */
-  #selectPhotoRadio(file) {
-    const grid = this.#container.closest('fieldset')?.querySelector('[data-avatar-grid]');
-    if (!grid) return;
+  async #selectPhotoRadio(file, focalX, focalY) {
+    const fieldset = this.#container.closest('fieldset');
+    if (!fieldset) return;
 
+    let grid = fieldset.querySelector('[data-avatar-grid]');
+
+    if (!grid) {
+      const heading = document.createElement('p');
+      heading.dataset.avatarHeading = '';
+      heading.textContent = 'Choose your display avatar';
+      grid = document.createElement('div');
+      grid.dataset.avatarGrid = '';
+      grid.setAttribute('role', 'radiogroup');
+      grid.setAttribute('aria-label', 'Display avatar selection');
+      fieldset.append(heading, grid);
+    }
+
+    const thumbUrl = await ProfilePhotoManager.#createThumbnail(file, 128, focalX, focalY);
     let radio = grid.querySelector('input[name="avatar_vector"][value="photo"]');
 
     if (!radio) {
@@ -617,7 +675,7 @@ class ProfilePhotoManager {
       radio.value = 'photo';
       const span = document.createElement('span');
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
+      img.src = thumbUrl;
       img.alt = 'My photo';
       img.width = 64;
       img.height = 64;
@@ -629,7 +687,7 @@ class ProfilePhotoManager {
       grid.prepend(label);
     } else {
       const img = radio.closest('label')?.querySelector('img');
-      if (img) img.src = URL.createObjectURL(file);
+      if (img) img.src = thumbUrl;
     }
 
     radio.checked = true;

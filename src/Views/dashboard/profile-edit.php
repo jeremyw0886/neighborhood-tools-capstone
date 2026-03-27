@@ -191,9 +191,12 @@ $errorFieldMap = [
         maxlength="2000"
         placeholder="Tell your neighbors a bit about yourself…"><?= htmlspecialchars($old['bio'] ?? $profile['bio_text_abi'] ?? '') ?></textarea>
     </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Your Avatar</legend>
 
     <div data-profile-photo-upload>
-      <label for="avatar">Upload a Photo</label>
       <?php if ($profile['primary_image']): ?>
         <?php
           $photoSrc = '/uploads/profiles/' . htmlspecialchars($profile['primary_image']);
@@ -212,37 +215,44 @@ $errorFieldMap = [
               <?php if (!$editIsWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
                 <source type="image/webp"
                         srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
-                        sizes="150px">
+                        sizes="120px">
               <?php endif; ?>
               <img src="<?= $photoSrc ?>?v=<?= ASSET_VERSION ?>"
                 srcset="<?= $avatarSrcsets['srcset'] ?>"
-                sizes="150px"
+                sizes="120px"
                 alt="<?= htmlspecialchars($photoAlt) ?>"
-                width="150" height="150"
+                width="120" height="120"
                 loading="lazy" decoding="async"<?= $editFocalAttrs ?>>
             </picture>
           <?php else: ?>
             <img src="<?= $photoSrc ?>"
               alt="<?= htmlspecialchars($photoAlt) ?>"
-              width="150" height="150"
+              width="120" height="120"
               loading="lazy" decoding="async"<?= $editFocalAttrs ?>>
           <?php endif; ?>
-          <figcaption>Current photo — upload a new file to replace it.</figcaption>
         </figure>
-        <div>
-          <button type="button" data-reposition-photo>
-            <i class="fa-solid fa-crop" aria-hidden="true"></i> Reposition
-          </button>
-        </div>
       <?php endif; ?>
-      <input type="file"
-        id="avatar"
-        name="avatar"
-        accept="image/jpeg,image/png,image/webp"
-        <?php if (isset($errors['avatar'])): ?>aria-invalid="true" aria-describedby="avatar-error" <?php endif; ?>>
-      <?php if (isset($errors['avatar'])): ?>
-        <p id="avatar-error" role="alert"><?= htmlspecialchars($errors['avatar']) ?></p>
-      <?php endif; ?>
+      <div>
+        <label for="avatar"><?= $profile['primary_image'] ? 'Replace photo' : 'Upload a photo' ?></label>
+        <input type="file"
+          id="avatar"
+          name="avatar"
+          accept="image/jpeg,image/png,image/webp"
+          <?php if (isset($errors['avatar'])): ?>aria-invalid="true" aria-describedby="avatar-error" <?php endif; ?>>
+        <?php if (isset($errors['avatar'])): ?>
+          <p id="avatar-error" role="alert"><?= htmlspecialchars($errors['avatar']) ?></p>
+        <?php endif; ?>
+        <?php if ($profile['primary_image']): ?>
+          <div>
+            <button type="button" data-reposition-photo>
+              <i class="fa-solid fa-crop" aria-hidden="true"></i> Reposition
+            </button>
+            <button type="button" data-remove-photo>
+              <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove photo
+            </button>
+          </div>
+        <?php endif; ?>
+      </div>
       <input type="hidden" name="focal_x" value="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>">
       <input type="hidden" name="focal_y" value="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
     </div>
@@ -254,11 +264,11 @@ $errorFieldMap = [
       if ($hasPhoto) {
           $thumbName = pathinfo($profile['primary_image'], PATHINFO_FILENAME);
           $thumbExt  = pathinfo($profile['primary_image'], PATHINFO_EXTENSION);
-          $thumbPath = '/uploads/profiles/' . $thumbName . '-80w.' . $thumbExt;
-          $photoThumbSrc = $thumbPath;
+          $photoThumbSrc = '/uploads/profiles/' . $thumbName . '-80w.' . $thumbExt;
       }
     ?>
     <?php if ($hasPhoto || $avatarVectors !== []): ?>
+      <p data-avatar-heading>Choose your display avatar</p>
       <div data-avatar-grid role="radiogroup" aria-label="Display avatar selection">
 
         <?php if ($hasPhoto): ?>
@@ -328,14 +338,6 @@ $errorFieldMap = [
 
 </form>
 
-<?php if ($profile['primary_image']): ?>
-  <form action="/profile/image/delete" method="post">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-    <button type="submit" data-intent="danger-subtle">
-      <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove Photo
-    </button>
-  </form>
-<?php endif; ?>
 
 <dialog id="crop-dialog" aria-label="Position your photo">
   <header>

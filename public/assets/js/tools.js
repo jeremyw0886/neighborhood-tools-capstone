@@ -1075,12 +1075,12 @@ class PhotoQueue {
   #handleFileChange = () => {
     const file = this.#fileInput.files?.[0];
     if (!file) return;
+    this.#fileInput.value = '';
     if (this.#queuedPhotos.length >= PhotoQueue.#MAX_FILES) {
       NT.toast(`You can upload at most ${PhotoQueue.#MAX_FILES} photos.`, 'error');
-      this.#fileInput.value = '';
       return;
     }
-    if (!PhotoQueue.#validateFile(file)) { this.#fileInput.value = ''; return; }
+    if (!PhotoQueue.#validateFile(file)) return;
     if (NT.crop) {
       NT.crop.openUpload(file, { icon: 'fa-solid fa-plus', label: 'Add' });
     }

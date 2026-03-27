@@ -53,7 +53,10 @@ class BaseController
         $navAvatar = null;
 
         if ($isLoggedIn) {
-            $navAvatar = $_SESSION['user_nav_avatar'] ?? null;
+            if (!array_key_exists('user_nav_avatar', $_SESSION)) {
+                self::refreshNavAvatar();
+            }
+            $navAvatar = $_SESSION['user_nav_avatar'];
         }
 
         $authUser = $isLoggedIn

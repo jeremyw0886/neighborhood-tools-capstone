@@ -2376,7 +2376,7 @@
     & figure {
       margin: 0.5rem 0 1rem;
 
-      &>img {
+      & img {
         aspect-ratio: 1;
         border: 2px solid var(--mountain-fog);
         border-radius: 50%;

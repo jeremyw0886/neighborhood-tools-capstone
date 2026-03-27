@@ -524,8 +524,6 @@ class ProfileController extends BaseController
             $errors['zip_code'] = 'ZIP code is required.';
         } elseif (!preg_match('/^\d{5}(-\d{4})?$/', $zipCode)) {
             $errors['zip_code'] = 'Please enter a valid 5-digit ZIP code.';
-        } elseif (Neighborhood::getByZipCode(substr($zipCode, 0, 5)) === []) {
-            $errors['zip_code'] = 'This ZIP code is not in a supported neighborhood.';
         }
 
         if (!in_array($preference, self::VALID_PREFERENCES, true)) {

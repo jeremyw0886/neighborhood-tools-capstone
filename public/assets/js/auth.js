@@ -9,6 +9,8 @@ class NeighborhoodLookup {
   #select;
   /** @type {Node[]} */
   #savedOptions;
+  /** @type {HTMLElement|null} */
+  #notice = null;
   #generation = 0;
   #abortController = new AbortController();
   #fetchController = null;
@@ -53,6 +55,7 @@ class NeighborhoodLookup {
     const token = ++this.#generation;
 
     if (!/^\d{5}$/.test(zip)) {
+      this.#hideNotice();
       this.#restoreFullList();
       return;
     }
@@ -67,6 +70,7 @@ class NeighborhoodLookup {
       if (token !== this.#generation) return;
 
       if (!res.ok) {
+        this.#hideNotice();
         this.#restoreFullList();
         return;
       }
@@ -75,9 +79,11 @@ class NeighborhoodLookup {
 
       if (!neighborhoods.length) {
         this.#restoreFullList();
+        this.#showNotice();
         return;
       }
 
+      this.#hideNotice();
       const current = this.#select.value;
       const grouped = {};
 
@@ -113,6 +119,40 @@ class NeighborhoodLookup {
       NT.toast('Could not load neighborhoods for that ZIP code.', 'error');
       this.#restoreFullList();
     }
+  }
+
+  #showNotice() {
+    if (this.#notice) return;
+    const group = this.#zipInput.closest('.form-group');
+    if (!group) return;
+
+    this.#notice = document.createElement('span');
+    this.#notice.id = 'zip-coverage-notice';
+    this.#notice.className = 'form-hint';
+    this.#notice.setAttribute('role', 'status');
+    this.#notice.setAttribute('data-coverage-warning', '');
+    this.#notice.textContent =
+      'This ZIP code isn\u2019t in a supported neighborhood yet. You can still create an account, but tool sharing is limited to the Asheville and Hendersonville areas.';
+    group.appendChild(this.#notice);
+
+    const described = this.#zipInput.getAttribute('aria-describedby') ?? '';
+    if (!described.includes('zip-coverage-notice')) {
+      this.#zipInput.setAttribute(
+        'aria-describedby',
+        [described, 'zip-coverage-notice'].filter(Boolean).join(' '),
+      );
+    }
+  }
+
+  #hideNotice() {
+    if (!this.#notice) return;
+    const described = (this.#zipInput.getAttribute('aria-describedby') ?? '')
+      .replace('zip-coverage-notice', '')
+      .trim();
+    this.#zipInput.setAttribute('aria-describedby', described || '');
+    if (!described) this.#zipInput.removeAttribute('aria-describedby');
+    this.#notice.remove();
+    this.#notice = null;
   }
 
   #restoreFullList() {

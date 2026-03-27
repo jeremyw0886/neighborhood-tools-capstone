@@ -132,7 +132,6 @@ class ImageCrop {
   }
 
   #closeCropDialog() {
-    this.#cleanupCropState();
     this.#dialog.close();
   }
 

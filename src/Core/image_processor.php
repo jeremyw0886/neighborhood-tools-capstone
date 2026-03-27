@@ -9,9 +9,9 @@ namespace App\Core;
  */
 final class ImageProcessor
 {
-    private const int JPEG_QUALITY = 82;
-    private const int PNG_COMPRESSION = 6;
-    private const int WEBP_QUALITY = 75;
+    private const int JPEG_QUALITY = 90;
+    private const int PNG_COMPRESSION = 4;
+    private const int WEBP_QUALITY = 85;
 
     public const array VARIANT_WIDTHS = [820, 750, 540, 360];
 

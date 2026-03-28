@@ -582,6 +582,8 @@ class ScrollToTop {
   /** @type {HTMLDivElement} */
   #sentinel;
   #abortController = new AbortController();
+  #rafId = 0;
+  #lastProgress = -1;
 
   /** @param {HTMLElement} main */
   constructor(main) {
@@ -605,6 +607,7 @@ class ScrollToTop {
         if (entry.isIntersecting || !scrollable) {
           this.#btn.removeAttribute('data-visible');
         } else {
+          this.#btn.setAttribute('data-animated', '');
           this.#btn.setAttribute('data-visible', '');
         }
       },
@@ -615,6 +618,8 @@ class ScrollToTop {
     const { signal } = this.#abortController;
     this.#btn.addEventListener('click', this.#handleClick, { signal });
     document.addEventListener('dashboard:content-swapped', this.#handleContentSwap, { signal });
+    window.addEventListener('scroll', this.#handleScroll, { passive: true, signal });
+    this.#updateProgress();
   }
 
   /** @returns {ScrollToTop|null} */
@@ -628,11 +633,33 @@ class ScrollToTop {
   destroy() {
     this.#observer.disconnect();
     this.#abortController.abort();
+    cancelAnimationFrame(this.#rafId);
     this.#btn.remove();
     this.#sentinel.remove();
     styleManager.removeRule('scroll-sentinel');
+    styleManager.removeRule('scroll-progress');
     ScrollToTop.#instance = null;
   }
+
+  #updateProgress() {
+    const el = document.documentElement;
+    const scrollable = el.scrollHeight - el.clientHeight;
+    const raw = scrollable > 0 ? Math.min(el.scrollTop / scrollable, 1) : 0;
+    const rounded = Math.round(raw * 100);
+    if (rounded !== this.#lastProgress) {
+      this.#lastProgress = rounded;
+      styleManager.setRule(
+        'scroll-progress',
+        '#scroll-top',
+        `--progress:${raw};--progress-int:${rounded}`
+      );
+    }
+  }
+
+  #handleScroll = () => {
+    cancelAnimationFrame(this.#rafId);
+    this.#rafId = requestAnimationFrame(() => this.#updateProgress());
+  };
 
   #handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -644,6 +671,7 @@ class ScrollToTop {
       this.#observer.observe(this.#sentinel);
     }
     this.#btn.removeAttribute('data-visible');
+    this.#updateProgress();
   };
 }
 

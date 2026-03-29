@@ -534,6 +534,9 @@ class ProfilePhotoManager {
     if (NT.crop) {
       NT.crop.onConfirm((mode, data) => {
         if (mode === 'upload') {
+          const dt = new DataTransfer();
+          dt.items.add(data.file);
+          this.#fileInput.files = dt.files;
           this.#focalXInput.value = data.focalX;
           this.#focalYInput.value = data.focalY;
           this.#showPreview(data.file, data.focalX, data.focalY);

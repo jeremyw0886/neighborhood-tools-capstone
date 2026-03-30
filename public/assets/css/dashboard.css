@@ -2812,12 +2812,12 @@
       padding: 1rem;
     }
 
-    section[aria-labelledby="admin-summary-heading"]>div[role="list"] {
+    section[aria-labelledby="admin-summary-heading"]>div {
       grid-template-columns: repeat(2, 1fr);
       gap: 0.75rem;
     }
 
-    section[aria-labelledby="admin-summary-heading"]>div[role="list"]>article>a {
+    section[aria-labelledby="admin-summary-heading"]>div>article>a {
       min-height: 6.5rem;
       padding: 1rem;
     }
@@ -3050,7 +3050,7 @@
       grid-template-columns: 1fr;
     }
 
-    section[aria-labelledby="admin-summary-heading"]>div[role="list"] {
+    section[aria-labelledby="admin-summary-heading"]>div {
       grid-template-columns: 1fr;
     }
 

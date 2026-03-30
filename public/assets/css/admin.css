@@ -365,7 +365,7 @@
 
   /* ── Dashboard stat card grid ── */
 
-  section[aria-labelledby="admin-summary-heading"]>div[role="list"] {
+  section[aria-labelledby="admin-summary-heading"]>div {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -4109,7 +4109,7 @@
       transition: none;
     }
 
-    section[aria-labelledby="admin-summary-heading"]>div[role="list"]>article>a {
+    section[aria-labelledby="admin-summary-heading"]>div>article>a {
       transition: none;
     }
 
@@ -4135,7 +4135,7 @@
       }
     }
 
-    section[aria-labelledby="admin-summary-heading"]>div[role="list"]>article>a {
+    section[aria-labelledby="admin-summary-heading"]>div>article>a {
       border-width: 2px;
     }
 

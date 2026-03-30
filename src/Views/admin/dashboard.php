@@ -8,7 +8,7 @@ $allowedRanges ??= [7, 14, 30];
   <section aria-labelledby="admin-summary-heading">
     <h2 id="admin-summary-heading" class="visually-hidden">Platform Summary</h2>
 
-    <div role="list">
+    <div>
 
       <article>
         <a href="/admin/users">

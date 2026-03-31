@@ -137,6 +137,13 @@ class BorrowController extends BaseController
         }
 
         $_SESSION['borrow_success'] = 'Your borrow request has been sent! The lender will review it shortly.';
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Borrow request sent!',
+            'detail'    => $tool['tool_name_tol'] . ' — the lender will review it shortly',
+            'nextUrl'   => '/dashboard/borrower',
+            'nextLabel' => 'View my requests',
+            'stayLabel' => 'Stay on this page',
+        ];
         $this->redirect('/dashboard/borrower');
     }
 
@@ -223,6 +230,13 @@ class BorrowController extends BaseController
         }
 
         $_SESSION['borrow_success'] = 'Request approved! The borrower has been notified.';
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Request approved!',
+            'detail'    => $request['borrower_name'] . ' has been notified about ' . $request['tool_name_tol'],
+            'nextUrl'   => '/dashboard/loan/' . $id,
+            'nextLabel' => 'View loan details',
+            'stayLabel' => 'Stay on lender dashboard',
+        ];
         $this->redirect('/dashboard/lender');
     }
 
@@ -300,6 +314,13 @@ class BorrowController extends BaseController
         }
 
         $_SESSION['borrow_success'] = 'Request denied. The borrower has been notified.';
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Request denied.',
+            'detail'    => $request['borrower_name'] . ' has been notified',
+            'nextUrl'   => '/dashboard/lender',
+            'nextLabel' => 'Back to lender dashboard',
+            'stayLabel' => 'Stay on this page',
+        ];
         $this->redirect('/dashboard/lender');
     }
 
@@ -382,8 +403,17 @@ class BorrowController extends BaseController
             error_log('BorrowController::cancel notification — ' . $e->getMessage());
         }
 
+        $dashboard = $isBorrower ? '/dashboard/borrower' : '/dashboard/lender';
+        $dashLabel = $isBorrower ? 'borrower' : 'lender';
+
         $_SESSION['borrow_success'] = 'Request cancelled.';
-        $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Request cancelled.',
+            'nextUrl'   => $dashboard,
+            'nextLabel' => 'Back to ' . $dashLabel . ' dashboard',
+            'stayLabel' => 'Stay on this page',
+        ];
+        $this->redirect($dashboard);
     }
 
     /**
@@ -472,6 +502,13 @@ class BorrowController extends BaseController
         }
 
         $_SESSION['borrow_success'] = 'Loan extended by ' . $extraHours . ' hours.';
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Loan extended!',
+            'detail'    => $borrow['tool_name_tol'] . ' — ' . $extraHours . ' additional hours',
+            'nextUrl'   => '/dashboard/loan/' . $id,
+            'nextLabel' => 'View loan details',
+            'stayLabel' => 'Stay on lender dashboard',
+        ];
         $this->redirect('/dashboard/lender');
     }
 
@@ -534,6 +571,13 @@ class BorrowController extends BaseController
         }
 
         $_SESSION['borrow_success'] = 'Reminder sent to ' . htmlspecialchars($borrow['borrower_name']) . '.';
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Reminder sent!',
+            'detail'    => $borrow['borrower_name'] . ' has been notified about ' . $borrow['tool_name_tol'],
+            'nextUrl'   => '/dashboard/loan/' . $id,
+            'nextLabel' => 'View loan details',
+            'stayLabel' => 'Stay on lender dashboard',
+        ];
         $this->redirect('/dashboard/lender');
     }
 

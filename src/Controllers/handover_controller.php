@@ -499,10 +499,24 @@ class HandoverController extends BaseController
 
         if ($isPickup) {
             $_SESSION['handover_success'] = 'Pickup confirmed! The ' . $toolName . ' handover is complete.';
+            $_SESSION['borrow_decision'] = [
+                'message'   => 'Pickup confirmed!',
+                'detail'    => $toolName . ' handover is complete',
+                'nextUrl'   => '/dashboard/loan/' . $id,
+                'nextLabel' => 'View active borrow',
+                'stayLabel' => 'Stay on this page',
+            ];
             $this->redirect('/dashboard/loan/' . $id);
         }
 
         $_SESSION['rating_success'] = 'Return confirmed! Rate your experience below.';
+        $_SESSION['borrow_decision'] = [
+            'message'   => 'Return confirmed!',
+            'detail'    => $toolName . ' has been returned — rate your experience below',
+            'nextUrl'   => '/rate/' . $id,
+            'nextLabel' => 'Rate your experience',
+            'stayLabel' => 'Skip for now',
+        ];
         $this->redirect('/rate/' . $id);
     }
 }

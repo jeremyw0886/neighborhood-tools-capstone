@@ -119,6 +119,128 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
       <?php endif; ?>
     </section>
 
+    <?php
+    $nextStep = null;
+
+    if (!$terminal) {
+        $nsDepositPaid    = $deposit === null || $deposit['deposit_status'] !== 'pending';
+        $nsPickupHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'pickup');
+        $nsReturnHandover = array_find($handovers, static fn(array $h): bool => $h['handover_type'] === 'return' && $h['verified_at_hov'] === null);
+
+        if ($isLender) {
+            $nextStep = match (true) {
+                $status === 'requested' => [
+                    'message' => 'Review this borrow request',
+                    'icon'    => 'fa-magnifying-glass',
+                    'url'     => '#actions-heading',
+                    'label'   => 'Review Request',
+                ],
+                $status === 'approved' && !$waiverSigned => [
+                    'message' => 'Waiting for the borrower to sign the waiver',
+                    'icon'    => 'fa-hourglass-half',
+                ],
+                $status === 'approved' && !$nsDepositPaid => [
+                    'message' => 'Waiting for the borrower to pay the security deposit',
+                    'icon'    => 'fa-hourglass-half',
+                ],
+                $status === 'approved' && $nsPickupHandover !== null => [
+                    'message' => 'Pickup code generated — waiting for the borrower to verify',
+                    'icon'    => 'fa-hourglass-half',
+                ],
+                $status === 'approved' => [
+                    'message' => 'Generate a pickup code to start the handover',
+                    'icon'    => 'fa-key',
+                    'url'     => '/handover/' . (int) $borrow['id_bor'],
+                    'label'   => 'Generate Pickup Code',
+                ],
+                $status === 'borrowed' && $nsReturnHandover !== null => [
+                    'message' => 'Enter the return code to confirm the return',
+                    'icon'    => 'fa-keyboard',
+                    'url'     => '/handover/' . (int) $borrow['id_bor'],
+                    'label'   => 'Enter Return Code',
+                ],
+                $status === 'borrowed' => [
+                    'message' => 'Waiting for the borrower to initiate return',
+                    'icon'    => 'fa-hourglass-half',
+                ],
+                $status === 'returned' && !$hasRatedUser => [
+                    'message' => 'Rate your experience with this borrow',
+                    'icon'    => 'fa-star',
+                    'url'     => '/rate/' . (int) $borrow['id_bor'],
+                    'label'   => 'Rate Experience',
+                ],
+                default => null,
+            };
+        } else {
+            $nextStep = match (true) {
+                $status === 'requested' => [
+                    'message' => 'Waiting for the lender to review your request',
+                    'icon'    => 'fa-hourglass-half',
+                ],
+                $status === 'approved' && !$waiverSigned => [
+                    'message' => 'Sign the borrow waiver to continue',
+                    'icon'    => 'fa-file-signature',
+                    'url'     => '/waiver/' . (int) $borrow['id_bor'],
+                    'label'   => 'Sign Waiver',
+                ],
+                $status === 'approved' && !$nsDepositPaid => [
+                    'message' => 'Pay the security deposit to continue',
+                    'icon'    => 'fa-credit-card',
+                    'url'     => '/payments/deposit/' . (int) $deposit['id_sdp'],
+                    'label'   => 'Pay Deposit',
+                ],
+                $status === 'approved' && $nsPickupHandover === null => [
+                    'message' => 'Waiting for the lender to generate a pickup code',
+                    'icon'    => 'fa-hourglass-half',
+                ],
+                $status === 'approved' => [
+                    'message' => 'Enter the pickup code to complete the handover',
+                    'icon'    => 'fa-keyboard',
+                    'url'     => '/handover/' . (int) $borrow['id_bor'],
+                    'label'   => 'Enter Pickup Code',
+                ],
+                $status === 'borrowed' && $nsReturnHandover !== null => [
+                    'message' => 'Share the return code with the lender',
+                    'icon'    => 'fa-key',
+                    'url'     => '/handover/' . (int) $borrow['id_bor'],
+                    'label'   => 'View Return Code',
+                ],
+                $status === 'borrowed' => [
+                    'message' => 'Ready to return? Generate a return code',
+                    'icon'    => 'fa-key',
+                    'url'     => '/handover/' . (int) $borrow['id_bor'],
+                    'label'   => 'Generate Return Code',
+                ],
+                $status === 'returned' && (!$hasRatedUser || !$hasRatedTool) => [
+                    'message' => 'Rate your experience with this borrow',
+                    'icon'    => 'fa-star',
+                    'url'     => '/rate/' . (int) $borrow['id_bor'],
+                    'label'   => 'Rate Experience',
+                ],
+                default => null,
+            };
+        }
+    }
+    ?>
+
+    <?php if ($nextStep !== null): ?>
+      <section aria-labelledby="next-step-heading" data-loan-card data-next-step>
+        <h2 id="next-step-heading">
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          Next Step
+        </h2>
+        <p>
+          <i class="fa-solid <?= $nextStep['icon'] ?>" aria-hidden="true"></i>
+          <?= htmlspecialchars($nextStep['message']) ?>
+        </p>
+        <?php if (isset($nextStep['url'])): ?>
+          <a href="<?= htmlspecialchars($nextStep['url']) ?>" data-intent="primary" role="button">
+            <?= htmlspecialchars($nextStep['label']) ?>
+          </a>
+        <?php endif; ?>
+      </section>
+    <?php endif; ?>
+
     <?php if ($status === 'approved' && !$isLender): ?>
       <section aria-labelledby="pickup-checklist-heading" data-loan-card>
         <h2 id="pickup-checklist-heading">

@@ -23,6 +23,9 @@
 <?php if (!empty($borrowSuccess)): ?>
     <p role="status" data-flash="success"><?= htmlspecialchars($borrowSuccess) ?></p>
   <?php endif; ?>
+  <?php if (!empty($decisionData)): ?>
+    <script id="decision-data" type="application/json"><?= json_encode($decisionData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_THROW_ON_ERROR) ?></script>
+  <?php endif; ?>
 
   <?php
     $flashError = $borrowErrors['general'] ?? '';

@@ -79,6 +79,7 @@ class RatingController extends BaseController
             'ratingErrors'  => $this->flash('rating_errors', []),
             'ratingOld'     => $this->flash('rating_old', []),
             'ratingSuccess' => $this->flash('rating_success'),
+            'decisionData'  => $this->flash('borrow_decision'),
         ]);
     }
 

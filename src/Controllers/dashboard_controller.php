@@ -181,6 +181,7 @@ class DashboardController extends BaseController
             'borrowSuccess'      => $this->flash('borrow_success'),
             'borrowErrors'       => $this->flash('borrow_errors', []),
             'lenderNotice'       => $this->flash('lender_notice'),
+            'decisionData'       => $this->flash('borrow_decision'),
         ]);
     }
 
@@ -280,6 +281,7 @@ class DashboardController extends BaseController
             'reqSort'            => $reqSort,
             'borrowSuccess'      => $this->flash('borrow_success'),
             'borrowErrors'       => $this->flash('borrow_errors', []),
+            'decisionData'       => $this->flash('borrow_decision'),
         ]);
     }
 
@@ -454,6 +456,7 @@ class DashboardController extends BaseController
             'hasRatedUser'        => $hasRatedUser,
             'hasRatedTool'        => $hasRatedTool,
             'handoverSuccess'     => $this->flash('handover_success'),
+            'decisionData'        => $this->flash('borrow_decision'),
             'loanStatusHeading'   => $borrow['tool_name_tol'],
             'loanStatusSubtitle'  => $loanStatusSubtitle,
         ]);

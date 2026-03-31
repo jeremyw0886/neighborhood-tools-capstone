@@ -262,6 +262,17 @@
     }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    dialog[data-decision] > i {
+      animation: none;
+    }
+
+    dialog[data-decision][data-auto-dismiss]::after {
+      animation: none;
+      width: 0%;
+    }
+  }
+
   /* ── Site footer ── */
 
   @media (max-width: 700px) {

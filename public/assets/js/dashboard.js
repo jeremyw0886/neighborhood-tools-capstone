@@ -192,14 +192,15 @@ class DashboardRouter {
    * @returns {Promise<void>}
    */
   static async #syncScripts(needed) {
+    const stripVersion = (s) => s.replace(/\?.*$/, '');
     const current = new Set(
       [...document.querySelectorAll('head script[src]')]
-        .map((s) => s.getAttribute('src'))
+        .map((s) => stripVersion(s.getAttribute('src')))
         .filter(Boolean),
     );
 
     for (const src of needed) {
-      if (current.has(src)) continue;
+      if (current.has(stripVersion(src))) continue;
       await new Promise((resolve) => {
         const script = document.createElement('script');
         script.src = src;

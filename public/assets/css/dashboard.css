@@ -505,6 +505,7 @@
 
       &>summary[data-intent="danger"] {
         background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
+        border-bottom: 3px solid var(--btn-danger-border);
         color: var(--btn-text-light);
 
         &:is(:hover, :focus-visible) {
@@ -719,6 +720,7 @@
 
         &>summary[data-intent="danger"] {
           background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
+          border-bottom: 3px solid var(--btn-danger-border);
           color: var(--btn-text-light);
 
           &:is(:hover, :focus-visible) {
@@ -1479,6 +1481,7 @@
 
       &>summary[data-intent="danger"] {
         background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
+        border-bottom: 3px solid var(--btn-danger-border);
         color: var(--btn-text-light);
 
         &:is(:hover, :focus-visible) {

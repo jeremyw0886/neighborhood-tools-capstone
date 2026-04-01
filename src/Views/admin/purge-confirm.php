@@ -35,7 +35,7 @@ $accountId = (int) $account['id_acc'];
 
       <div>
         <a href="/admin/users?<?= htmlspecialchars($returnTo) ?>" data-intent="ghost">Cancel</a>
-        <button type="submit" data-intent="danger">Purge Account</button>
+        <button type="submit" data-intent="danger"><i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i> Purge Account</button>
       </div>
     </fieldset>
   </form>

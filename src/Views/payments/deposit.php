@@ -346,7 +346,7 @@ $toolReturned      = $borrowStatusRaw === 'returned';
         </div>
       </fieldset>
       <footer>
-        <button type="submit" data-intent="success">Process Deposit</button>
+        <button type="submit" data-intent="success"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Process Deposit</button>
       </footer>
     </form>
   </section>

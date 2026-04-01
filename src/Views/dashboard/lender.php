@@ -132,7 +132,7 @@
                       rows="2"
                       placeholder="Why are you denying this request?"
                     ></textarea>
-                    <button type="submit" data-intent="danger">Deny Request</button>
+                    <button type="submit" data-intent="danger"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny Request</button>
                   </form>
                 </details>
               </footer>

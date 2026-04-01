@@ -589,7 +589,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                 maxlength="1000"
                 rows="2"
                 placeholder="Why are you denying this request?"></textarea>
-              <button type="submit" data-intent="danger">Deny Request</button>
+              <button type="submit" data-intent="danger"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Deny Request</button>
             </form>
           </details>
         <?php endif; ?>
@@ -679,7 +679,7 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
                 maxlength="1000"
                 rows="2"
                 placeholder="Why are you cancelling?"></textarea>
-              <button type="submit" data-intent="danger">Cancel Request</button>
+              <button type="submit" data-intent="danger"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>
             </form>
           </details>
         <?php endif; ?>

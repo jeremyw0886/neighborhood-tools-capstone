@@ -245,7 +245,7 @@ $hasFilters   = $search !== null || $role !== null || ($status !== null && !$isD
                   <noscript>
                     <a href="/admin/users/<?= (int) $user['id_acc'] ?>/purge-confirm?<?= htmlspecialchars($_SERVER['QUERY_STRING'] ?? '') ?>"
                        data-intent="danger" data-size="sm">
-                      Purge
+                      <i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i> Purge
                     </a>
                   </noscript>
                 </div>
@@ -364,7 +364,7 @@ $hasFilters   = $search !== null || $role !== null || ($status !== null && !$isD
                aria-label="Type the account name to confirm purge">
         <footer>
           <button type="button" data-intent="ghost" data-purge-cancel>Cancel</button>
-          <button type="submit" data-intent="danger" data-purge-submit disabled>Purge Account</button>
+          <button type="submit" data-intent="danger" data-purge-submit disabled><i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i> Purge Account</button>
         </footer>
       </form>
     </dialog>

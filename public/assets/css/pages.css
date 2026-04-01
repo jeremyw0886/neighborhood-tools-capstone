@@ -319,9 +319,9 @@
 
       & [data-intent="danger-outline"] {
         background: transparent;
-        border: 1px solid var(--color-danger-600);
+        border: 1px solid var(--btn-danger-from);
         border-radius: 1.5rem;
-        color: var(--color-danger-600);
+        color: var(--btn-danger-from);
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 600;
@@ -330,12 +330,12 @@
         transition: background-color 0.15s, color 0.15s;
 
         &:is(:hover, :focus-visible) {
-          background: var(--color-danger-600);
+          background: var(--btn-danger-from);
           color: #fff;
         }
 
         &:focus-visible {
-          outline: 2px solid var(--color-danger-600);
+          outline: 2px solid var(--btn-danger-from);
           outline-offset: 2px;
         }
       }

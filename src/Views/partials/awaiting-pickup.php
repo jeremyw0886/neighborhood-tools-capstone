@@ -126,7 +126,7 @@
                   rows="2"
                   placeholder="<?= $pickupRole === 'lender' ? 'Why are you cancelling this pickup?' : 'Why are you cancelling?' ?>"
                 ></textarea>
-                <button type="submit" data-intent="danger"><?= $pickupRole === 'lender' ? 'Cancel Pickup' : 'Cancel Request' ?></button>
+                <button type="submit" data-intent="danger"><i class="fa-solid fa-xmark" aria-hidden="true"></i> <?= $pickupRole === 'lender' ? 'Cancel Pickup' : 'Cancel Request' ?></button>
               </form>
             </details>
           </footer>

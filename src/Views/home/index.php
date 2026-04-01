@@ -17,7 +17,6 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
       <a href="/" id="hero-logo" aria-label="NeighborhoodTools home">
         <img src="/assets/images/logo-mark.svg" alt="" width="270" height="202" fetchpriority="high">
       </a>
-      <p aria-hidden="true">NEIGHBORHOOD <span>TOOLS</span></p>
 
       <div>
         <div>

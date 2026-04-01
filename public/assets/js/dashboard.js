@@ -9,7 +9,7 @@ class DashboardRouter {
   static #PREFETCH_TTL = 30_000;
   static #SWIPE_THRESHOLD = 80;
   static #CACHE_LIMIT = 8;
-  static #DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loan\/\d+))?|tools\/create|tools\/\d+\/edit|profile\/\d+|bookmarks|events)$/;
+  static #DASHBOARD_RE = /^\/(?:dashboard(?:\/(?:lender|borrower|history|loans|loan\/\d+))?|tools\/create|tools\/\d+\/edit|profile\/\d+|bookmarks|events)$/;
 
   /** @type {HTMLElement} */
   #mainEl;
@@ -257,7 +257,8 @@ class DashboardRouter {
     }
 
     const match = nav.querySelector(`a[href="${CSS.escape(path)}"]`)
-      ?? nav.querySelector(`a[href="${CSS.escape(path.replace(/\/\d+$/, ''))}"]`);
+      ?? nav.querySelector(`a[href="${CSS.escape(path.replace(/\/\d+$/, ''))}"]`)
+      ?? (path.startsWith('/dashboard/loan/') ? nav.querySelector('a[href="/dashboard/loans"]') : null);
     match?.setAttribute('aria-current', 'page');
   }
 

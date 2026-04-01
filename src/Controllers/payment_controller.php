@@ -573,6 +573,10 @@ class PaymentController extends BaseController
             }
 
             $_SESSION['deposit_success'] = 'Payment confirmed. Your security deposit is now being held.';
+            $borrowId = (int) ($pending['id_bor_sdp'] ?? 0);
+            if ($borrowId > 0) {
+                $this->redirect('/dashboard/loan/' . $borrowId);
+            }
             $this->redirect('/payments/deposit/' . $depositId);
         }
 

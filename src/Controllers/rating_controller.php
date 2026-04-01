@@ -58,7 +58,7 @@ class RatingController extends BaseController
 
         if ($hasRatedUser && $hasRatedTool) {
             $_SESSION['rating_success'] = 'You have already submitted all ratings for this borrow.';
-            $this->redirect('/dashboard');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         $targetId   = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];

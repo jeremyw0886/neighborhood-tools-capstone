@@ -2093,6 +2093,8 @@
 
   #scroll-top {
     --progress: 0;
+    --scroll-top-inline-gap: 1rem;
+    --site-max-width: 1400px;
     align-items: center;
     animation: none;
     background:
@@ -2116,7 +2118,7 @@
     padding: 0;
     pointer-events: none;
     position: fixed;
-    right: 2rem;
+    right: max(var(--scroll-top-inline-gap), calc((100vw - var(--site-max-width)) / 2 + var(--scroll-top-inline-gap)));
     width: 2.75rem;
     z-index: 900;
 

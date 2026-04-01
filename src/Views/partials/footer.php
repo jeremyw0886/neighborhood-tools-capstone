@@ -12,9 +12,9 @@
 
   <div>
     <div>
-      <img src="/assets/images/logo.svg" alt="NeighborhoodTools" width="40" height="40" loading="lazy">
+      <img src="/assets/images/logo-mark.svg" alt="NeighborhoodTools" width="40" height="40" loading="lazy">
       <p>Share tools, build community.</p>
-      <p>Borrow what you need from neighbors nearby. Save money, reduce waste, and strengthen your neighborhood — one tool at a time.</p>
+      <p>Neighborhood tool sharing for local borrowing and lending.</p>
     </div>
 
     <nav aria-label="Explore">
@@ -52,7 +52,6 @@
 
   <div>
     <p>&copy; <?= date('Y') ?> NeighborhoodTools</p>
-    <a href="#top">Back to top <i class="fa-solid fa-arrow-up" aria-hidden="true"></i></a>
   </div>
 
 </footer>

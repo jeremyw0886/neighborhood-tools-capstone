@@ -118,7 +118,7 @@ class WaiverController extends BaseController
             );
 
             $_SESSION['waiver_success'] = 'Waiver signed successfully. You may now coordinate pickup with the lender.';
-            $this->redirect('/dashboard');
+            $this->redirect('/dashboard/loan/' . $id);
         } catch (\Throwable $e) {
             error_log('WaiverController::sign — ' . $e->getMessage());
             $_SESSION['waiver_errors'] = ['general' => 'Something went wrong signing the waiver. Please try again.'];

@@ -705,6 +705,74 @@ class Borrow
     }
 
     /**
+     * Fetch recently completed loans for a user (returned/denied/cancelled within the last N days).
+     *
+     * @param  int    $accountId
+     * @param  int    $days
+     * @param  string $sort
+     * @param  string $dir
+     * @return array
+     */
+    public static function getRecentCompletedForUser(
+        int $accountId,
+        int $days = 30,
+        string $sort = 'completed_at',
+        string $dir = 'DESC',
+    ): array {
+        [$sort, $dir] = self::validateSort(
+            $sort,
+            $dir,
+            ['completed_at', 'requested_at_bor', 'tool_name_tol', 'borrow_status'],
+            'completed_at',
+            'DESC',
+        );
+
+        $pdo = Database::connection();
+
+        $sql = "
+            SELECT
+                b.id_bor,
+                t.tool_name_tol,
+                b.id_tol_bor,
+                CASE WHEN b.id_acc_bor = :id THEN 'borrower' ELSE 'lender' END AS user_role,
+                CASE WHEN b.id_acc_bor = :id2
+                    THEN t.id_acc_tol
+                    ELSE b.id_acc_bor
+                END AS counterparty_id,
+                CASE WHEN b.id_acc_bor = :id3
+                    THEN CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)
+                    ELSE CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc)
+                END AS counterparty_name,
+                bst.status_name_bst AS borrow_status,
+                b.requested_at_bor,
+                b.due_at_bor,
+                b.returned_at_bor,
+                b.loan_duration_hours_bor,
+                COALESCE(b.returned_at_bor, b.cancelled_at_bor, b.requested_at_bor) AS completed_at
+            FROM borrow_bor b
+            JOIN tool_tol t            ON b.id_tol_bor = t.id_tol
+            JOIN borrow_status_bst bst ON b.id_bst_bor  = bst.id_bst
+            JOIN account_acc borrower  ON b.id_acc_bor   = borrower.id_acc
+            JOIN account_acc lender    ON t.id_acc_tol   = lender.id_acc
+            WHERE bst.status_name_bst IN ('returned', 'denied', 'cancelled')
+              AND (b.id_acc_bor = :id4 OR t.id_acc_tol = :id5)
+              AND COALESCE(b.returned_at_bor, b.cancelled_at_bor, b.requested_at_bor) >= NOW() - INTERVAL :days DAY
+            ORDER BY {$sort} {$dir}
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id3', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id4', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id5', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Fetch loan extension history for a borrow.
      *
      * @return array Rows with extension hours, due dates, approver name

@@ -11,6 +11,7 @@
     <li><a href="/dashboard"<?= $currentPage === '/dashboard' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-gauge" aria-hidden="true"></i> Overview</a></li>
     <li><a href="/dashboard/lender"<?= $currentPage === '/dashboard/lender' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-hand-holding" aria-hidden="true"></i> My Tools</a></li>
     <li><a href="/dashboard/borrower"<?= $currentPage === '/dashboard/borrower' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-hand" aria-hidden="true"></i> My Borrows</a></li>
+    <li><a href="/dashboard/loans"<?= $currentPage === '/dashboard/loans' || str_starts_with($currentPage, '/dashboard/loan/') ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-handshake" aria-hidden="true"></i> My Loans</a></li>
     <li><a href="/dashboard/history"<?= $currentPage === '/dashboard/history' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History</a></li>
     <li><a href="/tools/create"<?= $currentPage === '/tools/create' ? ' aria-current="page"' : '' ?>><i class="fa-solid fa-plus" aria-hidden="true"></i> List a Tool</a></li>
     <li data-separator aria-hidden="true"></li>

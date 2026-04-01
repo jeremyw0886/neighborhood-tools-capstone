@@ -176,7 +176,7 @@ class BaseController
     ];
 
     protected const array DASHBOARD_SECTIONS = [
-        'overview', 'lender', 'borrower', 'history', 'loan-status',
+        'overview', 'lender', 'borrower', 'history', 'loans', 'loan-status',
         'list-tool', 'edit-tool', 'bookmarks', 'events', 'profile', 'profile-edit',
     ];
 

@@ -44,7 +44,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
 
     <li>
       <article>
-        <a href="/dashboard/borrower">
+        <a href="/dashboard/loans?status=active">
           <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
           <h3>Active Borrows</h3>
           <p><?= htmlspecialchars((string) $activeBorrowCount) ?></p>
@@ -67,7 +67,7 @@ $starsEmpty    = 5 - $starsFull - $starsHalf;
     <?php if ($overdueCount > 0): ?>
       <li>
         <article data-urgent>
-          <a href="/dashboard/borrower">
+          <a href="/dashboard/loans?status=active">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
             <h3>Overdue</h3>
             <p><?= htmlspecialchars((string) $overdueCount) ?></p>

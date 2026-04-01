@@ -21,8 +21,9 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
 
       <div>
         <div>
-          <h1 id="hero-heading">Share Tools, Build Community</h1>
-          <p>Borrow tools from your neighbors. Lend yours when you're not using them.</p>
+          <span data-hero-eyebrow>Borrow locally</span>
+          <h1 id="hero-heading">Borrow what you need from neighbors nearby.</h1>
+          <p>Save money, reduce waste, and strengthen your neighborhood - one tool at a time.</p>
           <?php if ($platformStats['availableTools'] > 0 || $platformStats['activeMembers'] > 0 || $platformStats['completedBorrows'] > 0): ?>
             <ul aria-label="Platform highlights">
               <li>
@@ -45,6 +46,8 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
         </div>
 
         <div>
+          <p data-hero-utility>Find a tool near you</p>
+          <p data-hero-utility-copy>Search for drills, ladders, yard tools, and more.</p>
           <form role="search" aria-label="Search tools" action="/tools" method="get">
             <label for="search-tools" class="visually-hidden">Search tools</label>
             <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>

@@ -54,6 +54,7 @@ return [
     'GET /dashboard/lender'        => [DashboardController::class, 'lender'],
     'GET /dashboard/borrower'      => [DashboardController::class, 'borrower'],
     'GET /dashboard/history'       => [DashboardController::class, 'history'],
+    'GET /dashboard/loans'         => [DashboardController::class, 'loans'],
     'GET /dashboard/loan/{id}'     => [DashboardController::class, 'loanStatus'],
 
     // Tools

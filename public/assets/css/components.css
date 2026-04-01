@@ -793,7 +793,7 @@
     }
 
     & h2 {
-      font-size: 0.95rem;
+      font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.95rem);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--mountain-gold-light);

@@ -81,7 +81,7 @@
         &>span {
           color: var(--mountain-mist);
           flex-shrink: 0;
-          font-size: 1rem;
+          font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
         }
 
         &>input[type="search"] {
@@ -89,11 +89,10 @@
           border: none;
           color: var(--mountain-charcoal);
           flex: 1;
-          font-size: 1rem;
+          font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
           min-width: 0;
           outline: none;
           padding: 0.625rem 0.75rem;
-
         }
 
         &>button {
@@ -117,6 +116,31 @@
           &:focus-visible {
             outline: 2px solid var(--mountain-gold);
             outline-offset: 2px;
+          }
+
+          @media (max-width: 575px) {
+            border-radius: 50%;
+            gap: 0;
+            height: 2.25rem;
+            justify-content: center;
+            min-height: 0;
+            min-width: 0;
+            padding: 0;
+            width: 2.25rem;
+
+            &>i,
+            &>span {
+              height: 0;
+              overflow: hidden;
+              width: 0;
+            }
+
+            &::after {
+              content: "\f002";
+              font-family: "Font Awesome 6 Free";
+              font-size: 0.9rem;
+              font-weight: 900;
+            }
           }
         }
       }
@@ -2761,6 +2785,21 @@
       #edit-tool,
       #profile-edit,
       #bookmarks-page,
+      #events-page) h2 {
+      font-size: 1.25rem;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
+      #my-loans,
+      #loan-status,
+      #list-tool,
+      #edit-tool,
+      #profile-edit,
+      #bookmarks-page,
       #events-page)>header {
       min-height: unset;
     }
@@ -2785,6 +2824,10 @@
     section[aria-labelledby="admin-summary-heading"]>div>article>a {
       min-height: 6.5rem;
       padding: 1rem;
+    }
+
+    section[aria-labelledby="quick-actions-heading"]>h2 {
+      text-align: center;
     }
 
     section[aria-labelledby="quick-actions-heading"]>ul {
@@ -3008,10 +3051,6 @@
 
     header>form[role="search"]>fieldset {
       padding-left: 0.75rem;
-
-      &>button>span {
-        display: none;
-      }
     }
 
     section[aria-labelledby="summary-heading"]>ul,

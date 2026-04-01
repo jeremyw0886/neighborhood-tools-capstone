@@ -277,7 +277,6 @@
     }
 
     & div[role="list"]>div>article {
-      flex: none;
       height: 100%;
       min-width: 0;
       width: auto;

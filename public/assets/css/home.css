@@ -186,7 +186,6 @@
       & > div {
         display: flex;
         gap: 0.75rem;
-        justify-content: stretch;
 
         & > a {
           flex: 1;
@@ -337,10 +336,6 @@
     padding: 0.25rem;
     position: relative;
 
-    &[hidden] {
-      display: none;
-    }
-
     &::before {
       background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
       border-radius: 1.75rem;
@@ -419,10 +414,6 @@
       &:disabled {
         cursor: default;
         opacity: 0.3;
-      }
-
-      &[hidden] {
-        display: none;
       }
     }
   }
@@ -606,10 +597,6 @@
         cursor: default;
         opacity: 0.3;
       }
-
-      &[hidden] {
-        display: none;
-      }
     }
   }
 
@@ -653,10 +640,6 @@
     position: absolute;
     white-space: nowrap;
     z-index: 1000;
-
-    &[hidden] {
-      display: none;
-    }
 
     & > span {
       color: var(--mountain-slate);

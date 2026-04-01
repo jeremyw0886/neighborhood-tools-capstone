@@ -40,10 +40,6 @@
       opacity: 0.55;
       pointer-events: none;
     }
-
-    &[hidden] {
-      display: none;
-    }
   }
 
   /* --- Button Intents -------------------------------------- */
@@ -550,14 +546,9 @@
       width: 380px;
       z-index: 100;
 
-      &[hidden] {
-        display: none;
-      }
-
       &>ul {
         display: flex;
         flex-direction: column;
-        gap: 0;
         overflow-y: auto;
         overscroll-behavior: contain;
 
@@ -670,17 +661,12 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
-      gap: 0;
       top: calc(100% + 0.5rem);
       right: 0;
       min-width: 11rem;
       padding: 0.5rem 0;
       position: absolute;
       z-index: 100;
-
-      &[hidden] {
-        display: none;
-      }
 
       & li {
 
@@ -725,7 +711,6 @@
 
     &>ul {
       display: flex;
-      gap: 0;
 
       &>li>a {
         align-items: center;
@@ -1540,7 +1525,6 @@
         font-size: 0.95rem;
         font-weight: 600;
         -webkit-line-clamp: 2;
-        max-height: 3em;
         overflow: hidden;
         text-overflow: ellipsis;
 
@@ -1725,7 +1709,6 @@
     &>legend {
       border-bottom: none;
       color: var(--mountain-pine);
-      float: none;
       font-size: 0.813rem;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -2356,10 +2339,6 @@
       right: 0;
       top: 100%;
       z-index: 100;
-
-      &[hidden] {
-        display: none;
-      }
 
       & > li {
         border-radius: 0.5rem;

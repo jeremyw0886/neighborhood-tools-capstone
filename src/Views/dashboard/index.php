@@ -17,6 +17,7 @@ $sectionId = match($dashboardSection) {
     'lender' => 'lender-heading',
     'borrower' => 'borrower-heading',
     'history' => 'history-heading',
+    'loans' => 'loans-heading',
     'loan-status' => 'loan-status-heading',
     'list-tool' => 'create-tool-heading',
     'edit-tool' => 'edit-tool-heading',
@@ -88,13 +89,11 @@ $sectionSubtitle = match($dashboardSection) {
 
 <section<?= $sectionHtmlId !== null ? ' id="' . $sectionHtmlId . '"' : '' ?> aria-labelledby="<?= $sectionId ?>">
 
-  <?php if (!$isOverview): ?>
-    <nav aria-label="Back">
-      <a href="<?= htmlspecialchars($backUrl) ?>">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
-      </a>
-    </nav>
-  <?php endif; ?>
+  <nav aria-label="Back"<?= $isOverview ? ' aria-hidden="true" data-hidden' : '' ?>>
+    <a href="<?= htmlspecialchars($backUrl) ?>"<?= $isOverview ? ' tabindex="-1"' : '' ?>>
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </a>
+  </nav>
 
   <header>
     <h1 id="<?= $sectionId ?>">

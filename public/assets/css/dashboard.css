@@ -607,6 +607,17 @@
         background: var(--alert-warning-bg);
         color: var(--alert-warning-text);
       }
+
+      &>span[data-status="returned"] {
+        background: var(--alert-success-bg);
+        color: var(--alert-success-text);
+      }
+
+      &>span[data-status="denied"],
+      &>span[data-status="cancelled"] {
+        background: var(--alert-danger-bg);
+        color: var(--alert-danger-text);
+      }
     }
 
     &>dl {
@@ -650,6 +661,25 @@
           display: block;
           font-size: 0.75rem;
           margin-top: 0.125rem;
+        }
+
+        &>[data-role-badge] {
+          border-radius: 1rem;
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.025em;
+          padding: 0.125rem 0.625rem;
+          text-transform: uppercase;
+        }
+
+        &>[data-role-badge="lender"] {
+          background: color-mix(in srgb, var(--mountain-pine-light) 20%, transparent);
+          color: var(--mountain-pine-dark);
+        }
+
+        &>[data-role-badge="borrower"] {
+          background: color-mix(in srgb, var(--mountain-gold-light) 25%, transparent);
+          color: var(--mountain-gold-dark);
         }
       }
     }
@@ -792,7 +822,8 @@
 
   main>section:is([aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
-    [aria-labelledby="history-heading"]) form[aria-label*="Sort"] {
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"],
+  [data-filter-form] {
     margin-bottom: 1rem;
 
     &>fieldset {

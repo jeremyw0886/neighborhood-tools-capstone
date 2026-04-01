@@ -3,6 +3,11 @@
     opacity: 1;
   }
 
+  nav[aria-label="Main navigation"]>#user-actions>#user-actions-menu[hidden] {
+    display: flex;
+    position: static;
+  }
+
   @media (max-width: 800px) {
     nav[aria-label="Main navigation"]>#top-links {
       clip-path: none;

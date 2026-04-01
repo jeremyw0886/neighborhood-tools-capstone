@@ -106,7 +106,7 @@ $isHero = !empty($heroPage);
         </div>
       </div>
 
-      <ul id="user-actions-menu" role="menu">
+      <ul id="user-actions-menu" role="menu" hidden>
           <li role="menuitem">
             <a href="/dashboard"<?= str_starts_with($currentPage, '/dashboard') ? ' aria-current="page"' : '' ?>>
               <i class="fa-solid fa-gauge" aria-hidden="true"></i> Dashboard

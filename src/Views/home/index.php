@@ -13,6 +13,12 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
   <header>
     <section aria-label="Hero section">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
+
+      <a href="/" id="hero-logo" aria-label="NeighborhoodTools home">
+        <img src="/assets/images/logo-mark.svg" alt="" width="270" height="202" fetchpriority="high">
+      </a>
+      <p aria-hidden="true">NEIGHBORHOOD <span>TOOLS</span></p>
+
       <div>
         <div>
           <h1 id="hero-heading">Share Tools, Build Community</h1>

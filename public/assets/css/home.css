@@ -41,12 +41,14 @@
         var(--mountain-pine-light) 100%);
     box-shadow: 0 8px 24px var(--shadow-pine);
     color: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr;
+    row-gap: 0.5rem;
     margin-inline: calc(-50vw + 50%);
     min-width: 0;
     padding-block: 0 2rem;
+    padding-inline: max(0px, calc(50vw - 700px));
     position: relative;
 
     & > div a:not([role="button"]) {
@@ -88,7 +90,13 @@
     }
 
     & > nav[data-hero] {
+      grid-column: 1 / -1;
+      grid-row: 1;
       width: 100%;
+
+      & > a:first-child {
+        visibility: hidden;
+      }
 
       & > #mobile-menu-toggle {
         padding: 0.5rem;
@@ -97,11 +105,59 @@
     }
   }
 
+  /* ── HERO LOGO ── */
+  #hero-logo {
+    align-self: center;
+    color: inherit;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    padding: 0 0 0 1.25rem;
+    position: relative;
+    text-decoration: none;
+    z-index: 1;
+
+    & > img {
+      height: auto;
+      width: clamp(170px, 13vw + 60px, 270px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--mountain-gold);
+      outline-offset: 2px;
+    }
+  }
+
+  @media (hover: hover) {
+    #hero-logo:hover > img {
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
+    }
+  }
+
+  /* ── HERO BRAND TEXT ── */
+  .home-page > header > section > p {
+    align-self: center;
+    color: var(--mountain-cream);
+    font-size: clamp(1.5rem, 2vw + 0.75rem, 2.75rem);
+    font-weight: 700;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+
+    & > span {
+      color: var(--mountain-gold);
+    }
+  }
+
   /* ── HERO CONTENT ── */
   .home-page > header > section > div {
     align-items: center;
     display: grid;
     gap: 2rem 3rem;
+    grid-column: 1 / -1;
+    grid-row: 3;
     grid-template-columns: 1.2fr 1fr;
     margin-inline: auto;
     max-width: 1275px;
@@ -236,12 +292,27 @@
     }
   }
 
-  .home-page > header > section > div > div:first-child.animate-in {
+  #hero-logo.animate-in {
     animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
+  .home-page > header > section > p.animate-in {
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+
+  .home-page > header > section > div > div:first-child.animate-in {
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  }
+
   .home-page > header > section > div > div:last-child.animate-in {
-    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #hero-logo.animate-in,
+    .home-page > header > section > p.animate-in {
+      animation: none;
+    }
   }
 
   /* ── HERO SUBTITLE CROSSFADE ── */
@@ -1016,7 +1087,6 @@
     }
 
     .home-page > header > section {
-      flex: none;
       margin-left: 0;
       margin-top: -1px;
       max-height: none;
@@ -1052,8 +1122,41 @@
   }
 
   /* Tablet portrait / large phone — hero single column */
-  @media (max-width: 868px) {
+  @media (max-width: 985px) {
+    .home-page > header > section {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto auto;
+    }
+
+    .home-page > header > section > nav[data-hero] {
+      grid-column: 1;
+      grid-row: 1;
+
+      & > a:first-child {
+        visibility: visible;
+      }
+    }
+
+    #hero-logo {
+      grid-column: 1;
+      grid-row: 2;
+      justify-self: center;
+      padding: 0;
+      z-index: auto;
+
+      & > img {
+        width: clamp(120px, 20vw + 40px, 200px);
+      }
+    }
+
+    .home-page > header > section > p {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
     .home-page > header > section > div {
+      grid-column: 1;
+      grid-row: 4;
       grid-template-columns: 1fr;
       text-align: center;
 
@@ -1073,8 +1176,16 @@
   @media (max-width: 700px) {
     .home-page > header > section {
       border-radius: 0;
-      gap: 1.25rem;
       padding: 0 1rem 1rem;
+      row-gap: 1.25rem;
+    }
+
+    #hero-logo > img {
+      max-width: 120px;
+    }
+
+    .home-page > header > section > p {
+      letter-spacing: 0.2em;
     }
 
     .home-page form[role="search"] {

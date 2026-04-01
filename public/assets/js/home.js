@@ -6,13 +6,11 @@ class EntranceAnimation {
   static #instance = null;
 
   /**
-   * @param {HTMLElement} left
-   * @param {HTMLElement} right
+   * @param {Element[]} elements
    */
-  constructor(left, right) {
+  constructor(elements) {
     requestAnimationFrame(() => {
-      left.classList.add('animate-in');
-      right.classList.add('animate-in');
+      for (const el of elements) el.classList.add('animate-in');
     });
   }
 
@@ -28,7 +26,14 @@ class EntranceAnimation {
     const right = grid.querySelector(':scope > div:last-child');
     if (!left || !right) return null;
 
-    return (EntranceAnimation.#instance = new EntranceAnimation(left, right));
+    const elements = [
+      document.getElementById('hero-logo'),
+      document.querySelector('.home-page > header > section > p'),
+      left,
+      right,
+    ].filter(Boolean);
+
+    return (EntranceAnimation.#instance = new EntranceAnimation(elements));
   }
 
   destroy() {

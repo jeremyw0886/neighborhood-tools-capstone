@@ -26,31 +26,28 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
           <?php if ($platformStats['availableTools'] > 0 || $platformStats['activeMembers'] > 0 || $platformStats['completedBorrows'] > 0): ?>
             <ul aria-label="Platform highlights">
               <li>
-                <i class="fa-solid fa-toolbox" aria-hidden="true"></i>
                 <strong data-target="<?= htmlspecialchars((string) $platformStats['availableTools']) ?>"><?= htmlspecialchars(number_format($platformStats['availableTools'])) ?></strong>
-                <span>Tools Available</span>
+                <span>tools available</span>
               </li>
               <li>
-                <i class="fa-solid fa-people-group" aria-hidden="true"></i>
                 <strong data-target="<?= htmlspecialchars((string) $platformStats['activeMembers']) ?>"><?= htmlspecialchars(number_format($platformStats['activeMembers'])) ?></strong>
-                <span>Active Members</span>
+                <span>active members</span>
               </li>
               <li>
-                <i class="fa-solid fa-handshake" aria-hidden="true"></i>
                 <strong data-target="<?= htmlspecialchars((string) $platformStats['completedBorrows']) ?>"><?= htmlspecialchars(number_format($platformStats['completedBorrows'])) ?></strong>
-                <span>Borrows This Month</span>
+                <span>borrows this month</span>
               </li>
             </ul>
           <?php endif; ?>
         </div>
 
         <div>
-          <p data-hero-utility>Find a tool near you</p>
+          <h2 id="hero-search-heading" data-hero-utility>Find a tool near you</h2>
           <p data-hero-utility-copy>Search for drills, ladders, yard tools, and more.</p>
-          <form role="search" aria-label="Search tools" action="/tools" method="get">
+          <form role="search" aria-labelledby="hero-search-heading" action="/tools" method="get">
             <label for="search-tools" class="visually-hidden">Search tools</label>
             <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <input type="search" id="search-tools" name="q" placeholder="Search tools near you ..." autocomplete="off" data-suggest="tools">
+            <input type="search" id="search-tools" name="q" placeholder="Search nearby tools..." autocomplete="off" data-suggest="tools">
             <button type="submit" data-intent="primary" data-shape="pill"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Search</button>
           </form>
           <div>

@@ -41,11 +41,6 @@
     --_back-nav-h: calc(0.938rem * 1.5 + 0.375rem + 1.5rem);
     --_header-min-h: 13rem;
 
-    &[aria-labelledby="dashboard-heading"]>header {
-      min-height: calc(var(--_header-min-h) + var(--_back-nav-h));
-      padding-top: var(--_back-nav-h);
-    }
-
     &>header {
       border-bottom: 1px solid var(--mountain-fog);
       margin-bottom: 2rem;

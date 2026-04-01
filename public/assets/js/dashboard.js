@@ -194,7 +194,7 @@ class DashboardRouter {
   static async #syncScripts(needed) {
     const stripVersion = (s) => s.replace(/\?.*$/, '');
     const current = new Set(
-      [...document.querySelectorAll('head script[src]')]
+      [...document.querySelectorAll('script[src]')]
         .map((s) => stripVersion(s.getAttribute('src')))
         .filter(Boolean),
     );

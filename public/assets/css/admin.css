@@ -2026,15 +2026,15 @@
         }
 
         &>span[data-condition="good"] {
-          color: #166534;
+          color: var(--color-success-700);
         }
 
         &>span[data-condition="fair"] {
-          color: #92400e;
+          color: var(--color-warning-800);
         }
 
         &>span[data-condition="poor"] {
-          color: #b91c1c;
+          color: var(--color-danger-700);
         }
 
         &>span[data-warning] {
@@ -2106,7 +2106,7 @@
     }
 
     & tbody tr[data-has-incidents] {
-      border-left: 3px solid #ea580c;
+      border-left: 3px solid var(--color-high-600);
     }
 
     & table a {
@@ -2126,7 +2126,7 @@
     }
 
     & td small[data-warning] {
-      color: #9a3412;
+      color: var(--color-warning-800);
       font-weight: 700;
     }
 
@@ -2139,28 +2139,28 @@
     }
 
     & span[data-deposit-status="pending"] {
-      background: #fef3c7;
-      color: #92400e;
+      background: var(--color-warning-100);
+      color: var(--color-warning-800);
     }
 
     & span[data-deposit-status="held"] {
-      background: #dbeafe;
-      color: #1e40af;
+      background: var(--color-info-100);
+      color: var(--color-info-800);
     }
 
     & span[data-deposit-status="released"] {
-      background: #dcfce7;
-      color: #166534;
+      background: var(--color-success-100);
+      color: var(--color-success-700);
     }
 
     & span[data-deposit-status="forfeited"] {
-      background: #fef2f2;
-      color: #b91c1c;
+      background: var(--color-danger-50);
+      color: var(--color-danger-700);
     }
 
     & span[data-deposit-status="partial_release"] {
-      background: #fff7ed;
-      color: #9a3412;
+      background: var(--color-high-50);
+      color: var(--color-warning-800);
     }
 
     & span[data-action-required] {
@@ -2169,19 +2169,19 @@
     }
 
     & span[data-action-required="READY FOR RELEASE"] {
-      color: #166534;
+      color: var(--color-success-700);
     }
 
     & span[data-action-required="OVERDUE - REVIEW NEEDED"] {
-      color: #b91c1c;
+      color: var(--color-danger-700);
     }
 
     & span[data-action-required="ACTIVE BORROW"] {
-      color: #1e40af;
+      color: var(--color-info-800);
     }
 
     & span[data-action-required="PAYMENT PENDING"] {
-      color: #92400e;
+      color: var(--color-warning-800);
     }
 
     & span[data-action-required="RELEASED"] {
@@ -2193,11 +2193,11 @@
     }
 
     & span[data-action-required="PARTIAL RELEASE"] {
-      color: #9a3412;
+      color: var(--color-warning-800);
     }
 
     & span[data-action-required="REVIEW NEEDED"] {
-      color: #9a3412;
+      color: var(--color-warning-800);
     }
 
     & td[data-label="Action"] > a[data-intent="primary"] {

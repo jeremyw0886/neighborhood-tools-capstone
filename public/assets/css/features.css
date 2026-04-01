@@ -5,6 +5,29 @@
 
 @layer components {
 
+  :is(
+    #dispute-create,
+    #dispute-show>section[aria-labelledby="reply-heading"],
+    #event-create,
+    #incident-create
+  )>ul[role="alert"] {
+    background: var(--alert-danger-bg);
+    border: 1px solid var(--alert-danger-border);
+    border-radius: 0.5rem;
+    color: var(--alert-danger-text);
+    font-size: 0.938rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem 0.75rem 2rem;
+
+    &>li+li {
+      margin-top: 0.25rem;
+    }
+  }
+
+  #dispute-show>section[aria-labelledby="reply-heading"]>ul[role="alert"] {
+    margin-bottom: 1rem;
+  }
+
   /* --- Payment / Deposits --------------------------------- */
 
   #deposit-detail {
@@ -586,20 +609,6 @@
       }
     }
 
-    &>ul[role="alert"] {
-      background: var(--alert-danger-bg);
-      border: 1px solid var(--alert-danger-border);
-      border-radius: 0.5rem;
-      color: var(--alert-danger-text);
-      font-size: 0.938rem;
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem 0.75rem 2rem;
-
-      &>li+li {
-        margin-top: 0.25rem;
-      }
-    }
-
     &>section[aria-label="Existing dispute"] {
       padding: 2rem 0;
 
@@ -854,20 +863,6 @@
         color: var(--mountain-pine);
         font-size: 1.125rem;
         margin-bottom: 1rem;
-      }
-
-      &>ul[role="alert"] {
-        background: var(--alert-danger-bg);
-        border: 1px solid var(--alert-danger-border);
-        border-radius: 0.5rem;
-        color: var(--alert-danger-text);
-        font-size: 0.938rem;
-        margin-bottom: 1rem;
-        padding: 0.75rem 1rem 0.75rem 2rem;
-
-        &>li+li {
-          margin-top: 0.25rem;
-        }
       }
 
       &>form {
@@ -1270,20 +1265,6 @@
       }
     }
 
-    &>ul[role="alert"] {
-      background: var(--alert-danger-bg);
-      border: 1px solid var(--alert-danger-border);
-      border-radius: 0.5rem;
-      color: var(--alert-danger-text);
-      font-size: 0.938rem;
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem 0.75rem 2rem;
-
-      &>li+li {
-        margin-top: 0.25rem;
-      }
-    }
-
     &>form {
 
       &>fieldset {
@@ -1595,20 +1576,6 @@
         &>strong {
           color: var(--mountain-pine);
         }
-      }
-    }
-
-    &>ul[role="alert"] {
-      background: var(--alert-danger-bg);
-      border: 1px solid var(--alert-danger-border);
-      border-radius: 0.5rem;
-      color: var(--alert-danger-text);
-      font-size: 0.938rem;
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem 0.75rem 2rem;
-
-      &>li+li {
-        margin-top: 0.25rem;
       }
     }
 

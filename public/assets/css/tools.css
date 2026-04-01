@@ -657,7 +657,8 @@
             font-weight: 600;
           }
 
-          &>dd[data-availability="borrowed"] {
+          &>dd[data-availability="borrowed"],
+          &>dd[data-availability="pending"] {
             color: var(--btn-warning-from);
             font-weight: 600;
           }
@@ -665,11 +666,6 @@
           &>dd[data-availability="unavailable"],
           &>dd[data-availability="blocked"] {
             color: var(--field-error);
-            font-weight: 600;
-          }
-
-          &>dd[data-availability="pending"] {
-            color: var(--btn-warning-from);
             font-weight: 600;
           }
         }

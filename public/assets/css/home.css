@@ -297,7 +297,6 @@
 
   /* ── MEMBERS SECTION ── */
   .home-page > main > section:nth-of-type(2) {
-    margin: 0 auto;
     max-width: 1400px;
     padding: 3rem 1.5rem;
 
@@ -542,7 +541,6 @@
   /* ── POPULAR PICKS ── */
   .home-page > main > section:first-of-type {
     --section-pad-block: 3rem;
-    margin: 0 auto;
     max-width: 1400px;
     overflow-x: clip;
     padding: var(--section-pad-block) 1.5rem;
@@ -690,7 +688,6 @@
         transparent 0%,
         rgba(232, 228, 220, 0.5) 50%,
         transparent 100%);
-    margin: 0 auto;
     max-width: 1400px;
     padding: 3rem 1.5rem;
 
@@ -846,7 +843,6 @@
 
   /* ── HOME CTA (split action) ── */
   #home-cta {
-    margin: 0 auto;
     max-width: 1400px;
     padding: 3rem 1.5rem 4rem;
 

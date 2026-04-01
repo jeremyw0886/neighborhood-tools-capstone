@@ -351,6 +351,120 @@ class DashboardController extends BaseController
     }
 
     /**
+     * Loans sub-page — all active, pending, and recently completed loans.
+     */
+    public function loans(): void
+    {
+        $this->requireAuth();
+
+        $userId = (int) $_SESSION['user_id'];
+
+        $role   = $_GET['role'] ?? 'all';
+        $status = $_GET['status'] ?? 'all';
+
+        if (!in_array($role, ['all', 'lender', 'borrower'], true)) {
+            $role = 'all';
+        }
+        if (!in_array($status, ['all', 'active', 'pending', 'completed'], true)) {
+            $status = 'all';
+        }
+
+        $completedSort = $this->parseSortParams('', [
+            'completed_at', 'requested_at_bor', 'tool_name_tol', 'borrow_status',
+        ], 'completed_at', 'DESC');
+
+        $activeLoans      = [];
+        $recentCompleted  = [];
+
+        try {
+            $activeAsLender   = Borrow::getAllActiveLoansForUser($userId, 'lender');
+            $activeAsBorrower = Borrow::getAllActiveLoansForUser($userId, 'borrower');
+
+            $tagged = static function (array $rows, string $userRole): array {
+                return array_map(static function (array $row) use ($userRole): array {
+                    $row['user_role'] = $userRole;
+
+                    $dueStatusKey = match ($row['due_status'] ?? null) {
+                        'OVERDUE'  => 'overdue',
+                        'DUE SOON' => 'due-soon',
+                        'ON TIME'  => 'on-time',
+                        default    => strtolower($row['status_name']),
+                    };
+                    $row['due_status_key'] = $dueStatusKey;
+
+                    return $row;
+                }, $rows);
+            };
+
+            $activeLoans = [
+                ...$tagged($activeAsLender, 'lender'),
+                ...$tagged($activeAsBorrower, 'borrower'),
+            ];
+
+            $recentCompleted = Borrow::getRecentCompletedForUser(
+                $userId,
+                30,
+                $completedSort['sort'],
+                $completedSort['dir'],
+            );
+        } catch (\Throwable $e) {
+            error_log('DashboardController::loans — ' . $e->getMessage());
+        }
+
+        if ($role !== 'all') {
+            $activeLoans = array_values(array_filter(
+                $activeLoans,
+                static fn(array $row): bool => $row['user_role'] === $role,
+            ));
+            $recentCompleted = array_values(array_filter(
+                $recentCompleted,
+                static fn(array $row): bool => $row['user_role'] === $role,
+            ));
+        }
+
+        if ($status === 'active') {
+            $activeLoans = array_values(array_filter(
+                $activeLoans,
+                static fn(array $row): bool => in_array($row['status_name'], ['borrowed', 'approved', 'requested'], true),
+            ));
+            $recentCompleted = [];
+        } elseif ($status === 'pending') {
+            $activeLoans = array_values(array_filter(
+                $activeLoans,
+                static fn(array $row): bool => $row['status_name'] === 'requested',
+            ));
+            $recentCompleted = [];
+        } elseif ($status === 'completed') {
+            $activeLoans = [];
+        }
+
+        $returnedIds = array_map(
+            static fn(array $r): int => (int) $r['id_bor'],
+            array_filter(
+                $recentCompleted,
+                static fn(array $r): bool => $r['borrow_status'] === 'returned',
+            ),
+        );
+        $ratedBorrowIds = $returnedIds !== []
+            ? Rating::getRatedBorrowIds($returnedIds, $userId)
+            : [];
+
+        $this->renderDashboard('loans', [
+            'title'           => 'My Loans — NeighborhoodTools',
+            'description'     => 'Track all your active and recent loans.',
+            'pageCss'         => ['dashboard.css'],
+            'pageJs'          => ['dashboard.js'],
+            'activeLoans'     => $activeLoans,
+            'recentCompleted' => $recentCompleted,
+            'ratedBorrowIds'  => $ratedBorrowIds,
+            'currentRole'     => $role,
+            'currentStatus'   => $status,
+            'currentSort'     => $completedSort['sort'],
+            'currentDir'      => $completedSort['dir'],
+        ]);
+    }
+
+    /**
      * Loan detail page — full status timeline for a single borrow.
      */
     public function loanStatus(string $id): void

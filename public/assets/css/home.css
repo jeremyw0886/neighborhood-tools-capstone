@@ -321,32 +321,18 @@
     animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .home-page > header > section > p.animate-in {
-    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  }
-
   .home-page > header > section > div > div:first-child.animate-in {
-    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
   }
 
   .home-page > header > section > div > div:last-child.animate-in {
-    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #hero-logo.animate-in,
-    .home-page > header > section > p.animate-in {
+    #hero-logo.animate-in {
       animation: none;
     }
-  }
-
-  /* ── HERO SUBTITLE CROSSFADE ── */
-  .home-page > header > section > div > div:first-child > p {
-    transition: opacity 300ms ease;
-  }
-
-  .home-page > header > section > div > div:first-child > p.fading {
-    opacity: 0;
   }
 
   /* ── HERO SEARCH ── */

@@ -28,7 +28,6 @@ class EntranceAnimation {
 
     const elements = [
       document.getElementById('hero-logo'),
-      document.querySelector('.home-page > header > section > p'),
       left,
       right,
     ].filter(Boolean);
@@ -127,84 +126,6 @@ class CounterAnimation {
 
     requestAnimationFrame(tick);
   }
-}
-
-// ─── Subtitle Rotator ────────────────────────────────────────────────
-
-class SubtitleRotator {
-  static #instance = null;
-
-  static #LINES = [
-    'Borrow tools from your neighbors. Lend yours when you\u2019re not using them.',
-    'Save money. Reduce waste. Build trust.',
-    'Your neighborhood\u2019s shared toolbox is just a click away.',
-  ];
-
-  static #INTERVAL = 6000;
-  static #FADE = 300;
-
-  /** @type {HTMLElement} */
-  #subtitle;
-  #current = 0;
-  #cycleTimer = null;
-  #fadeTimer = null;
-  #abortController = new AbortController();
-
-  /** @param {HTMLElement} subtitle */
-  constructor(subtitle) {
-    this.#subtitle = subtitle;
-
-    document.addEventListener('visibilitychange', this.#handleVisibility, {
-      signal: this.#abortController.signal,
-    });
-
-    this.#cycle();
-  }
-
-  /** @returns {SubtitleRotator|null} */
-  static init() {
-    if (SubtitleRotator.#instance) return SubtitleRotator.#instance;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
-
-    const subtitle = document.querySelector(
-      '.home-page > header > section > div > div:first-child > p'
-    );
-    if (!subtitle) return null;
-
-    return (SubtitleRotator.#instance = new SubtitleRotator(subtitle));
-  }
-
-  destroy() {
-    clearTimeout(this.#cycleTimer);
-    clearTimeout(this.#fadeTimer);
-    this.#abortController.abort();
-    SubtitleRotator.#instance = null;
-  }
-
-  #cycle() {
-    this.#cycleTimer = setTimeout(() => {
-      this.#subtitle.classList.add('fading');
-      this.#fadeTimer = setTimeout(() => {
-        this.#current = (this.#current + 1) % SubtitleRotator.#LINES.length;
-        this.#subtitle.textContent = SubtitleRotator.#LINES[this.#current];
-        requestAnimationFrame(() => {
-          this.#subtitle.classList.remove('fading');
-        });
-        this.#cycle();
-      }, SubtitleRotator.#FADE);
-    }, SubtitleRotator.#INTERVAL);
-  }
-
-  #handleVisibility = () => {
-    if (document.hidden) {
-      clearTimeout(this.#cycleTimer);
-      clearTimeout(this.#fadeTimer);
-      this.#cycleTimer = null;
-    } else {
-      this.#subtitle.classList.remove('fading');
-      if (!this.#cycleTimer) this.#cycle();
-    }
-  };
 }
 
 // ─── Neighbor Carousel ───────────────────────────────────────────────
@@ -802,7 +723,6 @@ class PopularCarousel {
 
 EntranceAnimation.init();
 CounterAnimation.init();
-SubtitleRotator.init();
 NeighborCarousel.init();
 ToolPreview.init();
 PopularCarousel.init();

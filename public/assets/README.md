@@ -6,6 +6,8 @@ This directory contains placeholder and seed images used for development and dem
 
 Designed by **Alyssa Companioni**.
 
+Variant: `images/logo-top-right.svg` preserves the original emblem and the original one-line wordmark, with the wordmark moved to the upper-right layout. The SVG is self-contained and does not depend on separate image assets.
+
 ## Placeholder SVGs (`images/avatar-placeholder.svg`, `images/tool-placeholder.svg`)
 
 Created with [SVG AI](https://www.svgai.org/ai-icon-generator) under a paid plan.

@@ -188,12 +188,12 @@ class BorrowController extends BaseController
         } catch (\Throwable $e) {
             error_log('BorrowController::approve — ' . $e->getMessage());
             $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         if (!$result['success']) {
             $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to approve this request.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         if ($request['is_deposit_required_tol'] && $request['default_deposit_amount_tol'] > 0) {
@@ -278,12 +278,12 @@ class BorrowController extends BaseController
 
         if ($reason === '') {
             $_SESSION['borrow_errors'] = ['reason' => 'Please provide a reason for denying this request.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         if (mb_strlen($reason) > 1000) {
             $_SESSION['borrow_errors'] = ['reason' => 'Reason must be 1,000 characters or fewer.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         try {
@@ -291,12 +291,12 @@ class BorrowController extends BaseController
         } catch (\Throwable $e) {
             error_log('BorrowController::deny — ' . $e->getMessage());
             $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         if (!$result['success']) {
             $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to deny this request.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
@@ -368,7 +368,7 @@ class BorrowController extends BaseController
         if ($rawReason !== '') {
             if (mb_strlen($rawReason) > 1000) {
                 $_SESSION['borrow_errors'] = ['reason' => 'Reason must be 1,000 characters or fewer.'];
-                $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+                $this->redirect('/dashboard/loan/' . $borrowId);
             }
             $reason = 'Cancelled by ' . $roleLabel . ': ' . $rawReason;
         } else {
@@ -380,12 +380,12 @@ class BorrowController extends BaseController
         } catch (\Throwable $e) {
             error_log('BorrowController::cancel — ' . $e->getMessage());
             $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $borrowId);
         }
 
         if (!$result['success']) {
             $_SESSION['borrow_errors'] = ['general' => $result['error'] ?? 'Unable to cancel this request.'];
-            $this->redirect($isBorrower ? '/dashboard/borrower' : '/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $borrowId);
         }
 
         $recipientId   = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];
@@ -471,7 +471,7 @@ class BorrowController extends BaseController
         if ($errors !== []) {
             $first = reset($errors);
             $_SESSION['borrow_errors'] = ['general' => $toolLabel . ': ' . $first];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         try {
@@ -484,7 +484,7 @@ class BorrowController extends BaseController
         } catch (\Throwable $e) {
             error_log('BorrowController::extend — ' . $e->getMessage());
             $_SESSION['borrow_errors'] = ['general' => $toolLabel . ': Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
@@ -549,7 +549,7 @@ class BorrowController extends BaseController
 
         if (RateLimiter::tooManyAttempts($rateLimitKey, 1, 86400)) {
             $_SESSION['borrow_errors'] = ['general' => 'You already sent a reminder for this tool today.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         RateLimiter::increment($rateLimitKey);
@@ -567,7 +567,7 @@ class BorrowController extends BaseController
         } catch (\Throwable $e) {
             error_log('BorrowController::remind notification — ' . $e->getMessage());
             $_SESSION['borrow_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/lender');
+            $this->redirect('/dashboard/loan/' . $id);
         }
 
         $_SESSION['borrow_success'] = 'Reminder sent to ' . htmlspecialchars($borrow['borrower_name']) . '.';

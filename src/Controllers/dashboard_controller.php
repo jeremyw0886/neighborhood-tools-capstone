@@ -460,6 +460,7 @@ class DashboardController extends BaseController
             'waiverSuccess'       => $this->flash('waiver_success'),
             'depositSuccess'      => $this->flash('deposit_success'),
             'ratingSuccess'       => $this->flash('rating_success'),
+            'borrowErrors'        => $this->flash('borrow_errors', []),
             'decisionData'        => $this->flash('borrow_decision'),
             'loanStatusHeading'   => $borrow['tool_name_tol'],
             'loanStatusSubtitle'  => $loanStatusSubtitle,

@@ -36,6 +36,7 @@ class DashboardRouter {
 
     history.replaceState({ dashNav: true, idx: this.#navIndex }, '');
     this.#bind();
+    this.#prefetchNavLinks();
   }
 
   /** @returns {DashboardRouter|null} */
@@ -408,6 +409,19 @@ class DashboardRouter {
     this.#navIndex = e.state.idx ?? 0;
     this.#navigate(location.href, direction, false);
   };
+
+  #prefetchNavLinks() {
+    const idle = globalThis.requestIdleCallback ?? ((cb) => setTimeout(cb, 200));
+    idle(() => {
+      const nav = document.querySelector('[data-dashboard-body] > nav');
+      if (!nav) return;
+      for (const a of nav.querySelectorAll('a[href]')) {
+        if (a.href !== location.href && DashboardRouter.#isDashboardUrl(a.href)) {
+          this.#fetchPage(a.href).catch(() => {});
+        }
+      }
+    });
+  }
 
   #startPrefetch(link) {
     if (!DashboardRouter.#shouldIntercept(link)) return;

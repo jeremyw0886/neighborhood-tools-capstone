@@ -28,12 +28,18 @@ class BaseController
         if (!empty($_SESSION['user_vector_avatar'])) {
             $_SESSION['user_nav_avatar'] = '/uploads/vectors/' . $_SESSION['user_vector_avatar'];
         } elseif (!empty($_SESSION['user_avatar'])) {
+            $dir  = BASE_PATH . '/public/uploads/profiles/';
             $name = pathinfo($_SESSION['user_avatar'], PATHINFO_FILENAME);
             $ext  = pathinfo($_SESSION['user_avatar'], PATHINFO_EXTENSION);
             $variant = $name . '-80w.' . $ext;
-            $_SESSION['user_nav_avatar'] = file_exists(BASE_PATH . '/public/uploads/profiles/' . $variant)
-                ? '/uploads/profiles/' . $variant
-                : '/uploads/profiles/' . $_SESSION['user_avatar'];
+
+            if (file_exists($dir . $variant)) {
+                $_SESSION['user_nav_avatar'] = '/uploads/profiles/' . $variant;
+            } elseif (file_exists($dir . $_SESSION['user_avatar'])) {
+                $_SESSION['user_nav_avatar'] = '/uploads/profiles/' . $_SESSION['user_avatar'];
+            } else {
+                $_SESSION['user_nav_avatar'] = null;
+            }
         } else {
             $_SESSION['user_nav_avatar'] = null;
         }

@@ -66,12 +66,18 @@ class ProfileController extends BaseController
             $this->abort(404);
         }
 
+        $primaryImage = $account['primary_image'];
+        if ($primaryImage !== null
+            && !file_exists(BASE_PATH . '/public/uploads/profiles/' . $primaryImage)) {
+            $primaryImage = null;
+        }
+
         $profile = [
             'id'                 => (int) $account['id_acc'],
             'username'           => $account['username_acc'],
             'full_name'          => $account['full_name'],
             'first_name'         => $account['first_name_acc'],
-            'primary_image'      => $account['primary_image'],
+            'primary_image'      => $primaryImage,
             'image_alt_text'     => $account['image_alt_text'],
             'focal_x'           => (int) ($account['focal_x'] ?? 50),
             'focal_y'           => (int) ($account['focal_y'] ?? 50),
@@ -179,6 +185,11 @@ class ProfileController extends BaseController
 
         if ($profile === null) {
             $this->abort(404);
+        }
+
+        if (!empty($profile['primary_image'])
+            && !file_exists(BASE_PATH . '/public/uploads/profiles/' . $profile['primary_image'])) {
+            $profile['primary_image'] = null;
         }
 
         $errors = $_SESSION['profile_errors'] ?? [];

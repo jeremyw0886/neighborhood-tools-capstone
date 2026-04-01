@@ -118,7 +118,8 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
               <?php
                 if (!empty($member['vector_avatar'])) {
                     $memberAvatarSrc = '/uploads/vectors/' . $member['vector_avatar'];
-                } elseif (!empty($member['avatar'])) {
+                } elseif (!empty($member['avatar'])
+                    && file_exists(BASE_PATH . '/public/uploads/profiles/' . $member['avatar'])) {
                     $memberAvatarSrc = '/uploads/profiles/' . $member['avatar'];
                 } else {
                     $memberAvatarSrc = '/assets/images/avatar-placeholder.svg';
@@ -185,7 +186,8 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
               <?php
                 if (!empty($neighbor['vector_avatar'])) {
                     $neighborAvatarSrc = '/uploads/vectors/' . $neighbor['vector_avatar'];
-                } elseif (!empty($neighbor['avatar'])) {
+                } elseif (!empty($neighbor['avatar'])
+                    && file_exists(BASE_PATH . '/public/uploads/profiles/' . $neighbor['avatar'])) {
                     $neighborAvatarSrc = '/uploads/profiles/' . $neighbor['avatar'];
                 } else {
                     $neighborAvatarSrc = '/assets/images/avatar-placeholder.svg';

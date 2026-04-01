@@ -342,7 +342,8 @@ $images        ??= [];
         <?php
           if (!empty($tool['owner_vector_avatar'])) {
               $ownerAvatarSrc = '/uploads/vectors/' . $tool['owner_vector_avatar'];
-          } elseif (!empty($tool['owner_avatar'])) {
+          } elseif (!empty($tool['owner_avatar'])
+              && file_exists(BASE_PATH . '/public/uploads/profiles/' . $tool['owner_avatar'])) {
               $ownerAvatarSrc = '/uploads/profiles/' . $tool['owner_avatar'];
           } else {
               $ownerAvatarSrc = '/assets/images/avatar-placeholder.svg';

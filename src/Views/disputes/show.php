@@ -119,7 +119,8 @@ $typeIcons = [
             $type      = $msg['message_type'];
             $typeLabel = $typeLabels[$type] ?? ucwords(str_replace('_', ' ', $type));
             $typeIcon  = $typeIcons[$type] ?? 'fa-message';
-            $avatar    = $msg['author_avatar']
+            $avatar    = ($msg['author_avatar']
+                && file_exists(BASE_PATH . '/public/uploads/profiles/' . $msg['author_avatar']))
                 ? '/uploads/profiles/' . htmlspecialchars($msg['author_avatar'])
                 : '/assets/images/avatar-placeholder.svg';
             $timestamp = date('M j, Y \a\t g:i A', strtotime($msg['created_at_dsm']));

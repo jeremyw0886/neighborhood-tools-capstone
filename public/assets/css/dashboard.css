@@ -895,6 +895,96 @@
     white-space: nowrap;
   }
 
+  /* ── My Loans page ── */
+
+  #my-loans [data-card-list] {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+
+  #my-loans [data-activity-card] {
+    border-left: 4px solid var(--mountain-fog);
+    cursor: pointer;
+    position: relative;
+
+    &>header>h3 {
+      font-size: 1rem;
+      margin: 0;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &>[data-card-link]::after {
+        content: '';
+        inset: 0;
+        position: absolute;
+      }
+    }
+
+    & a:not([data-card-link]),
+    & [data-rate-link] {
+      position: relative;
+      z-index: 1;
+    }
+
+    &>header>[data-role-badge] {
+      border-radius: 1rem;
+      flex-shrink: 0;
+      font-size: 0.688rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      line-height: 1;
+      margin-left: auto;
+      padding: 0.3rem 0.625rem;
+      text-transform: uppercase;
+    }
+
+    &>header>[data-role-badge="lender"] {
+      background: color-mix(in srgb, var(--mountain-pine-light) 20%, transparent);
+      color: var(--mountain-pine-dark);
+    }
+
+    &>header>[data-role-badge="borrower"] {
+      background: color-mix(in srgb, var(--mountain-gold-light) 25%, transparent);
+      color: var(--mountain-gold-dark);
+    }
+
+    &>footer {
+      border-top: 1px solid var(--mountain-fog);
+      padding: 0.5rem 1rem;
+      text-align: right;
+    }
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="on-time"]) {
+    border-left-color: var(--alert-success-text);
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="due-soon"]) {
+    border-left-color: var(--alert-warning-text);
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="overdue"]) {
+    border-left-color: var(--alert-danger-text);
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="approved"]) {
+    border-left-color: var(--alert-info-text);
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="requested"]) {
+    border-left-color: var(--alert-warning-text);
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="returned"]) {
+    border-left-color: var(--alert-success-text);
+  }
+
+  #my-loans [data-activity-card]:has(header > span[data-status="denied"]),
+  #my-loans [data-activity-card]:has(header > span[data-status="cancelled"]) {
+    border-left-color: var(--alert-danger-text);
+  }
+
   #loan-status>header>p>a {
     color: var(--mountain-pine-light);
     font-weight: 500;

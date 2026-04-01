@@ -57,32 +57,32 @@ use App\Core\ViewHelper;
     <ul data-card-list>
       <?php foreach ($activeLoans as $loan): ?>
         <li>
-          <article data-activity-card>
+          <article data-activity-card data-loan-link>
             <header>
-              <a href="/dashboard/loan/<?= (int) $loan['id_bor'] ?>">
+              <h3><a href="/dashboard/loan/<?= (int) $loan['id_bor'] ?>" data-card-link>
                 <?= htmlspecialchars($loan['tool_name_tol']) ?>
-              </a>
+              </a></h3>
+              <span data-role-badge="<?= htmlspecialchars($loan['user_role']) ?>"><?= $loan['user_role'] === 'lender' ? 'Lending' : 'Borrowing' ?></span>
               <span data-status="<?= htmlspecialchars($loan['due_status_key']) ?>"><?= htmlspecialchars($loan['status_name']) ?></span>
             </header>
             <dl>
-              <dt class="visually-hidden">Role</dt>
-              <dd><span data-role-badge="<?= htmlspecialchars($loan['user_role']) ?>"><?= $loan['user_role'] === 'lender' ? 'Lending' : 'Borrowing' ?></span></dd>
-
-              <dt>Counterparty</dt>
+              <dt><?= $loan['user_role'] === 'lender' ? 'Borrower' : 'Lender' ?></dt>
               <dd>
                 <a href="/profile/<?= (int) $loan['counterparty_id'] ?>">
                   <?= htmlspecialchars($loan['counterparty_name']) ?>
                 </a>
               </dd>
 
-              <?php if ($loan['due_at_bor']): ?>
-                <dt>Due</dt>
-                <dd>
+              <dt>Due</dt>
+              <dd>
+                <?php if ($loan['due_at_bor']): ?>
                   <time datetime="<?= htmlspecialchars($loan['due_at_bor']) ?>">
                     <?= htmlspecialchars(date('M j \a\t g:ia', strtotime($loan['due_at_bor']))) ?>
                   </time>
-                </dd>
-              <?php endif; ?>
+                <?php else: ?>
+                  Pending
+                <?php endif; ?>
+              </dd>
             </dl>
           </article>
         </li>
@@ -100,47 +100,67 @@ use App\Core\ViewHelper;
 
     <ul data-card-list>
       <?php foreach ($recentCompleted as $loan): ?>
+        <?php
+          $completedDate = $loan['returned_at_bor'] ?? $loan['completed_at'] ?? null;
+          $dateLabel = match ($loan['borrow_status']) {
+              'returned'  => 'Returned',
+              'cancelled' => 'Cancelled',
+              'denied'    => 'Denied',
+              default     => 'Completed',
+          };
+        ?>
         <li>
-          <article data-activity-card>
+          <article data-activity-card data-loan-link>
             <header>
-              <a href="/dashboard/loan/<?= (int) $loan['id_bor'] ?>">
+              <h3><a href="/dashboard/loan/<?= (int) $loan['id_bor'] ?>" data-card-link>
                 <?= htmlspecialchars($loan['tool_name_tol']) ?>
-              </a>
+              </a></h3>
+              <span data-role-badge="<?= htmlspecialchars($loan['user_role']) ?>"><?= $loan['user_role'] === 'lender' ? 'Lent' : 'Borrowed' ?></span>
               <span data-status="<?= htmlspecialchars($loan['borrow_status']) ?>"><?= htmlspecialchars(ucfirst($loan['borrow_status'])) ?></span>
             </header>
             <dl>
-              <dt class="visually-hidden">Role</dt>
-              <dd><span data-role-badge="<?= htmlspecialchars($loan['user_role']) ?>"><?= $loan['user_role'] === 'lender' ? 'Lent' : 'Borrowed' ?></span></dd>
-
-              <dt>Counterparty</dt>
+              <dt><?= $loan['user_role'] === 'lender' ? 'Borrower' : 'Lender' ?></dt>
               <dd>
                 <a href="/profile/<?= (int) $loan['counterparty_id'] ?>">
                   <?= htmlspecialchars($loan['counterparty_name']) ?>
                 </a>
               </dd>
 
-              <?php if ($loan['borrow_status'] === 'returned'): ?>
-                <dt>Returned</dt>
-                <dd>
-                  <time datetime="<?= htmlspecialchars($loan['returned_at_bor']) ?>">
-                    <?= htmlspecialchars(date('M j', strtotime($loan['returned_at_bor']))) ?>
+              <dt><?= htmlspecialchars($dateLabel) ?></dt>
+              <dd>
+                <?php if ($completedDate): ?>
+                  <time datetime="<?= htmlspecialchars($completedDate) ?>">
+                    <?= htmlspecialchars(date('M j, Y', strtotime($completedDate))) ?>
                   </time>
-                </dd>
-
-                <?php if (!in_array((int) $loan['id_bor'], $ratedBorrowIds, true)): ?>
-                  <dt class="visually-hidden">Action</dt>
-                  <dd>
-                    <a href="/rate/<?= (int) $loan['id_bor'] ?>" data-rate-link>
-                      <i class="fa-solid fa-star" aria-hidden="true"></i> Rate
-                    </a>
-                  </dd>
+                <?php else: ?>
+                  —
                 <?php endif; ?>
-              <?php endif; ?>
+              </dd>
             </dl>
+            <?php if ($loan['borrow_status'] === 'returned' && !in_array((int) $loan['id_bor'], $ratedBorrowIds, true)): ?>
+              <footer>
+                <a href="/rate/<?= (int) $loan['id_bor'] ?>" data-rate-link>
+                  <i class="fa-solid fa-star" aria-hidden="true"></i> Rate this loan
+                </a>
+              </footer>
+            <?php endif; ?>
           </article>
         </li>
       <?php endforeach; ?>
     </ul>
+
+    <?php
+      $basePath     = '/dashboard/loans';
+      $filterParams = [
+          'role'   => $currentRole !== 'all' ? $currentRole : '',
+          'status' => $currentStatus !== 'all' ? $currentStatus : '',
+          'sort'   => $currentSort !== 'completed_at' ? $currentSort : '',
+          'dir'    => strtolower($currentDir) !== 'desc' ? strtolower($currentDir) : '',
+      ];
+      $page       = $completedPage;
+      $totalPages = $completedPages;
+    ?>
+    <?php require BASE_PATH . '/src/Views/partials/pagination.php'; ?>
   </section>
 <?php endif; ?>
 

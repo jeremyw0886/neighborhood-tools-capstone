@@ -438,10 +438,16 @@ class DashboardController extends BaseController
             $activeLoans = [];
         }
 
+        $perPage        = 12;
+        $completedTotal = count($recentCompleted);
+        $completedPages = (int) ceil($completedTotal / $perPage) ?: 1;
+        $completedPage  = max(1, min((int) ($_GET['page'] ?? 1), $completedPages));
+        $completedSlice = array_slice($recentCompleted, ($completedPage - 1) * $perPage, $perPage);
+
         $returnedIds = array_map(
             static fn(array $r): int => (int) $r['id_bor'],
             array_filter(
-                $recentCompleted,
+                $completedSlice,
                 static fn(array $r): bool => $r['borrow_status'] === 'returned',
             ),
         );
@@ -455,8 +461,10 @@ class DashboardController extends BaseController
             'pageCss'         => ['dashboard.css'],
             'pageJs'          => ['dashboard.js'],
             'activeLoans'     => $activeLoans,
-            'recentCompleted' => $recentCompleted,
+            'recentCompleted' => $completedSlice,
             'ratedBorrowIds'  => $ratedBorrowIds,
+            'completedPage'   => $completedPage,
+            'completedPages'  => $completedPages,
             'currentRole'     => $role,
             'currentStatus'   => $status,
             'currentSort'     => $completedSort['sort'],

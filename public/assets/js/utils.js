@@ -650,53 +650,29 @@ class AutosuggestController {
 
 class ScrollToTop {
   static #instance = null;
-
-  /** @type {IntersectionObserver} */
-  #observer;
-  /** @type {HTMLElement} */
-  #main;
+  static #HIDE_THRESHOLD = 120;
+  static #MAX_SHOW_THRESHOLD = 420;
+  static #SHOW_VIEWPORT_FACTOR = 0.45;
   /** @type {HTMLButtonElement} */
   #btn;
-  /** @type {HTMLDivElement} */
-  #sentinel;
   #abortController = new AbortController();
   #rafId = 0;
   #lastProgress = -1;
 
   /** @param {HTMLElement} main */
   constructor(main) {
-    this.#main = main;
-
-    this.#sentinel = document.createElement('div');
-    this.#sentinel.setAttribute('aria-hidden', 'true');
-    this.#sentinel.id = 'scroll-sentinel';
-    styleManager.setRule('scroll-sentinel', '#scroll-sentinel', 'height:1px;margin:0;padding:0;border:0');
-    main.prepend(this.#sentinel);
-
     this.#btn = document.createElement('button');
     this.#btn.id = 'scroll-top';
     this.#btn.type = 'button';
     this.#btn.setAttribute('aria-label', 'Scroll to top');
     document.body.appendChild(this.#btn);
 
-    this.#observer = new IntersectionObserver(
-      ([entry]) => {
-        const scrollable = document.documentElement.scrollHeight > document.documentElement.clientHeight;
-        if (entry.isIntersecting || !scrollable) {
-          this.#btn.removeAttribute('data-visible');
-        } else {
-          this.#btn.setAttribute('data-animated', '');
-          this.#btn.setAttribute('data-visible', '');
-        }
-      },
-      { rootMargin: '0px' }
-    );
-    this.#observer.observe(this.#sentinel);
-
     const { signal } = this.#abortController;
     this.#btn.addEventListener('click', this.#handleClick, { signal });
     document.addEventListener('dashboard:content-swapped', this.#handleContentSwap, { signal });
     window.addEventListener('scroll', this.#handleScroll, { passive: true, signal });
+    window.addEventListener('resize', this.#handleResize, { passive: true, signal });
+    this.#updateVisibility();
     this.#updateProgress();
   }
 
@@ -709,14 +685,18 @@ class ScrollToTop {
   }
 
   destroy() {
-    this.#observer.disconnect();
     this.#abortController.abort();
     cancelAnimationFrame(this.#rafId);
     this.#btn.remove();
-    this.#sentinel.remove();
-    styleManager.removeRule('scroll-sentinel');
     styleManager.removeRule('scroll-progress');
     ScrollToTop.#instance = null;
+  }
+
+  static #showThreshold() {
+    return Math.min(
+      ScrollToTop.#MAX_SHOW_THRESHOLD,
+      Math.round(window.innerHeight * ScrollToTop.#SHOW_VIEWPORT_FACTOR)
+    );
   }
 
   #updateProgress() {
@@ -734,21 +714,42 @@ class ScrollToTop {
     }
   }
 
+  #updateVisibility() {
+    const el = document.documentElement;
+    const scrollable = el.scrollHeight > el.clientHeight + 1;
+    const scrollTop = el.scrollTop;
+
+    if (!scrollable || scrollTop <= ScrollToTop.#HIDE_THRESHOLD) {
+      this.#btn.removeAttribute('data-visible');
+      return;
+    }
+
+    if (scrollTop < ScrollToTop.#showThreshold()) return;
+
+    this.#btn.setAttribute('data-animated', '');
+    this.#btn.setAttribute('data-visible', '');
+  }
+
   #handleScroll = () => {
     cancelAnimationFrame(this.#rafId);
-    this.#rafId = requestAnimationFrame(() => this.#updateProgress());
+    this.#rafId = requestAnimationFrame(() => {
+      this.#updateVisibility();
+      this.#updateProgress();
+    });
   };
 
   #handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  #handleResize = () => {
+    cancelAnimationFrame(this.#rafId);
+    this.#rafId = requestAnimationFrame(() => this.#updateVisibility());
+  };
+
   #handleContentSwap = () => {
-    if (!this.#sentinel.isConnected) {
-      this.#main.prepend(this.#sentinel);
-      this.#observer.observe(this.#sentinel);
-    }
     this.#btn.removeAttribute('data-visible');
+    this.#updateVisibility();
     this.#updateProgress();
   };
 }

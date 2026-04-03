@@ -71,6 +71,7 @@ class HandoverController extends BaseController
             $handover = match ($borrow['borrow_status']) {
                 'approved' => $this->initiatePickup($borrow, $userId),
                 'borrowed' => $this->initiateReturn($borrow, $userId),
+                'returned', 'denied', 'cancelled' => $this->redirect('/dashboard/loan/' . $id),
                 default    => $this->abort(404),
             };
         }

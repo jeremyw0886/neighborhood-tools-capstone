@@ -28,6 +28,8 @@ class AuthController extends BaseController
             $_SESSION['redirect_after_login'] = $returnUrl;
         }
 
+        $this->stampFormTime();
+
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
 
@@ -141,6 +143,8 @@ class AuthController extends BaseController
         if ($returnUrl !== null && !isset($_SESSION['redirect_after_login'])) {
             $_SESSION['redirect_after_login'] = $returnUrl;
         }
+
+        $this->stampFormTime();
 
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
@@ -395,6 +399,8 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
+        $this->stampFormTime();
+
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];
 
@@ -497,6 +503,8 @@ class AuthController extends BaseController
             $_SESSION['forgot_error'] = 'This reset link is invalid or has expired. Please request a new one.';
             $this->redirect('/forgot-password');
         }
+
+        $this->stampFormTime();
 
         $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? '';
         $cdnJs = $turnstileSiteKey !== '' ? ['https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'] : [];

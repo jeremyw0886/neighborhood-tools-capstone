@@ -421,7 +421,11 @@ class BaseController
         $jsEnabled = ($_POST['js_enabled'] ?? '') === '1';
 
         if ($token === '') {
-            return !$jsEnabled;
+            if (!$jsEnabled) {
+                return true;
+            }
+
+            return $this->verifyWithoutTurnstile($action);
         }
 
         $payload = [
@@ -535,6 +539,58 @@ class BaseController
         $host = parse_url($candidate, PHP_URL_HOST);
 
         return is_string($host) ? trim($host, '[]') : '';
+    }
+
+    /** Minimum seconds between form render and submission. */
+    private const int FORM_TIME_GATE_SECONDS = 3;
+
+    /**
+     * Store the current timestamp in the session for time-gate verification.
+     *
+     * Call in every show* method that renders a Turnstile-protected form.
+     */
+    protected function stampFormTime(): void
+    {
+        $_SESSION['form_rendered_at'] = time();
+    }
+
+    /**
+     * Fallback verification when Turnstile is blocked (e.g. tracking prevention).
+     *
+     * Checks timestamp gating (rejects sub-human submission speed) and applies
+     * stricter rate limits than the normal path.
+     *
+     * @param string $action The form action name (login, register, etc.)
+     */
+    private function verifyWithoutTurnstile(string $action): bool
+    {
+        $renderedAt = $_SESSION['form_rendered_at'] ?? 0;
+        $elapsed = time() - $renderedAt;
+
+        if ($elapsed < self::FORM_TIME_GATE_SECONDS) {
+            error_log("Turnstile fallback rejected: form submitted in {$elapsed}s (action: {$action})");
+            return false;
+        }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $key = $ip . '|' . $action . '_unverified';
+
+        $limits = match ($action) {
+            'login'           => ['max_attempts' => 3, 'window_seconds' => 900],
+            'register'        => ['max_attempts' => 2, 'window_seconds' => 3600],
+            'forgot_password' => ['max_attempts' => 2, 'window_seconds' => 900],
+            'reset_password'  => ['max_attempts' => 3, 'window_seconds' => 900],
+            default           => ['max_attempts' => 3, 'window_seconds' => 900],
+        };
+
+        if (RateLimiter::tooManyAttempts($key, $limits['max_attempts'], $limits['window_seconds'])) {
+            error_log("Turnstile fallback rate-limited: {$key}");
+            return false;
+        }
+
+        RateLimiter::increment($key);
+
+        return true;
     }
 
     /**

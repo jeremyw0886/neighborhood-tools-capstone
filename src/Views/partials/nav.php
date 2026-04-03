@@ -3,8 +3,8 @@
  * Navigation partial — shared across all pages.
  *
  * Two visual modes controlled by $heroPage:
- *   Hero mode  ($heroPage = true):  Transparent over gradient, logo only, gold accents
- *   Standard   ($heroPage = false): Solid --mountain-pine background, logo + site name
+ *   Hero mode  ($heroPage = true):  Glass over gradient, shared grid geometry, gold accents
+ *   Standard   ($heroPage = false): Solid --mountain-pine background
  *
  * Variables from BaseController::getSharedData():
  *   $isLoggedIn  bool
@@ -16,11 +16,13 @@
  */
 
 $isHero = !empty($heroPage);
+$navLogoSrc = '/assets/images/logo.svg';
+$navLogoWidth = 120;
+$navLogoHeight = 120;
 ?>
 <nav aria-label="Main navigation"<?= $isHero ? ' data-hero' : '' ?>>
-
   <a href="/" aria-label="NeighborhoodTools home">
-    <img src="/assets/images/logo.svg" alt="NeighborhoodTools logo" width="120" height="120" fetchpriority="high">
+    <img src="<?= htmlspecialchars($navLogoSrc) ?>" alt="NeighborhoodTools logo" width="<?= $navLogoWidth ?>" height="<?= $navLogoHeight ?>" fetchpriority="high">
   </a>
 
   <button id="mobile-menu-toggle"
@@ -71,6 +73,7 @@ $isHero = !empty($heroPage);
       <button id="user-actions-toggle"
               type="button"
               aria-haspopup="true"
+              aria-controls="user-actions-menu"
               aria-expanded="false">
         <?php if ($authUser['nav_avatar'] !== null): ?>
           <img src="<?= htmlspecialchars($authUser['nav_avatar']) ?>"
@@ -86,6 +89,8 @@ $isHero = !empty($heroPage);
 
       <div id="bell-wrapper">
         <a href="/notifications"
+           id="bell-toggle"
+           aria-controls="bell-dropdown"
            aria-haspopup="menu"
            aria-expanded="false"
            aria-label="Notifications<?= $unreadCount > 0 ? ' (' . htmlspecialchars((string) $unreadCount) . ' unread)' : '' ?>">

@@ -14,36 +14,37 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
     <section aria-label="Hero section">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
 
-      <a href="/" id="hero-logo" aria-label="NeighborhoodTools home">
-        <img src="/assets/images/logo-mark.svg" alt="" width="270" height="202" fetchpriority="high">
-      </a>
-
       <div>
         <div>
           <span data-hero-eyebrow>Borrow locally</span>
-          <h1 id="hero-heading">Borrow what you need from neighbors nearby.</h1>
+          <h1 id="hero-heading">Skip the purchase. Borrow local.</h1>
           <p>Save money, reduce waste, and strengthen your neighborhood - one tool at a time.</p>
-          <?php if ($platformStats['availableTools'] > 0 || $platformStats['activeMembers'] > 0 || $platformStats['completedBorrows'] > 0): ?>
-            <ul aria-label="Platform highlights">
-              <li>
-                <strong data-target="<?= htmlspecialchars((string) $platformStats['availableTools']) ?>"><?= htmlspecialchars(number_format($platformStats['availableTools'])) ?></strong>
-                <span>tools available</span>
-              </li>
-              <li>
-                <strong data-target="<?= htmlspecialchars((string) $platformStats['activeMembers']) ?>"><?= htmlspecialchars(number_format($platformStats['activeMembers'])) ?></strong>
-                <span>active members</span>
-              </li>
-              <li>
-                <strong data-target="<?= htmlspecialchars((string) $platformStats['completedBorrows']) ?>"><?= htmlspecialchars(number_format($platformStats['completedBorrows'])) ?></strong>
-                <span>borrows this month</span>
-              </li>
-            </ul>
-          <?php endif; ?>
         </div>
 
+        <div id="hero-logo">
+          <img src="/assets/images/logo-mark.svg" alt="NeighborhoodTools" width="270" height="202" loading="lazy" decoding="async">
+        </div>
+
+        <?php if ($platformStats['availableTools'] > 0 || $platformStats['activeMembers'] > 0 || $platformStats['completedBorrows'] > 0): ?>
+          <ul aria-label="Platform highlights">
+            <li>
+              <strong data-target="<?= htmlspecialchars((string) $platformStats['availableTools']) ?>"><?= htmlspecialchars(number_format($platformStats['availableTools'])) ?></strong>
+              <span>tools available</span>
+            </li>
+            <li>
+              <strong data-target="<?= htmlspecialchars((string) $platformStats['activeMembers']) ?>"><?= htmlspecialchars(number_format($platformStats['activeMembers'])) ?></strong>
+              <span>active members</span>
+            </li>
+            <li>
+              <strong data-target="<?= htmlspecialchars((string) $platformStats['completedBorrows']) ?>"><?= htmlspecialchars(number_format($platformStats['completedBorrows'])) ?></strong>
+              <span>borrows this month</span>
+            </li>
+          </ul>
+        <?php endif; ?>
+
         <div>
-          <h2 id="hero-search-heading" data-hero-utility>Find a tool near you</h2>
-          <p data-hero-utility-copy>Search for drills, ladders, yard tools, and more.</p>
+          <p id="hero-search-heading" data-hero-utility>Find a tool near you</p>
+          <p data-hero-utility-copy>Search nearby listings, then borrow from a neighbor instead of buying another tool.</p>
           <form role="search" aria-labelledby="hero-search-heading" action="/tools" method="get">
             <label for="search-tools" class="visually-hidden">Search tools</label>
             <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>

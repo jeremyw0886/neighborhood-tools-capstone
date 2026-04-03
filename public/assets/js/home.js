@@ -22,13 +22,14 @@ class EntranceAnimation {
     const grid = document.querySelector('.home-page > header > section > div');
     if (!grid) return null;
 
-    const left = grid.querySelector(':scope > div:first-child');
+    const headline = grid.querySelector(':scope > div:first-child');
+    const stats = grid.querySelector(':scope > ul[aria-label="Platform highlights"]');
     const right = grid.querySelector(':scope > div:last-child');
-    if (!left || !right) return null;
+    if (!right) return null;
 
     const elements = [
-      document.getElementById('hero-logo'),
-      left,
+      ...(headline ? [...headline.children] : []),
+      stats,
       right,
     ].filter(Boolean);
 
@@ -70,16 +71,7 @@ class CounterAnimation {
       { threshold: 0.5 }
     );
 
-    const leftCol = list.parentElement;
-    if (leftCol?.classList.contains('animate-in')) {
-      leftCol.addEventListener(
-        'animationend',
-        () => this.#observer.observe(list),
-        { once: true, signal: this.#abortController.signal }
-      );
-    } else {
-      this.#observer.observe(list);
-    }
+    this.#observer.observe(list);
   }
 
   /** @returns {CounterAnimation|null} */
@@ -88,7 +80,7 @@ class CounterAnimation {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
 
     const list = document.querySelector(
-      '.home-page > header > section > div > div:first-child > ul'
+      '.home-page > header > section > div > ul[aria-label="Platform highlights"]'
     );
     if (!list) return null;
 

@@ -5,6 +5,8 @@
 class HamburgerMenu {
   static #instance = null;
 
+  /** @type {HTMLElement} */
+  #nav;
   /** @type {HTMLButtonElement} */
   #toggle;
   /** @type {HTMLUListElement} */
@@ -23,15 +25,17 @@ class HamburgerMenu {
    * @param {HTMLUListElement} menu
    */
   constructor(toggle, menu) {
+    this.#nav = toggle.closest('nav');
     this.#toggle = toggle;
     this.#menu = menu;
     this.#authSection = document.getElementById('user-actions');
     this.#authMenu = document.getElementById('user-actions-menu');
-    this.#mobile = window.matchMedia('(max-width: 700px)');
+    this.#mobile = window.matchMedia('(max-width: 985px)');
 
-    toggle.closest('nav').classList.add('js-nav');
+    this.#nav.classList.add('js-nav');
 
     if (this.#mobile.matches) this.#buildMobileAuthItems();
+    this.#syncMenuInteractivity();
 
     this.#bind();
   }
@@ -59,6 +63,7 @@ class HamburgerMenu {
     this.#toggle.addEventListener('click', this.#handleToggleClick, { signal });
     document.addEventListener('keydown', this.#handleEscape, { signal });
     document.addEventListener('click', this.#handleOutsideClick, { signal });
+    document.addEventListener('modal:open', this.#handleModalOpen, { signal });
     this.#mobile.addEventListener('change', this.#handleViewportChange, { signal });
   }
 
@@ -66,10 +71,68 @@ class HamburgerMenu {
     return this.#menu.classList.contains('open');
   }
 
+  #syncMenuInteractivity() {
+    const interactive = this.#menu.querySelectorAll('a, button');
+
+    if (!this.#mobile.matches) {
+      this.#menu.removeAttribute('aria-hidden');
+      for (const el of interactive) {
+        if (el.dataset.navTabindex !== undefined) {
+          el.setAttribute('tabindex', el.dataset.navTabindex);
+          delete el.dataset.navTabindex;
+        } else {
+          el.removeAttribute('tabindex');
+        }
+      }
+      return;
+    }
+
+    const open = this.#isOpen();
+    this.#menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+    for (const el of interactive) {
+      if (open) {
+        if (el.dataset.navTabindex !== undefined) {
+          el.setAttribute('tabindex', el.dataset.navTabindex);
+          delete el.dataset.navTabindex;
+        } else {
+          el.removeAttribute('tabindex');
+        }
+      } else {
+        if (!el.dataset.navTabindex && el.hasAttribute('tabindex')) {
+          el.dataset.navTabindex = el.getAttribute('tabindex');
+        }
+        el.setAttribute('tabindex', '-1');
+      }
+    }
+  }
+
+  #closeUserMenu() {
+    const menu = document.getElementById('user-actions-menu');
+    const toggle = document.getElementById('user-actions-toggle');
+    if (menu && !menu.hidden) {
+      menu.hidden = true;
+      toggle?.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  #closeBellMenu() {
+    const dropdown = document.getElementById('bell-dropdown');
+    const toggle = document.getElementById('bell-toggle');
+    if (dropdown && !dropdown.hidden) {
+      dropdown.hidden = true;
+      toggle?.setAttribute('aria-expanded', 'false');
+    }
+  }
+
   #open() {
+    this.#closeUserMenu();
+    this.#closeBellMenu();
     this.#menu.classList.add('open');
+    this.#nav.dataset.menuOpen = 'true';
     this.#toggle.setAttribute('aria-expanded', 'true');
     document.body.classList.add('menu-open');
+    this.#syncMenuInteractivity();
 
     if (window.NT) this.#releaseTrap = NT.focus.trap(this.#menu);
 
@@ -78,8 +141,10 @@ class HamburgerMenu {
 
   #close(returnFocus = true) {
     this.#menu.classList.remove('open');
+    delete this.#nav.dataset.menuOpen;
     this.#toggle.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('menu-open');
+    this.#syncMenuInteractivity();
 
     if (this.#releaseTrap) {
       this.#releaseTrap();
@@ -181,6 +246,10 @@ class HamburgerMenu {
     }
   };
 
+  #handleModalOpen = () => {
+    if (this.#isOpen()) this.#close(false);
+  };
+
   #handleViewportChange = (e) => {
     if (e.matches) {
       this.#buildMobileAuthItems();
@@ -188,6 +257,8 @@ class HamburgerMenu {
       this.#removeMobileAuthItems();
       if (this.#isOpen()) this.#close(false);
     }
+
+    this.#syncMenuInteractivity();
   };
 }
 
@@ -230,8 +301,10 @@ class UserDropdown {
   #bind() {
     const { signal } = this.#abortController;
     this.#toggle.addEventListener('click', this.#handleToggleClick, { signal });
+    this.#toggle.addEventListener('keydown', this.#handleToggleKeydown, { signal });
     this.#menu.addEventListener('keydown', this.#handleKeydown, { signal });
     document.addEventListener('click', this.#handleOutsideClick, { signal });
+    document.addEventListener('modal:open', this.#handleModalOpen, { signal });
   }
 
   #getItems() {
@@ -269,8 +342,23 @@ class UserDropdown {
   };
 
   /** @param {KeyboardEvent} e */
+  #handleToggleKeydown = (e) => {
+    if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+    e.preventDefault();
+    if (!this.#isOpen()) this.#open();
+
+    const items = this.#getItems();
+    if (e.key === 'ArrowUp') {
+      items[items.length - 1]?.focus();
+    } else {
+      items[0]?.focus();
+    }
+  };
+
+  /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     const items = this.#getItems();
+    if (items.length === 0) return;
     const index = items.indexOf(document.activeElement);
 
     switch (e.key) {
@@ -309,6 +397,10 @@ class UserDropdown {
     if (this.#isOpen() && !this.#menu.contains(e.target) && !this.#toggle.contains(e.target)) {
       this.#close(false);
     }
+  };
+
+  #handleModalOpen = () => {
+    if (this.#isOpen()) this.#close(false);
   };
 }
 
@@ -557,8 +649,10 @@ class BellDropdown {
   #bind() {
     const { signal } = this.#abortController;
     this.#bellLink.addEventListener('click', this.#handleBellClick, { signal });
+    this.#bellLink.addEventListener('keydown', this.#handleBellKeydown, { signal });
     document.addEventListener('click', this.#handleOutsideClick, { signal });
     this.#dropdown.addEventListener('keydown', this.#handleKeydown, { signal });
+    document.addEventListener('modal:open', this.#handleModalOpen, { signal });
   }
 
   #isOpen() {
@@ -694,15 +788,34 @@ class BellDropdown {
     this.#isOpen() ? this.#close() : this.#open();
   };
 
+  /** @param {KeyboardEvent} e */
+  #handleBellKeydown = (e) => {
+    if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+    e.preventDefault();
+    if (!this.#isOpen()) this.#open();
+
+    const items = [...this.#dropdown.querySelectorAll('a')];
+    if (e.key === 'ArrowUp') {
+      items[items.length - 1]?.focus();
+    } else {
+      items[0]?.focus();
+    }
+  };
+
   #handleOutsideClick = (e) => {
     if (this.#isOpen() && !this.#wrapper.contains(e.target)) {
       this.#close(false);
     }
   };
 
+  #handleModalOpen = () => {
+    if (this.#isOpen()) this.#close(false);
+  };
+
   /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     const items = [...this.#dropdown.querySelectorAll('a')];
+    if (items.length === 0) return;
     const index = items.indexOf(document.activeElement);
 
     switch (e.key) {

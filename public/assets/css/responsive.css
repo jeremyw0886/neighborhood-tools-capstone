@@ -24,7 +24,7 @@
       flex-direction: column;
       gap: 0.2rem;
       left: 50%;
-      max-height: min(calc(100vh - 6rem), 38rem);
+      max-height: calc(100vh - 6rem);
       opacity: 0;
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -167,7 +167,7 @@
     }
 
     nav[aria-label="Main navigation"]>#top-links>li[data-separator] {
-      align-self: center;
+      align-self: stretch;
       background: rgba(255, 255, 255, 0.15);
       border: none;
       border-radius: 0;
@@ -175,6 +175,7 @@
       margin: 0.5rem 0.75rem;
       min-height: 1px;
       padding: 0;
+      width: auto;
     }
 
     nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth]>span {
@@ -191,6 +192,11 @@
 
     nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth]>span>i {
       opacity: 0.8;
+    }
+
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth]>span>img {
+      border-radius: 50%;
+      object-fit: cover;
     }
 
     nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] :is(a, button) {

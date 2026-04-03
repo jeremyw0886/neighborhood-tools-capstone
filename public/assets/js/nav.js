@@ -506,7 +506,7 @@ class ModalSystem {
 
 class BadgePoller {
   static #instance = null;
-  static #BASE_INTERVAL = 60_000;
+  static #BASE_INTERVAL = 30_000;
   static #MAX_INTERVAL = 300_000;
   static #MAX_ERRORS = 10;
 

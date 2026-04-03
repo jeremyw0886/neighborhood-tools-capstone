@@ -49,7 +49,8 @@
     isolation: isolate;
     margin-inline: calc(-50vw + 50%);
     min-width: 0;
-    overflow: clip;
+    overflow-x: clip;
+    overflow-y: visible;
     padding-block: 0 2.5rem;
     padding-inline: max(1.25rem, calc(50vw - 700px));
     position: relative;

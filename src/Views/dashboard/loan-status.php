@@ -552,12 +552,13 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
     <?php endif; ?>
 
     <?php
-    $canApprove  = $status === 'requested' && $isLender;
-    $canCancel   = in_array($status, ['requested', 'approved'], true);
-    $canReturn   = $status === 'borrowed' && $isLender;
-    $canExtend   = $status === 'borrowed' && $isLender;
-    $canRemind   = $status === 'borrowed' && $isLender;
-    $hasActions  = $canApprove || $canCancel || $canReturn || $canExtend || $canRemind;
+    $canApprove   = $status === 'requested' && $isLender;
+    $canCancel    = in_array($status, ['requested', 'approved'], true);
+    $canReturn    = $status === 'borrowed' && $isLender;
+    $canExtend    = $status === 'borrowed' && $isLender;
+    $canRemind    = $status === 'borrowed' && $isLender;
+    $canReport    = in_array($status, ['borrowed', 'returned'], true);
+    $hasActions   = $canApprove || $canCancel || $canReturn || $canExtend || $canRemind || $canReport;
     ?>
 
     <?php if ($hasActions): ?>
@@ -682,6 +683,15 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
               <button type="submit" data-intent="danger"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>
             </form>
           </details>
+        <?php endif; ?>
+
+        <?php if ($canReport): ?>
+          <a href="/incidents/create/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="warning">
+            <i class="fa-solid fa-flag" aria-hidden="true"></i> Report Incident
+          </a>
+          <a href="/disputes/create/<?= (int) $borrow['id_bor'] ?>" role="button" data-intent="danger">
+            <i class="fa-solid fa-gavel" aria-hidden="true"></i> File Dispute
+          </a>
         <?php endif; ?>
       </section>
     <?php endif; ?>

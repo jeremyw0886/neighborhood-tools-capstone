@@ -64,6 +64,9 @@ public/usability-test-*.html
 public/assets/js/usability-test.js
 warren-jeremy-phase4/
 
+# Cron command reference (server-specific paths)
+cron/siteground-cron-commands.txt
+
 # Build tools (not needed on server — output is committed)
 build-assets.php
 generate-220w-variants.php

@@ -370,4 +370,51 @@ class Incident
             throw $e;
         }
     }
+
+    /**
+     * Resolve an open incident with admin notes.
+     */
+    public static function resolve(int $incidentId, int $resolvedById, string $resolutionNotes): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE incident_report_irt
+            SET resolved_at_irt = NOW(),
+                id_acc_resolved_by_irt = :resolved_by,
+                resolution_notes_irt = :notes
+            WHERE id_irt = :incident_id
+              AND resolved_at_irt IS NULL
+        ");
+
+        $stmt->bindValue(':incident_id', $incidentId, PDO::PARAM_INT);
+        $stmt->bindValue(':resolved_by', $resolvedById, PDO::PARAM_INT);
+        $stmt->bindValue(':notes', $resolutionNotes, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
+    /**
+     * Fetch all incidents for a borrow (both open and resolved).
+     *
+     * @return array Lightweight rows with id, subject, type, status
+     */
+    public static function getForBorrow(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT irt.id_irt, irt.subject_irt,
+                   ity.type_name_ity AS incident_type,
+                   irt.created_at_irt, irt.resolved_at_irt
+            FROM incident_report_irt irt
+            JOIN incident_type_ity ity ON irt.id_ity_irt = ity.id_ity
+            WHERE irt.id_bor_irt = :borrow_id
+            ORDER BY irt.created_at_irt DESC
+        ");
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

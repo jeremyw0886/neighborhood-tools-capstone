@@ -9,7 +9,9 @@ use App\Core\Role;
 use App\Models\Account;
 use App\Models\Borrow;
 use App\Models\Deposit;
+use App\Models\Dispute;
 use App\Models\Handover;
+use App\Models\Incident;
 use App\Models\PlatformStats;
 use App\Models\Rating;
 use App\Models\Tool;
@@ -509,6 +511,8 @@ class DashboardController extends BaseController
         $toolRating   = null;
         $hasRatedUser = false;
         $hasRatedTool = false;
+        $disputes     = [];
+        $incidents    = [];
 
         try {
             $extensions   = Borrow::getExtensions($borrowId);
@@ -519,6 +523,8 @@ class DashboardController extends BaseController
             $toolRating   = Rating::getToolRatingForBorrow($borrowId);
             $hasRatedUser = Rating::hasUserRated($borrowId, $userId);
             $hasRatedTool = Rating::hasToolRated($borrowId, $userId);
+            $disputes     = Dispute::getForBorrow($borrowId);
+            $incidents    = Incident::getForBorrow($borrowId);
         } catch (\Throwable $e) {
             error_log('DashboardController::loanStatus (details) — ' . $e->getMessage());
         }
@@ -577,6 +583,8 @@ class DashboardController extends BaseController
             'toolRating'          => $toolRating,
             'hasRatedUser'        => $hasRatedUser,
             'hasRatedTool'        => $hasRatedTool,
+            'disputes'            => $disputes,
+            'incidents'           => $incidents,
             'handoverSuccess'     => $this->flash('handover_success'),
             'borrowSuccess'       => $this->flash('borrow_success'),
             'waiverSuccess'       => $this->flash('waiver_success'),

@@ -696,6 +696,49 @@ $counterpartyId    = $isLender ? (int) $borrow['borrower_id'] : (int) $borrow['l
       </section>
     <?php endif; ?>
 
+    <?php if (!empty($disputes) || !empty($incidents)): ?>
+      <section aria-labelledby="filings-heading" data-loan-card>
+        <h2 id="filings-heading">
+          <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+          Disputes &amp; Incidents
+        </h2>
+
+        <?php if (!empty($disputes)): ?>
+          <h3>Disputes</h3>
+          <ul data-filings-list>
+            <?php foreach ($disputes as $d): ?>
+              <li>
+                <span><?= htmlspecialchars($d['subject_text_dsp']) ?></span>
+                <span data-status="<?= htmlspecialchars($d['dispute_status']) ?>">
+                  <?= ucfirst(htmlspecialchars($d['dispute_status'])) ?>
+                </span>
+                <a href="/disputes/<?= (int) $d['id_dsp'] ?>" data-intent="info" role="button">
+                  <i class="fa-solid fa-arrow-right" aria-hidden="true"></i> View
+                </a>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+
+        <?php if (!empty($incidents)): ?>
+          <h3>Incidents</h3>
+          <ul data-filings-list>
+            <?php foreach ($incidents as $inc): ?>
+              <li>
+                <span><?= htmlspecialchars($inc['subject_irt']) ?></span>
+                <span data-status="<?= $inc['resolved_at_irt'] !== null ? 'resolved' : 'open' ?>">
+                  <?= $inc['resolved_at_irt'] !== null ? 'Resolved' : 'Open' ?>
+                </span>
+                <a href="/incidents/<?= (int) $inc['id_irt'] ?>" data-intent="info" role="button">
+                  <i class="fa-solid fa-arrow-right" aria-hidden="true"></i> View
+                </a>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+      </section>
+    <?php endif; ?>
+
     <?php if ($status === 'returned'): ?>
       <?php
       $needsUserRating = !$hasRatedUser;

@@ -340,4 +340,48 @@ class Dispute
             throw $e;
         }
     }
+
+    /**
+     * Mark a dispute as resolved.
+     */
+    public static function resolve(int $disputeId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE dispute_dsp
+            SET id_dst_dsp = (SELECT id_dst FROM dispute_status_dst WHERE status_name_dst = 'resolved'),
+                resolved_at_dsp = NOW()
+            WHERE id_dsp = :dispute_id
+              AND resolved_at_dsp IS NULL
+        ");
+
+        $stmt->bindValue(':dispute_id', $disputeId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Fetch all disputes for a borrow (both open and resolved).
+     *
+     * @return array Lightweight rows with id, subject, status, created date
+     */
+    public static function getForBorrow(int $borrowId): array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT d.id_dsp, d.subject_text_dsp,
+                   dst.status_name_dst AS dispute_status,
+                   d.created_at_dsp
+            FROM dispute_dsp d
+            JOIN dispute_status_dst dst ON d.id_dst_dsp = dst.id_dst
+            WHERE d.id_bor_dsp = :borrow_id
+            ORDER BY d.created_at_dsp DESC
+        ");
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

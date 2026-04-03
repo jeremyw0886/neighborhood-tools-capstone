@@ -181,6 +181,20 @@ $typeIcon  = $typeIcons[$incident['incident_type']] ?? 'fa-circle-question';
     </section>
   <?php endif; ?>
 
+  <?php if (!empty($resolveSuccess)): ?>
+    <p role="status" data-flash="success">
+      <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      <?= htmlspecialchars($resolveSuccess) ?>
+    </p>
+  <?php endif; ?>
+
+  <?php
+    $resolveError = $resolveErrors['general'] ?? $resolveErrors['resolution_notes'] ?? '';
+    if ($resolveError !== ''):
+  ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($resolveError) ?></p>
+  <?php endif; ?>
+
   <?php if ($photos !== []): ?>
     <section aria-labelledby="photos-heading">
       <h2 id="photos-heading">
@@ -204,6 +218,36 @@ $typeIcon  = $typeIcons[$incident['incident_type']] ?? 'fa-circle-question';
           </li>
         <?php endforeach; ?>
       </ul>
+    </section>
+  <?php endif; ?>
+
+  <?php if ($isAdmin && !$isResolved): ?>
+    <section aria-labelledby="resolve-heading">
+      <h2 id="resolve-heading">
+        <i class="fa-solid fa-check-circle" aria-hidden="true"></i>
+        Resolve Incident
+      </h2>
+      <form action="/incidents/<?= $incidentId ?>/resolve" method="post" novalidate>
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+        <fieldset>
+          <legend class="visually-hidden">Resolution</legend>
+          <div>
+            <label for="resolution-notes">Resolution Notes <span aria-hidden="true">*</span></label>
+            <textarea id="resolution-notes"
+                      name="resolution_notes"
+                      required
+                      rows="4"
+                      maxlength="5000"
+                      placeholder="Describe how this incident was resolved..."
+                      <?php if (isset($resolveErrors['resolution_notes'])): ?>aria-invalid="true"<?php endif; ?>></textarea>
+          </div>
+        </fieldset>
+        <footer>
+          <button type="submit" data-intent="success">
+            <i class="fa-solid fa-check-circle" aria-hidden="true"></i> Resolve Incident
+          </button>
+        </footer>
+      </form>
     </section>
   <?php endif; ?>
 

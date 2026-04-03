@@ -135,14 +135,102 @@ class IncidentController extends BaseController
         }
 
         $this->render('incidents/show', [
-            'title'       => htmlspecialchars($incident['subject_irt']) . ' — NeighborhoodTools',
-            'description' => 'Incident report details.',
-            'pageCss'     => ['features.css'],
-            'incident'    => $incident,
-            'photos'      => $photos,
-            'isAdmin'     => $isAdmin,
-            'isReporter'  => $isReporter,
+            'title'          => htmlspecialchars($incident['subject_irt']) . ' — NeighborhoodTools',
+            'description'    => 'Incident report details.',
+            'pageCss'        => ['features.css'],
+            'incident'       => $incident,
+            'photos'         => $photos,
+            'isAdmin'        => $isAdmin,
+            'isReporter'     => $isReporter,
+            'resolveSuccess' => $this->flash('incident_resolve_success'),
+            'resolveErrors'  => $this->flash('incident_resolve_errors', []),
         ]);
+    }
+
+    /**
+     * Resolve an open incident (admin action).
+     *
+     * Validates resolution notes, marks the incident resolved, and
+     * notifies all parties (reporter, borrower, lender).
+     */
+    public function resolve(string $id): void
+    {
+        $this->requireAuth();
+        $this->requireRole(Role::Admin, Role::SuperAdmin);
+        $this->validateCsrf();
+
+        $incidentId = (int) $id;
+
+        if ($incidentId < 1) {
+            $this->abort(404);
+        }
+
+        $userId          = (int) $_SESSION['user_id'];
+        $resolutionNotes = trim($_POST['resolution_notes'] ?? '');
+        $redirectUrl     = '/incidents/' . $incidentId;
+
+        if ($resolutionNotes === '') {
+            $_SESSION['incident_resolve_errors'] = ['resolution_notes' => 'Resolution notes are required.'];
+            $this->redirect($redirectUrl);
+        }
+
+        if (mb_strlen($resolutionNotes) > 5000) {
+            $_SESSION['incident_resolve_errors'] = ['resolution_notes' => 'Resolution notes must be 5,000 characters or fewer.'];
+            $this->redirect($redirectUrl);
+        }
+
+        try {
+            $incident = Incident::findByIdWithContext($incidentId);
+        } catch (\Throwable $e) {
+            error_log('IncidentController::resolve lookup — ' . $e->getMessage());
+            $incident = null;
+        }
+
+        if ($incident === null) {
+            $this->abort(404);
+        }
+
+        if ($incident['resolved_at_irt'] !== null) {
+            $_SESSION['incident_resolve_errors'] = ['general' => 'This incident has already been resolved.'];
+            $this->redirect($redirectUrl);
+        }
+
+        try {
+            Incident::resolve($incidentId, $userId, $resolutionNotes);
+        } catch (\Throwable $e) {
+            error_log('IncidentController::resolve — ' . $e->getMessage());
+            $_SESSION['incident_resolve_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect($redirectUrl);
+        }
+
+        $toolName    = $incident['tool_name_tol'];
+        $borrowId    = (int) $incident['id_bor_irt'];
+        $recipientIds = array_unique([
+            (int) $incident['reporter_id'],
+            (int) $incident['borrower_id'],
+            (int) $incident['lender_id'],
+        ]);
+
+        foreach ($recipientIds as $recipientId) {
+            if ($recipientId === $userId) {
+                continue;
+            }
+
+            try {
+                Notification::send(
+                    accountId: $recipientId,
+                    type: 'request',
+                    title: 'Incident Resolved',
+                    body: 'An admin resolved the incident report for ' . $toolName . '.',
+                    relatedBorrowId: $borrowId,
+                );
+            } catch (\Throwable $e) {
+                error_log('IncidentController::resolve notification — ' . $e->getMessage());
+            }
+        }
+
+        $_SESSION['incident_resolve_success'] = 'Incident resolved.';
+        $this->redirect($redirectUrl);
     }
 
     /**

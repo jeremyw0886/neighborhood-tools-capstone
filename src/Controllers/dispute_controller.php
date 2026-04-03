@@ -391,6 +391,14 @@ class DisputeController extends BaseController
             $this->redirect($redirectUrl);
         }
 
+        if ($isAdmin && $typeName === 'resolution') {
+            try {
+                Dispute::resolve($disputeId);
+            } catch (\Throwable $e) {
+                error_log('DisputeController::addMessage resolve — ' . $e->getMessage());
+            }
+        }
+
         $borrowId    = (int) $dispute['id_bor_dsp'];
         $borrowerId  = (int) $dispute['borrower_id'];
         $lenderId    = (int) $dispute['lender_id'];

@@ -576,7 +576,8 @@
       color: var(--mountain-pine-dark);
     }
 
-    &>:is(#bell-wrapper>#bell-dropdown, #user-actions-menu) {
+    &>#bell-wrapper>#bell-dropdown,
+    &>#user-actions-menu {
       background: var(--nav-flyout-bg);
       border: 1px solid var(--nav-flyout-border);
       border-radius: 1.1rem;

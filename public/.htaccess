@@ -24,12 +24,15 @@ Options -Indexes
     php_value post_max_size 8M
 </IfModule>
 
+# Correct MIME type for web app manifest
+AddType application/manifest+json .webmanifest
+
 # Set default charset
 AddDefaultCharset UTF-8
 
 # Compress text-based responses
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml
 </IfModule>
 
 # Security headers
@@ -65,6 +68,9 @@ AddDefaultCharset UTF-8
     ExpiresByType application/javascript           "access plus 1 year"
     ExpiresByType text/javascript                  "access plus 1 year"
 
+    # Manifest
+    ExpiresByType application/manifest+json       "access plus 1 week"
+
     # Images
     ExpiresByType image/svg+xml                   "access plus 1 year"
     ExpiresByType image/png                       "access plus 1 year"
@@ -79,6 +85,9 @@ AddDefaultCharset UTF-8
 <IfModule mod_headers.c>
     <FilesMatch "\.(woff2|woff|css|js|svg|png|jpe?g|webp|avif|gif|ico)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.webmanifest$">
+        Header set Cache-Control "public, max-age=604800"
     </FilesMatch>
     <FilesMatch "\.(html|php)$">
         Header set Cache-Control "no-cache"

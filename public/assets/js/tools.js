@@ -1430,6 +1430,7 @@ class GalleryManager {
             delete img.dataset.focalX;
             delete img.dataset.focalY;
           }
+          NT.bustImageCache(img);
           NT.applyFocalPoints(li);
         }
       }

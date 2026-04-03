@@ -178,6 +178,7 @@ class ProfileController extends BaseController
             $preferences   = Account::getContactPreferences();
             $meta          = Account::getAccountMeta($userId);
             $avatarVectors = AvatarVector::getActive();
+            $storedImage   = Account::getProfileImage($userId);
         } catch (\Throwable $e) {
             error_log('ProfileController::edit — ' . $e->getMessage());
             $this->abort(500);
@@ -192,6 +193,15 @@ class ProfileController extends BaseController
             $profile['primary_image'] = null;
         }
 
+        $hasStoredImage = $storedImage !== null
+            && file_exists(BASE_PATH . '/public/uploads/profiles/' . $storedImage['file_name_aim']);
+
+        if ($hasStoredImage && empty($profile['primary_image'])) {
+            $profile['stored_image']    = $storedImage['file_name_aim'];
+            $profile['stored_focal_x']  = (int) ($storedImage['focal_x_aim'] ?? 50);
+            $profile['stored_focal_y']  = (int) ($storedImage['focal_y_aim'] ?? 50);
+        }
+
         $errors = $_SESSION['profile_errors'] ?? [];
         $old    = $_SESSION['profile_old'] ?? [];
         unset($_SESSION['profile_errors'], $_SESSION['profile_old']);
@@ -199,9 +209,11 @@ class ProfileController extends BaseController
         $avatarSrcsets = null;
         $avatarVariants = null;
 
-        if (!empty($profile['primary_image'])) {
+        $imageForVariants = $profile['primary_image'] ?? ($profile['stored_image'] ?? null);
+
+        if ($imageForVariants !== null) {
             $avatarVariants = ImageProcessor::getAvailableVariants(
-                $profile['primary_image'],
+                $imageForVariants,
                 widths: self::PROFILE_VARIANT_WIDTHS,
                 uploadDir: 'profiles',
             );
@@ -313,7 +325,7 @@ class ProfileController extends BaseController
                     aspectRatio: 1.0,
                 );
 
-                $oldImage = Account::getPrimaryImage($userId);
+                $oldImage = Account::getProfileImage($userId);
 
                 Account::saveProfileImage($userId, $imageFilename, $altText, $focalX, $focalY);
 
@@ -330,9 +342,21 @@ class ProfileController extends BaseController
 
             $avatarChoice = $_POST['avatar_vector'] ?? '';
 
-            if ($avatarChoice === '' || $avatarChoice === 'none' || $avatarChoice === 'photo') {
+            if ($avatarChoice === 'photo') {
                 Account::setVectorAvatar($userId, null);
+                Account::setImageActive($userId, true);
                 $_SESSION['user_vector_avatar'] = null;
+                if ($imageFilename === null) {
+                    $existing = Account::getProfileImage($userId);
+                    if ($existing !== null) {
+                        $_SESSION['user_avatar'] = $existing['file_name_aim'];
+                    }
+                }
+            } elseif ($avatarChoice === 'none' || $avatarChoice === '') {
+                Account::setVectorAvatar($userId, null);
+                Account::setImageActive($userId, false);
+                $_SESSION['user_vector_avatar'] = null;
+                $_SESSION['user_avatar'] = null;
             } else {
                 $avatarVectorId = (int) $avatarChoice;
 
@@ -341,7 +365,9 @@ class ProfileController extends BaseController
 
                     if ($vector !== null) {
                         Account::setVectorAvatar($userId, $avatarVectorId);
+                        Account::setImageActive($userId, false);
                         $_SESSION['user_vector_avatar'] = $vector['file_name_avv'];
+                        $_SESSION['user_avatar'] = null;
                     }
                 }
             }
@@ -410,7 +436,7 @@ class ProfileController extends BaseController
         $focalY = max(0, min(100, (int) ($json['focal_y'] ?? 50)));
 
         try {
-            $image = Account::getPrimaryImage($userId);
+            $image = Account::getProfileImage($userId);
             if ($image === null) {
                 http_response_code(404);
                 echo json_encode(['error' => 'No profile image found.']);
@@ -461,7 +487,7 @@ class ProfileController extends BaseController
         $userId = (int) $_SESSION['user_id'];
 
         try {
-            $image = Account::getPrimaryImage($userId);
+            $image = Account::getProfileImage($userId);
         } catch (\Throwable $e) {
             error_log('ProfileController::removeImage — ' . $e->getMessage());
             $_SESSION['profile_notice'] = 'Something went wrong. Please try again.';

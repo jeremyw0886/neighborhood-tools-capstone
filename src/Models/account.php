@@ -812,7 +812,8 @@ class Account
         $existing = $pdo->prepare("
             SELECT id_aim, file_name_aim
             FROM account_image_aim
-            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+            WHERE id_acc_aim = :id
+            ORDER BY is_primary_aim DESC
             LIMIT 1
         ");
 
@@ -824,10 +825,11 @@ class Account
         if ($current !== false) {
             $stmt = $pdo->prepare("
                 UPDATE account_image_aim
-                SET file_name_aim = :filename,
-                    alt_text_aim  = :alt,
-                    focal_x_aim   = :focal_x,
-                    focal_y_aim   = :focal_y
+                SET file_name_aim  = :filename,
+                    alt_text_aim   = :alt,
+                    focal_x_aim    = :focal_x,
+                    focal_y_aim    = :focal_y,
+                    is_primary_aim = TRUE
                 WHERE id_aim = :aim_id
             ");
 
@@ -1056,7 +1058,48 @@ class Account
     }
 
     /**
-     * Update the focal point for an account's primary image.
+     * Get the profile image row regardless of primary flag.
+     */
+    public static function getProfileImage(int $accountId): ?array
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT file_name_aim, focal_x_aim, focal_y_aim, is_primary_aim
+            FROM account_image_aim
+            WHERE id_acc_aim = :id
+            ORDER BY is_primary_aim DESC
+            LIMIT 1
+        ");
+
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Toggle the primary flag on a user's profile image.
+     */
+    public static function setImageActive(int $accountId, bool $active): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            UPDATE account_image_aim
+            SET is_primary_aim = :active
+            WHERE id_acc_aim = :id
+        ");
+
+        $stmt->bindValue(':active', $active, PDO::PARAM_BOOL);
+        $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Update the focal point for an account's profile image.
      */
     public static function updateProfileFocalPoint(int $accountId, int $focalX, int $focalY): void
     {
@@ -1066,7 +1109,7 @@ class Account
             UPDATE account_image_aim
             SET focal_x_aim = :focal_x,
                 focal_y_aim = :focal_y
-            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+            WHERE id_acc_aim = :id
         ");
 
         $stmt->bindValue(':focal_x', $focalX, PDO::PARAM_INT);
@@ -1084,7 +1127,7 @@ class Account
 
         $stmt = $pdo->prepare("
             DELETE FROM account_image_aim
-            WHERE id_acc_aim = :id AND is_primary_aim = TRUE
+            WHERE id_acc_aim = :id
         ");
 
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);

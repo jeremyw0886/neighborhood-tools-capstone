@@ -1225,6 +1225,21 @@ window.NT = {
     removeRule: (key) => styleManager.removeRule(key),
   }),
   applyFocalPoints: (root) => styleManager.applyFocalPoints(root),
+  bustImageCache: (img) => {
+    const bust = `v=${Date.now()}`;
+    const update = (url) => {
+      const [base] = url.split('?');
+      return `${base}?${bust}`;
+    };
+    if (img.src) img.src = update(img.src);
+    if (img.srcset) img.srcset = img.srcset.replace(/(\S+\.(jpe?g|png|webp)\S*)/gi, (m) => update(m));
+    const picture = img.closest('picture');
+    if (picture) {
+      for (const source of picture.querySelectorAll('source[srcset]')) {
+        source.srcset = source.srcset.replace(/(\S+\.(jpe?g|png|webp)\S*)/gi, (m) => update(m));
+      }
+    }
+  },
   badge: Object.freeze({
     set: (count) => badgeManager.set(count),
     read: () => badgeManager.read(),

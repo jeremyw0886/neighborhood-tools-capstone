@@ -619,6 +619,7 @@ class ProfilePhotoManager {
       if (this.#previewImg) {
         this.#previewImg.dataset.focalX = focalX;
         this.#previewImg.dataset.focalY = focalY;
+        NT.bustImageCache(this.#previewImg);
         NT.applyFocalPoints(this.#container);
       }
 

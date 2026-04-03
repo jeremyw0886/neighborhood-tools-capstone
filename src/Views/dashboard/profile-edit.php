@@ -196,18 +196,25 @@ $errorFieldMap = [
   <fieldset>
     <legend>Your Avatar</legend>
 
+    <?php
+      $anyImage    = $profile['primary_image'] ?? ($profile['stored_image'] ?? null);
+      $imageFile   = $anyImage;
+      $photoActive = !empty($profile['primary_image']);
+      $hasVector   = !empty($profile['id_avv_acc']);
+      $avatarSrcsets ??= null;
+    ?>
+
     <div data-profile-photo-upload>
-      <?php if ($profile['primary_image']): ?>
+      <?php if ($anyImage !== null): ?>
         <?php
-          $photoSrc = '/uploads/profiles/' . htmlspecialchars($profile['primary_image']);
+          $photoSrc = '/uploads/profiles/' . htmlspecialchars($anyImage);
           $photoAlt = $profile['image_alt_text'] ?? $profile['first_name_acc'] . ' ' . $profile['last_name_acc'];
-          $editFocalX = (int) ($profile['focal_x_aim'] ?? 50);
-          $editFocalY = (int) ($profile['focal_y_aim'] ?? 50);
+          $editFocalX = (int) ($profile['focal_x_aim'] ?? $profile['stored_focal_x'] ?? 50);
+          $editFocalY = (int) ($profile['focal_y_aim'] ?? $profile['stored_focal_y'] ?? 50);
           $editFocalAttrs = ($editFocalX !== 50 || $editFocalY !== 50)
               ? " data-focal-x=\"{$editFocalX}\" data-focal-y=\"{$editFocalY}\""
               : '';
-          $editIsWebp = str_ends_with($profile['primary_image'], '.webp');
-          $avatarSrcsets ??= null;
+          $editIsWebp = str_ends_with($anyImage, '.webp');
         ?>
         <figure>
           <?php if ($avatarSrcsets !== null): ?>
@@ -233,7 +240,7 @@ $errorFieldMap = [
         </figure>
       <?php endif; ?>
       <div>
-        <label for="avatar"><?= $profile['primary_image'] ? 'Replace photo' : 'Upload a photo' ?></label>
+        <label for="avatar"><?= $anyImage !== null ? 'Replace photo' : 'Upload a photo' ?></label>
         <input type="file"
           id="avatar"
           name="avatar"
@@ -242,7 +249,7 @@ $errorFieldMap = [
         <?php if (isset($errors['avatar'])): ?>
           <p id="avatar-error" role="alert"><?= htmlspecialchars($errors['avatar']) ?></p>
         <?php endif; ?>
-        <?php if ($profile['primary_image']): ?>
+        <?php if ($anyImage !== null): ?>
           <div>
             <button type="button" data-reposition-photo>
               <i class="fa-solid fa-crop" aria-hidden="true"></i> Reposition
@@ -253,30 +260,30 @@ $errorFieldMap = [
           </div>
         <?php endif; ?>
       </div>
-      <input type="hidden" name="focal_x" value="<?= (int) ($profile['focal_x_aim'] ?? 50) ?>">
-      <input type="hidden" name="focal_y" value="<?= (int) ($profile['focal_y_aim'] ?? 50) ?>">
+      <input type="hidden" name="focal_x" value="<?= (int) ($profile['focal_x_aim'] ?? $profile['stored_focal_x'] ?? 50) ?>">
+      <input type="hidden" name="focal_y" value="<?= (int) ($profile['focal_y_aim'] ?? $profile['stored_focal_y'] ?? 50) ?>">
     </div>
 
     <?php
-      $hasPhoto = !empty($profile['primary_image']);
-      $hasVector = !empty($profile['id_avv_acc']);
+      $hasAnyPhoto = $anyImage !== null;
       $photoThumbSrc = '';
-      if ($hasPhoto) {
-          $thumbName = pathinfo($profile['primary_image'], PATHINFO_FILENAME);
-          $thumbExt  = pathinfo($profile['primary_image'], PATHINFO_EXTENSION);
+      if ($hasAnyPhoto) {
+          $thumbName = pathinfo($anyImage, PATHINFO_FILENAME);
+          $thumbExt  = pathinfo($anyImage, PATHINFO_EXTENSION);
           $photoThumbSrc = '/uploads/profiles/' . $thumbName . '-80w.' . $thumbExt;
       }
+      $isNoneSelected = !$photoActive && !$hasVector;
     ?>
-    <?php if ($hasPhoto || $avatarVectors !== []): ?>
+    <?php if ($hasAnyPhoto || $avatarVectors !== []): ?>
       <p data-avatar-heading>Choose your display avatar</p>
       <div data-avatar-grid role="radiogroup" aria-label="Display avatar selection">
 
-        <?php if ($hasPhoto): ?>
+        <?php if ($hasAnyPhoto): ?>
           <label data-photo-choice>
             <input type="radio"
               name="avatar_vector"
               value="photo"
-              <?= !$hasVector ? 'checked' : '' ?>>
+              <?= $photoActive && !$hasVector ? 'checked' : '' ?>>
             <span>
               <img src="<?= htmlspecialchars($photoThumbSrc) ?>?v=<?= ASSET_VERSION ?>"
                 alt="My photo"
@@ -306,7 +313,7 @@ $errorFieldMap = [
           <input type="radio"
             name="avatar_vector"
             value="none"
-            <?= !$hasPhoto && !$hasVector ? 'checked' : '' ?>>
+            <?= $isNoneSelected ? 'checked' : '' ?>>
           <span>
             <img src="/assets/images/avatar-placeholder.svg"
               alt="Default avatar"

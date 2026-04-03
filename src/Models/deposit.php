@@ -47,6 +47,29 @@ class Deposit
     }
 
     /**
+     * Delete a pending deposit for a cancelled/denied borrow.
+     *
+     * Only deletes if the deposit is still in "pending" status (never paid).
+     *
+     * @return bool True if a row was deleted
+     */
+    public static function deletePending(int $borrowId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            DELETE FROM security_deposit_sdp
+            WHERE id_bor_sdp = :borrow_id
+              AND id_dps_sdp = fn_get_deposit_status_id('pending')
+        ");
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
      * Fetch paginated pending deposits for the admin reports page.
      *
      * Queries pending_deposit_v which joins security_deposit_sdp, borrow_bor,
@@ -616,7 +639,9 @@ class Deposit
         ?string $search,
         bool $incidentsOnly = false,
     ): array {
-        $conditions = [];
+        $conditions = [
+            "NOT (dps.status_name_dps = 'pending' AND bst.status_name_bst IN ('cancelled', 'denied'))",
+        ];
         $params     = [];
 
         if ($status !== null && in_array($status, self::ALLOWED_STATUSES, true)) {

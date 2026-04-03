@@ -388,6 +388,12 @@ class BorrowController extends BaseController
             $this->redirect('/dashboard/loan/' . $borrowId);
         }
 
+        try {
+            Deposit::deletePending($borrowId);
+        } catch (\Throwable $e) {
+            error_log('BorrowController::cancel deposit cleanup — ' . $e->getMessage());
+        }
+
         $recipientId   = $isBorrower ? (int) $borrow['lender_id'] : (int) $borrow['borrower_id'];
         $cancellerName = $_SESSION['user_first_name'] ?? 'A user';
 

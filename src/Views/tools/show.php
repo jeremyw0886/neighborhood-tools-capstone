@@ -74,7 +74,7 @@ $images        ??= [];
                           sizes="<?= $mainSizes ?>"
                           id="gallery-main-source">
                 <?php endif; ?>
-                <img src="/uploads/tools/<?= $mainFallback ?>?v=<?= ASSET_VERSION ?>"
+                <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion('/uploads/tools/' . $mainFallback)) ?>"
                      srcset="<?= $mainSrcsets['srcset'] ?>"
                      sizes="<?= $mainSizes ?>"
                      alt="<?= $mainAlt ?>"

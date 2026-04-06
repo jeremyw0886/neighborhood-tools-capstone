@@ -224,7 +224,7 @@ $errorFieldMap = [
                         srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
                         sizes="120px">
               <?php endif; ?>
-              <img src="<?= $photoSrc ?>?v=<?= ASSET_VERSION ?>"
+              <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion($photoSrc)) ?>"
                 srcset="<?= $avatarSrcsets['srcset'] ?>"
                 sizes="120px"
                 alt="<?= htmlspecialchars($photoAlt) ?>"
@@ -285,7 +285,7 @@ $errorFieldMap = [
               value="photo"
               <?= $photoActive && !$hasVector ? 'checked' : '' ?>>
             <span>
-              <img src="<?= htmlspecialchars($photoThumbSrc) ?>?v=<?= ASSET_VERSION ?>"
+              <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion($photoThumbSrc)) ?>"
                 alt="My photo"
                 width="64" height="64"
                 decoding="async">

@@ -72,7 +72,7 @@ $rangeEnd   = min($page * $perPage, $totalTools);
                     srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
                     sizes="150px">
           <?php endif; ?>
-          <img src="<?= htmlspecialchars($avatarSrc) ?>?v=<?= ASSET_VERSION ?>"
+          <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion($avatarSrc)) ?>"
                srcset="<?= $avatarSrcsets['srcset'] ?>"
                sizes="150px"
                alt="<?= htmlspecialchars($avatarAlt) ?>"

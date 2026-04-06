@@ -113,4 +113,18 @@ class ViewHelper
 
         return '/assets/images/avatar-placeholder.svg';
     }
+
+    /**
+     * Append a filemtime cache-buster to an upload URL.
+     *
+     * @param  string $uploadPath Root-relative URL (e.g. "/uploads/tools/photo.jpg")
+     * @return string URL with ?v={mtime} appended
+     */
+    public static function uploadVersion(string $uploadPath): string
+    {
+        $disk = BASE_PATH . '/public' . $uploadPath;
+        $mtime = file_exists($disk) ? (filemtime($disk) ?: 0) : 0;
+
+        return $uploadPath . '?v=' . $mtime;
+    }
 }

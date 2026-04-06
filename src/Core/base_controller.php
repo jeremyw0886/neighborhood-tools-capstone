@@ -30,18 +30,9 @@ class BaseController
             $_SESSION['user_avatar'] ?? null,
         );
 
-        if ($url === '/assets/images/avatar-placeholder.svg') {
-            $_SESSION['user_nav_avatar'] = null;
-            return;
-        }
-
-        if (str_starts_with($url, '/uploads/profiles/')) {
-            $diskPath = BASE_PATH . '/public' . $url;
-            $mtime = file_exists($diskPath) ? (filemtime($diskPath) ?: 0) : 0;
-            $url .= '?v=' . $mtime;
-        }
-
-        $_SESSION['user_nav_avatar'] = $url;
+        $_SESSION['user_nav_avatar'] = $url === '/assets/images/avatar-placeholder.svg'
+            ? null
+            : $url;
     }
 
     /**

@@ -101,11 +101,13 @@ class ViewHelper
             $variant = $name . '-' . $variantWidth . 'w.' . $ext;
 
             if (file_exists($dir . $variant)) {
-                return '/uploads/profiles/' . $variant;
+                $mtime = filemtime($dir . $variant) ?: 0;
+                return '/uploads/profiles/' . $variant . '?v=' . $mtime;
             }
 
             if (file_exists($dir . $photo)) {
-                return '/uploads/profiles/' . $photo;
+                $mtime = filemtime($dir . $photo) ?: 0;
+                return '/uploads/profiles/' . $photo . '?v=' . $mtime;
             }
         }
 

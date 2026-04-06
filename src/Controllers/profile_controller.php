@@ -462,6 +462,7 @@ class ProfileController extends BaseController
                 aspectRatio: 1.0,
             );
 
+            self::refreshNavAvatar();
             RateLimiter::increment($key);
 
             echo json_encode([

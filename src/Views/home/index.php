@@ -121,18 +121,8 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
           <?php if (!empty($nearbyMembers)): ?>
             <?php foreach ($nearbyMembers as $member): ?>
               <?php $displayName = $member['username'] ?? $member['name'] ?? 'Member'; ?>
-              <?php
-                if (!empty($member['vector_avatar'])) {
-                    $memberAvatarSrc = '/uploads/vectors/' . $member['vector_avatar'];
-                } elseif (!empty($member['avatar'])
-                    && file_exists(BASE_PATH . '/public/uploads/profiles/' . $member['avatar'])) {
-                    $memberAvatarSrc = '/uploads/profiles/' . $member['avatar'];
-                } else {
-                    $memberAvatarSrc = '/assets/images/avatar-placeholder.svg';
-                }
-              ?>
               <a href="/profile/<?= (int) $member['id_acc'] ?>">
-                <img src="<?= htmlspecialchars($memberAvatarSrc) ?>"
+                <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl($member['vector_avatar'] ?? null, $member['avatar'] ?? null)) ?>"
                      alt="<?= htmlspecialchars($displayName) ?>"
                      width="80" height="80"
                      loading="lazy"
@@ -189,17 +179,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
               <?php if (!empty($neighbor['is_top_member'])): ?>
                 <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
               <?php endif; ?>
-              <?php
-                if (!empty($neighbor['vector_avatar'])) {
-                    $neighborAvatarSrc = '/uploads/vectors/' . $neighbor['vector_avatar'];
-                } elseif (!empty($neighbor['avatar'])
-                    && file_exists(BASE_PATH . '/public/uploads/profiles/' . $neighbor['avatar'])) {
-                    $neighborAvatarSrc = '/uploads/profiles/' . $neighbor['avatar'];
-                } else {
-                    $neighborAvatarSrc = '/assets/images/avatar-placeholder.svg';
-                }
-              ?>
-              <img src="<?= htmlspecialchars($neighborAvatarSrc) ?>"
+              <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl($neighbor['vector_avatar'] ?? null, $neighbor['avatar'] ?? null)) ?>"
                    alt="<?= htmlspecialchars($neighbor['username']) ?>"
                    width="80" height="80"
                    loading="lazy" decoding="async">

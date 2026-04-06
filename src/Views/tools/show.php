@@ -339,17 +339,7 @@ $images        ??= [];
     <aside aria-label="Owner information">
       <h2>Listed By</h2>
       <a href="/profile/<?= (int) ($tool['owner_id'] ?? 0) ?>">
-        <?php
-          if (!empty($tool['owner_vector_avatar'])) {
-              $ownerAvatarSrc = '/uploads/vectors/' . $tool['owner_vector_avatar'];
-          } elseif (!empty($tool['owner_avatar'])
-              && file_exists(BASE_PATH . '/public/uploads/profiles/' . $tool['owner_avatar'])) {
-              $ownerAvatarSrc = '/uploads/profiles/' . $tool['owner_avatar'];
-          } else {
-              $ownerAvatarSrc = '/assets/images/avatar-placeholder.svg';
-          }
-        ?>
-        <img src="<?= htmlspecialchars($ownerAvatarSrc) ?>"
+        <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl($tool['owner_vector_avatar'] ?? null, $tool['owner_avatar'] ?? null)) ?>"
              alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
              width="48" height="48"
              loading="lazy"

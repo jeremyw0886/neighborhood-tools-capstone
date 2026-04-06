@@ -76,4 +76,39 @@ class ViewHelper
 
         return $query !== '' ? $basePath . '?' . $query : $basePath;
     }
+
+    /**
+     * Resolve an avatar to its best URL (vector > cropped variant > full > placeholder).
+     *
+     * @param  ?string $vectorAvatar Vector filename (e.g. "fox.svg")
+     * @param  ?string $photo        Profile photo filename (e.g. "profile_abc.jpg")
+     * @param  int     $variantWidth Variant suffix width (default 80)
+     * @return string  Root-relative URL ready for src attribute
+     */
+    public static function avatarUrl(
+        ?string $vectorAvatar,
+        ?string $photo,
+        int     $variantWidth = 80,
+    ): string {
+        if ($vectorAvatar !== null && $vectorAvatar !== '') {
+            return '/uploads/vectors/' . $vectorAvatar;
+        }
+
+        if ($photo !== null && $photo !== '') {
+            $dir     = BASE_PATH . '/public/uploads/profiles/';
+            $name    = pathinfo($photo, PATHINFO_FILENAME);
+            $ext     = pathinfo($photo, PATHINFO_EXTENSION);
+            $variant = $name . '-' . $variantWidth . 'w.' . $ext;
+
+            if (file_exists($dir . $variant)) {
+                return '/uploads/profiles/' . $variant;
+            }
+
+            if (file_exists($dir . $photo)) {
+                return '/uploads/profiles/' . $photo;
+            }
+        }
+
+        return '/assets/images/avatar-placeholder.svg';
+    }
 }

@@ -25,24 +25,23 @@ class BaseController
      */
     protected static function refreshNavAvatar(): void
     {
-        if (!empty($_SESSION['user_vector_avatar'])) {
-            $_SESSION['user_nav_avatar'] = '/uploads/vectors/' . $_SESSION['user_vector_avatar'];
-        } elseif (!empty($_SESSION['user_avatar'])) {
-            $dir  = BASE_PATH . '/public/uploads/profiles/';
-            $name = pathinfo($_SESSION['user_avatar'], PATHINFO_FILENAME);
-            $ext  = pathinfo($_SESSION['user_avatar'], PATHINFO_EXTENSION);
-            $variant = $name . '-80w.' . $ext;
+        $url = ViewHelper::avatarUrl(
+            $_SESSION['user_vector_avatar'] ?? null,
+            $_SESSION['user_avatar'] ?? null,
+        );
 
-            if (file_exists($dir . $variant)) {
-                $_SESSION['user_nav_avatar'] = '/uploads/profiles/' . $variant;
-            } elseif (file_exists($dir . $_SESSION['user_avatar'])) {
-                $_SESSION['user_nav_avatar'] = '/uploads/profiles/' . $_SESSION['user_avatar'];
-            } else {
-                $_SESSION['user_nav_avatar'] = null;
-            }
-        } else {
+        if ($url === '/assets/images/avatar-placeholder.svg') {
             $_SESSION['user_nav_avatar'] = null;
+            return;
         }
+
+        if (str_starts_with($url, '/uploads/profiles/')) {
+            $diskPath = BASE_PATH . '/public' . $url;
+            $mtime = file_exists($diskPath) ? (filemtime($diskPath) ?: 0) : 0;
+            $url .= '?v=' . $mtime;
+        }
+
+        $_SESSION['user_nav_avatar'] = $url;
     }
 
     /**

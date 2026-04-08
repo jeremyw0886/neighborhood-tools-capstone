@@ -95,31 +95,49 @@ class VectorImage
     {
         $pdo = Database::connection();
 
-        $sql    = "SELECT COUNT(*) FROM vector_image_vec v LEFT JOIN category_cat c ON c.id_vec_cat = v.id_vec WHERE 1=1";
-        $params = [];
+        $filter = self::buildFilterWhere($search, $assigned);
 
-        if ($search !== null) {
-            $sql .= " AND (v.file_name_vec LIKE :search1 OR v.description_text_vec LIKE :search2 OR c.category_name_cat LIKE :search3)";
-            $params[':search1'] = '%' . $search . '%';
-            $params[':search2'] = '%' . $search . '%';
-            $params[':search3'] = '%' . $search . '%';
-        }
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM vector_image_vec v LEFT JOIN category_cat c ON c.id_vec_cat = v.id_vec "
+            . $filter['sql']
+        );
 
-        if ($assigned === true) {
-            $sql .= " AND c.id_cat IS NOT NULL";
-        } elseif ($assigned === false) {
-            $sql .= " AND c.id_cat IS NULL";
-        }
-
-        $stmt = $pdo->prepare($sql);
-
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Build the shared WHERE clause used by getFilteredCount() and getFiltered().
+     *
+     * @return array{sql: string, params: array<string, array{0: mixed, 1: int}>}
+     */
+    private static function buildFilterWhere(?string $search, ?bool $assigned): array
+    {
+        $clauses = [];
+        $params  = [];
+
+        if ($search !== null) {
+            $clauses[]          = '(v.file_name_vec LIKE :search1 OR v.description_text_vec LIKE :search2 OR c.category_name_cat LIKE :search3)';
+            $params[':search1'] = ['%' . $search . '%', PDO::PARAM_STR];
+            $params[':search2'] = ['%' . $search . '%', PDO::PARAM_STR];
+            $params[':search3'] = ['%' . $search . '%', PDO::PARAM_STR];
+        }
+
+        if ($assigned === true) {
+            $clauses[] = 'c.id_cat IS NOT NULL';
+        } elseif ($assigned === false) {
+            $clauses[] = 'c.id_cat IS NULL';
+        }
+
+        return [
+            'sql'    => $clauses !== [] ? 'WHERE ' . implode(' AND ', $clauses) : '',
+            'params' => $params,
+        ];
     }
 
     /**
@@ -143,6 +161,8 @@ class VectorImage
     ): array {
         $pdo = Database::connection();
 
+        $filter = self::buildFilterWhere($search, $assigned);
+
         $sql = "
             SELECT v.*,
                    a.first_name_acc, a.last_name_acc,
@@ -150,29 +170,15 @@ class VectorImage
             FROM vector_image_vec v
             JOIN account_acc a ON v.id_acc_vec = a.id_acc
             LEFT JOIN category_cat c ON c.id_vec_cat = v.id_vec
-            WHERE 1=1
+            {$filter['sql']}
+            ORDER BY {$sort} {$dir}
+            LIMIT :limit OFFSET :offset
         ";
-        $params = [];
-
-        if ($search !== null) {
-            $sql .= " AND (v.file_name_vec LIKE :search1 OR v.description_text_vec LIKE :search2 OR c.category_name_cat LIKE :search3)";
-            $params[':search1'] = '%' . $search . '%';
-            $params[':search2'] = '%' . $search . '%';
-            $params[':search3'] = '%' . $search . '%';
-        }
-
-        if ($assigned === true) {
-            $sql .= " AND c.id_cat IS NOT NULL";
-        } elseif ($assigned === false) {
-            $sql .= " AND c.id_cat IS NULL";
-        }
-
-        $sql .= " ORDER BY {$sort} {$dir} LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
 
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);

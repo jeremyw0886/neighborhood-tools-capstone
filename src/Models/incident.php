@@ -47,17 +47,7 @@ class Incident
     ): array {
         $pdo = Database::connection();
 
-        $conditions = [];
-
-        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
-            $conditions[] = 'incident_type = :type';
-        }
-
-        if ($deadlineMet !== null) {
-            $conditions[] = 'is_reported_within_deadline_irt = :deadline';
-        }
-
-        $whereClause = $conditions !== [] ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        $filter = self::buildFilterWhere($type, $deadlineMet);
 
         $sortCol = in_array($sort, self::VALID_SORT_FIELDS, true) ? $sort : 'created_at_irt';
         $sortDir = in_array($dir, ['ASC', 'DESC'], true) ? $dir : 'DESC';
@@ -65,19 +55,15 @@ class Incident
         $sql = "
             SELECT *
             FROM open_incident_v
-            {$whereClause}
+            {$filter['sql']}
             ORDER BY {$sortCol} {$sortDir}
             LIMIT :limit OFFSET :offset
         ";
 
         $stmt = $pdo->prepare($sql);
 
-        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
-            $stmt->bindValue(':type', $type, PDO::PARAM_STR);
-        }
-
-        if ($deadlineMet !== null) {
-            $stmt->bindValue(':deadline', $deadlineMet ? 1 : 0, PDO::PARAM_INT);
+        foreach ($filter['params'] as $key => [$value, $paramType]) {
+            $stmt->bindValue($key, $value, $paramType);
         }
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -98,31 +84,43 @@ class Incident
     {
         $pdo = Database::connection();
 
-        $conditions = [];
+        $filter = self::buildFilterWhere($type, $deadlineMet);
 
-        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
-            $conditions[] = 'incident_type = :type';
-        }
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM open_incident_v {$filter['sql']}");
 
-        if ($deadlineMet !== null) {
-            $conditions[] = 'is_reported_within_deadline_irt = :deadline';
-        }
-
-        $whereClause = $conditions !== [] ? 'WHERE ' . implode(' AND ', $conditions) : '';
-
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM open_incident_v {$whereClause}");
-
-        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
-            $stmt->bindValue(':type', $type, PDO::PARAM_STR);
-        }
-
-        if ($deadlineMet !== null) {
-            $stmt->bindValue(':deadline', $deadlineMet ? 1 : 0, PDO::PARAM_INT);
+        foreach ($filter['params'] as $key => [$value, $paramType]) {
+            $stmt->bindValue($key, $value, $paramType);
         }
 
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Build the shared WHERE clause used by getOpen() and getFilteredOpenCount().
+     *
+     * @return array{sql: string, params: array<string, array{0: mixed, 1: int}>}
+     */
+    private static function buildFilterWhere(?string $type, ?bool $deadlineMet): array
+    {
+        $clauses = [];
+        $params  = [];
+
+        if ($type !== null && in_array($type, self::ALLOWED_TYPES, true)) {
+            $clauses[]       = 'incident_type = :type';
+            $params[':type'] = [$type, PDO::PARAM_STR];
+        }
+
+        if ($deadlineMet !== null) {
+            $clauses[]           = 'is_reported_within_deadline_irt = :deadline';
+            $params[':deadline'] = [$deadlineMet ? 1 : 0, PDO::PARAM_INT];
+        }
+
+        return [
+            'sql'    => $clauses !== [] ? 'WHERE ' . implode(' AND ', $clauses) : '',
+            'params' => $params,
+        ];
     }
 
     /**

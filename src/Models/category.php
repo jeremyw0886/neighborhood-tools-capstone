@@ -102,29 +102,47 @@ class Category
     {
         $pdo = Database::connection();
 
-        $sql    = "SELECT COUNT(*) FROM category_cat c LEFT JOIN vector_image_vec v ON c.id_vec_cat = v.id_vec WHERE 1=1";
-        $params = [];
+        $filter = self::buildFilterWhere($search, $hasIcon);
 
-        if ($search !== null) {
-            $sql .= " AND c.category_name_cat LIKE :search";
-            $params[':search'] = '%' . $search . '%';
-        }
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM category_cat c LEFT JOIN vector_image_vec v ON c.id_vec_cat = v.id_vec "
+            . $filter['sql']
+        );
 
-        if ($hasIcon === true) {
-            $sql .= " AND c.id_vec_cat IS NOT NULL";
-        } elseif ($hasIcon === false) {
-            $sql .= " AND c.id_vec_cat IS NULL";
-        }
-
-        $stmt = $pdo->prepare($sql);
-
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Build the shared WHERE clause used by getFilteredCount() and getAllWithIconsFiltered().
+     *
+     * @return array{sql: string, params: array<string, array{0: mixed, 1: int}>}
+     */
+    private static function buildFilterWhere(?string $search, ?bool $hasIcon): array
+    {
+        $clauses = [];
+        $params  = [];
+
+        if ($search !== null) {
+            $clauses[]         = 'c.category_name_cat LIKE :search';
+            $params[':search'] = ['%' . $search . '%', PDO::PARAM_STR];
+        }
+
+        if ($hasIcon === true) {
+            $clauses[] = 'c.id_vec_cat IS NOT NULL';
+        } elseif ($hasIcon === false) {
+            $clauses[] = 'c.id_vec_cat IS NULL';
+        }
+
+        return [
+            'sql'    => $clauses !== [] ? 'WHERE ' . implode(' AND ', $clauses) : '',
+            'params' => $params,
+        ];
     }
 
     /**
@@ -144,6 +162,8 @@ class Category
     ): array {
         $pdo = Database::connection();
 
+        $filter = self::buildFilterWhere($search, $hasIcon);
+
         $sql = "
             SELECT c.id_cat,
                    c.category_name_cat,
@@ -152,27 +172,14 @@ class Category
                    v.description_text_vec
             FROM category_cat c
             LEFT JOIN vector_image_vec v ON c.id_vec_cat = v.id_vec
-            WHERE 1=1
+            {$filter['sql']}
+            ORDER BY {$sort} {$dir}
         ";
-        $params = [];
-
-        if ($search !== null) {
-            $sql .= " AND c.category_name_cat LIKE :search";
-            $params[':search'] = '%' . $search . '%';
-        }
-
-        if ($hasIcon === true) {
-            $sql .= " AND c.id_vec_cat IS NOT NULL";
-        } elseif ($hasIcon === false) {
-            $sql .= " AND c.id_vec_cat IS NULL";
-        }
-
-        $sql .= " ORDER BY {$sort} {$dir}";
 
         $stmt = $pdo->prepare($sql);
 
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->execute();

@@ -33,11 +33,7 @@ class Dispute
     ): array {
         $pdo = Database::connection();
 
-        $whereClause = '';
-
-        if ($urgency !== null && isset(self::URGENCY_CONDITIONS[$urgency])) {
-            $whereClause = 'WHERE ' . self::URGENCY_CONDITIONS[$urgency];
-        }
+        $whereClause = self::buildFilterWhere($urgency);
 
         $sql = "
             SELECT *
@@ -64,13 +60,24 @@ class Dispute
     {
         $pdo = Database::connection();
 
-        $whereClause = '';
-
-        if ($urgency !== null && isset(self::URGENCY_CONDITIONS[$urgency])) {
-            $whereClause = 'WHERE ' . self::URGENCY_CONDITIONS[$urgency];
-        }
+        $whereClause = self::buildFilterWhere($urgency);
 
         return (int) $pdo->query("SELECT COUNT(*) FROM open_dispute_v $whereClause")->fetchColumn();
+    }
+
+    /**
+     * Build the shared WHERE clause used by getAll() and getFilteredCount().
+     *
+     * Returns a literal SQL fragment — no params, since urgency conditions
+     * are constant SQL expressions selected from a whitelist.
+     */
+    private static function buildFilterWhere(?string $urgency): string
+    {
+        if ($urgency !== null && isset(self::URGENCY_CONDITIONS[$urgency])) {
+            return 'WHERE ' . self::URGENCY_CONDITIONS[$urgency];
+        }
+
+        return '';
     }
 
     /**

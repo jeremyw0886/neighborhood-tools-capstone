@@ -107,30 +107,45 @@ class AvatarVector
     {
         $pdo = Database::connection();
 
-        $sql    = "SELECT COUNT(*) FROM avatar_vector_avv v WHERE 1=1";
-        $params = [];
+        $filter = self::buildFilterWhere($search, $active);
 
-        if ($search !== null) {
-            $sql .= " AND (v.file_name_avv LIKE :search1 OR v.description_text_avv LIKE :search2)";
-            $params[':search1'] = '%' . $search . '%';
-            $params[':search2'] = '%' . $search . '%';
-        }
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM avatar_vector_avv v " . $filter['sql']);
 
-        if ($active === true) {
-            $sql .= " AND v.is_active_avv = TRUE";
-        } elseif ($active === false) {
-            $sql .= " AND v.is_active_avv = FALSE";
-        }
-
-        $stmt = $pdo->prepare($sql);
-
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Build the shared WHERE clause used by getFilteredCount() and getFiltered().
+     *
+     * @return array{sql: string, params: array<string, array{0: mixed, 1: int}>}
+     */
+    private static function buildFilterWhere(?string $search, ?bool $active): array
+    {
+        $clauses = [];
+        $params  = [];
+
+        if ($search !== null) {
+            $clauses[]          = '(v.file_name_avv LIKE :search1 OR v.description_text_avv LIKE :search2)';
+            $params[':search1'] = ['%' . $search . '%', PDO::PARAM_STR];
+            $params[':search2'] = ['%' . $search . '%', PDO::PARAM_STR];
+        }
+
+        if ($active === true) {
+            $clauses[] = 'v.is_active_avv = TRUE';
+        } elseif ($active === false) {
+            $clauses[] = 'v.is_active_avv = FALSE';
+        }
+
+        return [
+            'sql'    => $clauses !== [] ? 'WHERE ' . implode(' AND ', $clauses) : '',
+            'params' => $params,
+        ];
     }
 
     /**
@@ -154,6 +169,8 @@ class AvatarVector
     ): array {
         $pdo = Database::connection();
 
+        $filter = self::buildFilterWhere($search, $active);
+
         $sql = "
             SELECT v.*,
                    a.first_name_acc, a.last_name_acc,
@@ -161,28 +178,15 @@ class AvatarVector
                     WHERE id_avv_acc = v.id_avv) AS user_count
             FROM avatar_vector_avv v
             JOIN account_acc a ON v.id_acc_avv = a.id_acc
-            WHERE 1=1
+            {$filter['sql']}
+            ORDER BY {$sort} {$dir}
+            LIMIT :limit OFFSET :offset
         ";
-        $params = [];
-
-        if ($search !== null) {
-            $sql .= " AND (v.file_name_avv LIKE :search1 OR v.description_text_avv LIKE :search2)";
-            $params[':search1'] = '%' . $search . '%';
-            $params[':search2'] = '%' . $search . '%';
-        }
-
-        if ($active === true) {
-            $sql .= " AND v.is_active_avv = TRUE";
-        } elseif ($active === false) {
-            $sql .= " AND v.is_active_avv = FALSE";
-        }
-
-        $sql .= " ORDER BY {$sort} {$dir} LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
 
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);

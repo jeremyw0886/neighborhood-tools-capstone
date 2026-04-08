@@ -29,31 +29,8 @@ class Account
     ): array {
         $pdo = Database::connection();
 
-        $where  = [];
-        $params = [];
-
-        if ($excludeDeleted) {
-            $where[] = "ast.status_name_ast != 'deleted'";
-        }
-
-        if ($role !== null) {
-            $where[]        = 'rol.role_name_rol = :role';
-            $params[':role'] = $role;
-        }
-
-        if ($status !== null) {
-            $where[]          = 'ast.status_name_ast = :status';
-            $params[':status'] = $status;
-        }
-
-        if ($search !== null) {
-            $where[]            = "(CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :search1, '%')
-                                 OR a.email_address_acc LIKE CONCAT('%', :search2, '%'))";
-            $params[':search1'] = $search;
-            $params[':search2'] = $search;
-        }
-
-        $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
+        $filter      = self::buildFilterWhere($role, $status, $search, $excludeDeleted);
+        $whereClause = $filter['sql'];
 
         $qualified = match ($sort) {
             'role_name_rol'    => 'rol.role_name_rol',
@@ -92,8 +69,8 @@ class Account
 
         $stmt = $pdo->prepare($sql);
 
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -150,31 +127,8 @@ class Account
     ): int {
         $pdo = Database::connection();
 
-        $where  = [];
-        $params = [];
-
-        if ($excludeDeleted) {
-            $where[] = "ast.status_name_ast != 'deleted'";
-        }
-
-        if ($role !== null) {
-            $where[]        = 'rol.role_name_rol = :role';
-            $params[':role'] = $role;
-        }
-
-        if ($status !== null) {
-            $where[]          = 'ast.status_name_ast = :status';
-            $params[':status'] = $status;
-        }
-
-        if ($search !== null) {
-            $where[]            = "(CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :search1, '%')
-                                 OR a.email_address_acc LIKE CONCAT('%', :search2, '%'))";
-            $params[':search1'] = $search;
-            $params[':search2'] = $search;
-        }
-
-        $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
+        $filter      = self::buildFilterWhere($role, $status, $search, $excludeDeleted);
+        $whereClause = $filter['sql'];
 
         $stmt = $pdo->prepare("
             SELECT COUNT(*)
@@ -184,13 +138,54 @@ class Account
             $whereClause
         ");
 
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+        foreach ($filter['params'] as $key => [$value, $type]) {
+            $stmt->bindValue($key, $value, $type);
         }
 
         $stmt->execute();
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Build the shared WHERE clause used by getAllForAdmin() and getFilteredCount().
+     *
+     * @return array{sql: string, params: array<string, array{0: mixed, 1: int}>}
+     */
+    private static function buildFilterWhere(
+        ?string $role,
+        ?string $status,
+        ?string $search,
+        bool $excludeDeleted,
+    ): array {
+        $where  = [];
+        $params = [];
+
+        if ($excludeDeleted) {
+            $where[] = "ast.status_name_ast != 'deleted'";
+        }
+
+        if ($role !== null) {
+            $where[]         = 'rol.role_name_rol = :role';
+            $params[':role'] = [$role, PDO::PARAM_STR];
+        }
+
+        if ($status !== null) {
+            $where[]           = 'ast.status_name_ast = :status';
+            $params[':status'] = [$status, PDO::PARAM_STR];
+        }
+
+        if ($search !== null) {
+            $where[]            = "(CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :search1, '%')
+                                 OR a.email_address_acc LIKE CONCAT('%', :search2, '%'))";
+            $params[':search1'] = [$search, PDO::PARAM_STR];
+            $params[':search2'] = [$search, PDO::PARAM_STR];
+        }
+
+        return [
+            'sql'    => $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '',
+            'params' => $params,
+        ];
     }
 
     /**

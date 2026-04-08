@@ -21,10 +21,7 @@ $dotenv->load();
 // Dev: timestamp on every request (never cached). Prod: content hash from build.
 define('ASSET_VERSION', ($_ENV['APP_ENV'] ?? 'production') === 'development'
     ? (string) time()
-    : (static function (): string {
-        $file = BASE_PATH . '/config/asset-version.php';
-        return file_exists($file) ? require $file : '1.0.0';
-    })()
+    : require BASE_PATH . '/config/asset-version.php'
 );
 
 // Load configuration

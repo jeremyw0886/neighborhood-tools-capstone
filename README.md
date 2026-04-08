@@ -3,7 +3,7 @@
 Community tool-sharing platform for neighbors in the Asheville & Hendersonville area.
 
 **WEB-289 Capstone Project** &mdash; Jeremy Warren
-**Live:** <https://neighborhoodtools.com>
+**Live:** <https://neighborhoodtools.org>
 
 ## Overview
 
@@ -13,12 +13,13 @@ NeighborhoodTools lets neighbors share and borrow tools from each other. Members
 
 | Layer        | Technology                                                                      |
 | ------------ | ------------------------------------------------------------------------------- |
-| Backend      | PHP 8.4+ (no framework)                                                         |
+| Backend      | PHP 8.4+ (no framework, production runs PHP 8.5)                                |
 | Database     | MySQL 8 &mdash; views for reads, stored procedures for writes                   |
-| Frontend     | Vanilla HTML5, CSS, JavaScript (ES6+)                                           |
+| Frontend     | Vanilla HTML5, CSS, JavaScript (ES2025 class syntax with private fields)        |
 | Icons        | Font Awesome 6.5.0 (self-hosted subset)                                         |
 | Server       | Apache or nginx, SiteGround hosting                                             |
-| Payments     | Stripe (`stripe/stripe-php`)                                                    |
+| Payments     | Stripe (`stripe/stripe-php`) for security deposits                              |
+| Bot defense  | Cloudflare Turnstile on auth forms                                              |
 | Dependencies | Composer &mdash; `vlucas/phpdotenv`, `stripe/stripe-php`, classmap autoloading  |
 
 ## Architecture
@@ -42,15 +43,18 @@ neighborhoodtools/
 │       ├── js/                # Client-side scripts
 │       ├── images/            # SVGs and static images
 │       └── vendor/fontawesome/ # Self-hosted FA subset
+├── cron/                      # Scheduled jobs (notifications, stats, cleanup, summary refreshes)
+├── sql/                       # Schema migrations and seed scripts
 ├── src/
 │   ├── Core/                  # BaseController, Database, Role enum, ImageProcessor, RateLimiter, Environment, ViewHelper
-│   ├── Controllers/           # Route handlers
-│   ├── Models/                # Data access (static methods, PDO)
+│   ├── Controllers/           # 18 route handlers
+│   ├── Models/                # 23 data-access classes (static methods, PDO)
 │   └── Views/
 │       ├── layouts/main.php   # Shared HTML shell
 │       ├── partials/          # Nav, dashboard nav, tool cards, sort-filter, overdue/pickup lists, modals, content blocks
 │       └── {feature}/         # Page templates by feature
-├── usability_testing/          # Usability test plans, reports, and support files
+├── storage/                   # Runtime-writable storage (uploads, caches)
+├── usability_testing/         # Usability test plans, reports, and support files
 └── dumps/                     # SQL schema dump
 ```
 
@@ -58,8 +62,8 @@ neighborhoodtools/
 
 - **Home** &mdash; Hero section, featured tools, top members, location-based member carousel
 - **Authentication** &mdash; Login, registration, logout with CSRF protection, honeypot, bcrypt hashing, password reset via email
-- **Tools** &mdash; Browse with search/filter/pagination, detail view, create, edit, delete, multi-image upload with reorder and primary selection, bookmarks, availability management, listing toggle
-- **Dashboard** &mdash; Unified shell with partial content swaps (XHR for fast navigation), overview, lender view (listed tools + incoming requests), borrower view (active borrows), transaction history, loan status tracking, integrated profile/bookmarks/events via shared navigation
+- **Tools** &mdash; Public browse with search/filter/pagination, detail view, multi-image upload with drag-reorder, primary-image selection, focal-point repositioning, availability blocks, listing toggle (create/edit/delete flows live under the dashboard shell)
+- **Dashboard** &mdash; Unified shell with partial content swaps (XHR for fast navigation): overview, lender view (listed tools + incoming requests), borrower view (active borrows), loans, loan-status tracking, transaction history, list-tool / edit-tool, profile + profile-edit, bookmarks, and events all integrated under one shared navigation
 - **Borrowing** &mdash; Request, approve, deny, cancel, extend, reminders
 - **Handover verification** &mdash; Pickup/return code confirmation
 - **Ratings** &mdash; Rate borrowers and lenders after transactions, rate tools
@@ -74,14 +78,15 @@ neighborhoodtools/
 - **Admin** &mdash; Dashboard with platform stats, global search, user management (approve/deny/status), tool management, category CRUD with icon assignment, vector image library, avatar vector management, deposit management, dispute/event/incident oversight, reports, audit log, TOS versioning
 - **Terms of Service** &mdash; Versioned TOS with acceptance tracking
 - **Info Pages** &mdash; How-To, FAQ (available as standalone pages and modals)
+- **Scheduled jobs** &mdash; Cron scripts in `cron/` handle overdue notifications, expired handovers, stale borrow expiry, search-log cleanup, daily platform stats, and refreshes for tool/user/neighborhood summary tables
 
 ## Coding Standards
 
-- **PHP:** PSR-12, strict types, prepared statements, `htmlspecialchars()` on all output
-- **CSS:** Design tokens, CSS nesting, `@layer` cascade, Grid/Flexbox, `clamp()`, no `!important`
-- **JS:** `'use strict'`, progressive enhancement (everything 'works' without JS)
-- **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings
-- **Security:** CSRF tokens, CSP/HSTS/X-Frame-Options headers, HttpOnly/Secure/SameSite cookies
+- **PHP:** PSR-12, strict types, prepared statements with explicit `bindValue()`, `htmlspecialchars()` on all output
+- **CSS:** Design tokens, CSS nesting, Grid/Flexbox, `clamp()`, container queries, no `!important`, no inline styles (strict CSP)
+- **JS:** ES2025 class syntax with private fields and arrow-field handlers, static `init()` factories, progressive enhancement (everything works without JS)
+- **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings, skip-to-content link
+- **Security:** CSRF tokens, honeypot fields, Cloudflare Turnstile, bcrypt cost-12 hashes, CSP/HSTS/X-Frame-Options/Referrer-Policy headers, HttpOnly/Secure/SameSite cookies, 30-minute idle session timeout
 
 ## AI-Assisted Development
 

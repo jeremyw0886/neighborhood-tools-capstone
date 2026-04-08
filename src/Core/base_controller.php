@@ -11,12 +11,10 @@ use App\Models\Tos;
 class BaseController
 {
     /** Cache for current TOS to avoid repeated queries within a request. */
-    private static ?array $cachedTos = null;
-    private static bool $tosCacheLoaded = false;
+    private static array|false|null $cachedTos = false;
 
-    /** Cache for unread notification count — same pattern as TOS cache. */
-    private static ?int $cachedUnreadCount = null;
-    private static bool $unreadCacheLoaded = false;
+    /** Cache for unread notification count */
+    private static int|false $cachedUnreadCount = false;
 
     /**
      * Recompute and cache the nav avatar URL in the session.
@@ -67,10 +65,9 @@ class BaseController
             ]
             : null;
 
-        // Cache TOS query — lightweight
-        if (!self::$tosCacheLoaded) {
+        // Cache TOS query
+        if (self::$cachedTos === false) {
             self::$cachedTos = Tos::getCurrent();
-            self::$tosCacheLoaded = true;
         }
 
         $currentTos = self::$cachedTos;
@@ -89,12 +86,11 @@ class BaseController
             }
         }
 
-        // Cache unread notification count — cheap indexed query
-        if (!self::$unreadCacheLoaded) {
+        // Cache unread notification count
+        if (self::$cachedUnreadCount === false) {
             self::$cachedUnreadCount = $isLoggedIn
                 ? Notification::getUnreadCount($authUser['id'])
                 : 0;
-            self::$unreadCacheLoaded = true;
         }
 
         $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';

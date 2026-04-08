@@ -32,6 +32,12 @@ $appConfig = require BASE_PATH . '/config/app.php';
 $dbConfig  = require BASE_PATH . '/config/database.php';
 $routes    = require BASE_PATH . '/config/routes.php';
 
+$routesByMethod = [];
+foreach ($routes as $route => $handler) {
+    [$routeMethod, $routePath] = explode(' ', $route, 2);
+    $routesByMethod[$routeMethod][] = ['path' => $routePath, 'handler' => $handler];
+}
+
 // Error display — show details in dev, suppress in production
 if ($appConfig['debug']) {
     error_reporting(E_ALL);
@@ -157,19 +163,14 @@ if ($uri !== '/') {
 $matched = false;
 
 try {
-    foreach ($routes as $route => $handler) {
-        [$routeMethod, $routePath] = explode(' ', $route, 2);
+    $candidates = $routesByMethod[$method] ?? [];
 
-        if ($method !== $routeMethod) {
-            continue;
-        }
-
-        // Convert route placeholders {param} to regex
-        $pattern = preg_replace('/\{([a-zA-Z]+)\}/', '(?P<$1>[^/]+)', $routePath);
+    foreach ($candidates as $candidate) {
+        $pattern = preg_replace('/\{([a-zA-Z]+)\}/', '(?P<$1>[^/]+)', $candidate['path']);
         $pattern = '#^' . $pattern . '$#';
 
         if (preg_match($pattern, $uri, $matches)) {
-            [$controllerClass, $action] = $handler;
+            [$controllerClass, $action] = $candidate['handler'];
 
             // Extract named parameters
             $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);

@@ -40,7 +40,7 @@ class ViewHelper
     public static function formatDuration(int $hours): string
     {
         if ($hours >= 24 && $hours % 24 === 0) {
-            $days = $hours / 24;
+            $days = (int) ($hours / 24);
             return $days . ' ' . ($days === 1 ? 'day' : 'days');
         }
 

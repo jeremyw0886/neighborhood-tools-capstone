@@ -17,10 +17,14 @@ class AvatarVector
         return $pdo->query("
             SELECT v.*,
                    a.first_name_acc, a.last_name_acc,
-                   (SELECT COUNT(*) FROM account_acc
-                    WHERE id_avv_acc = v.id_avv) AS user_count
+                   COALESCE(uc.usage_count, 0) AS user_count
             FROM avatar_vector_avv v
             JOIN account_acc a ON v.id_acc_avv = a.id_acc
+            LEFT JOIN (
+                SELECT id_avv_acc, COUNT(*) AS usage_count
+                FROM account_acc
+                GROUP BY id_avv_acc
+            ) uc ON uc.id_avv_acc = v.id_avv
             ORDER BY v.uploaded_at_avv DESC
         ")->fetchAll();
     }
@@ -32,10 +36,14 @@ class AvatarVector
         $stmt = $pdo->prepare("
             SELECT v.*,
                    a.first_name_acc, a.last_name_acc,
-                   (SELECT COUNT(*) FROM account_acc
-                    WHERE id_avv_acc = v.id_avv) AS user_count
+                   COALESCE(uc.usage_count, 0) AS user_count
             FROM avatar_vector_avv v
             JOIN account_acc a ON v.id_acc_avv = a.id_acc
+            LEFT JOIN (
+                SELECT id_avv_acc, COUNT(*) AS usage_count
+                FROM account_acc
+                GROUP BY id_avv_acc
+            ) uc ON uc.id_avv_acc = v.id_avv
             ORDER BY v.uploaded_at_avv DESC
             LIMIT :limit OFFSET :offset
         ");
@@ -174,10 +182,14 @@ class AvatarVector
         $sql = "
             SELECT v.*,
                    a.first_name_acc, a.last_name_acc,
-                   (SELECT COUNT(*) FROM account_acc
-                    WHERE id_avv_acc = v.id_avv) AS user_count
+                   COALESCE(uc.usage_count, 0) AS user_count
             FROM avatar_vector_avv v
             JOIN account_acc a ON v.id_acc_avv = a.id_acc
+            LEFT JOIN (
+                SELECT id_avv_acc, COUNT(*) AS usage_count
+                FROM account_acc
+                GROUP BY id_avv_acc
+            ) uc ON uc.id_avv_acc = v.id_avv
             {$filter['sql']}
             ORDER BY {$sort} {$dir}
             LIMIT :limit OFFSET :offset

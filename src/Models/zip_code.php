@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
+use PDO;
 
 class ZipCode
 {
@@ -23,7 +24,7 @@ class ZipCode
         $sql = "SELECT 1 FROM zip_code_zpc WHERE zip_code_zpc = :zip LIMIT 1";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':zip', $zipCode);
+        $stmt->bindValue(':zip', $zipCode, PDO::PARAM_STR);
         $stmt->execute();
 
         return $stmt->fetch() !== false;
@@ -130,12 +131,17 @@ class ZipCode
                 longitude_zpc,
                 location_point_zpc
             ) VALUES (
-                ?, ?, ?,
-                ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326, 'axis-order=long-lat')
+                :zip, :lat, :lng,
+                ST_GeomFromText(CONCAT('POINT(', :lng_point, ' ', :lat_point, ')'), 4326, 'axis-order=long-lat')
             )
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$zipCode, $lat, $lng, $lng, $lat]);
+        $stmt->bindValue(':zip', $zipCode, PDO::PARAM_STR);
+        $stmt->bindValue(':lat', $lat);
+        $stmt->bindValue(':lng', $lng);
+        $stmt->bindValue(':lng_point', $lng);
+        $stmt->bindValue(':lat_point', $lat);
+        $stmt->execute();
     }
 }

@@ -24,11 +24,13 @@ class PasswordReset
     {
         $pdo = Database::connection();
 
-        $pdo->prepare("
+        $invalidate = $pdo->prepare("
             UPDATE password_reset_pwr
             SET used_at_pwr = NOW()
             WHERE id_acc_pwr = :id AND used_at_pwr IS NULL
-        ")->execute([':id' => $accountId]);
+        ");
+        $invalidate->bindValue(':id', $accountId, PDO::PARAM_INT);
+        $invalidate->execute();
 
         $token = bin2hex(random_bytes(32));
 

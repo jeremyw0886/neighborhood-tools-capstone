@@ -21,27 +21,28 @@ class Neighborhood
     {
         $pdo = Database::connection();
 
-        $row = $pdo->query(
-            'SELECT
-                (SELECT COUNT(*)
-                   FROM account_acc
-                  WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = \'active\')
-                ) AS active_members,
-                (SELECT COUNT(*)
-                   FROM available_tool_v
-                ) AS available_tools,
-                (SELECT COUNT(*)
-                   FROM borrow_bor
-                  WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst WHERE status_name_bst = \'returned\')
-                    AND returned_at_bor >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-                ) AS completed_borrows'
-        )->fetch(PDO::FETCH_ASSOC);
+        $activeMembers = (int) $pdo->query(
+            "SELECT COUNT(*) FROM account_acc
+             WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast
+                                 WHERE status_name_ast = 'active')"
+        )->fetchColumn();
+
+        $availableTools = (int) $pdo->query(
+            'SELECT COUNT(*) FROM available_tool_v'
+        )->fetchColumn();
+
+        $completedBorrows = (int) $pdo->query(
+            "SELECT COUNT(*) FROM borrow_bor
+             WHERE id_bst_bor = (SELECT id_bst FROM borrow_status_bst
+                                 WHERE status_name_bst = 'returned')
+               AND returned_at_bor >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
+        )->fetchColumn();
 
         return [
-            'totalMembers'     => (int) $row['active_members'],
-            'activeMembers'    => (int) $row['active_members'],
-            'availableTools'   => (int) $row['available_tools'],
-            'completedBorrows' => (int) $row['completed_borrows'],
+            'totalMembers'     => $activeMembers,
+            'activeMembers'    => $activeMembers,
+            'availableTools'   => $availableTools,
+            'completedBorrows' => $completedBorrows,
         ];
     }
 

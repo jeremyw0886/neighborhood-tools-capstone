@@ -48,11 +48,7 @@ class RateLimiter
 
     public static function reset(string $key): void
     {
-        $path = self::filePath($key);
-
-        if (file_exists($path)) {
-            @unlink($path);
-        }
+        @unlink(self::filePath($key));
     }
 
     public static function remainingSeconds(string $key, int $windowSeconds): int

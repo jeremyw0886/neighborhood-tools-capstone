@@ -31,6 +31,14 @@ class ProfileController extends BaseController
 
     private const array VALID_PREFERENCES = ['email', 'phone', 'both', 'app'];
 
+    private static ?\finfo $finfo = null;
+
+    /** Lazy-initialized shared finfo handle for MIME detection. */
+    private static function finfo(): \finfo
+    {
+        return self::$finfo ??= new \finfo(FILEINFO_MIME_TYPE);
+    }
+
     /**
      * Show a user's public profile.
      *
@@ -594,8 +602,7 @@ class ProfileController extends BaseController
             return $errors;
         }
 
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mime  = $finfo->file($file['tmp_name']);
+        $mime = self::finfo()->file($file['tmp_name']);
 
         if (!in_array($mime, self::ALLOWED_MIMES, true)) {
             $errors['avatar'] = 'Image must be a JPEG, PNG, or WebP file.';
@@ -611,9 +618,8 @@ class ProfileController extends BaseController
      */
     private function moveProfileImage(array $file): ?string
     {
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mime  = $finfo->file($file['tmp_name']);
-        $ext   = self::MIME_EXTENSIONS[$mime] ?? 'jpg';
+        $mime = self::finfo()->file($file['tmp_name']);
+        $ext  = self::MIME_EXTENSIONS[$mime] ?? 'jpg';
 
         $filename    = uniqid('profile_', true) . '.' . $ext;
         $destination = BASE_PATH . '/public/uploads/profiles/' . $filename;

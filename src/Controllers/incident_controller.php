@@ -439,6 +439,7 @@ class IncidentController extends BaseController
     {
         $files  = $_FILES['photos'];
         $count  = 0;
+        $finfo  = new \finfo(FILEINFO_MIME_TYPE);
 
         foreach ($files['error'] as $i => $error) {
             if ($error === UPLOAD_ERR_NO_FILE) {
@@ -459,8 +460,7 @@ class IncidentController extends BaseController
                 return ['photos' => 'Each photo must be 5 MB or smaller.'];
             }
 
-            $finfo = new \finfo(FILEINFO_MIME_TYPE);
-            $mime  = $finfo->file($files['tmp_name'][$i]);
+            $mime = $finfo->file($files['tmp_name'][$i]);
 
             if (!in_array($mime, self::ALLOWED_MIMES, true)) {
                 return ['photos' => 'Photos must be JPEG, PNG, or WebP files.'];
@@ -479,14 +479,14 @@ class IncidentController extends BaseController
     {
         $files     = $_FILES['photos'];
         $filenames = [];
+        $finfo     = new \finfo(FILEINFO_MIME_TYPE);
 
         foreach ($files['error'] as $i => $error) {
             if ($error === UPLOAD_ERR_NO_FILE) {
                 continue;
             }
 
-            $finfo = new \finfo(FILEINFO_MIME_TYPE);
-            $mime  = $finfo->file($files['tmp_name'][$i]);
+            $mime = $finfo->file($files['tmp_name'][$i]);
             $ext   = self::MIME_EXTENSIONS[$mime] ?? 'jpg';
 
             $filename    = uniqid('incident_', true) . '.' . $ext;

@@ -143,8 +143,8 @@ class DashboardController extends BaseController
             static fn(array $row): bool => (int) $row['lender_id'] === $userId,
         ));
 
-        $pickupBorrowIds = array_map(static fn(array $row): int => (int) $row['id_bor'], $awaitingPickup);
-        $lentBorrowIds   = array_map(static fn(array $row): int => (int) $row['id_bor'], $lentOut);
+        $pickupBorrowIds = array_map('intval', array_column($awaitingPickup, 'id_bor'));
+        $lentBorrowIds   = array_map('intval', array_column($lentOut, 'id_bor'));
         $depositsByBorrow     = Deposit::findByBorrowIds($pickupBorrowIds);
         $lentDepositsByBorrow = Deposit::findByBorrowIds($lentBorrowIds);
 

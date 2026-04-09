@@ -685,12 +685,14 @@ class Borrow
 
         $pdo = Database::connection();
 
+        $fetchAll = $limit + $offset;
+
         $stmt = $pdo->prepare('CALL sp_get_user_borrow_history(:id, :role, :status, :lim, :off)');
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->bindValue(':role', $role, PDO::PARAM_STR);
         $stmt->bindValue(':status', $status, $status === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
+        $stmt->bindValue(':lim', $fetchAll, PDO::PARAM_INT);
+        $stmt->bindValue(':off', 0, PDO::PARAM_INT);
         $stmt->execute();
 
         $rows = $stmt->fetchAll();
@@ -701,7 +703,7 @@ class Borrow
             return $dir === 'DESC' ? -$cmp : $cmp;
         });
 
-        return $rows;
+        return array_slice($rows, $offset, $limit);
     }
 
     /**

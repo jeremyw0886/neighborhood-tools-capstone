@@ -153,11 +153,12 @@ class Incident
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':term1', $term);
-        $stmt->bindValue(':term2', $term);
-        $stmt->bindValue(':term3', $term);
-        $stmt->bindValue(':term4', $term);
-        $stmt->bindValue(':term5', $term);
+        $escaped = Database::escapeLike($term);
+        $stmt->bindValue(':term1', $escaped);
+        $stmt->bindValue(':term2', $escaped);
+        $stmt->bindValue(':term3', $escaped);
+        $stmt->bindValue(':term4', $escaped);
+        $stmt->bindValue(':term5', $escaped);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

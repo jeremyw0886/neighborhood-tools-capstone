@@ -656,7 +656,7 @@ class Deposit
             $conditions[] = '(t.tool_name_tol LIKE :search1'
                 . " OR CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) LIKE :search2"
                 . " OR CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) LIKE :search3)";
-            $term = '%' . $search . '%';
+            $term = '%' . Database::escapeLike($search) . '%';
             $params[':search1'] = $term;
             $params[':search2'] = $term;
             $params[':search3'] = $term;
@@ -795,7 +795,7 @@ class Deposit
             LIMIT :limit
         ");
 
-        $like = '%' . $term . '%';
+        $like = '%' . Database::escapeLike($term) . '%';
         $stmt->bindValue(':search1', $like);
         $stmt->bindValue(':search2', $like);
         $stmt->bindValue(':search3', $like);

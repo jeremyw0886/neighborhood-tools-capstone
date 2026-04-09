@@ -9,6 +9,10 @@ use PDO;
 
 class Dispute
 {
+    private const array VALID_SORT_FIELDS = [
+        'created_at_dsp', 'days_open', 'last_message_at', 'message_count',
+    ];
+
     private const array URGENCY_CONDITIONS = [
         'critical' => 'days_open >= 14',
         'high'     => 'days_open BETWEEN 7 AND 13',
@@ -19,8 +23,8 @@ class Dispute
     /**
      * Fetch open disputes with pagination, sorting, and urgency filter.
      *
-     * @param  string  $sort    Pre-validated column name
-     * @param  string  $dir     Pre-validated direction (ASC|DESC)
+     * @param  string  $sort    Column name (validated against VALID_SORT_FIELDS)
+     * @param  string  $dir     Direction (ASC|DESC)
      * @param  ?string $urgency Urgency tier: critical|high|moderate|new
      * @return array
      */
@@ -31,6 +35,9 @@ class Dispute
         string $dir = 'DESC',
         ?string $urgency = null,
     ): array {
+        $sort = in_array($sort, self::VALID_SORT_FIELDS, true) ? $sort : 'created_at_dsp';
+        $dir  = strtoupper($dir) === 'ASC' ? 'ASC' : 'DESC';
+
         $pdo = Database::connection();
 
         $whereClause = self::buildFilterWhere($urgency);
@@ -108,10 +115,11 @@ class Dispute
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':term1', $term);
-        $stmt->bindValue(':term2', $term);
-        $stmt->bindValue(':term3', $term);
-        $stmt->bindValue(':term4', $term);
+        $escaped = Database::escapeLike($term);
+        $stmt->bindValue(':term1', $escaped);
+        $stmt->bindValue(':term2', $escaped);
+        $stmt->bindValue(':term3', $escaped);
+        $stmt->bindValue(':term4', $escaped);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

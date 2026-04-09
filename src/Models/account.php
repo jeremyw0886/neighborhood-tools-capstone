@@ -106,8 +106,9 @@ class Account
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':term1', $term);
-        $stmt->bindValue(':term2', $term);
+        $escaped = Database::escapeLike($term);
+        $stmt->bindValue(':term1', $escaped);
+        $stmt->bindValue(':term2', $escaped);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -178,8 +179,9 @@ class Account
         if ($search !== null) {
             $where[]            = "(CONCAT(a.first_name_acc, ' ', a.last_name_acc) LIKE CONCAT('%', :search1, '%')
                                  OR a.email_address_acc LIKE CONCAT('%', :search2, '%'))";
-            $params[':search1'] = [$search, PDO::PARAM_STR];
-            $params[':search2'] = [$search, PDO::PARAM_STR];
+            $escaped = Database::escapeLike($search);
+            $params[':search1'] = [$escaped, PDO::PARAM_STR];
+            $params[':search2'] = [$escaped, PDO::PARAM_STR];
         }
 
         return [

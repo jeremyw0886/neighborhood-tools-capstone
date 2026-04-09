@@ -45,7 +45,7 @@ class Category
             LIMIT :limit
         ");
 
-        $stmt->bindValue(':term', $term);
+        $stmt->bindValue(':term', Database::escapeLike($term));
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

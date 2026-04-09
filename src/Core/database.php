@@ -27,4 +27,12 @@ class Database
         }
         return self::$pdo;
     }
+
+    /**
+     * Escape SQL LIKE meta-characters so bound values match literally.
+     */
+    public static function escapeLike(string $value): string
+    {
+        return strtr($value, ['\\' => '\\\\', '%' => '\\%', '_' => '\\_']);
+    }
 }

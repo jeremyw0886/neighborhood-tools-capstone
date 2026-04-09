@@ -16,6 +16,11 @@ class Tool
     private const int MAX_PER_OWNER = 2;
     private const int NEW_ARRIVAL_DAYS = 30;
 
+    private const array ADMIN_SORT_FIELDS = [
+        'tool_name_tol', 'owner_name', 'tool_condition', 'rental_fee_tol',
+        'avg_rating', 'total_borrows', 'incident_count', 'created_at_tol',
+    ];
+
     /**
      * Fetch popular/featured tools with reserved slots for new arrivals.
      *
@@ -1426,8 +1431,9 @@ class Tool
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':term1', $term);
-        $stmt->bindValue(':term2', $term);
+        $escaped = Database::escapeLike($term);
+        $stmt->bindValue(':term1', $escaped);
+        $stmt->bindValue(':term2', $escaped);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -1455,8 +1461,8 @@ class Tool
     /**
      * Fetch a paginated, sortable, filterable list of tools from tool_statistics_fast_v.
      *
-     * @param  string  $sort          Pre-validated column name
-     * @param  string  $dir           Pre-validated direction (ASC|DESC)
+     * @param  string  $sort          Column name (validated against ADMIN_SORT_FIELDS)
+     * @param  string  $dir           Direction (ASC|DESC)
      * @param  ?string $condition     Filter by tool_condition value
      * @param  bool    $incidentsOnly Only tools with incident_count > 0
      * @param  ?string $search        LIKE on tool_name_tol and owner_name
@@ -1471,6 +1477,9 @@ class Tool
         bool $incidentsOnly = false,
         ?string $search = null,
     ): array {
+        $sort = in_array($sort, self::ADMIN_SORT_FIELDS, true) ? $sort : 'created_at_tol';
+        $dir  = strtoupper($dir) === 'ASC' ? 'ASC' : 'DESC';
+
         $pdo = Database::connection();
 
         $where  = [];
@@ -1488,8 +1497,9 @@ class Tool
         if ($search !== null) {
             $where[]            = '(tool_name_tol LIKE CONCAT(\'%\', :search1, \'%\')
                                  OR owner_name LIKE CONCAT(\'%\', :search2, \'%\'))';
-            $params[':search1'] = $search;
-            $params[':search2'] = $search;
+            $escaped = Database::escapeLike($search);
+            $params[':search1'] = $escaped;
+            $params[':search2'] = $escaped;
         }
 
         $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -1542,8 +1552,9 @@ class Tool
         if ($search !== null) {
             $where[]            = '(tool_name_tol LIKE CONCAT(\'%\', :search1, \'%\')
                                  OR owner_name LIKE CONCAT(\'%\', :search2, \'%\'))';
-            $params[':search1'] = $search;
-            $params[':search2'] = $search;
+            $escaped = Database::escapeLike($search);
+            $params[':search1'] = $escaped;
+            $params[':search2'] = $escaped;
         }
 
         $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -1907,7 +1918,7 @@ class Tool
             ORDER BY tool_name_tol
             LIMIT :lim
         ");
-        $stmt->bindValue(':termName', $term, PDO::PARAM_STR);
+        $stmt->bindValue(':termName', Database::escapeLike($term), PDO::PARAM_STR);
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

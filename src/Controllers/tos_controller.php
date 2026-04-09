@@ -23,10 +23,14 @@ class TosController extends BaseController
      */
     public function show(): void
     {
+        $shared = $this->getSharedData();
+        $requiresAcceptance = $shared['isLoggedIn'] && !$shared['tosAccepted'] && $shared['currentTos'] !== null;
+
         $this->render('tos/show', [
-            'title'       => 'Terms of Service — NeighborhoodTools',
-            'description' => 'Read the current NeighborhoodTools Terms of Service.',
-            'pageCss'     => ['pages.css'],
+            'title'              => 'Terms of Service — NeighborhoodTools',
+            'description'        => 'Read the current NeighborhoodTools Terms of Service.',
+            'pageCss'            => ['pages.css'],
+            'requiresAcceptance' => $requiresAcceptance,
         ]);
     }
 
@@ -58,27 +62,30 @@ class TosController extends BaseController
         }
 
         $accountId = (int) $_SESSION['user_id'];
+        $cacheKey  = '_tos_accepted_' . $tosId;
+        $wasEnforced = empty($_SESSION[$cacheKey]);
 
         // Silently skip if already accepted (UNIQUE constraint would throw otherwise)
         if (Tos::hasUserAccepted(accountId: $accountId, tosId: $tosId)) {
-            $this->redirectBack();
+            $_SESSION[$cacheKey] = true;
+            $this->redirect($wasEnforced ? '/' : $this->resolveBackUrl());
         }
 
         try {
             Tos::recordAcceptance(accountId: $accountId, tosId: $tosId);
-            $_SESSION['_tos_accepted_' . $tosId] = true;
+            $_SESSION[$cacheKey] = true;
         } catch (\Throwable $e) {
             error_log('TosController::accept — ' . $e->getMessage());
             $this->abort(500);
         }
 
-        $this->redirectBack();
+        $this->redirect($wasEnforced ? '/' : $this->resolveBackUrl());
     }
 
     /**
-     * Redirect to the HTTP referrer, falling back to /tos.
+     * Resolve a safe back URL from the HTTP referrer.
      */
-    private function redirectBack(): never
+    private function resolveBackUrl(): string
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? '';
         $host     = $_SERVER['HTTP_HOST'] ?? '';
@@ -88,10 +95,10 @@ class TosController extends BaseController
             $refHost = $parsed['host'] ?? '';
 
             if ($refHost === $host) {
-                $this->redirect($parsed['path'] ?? '/tos');
+                return $parsed['path'] ?? '/tos';
             }
         }
 
-        $this->redirect('/tos');
+        return '/tos';
     }
 }

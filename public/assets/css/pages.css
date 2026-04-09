@@ -77,6 +77,33 @@
       font-weight: 600;
     }
 
+    /* ── TOS enforcement banner ── */
+
+    & [data-tos-enforcement] {
+      align-items: flex-start;
+      background: color-mix(in srgb, var(--mountain-gold) 12%, transparent);
+      border: 1px solid var(--mountain-gold);
+      border-radius: 0.5rem;
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem;
+
+      &>i {
+        color: var(--mountain-gold-dark);
+        flex-shrink: 0;
+        font-size: 1.25rem;
+        margin-top: 0.125rem;
+      }
+
+      &>p {
+        color: var(--mountain-pine);
+        font-size: 0.938rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+    }
+
     /* ── Article footer (TOS accept form / badge) ── */
 
     &>footer {

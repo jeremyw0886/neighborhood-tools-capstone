@@ -10,6 +10,7 @@ use App\Models\Account;
 use App\Models\Neighborhood;
 use App\Models\Notification;
 use App\Models\PasswordReset;
+use App\Models\Tos;
 use App\Models\ZipCode;
 
 class AuthController extends BaseController
@@ -206,6 +207,7 @@ class AuthController extends BaseController
             'neighborhood_id'  => (int) ($_POST['neighborhood_id'] ?? 0) > 0
                 ? (int) $_POST['neighborhood_id']
                 : null,
+            'accept_tos'       => ($_POST['accept_tos'] ?? '') === '1',
         ];
 
         $errors = $this->validateRegistration($data);
@@ -220,6 +222,7 @@ class AuthController extends BaseController
                 'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
+                'accept_tos'      => $data['accept_tos'],
             ];
             $this->redirect('/register');
         }
@@ -245,6 +248,7 @@ class AuthController extends BaseController
                 'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
+                'accept_tos'      => $data['accept_tos'],
             ];
             $this->redirect('/register');
         }
@@ -265,6 +269,7 @@ class AuthController extends BaseController
                 'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
+                'accept_tos'      => $data['accept_tos'],
             ];
             $this->redirect('/register');
         }
@@ -309,6 +314,7 @@ class AuthController extends BaseController
                 'street_address'  => $data['street_address'],
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
+                'accept_tos'      => $data['accept_tos'],
             ];
             $this->redirect('/register');
         }
@@ -323,6 +329,17 @@ class AuthController extends BaseController
         $_SESSION['user_avatar']        = null;
         $_SESSION['user_vector_avatar'] = null;
         $_SESSION['user_nav_avatar']    = null;
+
+        $currentTos = Tos::getCurrent();
+        if ($currentTos !== null) {
+            $tosId = (int) $currentTos['id_tos'];
+            try {
+                Tos::recordAcceptance(accountId: $newId, tosId: $tosId);
+                $_SESSION['_tos_accepted_' . $tosId] = true;
+            } catch (\Throwable $e) {
+                error_log('AuthController::register — TOS acceptance failed: ' . $e->getMessage());
+            }
+        }
 
         $returnUrl = $this->validateReturnUrl(
             $_SESSION['redirect_after_login'] ?? null
@@ -784,6 +801,10 @@ class AuthController extends BaseController
             $errors['zip_code'] = 'Zip code is required.';
         } elseif (!preg_match('/^\d{5}$/', $data['zip_code'])) {
             $errors['zip_code'] = 'Please enter a valid 5-digit zip code.';
+        }
+
+        if (Tos::getCurrent() !== null && empty($data['accept_tos'])) {
+            $errors['accept_tos'] = 'You must accept the Terms of Service to create an account.';
         }
 
         return $errors;

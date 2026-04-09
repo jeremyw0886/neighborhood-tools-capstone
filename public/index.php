@@ -116,6 +116,33 @@ if (!empty($_SESSION['logged_in'])) {
     }
 }
 
+// Enforce TOS acceptance — logged-in users must accept the current version
+if (!empty($_SESSION['logged_in'])) {
+    $tosWhitelist = ['/tos', '/tos/accept', '/logout', '/login', '/register'];
+    $requestUri   = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+
+    if (!in_array($requestUri, $tosWhitelist, true)) {
+        $currentTos = \App\Models\Tos::getCurrent();
+
+        if ($currentTos !== null) {
+            $tosId    = (int) $currentTos['id_tos'];
+            $cacheKey = '_tos_accepted_' . $tosId;
+
+            if (!isset($_SESSION[$cacheKey])) {
+                $_SESSION[$cacheKey] = \App\Models\Tos::hasUserAccepted(
+                    accountId: (int) $_SESSION['user_id'],
+                    tosId: $tosId,
+                );
+            }
+
+            if (!$_SESSION[$cacheKey]) {
+                header('Location: /tos');
+                exit;
+            }
+        }
+    }
+}
+
 // Generate CSRF token if one doesn't exist
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

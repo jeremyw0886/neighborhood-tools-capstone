@@ -218,6 +218,30 @@
         </div>
       </fieldset>
 
+      <?php if ($currentTos): ?>
+      <fieldset>
+        <legend>Terms of Service</legend>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              name="accept_tos"
+              value="1"
+              required
+              <?= !empty($old['accept_tos']) ? 'checked' : '' ?>
+              aria-describedby="<?= !empty($errors['accept_tos']) ? 'tos-error' : '' ?>"
+              <?= !empty($errors['accept_tos']) ? 'aria-invalid="true"' : '' ?>
+            >
+            I agree to the <a href="/tos" target="_blank" rel="noopener">Terms of Service</a>
+            <small>v<?= htmlspecialchars($currentTos['version_tos']) ?></small>
+          </label>
+          <?php if (!empty($errors['accept_tos'])): ?>
+            <span id="tos-error" role="alert"><?= htmlspecialchars($errors['accept_tos']) ?></span>
+          <?php endif; ?>
+        </div>
+      </fieldset>
+      <?php endif; ?>
+
       <?php if (!empty($turnstileSiteKey)): ?>
         <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="register"></div>
       <?php endif; ?>

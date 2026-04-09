@@ -32,6 +32,13 @@ $tos = $currentTos ?? null;
     <p>Please review the terms that govern your use of NeighborhoodTools.</p>
   </header>
 
+  <?php if (!empty($requiresAcceptance)): ?>
+    <div role="alert" data-tos-enforcement>
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <p>You must accept the current Terms of Service before continuing to use NeighborhoodTools. Please review the terms below and click <strong>Accept</strong> to proceed.</p>
+    </div>
+  <?php endif; ?>
+
   <?php if ($tos): ?>
     <?php require BASE_PATH . '/src/Views/partials/content-tos.php'; ?>
 

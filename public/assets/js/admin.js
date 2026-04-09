@@ -314,7 +314,7 @@ class AdminRouter {
     if (form.method !== 'get' || !form.matches('[data-admin-filters]')) return;
 
     e.preventDefault();
-    const url = new URL(form.action, location.origin);
+    const url = new URL(form.getAttribute('action'), location.origin);
     new FormData(form).forEach((v, k) => {
       if (v !== '') url.searchParams.set(k, v);
     });

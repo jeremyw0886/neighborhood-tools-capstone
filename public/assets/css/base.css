@@ -335,17 +335,17 @@
   form[role="search"] input:focus-visible {
       outline: none;
   }
+}
 
-  /* --- Reduced motion --- */
+/* --- Reduced motion --- */
 
-  @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          scroll-behavior: auto !important;
-          transition-duration: 0.01ms !important;
-      }
-  }
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+        scroll-behavior: auto;
+        transition-duration: 0.01ms;
+    }
 }

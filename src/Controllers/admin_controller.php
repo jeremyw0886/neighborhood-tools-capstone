@@ -157,8 +157,8 @@ class AdminController extends BaseController
             'q'      => $search,
             'role'   => $role,
             'status' => $tab === 'active' ? $status : null,
-            'sort'   => $sortParams['sort'],
-            'dir'    => $sortParams['dir'],
+            'sort'   => $sortParams['sort'] === 'full_name' ? null : $sortParams['sort'],
+            'dir'    => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('users', [
@@ -808,8 +808,8 @@ class AdminController extends BaseController
             'q'         => $search,
             'condition' => $condition,
             'incidents' => $incidentsOnly ? '1' : null,
-            'sort'      => $sortParams['sort'],
-            'dir'       => $sortParams['dir'],
+            'sort'      => $sortParams['sort'] === 'created_at_tol' ? null : $sortParams['sort'],
+            'dir'       => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('tools', [
@@ -946,8 +946,8 @@ class AdminController extends BaseController
 
         $filterParams = array_filter([
             'timing' => $timing,
-            'sort'   => $sortParams['sort'],
-            'dir'    => $sortParams['dir'],
+            'sort'   => $sortParams['sort'] === 'start_at_evt' ? null : $sortParams['sort'],
+            'dir'    => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('events', [
@@ -1017,8 +1017,8 @@ class AdminController extends BaseController
         $filterParams = array_filter([
             'type'     => $type,
             'deadline' => $rawDeadline !== '' && $deadlineMet !== null ? $rawDeadline : null,
-            'sort'     => $sortParams['sort'],
-            'dir'      => $sortParams['dir'],
+            'sort'     => $sortParams['sort'] === 'created_at_irt' ? null : $sortParams['sort'],
+            'dir'      => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('incidents', [
@@ -1077,8 +1077,8 @@ class AdminController extends BaseController
         }
 
         $filterParams = array_filter([
-            'sort' => $sortParams['sort'],
-            'dir'  => $sortParams['dir'],
+            'sort' => $sortParams['sort'] === 'neighborhood_name_nbh' ? null : $sortParams['sort'],
+            'dir'  => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('reports', [
@@ -1148,8 +1148,8 @@ class AdminController extends BaseController
         }
 
         $filterParams = array_filter([
-            'sort' => $sortParams['sort'],
-            'dir'  => $sortParams['dir'],
+            'sort' => $sortParams['sort'] === 'last_login_at_acc' ? null : $sortParams['sort'],
+            'dir'  => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('tos', [
@@ -1314,8 +1314,8 @@ class AdminController extends BaseController
         $filterParams = array_filter([
             'q'    => $search,
             'icon' => $rawIcon !== '' && $hasIcon !== null ? $rawIcon : null,
-            'sort' => $sortParams['sort'],
-            'dir'  => $sortParams['dir'],
+            'sort' => $sortParams['sort'] === 'category_name_cat' ? null : $sortParams['sort'],
+            'dir'  => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('categories', [
@@ -1858,16 +1858,16 @@ class AdminController extends BaseController
         $iconsFilterParams = array_filter([
             'icons_q'        => $iconsSearch,
             'icons_assigned' => $rawIconsAssigned !== '' && $iconsAssigned !== null ? $rawIconsAssigned : null,
-            'icons_sort'     => $iconsSortP['sort'],
-            'icons_dir'      => $iconsSortP['dir'],
+            'icons_sort'     => $iconsSortP['sort'] === 'uploaded_at_vec' ? null : $iconsSortP['sort'],
+            'icons_dir'      => $iconsSortP['dir'] === 'DESC' ? null : $iconsSortP['dir'],
             'avatars_page'   => $avatarsPage > 1 ? $avatarsPage : null,
         ], static fn(mixed $v): bool => $v !== null);
 
         $avatarsFilterParams = array_filter([
             'avatars_q'      => $avatarsSearch,
             'avatars_status' => $rawAvatarsStatus !== '' && $avatarsActive !== null ? $rawAvatarsStatus : null,
-            'avatars_sort'   => $avatarsSortP['sort'],
-            'avatars_dir'    => $avatarsSortP['dir'],
+            'avatars_sort'   => $avatarsSortP['sort'] === 'uploaded_at_avv' ? null : $avatarsSortP['sort'],
+            'avatars_dir'    => $avatarsSortP['dir'] === 'DESC' ? null : $avatarsSortP['dir'],
             'icons_page'     => $iconsPage > 1 ? $iconsPage : null,
         ], static fn(mixed $v): bool => $v !== null);
 

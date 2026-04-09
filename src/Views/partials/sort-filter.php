@@ -20,7 +20,9 @@ $p = htmlspecialchars($paramPrefix);
   <fieldset>
     <legend class="visually-hidden">Sort<?= !empty($filterOptions) ? ' and filter' : '' ?> options</legend>
     <?php foreach ($preserveParams ?? [] as $name => $value): ?>
-      <input type="hidden" name="<?= htmlspecialchars($name) ?>" value="<?= htmlspecialchars($value) ?>">
+      <?php if ($value !== '' && $value !== null): ?>
+        <input type="hidden" name="<?= htmlspecialchars($name) ?>" value="<?= htmlspecialchars($value) ?>">
+      <?php endif; ?>
     <?php endforeach; ?>
 
     <label>

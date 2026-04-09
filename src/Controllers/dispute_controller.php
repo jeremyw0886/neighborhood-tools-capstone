@@ -53,8 +53,8 @@ class DisputeController extends BaseController
 
         $filterParams = array_filter([
             'urgency' => $urgency,
-            'sort'    => $sortParams['sort'],
-            'dir'     => $sortParams['dir'],
+            'sort'    => $sortParams['sort'] === 'created_at_dsp' ? null : $sortParams['sort'],
+            'dir'     => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
         ], static fn(mixed $v): bool => $v !== null);
 
         $this->renderAdmin('disputes', [

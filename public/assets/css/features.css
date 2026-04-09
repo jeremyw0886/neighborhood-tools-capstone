@@ -1888,7 +1888,7 @@
         white-space: nowrap;
       }
 
-      & dd>span:not([data-urgent]):not([data-warning]) {
+      & dd>span:not([data-urgent], [data-warning]) {
         background: var(--alert-success-bg);
         color: var(--alert-success-text);
       }
@@ -2048,7 +2048,6 @@
         font-weight: 700;
         letter-spacing: 0.25em;
         margin: 1rem 0 0;
-        -webkit-user-select: all;
         user-select: all;
       }
     }

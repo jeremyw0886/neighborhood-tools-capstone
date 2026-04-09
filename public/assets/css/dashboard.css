@@ -137,7 +137,7 @@
 
             &::after {
               content: "\f002";
-              font-family: "Font Awesome 6 Free";
+              font-family: "Font Awesome 6 Free", sans-serif;
               font-size: 0.9rem;
               font-weight: 900;
             }
@@ -428,7 +428,7 @@
       }
 
       &>span[data-status="on-time"],
-      &>span:not([data-urgent]):not([data-warning]):not([data-status]) {
+      &>span:not([data-urgent], [data-warning], [data-status]) {
         background: var(--alert-success-bg);
         color: var(--alert-success-text);
       }

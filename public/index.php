@@ -44,6 +44,9 @@ if ($appConfig['debug']) {
     ini_set('display_errors', '0');
 }
 
+// Error log — absolute path so web process and CLI both write to the same file
+ini_set('error_log', BASE_PATH . '/public/php_errorlog');
+
 // Set timezone
 date_default_timezone_set($appConfig['timezone']);
 

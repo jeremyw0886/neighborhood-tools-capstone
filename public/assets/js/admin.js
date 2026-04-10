@@ -400,7 +400,7 @@ class AdminRouter {
       this.#updateHeader(heading, icon, description, sectionId);
       this.#updatePageTitle(title);
       this.#ensureCss(css);
-      this.#content.innerHTML = html;
+      this.#content.innerHTML = NT.sanitizeHtml(html);
       this.#content.setAttribute('data-transition', 'fade-in');
       this.#content.removeAttribute('aria-busy');
 

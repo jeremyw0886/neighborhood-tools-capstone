@@ -698,7 +698,7 @@ class BellDropdown {
   }
 
   #renderItems(items) {
-    this.#list.innerHTML = '';
+    this.#list.replaceChildren();
 
     for (const item of items) {
       const li = document.createElement('li');
@@ -739,7 +739,7 @@ class BellDropdown {
       this.#list.hidden = false;
       this.#emptyMsg.hidden = true;
     } else {
-      this.#list.innerHTML = '';
+      this.#list.replaceChildren();
       this.#list.hidden = true;
       this.#emptyMsg.hidden = false;
     }

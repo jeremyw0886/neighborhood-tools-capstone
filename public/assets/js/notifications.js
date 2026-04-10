@@ -305,7 +305,7 @@ class NotificationManager {
     const total = (parseInt(totalEl.textContent.replace(/,/g, ''), 10) || 0) + delta;
 
     if (total <= 0) {
-      liveRegion.innerHTML = '';
+      liveRegion.replaceChildren();
       return;
     }
 
@@ -436,7 +436,7 @@ class NotificationManager {
       if (!fresh) throw new Error('Section not found in response');
 
       const backNav = this.#section.querySelector('nav[aria-label="Back"]');
-      this.#section.innerHTML = '';
+      this.#section.replaceChildren();
       if (backNav) this.#section.appendChild(backNav);
 
       for (const child of [...fresh.children]) {

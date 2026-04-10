@@ -254,7 +254,7 @@ class BrowseFilter {
     if (!this.#grid) return;
 
     this.#grid.hidden = false;
-    this.#grid.innerHTML = '';
+    this.#grid.replaceChildren();
     for (let i = 0; i < BrowseFilter.#SKELETON_COUNT; i++) {
       const card = document.createElement('div');
       card.setAttribute('role', 'listitem');
@@ -427,7 +427,7 @@ class BrowseFilter {
       const data = await res.json();
 
       if (this.#grid) {
-        this.#grid.innerHTML = data.html;
+        this.#grid.innerHTML = NT.sanitizeHtml(data.html);
       }
 
       NT.style.removeRule('grid-lock');
@@ -435,12 +435,12 @@ class BrowseFilter {
       const currentPagination = this.#page.querySelector('nav[aria-label="Pagination"]');
       if (currentPagination) {
         if (data.paginationHtml.trim()) {
-          currentPagination.outerHTML = data.paginationHtml;
+          currentPagination.outerHTML = NT.sanitizeHtml(data.paginationHtml);
         } else {
           currentPagination.remove();
         }
       } else if (data.paginationHtml.trim() && this.#grid) {
-        this.#grid.insertAdjacentHTML('afterend', data.paginationHtml);
+        this.#grid.insertAdjacentHTML('afterend', NT.sanitizeHtml(data.paginationHtml));
       }
 
       this.#updateResultCount(data);
@@ -449,7 +449,7 @@ class BrowseFilter {
 
       if (data.totalCount === 0) {
         if (this.#grid) {
-          this.#grid.innerHTML = '';
+          this.#grid.replaceChildren();
           this.#grid.hidden = true;
         }
         if (this.#emptyState) {
@@ -609,14 +609,14 @@ class ViewToggle {
 
     this.#gridBtn = document.createElement('button');
     this.#gridBtn.type = 'button';
-    this.#gridBtn.innerHTML = '<i class="fa-solid fa-grip" aria-hidden="true"></i>';
+    this.#gridBtn.innerHTML = NT.sanitizeHtml('<i class="fa-solid fa-grip" aria-hidden="true"></i>');
     this.#gridBtn.setAttribute('aria-label', 'Grid view');
     this.#gridBtn.title = 'Grid view';
     this.#gridBtn.dataset.view = 'grid';
 
     this.#listBtn = document.createElement('button');
     this.#listBtn.type = 'button';
-    this.#listBtn.innerHTML = '<i class="fa-solid fa-list" aria-hidden="true"></i>';
+    this.#listBtn.innerHTML = NT.sanitizeHtml('<i class="fa-solid fa-list" aria-hidden="true"></i>');
     this.#listBtn.setAttribute('aria-label', 'List view');
     this.#listBtn.title = 'List view';
     this.#listBtn.dataset.view = 'list';
@@ -791,7 +791,7 @@ class PhotoQueue {
     for (const entry of this.#queuedPhotos) dt.items.add(entry.file);
     this.#fileInput.files = dt.files;
 
-    this.#dataContainer.innerHTML = '';
+    this.#dataContainer.replaceChildren();
 
     const primaryInput = document.createElement('input');
     primaryInput.type = 'hidden';
@@ -834,7 +834,7 @@ class PhotoQueue {
     for (const img of this.#queue.querySelectorAll('img')) {
       if (img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
     }
-    this.#queue.innerHTML = '';
+    this.#queue.replaceChildren();
 
     if (this.#queuedPhotos.length === 0) {
       this.#queue.hidden = true;
@@ -1378,7 +1378,7 @@ class GalleryManager {
       li.dataset.focalY = String(img.focal_y ?? data.focalY);
       li.draggable = true;
       li.tabIndex = 0;
-      li.innerHTML = this.#buildLiHtml(img);
+      li.innerHTML = NT.sanitizeHtml(this.#buildLiHtml(img));
 
       g.appendChild(li);
       NT.applyFocalPoints(li);

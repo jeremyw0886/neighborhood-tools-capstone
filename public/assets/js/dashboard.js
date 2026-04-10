@@ -204,7 +204,7 @@ class DashboardRouter {
       if (current.has(stripVersion(src))) continue;
       await new Promise((resolve) => {
         const script = document.createElement('script');
-        script.src = src;
+        script.src = NT.trustedScript(src);
         script.onload = resolve;
         script.onerror = resolve;
         document.head.appendChild(script);

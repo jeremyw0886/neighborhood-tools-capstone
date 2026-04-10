@@ -65,15 +65,15 @@ class CspController
         $report = json_decode($body, true);
 
         if (isset($report['csp-report'])) {
-            self::logCspReport($report['csp-report']);
+            self::logCspReport($report['csp-report'], $ip);
         } elseif (is_array($report) && isset($report[0]['type'])) {
             foreach ($report as $entry) {
                 if (($entry['type'] ?? '') === 'csp-violation') {
-                    self::logReportToEntry($entry['body'] ?? []);
+                    self::logReportToEntry($entry['body'] ?? [], $ip);
                 }
             }
         } elseif (isset($report['type']) && $report['type'] === 'tt-default-fallback') {
-            self::logTrustedTypesFallback($report);
+            self::logTrustedTypesFallback($report, $ip);
         } else {
             http_response_code(400);
             exit;
@@ -86,10 +86,11 @@ class CspController
     /**
      * Log a report-uri format CSP violation.
      */
-    private static function logCspReport(array $violation): void
+    private static function logCspReport(array $violation, string $ip): void
     {
         error_log(sprintf(
-            'CSP violation: directive=%s blocked=%s source=%s page=%s',
+            'CSP violation: ip=%s directive=%s blocked=%s source=%s page=%s',
+            $ip,
             self::sanitizeLogValue($violation['violated-directive'] ?? 'unknown'),
             self::sanitizeLogValue($violation['blocked-uri'] ?? 'unknown'),
             self::sanitizeLogValue($violation['source-file'] ?? 'unknown'),
@@ -100,10 +101,11 @@ class CspController
     /**
      * Log a report-to format CSP violation.
      */
-    private static function logReportToEntry(array $body): void
+    private static function logReportToEntry(array $body, string $ip): void
     {
         error_log(sprintf(
-            'CSP violation: directive=%s blocked=%s source=%s page=%s',
+            'CSP violation: ip=%s directive=%s blocked=%s source=%s page=%s',
+            $ip,
             self::sanitizeLogValue($body['effectiveDirective'] ?? 'unknown'),
             self::sanitizeLogValue($body['blockedURL'] ?? 'unknown'),
             self::sanitizeLogValue($body['sourceFile'] ?? 'unknown'),
@@ -114,10 +116,11 @@ class CspController
     /**
      * Log a Trusted Types default policy fallback beacon.
      */
-    private static function logTrustedTypesFallback(array $report): void
+    private static function logTrustedTypesFallback(array $report, string $ip): void
     {
         error_log(sprintf(
-            'TT-default fallback: sink=%s page=%s url=%s',
+            'TT-default fallback: ip=%s sink=%s page=%s url=%s',
+            $ip,
             self::sanitizeLogValue($report['sink'] ?? 'unknown'),
             self::sanitizeLogValue($report['page'] ?? 'unknown'),
             self::sanitizeLogValue($report['url'] ?? 'n/a'),

@@ -42,6 +42,30 @@ class PageController extends BaseController
     }
 
     /**
+     * Render the custom 403 error page for Apache ErrorDocument.
+     */
+    public function forbidden(): never
+    {
+        $this->abort(403);
+    }
+
+    /**
+     * Render the custom 404 error page for Apache ErrorDocument.
+     */
+    public function notFound(): never
+    {
+        $this->abort(404);
+    }
+
+    /**
+     * Render the custom 500 error page for Apache ErrorDocument.
+     */
+    public function serverError(): never
+    {
+        $this->abort(500);
+    }
+
+    /**
      * Generate an XML sitemap for search-engine crawlers.
      */
     public function sitemap(): void

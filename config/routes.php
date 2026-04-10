@@ -37,6 +37,11 @@ return [
     // Sitemap
     'GET /sitemap.xml'             => [PageController::class, 'sitemap'],
 
+    // Error pages (Apache ErrorDocument targets)
+    'GET /error/403'               => [PageController::class, 'forbidden'],
+    'GET /error/404'               => [PageController::class, 'notFound'],
+    'GET /error/500'               => [PageController::class, 'serverError'],
+
     // Authentication
     'GET /login'                   => [AuthController::class, 'showLogin'],
     'POST /login'                  => [AuthController::class, 'login'],

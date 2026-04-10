@@ -48,6 +48,11 @@ AddDefaultCharset UTF-8
     Header always set X-Permitted-Cross-Domain-Policies "none"
 </IfModule>
 
+# Custom error pages for server-level errors
+ErrorDocument 403 /error/403
+ErrorDocument 404 /error/404
+ErrorDocument 500 /error/500
+
 # Block access to sensitive files
 <FilesMatch "^(\.(htaccess|htpasswd|env(\..*)?|git|gitignore)$|.*\.(sql|log|bak)$|composer\.(json|lock)$)">
     <IfModule mod_authz_core.c>

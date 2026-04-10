@@ -64,6 +64,8 @@
     require BASE_PATH . '/src/Views/partials/modal-tos.php';
   ?>
 
+  <?php $dpJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'purify.js' : 'purify.min.js'; ?>
+  <script src="/assets/vendor/dompurify/<?= $dpJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php $ttJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'trusted-types.js' : 'trusted-types.min.js'; ?>
   <script src="/assets/js/<?= $ttJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php foreach ($cdnJs ?? [] as $cdnUrl): ?>

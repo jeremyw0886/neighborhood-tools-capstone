@@ -159,6 +159,7 @@ return [
     // Informational pages (progressive-enhancement fallbacks for modals)
     'GET /how-to'                  => [PageController::class, 'howTo'],
     'GET /faq'                     => [PageController::class, 'faq'],
+    'GET /privacy'                 => [PageController::class, 'privacy'],
 
     // Terms of Service
     'GET /tos'                     => [TosController::class, 'show'],

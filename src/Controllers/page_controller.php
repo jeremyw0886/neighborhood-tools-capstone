@@ -42,6 +42,18 @@ class PageController extends BaseController
     }
 
     /**
+     * Render the standalone Privacy Policy page.
+     */
+    public function privacy(): void
+    {
+        $this->render('pages/privacy', [
+            'title'       => 'Privacy Policy — NeighborhoodTools',
+            'description' => 'How NeighborhoodTools collects, uses, and protects your personal information.',
+            'pageCss'     => ['pages.css'],
+        ]);
+    }
+
+    /**
      * Render the custom 403 error page for Apache ErrorDocument.
      */
     public function forbidden(): never
@@ -81,6 +93,7 @@ class PageController extends BaseController
             ['loc' => '/how-to',    'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => '/faq',       'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => '/tos',       'priority' => '0.3', 'changefreq' => 'yearly'],
+            ['loc' => '/privacy',  'priority' => '0.3', 'changefreq' => 'yearly'],
             ['loc' => '/login',     'priority' => '0.4', 'changefreq' => 'yearly'],
             ['loc' => '/register',  'priority' => '0.5', 'changefreq' => 'yearly'],
         ];

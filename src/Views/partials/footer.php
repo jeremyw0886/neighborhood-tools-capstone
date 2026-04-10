@@ -32,6 +32,7 @@
         <li><a href="/how-to" data-modal="how-to"<?= $currentPage === '/how-to' ? ' aria-current="page"' : '' ?>>How It Works</a></li>
         <li><a href="/faq" data-modal="faq"<?= $currentPage === '/faq' ? ' aria-current="page"' : '' ?>>FAQs</a></li>
         <li><a href="/tos" data-modal="tos"<?= $currentPage === '/tos' ? ' aria-current="page"' : '' ?>>Terms of Service</a></li>
+        <li><a href="/privacy"<?= $currentPage === '/privacy' ? ' aria-current="page"' : '' ?>>Privacy Policy</a></li>
       </ul>
     </nav>
 

@@ -234,6 +234,7 @@
             >
             I agree to the <a href="/tos" target="_blank" rel="noopener">Terms of Service</a>
             <small>v<?= htmlspecialchars($currentTos['version_tos']) ?></small>
+            and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>
           </label>
           <?php if (!empty($errors['accept_tos'])): ?>
             <span id="tos-error" role="alert"><?= htmlspecialchars($errors['accept_tos']) ?></span>

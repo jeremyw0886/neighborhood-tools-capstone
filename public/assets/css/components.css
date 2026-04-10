@@ -1381,6 +1381,7 @@
 
         &::before {
           background: var(--mountain-mist);
+          content: counter(clause);
           font-size: 0.7rem;
           height: 1.375rem;
           width: 1.375rem;

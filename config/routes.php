@@ -28,8 +28,12 @@ use App\Controllers\TosController;
 use App\Controllers\PageController;
 use App\Controllers\AvailableController;
 use App\Controllers\AdminController;
+use App\Controllers\CspController;
 
 return [
+
+    // CSP violation reporting (machine-to-machine, no session/CSRF)
+    'POST /csp-report'             => [CspController::class, 'report'],
 
     // Home
     'GET /'                        => [HomeController::class, 'index'],

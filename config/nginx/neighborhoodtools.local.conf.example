@@ -32,4 +32,6 @@ server {
     add_header X-XSS-Protection "0" always;
     add_header Cross-Origin-Opener-Policy "same-origin-allow-popups" always;
     add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self https://js.stripe.com)" always;
+    add_header Cross-Origin-Resource-Policy "same-origin" always;
+    add_header X-Permitted-Cross-Domain-Policies "none" always;
 }

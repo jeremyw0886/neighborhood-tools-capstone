@@ -34,7 +34,9 @@ class CspController
             exit;
         }
 
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+        $ip = $forwarded !== '' ? explode(',', $forwarded, 2)[0] : ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $ip = trim($ip);
         $rateLimitKey = 'csp-report:' . $ip;
 
         if (RateLimiter::tooManyAttempts($rateLimitKey, self::MAX_REPORTS_PER_MINUTE, self::RATE_WINDOW_SECONDS)) {

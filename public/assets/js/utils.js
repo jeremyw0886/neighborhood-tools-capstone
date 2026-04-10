@@ -1220,6 +1220,8 @@ window.NT = {
   confirm: (message, confirmLabel) => confirmDialog.show(message, confirmLabel),
   decision: (data) => decisionDialog.show(data),
   autosuggest: (config) => AutosuggestController.create(config),
+  sanitizeHtml: window.__ntSanitizeHtml,
+  trustedScript: window.__ntTrustedScript,
   style: Object.freeze({
     setRule: (key, selector, declarations) => styleManager.setRule(key, selector, declarations),
     removeRule: (key) => styleManager.removeRule(key),
@@ -1255,6 +1257,8 @@ window.NT = {
     validate: validateForm,
   }),
 };
+delete window.__ntSanitizeHtml;
+delete window.__ntTrustedScript;
 
 // ─── Init ─────────────────────────────────────────────────────────────
 

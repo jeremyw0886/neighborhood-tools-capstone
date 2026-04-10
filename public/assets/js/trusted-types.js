@@ -1,8 +1,126 @@
 'use strict';
 
+/**
+ * Sanitize HTML via DOMPurify.
+ * Returns TrustedHTML in browsers with Trusted Types support.
+ *
+ * @param {string} html
+ * @returns {TrustedHTML|string}
+ */
+const ntSanitizeHtml = (() => {
+  const purifyConfig = Object.freeze({
+    ALLOWED_TAGS: [
+      'a', 'abbr', 'article', 'aside', 'b', 'blockquote', 'br', 'button',
+      'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del', 'details',
+      'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'fieldset', 'figcaption',
+      'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'header', 'hgroup', 'hr', 'i', 'img', 'input', 'ins', 'kbd', 'label',
+      'legend', 'li', 'main', 'mark', 'meter', 'nav', 'ol', 'optgroup',
+      'option', 'output', 'p', 'picture', 'pre', 'progress', 'q', 'rp',
+      'rt', 'ruby', 's', 'samp', 'search', 'section', 'select', 'small',
+      'source', 'span', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody',
+      'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'tr', 'u', 'ul',
+      'var', 'wbr',
+    ],
+    ALLOWED_ATTR: [
+      'class', 'id', 'href', 'src', 'srcset', 'alt', 'title', 'role',
+      'aria-hidden', 'aria-label', 'aria-labelledby', 'aria-describedby',
+      'aria-expanded', 'aria-controls', 'aria-live', 'aria-current',
+      'type', 'name', 'value', 'placeholder', 'for', 'action',
+      'method', 'target', 'rel', 'width', 'height', 'loading', 'decoding',
+      'colspan', 'rowspan', 'scope', 'disabled', 'readonly', 'checked',
+      'selected', 'required', 'min', 'max', 'step', 'pattern', 'maxlength',
+      'tabindex', 'open', 'datetime',
+    ],
+    ALLOW_DATA_ATTR: true,
+    RETURN_TRUSTED_TYPE: false,
+  });
+
+  if (window.trustedTypes?.createPolicy) {
+    const policy = window.trustedTypes.createPolicy('nt-html', {
+      createHTML: (input) => {
+        if (input === '') return '';
+        return DOMPurify.sanitize(input, purifyConfig);
+      },
+    });
+    return (html) => {
+      if (html === '') return '';
+      return policy.createHTML(html);
+    };
+  }
+
+  return (html) => {
+    if (html === '') return '';
+    return DOMPurify.sanitize(html, purifyConfig);
+  };
+})();
+
+/**
+ * Validate a script URL against the origin allowlist.
+ * Returns TrustedScriptURL in browsers with Trusted Types support.
+ *
+ * @param {string} url
+ * @returns {TrustedScriptURL|string}
+ */
+const ntTrustedScript = (() => {
+  const ALLOWED_ORIGINS = new Set([
+    location.origin,
+    'https://js.stripe.com',
+    'https://challenges.cloudflare.com',
+  ]);
+
+  const validate = (input) => {
+    if (input.startsWith('/')) {
+      const resolved = new URL(input, location.origin).pathname;
+      if (resolved.startsWith('/assets/js/')) return input;
+      throw new TypeError(`Blocked script URL: ${input}`);
+    }
+
+    try {
+      const url = new URL(input);
+      if (ALLOWED_ORIGINS.has(url.origin)) return input;
+    } catch { /* invalid URL */ }
+
+    throw new TypeError(`Blocked script URL: ${input}`);
+  };
+
+  if (window.trustedTypes?.createPolicy) {
+    const policy = window.trustedTypes.createPolicy('nt-script-url', {
+      createScriptURL: validate,
+    });
+    return (url) => policy.createScriptURL(url);
+  }
+
+  return validate;
+})();
+
 if (window.trustedTypes?.createPolicy) {
   window.trustedTypes.createPolicy('default', {
-    createHTML: (input) => input,
-    createScriptURL: (input) => input,
+    createHTML: (input) => {
+      try {
+        const blob = new Blob([JSON.stringify({
+          type: 'tt-default-fallback',
+          sink: 'createHTML',
+          page: location.pathname,
+        })], { type: 'application/csp-report' });
+        navigator.sendBeacon('/csp-report', blob);
+      } catch { /* best effort */ }
+      return input;
+    },
+    createScriptURL: (input) => {
+      try {
+        const blob = new Blob([JSON.stringify({
+          type: 'tt-default-fallback',
+          sink: 'createScriptURL',
+          url: input,
+          page: location.pathname,
+        })], { type: 'application/csp-report' });
+        navigator.sendBeacon('/csp-report', blob);
+      } catch { /* best effort */ }
+      return input;
+    },
   });
 }
+
+window.__ntSanitizeHtml = ntSanitizeHtml;
+window.__ntTrustedScript = ntTrustedScript;

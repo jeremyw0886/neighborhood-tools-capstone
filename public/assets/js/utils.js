@@ -1222,6 +1222,7 @@ window.NT = {
   autosuggest: (config) => AutosuggestController.create(config),
   sanitizeHtml: window.__ntSanitizeHtml,
   trustedScript: window.__ntTrustedScript,
+  parseHtmlDocument: window.__ntParseHtmlDocument,
   style: Object.freeze({
     setRule: (key, selector, declarations) => styleManager.setRule(key, selector, declarations),
     removeRule: (key) => styleManager.removeRule(key),
@@ -1259,6 +1260,7 @@ window.NT = {
 };
 delete window.__ntSanitizeHtml;
 delete window.__ntTrustedScript;
+delete window.__ntParseHtmlDocument;
 
 // ─── Init ─────────────────────────────────────────────────────────────
 

@@ -122,5 +122,27 @@ if (window.trustedTypes?.createPolicy) {
   });
 }
 
+/**
+ * Parse an HTML string into an inert Document via DOMParser.
+ * DOMParser produces a document where scripts never execute, so no
+ * sanitization is needed — this policy exists solely to satisfy Chrome's
+ * Trusted Types enforcement on DOMParser.parseFromString('text/html').
+ * The TrustedHTML value is created and consumed internally; callers
+ * receive only the inert Document, never the raw TrustedHTML.
+ *
+ * @param {string} text
+ * @returns {Document}
+ */
+const ntParseHtmlDocument = (() => {
+  if (window.trustedTypes?.createPolicy) {
+    const policy = window.trustedTypes.createPolicy('nt-dom-parser', {
+      createHTML: (input) => input,
+    });
+    return (text) => new DOMParser().parseFromString(policy.createHTML(text), 'text/html');
+  }
+  return (text) => new DOMParser().parseFromString(text, 'text/html');
+})();
+
 window.__ntSanitizeHtml = ntSanitizeHtml;
 window.__ntTrustedScript = ntTrustedScript;
+window.__ntParseHtmlDocument = ntParseHtmlDocument;

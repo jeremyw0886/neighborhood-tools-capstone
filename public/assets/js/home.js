@@ -466,7 +466,7 @@ class LocationToggle {
 
       if (!res.ok) throw new Error(res.statusText);
 
-      const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      const doc = NT.parseHtmlDocument(await res.text());
       const fresh = doc.getElementById('member-list');
 
       if (fresh) {

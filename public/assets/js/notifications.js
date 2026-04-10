@@ -429,7 +429,7 @@ class NotificationManager {
       const res = await NT.fetch(url, { signal: this.#filterController.signal });
       const html = await res.text();
 
-      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const doc = NT.parseHtmlDocument(html);
       const fresh = doc.querySelector(
         'section[aria-labelledby="notifications-heading"]'
       );

@@ -376,7 +376,7 @@ class AdminRouter {
         html = await res.text();
 
         if (res.headers.get('X-Partial') !== '1') {
-          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const doc = NT.parseHtmlDocument(html);
           const newContent = doc.querySelector('[data-admin-content]');
           if (newContent) {
             html = newContent.innerHTML;

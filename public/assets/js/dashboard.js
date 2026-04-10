@@ -126,7 +126,7 @@ class DashboardRouter {
     if (!response.ok) return null;
 
     const text = await response.text();
-    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const doc = NT.parseHtmlDocument(text);
     const isPartial = response.headers.get('X-Partial') === '1';
 
     if (isPartial) {
@@ -285,9 +285,8 @@ class DashboardRouter {
     const slideIn = direction === 'back' ? 'slide-in-left' : 'slide-in-right';
 
     try {
-      const outDoc = new DOMParser().parseFromString(
+      const outDoc = NT.parseHtmlDocument(
         `<div id="main-content">${this.#mainEl.innerHTML}</div>`,
-        'text/html',
       );
 
       this.#cacheSet(this.#currentUrl, {

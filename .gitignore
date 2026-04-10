@@ -26,6 +26,7 @@ credentials.json
 logs/*.log
 *.log
 error_log
+php_errorlog
 
 # Backups and temp files
 *.bak

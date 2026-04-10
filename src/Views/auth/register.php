@@ -218,9 +218,9 @@
         </div>
       </fieldset>
 
-      <?php if ($currentTos): ?>
       <fieldset>
-        <legend>Terms of Service</legend>
+        <legend>Legal Agreements</legend>
+        <?php if ($currentTos): ?>
         <div class="form-group">
           <label class="checkbox-label">
             <input
@@ -240,8 +240,25 @@
             <span id="tos-error" role="alert"><?= htmlspecialchars($errors['accept_tos']) ?></span>
           <?php endif; ?>
         </div>
+        <?php endif; ?>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              name="confirm_age"
+              value="1"
+              required
+              <?= !empty($old['confirm_age']) ? 'checked' : '' ?>
+              aria-describedby="<?= !empty($errors['confirm_age']) ? 'age-error' : '' ?>"
+              <?= !empty($errors['confirm_age']) ? 'aria-invalid="true"' : '' ?>
+            >
+            I confirm that I am at least 18 years old
+          </label>
+          <?php if (!empty($errors['confirm_age'])): ?>
+            <span id="age-error" role="alert"><?= htmlspecialchars($errors['confirm_age']) ?></span>
+          <?php endif; ?>
+        </div>
       </fieldset>
-      <?php endif; ?>
 
       <?php if (!empty($turnstileSiteKey)): ?>
         <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="register"></div>

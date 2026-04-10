@@ -183,7 +183,7 @@
 
   <section id="children">
     <h2>Children&rsquo;s Privacy</h2>
-    <p>NeighborhoodTools is not directed at children under 13 (or under 16 in the EU). We do not knowingly collect personal data from children. If we become aware that a child has provided personal data, we will delete the account and associated data promptly.</p>
+    <p>NeighborhoodTools requires all users to be at least 18 years old. The platform is not directed at children or minors. Users must affirm their age during registration. We do not knowingly collect personal data from anyone under 18. If we become aware that a minor has provided personal data, we will delete the account and associated data promptly.</p>
     <p>Parents or guardians who believe their child has provided data can <a href="mailto:contact@neighborhoodtools.org">contact us</a> for removal.</p>
   </section>
 

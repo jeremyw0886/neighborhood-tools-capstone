@@ -208,6 +208,7 @@ class AuthController extends BaseController
                 ? (int) $_POST['neighborhood_id']
                 : null,
             'accept_tos'       => ($_POST['accept_tos'] ?? '') === '1',
+            'confirm_age'      => ($_POST['confirm_age'] ?? '') === '1',
         ];
 
         $errors = $this->validateRegistration($data);
@@ -223,6 +224,7 @@ class AuthController extends BaseController
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
                 'accept_tos'      => $data['accept_tos'],
+                'confirm_age'     => $data['confirm_age'],
             ];
             $this->redirect('/register');
         }
@@ -249,6 +251,7 @@ class AuthController extends BaseController
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
                 'accept_tos'      => $data['accept_tos'],
+                'confirm_age'     => $data['confirm_age'],
             ];
             $this->redirect('/register');
         }
@@ -270,6 +273,7 @@ class AuthController extends BaseController
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
                 'accept_tos'      => $data['accept_tos'],
+                'confirm_age'     => $data['confirm_age'],
             ];
             $this->redirect('/register');
         }
@@ -315,6 +319,7 @@ class AuthController extends BaseController
                 'zip_code'        => $data['zip_code'],
                 'neighborhood_id' => $data['neighborhood_id'],
                 'accept_tos'      => $data['accept_tos'],
+                'confirm_age'     => $data['confirm_age'],
             ];
             $this->redirect('/register');
         }
@@ -805,6 +810,10 @@ class AuthController extends BaseController
 
         if (Tos::getCurrent() !== null && empty($data['accept_tos'])) {
             $errors['accept_tos'] = 'You must accept the Terms of Service to create an account.';
+        }
+
+        if (empty($data['confirm_age'])) {
+            $errors['confirm_age'] = 'You must confirm that you are at least 18 years old.';
         }
 
         return $errors;

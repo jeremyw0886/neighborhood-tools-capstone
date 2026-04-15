@@ -396,11 +396,12 @@ class Deposit
 
             $stmt = $pdo->prepare(
                 'INSERT INTO payment_transaction_ptx
-                    (id_sdp_ptx, id_bor_ptx, id_ppv_ptx, transaction_type_ptx,
+                    (id_sdp_ptx, id_bor_ptx, id_ppv_ptx, id_ptt_ptx,
                      amount_ptx, external_transaction_id_ptx, external_status_ptx,
                      id_acc_from_ptx, id_acc_to_ptx)
                  VALUES
-                    (:deposit_id, :borrow_id, :provider_id, :type,
+                    (:deposit_id, :borrow_id, :provider_id,
+                     (SELECT id_ptt FROM payment_transaction_type_ptt WHERE type_name_ptt = :type),
                      :amount, :external_id, :external_status,
                      :from_id, :to_id)'
             );

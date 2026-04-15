@@ -99,7 +99,7 @@ Requires a local PHP/MySQL stack with PHP 8.4+ and MySQL 8. Apache works out of 
 1. Clone the repo
 2. `composer install`
 3. Copy `.env.example` to `.env` and configure database credentials
-4. Import `dumps/warren-jeremy-dump-phase3.sql`
+4. Import `dumps/warren-jeremy-dump-phase6.sql`
 5. Point your web server document root to `public/`
 6. Set `APP_URL`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `TURNSTILE_ALLOWED_HOSTNAMES` in `.env` for your local hostname
 7. Visit your local host, for example `https://neighborhoodtools.local:8890`

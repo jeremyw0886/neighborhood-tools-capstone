@@ -107,8 +107,12 @@ class BaseController
                 $refPath = $parsed['path'];
                 $refUrl  = $refPath . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
 
+                $transientPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/logout'];
+
                 if ($refPath === $currentPath) {
                     // Same page (POST-redirect-GET) — keep stored value
+                } elseif (in_array($refPath, $transientPaths, true)) {
+                    // Auth/transient pages are not useful back destinations
                 } else {
                     $refBackPath = isset($backUrls[$refPath])
                         ? (parse_url($backUrls[$refPath], PHP_URL_PATH) ?: '/')

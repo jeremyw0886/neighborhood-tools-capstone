@@ -92,35 +92,25 @@ class Bookmark
     {
         $pdo = Database::connection();
 
-        // Attempt to remove an existing bookmark
-        $stmt = $pdo->prepare("
-            DELETE FROM tool_bookmark_acctol
-            WHERE id_acc_acctol = :user AND id_tol_acctol = :tool
-        ");
-
-        $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
-        $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            return false; // Was bookmarked → now removed
-        }
-
-        // No existing bookmark — create one
-        try {
-            $stmt = $pdo->prepare("
-                INSERT INTO tool_bookmark_acctol (id_acc_acctol, id_tol_acctol)
-                VALUES (:user, :tool)
-            ");
-
+        if (self::isBookmarked($userId, $toolId)) {
+            $stmt = $pdo->prepare('CALL sp_delete_bookmark(:user, :tool)');
             $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
             $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
             $stmt->execute();
+            $stmt->closeCursor();
+            return false;
+        }
 
-            return true; // Now bookmarked
+        try {
+            $stmt = $pdo->prepare('CALL sp_create_bookmark(:user, :tool)');
+            $stmt->bindValue(':user', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
+            $stmt->closeCursor();
+            return true;
         } catch (\PDOException $e) {
             if ($e->getCode() === '23000') {
-                return true; // Concurrent insert won the race — tool is bookmarked
+                return true;
             }
             throw $e;
         }

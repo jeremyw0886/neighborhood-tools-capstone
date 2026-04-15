@@ -267,7 +267,7 @@ class Event
                 e.event_address_evt,
                 e.start_at_evt,
                 e.end_at_evt,
-                DATEDIFF(DATE(e.start_at_evt), CURDATE()) AS days_until_event,
+                DATEDIFF(e.start_at_evt, CURDATE()) AS days_until_event,
                 CASE
                     WHEN e.start_at_evt <= NOW()
                          AND (e.end_at_evt IS NULL OR e.end_at_evt >= NOW())
@@ -276,10 +276,10 @@ class Event
                         THEN 'PAST'
                     WHEN e.start_at_evt < NOW()
                         THEN 'PAST'
-                    WHEN DATEDIFF(DATE(e.start_at_evt), CURDATE()) <= 7
+                    WHEN e.start_at_evt < CURDATE() + INTERVAL 7 DAY
                         THEN 'THIS WEEK'
-                    WHEN YEAR(e.start_at_evt) = YEAR(NOW())
-                         AND MONTH(e.start_at_evt) = MONTH(NOW())
+                    WHEN e.start_at_evt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'),
+                                                  INTERVAL 1 MONTH)
                         THEN 'THIS MONTH'
                     ELSE 'UPCOMING'
                 END AS event_timing,

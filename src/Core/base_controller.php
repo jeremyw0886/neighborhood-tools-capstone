@@ -93,10 +93,20 @@ class BaseController
                 : 0;
         }
 
+        $transientPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/logout'];
+
         $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         $backUrls    = $_SESSION['_back_urls'] ?? [];
-        $backUrl     = $backUrls[$currentPath] ?? '/';
-        $referer     = $_SERVER['HTTP_REFERER'] ?? '';
+
+        foreach ($backUrls as $key => $stored) {
+            $storedPath = parse_url($stored, PHP_URL_PATH) ?: '/';
+            if (in_array($storedPath, $transientPaths, true)) {
+                unset($backUrls[$key]);
+            }
+        }
+
+        $backUrl = $backUrls[$currentPath] ?? '/';
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
 
         if ($referer !== '') {
             $parsed  = parse_url($referer);
@@ -106,8 +116,6 @@ class BaseController
             if ($refHost === $curHost && isset($parsed['path'])) {
                 $refPath = $parsed['path'];
                 $refUrl  = $refPath . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
-
-                $transientPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/logout'];
 
                 if ($refPath === $currentPath) {
                     // Same page (POST-redirect-GET) — keep stored value

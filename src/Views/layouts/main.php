@@ -33,6 +33,7 @@
     <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
     <?php endforeach; ?>
+    <style id="nt-dynamic-styles" nonce="<?= CSP_NONCE ?>"></style>
 </head>
 <body id="top">
 

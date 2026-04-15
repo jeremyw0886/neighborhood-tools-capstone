@@ -162,7 +162,7 @@ define('CSP_NONCE', base64_encode(random_bytes(16)));
 // CSP header — nonce-based script-src with strict-dynamic propagation
 $cspNonce = CSP_NONCE;
 header('Reporting-Endpoints: csp-endpoint="/csp-report"');
-header("Content-Security-Policy: default-src 'self'; script-src 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com https://r.stripe.com https://m.stripe.com; frame-src https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; trusted-types dompurify nt-html nt-script-url nt-dom-parser default; require-trusted-types-for 'script'; report-uri /csp-report; report-to csp-endpoint");
+header("Content-Security-Policy: default-src 'self'; script-src 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self' 'nonce-{$cspNonce}'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com https://r.stripe.com https://m.stripe.com; frame-src https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; trusted-types dompurify nt-html nt-script-url nt-dom-parser default; require-trusted-types-for 'script'; report-uri /csp-report; report-to csp-endpoint");
 
 // Dynamic cache control (remaining security headers served via .htaccess)
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';

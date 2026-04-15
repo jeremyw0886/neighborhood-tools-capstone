@@ -172,13 +172,11 @@ const toastManager = new ToastManager();
 
 // ─── Style Manager ────────────────────────────────────────────────────
 
-class StyleManager {
-  #sheet = new CSSStyleSheet();
-  #ruleMap = new Map();
+const ntDynamicStyleEl = document.getElementById('nt-dynamic-styles');
 
-  constructor() {
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.#sheet];
-  }
+class StyleManager {
+  #sheet = ntDynamicStyleEl.sheet;
+  #ruleMap = new Map();
 
   /**
    * Set a CSS rule keyed by a unique ID.

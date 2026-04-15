@@ -115,6 +115,27 @@ class ViewHelper
     }
 
     /**
+     * Format a location as "neighborhood, city, state", dropping empty parts
+     * and collapsing consecutive duplicates (e.g. Weaverville neighborhood in
+     * Weaverville city renders as "Weaverville, NC", not "Weaverville, Weaverville, NC").
+     */
+    public static function formatLocation(
+        ?string $neighborhood,
+        ?string $city,
+        ?string $state,
+    ): string {
+        $parts = [];
+        foreach ([$neighborhood, $city, $state] as $part) {
+            $part = $part !== null ? trim($part) : '';
+            if ($part === '') continue;
+            if (end($parts) !== false && strcasecmp(end($parts), $part) === 0) continue;
+            $parts[] = $part;
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
      * Append a filemtime cache-buster to an upload URL.
      *
      * @param  string $uploadPath Root-relative URL (e.g. "/uploads/tools/photo.jpg")

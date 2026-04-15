@@ -37,13 +37,11 @@ $focalAttrs = ($hasPhoto && ($focalX !== 50 || $focalY !== 50))
     ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\""
     : '';
 
-// Location string — "neighborhood, city, state" (omit missing segments)
-$locationParts = array_filter([
+$locationStr = \App\Core\ViewHelper::formatLocation(
     $profile['neighborhood'],
     $profile['city'],
     $profile['state'],
-]);
-$locationStr = implode(', ', $locationParts);
+);
 
 // Pagination URL helper — profile pages have no filters to preserve
 $paginationUrl = static fn(int $pageNum): string =>

@@ -95,9 +95,11 @@ $days = (int) $event['days_until_event'];
           Location
         </dt>
         <dd>
-          <?= htmlspecialchars($event['neighborhood_name_nbh']) ?>,
-          <?= htmlspecialchars($event['city_name_nbh']) ?>,
-          <?= htmlspecialchars($event['state_code_sta']) ?>
+          <?= htmlspecialchars(\App\Core\ViewHelper::formatLocation(
+              $event['neighborhood_name_nbh'],
+              $event['city_name_nbh'],
+              $event['state_code_sta'],
+          )) ?>
         </dd>
       </div>
     <?php endif; ?>

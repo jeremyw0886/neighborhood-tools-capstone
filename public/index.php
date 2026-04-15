@@ -112,7 +112,12 @@ if (!empty($_SESSION['logged_in'])) {
         }
 
         if ($currentAccount['role_name_rol'] !== ($_SESSION['user_role'] ?? '')) {
-            $_SESSION['user_role'] = $currentAccount['role_name_rol'];
+            session_unset();
+            session_destroy();
+            session_start($sessionOptions);
+            $_SESSION['auth_error'] = 'Your role has changed. Please sign in again to continue.';
+            header('Location: /login');
+            exit;
         }
 
         $_SESSION['_role_verified_at'] = time();

@@ -27,7 +27,7 @@ require BASE_PATH . '/config/database.php';
 try {
     $pdo = new PDO($dbConfig['dsn'], $dbConfig['username'], $dbConfig['password'], $dbConfig['options']);
 
-    $stmt = $pdo->prepare('CALL sp_expire_stale_approved_borrows(@warned, @expired)');
+    $stmt = $pdo->prepare('CALL sp_process_stale_approved_borrows(@warned, @expired)');
     $stmt->execute();
     $stmt->closeCursor();
 

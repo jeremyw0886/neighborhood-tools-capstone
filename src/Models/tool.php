@@ -157,7 +157,6 @@ class Tool
         $stmt->execute();
 
         $results = $stmt->fetchAll();
-        $stmt->closeCursor();
 
         return $results;
     }
@@ -240,7 +239,6 @@ class Tool
         $stmt->execute();
 
         $results = $stmt->fetchAll();
-        $stmt->closeCursor();
 
         return $results;
     }

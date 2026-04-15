@@ -20,7 +20,9 @@ require BASE_PATH . '/config/database.php';
 try {
     $pdo = new PDO($dbConfig['dsn'], $dbConfig['username'], $dbConfig['password'], $dbConfig['options']);
 
-    $pdo->exec('CALL sp_refresh_platform_daily_stat()');
+    $stmt = $pdo->prepare('CALL sp_refresh_platform_daily_stat()');
+    $stmt->execute();
+    $stmt->closeCursor();
 
     echo '[' . date('Y-m-d H:i:s') . "] Captured daily platform stats\n";
 } catch (Throwable $e) {

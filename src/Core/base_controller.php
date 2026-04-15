@@ -95,49 +95,49 @@ class BaseController
 
         $transientPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/logout'];
 
-        $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-        $backUrls    = $_SESSION['_back_urls'] ?? [];
+        $currentUri  = $_SERVER['REQUEST_URI'] ?? '/';
+        $currentPath = parse_url($currentUri, PHP_URL_PATH) ?: '/';
 
-        foreach ($backUrls as $key => $stored) {
-            $storedPath = parse_url($stored, PHP_URL_PATH) ?: '/';
-            if (in_array($storedPath, $transientPaths, true)) {
-                unset($backUrls[$key]);
-            }
-        }
+        $history = $_SESSION['_nav_history'] ?? [];
 
-        $backUrl = $backUrls[$currentPath] ?? '/';
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $isGet = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET';
 
-        if ($referer !== '') {
-            $parsed  = parse_url($referer);
-            $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
-            $curHost = $_SERVER['HTTP_HOST'] ?? '';
+        if ($isGet && !in_array($currentPath, $transientPaths, true)) {
+            $top = end($history) ?: null;
+            $topPath = $top !== null ? (parse_url($top, PHP_URL_PATH) ?: '/') : null;
 
-            if ($refHost === $curHost && isset($parsed['path'])) {
-                $refPath = $parsed['path'];
-                $refUrl  = $refPath . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
-
-                if ($refPath === $currentPath) {
-                    // Same page (POST-redirect-GET) — keep stored value
-                } elseif (in_array($refPath, $transientPaths, true)) {
-                    // Auth/transient pages are not useful back destinations
-                } else {
-                    $refBackPath = isset($backUrls[$refPath])
-                        ? (parse_url($backUrls[$refPath], PHP_URL_PATH) ?: '/')
-                        : null;
-
-                    if ($refBackPath !== $currentPath) {
-                        $backUrls[$currentPath] = $refUrl;
-                        $backUrl = $refUrl;
+            if ($topPath !== $currentPath) {
+                $existingIdx = null;
+                foreach ($history as $i => $entry) {
+                    if ((parse_url($entry, PHP_URL_PATH) ?: '/') === $currentPath) {
+                        $existingIdx = $i;
+                        break;
                     }
                 }
+
+                if ($existingIdx !== null) {
+                    $history = array_slice($history, 0, $existingIdx + 1);
+                } else {
+                    $history[] = $currentUri;
+                    if (count($history) > 20) {
+                        $history = array_slice($history, -20);
+                    }
+                }
+            } else {
+                $history[count($history) - 1] = $currentUri;
             }
         }
 
-        if (count($backUrls) > 20) {
-            $backUrls = array_slice($backUrls, -20, preserve_keys: true);
+        $_SESSION['_nav_history'] = $history;
+
+        $backUrl = '/';
+        for ($i = count($history) - 2; $i >= 0; $i--) {
+            $entryPath = parse_url($history[$i], PHP_URL_PATH) ?: '/';
+            if ($entryPath !== $currentPath && !in_array($entryPath, $transientPaths, true)) {
+                $backUrl = $history[$i];
+                break;
+            }
         }
-        $_SESSION['_back_urls'] = $backUrls;
 
         $flashError = $_SESSION['_flash_error'] ?? null;
         unset($_SESSION['_flash_error']);

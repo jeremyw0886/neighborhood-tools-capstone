@@ -376,12 +376,14 @@ class DashboardRouter {
     const isBack = !!link.closest('nav[aria-label="Back"]');
 
     if (isBack) {
-      e.preventDefault();
       if (this.#navIndex > 0) {
+        e.preventDefault();
         history.back();
-      } else {
-        const dest = DashboardRouter.#isDashboardUrl(link.href) ? link.href : '/dashboard';
-        this.#navigate(dest, 'back');
+        return;
+      }
+      if (DashboardRouter.#isDashboardUrl(link.href)) {
+        e.preventDefault();
+        this.#navigate(link.href, 'back');
       }
       return;
     }

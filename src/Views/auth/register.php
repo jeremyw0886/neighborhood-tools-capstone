@@ -75,7 +75,7 @@
             required
             minlength="3"
             maxlength="30"
-            pattern="[a-z][a-z0-9._\-]*"
+            pattern="[a-z]([a-z0-9._\-]*[a-z0-9])?"
             autocomplete="off"
             autocapitalize="none"
             spellcheck="false"
@@ -83,7 +83,8 @@
             aria-describedby="username-hint<?= !empty($errors['username']) ? ' username-error' : '' ?>"
             <?= !empty($errors['username']) ? 'aria-invalid="true"' : '' ?>
           >
-          <span id="username-hint" class="form-hint">Lowercase letters, numbers, underscores, hyphens, and periods</span>
+          <span id="username-hint" class="form-hint">3&ndash;30 characters. Start with a letter, end with a letter or number.</span>
+          <span id="username-status" class="form-hint" data-username-status hidden></span>
           <?php if (!empty($errors['username'])): ?>
             <span id="username-error" role="alert"><?= htmlspecialchars($errors['username']) ?></span>
           <?php endif; ?>

@@ -154,7 +154,7 @@ class AuthController extends BaseController
             'title'            => 'Sign Up — NeighborhoodTools',
             'description'      => 'Join NeighborhoodTools to share and borrow tools with your neighbors in the Asheville and Hendersonville areas.',
             'pageCss'          => ['auth.css'],
-            'pageJs'           => ['auth.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
+            'pageJs'           => ['auth.js', 'register.js', ...($turnstileSiteKey !== '' ? ['turnstile.js'] : [])],
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'errors'           => $_SESSION['register_errors'] ?? [],
@@ -378,6 +378,34 @@ class AuthController extends BaseController
         }
 
         $this->jsonResponse(200, Neighborhood::getByZipCode($zip));
+    }
+
+    /**
+     * Check whether a username is available. Used by register.js for live feedback.
+     */
+    public function checkUsername(): void
+    {
+        $key = ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . '|username_check';
+
+        if (RateLimiter::tooManyAttempts($key, 30, 60)) {
+            $this->jsonResponse(429, ['status' => 'rate_limited']);
+        }
+
+        RateLimiter::increment($key);
+
+        $username = strtolower(trim($_GET['u'] ?? ''));
+
+        if ($username === '' || mb_strlen($username) > 30) {
+            $this->jsonResponse(200, ['status' => 'invalid']);
+        }
+
+        if (!preg_match('/^[a-z][a-z0-9._-]*[a-z0-9]$/', $username) || mb_strlen($username) < 3) {
+            $this->jsonResponse(200, ['status' => 'invalid']);
+        }
+
+        $this->jsonResponse(200, [
+            'status' => Account::usernameExists($username) ? 'taken' : 'available',
+        ]);
     }
 
     /**
@@ -774,8 +802,12 @@ class AuthController extends BaseController
             $errors['username'] = 'Username must be at least 3 characters.';
         } elseif (mb_strlen($data['username']) > 30) {
             $errors['username'] = 'Username must be 30 characters or fewer.';
-        } elseif (!preg_match('/^[a-z][a-z0-9._-]*$/', $data['username'])) {
-            $errors['username'] = 'Username must start with a letter and contain only lowercase letters, numbers, underscores, hyphens, and periods.';
+        } elseif (!preg_match('/^[a-z]/', $data['username'])) {
+            $errors['username'] = 'Username must start with a lowercase letter.';
+        } elseif (!preg_match('/[a-z0-9]$/', $data['username'])) {
+            $errors['username'] = 'Username must end with a letter or number.';
+        } elseif (!preg_match('/^[a-z0-9._-]+$/', $data['username'])) {
+            $errors['username'] = 'Username can only contain lowercase letters, numbers, periods, hyphens, or underscores.';
         }
 
         if ($data['email'] === '') {

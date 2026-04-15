@@ -150,7 +150,7 @@ $totalAll   = array_sum($timingCounts);
               </time>
             </dd>
           </div>
-          <?php if ($event['event_address_evt'] !== null): ?>
+          <?php if (!empty($event['event_address_evt'])): ?>
             <div>
               <dt>
                 <i class="fa-solid fa-map-pin" aria-hidden="true"></i>

@@ -106,7 +106,7 @@ $ariaSortFor = static function (string $col) use ($sort, $dir): string {
         <?php foreach ($events as $event):
           $eventId   = (int) $event['id_evt'];
           $attendees = (int) $event['attendee_count'];
-          $location  = $event['event_address_evt'] !== null
+          $location  = !empty($event['event_address_evt'])
               ? ($event['neighborhood_name_nbh'] ?? '') .
                 ($event['city_name_nbh'] ? ', ' . $event['city_name_nbh'] : '')
               : 'Virtual';

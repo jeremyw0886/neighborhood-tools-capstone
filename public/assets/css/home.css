@@ -1414,12 +1414,14 @@
     }
 
     #member-list {
+      padding-inline: 1rem;
+      scroll-padding-inline: 1rem;
       scroll-snap-type: x mandatory;
     }
 
     #member-list > a {
-      flex: 0 0 calc(85vw - 2rem);
-      scroll-snap-align: center;
+      flex: 0 0 calc(100% - 4rem);
+      scroll-snap-align: start;
     }
   }
 

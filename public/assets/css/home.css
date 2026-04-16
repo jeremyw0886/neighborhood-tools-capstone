@@ -144,6 +144,7 @@
     }
 
     & > #top-links a[aria-current="page"] {
+      background-color: rgba(10, 26, 20, 0.55);
       text-shadow: 0 1px 16px rgba(224, 189, 113, 0.26);
     }
 
@@ -197,7 +198,7 @@
 
     & > span[data-hero-eyebrow] {
       align-self: end;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.32);
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 999px;
       color: var(--mountain-gold-light);
@@ -326,7 +327,7 @@
     }
 
     & > p[data-hero-utility-copy] {
-      color: rgba(255, 251, 244, 0.82);
+      color: #fff;
       font-size: clamp(0.84rem, 0.78rem + 0.16vw, 0.93rem);
       line-height: 1.45;
       margin: -0.35rem auto 0;
@@ -918,7 +919,7 @@
   /* ── NEIGHBOR CARD ── */
   .home-page > main > section:nth-of-type(3) > div > a {
     align-items: center;
-    background: linear-gradient(160deg, #f2f7f4 0%, #e6f0eb 100%);
+    background-color: #e6f0eb;
     border: 1px solid rgba(139, 133, 120, 0.2);
     border-end-end-radius: 1.5rem;
     border-start-start-radius: 1.5rem;
@@ -1249,7 +1250,7 @@
   }
 
   @media (min-width: 1025px) {
-    .home-page > header > section > nav[data-hero] > #top-links {
+    .home-page > header > section > nav[data-hero] > :is(#top-links, #user-actions) {
       position: relative;
       top: -0.5rem;
     }

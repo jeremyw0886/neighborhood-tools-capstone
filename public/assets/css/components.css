@@ -45,11 +45,13 @@
   /* --- Button Intents -------------------------------------- */
 
   :is([data-intent="primary"], button[type="submit"]:not([data-intent])) {
-    background: linear-gradient(to bottom, var(--btn-primary-from), var(--btn-primary-to));
+    background-color: var(--btn-primary-to);
+    background-image: linear-gradient(to bottom, var(--btn-primary-from), var(--btn-primary-to));
     color: var(--btn-text-light);
 
     &:hover:not(:disabled, [aria-disabled="true"]) {
-      background: linear-gradient(to bottom, var(--btn-primary-hover-from), var(--btn-primary-hover-to));
+      background-color: var(--btn-primary-hover-to);
+      background-image: linear-gradient(to bottom, var(--btn-primary-hover-from), var(--btn-primary-hover-to));
     }
   }
 
@@ -512,6 +514,17 @@
         box-shadow: 0 1rem 2rem rgba(10, 26, 18, 0.18);
         color: var(--mountain-pine-dark);
         transform: translateY(-1px);
+      }
+    }
+
+    &>a[role="button"][data-intent="primary"] {
+      background: linear-gradient(180deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+      border-color: rgba(10, 26, 20, 0.5);
+
+      &:is(:hover, :focus-visible) {
+        background: linear-gradient(180deg, var(--mountain-gold-light) 0%, var(--mountain-gold) 100%);
+        border-color: rgba(161, 121, 43, 0.7);
+        color: var(--mountain-pine-dark);
       }
     }
 

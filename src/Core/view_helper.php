@@ -148,4 +148,47 @@ class ViewHelper
 
         return $uploadPath . '?v=' . $mtime;
     }
+
+    /**
+     * Render a TOS paragraph body: escape HTML, linkify emails/URLs, keep line breaks.
+     *
+     * @param  list<string> $lines Raw content lines (unescaped)
+     * @return string Safe HTML fragment
+     */
+    public static function renderTosBody(array $lines): string
+    {
+        $text = trim(implode("\n", $lines));
+        if ($text === '') {
+            return '';
+        }
+
+        $html = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $html = (string) preg_replace(
+            '/\b([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/',
+            '<a href="mailto:$1">$1</a>',
+            $html,
+        );
+        $html = (string) preg_replace_callback(
+            '/(?<!["\/])(\b)(https?:\/\/[^\s<]+|neighborhoodtools\.org\/\S+)/',
+            static fn(array $m): string => $m[1] . '<a href="'
+                . (str_starts_with($m[2], 'http') ? $m[2] : 'https://' . $m[2])
+                . '" rel="noopener">' . $m[2] . '</a>',
+            $html,
+        );
+
+        return nl2br($html, false);
+    }
+
+    /**
+     * Build a slug for a TOS section anchor (e.g. "tos-3-user-conduct").
+     *
+     * @return string Lowercase kebab-case slug prefixed with "tos-{number}-"
+     */
+    public static function tosSectionSlug(int $number, string $title): string
+    {
+        $slug = strtolower(trim($title));
+        $slug = (string) preg_replace('/[^a-z0-9]+/', '-', $slug);
+
+        return 'tos-' . $number . '-' . trim($slug, '-');
+    }
 }

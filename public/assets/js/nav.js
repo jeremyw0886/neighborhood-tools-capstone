@@ -18,6 +18,7 @@ class HamburgerMenu {
   /** @type {MediaQueryList} */
   #mobile;
   #releaseTrap = null;
+  #scrollY = 0;
   #abortController = new AbortController();
 
   /**
@@ -131,7 +132,17 @@ class HamburgerMenu {
     this.#menu.classList.add('open');
     this.#nav.dataset.menuOpen = 'true';
     this.#toggle.setAttribute('aria-expanded', 'true');
+
+    this.#scrollY = window.scrollY;
     document.body.classList.add('menu-open');
+    if (window.NT) {
+      NT.style.setRule(
+        'menu-scroll-lock',
+        'body.menu-open',
+        `position:fixed;top:-${this.#scrollY}px;width:100%`
+      );
+    }
+
     this.#syncMenuInteractivity();
 
     if (window.NT) this.#releaseTrap = NT.focus.trap(this.#menu);
@@ -143,7 +154,11 @@ class HamburgerMenu {
     this.#menu.classList.remove('open');
     delete this.#nav.dataset.menuOpen;
     this.#toggle.setAttribute('aria-expanded', 'false');
+
     document.body.classList.remove('menu-open');
+    if (window.NT) NT.style.removeRule('menu-scroll-lock');
+    window.scrollTo(0, this.#scrollY);
+
     this.#syncMenuInteractivity();
 
     if (this.#releaseTrap) {

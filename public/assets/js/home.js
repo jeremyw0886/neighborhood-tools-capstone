@@ -246,7 +246,7 @@ class ToolPreview {
     this.#tooltip.className = 'tool-preview';
     this.#tooltip.setAttribute('role', 'tooltip');
     this.#tooltip.hidden = true;
-    document.body.appendChild(this.#tooltip);
+    (document.getElementById('main-content') ?? document.body).appendChild(this.#tooltip);
 
     this.#bind();
   }
@@ -466,7 +466,8 @@ class LocationToggle {
 
       if (!res.ok) throw new Error(res.statusText);
 
-      const doc = NT.parseHtmlDocument(await res.text());
+      const text = (await res.text()).replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
+      const doc = NT.parseHtmlDocument(text);
       const fresh = doc.getElementById('member-list');
 
       if (fresh) {

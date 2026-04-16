@@ -1368,36 +1368,49 @@
       margin-bottom: 1rem;
     }
 
-    #popular-list {
-      gap: 1rem;
-      scroll-snap-type: x mandatory;
-    }
-
-    #popular-carousel > button {
-      display: none;
-    }
-
+    /* Shared mobile carousel behavior across all three home sliders */
+    #popular-list,
+    #member-list,
     .home-page > main > section:nth-of-type(3) > div {
-      container-type: normal;
-      flex-wrap: nowrap;
-      overflow-x: auto;
+      gap: 1rem;
       overscroll-behavior-x: contain;
-      padding-top: 0.5rem;
-      scroll-padding-left: 1rem;
-      scroll-padding-right: 1rem;
+      padding-inline: 1rem;
+      scroll-padding-inline: 1rem;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
     }
 
+    #popular-list::-webkit-scrollbar,
+    #member-list::-webkit-scrollbar,
     .home-page > main > section:nth-of-type(3) > div::-webkit-scrollbar {
       display: none;
     }
 
+    /* Popular Picks: multi-card rail, snap each card to the start */
+    #popular-list > div {
+      scroll-snap-align: start;
+    }
+
+    /* Friendly Neighbors: needs to become a horizontal rail on mobile */
+    .home-page > main > section:nth-of-type(3) > div {
+      container-type: normal;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-top: 0.5rem;
+    }
+
+    /* Members & Friendly Neighbors: Apple-style single card with edge peek */
+    #member-list > a,
     .home-page > main > section:nth-of-type(3) > div > a {
-      flex: 0 0 100%;
+      flex: 0 0 calc(100% - 4rem);
       max-width: none;
       min-width: 0;
-      scroll-snap-align: center;
+      scroll-snap-align: start;
+    }
+
+    #popular-carousel > button,
+    #member-carousel > button {
+      display: none;
     }
 
     .carousel-dots + p:last-of-type {
@@ -1407,21 +1420,6 @@
     #home-cta > div {
       grid-template-columns: 1fr;
       max-width: 400px;
-    }
-
-    #member-carousel > button {
-      display: none;
-    }
-
-    #member-list {
-      padding-inline: 1rem;
-      scroll-padding-inline: 1rem;
-      scroll-snap-type: x mandatory;
-    }
-
-    #member-list > a {
-      flex: 0 0 calc(100% - 4rem);
-      scroll-snap-align: start;
     }
   }
 

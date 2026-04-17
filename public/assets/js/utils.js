@@ -670,8 +670,10 @@ class ScrollToTop {
     document.addEventListener('dashboard:content-swapped', this.#handleContentSwap, { signal });
     window.addEventListener('scroll', this.#handleScroll, { passive: true, signal });
     window.addEventListener('resize', this.#handleResize, { passive: true, signal });
-    this.#updateVisibility();
-    this.#updateProgress();
+    this.#rafId = requestAnimationFrame(() => {
+      this.#updateVisibility();
+      this.#updateProgress();
+    });
   }
 
   /** @returns {ScrollToTop|null} */
@@ -747,8 +749,11 @@ class ScrollToTop {
 
   #handleContentSwap = () => {
     this.#btn.removeAttribute('data-visible');
-    this.#updateVisibility();
-    this.#updateProgress();
+    cancelAnimationFrame(this.#rafId);
+    this.#rafId = requestAnimationFrame(() => {
+      this.#updateVisibility();
+      this.#updateProgress();
+    });
   };
 }
 

@@ -5,55 +5,64 @@ declare(strict_types=1);
 namespace App\Core;
 
 /**
- * Reusable GD image processing for uploads.
+ * Facade for image processing — delegates to MagickBackend or GdBackend.
  */
 final class ImageProcessor
 {
-    private const int JPEG_QUALITY = 90;
-    private const int PNG_COMPRESSION = 4;
-    private const int WEBP_QUALITY = 85;
-
-    public const array VARIANT_WIDTHS = [820, 750, 540, 360];
+    public const array VARIANT_WIDTHS = [1080, 820, 540, 360];
 
     private const float ASPECT_RATIO = 3 / 2;
+
+    private const array FORMAT_VARIANTS = ['webp', 'avif'];
+
+    private static ?ImageBackend $backend = null;
+
+    private static function backend(): ImageBackend
+    {
+        return self::$backend ??= self::detectBackend();
+    }
+
+    private static function detectBackend(): ImageBackend
+    {
+        $disabled = array_map(trim(...), explode(',', ini_get('disable_functions') ?: ''));
+        if (in_array('exec', $disabled, true)) {
+            return new GdBackend();
+        }
+
+        $candidates = array_filter([
+            $_ENV['MAGICK_BINARY'] ?? null,
+            '/bin/magick',
+            '/usr/bin/magick',
+            '/usr/local/bin/magick',
+            'magick',
+        ]);
+
+        foreach ($candidates as $path) {
+            $output = [];
+            $code = 0;
+            @exec(escapeshellarg($path) . ' -version 2>/dev/null', $output, $code);
+            if ($code === 0) {
+                return new MagickBackend($path);
+            }
+        }
+
+        return new GdBackend();
+    }
 
     /**
      * Resize an image file in-place to a maximum width, preserving aspect ratio.
      *
-     * @param non-empty-string $path Absolute path to the image file
+     * @param non-empty-string $path
      */
     public static function resize(string $path, int $maxWidth): void
     {
-        $info = getimagesize($path);
-        if ($info === false) {
-            return;
-        }
-
-        [$origW, $origH, $type] = $info;
-
-        if ($origW <= $maxWidth) {
-            return;
-        }
-
-        $newW = $maxWidth;
-        $newH = (int) round($origH * ($maxWidth / $origW));
-
-        $source = self::loadImage($path, $type);
-        if ($source === null) {
-            return;
-        }
-
-        $canvas = self::createCanvas($newW, $newH, $type);
-        imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
-        self::saveImage($canvas, $path, $type);
-
-        unset($source, $canvas);
+        self::backend()->resize($path, $maxWidth);
     }
 
     /**
-     * Crop to a target aspect ratio around a focal point, then resize to target width.
+     * Crop to a target aspect ratio around a focal point, then resize.
      *
-     * @param non-empty-string $path Absolute path to the image file
+     * @param non-empty-string $path
      * @param ?float $aspectRatio Width/height ratio (null = 3:2, 1.0 = square)
      */
     public static function cropResize(
@@ -63,123 +72,60 @@ final class ImageProcessor
         int $focalY = 50,
         ?float $aspectRatio = null,
     ): void {
-        $info = getimagesize($path);
-        if ($info === false) {
-            return;
-        }
-
-        [$origW, $origH, $type] = $info;
-
-        $ratio = $aspectRatio ?? self::ASPECT_RATIO;
-        $targetH = (int) round($targetWidth / $ratio);
-        $sourceRatio = $origW / $origH;
-
-        if ($sourceRatio > $ratio) {
-            $cropH = $origH;
-            $cropW = (int) round($origH * $ratio);
-        } else {
-            $cropW = $origW;
-            $cropH = (int) round($origW / $ratio);
-        }
-
-        $cropX = (int) round(($origW - $cropW) * ($focalX / 100));
-        $cropY = (int) round(($origH - $cropH) * ($focalY / 100));
-
-        $cropX = max(0, min($cropX, $origW - $cropW));
-        $cropY = max(0, min($cropY, $origH - $cropH));
-
-        $source = self::loadImage($path, $type);
-        if ($source === null) {
-            return;
-        }
-
-        $canvas = self::createCanvas($targetWidth, $targetH, $type);
-        imagecopyresampled($canvas, $source, 0, 0, $cropX, $cropY, $targetWidth, $targetH, $cropW, $cropH);
-        self::saveImage($canvas, $path, $type);
-
-        unset($source, $canvas);
-    }
-
-    /**
-     * @return \GdImage|null
-     */
-    private static function loadImage(string $path, int $type): ?\GdImage
-    {
-        return match ($type) {
-            IMAGETYPE_JPEG => imagecreatefromjpeg($path),
-            IMAGETYPE_PNG  => imagecreatefrompng($path),
-            IMAGETYPE_WEBP => imagecreatefromwebp($path),
-            default        => null,
-        };
-    }
-
-    /**
-     * @return \GdImage
-     */
-    private static function createCanvas(int $width, int $height, int $type): \GdImage
-    {
-        $canvas = imagecreatetruecolor($width, $height);
-
-        if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
-            imagealphablending($canvas, false);
-            imagesavealpha($canvas, true);
-            $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-            imagefill($canvas, 0, 0, $transparent);
-        }
-
-        return $canvas;
-    }
-
-    private static function saveImage(\GdImage $image, string $path, int $type): void
-    {
-        match ($type) {
-            IMAGETYPE_JPEG => imagejpeg($image, $path, self::JPEG_QUALITY),
-            IMAGETYPE_PNG  => imagepng($image, $path, self::PNG_COMPRESSION),
-            IMAGETYPE_WEBP => imagewebp($image, $path, self::WEBP_QUALITY),
-        };
+        self::backend()->cropResize(
+            $path,
+            $targetWidth,
+            $focalX,
+            $focalY,
+            $aspectRatio ?? self::ASPECT_RATIO,
+        );
     }
 
     /**
      * Create a WebP variant of an image file.
      *
-     * @param non-empty-string $path Absolute path to the source image
-     * @return ?string Path to the created WebP file, or null on failure
+     * @param non-empty-string $path
+     * @return ?string Path to the created file, or null on failure
      */
     public static function createWebpVariant(string $path, ?int $quality = null): ?string
     {
-        $info = getimagesize($path);
-        if ($info === false) {
-            return null;
-        }
-
-        $source = match ($info[2]) {
-            IMAGETYPE_JPEG => imagecreatefromjpeg($path),
-            IMAGETYPE_PNG  => imagecreatefrompng($path),
-            default        => null,
-        };
-
-        if ($source === null) {
-            return null;
-        }
-
-        $webpPath = preg_replace('/\.\w+$/', '.webp', $path);
-
-        if ($info[2] === IMAGETYPE_PNG) {
-            imagealphablending($source, true);
-            imagesavealpha($source, true);
-        }
-
-        imagewebp($source, $webpPath, $quality ?? self::WEBP_QUALITY);
-        unset($source);
-
-        return $webpPath;
+        return self::backend()->createFormatVariant(
+            $path,
+            'webp',
+            $quality ?? self::qualityForWidth(0, 'webp'),
+        );
     }
 
     /**
-     * Generate size variants and WebP copies for a source image.
+     * Create an AVIF variant of an image file.
      *
-     * @param non-empty-string $sourcePath Absolute path to the full-size image
-     * @param int[] $widths Variant widths to generate
+     * @param non-empty-string $path
+     * @return ?string Path to the created file, or null on failure
+     */
+    public static function createAvifVariant(string $path, ?int $quality = null): ?string
+    {
+        return self::backend()->createFormatVariant(
+            $path,
+            'avif',
+            $quality ?? self::qualityForWidth(0, 'avif'),
+        );
+    }
+
+    /**
+     * Get the intrinsic width of an image file.
+     *
+     * @param non-empty-string $path
+     */
+    public static function getIntrinsicWidth(string $path): ?int
+    {
+        return self::backend()->getIntrinsicWidth($path);
+    }
+
+    /**
+     * Generate size variants and format copies for a source image.
+     *
+     * @param non-empty-string $sourcePath
+     * @param int[] $widths
      * @param ?float $aspectRatio Width/height ratio (null = 3:2, 1.0 = square)
      * @return string[] Paths of all created files (empty on failure)
      */
@@ -199,6 +145,8 @@ final class ImageProcessor
         $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
         $isWebp = strtolower($ext) === 'webp';
         $base = preg_replace('/\.\w+$/', '', $sourcePath);
+        $ratio = $aspectRatio ?? self::ASPECT_RATIO;
+        $backend = self::backend();
 
         $qualifyingWidths = array_filter(
             $widths,
@@ -218,20 +166,28 @@ final class ImageProcessor
                 }
                 $created[] = $variantPath;
 
-                self::cropResize($variantPath, $w, $focalX, $focalY, $aspectRatio);
+                $backend->cropResize($variantPath, $w, $focalX, $focalY, $ratio);
 
                 if (!$isWebp) {
-                    $webpPath = self::createWebpVariant($variantPath);
-                    if ($webpPath !== null) {
-                        $created[] = $webpPath;
+                    foreach (self::FORMAT_VARIANTS as $format) {
+                        $quality = self::qualityForWidth($w, $format);
+                        $formatPath = $backend->createFormatVariant($variantPath, $format, $quality);
+                        if ($formatPath !== null) {
+                            $created[] = $formatPath;
+                        }
                     }
                 }
             }
 
+            $backend->cropResize($sourcePath, $sourceWidth, $focalX, $focalY, $ratio);
+
             if (!$isWebp) {
-                $webpFull = self::createWebpVariant($sourcePath);
-                if ($webpFull !== null) {
-                    $created[] = $webpFull;
+                foreach (self::FORMAT_VARIANTS as $format) {
+                    $quality = self::qualityForWidth($sourceWidth, $format);
+                    $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
+                    if ($formatPath !== null) {
+                        $created[] = $formatPath;
+                    }
                 }
             }
         } catch (\RuntimeException) {
@@ -243,9 +199,24 @@ final class ImageProcessor
     }
 
     /**
+     * Tiered quality — smaller variants get lower quality (imperceptible at that size).
+     */
+    private static function qualityForWidth(int $width, string $format): int
+    {
+        return match (true) {
+            $format === 'avif' && $width >= 820 => 55,
+            $format === 'avif'                  => 45,
+            $format === 'webp' && $width >= 820 => 82,
+            $format === 'webp'                  => 72,
+            $width >= 820                       => 90,
+            default                             => 82,
+        };
+    }
+
+    /**
      * Delete an array of file paths.
      *
-     * @param string[] $paths Absolute paths to remove
+     * @param string[] $paths
      */
     public static function cleanupFiles(array $paths): void
     {
@@ -257,24 +228,13 @@ final class ImageProcessor
     }
 
     /**
-     * Get the intrinsic width of an image file.
-     *
-     * @param non-empty-string $path Absolute path to the image
-     */
-    public static function getIntrinsicWidth(string $path): ?int
-    {
-        $size = getimagesize($path);
-        return $size !== false ? $size[0] : null;
-    }
-
-    /**
      * Build srcset data from variants that exist on disk.
      *
      * @param string $filename  Base image filename (e.g., "tool_xxx.jpg")
      * @param ?int   $fullWidth Intrinsic width from DB (null = measure from file)
      * @param int[]  $widths    Variant widths to check
      * @param string $uploadDir Subdirectory under public/uploads/
-     * @return array<int, array{file: string, webp?: string}> Keyed by actual width
+     * @return array<int, array{file: string, webp?: string, avif?: string}> Keyed by width
      */
     public static function getAvailableVariants(
         string $filename,
@@ -298,6 +258,10 @@ final class ImageProcessor
                     if (file_exists($base . $webpFile)) {
                         $entry['webp'] = $webpFile;
                     }
+                    $avifFile = "{$name}-{$w}w.avif";
+                    if (file_exists($base . $avifFile)) {
+                        $entry['avif'] = $avifFile;
+                    }
                 }
                 $variants[$w] = $entry;
             }
@@ -318,6 +282,10 @@ final class ImageProcessor
                 if (file_exists($base . $webpFull)) {
                     $entry['webp'] = $webpFull;
                 }
+                $avifFull = "{$name}.avif";
+                if (file_exists($base . $avifFull)) {
+                    $entry['avif'] = $avifFull;
+                }
             }
             $variants[$fullWidth] = $entry;
         }
@@ -326,11 +294,11 @@ final class ImageProcessor
     }
 
     /**
-     * Build srcset and WebP srcset strings from variant data.
+     * Build srcset strings from variant data.
      *
-     * @param array<int, array{file: string, webp?: string}> $variants
+     * @param array<int, array{file: string, webp?: string, avif?: string}> $variants
      * @param string $urlPrefix URL path prefix (e.g., "/uploads/tools/")
-     * @return array{srcset: string, webpSrcset: string}
+     * @return array{srcset: string, webpSrcset: string, avifSrcset: string}
      */
     public static function buildSrcset(
         array $variants,
@@ -340,6 +308,7 @@ final class ImageProcessor
 
         $srcsetParts = [];
         $webpParts   = [];
+        $avifParts   = [];
 
         $diskBase = BASE_PATH . '/public' . $urlPrefix;
 
@@ -347,16 +316,22 @@ final class ImageProcessor
             $mtime = filemtime($diskBase . $v['file']) ?: 0;
             $ver = '?v=' . $mtime;
             $srcsetParts[] = $urlPrefix . $v['file'] . $ver . ' ' . $width . 'w';
+
             if (isset($v['webp'])) {
                 $webpMtime = filemtime($diskBase . $v['webp']) ?: 0;
-                $webpVer = '?v=' . $webpMtime;
-                $webpParts[] = $urlPrefix . $v['webp'] . $webpVer . ' ' . $width . 'w';
+                $webpParts[] = $urlPrefix . $v['webp'] . '?v=' . $webpMtime . ' ' . $width . 'w';
+            }
+
+            if (isset($v['avif'])) {
+                $avifMtime = filemtime($diskBase . $v['avif']) ?: 0;
+                $avifParts[] = $urlPrefix . $v['avif'] . '?v=' . $avifMtime . ' ' . $width . 'w';
             }
         }
 
         return [
             'srcset'     => implode(', ', $srcsetParts),
             'webpSrcset' => implode(', ', $webpParts),
+            'avifSrcset' => implode(', ', $avifParts),
         ];
     }
 
@@ -384,9 +359,11 @@ final class ImageProcessor
             }
 
             if (!$isWebp) {
-                $webp = $dir . "{$name}-{$w}w.webp";
-                if (file_exists($webp)) {
-                    unlink($webp);
+                foreach (self::FORMAT_VARIANTS as $format) {
+                    $formatPath = $dir . "{$name}-{$w}w.{$format}";
+                    if (file_exists($formatPath)) {
+                        unlink($formatPath);
+                    }
                 }
             }
         }
@@ -415,9 +392,11 @@ final class ImageProcessor
         $isWebp = strtolower(pathinfo($filename, PATHINFO_EXTENSION)) === 'webp';
         if (!$isWebp) {
             $name = pathinfo($filename, PATHINFO_FILENAME);
-            $webp = $dir . $name . '.webp';
-            if (file_exists($webp)) {
-                unlink($webp);
+            foreach (self::FORMAT_VARIANTS as $format) {
+                $fullFormatPath = $dir . "{$name}.{$format}";
+                if (file_exists($fullFormatPath)) {
+                    unlink($fullFormatPath);
+                }
             }
         }
     }

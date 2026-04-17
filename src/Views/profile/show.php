@@ -65,6 +65,11 @@ $rangeEnd   = min($page * $perPage, $totalTools);
       <?php if ($hasPhoto && $avatarSrcsets !== null): ?>
         <?php $isWebp = str_ends_with($profile['primary_image'], '.webp'); ?>
         <picture>
+          <?php if (!$isWebp && $avatarSrcsets['avifSrcset'] !== ''): ?>
+            <source type="image/avif"
+                    srcset="<?= $avatarSrcsets['avifSrcset'] ?>"
+                    sizes="150px">
+          <?php endif; ?>
           <?php if (!$isWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
             <source type="image/webp"
                     srcset="<?= $avatarSrcsets['webpSrcset'] ?>"

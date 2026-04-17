@@ -68,6 +68,12 @@ $images        ??= [];
           ?>
             <a href="/uploads/tools/<?= $mainFallback ?>" data-lightbox-trigger>
               <picture>
+                <?php if (!$mainIsWebp && $mainSrcsets['avifSrcset'] !== ''): ?>
+                  <source type="image/avif"
+                          srcset="<?= $mainSrcsets['avifSrcset'] ?>"
+                          sizes="<?= $mainSizes ?>"
+                          id="gallery-main-source-avif">
+                <?php endif; ?>
                 <?php if (!$mainIsWebp && $mainSrcsets['webpSrcset'] !== ''): ?>
                   <source type="image/webp"
                           srcset="<?= $mainSrcsets['webpSrcset'] ?>"
@@ -108,6 +114,7 @@ $images        ??= [];
                         data-full="/uploads/tools/<?= $mainFallback ?>"
                         data-srcset="<?= htmlspecialchars($mainSrcsets['srcset']) ?>"
                         <?= (!$mainIsWebp && $mainSrcsets['webpSrcset'] !== '') ? 'data-srcset-webp="' . htmlspecialchars($mainSrcsets['webpSrcset']) . '"' : '' ?>
+                        <?= (!$mainIsWebp && $mainSrcsets['avifSrcset'] !== '') ? 'data-srcset-avif="' . htmlspecialchars($mainSrcsets['avifSrcset']) . '"' : '' ?>
                         data-alt="<?= $mainAlt ?>"
                         data-focal-x="<?= $mainFx ?>"
                         data-focal-y="<?= $mainFy ?>">
@@ -139,6 +146,7 @@ $images        ??= [];
                         data-full="/uploads/tools/<?= $exFile ?>"
                         data-srcset="<?= htmlspecialchars($exSrcsets['srcset']) ?>"
                         <?= (!$exIsWebp && $exSrcsets['webpSrcset'] !== '') ? 'data-srcset-webp="' . htmlspecialchars($exSrcsets['webpSrcset']) . '"' : '' ?>
+                        <?= (!$exIsWebp && $exSrcsets['avifSrcset'] !== '') ? 'data-srcset-avif="' . htmlspecialchars($exSrcsets['avifSrcset']) . '"' : '' ?>
                         data-alt="<?= $exAlt ?>"
                         data-focal-x="<?= $exFx ?>"
                         data-focal-y="<?= $exFy ?>">

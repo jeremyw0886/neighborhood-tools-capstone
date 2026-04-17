@@ -23,6 +23,11 @@
       $sizes = $cardSizes ?? '(max-width: 400px) calc(50vw - 1.25rem), (max-width: 600px) calc(100vw - 2rem), (max-width: 700px) calc((100vw - 4rem) / 3), 270px';
     ?>
       <picture>
+        <?php if (!$isWebp && $srcsets['avifSrcset'] !== ''): ?>
+          <source type="image/avif"
+                  srcset="<?= $srcsets['avifSrcset'] ?>"
+                  sizes="<?= $sizes ?>">
+        <?php endif; ?>
         <?php if (!$isWebp && $srcsets['webpSrcset'] !== ''): ?>
           <source type="image/webp"
                   srcset="<?= $srcsets['webpSrcset'] ?>"

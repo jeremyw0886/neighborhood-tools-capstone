@@ -219,6 +219,11 @@ $errorFieldMap = [
         <figure>
           <?php if ($avatarSrcsets !== null): ?>
             <picture>
+              <?php if (!$editIsWebp && $avatarSrcsets['avifSrcset'] !== ''): ?>
+                <source type="image/avif"
+                        srcset="<?= $avatarSrcsets['avifSrcset'] ?>"
+                        sizes="120px">
+              <?php endif; ?>
               <?php if (!$editIsWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
                 <source type="image/webp"
                         srcset="<?= $avatarSrcsets['webpSrcset'] ?>"

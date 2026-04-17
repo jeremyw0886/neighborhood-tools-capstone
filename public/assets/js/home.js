@@ -731,8 +731,14 @@ class PopularCarousel {
 
 EntranceAnimation.init();
 CounterAnimation.init();
-NeighborCarousel.init();
-ToolPreview.init();
-PopularCarousel.init();
-LocationToggle.init();
-MemberCarousel.init();
+
+requestAnimationFrame(() => {
+  ToolPreview.init();
+  LocationToggle.init();
+
+  requestAnimationFrame(() => {
+    PopularCarousel.init();
+    MemberCarousel.init();
+    NeighborCarousel.init();
+  });
+});

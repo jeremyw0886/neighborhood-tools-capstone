@@ -28,7 +28,7 @@ class EntranceAnimation {
     if (!right) return null;
 
     const elements = [
-      ...(headline ? [...headline.children] : []),
+      ...(headline ? [...headline.children].filter((el) => el.tagName !== 'H1') : []),
       stats,
       right,
     ].filter(Boolean);

@@ -2650,7 +2650,7 @@
     }
 
     div[role="list"]:not([data-vector-grid])>div>article:has(> figure)>figure {
-      height: 110px;
+      height: 107px;
     }
 
     div[role="list"]:not([data-vector-grid])>div>article:has(> figure)>form {
@@ -2732,7 +2732,7 @@
     }
 
     div[role="list"]:not([data-vector-grid])>div>article:has(> figure)>figure {
-      height: 110px;
+      height: 93px;
     }
 
     div[role="list"]:not([data-vector-grid])>div>article:has(> figure)>form>button {

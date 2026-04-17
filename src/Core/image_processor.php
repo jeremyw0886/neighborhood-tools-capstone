@@ -82,36 +82,6 @@ final class ImageProcessor
     }
 
     /**
-     * Create a WebP variant of an image file.
-     *
-     * @param non-empty-string $path
-     * @return ?string Path to the created file, or null on failure
-     */
-    public static function createWebpVariant(string $path, ?int $quality = null): ?string
-    {
-        return self::backend()->createFormatVariant(
-            $path,
-            'webp',
-            $quality ?? self::qualityForWidth(0, 'webp'),
-        );
-    }
-
-    /**
-     * Create an AVIF variant of an image file.
-     *
-     * @param non-empty-string $path
-     * @return ?string Path to the created file, or null on failure
-     */
-    public static function createAvifVariant(string $path, ?int $quality = null): ?string
-    {
-        return self::backend()->createFormatVariant(
-            $path,
-            'avif',
-            $quality ?? self::qualityForWidth(0, 'avif'),
-        );
-    }
-
-    /**
      * Get the intrinsic width of an image file.
      *
      * @param non-empty-string $path

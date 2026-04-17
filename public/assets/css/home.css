@@ -1391,6 +1391,10 @@
       scroll-snap-align: start;
     }
 
+    #popular-list > div > article > figure {
+      height: 180px;
+    }
+
     /* Friendly Neighbors: needs to become a horizontal rail on mobile */
     .home-page > main > section:nth-of-type(3) > div {
       container-type: normal;

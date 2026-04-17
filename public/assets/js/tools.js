@@ -1782,6 +1782,8 @@ class GalleryViewer {
   #mainFigure;
   /** @type {HTMLSourceElement|null} */
   #mainSource;
+  /** @type {HTMLSourceElement|null} */
+  #mainSourceAvif;
   /** @type {HTMLDialogElement|null} */
   #lightbox;
   /** @type {HTMLImageElement|null} */
@@ -1798,6 +1800,7 @@ class GalleryViewer {
     this.#mainFigure = document.getElementById('gallery-main');
     this.#mainImg = document.getElementById('gallery-main-img');
     this.#mainSource = document.getElementById('gallery-main-source');
+    this.#mainSourceAvif = document.getElementById('gallery-main-source-avif');
     this.#thumbList = document.getElementById('gallery-thumbs');
     this.#lightbox = document.getElementById('gallery-lightbox');
     this.#lightboxImg = document.getElementById('lightbox-img');
@@ -1843,6 +1846,17 @@ class GalleryViewer {
     this.#mainImg.src = btn.dataset.full;
     this.#mainImg.srcset = btn.dataset.srcset || '';
     this.#mainImg.alt = btn.dataset.alt || '';
+
+    if (this.#mainSourceAvif) {
+      const avifSrcset = btn.dataset.srcsetAvif;
+      if (avifSrcset) {
+        this.#mainSourceAvif.srcset = avifSrcset;
+        this.#mainSourceAvif.hidden = false;
+      } else {
+        this.#mainSourceAvif.srcset = '';
+        this.#mainSourceAvif.hidden = true;
+      }
+    }
 
     if (this.#mainSource) {
       const webpSrcset = btn.dataset.srcsetWebp;

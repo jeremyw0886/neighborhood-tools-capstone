@@ -3,19 +3,21 @@
  * Dashboard — Borrower sub-page: active borrows, outgoing requests, overdue items.
  *
  * Variables from DashboardController::borrower():
- *   $borrows            array  Active borrows where user is the borrower
- *   $requests           array  Pending requests where user is the borrower
- *   $overdue            array  Overdue borrows where user is the borrower
- *   $awaitingPickup     array  Approved borrows awaiting pickup (borrower side)
- *   $depositsByBorrow   array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
- *   $handoversByBorrow  array<int, array>  Keyed by borrow ID — pending handover rows
- *   $waiversByBorrow    array<int, bool>   Keyed by borrow ID — true if waiver signed
- *   $borrowSort         array{sort: string, dir: string}  Active borrows sort state
- *   $borrowStatus       ?string  Active borrows status filter (on-time|due-soon|overdue|null)
- *   $reqSort            array{sort: string, dir: string}  Pending requests sort state
+ *
+ * @var array                            $borrows           Active borrows where user is the borrower
+ * @var array                            $requests          Pending requests where user is the borrower
+ * @var array                            $overdue           Overdue borrows where user is the borrower
+ * @var array                            $awaitingPickup    Approved borrows awaiting pickup (borrower side)
+ * @var array<int, array>                $depositsByBorrow  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
+ * @var array<int, array>                $handoversByBorrow Keyed by borrow ID — pending handover rows
+ * @var array<int, bool>                 $waiversByBorrow   Keyed by borrow ID — true if waiver signed
+ * @var array{sort: string, dir: string} $borrowSort        Active borrows sort state
+ * @var ?string                          $borrowStatus      Active borrows status filter (on-time|due-soon|overdue|null)
+ * @var array{sort: string, dir: string} $reqSort           Pending requests sort state
  *
  * Shared data:
- *   $authUser  array{id, name, first_name, role, avatar}
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
  */
 
 ?>

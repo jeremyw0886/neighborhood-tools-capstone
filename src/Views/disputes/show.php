@@ -3,16 +3,18 @@
  * Dispute Detail — subject, context, and chronological message thread.
  *
  * Variables from DisputeController::show():
- *   $dispute     array   Row from Dispute::findByIdWithContext()
- *   $messages    array   Rows from Dispute::getMessages() (internal notes pre-filtered)
- *   $isAdmin     bool    Whether the current user is an admin
- *   $msgErrors   array   Field-keyed validation errors for the reply form
- *   $msgOld      array   Previous input values for sticky reply field
- *   $msgSuccess  string  Success flash after posting a message
+ *
+ * @var array  $dispute    Row from Dispute::findByIdWithContext()
+ * @var array  $messages   Rows from Dispute::getMessages() (internal notes pre-filtered)
+ * @var bool   $isAdmin    Whether the current user is an admin
+ * @var array  $msgErrors  Field-keyed validation errors for the reply form
+ * @var array  $msgOld     Previous input values for sticky reply field
+ * @var string $msgSuccess Success flash after posting a message
  *
  * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
  */
 
 $disputeId    = (int) $dispute['id_dsp'];

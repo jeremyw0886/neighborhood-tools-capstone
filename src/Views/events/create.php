@@ -3,13 +3,15 @@
  * Create Event — admin form for scheduling a community event.
  *
  * Variables from EventController::create():
- *   $neighborhoods  array   Rows from Neighborhood::allGroupedByCity()
- *   $errors         array   Field-keyed validation errors (empty on first load)
- *   $old            array   Previous input values for sticky fields (empty on first load)
+ *
+ * @var array $neighborhoods Rows from Neighborhood::allGroupedByCity()
+ * @var array $errors        Field-keyed validation errors (empty on first load)
+ * @var array $old           Previous input values for sticky fields (empty on first load)
  *
  * Shared data:
- *   $csrfToken  string
- *   $backUrl    string
+ *
+ * @var string $csrfToken
+ * @var string $backUrl
  */
 
 $currentCity = '';

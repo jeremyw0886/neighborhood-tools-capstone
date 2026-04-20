@@ -3,15 +3,17 @@
  * Dashboard — History sub-page: past lending and borrowing activity.
  *
  * Variables from DashboardController::history():
- *   $lenderHistory   array  Past borrows where user was the lender
- *   $borrowerHistory array  Past borrows where user was the borrower
- *   $lendSort        array{sort: string, dir: string}  Lending history sort state
- *   $lendStatus      ?string  Lending history status filter (returned|denied|cancelled|null)
- *   $borrowSort      array{sort: string, dir: string}  Borrowing history sort state
- *   $borrowStatus    ?string  Borrowing history status filter (returned|denied|cancelled|null)
+ *
+ * @var array                            $lenderHistory   Past borrows where user was the lender
+ * @var array                            $borrowerHistory Past borrows where user was the borrower
+ * @var array{sort: string, dir: string} $lendSort        Lending history sort state
+ * @var ?string                          $lendStatus      Lending history status filter (returned|denied|cancelled|null)
+ * @var array{sort: string, dir: string} $borrowSort      Borrowing history sort state
+ * @var ?string                          $borrowStatus    Borrowing history status filter (returned|denied|cancelled|null)
  *
  * Shared data:
- *   $authUser  array{id, name, first_name, role, avatar}
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
  */
 
 use App\Core\ViewHelper;

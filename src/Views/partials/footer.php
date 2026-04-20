@@ -3,9 +3,10 @@
  * Footer partial — shared across all pages.
  *
  * Variables from BaseController::getSharedData():
- *   $isLoggedIn  bool
- *   $authUser    ?array{id, name, first_name, role, avatar}
- *   $currentPage string  (current URI path)
+ *
+ * @var bool                                       $isLoggedIn
+ * @var ?array{id, name, first_name, role, avatar} $authUser
+ * @var string                                     $currentPage (current URI path)
  */
 ?>
 <footer id="site-footer">

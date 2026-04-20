@@ -7,12 +7,13 @@
  *   Standard   ($heroPage = false): Solid --mountain-pine background
  *
  * Variables from BaseController::getSharedData():
- *   $isLoggedIn  bool
- *   $authUser    ?array{id, name, first_name, role, avatar}
- *   $csrfToken   string
- *   $currentPage string  (current URI path)
- *   $unreadCount int     (unread notification count for badge)
- *   $heroPage    bool    (set by controller, absent/false for standard pages)
+ *
+ * @var bool                                       $isLoggedIn
+ * @var ?array{id, name, first_name, role, avatar} $authUser
+ * @var string                                     $csrfToken
+ * @var string                                     $currentPage (current URI path)
+ * @var int                                        $unreadCount (unread notification count for badge)
+ * @var bool                                       $heroPage    (set by controller, absent/false for standard pages)
  */
 
 $isHero = !empty($heroPage);

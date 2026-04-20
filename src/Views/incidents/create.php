@@ -3,15 +3,17 @@
  * Report an Incident — incident creation form for a borrow transaction.
  *
  * Variables from IncidentController::create():
- *   $borrow        array   Row from Borrow::findById() (borrower/lender/tool context)
- *   $hasExisting   bool    Whether an open incident already exists for this borrow
- *   $incidentTypes array   Rows from Incident::getTypes() (id_ity, type_name_ity)
- *   $errors        array   Field-keyed validation errors (empty on first load)
- *   $old           array   Previous input values for sticky fields (empty on first load)
+ *
+ * @var array $borrow        Row from Borrow::findById() (borrower/lender/tool context)
+ * @var bool  $hasExisting   Whether an open incident already exists for this borrow
+ * @var array $incidentTypes Rows from Incident::getTypes() (id_ity, type_name_ity)
+ * @var array $errors        Field-keyed validation errors (empty on first load)
+ * @var array $old           Previous input values for sticky fields (empty on first load)
  *
  * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
  */
 
 $borrowId     = (int) $borrow['id_bor'];

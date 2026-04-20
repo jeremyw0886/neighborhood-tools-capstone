@@ -3,24 +3,26 @@
  * Dashboard — Lender sub-page: listed tools, incoming requests, lent-out items.
  *
  * Variables from DashboardController::lender():
- *   $tools              array  Rows from tool_detail_v for this owner (paginated)
- *   $toolsPage          int    Current page number
- *   $toolsCount         int    Total tools owned
- *   $toolsPages         int    Total pages
- *   $perPage            int    Items per page
- *   $overdue            array  Overdue borrows where user is lender
- *   $incomingRequests   array  Pending requests where user is lender
- *   $awaitingPickup     array  Approved borrows awaiting pickup (lender side)
- *   $lentOut            array  Active borrows where user is lender
- *   $depositsByBorrow        array<int, array>  Keyed by borrow ID — deposit rows for awaiting-pickup borrows
- *   $lentDepositsByBorrow    array<int, array>  Keyed by borrow ID — deposit rows for lent-out borrows
- *   $handoversByBorrow       array<int, array>  Keyed by borrow ID — pending handover rows
- *   $waiversByBorrow         array<int, bool>   Keyed by borrow ID — true if waiver signed
- *   $reqSort            array{sort: string, dir: string}  Incoming requests sort state
- *   $lentSort           array{sort: string, dir: string}  Lent-out table sort state
+ *
+ * @var array                            $tools                 Rows from tool_detail_v for this owner (paginated)
+ * @var int                              $toolsPage             Current page number
+ * @var int                              $toolsCount            Total tools owned
+ * @var int                              $toolsPages            Total pages
+ * @var int                              $perPage               Items per page
+ * @var array                            $overdue               Overdue borrows where user is lender
+ * @var array                            $incomingRequests      Pending requests where user is lender
+ * @var array                            $awaitingPickup        Approved borrows awaiting pickup (lender side)
+ * @var array                            $lentOut               Active borrows where user is lender
+ * @var array<int, array>                $depositsByBorrow      Keyed by borrow ID — deposit rows for awaiting-pickup borrows
+ * @var array<int, array>                $lentDepositsByBorrow  Keyed by borrow ID — deposit rows for lent-out borrows
+ * @var array<int, array>                $handoversByBorrow     Keyed by borrow ID — pending handover rows
+ * @var array<int, bool>                 $waiversByBorrow       Keyed by borrow ID — true if waiver signed
+ * @var array{sort: string, dir: string} $reqSort               Incoming requests sort state
+ * @var array{sort: string, dir: string} $lentSort              Lent-out table sort state
  *
  * Shared data:
- *   $authUser  array{id, name, first_name, role, avatar}
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
  */
 
 ?>

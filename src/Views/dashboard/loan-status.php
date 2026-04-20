@@ -4,14 +4,16 @@
  * Dashboard — Loan detail page with lifecycle progress and actions.
  *
  * Variables from DashboardController::loanStatus():
- *   $borrow        array  Full borrow record with timestamps and counterparty info
- *   $extensions    array  Loan extension history from loan_extension_lex
- *   $handovers     array  Handover verification records
- *   $deposit       ?array Security deposit record
- *   $waiverSigned  bool   Whether the borrower has signed the waiver
+ *
+ * @var array  $borrow       Full borrow record with timestamps and counterparty info
+ * @var array  $extensions   Loan extension history from loan_extension_lex
+ * @var array  $handovers    Handover verification records
+ * @var ?array $deposit      Security deposit record
+ * @var bool   $waiverSigned Whether the borrower has signed the waiver
  *
  * Shared data:
- *   $authUser  array{id, name, first_name, role, avatar}
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
  */
 
 $status    = $borrow['borrow_status'];

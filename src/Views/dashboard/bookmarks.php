@@ -3,13 +3,14 @@
  * Dashboard partial — bookmarked tools grid with pagination.
  *
  * Variables from ToolController::bookmarks():
- *   $bookmarks      array  Rows from Bookmark::getForUser() (tool-card compatible)
- *   $totalCount     int    Total bookmarks for this user
- *   $page           int    Current page number (1-based)
- *   $totalPages     int    Total pages
- *   $perPage        int    Results per page (12)
- *   $bookmarkedIds  array  Tool IDs on this page (all bookmarked)
- *   $bookmarkFlash  ?string Flash message
+ *
+ * @var array   $bookmarks     Rows from Bookmark::getForUser() (tool-card compatible)
+ * @var int     $totalCount    Total bookmarks for this user
+ * @var int     $page          Current page number (1-based)
+ * @var int     $totalPages    Total pages
+ * @var int     $perPage       Results per page (12)
+ * @var array   $bookmarkedIds Tool IDs on this page (all bookmarked)
+ * @var ?string $bookmarkFlash Flash message
  */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;

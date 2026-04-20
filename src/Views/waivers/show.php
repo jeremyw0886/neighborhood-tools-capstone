@@ -3,12 +3,14 @@
  * Borrow Waiver — acknowledgment form before tool pickup.
  *
  * Variables from WaiverController::show():
- *   $waiver      array   Row from Waiver::findPendingByBorrowId()
- *   $waiverTypes array   Rows from Waiver::getTypes()
+ *
+ * @var array $waiver      Row from Waiver::findPendingByBorrowId()
+ * @var array $waiverTypes Rows from Waiver::getTypes()
  *
  * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
  */
 
 $borrowId      = (int) $waiver['id_bor'];

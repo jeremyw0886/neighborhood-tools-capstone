@@ -3,13 +3,14 @@
  * Dashboard partial — edit profile form with avatar picker and personal info fields.
  *
  * Variables from ProfileController::edit():
- *   $profile         array   Editable fields from Account::getEditableProfile()
- *   $preferences     array   All contact_preference_cpr rows for dropdown
- *   $meta            array   Account meta key/value pairs
- *   $avatarVectors   array   Available vector avatars
- *   $errors          array   Field-keyed validation errors (empty on first load)
- *   $old             array   Previous input values for sticky fields (empty on first load)
- *   $csrfToken       string  CSRF token from shared data
+ *
+ * @var array  $profile       Editable fields from Account::getEditableProfile()
+ * @var array  $preferences   All contact_preference_cpr rows for dropdown
+ * @var array  $meta          Account meta key/value pairs
+ * @var array  $avatarVectors Available vector avatars
+ * @var array  $errors        Field-keyed validation errors (empty on first load)
+ * @var array  $old           Previous input values for sticky fields (empty on first load)
+ * @var string $csrfToken     CSRF token from shared data
  */
 
 if (!empty($profile['vector_avatar'])) {

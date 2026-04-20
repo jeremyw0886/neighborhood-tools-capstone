@@ -3,17 +3,19 @@
  * Handover verification — code entry form for pickup/return confirmation.
  *
  * Variables from HandoverController::verify():
- *   $handover          array  Row from pending_handover_v (code, status, parties, tool)
- *   $isVerifier        bool   Whether the current user is the one who verifies (not the generator)
- *   $awaitingLender    bool   (optional) True when borrower visits before lender generates pickup code
- *   $awaitingBorrower  bool   (optional) True when lender visits before borrower generates return code
- *   $waiverPending     bool   (optional) True when lender visits but borrower hasn't signed waiver
- *   $depositPending    bool   (optional) True when lender visits but borrower hasn't paid deposit
- *   $borrow            array  (optional) Row from Borrow::findById() — present with awaiting/deposit/waiver flags
+ *
+ * @var array $handover         Row from pending_handover_v (code, status, parties, tool)
+ * @var bool  $isVerifier       Whether the current user is the one who verifies (not the generator)
+ * @var bool  $awaitingLender   (optional) True when borrower visits before lender generates pickup code
+ * @var bool  $awaitingBorrower (optional) True when lender visits before borrower generates return code
+ * @var bool  $waiverPending    (optional) True when lender visits but borrower hasn't signed waiver
+ * @var bool  $depositPending   (optional) True when lender visits but borrower hasn't paid deposit
+ * @var array $borrow           (optional) Row from Borrow::findById() — present with awaiting/deposit/waiver flags
  *
  * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
  */
 
 if (!empty($waiverPending)):

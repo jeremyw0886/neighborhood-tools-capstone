@@ -3,18 +3,19 @@
  * Dashboard partial — community events listing with timing filters and pagination.
  *
  * Variables from EventController::index():
- *   $events          array   Event rows from Event::getUpcoming()
- *   $totalCount      int     Total events matching filter
- *   $page            int     Current page (1-based)
- *   $totalPages      int     Total pages
- *   $perPage         int     Results per page (12)
- *   $filterParams    array   Active filter params for pagination URLs
- *   $timing          ?string Active timing filter
- *   $timingCounts    array   Counts per timing category
- *   $eventSuccess    string  Flash alert message
- *   $eventFlash      string  Flash status message
- *   $attendedIds     array   Event IDs the user has RSVP'd to
- *   $attendeeCounts  array   Attendee counts keyed by event ID
+ *
+ * @var array   $events         Event rows from Event::getUpcoming()
+ * @var int     $totalCount     Total events matching filter
+ * @var int     $page           Current page (1-based)
+ * @var int     $totalPages     Total pages
+ * @var int     $perPage        Results per page (12)
+ * @var array   $filterParams   Active filter params for pagination URLs
+ * @var ?string $timing         Active timing filter
+ * @var array   $timingCounts   Counts per timing category
+ * @var string  $eventSuccess   Flash alert message
+ * @var string  $eventFlash     Flash status message
+ * @var array   $attendedIds    Event IDs the user has RSVP'd to
+ * @var array   $attendeeCounts Attendee counts keyed by event ID
  */
 
 $events         ??= [];

@@ -3,15 +3,17 @@
  * File a Dispute — dispute creation form for a borrow transaction.
  *
  * Variables from DisputeController::create():
- *   $borrow       array   Row from Borrow::findById() (borrower/lender/tool context)
- *   $hasExisting  bool    Whether an open dispute already exists for this borrow
- *   $errors       array   Field-keyed validation errors (empty on first load)
- *   $old          array   Previous input values for sticky fields (empty on first load)
+ *
+ * @var array $borrow      Row from Borrow::findById() (borrower/lender/tool context)
+ * @var bool  $hasExisting Whether an open dispute already exists for this borrow
+ * @var array $errors      Field-keyed validation errors (empty on first load)
+ * @var array $old         Previous input values for sticky fields (empty on first load)
  *
  * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
- *   $backUrl    string
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
+ * @var string                                    $backUrl
  */
 
 $borrowId     = (int) $borrow['id_bor'];

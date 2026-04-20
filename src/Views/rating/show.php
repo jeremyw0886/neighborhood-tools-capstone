@@ -3,16 +3,18 @@
  * Rating form — rate the other party and (for borrowers) the tool.
  *
  * Variables from RatingController::show():
- *   $borrow       array  Row from Borrow::findById() (id_bor, borrower_id, lender_id, tool_name_tol, etc.)
- *   $isBorrower   bool   Whether the current user is the borrower
- *   $targetId     int    Account ID of the user being rated
- *   $targetName   string Full name of the user being rated
- *   $raterRole    string 'lender' or 'borrower'
- *   $hasRatedUser bool   Whether the user rating has already been submitted
- *   $hasRatedTool bool   Whether the tool rating has already been submitted (always true for lenders)
+ *
+ * @var array  $borrow       Row from Borrow::findById() (id_bor, borrower_id, lender_id, tool_name_tol, etc.)
+ * @var bool   $isBorrower   Whether the current user is the borrower
+ * @var int    $targetId     Account ID of the user being rated
+ * @var string $targetName   Full name of the user being rated
+ * @var string $raterRole    'lender' or 'borrower'
+ * @var bool   $hasRatedUser Whether the user rating has already been submitted
+ * @var bool   $hasRatedTool Whether the tool rating has already been submitted (always true for lenders)
  *
  * Shared data:
- *   $csrfToken  string
+ *
+ * @var string $csrfToken
  */
 
 $toolName = htmlspecialchars($borrow['tool_name_tol']);

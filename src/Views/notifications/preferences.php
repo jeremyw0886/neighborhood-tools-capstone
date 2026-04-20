@@ -3,10 +3,12 @@
  * Notification Preferences — toggle optional notification types.
  *
  * Variables from NotificationController::preferences():
- *   $prefs  array<string, bool>  Keyed by type name (due, return, rating)
+ *
+ * @var array<string, bool> $prefs Keyed by type name (due, return, rating)
  *
  * Shared data:
- *   $csrfToken  string
+ *
+ * @var string $csrfToken
  */
 
 $prefNotice = $_SESSION['pref_notice'] ?? null;

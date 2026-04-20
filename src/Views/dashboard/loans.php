@@ -3,16 +3,18 @@
  * Dashboard — Loans sub-page: all active, pending, and recently completed loans.
  *
  * Variables from DashboardController::loans():
- *   $activeLoans     array  Non-terminal loans (requested/approved/borrowed) with user_role and due_status_key
- *   $recentCompleted array  Terminal loans (returned/denied/cancelled) from the last 30 days
- *   $ratedBorrowIds  int[]  Borrow IDs the current user has already rated
- *   $currentRole     string Current role filter (all|lender|borrower)
- *   $currentStatus   string Current status filter (all|active|pending|completed)
- *   $currentSort     string Current sort field for completed section
- *   $currentDir      string Current sort direction for completed section
+ *
+ * @var array  $activeLoans     Non-terminal loans (requested/approved/borrowed) with user_role and due_status_key
+ * @var array  $recentCompleted Terminal loans (returned/denied/cancelled) from the last 30 days
+ * @var int[]  $ratedBorrowIds  Borrow IDs the current user has already rated
+ * @var string $currentRole     Current role filter (all|lender|borrower)
+ * @var string $currentStatus   Current status filter (all|active|pending|completed)
+ * @var string $currentSort     Current sort field for completed section
+ * @var string $currentDir      Current sort direction for completed section
  *
  * Shared data:
- *   $authUser  array{id, name, first_name, role, avatar}
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
  */
 
 use App\Core\ViewHelper;

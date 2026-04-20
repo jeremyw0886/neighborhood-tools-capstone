@@ -3,14 +3,16 @@
  * Incident Detail — incident report with context, photos, and resolution info.
  *
  * Variables from IncidentController::show():
- *   $incident    array   Row from Incident::findByIdWithContext()
- *   $photos      array   Rows from Incident::getPhotos()
- *   $isAdmin     bool    Whether the current user is an admin
- *   $isReporter  bool    Whether the current user filed this report
+ *
+ * @var array $incident   Row from Incident::findByIdWithContext()
+ * @var array $photos     Rows from Incident::getPhotos()
+ * @var bool  $isAdmin    Whether the current user is an admin
+ * @var bool  $isReporter Whether the current user filed this report
  *
  * Shared data:
- *   $authUser   array{id, name, first_name, role, avatar}
- *   $csrfToken  string
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
  */
 
 $incidentId    = (int) $incident['id_irt'];

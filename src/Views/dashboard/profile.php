@@ -3,14 +3,15 @@
  * Dashboard partial — own-profile view with avatar, ratings, bio, and tools.
  *
  * Variables from ProfileController::show():
- *   $profile       array   Public-safe fields from account_profile_v
- *   $reputation    ?array  Detail from user_reputation_v (live, counts, overall avg)
- *   $tools         array   Tool rows from Tool::getByOwner()
- *   $totalTools    int     Total tools owned (for pagination)
- *   $page          int     Current page (1-based)
- *   $totalPages    int     Total pages
- *   $perPage       int     Results per page (3)
- *   $profileNotice string  Flash success message
+ *
+ * @var array   $profile       Public-safe fields from account_profile_v
+ * @var ?array  $reputation    Detail from user_reputation_v (live, counts, overall avg)
+ * @var array   $tools         Tool rows from Tool::getByOwner()
+ * @var int     $totalTools    Total tools owned (for pagination)
+ * @var int     $page          Current page (1-based)
+ * @var int     $totalPages    Total pages
+ * @var int     $perPage       Results per page (3)
+ * @var string  $profileNotice Flash success message
  */
 
 $hasPhoto = !empty($profile['primary_image']) && empty($profile['vector_avatar']);

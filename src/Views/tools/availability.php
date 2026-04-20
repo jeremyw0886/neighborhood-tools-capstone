@@ -3,14 +3,16 @@
  * Availability management — view and manage date blocks for a tool.
  *
  * Variables from ToolController::availability():
- *   $tool     array   Tool row from Tool::findById()
- *   $blocks   array   Rows from AvailabilityBlock::getForTool()
- *   $errors   array   Flash validation errors (field-keyed)
- *   $old      array   Flash sticky input values
- *   $success  string  Flash success message
+ *
+ * @var array  $tool    Tool row from Tool::findById()
+ * @var array  $blocks  Rows from AvailabilityBlock::getForTool()
+ * @var array  $errors  Flash validation errors (field-keyed)
+ * @var array  $old     Flash sticky input values
+ * @var string $success Flash success message
  *
  * Shared data:
- *   $csrfToken  string
+ *
+ * @var string $csrfToken
  */
 
 $blocks  ??= [];

@@ -3,16 +3,18 @@
  * Notifications — paginated list with read/unread styling and mark-as-read.
  *
  * Variables from NotificationController::index():
- *   $notifications  array   Rows from Notification::getForUser()
- *   $totalCount     int     Total notifications (for pagination)
- *   $page           int     Current page (1-based)
- *   $totalPages     int     Total pages
- *   $perPage        int     Results per page (12)
+ *
+ * @var array $notifications Rows from Notification::getForUser()
+ * @var int   $totalCount    Total notifications (for pagination)
+ * @var int   $page          Current page (1-based)
+ * @var int   $totalPages    Total pages
+ * @var int   $perPage       Results per page (12)
  *
  * Shared data:
- *   $authUser    array{id, name, first_name, role, avatar}
- *   $csrfToken   string
- *   $unreadCount int
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var string                                    $csrfToken
+ * @var int                                       $unreadCount
  */
 
 /**

@@ -10,6 +10,7 @@ use PDO;
 class PlatformStats
 {
     private const int TREND_DAYS = 14;
+    private const string DEFAULT_AVG_RATING = '4.0';
 
     /**
      * Fetch all summary stats for the admin dashboard cards.
@@ -78,5 +79,41 @@ class PlatformStats
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Latest captured platform-wide avg tool rating, for Bayesian priors in
+     * ranking queries. Reads the most recent non-NULL value from the daily
+     * stats table; falls back to DEFAULT_AVG_RATING when the table is empty
+     * or the daily cron hasn't captured a rating yet.
+     *
+     * Cached per request so callers don't hit the DB repeatedly within a page.
+     */
+    public static function getAvgToolRating(): float
+    {
+        static $cached = null;
+
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        try {
+            $pdo = Database::connection();
+            $row = $pdo->query(
+                'SELECT platform_avg_rating_pds
+                   FROM platform_daily_stat_pds
+                  WHERE platform_avg_rating_pds IS NOT NULL
+                  ORDER BY stat_date_pds DESC
+                  LIMIT 1'
+            )->fetch(PDO::FETCH_ASSOC);
+
+            $cached = $row !== false
+                ? (float) $row['platform_avg_rating_pds']
+                : (float) self::DEFAULT_AVG_RATING;
+        } catch (\PDOException) {
+            $cached = (float) self::DEFAULT_AVG_RATING;
+        }
+
+        return $cached;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
+use App\Models\PlatformStats;
 use PDO;
 
 class Tool
@@ -12,7 +13,6 @@ class Tool
     private static ?array $browseCountsCache = null;
 
     private const int PRIOR_WEIGHT = 3;
-    private const string PRIOR_MEAN = '3.5';
     private const int MAX_PER_OWNER = 2;
     private const int NEW_ARRIVAL_DAYS = 30;
 
@@ -76,7 +76,6 @@ class Tool
         $pdo = Database::connection();
 
         $pw = self::PRIOR_WEIGHT;
-        $pm = self::PRIOR_MEAN;
         $maxPerOwner = self::MAX_PER_OWNER;
 
         $sql = "
@@ -100,7 +99,7 @@ class Tool
                     COALESCE(bc.borrow_count, 0) AS borrow_count,
                     (
                         COALESCE(rs.rating_count, 0) * COALESCE(rs.avg_rating, 0)
-                        + {$pw} * {$pm}
+                        + {$pw} * :prior_mean
                     ) / (
                         COALESCE(rs.rating_count, 0) + {$pw}
                     ) AS weighted_rating
@@ -154,6 +153,7 @@ class Tool
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':prior_mean', (string) PlatformStats::getAvgToolRating());
         $stmt->execute();
 
         $results = $stmt->fetchAll();

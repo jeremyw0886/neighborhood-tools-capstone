@@ -1122,7 +1122,6 @@
 
         &>span[data-status] {
           border-radius: 2rem;
-          display: inline-block;
           font-size: 0.75rem;
           font-weight: 600;
           padding: 0.2rem 0.625rem;

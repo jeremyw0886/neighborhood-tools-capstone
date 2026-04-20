@@ -258,6 +258,86 @@
   [data-borrow-status="denied"] { color: var(--badge-danger-text); }
   [data-borrow-status="cancelled"] { color: var(--badge-danger-text); }
 
+  :is(
+    span[data-status],
+    span[data-timing],
+    span[data-urgency],
+    span[data-badge],
+    p[data-status],
+    p[data-action],
+    [data-flash]
+  ):not(:has(> i))::before {
+    font-family: 'Font Awesome 6 Free', sans-serif;
+    font-weight: 900;
+  }
+
+  :is(
+    span[data-status="active"],
+    span[data-status="on-time"],
+    span[data-status="returned"],
+    span[data-status="resolved"],
+    span[data-badge="deposit_release"],
+    span[data-badge="ready for release"],
+    p[data-status="resolved"],
+    p[data-action="ready for release"],
+    p[data-action="released"],
+    [data-flash="success"]
+  ):not(:has(> i))::before { content: '\f058'; }
+
+  :is(
+    span[data-status="suspended"],
+    span[data-status="denied"],
+    span[data-status="cancelled"],
+    span[data-urgency="critical"],
+    span[data-badge="deposit_forfeit"],
+    p[data-action="forfeited"],
+    [data-flash="error"]
+  ):not(:has(> i))::before { content: '\f057'; }
+
+  :is(
+    span[data-status="overdue"],
+    span[data-timing="happening-now"],
+    span[data-badge="overdue - review needed"],
+    p[data-action="overdue - review needed"]
+  ):not(:has(> i))::before { content: '\f06a'; }
+
+  :is(
+    span[data-status="pending"],
+    span[data-status="due-soon"],
+    span[data-status="open"],
+    span[data-urgency="moderate"],
+    span[data-urgency="high"],
+    span[data-timing="this-week"],
+    span[data-badge="rental_fee"],
+    span[data-badge="review needed"],
+    p[data-status="open"],
+    p[data-action="review needed"],
+    p[data-action="partial release"],
+    [data-flash="warning"]
+  ):not(:has(> i))::before { content: '\f071'; }
+
+  :is(
+    span[data-status="approved"],
+    span[data-status="borrowed"],
+    span[data-timing="this-month"],
+    span[data-badge="deposit_hold"],
+    span[data-badge="active borrow"],
+    p[data-action="active borrow"],
+    p[data-action="payment pending"],
+    [data-flash="info"]
+  ):not(:has(> i))::before { content: '\f05a'; }
+
+  :is(
+    span[data-status="inactive"],
+    span[data-status="dismissed"],
+    span[data-status="deleted"],
+    span[data-timing="upcoming"],
+    span[data-timing="past"],
+    span[data-urgency="new"],
+    span[data-badge="inactive"],
+    p[data-status="dismissed"]
+  ):not(:has(> i))::before { content: '\f111'; }
+
   /* --- Navigation ----------------------------------------- */
 
   @keyframes nav-pop-in {

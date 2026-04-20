@@ -198,7 +198,7 @@ class ToolController extends BaseController
             'title'         => 'Browse Tools — NeighborhoodTools',
             'description'   => 'Search and browse available tools to borrow from your neighbors in the Asheville and Hendersonville areas.',
             'pageCss'       => ['tools.css'],
-            'pageJs'        => ['image-crop.js', 'tools.js'],
+            'pageJs'        => ['image-crop.js', 'tools.js', 'tool-preview.js'],
             'tools'         => $tools,
             'categories'    => $categories,
             'browseCounts'  => $browseCounts,

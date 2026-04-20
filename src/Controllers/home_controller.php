@@ -73,7 +73,7 @@ class HomeController extends BaseController
             'description'      => 'Borrow tools from your neighbors and lend yours when you\'re not using them. Join your local tool-sharing community today.',
             'heroPage'         => true,
             'pageCss'          => ['home.css'],
-            'pageJs'           => ['home.js'],
+            'pageJs'           => ['home.js', 'tool-preview.js'],
             'platformStats'    => $platformStats,
             'selectedCity'     => $selectedCity,
             'nearbyMembers'    => $nearbyMembers,

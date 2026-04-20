@@ -76,7 +76,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
           <button type="button" aria-label="Previous tools" hidden data-dir="prev">
             <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
           </button>
-          <div id="popular-list" role="list">
+          <div id="popular-list" role="list" data-tool-preview>
             <?php $cardHeadingLevel = 'h3'; $cardSizes = '270px'; ?>
             <?php foreach ($featuredTools as $toolIndex => $tool): ?>
               <?php $eagerLoad = ($toolIndex === 0); ?>

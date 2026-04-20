@@ -790,69 +790,6 @@
     }
   }
 
-  /* ── TOOL PREVIEW TOOLTIP (JS-generated) ── */
-  .tool-preview {
-    align-items: center;
-    background: var(--mountain-cloud);
-    border: 1px solid rgba(139, 133, 120, 0.25);
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 16px var(--shadow-pine);
-    font-size: 0.8rem;
-    gap: 0.5rem;
-    max-width: calc(100vw - 1rem);
-    padding: 0.5rem 0.75rem;
-    pointer-events: none;
-    position: absolute;
-    white-space: nowrap;
-    z-index: 1000;
-
-    &:not([hidden]) {
-      display: flex;
-    }
-
-    & > span {
-      color: var(--mountain-slate);
-    }
-
-    & > span[data-condition] {
-      border-radius: 0.25rem;
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      padding: 0.15rem 0.5rem;
-      text-transform: uppercase;
-    }
-
-    & > span[data-condition="new"] {
-      background: var(--mountain-pine);
-    }
-
-    & > span[data-condition="good"] {
-      background: var(--mountain-pine-light);
-    }
-
-    & > span[data-condition="fair"] {
-      background: var(--mountain-gold-dark);
-    }
-
-    & > span[data-condition="poor"] {
-      background: var(--mountain-earth);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tool-preview {
-      transition: none;
-    }
-  }
-
-  @media (pointer: coarse) {
-    .tool-preview {
-      display: none;
-    }
-  }
-
   /* ── FRIENDLY NEIGHBORS ── */
   .home-page > main > section:nth-of-type(3) {
     background: linear-gradient(180deg,

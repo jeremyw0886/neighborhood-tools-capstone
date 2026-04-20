@@ -40,7 +40,7 @@ class TurnstileGuard {
         this.#timedOut = true;
         this.#enable();
       }
-    }, 5000);
+    }, 60000);
   }
 
   static #counter = 0;

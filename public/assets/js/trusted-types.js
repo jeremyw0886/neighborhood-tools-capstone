@@ -38,21 +38,12 @@ const ntSanitizeHtml = (() => {
 
   if (window.trustedTypes?.createPolicy) {
     const policy = window.trustedTypes.createPolicy('nt-html', {
-      createHTML: (input) => {
-        if (input === '') return '';
-        return DOMPurify.sanitize(input, purifyConfig);
-      },
+      createHTML: (input) => DOMPurify.sanitize(input, purifyConfig),
     });
-    return (html) => {
-      if (html === '') return '';
-      return policy.createHTML(html);
-    };
+    return (html) => policy.createHTML(html);
   }
 
-  return (html) => {
-    if (html === '') return '';
-    return DOMPurify.sanitize(html, purifyConfig);
-  };
+  return (html) => DOMPurify.sanitize(html, purifyConfig);
 })();
 
 /**

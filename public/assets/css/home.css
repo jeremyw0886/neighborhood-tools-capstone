@@ -295,7 +295,6 @@
     grid-row: 2 / 6;
     justify-self: end;
     max-width: 28rem;
-    overflow: clip;
     padding: 1.6rem;
     position: relative;
     width: 100%;
@@ -339,6 +338,7 @@
       margin: 0;
       max-width: none;
       width: 100%;
+      z-index: 2;
     }
 
     & > div {

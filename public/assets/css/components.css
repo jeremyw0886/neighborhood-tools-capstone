@@ -2411,7 +2411,11 @@
   form[role="search"] {
     position: relative;
 
-    & > ul[role="listbox"] {
+    & :is(fieldset, div):has(> ul[role="listbox"]) {
+      position: relative;
+    }
+
+    & ul[role="listbox"] {
       background: var(--mountain-cloud);
       border: 1px solid rgba(139, 133, 120, 0.2);
       border-radius: 0.75rem;

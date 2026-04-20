@@ -469,7 +469,7 @@ class AutosuggestController {
     this.#dropdown.id = listboxId;
     this.#dropdown.setAttribute('aria-label', 'Search suggestions');
     this.#dropdown.hidden = true;
-    this.#form.appendChild(this.#dropdown);
+    (this.#input.parentElement ?? this.#form).appendChild(this.#dropdown);
 
     this.#input.setAttribute('role', 'combobox');
     this.#input.setAttribute('aria-autocomplete', 'list');

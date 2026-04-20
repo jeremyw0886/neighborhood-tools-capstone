@@ -1462,7 +1462,7 @@
       }
     }
 
-    &>section {
+    &> :is(section, [data-preamble]) {
       margin-bottom: 1.5rem;
 
       &> :is(h2, h3) {

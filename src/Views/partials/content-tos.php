@@ -72,9 +72,9 @@ if ($currentSection !== null) {
   </nav>
 
   <?php if (trim(implode('', $preamble)) !== ''): ?>
-  <section>
+  <div data-preamble>
     <p><?= ViewHelper::renderTosBody($preamble) ?></p>
-  </section>
+  </div>
   <?php endif; ?>
 
   <?php foreach ($sections as $sec): ?>

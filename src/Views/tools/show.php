@@ -7,7 +7,7 @@ $bookmarkFlash ??= '';
 $images        ??= [];
 ?>
 
-<section aria-labelledby="tool-detail-heading">
+<div id="tool-detail">
 
   <nav aria-label="Back">
     <a href="<?= htmlspecialchars($backUrl) ?>">
@@ -166,7 +166,9 @@ $images        ??= [];
       <?php if ($images !== []): ?>
         <dialog id="gallery-lightbox" aria-label="Image viewer">
           <div>
-            <img src="" alt="" id="lightbox-img" decoding="async">
+            <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion('/uploads/tools/' . $mainFallback)) ?>"
+                 alt="<?= $mainAlt ?>"
+                 id="lightbox-img" decoding="async">
             <?php if (count($images) > 1): ?>
               <button type="button" id="lightbox-prev" aria-label="Previous image">
                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -362,4 +364,4 @@ $images        ??= [];
     </aside>
   </article>
 
-</section>
+</div>

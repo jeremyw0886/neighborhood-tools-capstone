@@ -498,7 +498,7 @@
 
   /* ── Tool detail page ── */
 
-  main>section[aria-labelledby="tool-detail-heading"] {
+  main>#tool-detail {
     margin: 0 auto;
     max-width: 900px;
     padding: 2rem 1.5rem;
@@ -1591,7 +1591,7 @@
       }
     }
 
-    main>section[aria-labelledby="tool-detail-heading"] article>section[aria-labelledby="borrow-heading"] {
+    main>#tool-detail article>section[aria-labelledby="borrow-heading"] {
       border-width: 2px;
 
       & fieldset {
@@ -1618,7 +1618,7 @@
       }
     }
 
-    main>section[aria-labelledby="tool-detail-heading"] article>header {
+    main>#tool-detail article>header {
 
       & #gallery-thumbs button {
         border-width: 3px;
@@ -1653,7 +1653,7 @@
       }
     }
 
-    main>section[aria-labelledby="tool-detail-heading"] article>section[aria-labelledby="borrow-heading"] {
+    main>#tool-detail article>section[aria-labelledby="borrow-heading"] {
 
       & :is(select, textarea, button) {
         transition: none;
@@ -1667,7 +1667,7 @@
       }
     }
 
-    main>section[aria-labelledby="tool-detail-heading"] article>header {
+    main>#tool-detail article>header {
 
       & #gallery-thumbs button {
         transition: none;
@@ -1726,7 +1726,7 @@
       width: 100%;
     }
 
-    main>section[aria-labelledby="tool-detail-heading"] article>header #gallery-lightbox {
+    main>#tool-detail article>header #gallery-lightbox {
 
       & #lightbox-prev,
       & #lightbox-next {
@@ -1753,7 +1753,7 @@
       }
     }
 
-    main>section[aria-labelledby="tool-detail-heading"] article>header #gallery-thumbs {
+    main>#tool-detail article>header #gallery-thumbs {
       grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
     }
 

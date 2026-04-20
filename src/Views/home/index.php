@@ -123,7 +123,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
               <?php $displayName = $member['username'] ?? $member['name'] ?? 'Member'; ?>
               <a href="/profile/<?= (int) $member['id_acc'] ?>">
                 <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl($member['vector_avatar'] ?? null, $member['avatar'] ?? null)) ?>"
-                     alt="<?= htmlspecialchars($displayName) ?>"
+                     alt="<?= htmlspecialchars($displayName) ?> profile picture"
                      width="80" height="80"
                      loading="lazy"
                      decoding="async">
@@ -180,7 +180,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
                 <span role="img" aria-label="Top member"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
               <?php endif; ?>
               <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl($neighbor['vector_avatar'] ?? null, $neighbor['avatar'] ?? null)) ?>"
-                   alt="<?= htmlspecialchars($neighbor['username']) ?>"
+                   alt="<?= htmlspecialchars($neighbor['username']) ?> profile picture"
                    width="80" height="80"
                    loading="lazy" decoding="async">
               <h3><?= htmlspecialchars($neighbor['username']) ?></h3>

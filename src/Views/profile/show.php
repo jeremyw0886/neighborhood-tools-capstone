@@ -22,13 +22,13 @@ $avatarSrcsets ??= null;
 
 if (!empty($profile['vector_avatar'])) {
     $avatarSrc = '/uploads/vectors/' . $profile['vector_avatar'];
-    $avatarAlt = $profile['vector_avatar_alt'] ?? $profile['username'];
+    $avatarAlt = $profile['vector_avatar_alt'] ?? ($profile['username'] . ' profile picture');
 } elseif (!empty($profile['primary_image'])) {
     $avatarSrc = '/uploads/profiles/' . $profile['primary_image'];
-    $avatarAlt = $profile['image_alt_text'] ?? $profile['username'];
+    $avatarAlt = $profile['image_alt_text'] ?? ($profile['username'] . ' profile picture');
 } else {
     $avatarSrc = '/assets/images/avatar-placeholder.svg';
-    $avatarAlt = $profile['username'];
+    $avatarAlt = $profile['username'] . ' profile picture';
 }
 
 $focalX = (int) ($profile['focal_x'] ?? 50);

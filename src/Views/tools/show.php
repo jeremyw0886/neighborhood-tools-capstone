@@ -352,7 +352,7 @@ $images        ??= [];
       <h2>Listed By</h2>
       <a href="/profile/<?= (int) ($tool['owner_id'] ?? 0) ?>">
         <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl($tool['owner_vector_avatar'] ?? null, $tool['owner_avatar'] ?? null)) ?>"
-             alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?>"
+             alt="<?= htmlspecialchars($tool['owner_name'] ?? 'Owner') ?> profile picture"
              width="48" height="48"
              loading="lazy"
              decoding="async">

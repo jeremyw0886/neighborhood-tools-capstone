@@ -335,12 +335,14 @@ $images        ??= [];
       <section aria-labelledby="borrow-heading">
         <h2 id="borrow-heading"><i class="fa-solid fa-handshake" aria-hidden="true"></i> Want to Borrow This Tool?</h2>
         <p>Log in or create an account to request this tool from the lender.</p>
-        <a href="/login?return=<?= htmlspecialchars(urlencode($_SERVER['REQUEST_URI'])) ?>" role="button" data-intent="primary">
-          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log In to Borrow
-        </a>
-        <a href="/register?return=<?= htmlspecialchars(urlencode($_SERVER['REQUEST_URI'])) ?>">
-          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Create an Account
-        </a>
+        <div>
+          <a href="/login?return=<?= htmlspecialchars(urlencode($_SERVER['REQUEST_URI'])) ?>" role="button" data-intent="primary">
+            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log In to Borrow
+          </a>
+          <a href="/register?return=<?= htmlspecialchars(urlencode($_SERVER['REQUEST_URI'])) ?>" role="button" data-intent="secondary">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Create an Account
+          </a>
+        </div>
       </section>
     <?php endif; ?>
 

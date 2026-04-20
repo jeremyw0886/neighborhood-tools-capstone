@@ -904,6 +904,17 @@
         }
       }
 
+      &>div:has(>a[role="button"]) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        &>a[role="button"] {
+          flex: 1;
+          min-width: 12rem;
+        }
+      }
+
     }
 
     & article>section:is([aria-label="Unavailable notice"], [aria-label="Login prompt"]) {

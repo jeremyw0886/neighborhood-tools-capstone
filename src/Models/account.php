@@ -427,7 +427,25 @@ class Account
     }
 
     /**
+     * Whether a member row qualifies for the "top member" badge.
+     *
+     * Requires a rating average of 4.0 or higher and at least 3 ratings so
+     * single glowing reviews don't earn the badge.
+     *
+     * @param  array $row  Member row containing avg_rating and total_rating_count
+     */
+    public static function isTopMember(array $row): bool
+    {
+        return ((float) ($row['avg_rating'] ?? 0)) >= 4.0
+            && ((int) ($row['total_rating_count'] ?? 0)) >= 3;
+    }
+
+    /**
      * Fetch top-rated active members for Friendly Neighbors + sidebar fallback.
+     *
+     * Ranks via a Bayesian-weighted score — (v / (v + m)) * avg_rating, with
+     * m = 5 acting as a prior — so a single 5-star rating doesn't outrank a
+     * member with many strong ratings. Tools + completed borrows tiebreak.
      *
      * @param  int      $limit            Max members to return
      * @param  int|null $excludeAccountId Account ID to omit (logged-in user)
@@ -454,20 +472,16 @@ class Account
                 p.bio_text_abi                   AS bio,
                 COALESCE(r.tools_owned, 0)        AS tools_owned,
                 COALESCE(r.completed_borrows, 0)  AS completed_borrows,
-                COALESCE(r.total_rating_count, 0) AS total_rating_count,
-                CASE
-                    WHEN COALESCE(r.overall_avg_rating, 0) >= 4.0
-                     AND COALESCE(r.total_rating_count, 0) >= 1
-                    THEN 1 ELSE 0
-                END AS is_top_member
+                COALESCE(r.total_rating_count, 0) AS total_rating_count
             FROM account_profile_v p
             LEFT JOIN user_reputation_fast_v r ON p.id_acc = r.id_acc
             WHERE p.account_status = 'active'
               AND p.role_name_rol  = 'member'
               $excludeClause
             ORDER BY
-                COALESCE(r.overall_avg_rating, 0) DESC,
-                COALESCE(r.total_rating_count, 0) DESC,
+                (COALESCE(r.total_rating_count, 0) /
+                 (COALESCE(r.total_rating_count, 0) + 5.0))
+                * COALESCE(r.overall_avg_rating, 0) DESC,
                 (COALESCE(r.tools_owned, 0) + COALESCE(r.completed_borrows, 0)) DESC
             LIMIT :limit
         ";
@@ -481,7 +495,13 @@ class Account
 
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+
+        foreach ($rows as &$row) {
+            $row['is_top_member'] = (int) self::isTopMember($row);
+        }
+
+        return $rows;
     }
 
     /**
@@ -551,11 +571,6 @@ class Account
                     p.neighborhood_name_nbh,
                     nbh_z.neighborhood_name_nbh
                 )                                 AS neighborhood,
-                CASE
-                    WHEN COALESCE(r.overall_avg_rating, 0) >= 4.0
-                     AND COALESCE(r.total_rating_count, 0) >= 1
-                    THEN 1 ELSE 0
-                END                               AS is_top_member,
                 ROUND(
                     ST_Distance_Sphere(
                         zpc.location_point_zpc,
@@ -587,7 +602,13 @@ class Account
 
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+
+        foreach ($rows as &$row) {
+            $row['is_top_member'] = (int) self::isTopMember($row);
+        }
+
+        return $rows;
     }
 
     /**

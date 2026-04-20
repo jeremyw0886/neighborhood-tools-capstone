@@ -26,6 +26,7 @@
       --mountain-gold: #c89b3c;
       --mountain-gold-light: #e0bd71;
       --mountain-gold-dark: #a1792b;
+      --mountain-gold-darker: #856828;
 
       /* Earth Tones */
       --mountain-earth: #7a5a3d;
@@ -246,7 +247,7 @@
   }
 
   a:hover {
-      color: var(--mountain-gold);
+      color: var(--mountain-gold-darker);
   }
 
   /* --- Media --- */

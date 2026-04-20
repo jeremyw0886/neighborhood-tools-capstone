@@ -169,7 +169,7 @@
       }
 
       &:hover {
-        color: var(--mountain-gold);
+        color: var(--mountain-gold-light);
       }
     }
   }
@@ -429,7 +429,7 @@
     width: 100%;
 
     &:focus-within {
-      border-color: var(--mountain-gold);
+      border-color: var(--mountain-gold-darker);
       box-shadow: 0 0.75rem 1.6rem rgba(212, 168, 75, 0.18);
     }
 
@@ -474,7 +474,7 @@
       margin-bottom: 1.25rem;
 
       & i {
-        color: var(--mountain-gold);
+        color: var(--mountain-gold-darker);
         margin-right: 0.5rem;
       }
 
@@ -640,7 +640,7 @@
     }
 
     & > span {
-      color: var(--mountain-gold);
+      color: var(--mountain-gold-darker);
       font-size: 1.1rem;
       position: absolute;
       right: 0.75rem;
@@ -658,7 +658,7 @@
     }
 
     & > p:first-of-type {
-      color: var(--mountain-gold);
+      color: var(--mountain-gold-darker);
       font-size: 0.85rem;
       white-space: nowrap;
 
@@ -720,7 +720,7 @@
       text-align: center;
 
       & i {
-        color: var(--mountain-gold);
+        color: var(--mountain-gold-darker);
         margin-right: 0.5rem;
       }
     }
@@ -871,7 +871,7 @@
       text-align: center;
 
       & i {
-        color: var(--mountain-gold);
+        color: var(--mountain-gold-darker);
         margin-right: 0.5rem;
       }
     }
@@ -899,7 +899,7 @@
         color: var(--mountain-pine);
         font-weight: 600;
         text-decoration: underline;
-        text-decoration-color: var(--mountain-gold);
+        text-decoration-color: var(--mountain-gold-darker);
         text-underline-offset: 2px;
         transition: color 0.2s ease;
 
@@ -934,7 +934,7 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 
     &:hover {
-      border-color: var(--mountain-gold);
+      border-color: var(--mountain-gold-darker);
       box-shadow: 0 8px 24px var(--shadow-mountain);
     }
 
@@ -945,13 +945,13 @@
     }
 
     &:focus-visible {
-      border-color: var(--mountain-gold);
+      border-color: var(--mountain-gold-darker);
       outline: 3px solid var(--mountain-gold);
       outline-offset: 2px;
     }
 
     & > span {
-      color: var(--mountain-gold);
+      color: var(--mountain-gold-darker);
       font-size: 1.25rem;
       top: 0.75rem;
       right: 0.75rem;
@@ -975,7 +975,7 @@
     }
 
     & > p {
-      color: var(--mountain-gold);
+      color: var(--mountain-gold-darker);
       font-size: 0.8rem;
       margin-top: 0.375rem;
 
@@ -1039,7 +1039,7 @@
 
       &:has(> a:hover),
       &:has(> a:focus-visible) {
-        border-color: var(--mountain-gold);
+        border-color: var(--mountain-gold-darker);
         box-shadow: 0 8px 24px var(--shadow-mountain);
       }
 

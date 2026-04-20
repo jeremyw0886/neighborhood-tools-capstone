@@ -130,7 +130,7 @@
             padding: 0.4375rem 0.75rem;
 
             &:is(:hover, :focus-visible) {
-              border-left-color: var(--mountain-gold);
+              border-left-color: var(--mountain-gold-darker);
             }
 
             &[aria-current="page"] {
@@ -167,7 +167,7 @@
       width: 100%;
 
       &:focus-within {
-        border-color: var(--mountain-gold);
+        border-color: var(--mountain-gold-darker);
         box-shadow: 0 4px 20px rgba(212, 168, 75, 0.25);
       }
 
@@ -385,7 +385,7 @@
       transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
 
       &:is(:hover, :focus-visible) {
-        border-color: var(--mountain-gold);
+        border-color: var(--mountain-gold-darker);
         box-shadow: 0 4px 16px var(--shadow-mountain);
         transform: translateY(-2px);
       }
@@ -418,7 +418,7 @@
         margin-top: auto;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           font-size: 0.75rem;
         }
       }
@@ -457,7 +457,7 @@
       }
 
       &:is(:hover, :focus-visible) {
-        border-color: var(--mountain-gold);
+        border-color: var(--mountain-gold-darker);
         box-shadow: 0 4px 16px rgba(180, 83, 9, 0.12);
       }
     }
@@ -681,7 +681,7 @@
         transition: text-decoration-color 0.2s;
 
         &:is(:hover, :focus-visible) {
-          text-decoration-color: var(--mountain-gold);
+          text-decoration-color: var(--mountain-gold-darker);
         }
       }
 
@@ -888,7 +888,7 @@
                 transition: text-decoration-color 0.2s;
 
                 &:is(:hover, :focus-visible) {
-                  text-decoration-color: var(--mountain-gold);
+                  text-decoration-color: var(--mountain-gold-darker);
                 }
               }
 
@@ -1106,7 +1106,7 @@
           transition: text-decoration-color 0.2s;
 
           &:is(:hover, :focus-visible) {
-            text-decoration-color: var(--mountain-gold);
+            text-decoration-color: var(--mountain-gold-darker);
           }
         }
 
@@ -1578,7 +1578,7 @@
                 transition: text-decoration-color 0.2s;
 
                 &:is(:hover, :focus-visible) {
-                  text-decoration-color: var(--mountain-gold);
+                  text-decoration-color: var(--mountain-gold-darker);
                 }
               }
 
@@ -1783,7 +1783,7 @@
           transition: text-decoration-color 0.2s;
 
           &:is(:hover, :focus-visible) {
-            text-decoration-color: var(--mountain-gold);
+            text-decoration-color: var(--mountain-gold-darker);
           }
         }
 
@@ -1966,7 +1966,7 @@
 
           &:is(:hover, :focus-visible) {
             color: var(--mountain-pine);
-            text-decoration-color: var(--mountain-gold);
+            text-decoration-color: var(--mountain-gold-darker);
           }
         }
       }
@@ -2006,7 +2006,7 @@
           transition: text-decoration-color 0.2s;
 
           &:is(:hover, :focus-visible) {
-            text-decoration-color: var(--mountain-gold);
+            text-decoration-color: var(--mountain-gold-darker);
           }
         }
 
@@ -2114,7 +2114,7 @@
 
       &:is(:hover, :focus-visible) {
         text-decoration: underline;
-        text-decoration-color: var(--mountain-gold);
+        text-decoration-color: var(--mountain-gold-darker);
       }
     }
 
@@ -2997,7 +2997,7 @@
         padding-bottom: 0.5rem;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
         }
 
         &>span[data-badge] {
@@ -3033,7 +3033,7 @@
             transition: text-decoration-color 0.2s;
 
             &:is(:hover, :focus-visible) {
-              text-decoration-color: var(--mountain-gold);
+              text-decoration-color: var(--mountain-gold-darker);
             }
           }
         }
@@ -3116,7 +3116,7 @@
         transition: text-decoration-color 0.2s;
 
         &:is(:hover, :focus-visible) {
-          text-decoration-color: var(--mountain-gold);
+          text-decoration-color: var(--mountain-gold-darker);
         }
       }
     }

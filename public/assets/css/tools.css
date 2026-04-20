@@ -87,7 +87,7 @@
         transition: border-color 0.25s, box-shadow 0.25s;
 
         &:focus-within {
-          border-color: var(--mountain-gold);
+          border-color: var(--mountain-gold-darker);
           box-shadow: 0 2px 12px rgba(200, 155, 60, 0.15);
         }
 
@@ -136,7 +136,7 @@
             text-transform: uppercase;
 
             &>i {
-              color: var(--mountain-gold);
+              color: var(--mountain-gold-darker);
               margin-right: 0.25rem;
             }
           }
@@ -588,7 +588,7 @@
             }
 
             &:is(:hover, :focus-visible) {
-              border-color: var(--mountain-gold);
+              border-color: var(--mountain-gold-darker);
             }
 
             & img {
@@ -621,7 +621,7 @@
           gap: 0.25rem;
 
           &>i.fa-star {
-            color: var(--mountain-gold);
+            color: var(--mountain-gold-darker);
             font-size: 0.875rem;
           }
 
@@ -641,7 +641,7 @@
             font-weight: 600;
 
             &>i {
-              color: var(--mountain-gold);
+              color: var(--mountain-gold-darker);
               margin-right: 0.25rem;
               width: 1rem;
             }
@@ -799,7 +799,7 @@
         margin-bottom: 0.75rem;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }
@@ -919,7 +919,7 @@
         margin-bottom: 1rem;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }
@@ -1011,7 +1011,7 @@
         margin-top: 0.5rem;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }
@@ -1141,7 +1141,7 @@
           background: rgba(200, 155, 60, 0.06);
 
           & > input[type="file"] {
-            border-color: var(--mountain-gold);
+            border-color: var(--mountain-gold-darker);
             box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.2);
           }
         }
@@ -1233,7 +1233,7 @@
 
       &[data-dragover] {
         background: color-mix(in srgb, var(--mountain-gold) 8%, transparent);
-        border-color: var(--mountain-gold);
+        border-color: var(--mountain-gold-darker);
       }
     }
 
@@ -1305,7 +1305,7 @@
         }
 
         &[data-drag-over] {
-          border-color: var(--mountain-gold);
+          border-color: var(--mountain-gold-darker);
           box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.2);
         }
 
@@ -1341,7 +1341,7 @@
         }
 
         & label:has(> .fa-star) {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           font-weight: 600;
         }
 
@@ -1500,7 +1500,7 @@
         white-space: nowrap;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }
@@ -1518,7 +1518,7 @@
         font-size: 0.813rem;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }
@@ -1530,7 +1530,7 @@
       margin-bottom: 1rem;
 
       &>i {
-        color: var(--mountain-gold);
+        color: var(--mountain-gold-darker);
         margin-right: 0.25rem;
       }
     }

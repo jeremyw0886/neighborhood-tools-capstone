@@ -84,7 +84,7 @@
         transition: border-color 0.25s, box-shadow 0.25s;
 
         &:focus-within {
-          border-color: var(--mountain-gold);
+          border-color: var(--mountain-gold-darker);
           box-shadow: 0 2px 12px rgba(200, 155, 60, 0.15);
         }
 
@@ -225,7 +225,7 @@
             padding: 0.4375rem 0.75rem;
 
             &:is(:hover, :focus-visible) {
-              border-left-color: var(--mountain-gold);
+              border-left-color: var(--mountain-gold-darker);
             }
 
             &[aria-current="page"] {
@@ -272,7 +272,7 @@
         transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
 
         &:is(:hover, :focus-visible) {
-          border-color: var(--mountain-gold);
+          border-color: var(--mountain-gold-darker);
           box-shadow: 0 4px 16px var(--shadow-mountain);
           transform: translateY(-2px);
         }
@@ -311,7 +311,7 @@
           margin-top: auto;
 
           &>i {
-            color: var(--mountain-gold);
+            color: var(--mountain-gold-darker);
             font-size: 0.75rem;
           }
         }
@@ -414,7 +414,7 @@
         text-decoration: none;
 
         &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           text-decoration: underline;
         }
       }
@@ -597,7 +597,7 @@
         text-decoration: none;
 
         &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           text-decoration: underline;
         }
       }
@@ -678,7 +678,7 @@
           text-decoration: none;
 
           &:is(:hover, :focus-visible) {
-            color: var(--mountain-gold);
+            color: var(--mountain-gold-darker);
             text-decoration: underline;
           }
         }
@@ -1004,7 +1004,7 @@
     text-decoration: none;
 
     &:is(:hover, :focus-visible) {
-      color: var(--mountain-gold);
+      color: var(--mountain-gold-darker);
       text-decoration: underline;
     }
   }
@@ -1319,7 +1319,7 @@
         text-decoration: none;
 
         &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           text-decoration: underline;
         }
       }
@@ -1383,7 +1383,7 @@
         text-decoration: none;
 
         &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           text-decoration: underline;
         }
       }
@@ -1933,7 +1933,7 @@
         justify-content: center;
 
         & i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }
@@ -1956,7 +1956,7 @@
           padding: 0.5rem 1.25rem;
 
           &>i {
-            color: var(--mountain-gold);
+            color: var(--mountain-gold-darker);
             margin-right: 0.25rem;
           }
         }
@@ -2017,7 +2017,7 @@
             margin-bottom: 0.25rem;
 
             &>i.fa-star {
-              color: var(--mountain-gold);
+              color: var(--mountain-gold-darker);
               font-size: 1.125rem;
             }
 
@@ -2140,7 +2140,7 @@
         margin-bottom: 0.375rem;
 
         &>i {
-          color: var(--mountain-gold);
+          color: var(--mountain-gold-darker);
           margin-right: 0.25rem;
         }
       }

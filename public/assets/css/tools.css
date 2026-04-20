@@ -672,19 +672,19 @@
 
           &>dd[data-availability="borrowed"],
           &>dd[data-availability="pending"] {
-            color: var(--btn-warning-from);
+            color: var(--badge-warning-text);
 
             &::before { content: '\f252'; }
           }
 
           &>dd[data-availability="unavailable"] {
-            color: var(--field-error);
+            color: var(--badge-danger-text);
 
             &::before { content: '\f05e'; }
           }
 
           &>dd[data-availability="blocked"] {
-            color: var(--field-error);
+            color: var(--badge-danger-text);
 
             &::before { content: '\f023'; }
           }

@@ -86,6 +86,7 @@
 
       --color-high-50:     #fff7ed;
       --color-high-600:    #ea580c;
+      --color-high-800:    #9a3412;
 
       --color-primary-900: #0a1a12;
 
@@ -103,7 +104,7 @@
       --badge-special-bg:   var(--color-special-100);
       --badge-special-text: var(--color-special-800);
       --badge-high-bg:      var(--color-high-50);
-      --badge-high-text:    var(--color-high-600);
+      --badge-high-text:    var(--color-high-800);
 
       /* Badge Shape */
       --badge-radius: 2rem;

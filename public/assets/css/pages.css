@@ -704,8 +704,8 @@
         }
 
         &[data-type="rating"]>article>span:first-child {
-          background: color-mix(in srgb, var(--mountain-gold) 15%, transparent);
-          color: var(--mountain-gold);
+          background: color-mix(in srgb, var(--mountain-gold-dark) 15%, transparent);
+          color: var(--mountain-gold-dark);
         }
       }
     }

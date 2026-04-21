@@ -73,3 +73,6 @@ build-assets.php
 generate-220w-variants.php
 rewebp.php
 generate-missing-variants.php
+
+# Miscellaneous
+_archive/

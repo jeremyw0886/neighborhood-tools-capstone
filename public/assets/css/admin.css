@@ -271,6 +271,7 @@
         width: 2rem;
 
         &:focus-visible {
+          box-shadow: 0 0 0 3px var(--mountain-gold);
           outline: 2px solid var(--mountain-gold);
           outline-offset: 2px;
         }
@@ -2353,6 +2354,11 @@
 
   main>section:is([aria-labelledby="admin-categories-heading"],
     [aria-labelledby="admin-images-heading"]) {
+
+    & div[aria-live]>p>span[data-count] {
+      color: var(--mountain-pine);
+      font-weight: 600;
+    }
 
     & form[data-upload-form] {
       margin-bottom: 2rem;

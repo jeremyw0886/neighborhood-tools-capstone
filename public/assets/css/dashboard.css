@@ -2960,7 +2960,7 @@
       border-width: 2px;
     }
 
-    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>a {
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>nav[aria-label$="pagination" i]>ul>li>a {
       border-color: var(--mountain-fog);
     }
 
@@ -3299,7 +3299,7 @@
     :is(
       section[aria-labelledby="listed-tools-heading"],
       main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]
-    )>nav[aria-label="Pagination"]>ul>li>:is(a, span[aria-disabled])>span {
+    )>nav[aria-label$="pagination" i]>ul>li>:is(a, span[aria-disabled])>span {
       display: none;
     }
 

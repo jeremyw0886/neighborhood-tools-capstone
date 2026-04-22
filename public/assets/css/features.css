@@ -529,11 +529,11 @@
     font-size: 0.813rem;
   }
 
-  #payment-history>nav[aria-label="Pagination"] {
+  #payment-history>nav[aria-label$="pagination" i] {
     margin-top: 2rem;
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul {
+  #payment-history>nav[aria-label$="pagination" i]>ul {
     align-items: center;
     display: flex;
     gap: 0.25rem;
@@ -542,8 +542,8 @@
     padding: 0;
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul>li>a,
-  #payment-history>nav[aria-label="Pagination"]>ul>li>span[aria-disabled] {
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>a,
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>span[aria-disabled] {
     align-items: center;
     border-radius: 0.375rem;
     display: inline-flex;
@@ -557,27 +557,27 @@
     transition: background-color 0.2s, color 0.2s;
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul>li>a {
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>a {
     color: var(--mountain-slate);
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul>li>a:is(:hover, :focus-visible) {
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>a:is(:hover, :focus-visible) {
     background: var(--mountain-fog);
     color: var(--mountain-pine);
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul>li>a[aria-current="page"] {
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>a[aria-current="page"] {
     background: var(--mountain-pine);
     color: #fff;
     font-weight: 600;
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul>li>span[aria-disabled] {
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>span[aria-disabled] {
     color: var(--mountain-fog);
     cursor: default;
   }
 
-  #payment-history>nav[aria-label="Pagination"]>ul>li>span[aria-hidden] {
+  #payment-history>nav[aria-label$="pagination" i]>ul>li>span[aria-hidden] {
     color: var(--mountain-mist);
     padding: 0 0.25rem;
   }
@@ -2483,7 +2483,7 @@
       transition: none;
     }
 
-    #payment-history>nav[aria-label="Pagination"] a {
+    #payment-history>nav[aria-label$="pagination" i] a {
       transition: none;
     }
 
@@ -2628,7 +2628,7 @@
       border-left-width: 4px;
     }
 
-    #events-page nav[aria-label="Pagination"]>ul>li>a {
+    #events-page nav[aria-label$="pagination" i]>ul>li>a {
       border-color: var(--mountain-fog);
     }
 

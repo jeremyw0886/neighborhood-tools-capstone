@@ -1583,7 +1583,7 @@
       border-width: 2px;
     }
 
-    :is(#browse-page, #bookmarks-page) nav[aria-label="Pagination"]>ul>li>a {
+    :is(#browse-page, #bookmarks-page) nav[aria-label$="pagination" i]>ul>li>a {
       border-color: var(--mountain-fog);
     }
 
@@ -1680,8 +1680,8 @@
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 
-    main>section[aria-labelledby="browse-heading"]>nav[aria-label="Pagination"]>ul>li>a>span,
-    main>section[aria-labelledby="browse-heading"]>nav[aria-label="Pagination"]>ul>li>span[aria-disabled]>span {
+    main>section[aria-labelledby="browse-heading"]>nav[aria-label$="pagination" i]>ul>li>a>span,
+    main>section[aria-labelledby="browse-heading"]>nav[aria-label$="pagination" i]>ul>li>span[aria-disabled]>span {
       display: none;
     }
 

@@ -149,7 +149,7 @@ $hasFilters  = $search !== null || $hasIcon !== null;
             $toolCount  = (int) ($cat['tool_count'] ?? 0);
           ?>
             <tr>
-              <th scope="row" data-label="Category"><?= htmlspecialchars($cat['category_name_cat']) ?></th>
+              <th scope="row" data-label="Category"><h3><?= htmlspecialchars($cat['category_name_cat']) ?></h3></th>
               <td data-label="Tools"><?= $toolCount ?></td>
               <td data-label="Current Icon">
                 <?php if (!empty($cat['file_name_vec'])): ?>

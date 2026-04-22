@@ -100,7 +100,7 @@ $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
           ?>
             <tr<?= $borrows > 0 ? ' data-has-activity' : '' ?>>
               <th scope="row" data-label="Neighborhood">
-                <strong><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></strong>
+                <h3><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></h3>
                 <small><?= htmlspecialchars($nbh['city_name_nbh']) ?>, <?= htmlspecialchars($nbh['state_code_sta']) ?></small>
               </th>
               <td data-label="Members">

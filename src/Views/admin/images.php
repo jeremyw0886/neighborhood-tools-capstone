@@ -133,7 +133,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 
     <div aria-live="polite" aria-atomic="true">
       <p>
-        <strong><?= number_format($iconsTotalCount) ?></strong>
+        <span data-count><?= number_format($iconsTotalCount) ?></span>
         icon<?= $iconsTotalCount !== 1 ? 's' : '' ?>
         <?php if ($iconsHasFilters): ?> matching filters<?php endif; ?>
       </p>
@@ -331,7 +331,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 
     <div aria-live="polite" aria-atomic="true">
       <p>
-        <strong><?= number_format($avatarsTotalCount) ?></strong>
+        <span data-count><?= number_format($avatarsTotalCount) ?></span>
         avatar<?= $avatarsTotalCount !== 1 ? 's' : '' ?>
         <?php if ($avatarsHasFilters): ?> matching filters<?php endif; ?>
       </p>

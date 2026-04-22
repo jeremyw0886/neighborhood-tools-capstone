@@ -101,7 +101,8 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
 
   <?php if (!empty($tools)): ?>
 
-    <table>
+    <h2 id="tool-list-heading" class="visually-hidden">Tool List</h2>
+    <table aria-labelledby="tool-list-heading">
       <caption class="visually-hidden">Listed tools and their status</caption>
       <thead>
         <tr>
@@ -120,9 +121,11 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
         ?>
           <tr<?= $incidents > 0 ? ' data-has-incidents' : '' ?>>
             <th scope="row" data-label="Tool">
-              <a href="/tools/<?= (int) $tool['id_tol'] ?>">
-                <?= htmlspecialchars($tool['tool_name_tol']) ?>
-              </a>
+              <h3>
+                <a href="/tools/<?= (int) $tool['id_tol'] ?>">
+                  <?= htmlspecialchars($tool['tool_name_tol']) ?>
+                </a>
+              </h3>
               <small>$<?= number_format((float) $tool['rental_fee_tol'], 2) ?>/day</small>
             </th>
             <td data-label="Owner">

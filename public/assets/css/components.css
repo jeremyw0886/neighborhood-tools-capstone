@@ -2684,6 +2684,11 @@
     vertical-align: top;
   }
 
+  main table tbody tr th[scope="row"] > h3 {
+    font: inherit;
+    margin: 0;
+  }
+
   /* --- Detail Lists ---------------------------------------- */
 
   main>[id]>dl,
@@ -2749,18 +2754,18 @@
 
   /* --- Pagination ----------------------------------------- */
 
-  nav[aria-label="Pagination"] {
+  nav[aria-label$="pagination" i] {
     margin-top: 2rem;
   }
 
-  nav[aria-label="Pagination"]>ul {
+  nav[aria-label$="pagination" i]>ul {
     align-items: center;
     display: flex;
     gap: 0.25rem;
     justify-content: center;
   }
 
-  nav[aria-label="Pagination"]>ul>li>a {
+  nav[aria-label$="pagination" i]>ul>li>a {
     align-items: center;
     border: 1px solid transparent;
     border-radius: 0.5rem;
@@ -2776,25 +2781,25 @@
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   }
 
-  nav[aria-label="Pagination"]>ul>li>a:is(:hover, :focus-visible) {
+  nav[aria-label$="pagination" i]>ul>li>a:is(:hover, :focus-visible) {
     background: var(--mountain-fog);
     border-color: var(--mountain-fog);
     color: var(--mountain-pine);
   }
 
-  nav[aria-label="Pagination"]>ul>li>a[aria-current="page"] {
+  nav[aria-label$="pagination" i]>ul>li>a[aria-current="page"] {
     background: var(--mountain-pine);
     border-color: var(--mountain-pine);
     color: #fff;
     font-weight: 600;
   }
 
-  nav[aria-label="Pagination"]>ul>li>a[aria-current="page"]:hover {
+  nav[aria-label$="pagination" i]>ul>li>a[aria-current="page"]:hover {
     background: var(--mountain-pine-dark);
     border-color: var(--mountain-pine-dark);
   }
 
-  nav[aria-label="Pagination"]>ul>li>span[aria-disabled] {
+  nav[aria-label$="pagination" i]>ul>li>span[aria-disabled] {
     align-items: center;
     color: var(--mountain-stone);
     cursor: default;
@@ -2808,7 +2813,7 @@
     padding: 0 0.625rem;
   }
 
-  nav[aria-label="Pagination"]>ul>li>span[aria-hidden] {
+  nav[aria-label$="pagination" i]>ul>li>span[aria-hidden] {
     color: var(--mountain-stone);
     min-width: 2rem;
     text-align: center;

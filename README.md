@@ -90,7 +90,7 @@ neighborhoodtools/
 
 ## AI-Assisted Development
 
-[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, and usability testing support. Placeholder images were created using [Artlist AI](https://artlist.io).
+[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, usability testing support, and used to flatten css from nesting (css could not be validated using W3C using nesting, nesting will be restored after completion of this course). Placeholder images were created using [Artlist AI](https://artlist.io).
 
 ## Local Development
 
@@ -115,3 +115,21 @@ After changing bundled CSS files, rebuild the production bundle:
 ```bash
 php build-assets.php
 ```
+
+## W3C CSS Validator Notes
+
+The stylesheets ship with four modern CSS features that [jigsaw.w3.org/css-validator](https://jigsaw.w3.org/css-validator) reports as errors. Each one is spec-valid CSS in a published W3C specification and shipping in current Chrome, Edge, Safari, and Firefox &mdash; the validator simply implements an older level of the CSS spec and has not caught up yet. The labels below match the validator's exact output, verified by submitting minimal test snippets under the CSS level 3 + SVG profile.
+
+| Feature              | Spec                 | Baseline | Count in source | Validator emits                                                  |
+| -------------------- | -------------------- | :------: | :-------------: | ---------------------------------------------------------------- |
+| `@starting-style`    | CSS Transitions L2   | 2024     | 2               | Error: `Unrecognized at-rule "@starting-style"`                  |
+| `@container` queries | CSS Containment L3   | 2023     | 4               | Error: `Unrecognized at-rule "@container"`                       |
+| `container-type`     | CSS Containment L3   | 2023     | 4               | Error: `Property "container-type" doesn't exist`                 |
+| `container-name`     | CSS Containment L3   | 2023     | 3               | Error: `Property "container-name" doesn't exist`                 |
+
+The following modern features ALSO appear in the source but currently validate cleanly on this version of the W3C CSS Validator &mdash; listed here for completeness because earlier revisions of this document noted them as caveats:
+
+- `@layer` &mdash; 12 occurrences across 10 files.
+- `color-mix()` &mdash; 21 occurrences across 5 files.
+- `text-wrap: balance` &mdash; 1 occurrence in `home.css`.
+- `dvh` / `svh` units &mdash; 7 occurrences across `base.css` and `components.css`.

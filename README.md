@@ -126,10 +126,3 @@ The stylesheets ship with four modern CSS features that [jigsaw.w3.org/css-valid
 | `@container` queries | CSS Containment L3   | 2023     | 4               | Error: `Unrecognized at-rule "@container"`                       |
 | `container-type`     | CSS Containment L3   | 2023     | 4               | Error: `Property "container-type" doesn't exist`                 |
 | `container-name`     | CSS Containment L3   | 2023     | 3               | Error: `Property "container-name" doesn't exist`                 |
-
-The following modern features ALSO appear in the source but currently validate cleanly on this version of the W3C CSS Validator &mdash; listed here for completeness because earlier revisions of this document noted them as caveats:
-
-- `@layer` &mdash; 12 occurrences across 10 files.
-- `color-mix()` &mdash; 21 occurrences across 5 files.
-- `text-wrap: balance` &mdash; 1 occurrence in `home.css`.
-- `dvh` / `svh` units &mdash; 7 occurrences across `base.css` and `components.css`.

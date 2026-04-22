@@ -326,6 +326,10 @@
     text-transform: none;
   }
 
+  .home-page > header > section > div > div:last-child > h2[data-hero-utility] {
+    font-size: clamp(1.2rem, 1.1rem + 0.35vw, 1.4rem);
+  }
+
   .home-page > header > section > div > div:last-child > p[data-hero-utility-copy] {
     color: #fff;
     font-size: clamp(0.84rem, 0.78rem + 0.16vw, 0.93rem);

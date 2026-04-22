@@ -1503,8 +1503,7 @@
     text-decoration: none;
   }
 
-  dialog [data-legal] a:hover,
-  dialog [data-legal] a:focus-visible {
+  dialog [data-legal] a:is(:hover, :focus-visible) {
     text-decoration: underline;
   }
 
@@ -1622,8 +1621,7 @@
     width: 270px;
   }
 
-  div[role="list"]:not([data-vector-grid])>div>article:has(> figure):hover,
-  div[role="list"]:not([data-vector-grid])>div>article:has(> figure):has(:focus-visible) {
+  div[role="list"]:not([data-vector-grid])>div>article:has(> figure):is(:hover, :has(:focus-visible)) {
     border-color: var(--mountain-gold-darker);
     box-shadow: 0 8px 24px var(--shadow-mountain);
     transform: translateY(-4px);

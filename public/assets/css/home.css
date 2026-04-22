@@ -1026,8 +1026,7 @@
     transition: transform 0.2s ease;
   }
 
-  #home-cta > div > article > a:hover,
-  #home-cta > div > article > a:focus-visible {
+  #home-cta > div > article > a:is(:hover, :focus-visible) {
     background: var(--mountain-pine);
     color: #fff;
   }

@@ -257,8 +257,7 @@
     text-decoration: none;
   }
 
-  article [data-legal] a:hover,
-  article [data-legal] a:focus-visible {
+  article [data-legal] a:is(:hover, :focus-visible) {
     text-decoration: underline;
   }
 

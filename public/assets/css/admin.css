@@ -1068,9 +1068,7 @@
     font-weight: 600;
   }
 
-  main>section[aria-labelledby="admin-incidents-heading"] div[role="list"]>div>article>dl>div:nth-child(6n+4),
-  main>section[aria-labelledby="admin-incidents-heading"] div[role="list"]>div>article>dl>div:nth-child(6n+5),
-  main>section[aria-labelledby="admin-incidents-heading"] div[role="list"]>div>article>dl>div:nth-child(6n+6) {
+  main>section[aria-labelledby="admin-incidents-heading"] div[role="list"]>div>article>dl>div:is(:nth-child(6n+4), :nth-child(6n+5), :nth-child(6n+6)) {
     background: color-mix(in srgb, var(--mountain-pine-light) 20%, var(--mountain-cream));
   }
 
@@ -1731,9 +1729,7 @@
     font-weight: 600;
   }
 
-  main>section[aria-labelledby="admin-disputes-heading"] div[role="list"]>div>article>dl>div:nth-child(6n+4),
-  main>section[aria-labelledby="admin-disputes-heading"] div[role="list"]>div>article>dl>div:nth-child(6n+5),
-  main>section[aria-labelledby="admin-disputes-heading"] div[role="list"]>div>article>dl>div:nth-child(6n+6) {
+  main>section[aria-labelledby="admin-disputes-heading"] div[role="list"]>div>article>dl>div:is(:nth-child(6n+4), :nth-child(6n+5), :nth-child(6n+6)) {
     background: color-mix(in srgb, var(--mountain-pine-light) 20%, var(--mountain-cream));
   }
 

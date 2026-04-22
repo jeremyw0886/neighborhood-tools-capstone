@@ -225,7 +225,11 @@ function minifyCss(string $css): string
     $css = preg_replace('#:\s+#', ':', $css);
     $css = str_replace(';}', '}', $css);
     $css = preg_replace('#\s*!\s*important#', '!important', $css);
-    $css = preg_replace('#(?<![a-zA-Z0-9.\-])0(?:px|em|rem|%|pt|ex|ch|vw|vh|vmin|vmax)#', '0', $css);
+    // Strip trailing-length units from zero values (e.g. `0px` → `0`).
+    // Deliberately excludes `%`: `0%` is a valid keyframe SELECTOR
+    // (`@keyframes foo { 0% { ... } }`) and stripping it to `0` is a parse
+    // error per CSS spec.
+    $css = preg_replace('#(?<![a-zA-Z0-9.\-])0(?:px|em|rem|pt|ex|ch|vw|vh|vmin|vmax)#', '0', $css);
     $css = trim($css);
 
     foreach ($licenses as $key => $comment) {

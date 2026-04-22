@@ -992,6 +992,45 @@ class ShortcutOverlay {
   };
 }
 
+// ─── Nav Resize Guard ────────────────────────────────────────────────
+// Suppresses nav transitions while the window is actively resizing so the
+// mobile/desktop breakpoint crossing doesn't animate the #top-links opacity
+// fade-out (shrink) or the active-link partial-border fade (grow).
+
+class NavResizeGuard {
+  static #instance = null;
+  #abortController = new AbortController();
+  #timer = 0;
+
+  constructor() {
+    const { signal } = this.#abortController;
+    window.addEventListener('resize', this.#handleResize, { passive: true, signal });
+  }
+
+  /** @returns {NavResizeGuard|null} */
+  static init() {
+    if (NavResizeGuard.#instance) return NavResizeGuard.#instance;
+    return (NavResizeGuard.#instance = new NavResizeGuard());
+  }
+
+  destroy() {
+    this.#abortController.abort();
+    clearTimeout(this.#timer);
+    document.body.removeAttribute('data-nav-resizing');
+    NavResizeGuard.#instance = null;
+  }
+
+  #handleResize = () => {
+    document.body.setAttribute('data-nav-resizing', '');
+    clearTimeout(this.#timer);
+    this.#timer = setTimeout(this.#end, 150);
+  };
+
+  #end = () => {
+    document.body.removeAttribute('data-nav-resizing');
+  };
+}
+
 // ─── Init ────────────────────────────────────────────────────────────
 
 const init = () => {
@@ -1001,6 +1040,7 @@ const init = () => {
   ModalSystem.init();
   BadgePoller.init();
   ShortcutOverlay.init();
+  NavResizeGuard.init();
 };
 
 if (document.readyState === 'loading') {

@@ -2,6 +2,17 @@
 
 @layer components {
 
+  /* ── Nav resize guard ── */
+  /* While the window is actively resizing (data-nav-resizing is set by
+     NavResizeGuard in nav.js), suppress every nav transition so the
+     breakpoint crossing at 985px doesn't animate the #top-links opacity
+     fade-out on shrink or the active-link partial-border fade on grow. */
+
+  body[data-nav-resizing] nav[aria-label="Main navigation"] #top-links,
+  body[data-nav-resizing] nav[aria-label="Main navigation"] #top-links * {
+    transition: none;
+  }
+
   /* ── Nav — mobile layout (always applies) ── */
 
   @media (max-width: 985px) {

@@ -60,10 +60,7 @@
       justify-self: center;
     }
 
-    nav[aria-label="Main navigation"]>#top-links>li {
-      border-bottom: none;
-    }
-
+    nav[aria-label="Main navigation"]>#top-links>li,
     nav[aria-label="Main navigation"]>#top-links>li:last-child {
       border-bottom: none;
     }
@@ -249,10 +246,7 @@
   /* ── Crop dialog — high contrast ── */
 
   @media (prefers-contrast: more) {
-    #crop-dialog {
-      border-width: 2px;
-    }
-
+    #crop-dialog,
     #crop-dialog #crop-viewport {
       border-width: 2px;
     }
@@ -270,14 +264,8 @@
       margin-inline: 1rem;
     }
 
-    #crop-dialog > header {
-      padding-inline: 1rem;
-    }
-
-    #crop-dialog #crop-hint {
-      padding-inline: 1rem;
-    }
-
+    #crop-dialog > header,
+    #crop-dialog #crop-hint,
     #crop-dialog > footer {
       padding-inline: 1rem;
     }
@@ -286,10 +274,7 @@
   /* ── Reduced motion — disable menu animation ── */
 
   @media (max-width: 985px) and (prefers-reduced-motion: reduce) {
-    nav[aria-label="Main navigation"]>#top-links {
-      transition: none;
-    }
-
+    nav[aria-label="Main navigation"]>#top-links,
     nav[aria-label="Main navigation"]>#mobile-menu-toggle>span {
       transition: none;
     }

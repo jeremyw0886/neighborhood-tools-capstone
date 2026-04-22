@@ -167,63 +167,53 @@
     white-space: nowrap;
   }
 
-  :is(
-    [data-status="active"],
+  :is([data-status="active"],
     [data-status="on-time"],
     [data-status="returned"],
     [data-status="resolved"],
     [data-badge="deposit_release"],
-    [data-badge="ready for release"]
-  ) {
+    [data-badge="ready for release"]) {
     background: var(--badge-success-bg);
     color: var(--badge-success-text);
   }
 
-  :is(
-    [data-status="suspended"],
+  :is([data-status="suspended"],
     [data-status="overdue"],
     [data-status="denied"],
     [data-status="cancelled"],
     [data-urgency="critical"],
     [data-badge="deposit_forfeit"],
-    [data-badge="overdue - review needed"]
-  ) {
+    [data-badge="overdue - review needed"]) {
     background: var(--badge-danger-bg);
     color: var(--badge-danger-text);
   }
 
-  :is(
-    [data-status="pending"],
+  :is([data-status="pending"],
     [data-status="due-soon"],
     [data-status="open"],
     [data-urgency="moderate"],
     [data-timing="happening-now"],
     [data-badge="rental_fee"],
-    [data-badge="review needed"]
-  ) {
+    [data-badge="review needed"]) {
     background: var(--badge-warning-bg);
     color: var(--badge-warning-text);
   }
 
-  :is(
-    [data-status="approved"],
+  :is([data-status="approved"],
     [data-status="borrowed"],
     [data-timing="this-month"],
     [data-badge="deposit_hold"],
-    [data-badge="active borrow"]
-  ) {
+    [data-badge="active borrow"]) {
     background: var(--badge-info-bg);
     color: var(--badge-info-text);
   }
 
-  :is(
-    [data-status="inactive"],
+  :is([data-status="inactive"],
     [data-status="dismissed"],
     [data-timing="upcoming"],
     [data-timing="past"],
     [data-urgency="new"],
-    [data-badge="inactive"]
-  ) {
+    [data-badge="inactive"]) {
     background: var(--badge-neutral-bg);
     color: var(--badge-neutral-text);
   }
@@ -238,59 +228,74 @@
     color: var(--badge-high-text);
   }
 
-  /* --- Inline Semantic Text ------------------------------- */
-
   [data-role] {
     font-weight: 600;
   }
 
-  [data-role="member"] { color: var(--mountain-slate);
-  }
-  [data-role="admin"] { color: var(--mountain-pine);
-  }
-  [data-role="super_admin"] { color: var(--badge-special-text);
+  [data-role="member"] {
+    color: var(--mountain-slate);
   }
 
-  [data-condition="new"] { color: var(--color-success-600);
-  }
-  [data-condition="good"] { color: var(--color-success-800);
-  }
-  [data-condition="fair"] { color: var(--color-warning-700);
-  }
-  [data-condition="poor"] { color: var(--color-danger-600);
+  [data-role="admin"] {
+    color: var(--mountain-pine);
   }
 
-  [data-deadline="met"] { color: var(--badge-success-text); font-weight: 600;
-  }
-  [data-deadline="missed"] { color: var(--badge-danger-text); font-weight: 600;
-  }
-
-  [data-borrow-status="returned"] { color: var(--badge-success-text);
-  }
-  [data-borrow-status="borrowed"] { color: var(--badge-info-text);
-  }
-  [data-borrow-status="approved"] { color: var(--badge-info-text);
-  }
-  [data-borrow-status="denied"] { color: var(--badge-danger-text);
-  }
-  [data-borrow-status="cancelled"] { color: var(--badge-danger-text);
+  [data-role="super_admin"] {
+    color: var(--badge-special-text);
   }
 
-  :is(
-    span[data-status],
+  [data-condition="new"] {
+    color: var(--color-success-600);
+  }
+
+  [data-condition="good"] {
+    color: var(--color-success-800);
+  }
+
+  [data-condition="fair"] {
+    color: var(--color-warning-700);
+  }
+
+  [data-condition="poor"] {
+    color: var(--color-danger-600);
+  }
+
+  [data-deadline="met"] {
+    color: var(--badge-success-text);
+    font-weight: 600;
+  }
+
+  [data-deadline="missed"] {
+    color: var(--badge-danger-text);
+    font-weight: 600;
+  }
+
+  [data-borrow-status="returned"] {
+    color: var(--badge-success-text);
+  }
+
+  [data-borrow-status="borrowed"],
+  [data-borrow-status="approved"] {
+    color: var(--badge-info-text);
+  }
+
+  [data-borrow-status="denied"],
+  [data-borrow-status="cancelled"] {
+    color: var(--badge-danger-text);
+  }
+
+  :is(span[data-status],
     span[data-timing],
     span[data-urgency],
     span[data-badge],
     p[data-status],
     p[data-action],
-    [data-flash]
-  ):not(:has(> i))::before {
+    [data-flash]):not(:has(> i))::before {
     font-family: 'Font Awesome 6 Free', sans-serif;
     font-weight: 900;
   }
 
-  :is(
-    span[data-status="active"],
+  :is(span[data-status="active"],
     span[data-status="on-time"],
     span[data-status="returned"],
     span[data-status="resolved"],
@@ -299,31 +304,28 @@
     p[data-status="resolved"],
     p[data-action="ready for release"],
     p[data-action="released"],
-    [data-flash="success"]
-  ):not(:has(> i))::before { content: '\f058';
+    [data-flash="success"]):not(:has(> i))::before {
+    content: '\f058';
   }
 
-  :is(
-    span[data-status="suspended"],
+  :is(span[data-status="suspended"],
     span[data-status="denied"],
     span[data-status="cancelled"],
     span[data-urgency="critical"],
     span[data-badge="deposit_forfeit"],
     p[data-action="forfeited"],
-    [data-flash="error"]
-  ):not(:has(> i))::before { content: '\f057';
+    [data-flash="error"]):not(:has(> i))::before {
+    content: '\f057';
   }
 
-  :is(
-    span[data-status="overdue"],
+  :is(span[data-status="overdue"],
     span[data-timing="happening-now"],
     span[data-badge="overdue - review needed"],
-    p[data-action="overdue - review needed"]
-  ):not(:has(> i))::before { content: '\f06a';
+    p[data-action="overdue - review needed"]):not(:has(> i))::before {
+    content: '\f06a';
   }
 
-  :is(
-    span[data-status="pending"],
+  :is(span[data-status="pending"],
     span[data-status="due-soon"],
     span[data-status="open"],
     span[data-urgency="moderate"],
@@ -334,32 +336,30 @@
     p[data-status="open"],
     p[data-action="review needed"],
     p[data-action="partial release"],
-    [data-flash="warning"]
-  ):not(:has(> i))::before { content: '\f071';
+    [data-flash="warning"]):not(:has(> i))::before {
+    content: '\f071';
   }
 
-  :is(
-    span[data-status="approved"],
+  :is(span[data-status="approved"],
     span[data-status="borrowed"],
     span[data-timing="this-month"],
     span[data-badge="deposit_hold"],
     span[data-badge="active borrow"],
     p[data-action="active borrow"],
     p[data-action="payment pending"],
-    [data-flash="info"]
-  ):not(:has(> i))::before { content: '\f05a';
+    [data-flash="info"]):not(:has(> i))::before {
+    content: '\f05a';
   }
 
-  :is(
-    span[data-status="inactive"],
+  :is(span[data-status="inactive"],
     span[data-status="dismissed"],
     span[data-status="deleted"],
     span[data-timing="upcoming"],
     span[data-timing="past"],
     span[data-urgency="new"],
     span[data-badge="inactive"],
-    p[data-status="dismissed"]
-  ):not(:has(> i))::before { content: '\f111';
+    p[data-status="dismissed"]):not(:has(> i))::before {
+    content: '\f111';
   }
 
   /* --- Navigation ----------------------------------------- */
@@ -574,6 +574,7 @@
     text-align: center;
     width: 1.25em;
   }
+
   nav[aria-label="Main navigation"]:not([data-hero])>a:first-child {
     color: var(--mountain-cream);
   }
@@ -1238,12 +1239,12 @@
     container: none;
   }
 
-  dialog[data-confirm] > p {
+  dialog[data-confirm]>p {
     font-size: 1rem;
     padding: 1.5rem 1.5rem 0.75rem;
   }
 
-  dialog[data-confirm] > footer {
+  dialog[data-confirm]>footer {
     border: none;
     display: flex;
     gap: 0.75rem;
@@ -1273,7 +1274,7 @@
     container: none;
   }
 
-  dialog[data-decision] > i {
+  dialog[data-decision]>i {
     color: var(--mountain-pine);
     display: block;
     font-size: 2.5rem;
@@ -1281,14 +1282,14 @@
     animation: decision-icon-in 0.4s ease-out;
   }
 
-  dialog[data-decision] > p {
+  dialog[data-decision]>p {
     font-size: 1.063rem;
     font-weight: 600;
     line-height: 1.6;
     padding: 0.75rem clamp(1rem, 0.75rem + 0.75vw, 1.5rem) 0.25rem;
   }
 
-  dialog[data-decision] > p[data-detail] {
+  dialog[data-decision]>p[data-detail] {
     color: var(--mountain-slate);
     font-size: 0.875rem;
     font-weight: 400;
@@ -1296,7 +1297,7 @@
     padding: 0 clamp(1rem, 0.75rem + 0.75vw, 1.5rem) 0.5rem;
   }
 
-  dialog[data-decision] > footer {
+  dialog[data-decision]>footer {
     border-top: 1px solid var(--mountain-fog);
     display: flex;
     flex-direction: column;
@@ -1305,7 +1306,7 @@
     padding: clamp(0.75rem, 0.5rem + 0.5vw, 1rem) clamp(1rem, 0.75rem + 0.75vw, 1.5rem);
   }
 
-  dialog[data-decision] > footer > a[role="button"] {
+  dialog[data-decision]>footer>a[role="button"] {
     background: var(--mountain-pine);
     border-radius: 0.375rem;
     color: var(--mountain-cream);
@@ -1317,16 +1318,16 @@
     text-decoration: none;
   }
 
-  dialog[data-decision] > footer > a[role="button"]:hover {
+  dialog[data-decision]>footer>a[role="button"]:hover {
     background: var(--mountain-pine-dark);
   }
 
-  dialog[data-decision] > footer > a[role="button"]:focus-visible {
+  dialog[data-decision]>footer>a[role="button"]:focus-visible {
     outline: 2px solid var(--mountain-gold);
     outline-offset: 2px;
   }
 
-  dialog[data-decision] > footer > button {
+  dialog[data-decision]>footer>button {
     background: none;
     border: none;
     color: var(--mountain-slate);
@@ -1337,17 +1338,17 @@
     text-underline-offset: 2px;
   }
 
-  dialog[data-decision] > footer > button:hover {
+  dialog[data-decision]>footer>button:hover {
     color: var(--mountain-charcoal);
   }
 
-  dialog[data-decision] > footer > button:focus-visible {
+  dialog[data-decision]>footer>button:focus-visible {
     outline: 2px solid var(--mountain-gold);
     outline-offset: 2px;
     border-radius: 0.25rem;
   }
 
-  dialog[data-decision][data-auto-dismiss] > footer > button {
+  dialog[data-decision][data-auto-dismiss]>footer>button {
     background: var(--mountain-pine);
     border-radius: 0.375rem;
     color: var(--mountain-cream);
@@ -1360,7 +1361,7 @@
     width: 100%;
   }
 
-  dialog[data-decision][data-auto-dismiss] > footer > button:hover {
+  dialog[data-decision][data-auto-dismiss]>footer>button:hover {
     background: var(--mountain-pine-dark);
   }
 
@@ -1375,14 +1376,29 @@
   }
 
   @keyframes decision-icon-in {
-    0% { opacity: 0; transform: scale(0.5); }
-    60% { transform: scale(1.15); }
-    100% { opacity: 1; transform: scale(1); }
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+
+    60% {
+      transform: scale(1.15);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   @keyframes decision-timer {
-    from { width: 100%; }
-    to { width: 0%; }
+    from {
+      width: 100%;
+    }
+
+    to {
+      width: 0%;
+    }
   }
 
   dialog details {
@@ -1816,11 +1832,11 @@
     display: flex;
   }
 
-  .tool-preview > span {
+  .tool-preview>span {
     color: var(--mountain-slate);
   }
 
-  .tool-preview > span[data-condition] {
+  .tool-preview>span[data-condition] {
     border-radius: 0.25rem;
     color: #fff;
     font-size: 0.7rem;
@@ -1830,19 +1846,19 @@
     text-transform: uppercase;
   }
 
-  .tool-preview > span[data-condition="new"] {
+  .tool-preview>span[data-condition="new"] {
     background: var(--mountain-pine);
   }
 
-  .tool-preview > span[data-condition="good"] {
+  .tool-preview>span[data-condition="good"] {
     background: var(--mountain-pine-light);
   }
 
-  .tool-preview > span[data-condition="fair"] {
+  .tool-preview>span[data-condition="fair"] {
     background: var(--mountain-gold-dark);
   }
 
-  .tool-preview > span[data-condition="poor"] {
+  .tool-preview>span[data-condition="poor"] {
     background: var(--mountain-earth);
   }
 
@@ -2253,7 +2269,8 @@
     padding: 0.25rem;
   }
 
-  [data-flash] .toast-dismiss:hover { opacity: 1;
+  [data-flash] .toast-dismiss:hover {
+    opacity: 1;
   }
 
   /* --- Toast Container ------------------------------------- */
@@ -2271,7 +2288,7 @@
     z-index: 1000;
   }
 
-  #toast-container > [data-flash] {
+  #toast-container>[data-flash] {
     align-items: center;
     animation: toast-in 0.3s ease-out;
     box-shadow: 0 4px 12px var(--shadow-pine);
@@ -2280,16 +2297,22 @@
     margin: 0;
   }
 
-  #toast-container > [data-flash].toast-exit {
+  #toast-container>[data-flash].toast-exit {
     animation: toast-out 0.3s ease-in forwards;
   }
 
   @keyframes toast-in {
-    from { opacity: 0; transform: translateY(1rem); }
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
   }
 
   @keyframes toast-out {
-    to { opacity: 0; transform: translateY(1rem); }
+    to {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
   }
 
   /* --- AJAX Loading States --------------------------------- */
@@ -2315,7 +2338,9 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .fade-out {
@@ -2324,17 +2349,20 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #toast-container > [data-flash] { animation: none;
+    #toast-container>[data-flash],
+    #toast-container>[data-flash].toast-exit,
+    button[aria-busy="true"]::after {
+      animation: none;
     }
-    #toast-container > [data-flash].toast-exit { animation: none;
+
+    [aria-busy="true"],
+    .fade-out {
+      transition: none;
     }
-    button[aria-busy="true"]::after { animation: none;
-    }
-    [aria-busy="true"] { transition: none;
-    }
-    .fade-out { transition: none;
-    }
-    #scroll-top { transition: none; animation: none;
+
+    #scroll-top {
+      transition: none;
+      animation: none;
     }
 
   }
@@ -2342,16 +2370,40 @@
   /* --- Scroll-to-Top Button -------------------------------- */
 
   @keyframes scroll-top-enter {
-    0% { opacity: 0; transform: translateY(1.5rem) scale(0.6); }
-    50% { opacity: 1; transform: translateY(-0.35rem) scale(1.05); }
-    70% { transform: translateY(0.1rem) scale(0.98); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% {
+      opacity: 0;
+      transform: translateY(1.5rem) scale(0.6);
+    }
+
+    50% {
+      opacity: 1;
+      transform: translateY(-0.35rem) scale(1.05);
+    }
+
+    70% {
+      transform: translateY(0.1rem) scale(0.98);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   @keyframes scroll-top-exit {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    30% { transform: translateY(-0.25rem) scale(1.03); }
-    100% { opacity: 0; transform: translateY(1.5rem) scale(0.6); }
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    30% {
+      transform: translateY(-0.25rem) scale(1.03);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(1.5rem) scale(0.6);
+    }
   }
 
   #scroll-top {
@@ -2362,11 +2414,9 @@
     animation: none;
     background:
       radial-gradient(circle, var(--mountain-pine-light) 60%, transparent 61%),
-      conic-gradient(
-        from -90deg,
+      conic-gradient(from -90deg,
         var(--mountain-gold) calc(var(--progress) * 1turn),
-        var(--mountain-pine-dark) 0
-      );
+        var(--mountain-pine-dark) 0);
     border: none;
     border-radius: 50%;
     bottom: 2rem;
@@ -2434,11 +2484,9 @@
   #scroll-top:hover {
     background:
       radial-gradient(circle, var(--mountain-pine) 60%, transparent 61%),
-      conic-gradient(
-        from -90deg,
+      conic-gradient(from -90deg,
         var(--mountain-gold) calc(var(--progress) * 1turn),
-        var(--mountain-pine-dark) 0
-      );
+        var(--mountain-pine-dark) 0);
   }
 
   #scroll-top:focus-visible {
@@ -2540,7 +2588,7 @@
     resize: vertical;
   }
 
-  fieldset > legend {
+  fieldset>legend {
     border-bottom: 1px solid var(--mountain-fog);
     float: left;
     margin-bottom: 0.75rem;
@@ -2548,7 +2596,7 @@
     width: 100%;
   }
 
-  fieldset > legend + * {
+  fieldset>legend+* {
     clear: both;
   }
 
@@ -2602,10 +2650,7 @@
 
   /* --- Search Autosuggest ---------------------------------- */
 
-  form[role="search"] {
-    position: relative;
-  }
-
+  form[role="search"],
   form[role="search"] :is(fieldset, div):has(> ul[role="listbox"]) {
     position: relative;
   }
@@ -2627,7 +2672,7 @@
     z-index: 100;
   }
 
-  form[role="search"] ul[role="listbox"] > li {
+  form[role="search"] ul[role="listbox"]>li {
     border-radius: 0.5rem;
     color: var(--mountain-charcoal);
     cursor: pointer;
@@ -2636,8 +2681,8 @@
     transition: background-color 0.15s ease;
   }
 
-  form[role="search"] ul[role="listbox"] > li:hover,
-  form[role="search"] ul[role="listbox"] > li[aria-selected="true"] {
+  form[role="search"] ul[role="listbox"]>li:hover,
+  form[role="search"] ul[role="listbox"]>li[aria-selected="true"] {
     background: var(--mountain-fog);
   }
 
@@ -2684,7 +2729,7 @@
     vertical-align: top;
   }
 
-  main table tbody tr th[scope="row"] > h3 {
+  main table tbody tr th[scope="row"]>h3 {
     font: inherit;
     margin: 0;
   }
@@ -3046,7 +3091,7 @@
     width: 32rem;
   }
 
-  #crop-dialog > header {
+  #crop-dialog>header {
     border-bottom: none;
     display: block;
     padding: 1.25rem 1.5rem 0.5rem;
@@ -3054,12 +3099,12 @@
     text-align: center;
   }
 
-  #crop-dialog > header > h2 {
+  #crop-dialog>header>h2 {
     font-size: 1.125rem;
     margin: 0;
   }
 
-  #crop-dialog > header > p {
+  #crop-dialog>header>p {
     color: var(--mountain-mist);
     font-size: 0.813rem;
     margin: 0.25rem 0 0;
@@ -3119,36 +3164,27 @@
     text-align: center;
   }
 
-  #crop-dialog > footer {
+  #crop-dialog>footer {
     display: flex;
     gap: 0.75rem;
     justify-content: flex-end;
     padding: 0.75rem 1.5rem 1.25rem;
   }
 
-  #crop-dialog > footer > button {
+  #crop-dialog>footer>button {
     min-width: 5.5rem;
   }
 
-  #crop-dialog > footer > button[data-crop-confirm]:disabled {
+  #crop-dialog>footer>button[data-crop-confirm]:disabled {
     cursor: not-allowed;
     opacity: 0.6;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    nav[aria-label="Back"]>a {
-      transition: none;
-    }
-
+    nav[aria-label="Back"]>a,
     dialog,
-    dialog::backdrop {
-      transition: none;
-    }
-
-    dialog details>summary::after {
-      transition: none;
-    }
-
+    dialog::backdrop,
+    dialog details>summary::after,
     .auth-card :is(input, select, button) {
       transition: none;
     }

@@ -340,15 +340,7 @@
     top: 0.5rem;
   }
 
-  :is(#browse-page, #bookmarks-page) div[role="list"][data-view="list"]>div>article>form {
-    position: relative;
-    top: auto;
-    right: auto;
-    align-self: center;
-    margin-right: 0.75rem;
-    order: 3;
-  }
-
+  :is(#browse-page, #bookmarks-page) div[role="list"][data-view="list"]>div>article>form,
   :is(#browse-page, #bookmarks-page) div[role="list"][data-view="list"]>div>article>span[data-badge="owner"] {
     position: relative;
     top: auto;
@@ -403,15 +395,7 @@
       max-height: 3em;
     }
 
-    :is(#browse-page, #bookmarks-page) div[role="list"][data-view="list"]>div>article>form {
-      align-self: initial;
-      margin-right: 0;
-      order: initial;
-      position: absolute;
-      right: 0.5rem;
-      top: 0.5rem;
-    }
-
+    :is(#browse-page, #bookmarks-page) div[role="list"][data-view="list"]>div>article>form,
     :is(#browse-page, #bookmarks-page) div[role="list"][data-view="list"]>div>article>span[data-badge="owner"] {
       align-self: initial;
       margin-right: 0;
@@ -1371,11 +1355,7 @@
     padding: 0 0.75rem;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li [data-delete-form] button {
-    font-size: 0.813rem;
-    width: 100%;
-  }
-
+  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li [data-delete-form] button,
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li [data-remove-queue] {
     font-size: 0.813rem;
     width: 100%;
@@ -1574,10 +1554,7 @@
       border-width: 3px;
     }
 
-    :is(#browse-page, #bookmarks-page)>form[role="search"]>fieldset:last-of-type {
-      border-width: 2px;
-    }
-
+    :is(#browse-page, #bookmarks-page)>form[role="search"]>fieldset:last-of-type,
     :is(#browse-page, #bookmarks-page)>form[role="search"]>fieldset:last-of-type>div>select,
     :is(#browse-page, #bookmarks-page)>form[role="search"]>fieldset:last-of-type>div>input[type="text"] {
       border-width: 2px;
@@ -1587,14 +1564,8 @@
       border-color: var(--mountain-fog);
     }
 
-    main>#tool-detail article>section[aria-labelledby="borrow-heading"] {
-      border-width: 2px;
-    }
-
-    main>#tool-detail article>section[aria-labelledby="borrow-heading"] fieldset {
-      border-width: 2px;
-    }
-
+    main>#tool-detail article>section[aria-labelledby="borrow-heading"],
+    main>#tool-detail article>section[aria-labelledby="borrow-heading"] fieldset,
     main>#tool-detail article>section[aria-labelledby="borrow-heading"] :is(select, textarea) {
       border-width: 2px;
     }
@@ -1603,10 +1574,7 @@
       border: 2px solid var(--btn-success-hover-to);
     }
 
-    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) fieldset {
-      border-width: 2px;
-    }
-
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) fieldset,
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(input, select, textarea) {
       border-width: 2px;
     }
@@ -1631,38 +1599,14 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
-    :is(#browse-page, #bookmarks-page)>header>nav[aria-label="Browse mode"]::before {
-      transition: none;
-    }
-
-    :is(#browse-page, #bookmarks-page)>header>nav[aria-label="Browse mode"]>a {
-      transition: none;
-    }
-
-    main>#tool-detail article>section[aria-labelledby="borrow-heading"] :is(select, textarea, button) {
-      transition: none;
-    }
-
-    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(input, select, textarea, button) {
-      transition: none;
-    }
-
-    main>#tool-detail article>header #gallery-thumbs button {
-      transition: none;
-    }
-
-    main>#tool-detail article>header #gallery-lightbox button {
-      transition: none;
-    }
-
-    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li {
-      transition: none;
-    }
-
-    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li :is([data-reposition], [data-reposition-queue]) {
-      transition: none;
-    }
-
+    :is(#browse-page, #bookmarks-page)>header>nav[aria-label="Browse mode"]::before,
+    :is(#browse-page, #bookmarks-page)>header>nav[aria-label="Browse mode"]>a,
+    main>#tool-detail article>section[aria-labelledby="borrow-heading"] :is(select, textarea, button),
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(input, select, textarea, button),
+    main>#tool-detail article>header #gallery-thumbs button,
+    main>#tool-detail article>header #gallery-lightbox button,
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li,
+    main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li :is([data-reposition], [data-reposition-queue]),
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) #photo-drop-zone {
       transition: none;
     }

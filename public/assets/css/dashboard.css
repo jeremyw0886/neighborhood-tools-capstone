@@ -406,10 +406,7 @@
     #edit-tool,
     #profile-edit,
     #bookmarks-page,
-    #events-page) [data-dashboard-content]>section>h2[data-urgent] {
-    color: var(--btn-danger-to);
-  }
-
+    #events-page) [data-dashboard-content]>section>h2[data-urgent],
   main>section:is([aria-labelledby="dashboard-heading"],
     [aria-labelledby="lender-heading"],
     [aria-labelledby="borrower-heading"],
@@ -581,15 +578,9 @@
   }
 
   section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a>i:first-child,
-  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>i:first-child {
-    color: var(--btn-danger-to);
-  }
-
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>i:first-child,
   section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a>h3,
-  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>h3 {
-    color: var(--btn-danger-to);
-  }
-
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>h3,
   section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a>p,
   section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>p {
     color: var(--btn-danger-to);
@@ -2836,48 +2827,24 @@
     }
     #main-content:not([data-transition]) > section > header > h1,
     #main-content:not([data-transition]) > section > header > p,
-    #main-content:not([data-transition]) > section > [data-dashboard-body] > [data-dashboard-content] {
-      transition: none;
-    }
-
+    #main-content:not([data-transition]) > section > [data-dashboard-body] > [data-dashboard-content],
     header>form[role="search"]>fieldset,
-    header>form[role="search"]>fieldset>button {
-      transition: none;
-    }
-
+    header>form[role="search"]>fieldset>button,
     main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
       [aria-labelledby="history-heading"]) form[aria-label*="Sort"] select,
     main>section:is([aria-labelledby="lender-heading"],
       [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] button {
-      transition: none;
-    }
-
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] button,
     main>section#loan-status table td>form>button,
-    main>section#loan-status table td>details>summary {
-      transition: none;
-    }
-
+    main>section#loan-status table td>details>summary,
     [data-activity-card],
-    [data-activity-card]>footer[data-actions] details>summary {
-      transition: none;
-    }
-
-    #loan-status [data-loan-card]>ol>li::before {
-      transition: none;
-    }
-
+    [data-activity-card]>footer[data-actions] details>summary,
+    #loan-status [data-loan-card]>ol>li::before,
     #loan-status [data-actions-card]>form>button,
     #loan-status [data-actions-card]>a[role="button"],
-    #loan-status [data-actions-card]>details>summary {
-      transition: none;
-    }
-
-    #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta] {
-      transition: none;
-    }
-
+    #loan-status [data-actions-card]>details>summary,
+    #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta],
     #profile-edit :is(input, select, textarea, button) {
       transition: none;
     }
@@ -2903,10 +2870,7 @@
       outline-offset: -1px;
     }
 
-    main>section#loan-status table td>details>summary {
-      border-width: 2px;
-    }
-
+    main>section#loan-status table td>details>summary,
     [data-activity-card] {
       border-width: 2px;
     }
@@ -2952,10 +2916,7 @@
     }
 
     main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>ul>li,
-    main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>ul>li {
-      border-width: 2px;
-    }
-
+    main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>ul>li,
     main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div {
       border-width: 2px;
     }
@@ -2964,10 +2925,7 @@
       border-color: var(--mountain-fog);
     }
 
-    #profile-edit fieldset {
-      border-width: 2px;
-    }
-
+    #profile-edit fieldset,
     #profile-edit :is(input, select, textarea) {
       border-width: 2px;
     }
@@ -3342,10 +3300,7 @@
     }
 
     section[aria-labelledby="summary-heading"]>ul,
-    section[aria-labelledby="admin-summary-heading"]>ul {
-      grid-template-columns: 1fr;
-    }
-
+    section[aria-labelledby="admin-summary-heading"]>ul,
     section[aria-labelledby="admin-summary-heading"]>div {
       grid-template-columns: 1fr;
     }

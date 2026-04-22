@@ -893,10 +893,7 @@
       outline-offset: 2px;
     }
 
-    main>section[aria-labelledby="notifications-heading"]>h2 {
-      border-bottom-width: 2px;
-    }
-
+    main>section[aria-labelledby="notifications-heading"]>h2,
     main>section[aria-labelledby="notifications-heading"]>ol>li {
       border-bottom-width: 2px;
     }
@@ -917,59 +914,20 @@
   /* ── Reduced motion ── */
 
   @media (prefers-reduced-motion: reduce) {
-    article details>summary::after {
-      transition: none;
-    }
-
-    article details {
-      transition: none;
-    }
-
-    article>footer button[type="submit"] {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>a>h3 {
-      transition: none;
-    }
-
+    article details>summary::after,
+    article details,
+    article>footer button[type="submit"],
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article,
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>a>h3,
     main>section[aria-labelledby="notifications-heading"]>header>div>form>button,
-    main>section[aria-labelledby="notifications-heading"]>header [data-intent="danger-outline"] {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>[data-intent="secondary-sm"] {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>form>button {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>nav[aria-label$="pagination" i]>ul>li>a {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li:not([data-unread])>article {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li.swiping>article {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>nav[aria-label="Filter notifications"]>ul>li>a {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>header [data-intent="secondary-outline"] {
-      transition: none;
-    }
-
+    main>section[aria-labelledby="notifications-heading"]>header [data-intent="danger-outline"],
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>[data-intent="secondary-sm"],
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>form>button,
+    main>section[aria-labelledby="notifications-heading"]>nav[aria-label$="pagination" i]>ul>li>a,
+    main>section[aria-labelledby="notifications-heading"]>ol>li:not([data-unread])>article,
+    main>section[aria-labelledby="notifications-heading"]>ol>li.swiping>article,
+    main>section[aria-labelledby="notifications-heading"]>nav[aria-label="Filter notifications"]>ul>li>a,
+    main>section[aria-labelledby="notifications-heading"]>header [data-intent="secondary-outline"],
     #notification-preferences>form>fieldset>ul>li {
       transition: none;
     }

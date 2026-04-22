@@ -603,14 +603,8 @@
     border-color: var(--alert-danger-border);
   }
 
-  section[aria-labelledby="admin-summary-heading"]>div>article[data-urgent]>a>i:first-child {
-    color: var(--btn-danger-to);
-  }
-
-  section[aria-labelledby="admin-summary-heading"]>div>article[data-urgent]>a>h3 {
-    color: var(--btn-danger-to);
-  }
-
+  section[aria-labelledby="admin-summary-heading"]>div>article[data-urgent]>a>i:first-child,
+  section[aria-labelledby="admin-summary-heading"]>div>article[data-urgent]>a>h3,
   section[aria-labelledby="admin-summary-heading"]>div>article[data-urgent]>a>p {
     color: var(--btn-danger-to);
   }
@@ -624,10 +618,7 @@
     border-color: var(--mountain-gold-light);
   }
 
-  section[aria-labelledby="admin-summary-heading"]>div>article[data-warning]>a>i:first-child {
-    color: var(--btn-warning-from);
-  }
-
+  section[aria-labelledby="admin-summary-heading"]>div>article[data-warning]>a>i:first-child,
   section[aria-labelledby="admin-summary-heading"]>div>article[data-warning]>a>h3 {
     color: var(--btn-warning-from);
   }
@@ -2299,18 +2290,12 @@
     color: var(--color-warning-800);
   }
 
-  main>section[aria-labelledby="admin-deposits-heading"] span[data-action-required="RELEASED"] {
-    color: var(--mountain-mist);
-  }
-
+  main>section[aria-labelledby="admin-deposits-heading"] span[data-action-required="RELEASED"],
   main>section[aria-labelledby="admin-deposits-heading"] span[data-action-required="FORFEITED"] {
     color: var(--mountain-mist);
   }
 
-  main>section[aria-labelledby="admin-deposits-heading"] span[data-action-required="PARTIAL RELEASE"] {
-    color: var(--color-warning-800);
-  }
-
+  main>section[aria-labelledby="admin-deposits-heading"] span[data-action-required="PARTIAL RELEASE"],
   main>section[aria-labelledby="admin-deposits-heading"] span[data-action-required="REVIEW NEEDED"] {
     color: var(--color-warning-800);
   }
@@ -3055,13 +3040,7 @@
     font-weight: 600;
   }
 
-  main>section[aria-labelledby="admin-categories-heading"] section[data-category-create] fieldset>div>input[type="text"] {
-    border: 1px solid var(--mountain-fog);
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    padding: 0.5rem 0.75rem;
-  }
-
+  main>section[aria-labelledby="admin-categories-heading"] section[data-category-create] fieldset>div>input[type="text"],
   main>section[aria-labelledby="admin-categories-heading"] section[data-category-create] fieldset>div>select {
     border: 1px solid var(--mountain-fog);
     border-radius: 0.375rem;
@@ -3488,10 +3467,7 @@
     padding-top: 0.75rem;
   }
 
-  main>section[aria-labelledby="admin-tools-heading"] table tbody tr td:last-child {
-    grid-column: 1 / -1;
-  }
-
+  main>section[aria-labelledby="admin-tools-heading"] table tbody tr td:last-child,
   main>section[aria-labelledby="admin-deposits-heading"] table tbody tr td:last-child {
     grid-column: 1 / -1;
   }
@@ -3501,10 +3477,7 @@
     grid-template-columns: 1fr;
   }
 
-  main>section[aria-labelledby="admin-categories-heading"] table tbody tr td:nth-child(n+4) {
-    grid-column: 1 / -1;
-  }
-
+  main>section[aria-labelledby="admin-categories-heading"] table tbody tr td:nth-child(n+4),
   main>section[aria-labelledby="admin-reports-heading"] section[aria-labelledby="neighborhood-stats-heading"] table tbody tr td:last-child {
     grid-column: 1 / -1;
   }
@@ -3670,10 +3643,7 @@
         [aria-labelledby="admin-categories-heading"],
         [aria-labelledby="admin-deposits-heading"]),
       main > section:is([aria-labelledby="admin-reports-heading"]) section:is([aria-labelledby="neighborhood-stats-heading"]),
-      main > section:is([aria-labelledby="admin-tos-heading"]) section:is([aria-labelledby="tos-noncompliant-heading"])) table tbody tr {
-      grid-template-columns: 1fr 1fr;
-    }
-
+      main > section:is([aria-labelledby="admin-tos-heading"]) section:is([aria-labelledby="tos-noncompliant-heading"])) table tbody tr,
     main>section:is([aria-labelledby="admin-disputes-heading"], [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article>dl {
       grid-template-columns: 1fr 1fr;
     }
@@ -3774,10 +3744,7 @@
       [aria-labelledby="admin-reports-heading"],
       [aria-labelledby="admin-search-heading"],
       [aria-labelledby="purge-confirm-heading"]) a,
-    nav[aria-label="Admin navigation"] a {
-      transition: none;
-    }
-
+    nav[aria-label="Admin navigation"] a,
     main>section:is([aria-labelledby="admin-users-heading"],
       [aria-labelledby="admin-events-heading"],
       [aria-labelledby="admin-tools-heading"],
@@ -3785,64 +3752,25 @@
       [aria-labelledby="admin-deposits-heading"],
       [aria-labelledby="admin-tos-heading"],
       [aria-labelledby="admin-reports-heading"]) tbody tr,
-    section[aria-labelledby="admin-trends-heading"] tbody tr {
-      transition: none;
-    }
-
+    section[aria-labelledby="admin-trends-heading"] tbody tr,
     main>section:is([aria-labelledby="admin-users-heading"],
       [aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-tos-create-heading"]) :is(button, summary) {
-      transition: none;
-    }
-
-    main>section[aria-labelledby="admin-tos-create-heading"] :is(input, textarea) {
-      transition: none;
-    }
-
+      [aria-labelledby="admin-tos-create-heading"]) :is(button, summary),
+    main>section[aria-labelledby="admin-tos-create-heading"] :is(input, textarea),
     main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article {
-      transition: none;
-    }
-
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article,
     main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article {
-      transition: none;
-    }
-
+      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article,
     main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid] :is(form[data-inline-form] > button,
       form[data-delete-form] > button,
-      form[data-toggle-form] > button) {
-      transition: none;
-    }
-
-    main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid]>div>article[data-inactive] {
-      transition: none;
-    }
-
-    main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid]>div>article[data-inactive]>figure {
-      transition: none;
-    }
-
-    main> :is(section, details)[aria-labelledby="admin-images-heading"]>summary>h2>[data-chevron] {
-      transition: none;
-    }
-
-    search[aria-label="Search all admin data"] :is(input, button) {
-      transition: none;
-    }
-
-    search[aria-label="Search all admin data"]>form>ul[role="listbox"] a {
-      transition: none;
-    }
-
-    form[data-admin-filters] :is(input, select, button) {
-      transition: none;
-    }
-
-    section[aria-labelledby="admin-summary-heading"]>div>article>a {
-      transition: none;
-    }
-
+      form[data-toggle-form] > button),
+    main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid]>div>article[data-inactive],
+    main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid]>div>article[data-inactive]>figure,
+    main> :is(section, details)[aria-labelledby="admin-images-heading"]>summary>h2>[data-chevron],
+    search[aria-label="Search all admin data"] :is(input, button),
+    search[aria-label="Search all admin data"]>form>ul[role="listbox"] a,
+    form[data-admin-filters] :is(input, select, button),
+    section[aria-labelledby="admin-summary-heading"]>div>article>a,
     main>section[aria-labelledby="admin-search-heading"] section>div[role="list"]>div>article {
       transition: none;
     }
@@ -3866,20 +3794,11 @@
       border-bottom-width: 4px;
     }
 
-    section[aria-labelledby="admin-summary-heading"]>div>article>a {
-      border-width: 2px;
-    }
-
+    section[aria-labelledby="admin-summary-heading"]>div>article>a,
     main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article {
-      border-width: 2px;
-    }
-
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article,
     main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article {
-      border-width: 2px;
-    }
-
+      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article,
     main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
       [aria-labelledby="admin-images-heading"]) table {
       border-width: 2px;

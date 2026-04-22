@@ -1464,10 +1464,7 @@
       border-color: rgba(255, 255, 255, 0.4);
     }
 
-    #member-list > a {
-      border-color: var(--mountain-slate);
-    }
-
+    #member-list > a,
     .home-page > main > section:nth-of-type(3) > div > a,
     #home-cta > div > article {
       border-color: var(--mountain-slate);
@@ -1482,30 +1479,17 @@
       transform: none;
     }
 
-    .home-page > main > section:nth-of-type(3) > div > a {
-      transform: none;
-      transition: none;
-    }
-
+    .home-page > main > section:nth-of-type(3) > div > a,
     #home-cta > div > article {
       transform: none;
       transition: none;
     }
 
     #home-cta > div > article > a,
-    #home-cta > div > article > a > i {
-      transition: none;
-    }
-
-    #location-toggle::before {
-      transition: none;
-    }
-
+    #home-cta > div > article > a > i,
+    #location-toggle::before,
     #member-list > a,
-    #member-list > a > span:last-child {
-      transition: none;
-    }
-
+    #member-list > a > span:last-child,
     #member-carousel > button,
     #popular-carousel > button {
       transition: none;

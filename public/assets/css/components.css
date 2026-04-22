@@ -2676,9 +2676,11 @@
     background: color-mix(in srgb, var(--mountain-pine-light) 8%, transparent);
   }
 
-  main table tbody tr td {
+  main table tbody tr :is(td, th) {
     font-size: 0.875rem;
+    font-weight: inherit;
     padding: 0.75rem;
+    text-align: start;
     vertical-align: top;
   }
 

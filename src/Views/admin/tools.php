@@ -119,12 +119,12 @@ $hasFilters  = $search !== null || $condition !== null || $incidentsOnly;
           $incidents = (int) $tool['incident_count'];
         ?>
           <tr<?= $incidents > 0 ? ' data-has-incidents' : '' ?>>
-            <td data-label="Tool">
+            <th scope="row" data-label="Tool">
               <a href="/tools/<?= (int) $tool['id_tol'] ?>">
                 <?= htmlspecialchars($tool['tool_name_tol']) ?>
               </a>
               <small>$<?= number_format((float) $tool['rental_fee_tol'], 2) ?>/day</small>
-            </td>
+            </th>
             <td data-label="Owner">
               <a href="/profile/<?= (int) $tool['owner_id'] ?>">
                 <?= htmlspecialchars($tool['owner_name']) ?>

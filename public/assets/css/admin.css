@@ -269,6 +269,11 @@
         align-self: start;
         height: 2rem;
         width: 2rem;
+
+        &:focus-visible {
+          outline: 2px solid var(--mountain-gold);
+          outline-offset: 2px;
+        }
       }
 
       &>button[type="submit"] {
@@ -781,7 +786,7 @@
       flex-direction: column;
       gap: 1rem;
 
-      &>article {
+      &>div>article {
         background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
         border-radius: 0.75rem;
@@ -1082,18 +1087,20 @@
       }
 
       & tbody tr[data-suspended] {
+        background: color-mix(in srgb, var(--field-error) 6%, transparent);
         border-left: 3px solid var(--field-error);
-        opacity: 0.85;
       }
 
       & tbody tr[data-deleted] {
+        background: color-mix(in srgb, var(--mountain-mist) 10%, transparent);
         border-left: 3px solid var(--mountain-mist);
-        opacity: 0.7;
+        color: var(--mountain-slate);
       }
 
       & tbody tr[data-purged] {
+        background: color-mix(in srgb, var(--mountain-fog) 30%, transparent);
         border-left: 3px solid var(--mountain-fog);
-        opacity: 0.5;
+        color: var(--mountain-slate);
       }
 
       & td {
@@ -1471,7 +1478,7 @@
       flex-direction: column;
       gap: 1rem;
 
-      &>article {
+      &>div>article {
         background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
         border-radius: 0.75rem;
@@ -1996,7 +2003,7 @@
         border-left: 3px solid var(--badge-high-text);
       }
 
-      & td {
+      & :is(td, th) {
 
         &>a {
           color: var(--mountain-pine);
@@ -2273,7 +2280,7 @@
           border-left: 3px solid var(--mountain-pine-light);
         }
 
-        & td {
+        & :is(td, th) {
 
           &>strong {
             color: var(--mountain-pine);
@@ -2430,7 +2437,7 @@
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 275px), 1fr));
       margin-bottom: 2.5rem;
 
-      &>article {
+      &>div>article {
         background: var(--mountain-cloud);
         border: 1px solid var(--mountain-fog);
         border-radius: 0.75rem;
@@ -2665,7 +2672,7 @@
       }
     }
 
-    & :is(section, details)[aria-labelledby="avatar-vectors-heading"] div[data-vector-grid]>article>figure {
+    & :is(section, details)[aria-labelledby="avatar-vectors-heading"] div[data-vector-grid]>div>article>figure {
       border-radius: 50%;
     }
 
@@ -3010,7 +3017,7 @@
         }
       }
 
-      &>div[role="list"]>article {
+      &>div[role="list"]>div>article {
         border-bottom: 1px solid var(--mountain-fog);
         display: flex;
         flex-direction: column;
@@ -3160,7 +3167,7 @@
 
 
 
-    & tbody tr td {
+    & tbody tr :is(td, th) {
       display: block;
       font-size: 0.938rem;
       font-weight: 500;
@@ -3168,6 +3175,7 @@
       overflow: hidden;
       padding: 0;
       text-overflow: ellipsis;
+      text-align: start;
       white-space: nowrap;
     }
 
@@ -3181,7 +3189,7 @@
       background: color-mix(in srgb, var(--mountain-pine-light) 20%, var(--mountain-cream));
     }
 
-    & tbody tr td:first-child {
+    & tbody tr :is(td, th):first-child {
       border-bottom: 2px solid var(--mountain-pine-light);
       font-size: 1.063rem;
       font-weight: 600;
@@ -3404,7 +3412,7 @@
       grid-template-columns: 1fr 1fr;
     }
 
-    main > section:is([aria-labelledby="admin-disputes-heading"], [aria-labelledby="admin-incidents-heading"]) div[role="list"] > article > dl {
+    main > section:is([aria-labelledby="admin-disputes-heading"], [aria-labelledby="admin-incidents-heading"]) div[role="list"] > div > article > dl {
       grid-template-columns: 1fr 1fr;
     }
   }
@@ -3412,7 +3420,7 @@
   @media (max-width: 600px) {
 
     main>section:is([aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>article {
+      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article {
       column-gap: 1rem;
       display: grid;
       grid-template-columns: 4rem 1fr;
@@ -3522,12 +3530,12 @@
     }
 
     main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>article {
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article {
       transition: none;
     }
 
     main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>article {
+      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article {
       transition: none;
     }
 
@@ -3537,7 +3545,7 @@
       transition: none;
     }
 
-    main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid]>article[data-inactive] {
+    main> :is(section, details)[aria-labelledby="admin-images-heading"] div[data-vector-grid]>div>article[data-inactive] {
       transition: none;
 
       &>figure {
@@ -3565,7 +3573,7 @@
       transition: none;
     }
 
-    main>section[aria-labelledby="admin-search-heading"] section>div[role="list"]>article {
+    main>section[aria-labelledby="admin-search-heading"] section>div[role="list"]>div>article {
       transition: none;
     }
 
@@ -3592,14 +3600,14 @@
     }
 
     main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>article {
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article {
       border-width: 2px;
     }
 
     main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
       [aria-labelledby="admin-images-heading"]) {
 
-      & div[data-vector-grid]>article {
+      & div[data-vector-grid]>div>article {
         border-width: 2px;
       }
 

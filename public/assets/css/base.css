@@ -118,11 +118,11 @@
       --btn-success-to:         var(--color-success-700);
       --btn-success-hover-from: var(--color-success-700);
       --btn-success-hover-to:   var(--color-success-800);
-      --btn-danger-from:        #d4401f;
-      --btn-danger-to:          #b7341a;
-      --btn-danger-hover-from:  #a12e17;
-      --btn-danger-hover-to:    #8a2714;
-      --btn-danger-border:      #7a2211;
+      --btn-danger-from:        #c03716;
+      --btn-danger-to:          #a52c12;
+      --btn-danger-hover-from:  #8e2612;
+      --btn-danger-hover-to:    #741f0d;
+      --btn-danger-border:      #5f1a08;
       --btn-warning-from:       var(--color-warning-700);
       --btn-warning-to:         var(--color-warning-800);
       --btn-warning-hover-from: var(--color-warning-800);

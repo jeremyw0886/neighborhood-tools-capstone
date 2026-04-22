@@ -876,62 +876,6 @@
     width: 100%;
   }
 
-  /* ── High contrast mode ── */
-
-  @media (prefers-contrast: more) {
-    article details {
-      border-width: 2px;
-    }
-
-    article details[open] {
-      border-color: var(--mountain-pine);
-    }
-
-    article>footer button[type="submit"]:focus-visible {
-      outline: 3px solid var(--mountain-pine);
-      outline-offset: 2px;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>h2,
-    main>section[aria-labelledby="notifications-heading"]>ol>li {
-      border-bottom-width: 2px;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li:first-child {
-      border-top-width: 2px;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>ol>li[data-unread] {
-      border-left-width: 4px;
-    }
-
-    main>section[aria-labelledby="notifications-heading"]>nav[aria-label$="pagination" i]>ul>li>a {
-      border-color: var(--mountain-fog);
-    }
-  }
-
-  /* ── Reduced motion ── */
-
-  @media (prefers-reduced-motion: reduce) {
-    article details>summary::after,
-    article details,
-    article>footer button[type="submit"],
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article,
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>a>h3,
-    main>section[aria-labelledby="notifications-heading"]>header>div>form>button,
-    main>section[aria-labelledby="notifications-heading"]>header [data-intent="danger-outline"],
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>[data-intent="secondary-sm"],
-    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>form>button,
-    main>section[aria-labelledby="notifications-heading"]>nav[aria-label$="pagination" i]>ul>li>a,
-    main>section[aria-labelledby="notifications-heading"]>ol>li:not([data-unread])>article,
-    main>section[aria-labelledby="notifications-heading"]>ol>li.swiping>article,
-    main>section[aria-labelledby="notifications-heading"]>nav[aria-label="Filter notifications"]>ul>li>a,
-    main>section[aria-labelledby="notifications-heading"]>header [data-intent="secondary-outline"],
-    #notification-preferences>form>fieldset>ul>li {
-      transition: none;
-    }
-  }
-
   /* --- Responsive ----------------------------------------- */
 
   @media (max-width: 700px) {
@@ -1018,6 +962,62 @@
       align-items: flex-start;
       flex-direction: column;
       gap: 0.25rem;
+    }
+  }
+
+  /* ── High contrast mode ── */
+
+  @media (prefers-contrast: more) {
+    article details {
+      border-width: 2px;
+    }
+
+    article details[open] {
+      border-color: var(--mountain-pine);
+    }
+
+    article>footer button[type="submit"]:focus-visible {
+      outline: 3px solid var(--mountain-pine);
+      outline-offset: 2px;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>h2,
+    main>section[aria-labelledby="notifications-heading"]>ol>li {
+      border-bottom-width: 2px;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>ol>li:first-child {
+      border-top-width: 2px;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>ol>li[data-unread] {
+      border-left-width: 4px;
+    }
+
+    main>section[aria-labelledby="notifications-heading"]>nav[aria-label$="pagination" i]>ul>li>a {
+      border-color: var(--mountain-fog);
+    }
+  }
+
+  /* ── Reduced motion ── */
+
+  @media (prefers-reduced-motion: reduce) {
+    article details>summary::after,
+    article details,
+    article>footer button[type="submit"],
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article,
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>a>h3,
+    main>section[aria-labelledby="notifications-heading"]>header>div>form>button,
+    main>section[aria-labelledby="notifications-heading"]>header [data-intent="danger-outline"],
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>[data-intent="secondary-sm"],
+    main>section[aria-labelledby="notifications-heading"]>ol>li>article>div>footer>form>button,
+    main>section[aria-labelledby="notifications-heading"]>nav[aria-label$="pagination" i]>ul>li>a,
+    main>section[aria-labelledby="notifications-heading"]>ol>li:not([data-unread])>article,
+    main>section[aria-labelledby="notifications-heading"]>ol>li.swiping>article,
+    main>section[aria-labelledby="notifications-heading"]>nav[aria-label="Filter notifications"]>ul>li>a,
+    main>section[aria-labelledby="notifications-heading"]>header [data-intent="secondary-outline"],
+    #notification-preferences>form>fieldset>ul>li {
+      transition: none;
     }
   }
 

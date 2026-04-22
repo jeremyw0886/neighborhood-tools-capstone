@@ -265,56 +265,6 @@
     margin-top: 2.5rem;
   }
 
-  /* ── Desktop sidebar layout ── */
-
-  @media (min-width: 1100px) {
-    [data-admin-body] {
-      column-gap: 1.5rem;
-      display: grid;
-      grid-template-columns: max-content 1fr;
-    }
-
-    [data-admin-body]>nav[aria-label="Admin navigation"] {
-      align-self: start;
-      border-bottom: none;
-      border-right: 2px solid var(--mountain-fog);
-      flex-direction: column;
-      grid-column: 1;
-      grid-row: 1 / span 20;
-      justify-content: flex-start;
-      overflow-x: visible;
-      padding-right: 1rem;
-      position: sticky;
-      top: 8rem;
-    }
-
-    [data-admin-body]>nav[aria-label="Admin navigation"]>ul {
-      flex-direction: column;
-      gap: 0.125rem;
-    }
-
-    [data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a {
-      border-bottom: none;
-      border-left: 3px solid transparent;
-      font-size: 0.8125rem;
-      margin-bottom: 0;
-      padding: 0.4375rem 0.75rem;
-    }
-
-    [data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a:is(:hover, :focus-visible) {
-      border-left-color: var(--mountain-gold-darker);
-    }
-
-    [data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a[aria-current="page"] {
-      border-left-color: var(--mountain-gold-light);
-    }
-
-    [data-admin-body]> :not(nav[aria-label="Admin navigation"]) {
-      grid-column: 2;
-    }
-
-  }
-
   /* ── Global admin search bar ── */
 
   search[aria-label="Search all admin data"] {
@@ -3518,6 +3468,53 @@
 
   /* --- Responsive ----------------------------------------- */
 
+  @media (min-width: 1100px) {
+    [data-admin-body] {
+      column-gap: 1.5rem;
+      display: grid;
+      grid-template-columns: max-content 1fr;
+    }
+
+    [data-admin-body]>nav[aria-label="Admin navigation"] {
+      align-self: start;
+      border-bottom: none;
+      border-right: 2px solid var(--mountain-fog);
+      flex-direction: column;
+      grid-column: 1;
+      grid-row: 1 / span 20;
+      justify-content: flex-start;
+      overflow-x: visible;
+      padding-right: 1rem;
+      position: sticky;
+      top: 8rem;
+    }
+
+    [data-admin-body]>nav[aria-label="Admin navigation"]>ul {
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    [data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a {
+      border-bottom: none;
+      border-left: 3px solid transparent;
+      font-size: 0.8125rem;
+      margin-bottom: 0;
+      padding: 0.4375rem 0.75rem;
+    }
+
+    [data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a:is(:hover, :focus-visible) {
+      border-left-color: var(--mountain-gold-darker);
+    }
+
+    [data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a[aria-current="page"] {
+      border-left-color: var(--mountain-gold-light);
+    }
+
+    [data-admin-body]> :not(nav[aria-label="Admin navigation"]) {
+      grid-column: 2;
+    }
+  }
+
   @media (max-width: 1099px) {
 
     nav[aria-label="Admin navigation"] {
@@ -3631,21 +3628,6 @@
 
   }
 
-  @media (max-width: 500px) {
-
-    :is(main > section:is([aria-labelledby="admin-users-heading"],
-        [aria-labelledby="admin-tools-heading"],
-        [aria-labelledby="admin-events-heading"],
-        [aria-labelledby="admin-categories-heading"],
-        [aria-labelledby="admin-deposits-heading"]),
-      main > section:is([aria-labelledby="admin-reports-heading"]) section:is([aria-labelledby="neighborhood-stats-heading"]),
-      main > section:is([aria-labelledby="admin-tos-heading"]) section:is([aria-labelledby="tos-noncompliant-heading"])) table tbody tr,
-    main>section:is([aria-labelledby="admin-disputes-heading"], [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article>dl {
-      grid-template-columns: 1fr 1fr;
-    }
-
-  }
-
   @media (max-width: 600px) {
 
     main>section:is([aria-labelledby="admin-categories-heading"],
@@ -3692,6 +3674,21 @@
 
   }
 
+  @media (max-width: 500px) {
+
+    :is(main > section:is([aria-labelledby="admin-users-heading"],
+        [aria-labelledby="admin-tools-heading"],
+        [aria-labelledby="admin-events-heading"],
+        [aria-labelledby="admin-categories-heading"],
+        [aria-labelledby="admin-deposits-heading"]),
+      main > section:is([aria-labelledby="admin-reports-heading"]) section:is([aria-labelledby="neighborhood-stats-heading"]),
+      main > section:is([aria-labelledby="admin-tos-heading"]) section:is([aria-labelledby="tos-noncompliant-heading"])) table tbody tr,
+    main>section:is([aria-labelledby="admin-disputes-heading"], [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article>dl {
+      grid-template-columns: 1fr 1fr;
+    }
+
+  }
+
   @media (max-width: 400px) {
 
     main>section:is([aria-labelledby="admin-heading"],
@@ -3718,6 +3715,34 @@
 
     nav[aria-label="Admin navigation"]>ul>li>a>i {
       display: none;
+    }
+
+  }
+
+  /* ── High contrast ── */
+
+  @media (prefers-contrast: more) {
+    nav[aria-label="Admin navigation"] {
+      --subnav-border: 3px;
+      border-bottom-width: var(--subnav-border);
+    }
+
+    nav[aria-label="Admin navigation"] a[aria-current="page"] {
+      border-bottom-width: 4px;
+    }
+
+    section[aria-labelledby="admin-summary-heading"]>div>article>a,
+    main>section:is([aria-labelledby="admin-disputes-heading"],
+      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article,
+    main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article,
+    main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
+      [aria-labelledby="admin-images-heading"]) table {
+      border-width: 2px;
+    }
+
+    main>section[aria-labelledby="admin-deposits-heading"] tbody tr[data-has-incidents] {
+      border-left-width: 4px;
     }
 
   }
@@ -3774,34 +3799,6 @@
     [data-admin-content][data-transition="fade-out"],
     [data-admin-content][data-transition="fade-in"] {
       animation: none;
-    }
-
-  }
-
-  /* ── High contrast ── */
-
-  @media (prefers-contrast: more) {
-    nav[aria-label="Admin navigation"] {
-      --subnav-border: 3px;
-      border-bottom-width: var(--subnav-border);
-    }
-
-    nav[aria-label="Admin navigation"] a[aria-current="page"] {
-      border-bottom-width: 4px;
-    }
-
-    section[aria-labelledby="admin-summary-heading"]>div>article>a,
-    main>section:is([aria-labelledby="admin-disputes-heading"],
-      [aria-labelledby="admin-incidents-heading"]) div[role="list"]>div>article,
-    main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"]) div[data-vector-grid]>div>article,
-    main> :is(section, details):is([aria-labelledby="admin-categories-heading"],
-      [aria-labelledby="admin-images-heading"]) table {
-      border-width: 2px;
-    }
-
-    main>section[aria-labelledby="admin-deposits-heading"] tbody tr[data-has-incidents] {
-      border-left-width: 4px;
     }
 
   }

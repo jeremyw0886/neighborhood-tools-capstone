@@ -13,7 +13,7 @@
     transition: none;
   }
 
-  /* ── Nav — mobile layout (always applies) ── */
+  /* ── Viewport — max-width 985px (nav mobile + hamburger + unified menu) ── */
 
   @media (max-width: 985px) {
     nav[aria-label="Main navigation"] {
@@ -134,11 +134,7 @@
     body:not(:has(.home-page))>header {
       position: relative;
     }
-  }
 
-  /* ── Nav — hamburger open state + backdrop ── */
-
-  @media (max-width: 985px) {
     nav[aria-label="Main navigation"]>#top-links.open {
       border-radius: 1.4rem 0;
       opacity: 1;
@@ -154,21 +150,7 @@
       position: fixed;
       z-index: 140;
     }
-  }
 
-  @media (max-width: 400px) {
-    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
-      padding-left: 0;
-    }
-
-    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>#user-actions {
-      padding-right: 0;
-    }
-  }
-
-  /* ── Unified mobile menu — auth items in hamburger (JS-only) ── */
-
-  @media (max-width: 985px) {
     nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] {
       padding: 0;
     }
@@ -243,16 +225,16 @@
     }
   }
 
-  /* ── Crop dialog — high contrast ── */
+  /* ── Viewport — max-width 985px + reduced motion (nav animation override) ── */
 
-  @media (prefers-contrast: more) {
-    #crop-dialog,
-    #crop-dialog #crop-viewport {
-      border-width: 2px;
+  @media (max-width: 985px) and (prefers-reduced-motion: reduce) {
+    nav[aria-label="Main navigation"]>#top-links,
+    nav[aria-label="Main navigation"]>#mobile-menu-toggle>span {
+      transition: none;
     }
   }
 
-  /* ── Crop dialog — mobile ── */
+  /* ── Viewport — max-width 700px (crop dialog + footer mobile) ── */
 
   @media (max-width: 700px) {
     #crop-dialog {
@@ -269,31 +251,7 @@
     #crop-dialog > footer {
       padding-inline: 1rem;
     }
-  }
 
-  /* ── Reduced motion — disable menu animation ── */
-
-  @media (max-width: 985px) and (prefers-reduced-motion: reduce) {
-    nav[aria-label="Main navigation"]>#top-links,
-    nav[aria-label="Main navigation"]>#mobile-menu-toggle>span {
-      transition: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    dialog[data-decision] > i {
-      animation: none;
-    }
-
-    dialog[data-decision][data-auto-dismiss]::after {
-      animation: none;
-      width: 0%;
-    }
-  }
-
-  /* ── Site footer ── */
-
-  @media (max-width: 700px) {
     body>footer {
       padding: 2rem 1.25rem 1rem;
     }
@@ -308,7 +266,17 @@
     }
   }
 
+  /* ── Viewport — max-width 400px (nav + footer tiny screens) ── */
+
   @media (max-width: 400px) {
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
+      padding-left: 0;
+    }
+
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>#user-actions {
+      padding-right: 0;
+    }
+
     body>footer>div:first-child {
       grid-template-columns: 1fr;
       text-align: center;
@@ -318,6 +286,28 @@
       flex-direction: column;
       gap: 0.5rem;
       text-align: center;
+    }
+  }
+
+  /* ── Feature — prefers-contrast: more (crop dialog) ── */
+
+  @media (prefers-contrast: more) {
+    #crop-dialog,
+    #crop-dialog #crop-viewport {
+      border-width: 2px;
+    }
+  }
+
+  /* ── Feature — prefers-reduced-motion: reduce (decision dialogs) ── */
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog[data-decision] > i {
+      animation: none;
+    }
+
+    dialog[data-decision][data-auto-dismiss]::after {
+      animation: none;
+      width: 0%;
     }
   }
 

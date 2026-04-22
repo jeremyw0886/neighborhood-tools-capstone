@@ -1860,20 +1860,6 @@
     background: var(--mountain-earth);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .tool-preview {
-      transition: none;
-    }
-
-  }
-
-  @media (pointer: coarse) {
-    .tool-preview {
-      display: none;
-    }
-
-  }
-
   /* --- Auth Forms ----------------------------------------- */
 
   .auth-page {
@@ -2344,25 +2330,6 @@
   .fade-out {
     opacity: 0;
     transition: opacity 0.3s ease;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #toast-container>[data-flash],
-    #toast-container>[data-flash].toast-exit,
-    button[aria-busy="true"]::after {
-      animation: none;
-    }
-
-    [aria-busy="true"],
-    .fade-out {
-      transition: none;
-    }
-
-    #scroll-top {
-      transition: none;
-      animation: none;
-    }
-
   }
 
   /* --- Scroll-to-Top Button -------------------------------- */
@@ -3007,6 +2974,12 @@
 
   }
 
+  @media (pointer: coarse) {
+    .tool-preview {
+      display: none;
+    }
+  }
+
   @media (prefers-contrast: more) {
     nav[aria-label="Main navigation"]:not([data-hero]) {
       border-bottom: 2px solid var(--mountain-cream);
@@ -3179,6 +3152,26 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .tool-preview {
+      transition: none;
+    }
+
+    #toast-container>[data-flash],
+    #toast-container>[data-flash].toast-exit,
+    button[aria-busy="true"]::after {
+      animation: none;
+    }
+
+    [aria-busy="true"],
+    .fade-out {
+      transition: none;
+    }
+
+    #scroll-top {
+      transition: none;
+      animation: none;
+    }
+
     nav[aria-label="Back"]>a,
     dialog,
     dialog::backdrop,

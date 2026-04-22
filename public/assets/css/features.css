@@ -2471,37 +2471,6 @@
 
   }
 
-  @media (prefers-reduced-motion: reduce) {
-
-    #deposit-detail>section dl dd a,
-    #deposit-detail>section[aria-labelledby="process-heading"] form :is(input, textarea),
-    #deposit-detail>section[aria-labelledby="process-heading"] form>footer>button,
-    #deposit-payment>form#payment-form>footer>button,
-    #payment-history>nav[aria-label$="pagination" i] a,
-    #dispute-create>form fieldset :is(input, textarea),
-    #dispute-create>form>footer>button,
-    #dispute-show>section[aria-labelledby="reply-heading"]>form :is(select, textarea),
-    #dispute-show>section[aria-labelledby="reply-heading"]>form>footer>button,
-    #events-page div[role="list"]>article,
-    #events-page div[role="list"]>article>footer>form>button,
-    #events-page nav[aria-label="Filter by timing"]>ul>li>a,
-    #event-create>form fieldset :is(input, textarea, select),
-    #event-create>form>footer> :is(button, a),
-    #event-detail>nav a,
-    #event-detail>form[aria-label="RSVP"]>button,
-    #incident-create>form fieldset :is(input, select, textarea),
-    #incident-create>form>footer>button,
-    #handover-verify>form fieldset> :is(textarea, button[type="submit"]),
-    #waiver-show>form fieldset>label,
-    #waiver-show>form>button[type="submit"],
-    #rating>form fieldset>[data-stars]>label,
-    #rating>form fieldset> :is(textarea, button[type="submit"]),
-    #rating>form fieldset>[data-stars]>label>i {
-      transition: none;
-    }
-
-  }
-
   @media (prefers-contrast: more) {
 
     #deposit-payment>p[data-deposit-terms],
@@ -2658,6 +2627,37 @@
 
     #rating>section[data-completed] {
       border-width: 3px;
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+
+    #deposit-detail>section dl dd a,
+    #deposit-detail>section[aria-labelledby="process-heading"] form :is(input, textarea),
+    #deposit-detail>section[aria-labelledby="process-heading"] form>footer>button,
+    #deposit-payment>form#payment-form>footer>button,
+    #payment-history>nav[aria-label$="pagination" i] a,
+    #dispute-create>form fieldset :is(input, textarea),
+    #dispute-create>form>footer>button,
+    #dispute-show>section[aria-labelledby="reply-heading"]>form :is(select, textarea),
+    #dispute-show>section[aria-labelledby="reply-heading"]>form>footer>button,
+    #events-page div[role="list"]>article,
+    #events-page div[role="list"]>article>footer>form>button,
+    #events-page nav[aria-label="Filter by timing"]>ul>li>a,
+    #event-create>form fieldset :is(input, textarea, select),
+    #event-create>form>footer> :is(button, a),
+    #event-detail>nav a,
+    #event-detail>form[aria-label="RSVP"]>button,
+    #incident-create>form fieldset :is(input, select, textarea),
+    #incident-create>form>footer>button,
+    #handover-verify>form fieldset> :is(textarea, button[type="submit"]),
+    #waiver-show>form fieldset>label,
+    #waiver-show>form>button[type="submit"],
+    #rating>form fieldset>[data-stars]>label,
+    #rating>form fieldset> :is(textarea, button[type="submit"]),
+    #rating>form fieldset>[data-stars]>label>i {
+      transition: none;
     }
 
   }

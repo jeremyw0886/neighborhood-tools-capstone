@@ -410,14 +410,6 @@
     animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .home-page > header > section > div > div:first-child > .animate-in,
-    .home-page > header > section > div > ul.animate-in,
-    .home-page > header > section > div > div:last-child.animate-in {
-      animation: none;
-    }
-  }
-
   /* ── HERO SEARCH ── */
   .home-page form[role="search"] {
     align-items: center;
@@ -698,14 +690,6 @@
     color: #fff;
   }
 
-  /* Touch devices — ensure 44px min tap targets on hero nav links */
-  @media (pointer: coarse) {
-    nav[data-hero] > ul a {
-      min-height: 2.75rem;
-    }
-  }
-
-
   /* ── POPULAR PICKS ── */
   .home-page > main > section:first-of-type {
     --section-pad-block: 3rem;
@@ -878,12 +862,6 @@
     box-shadow: 0 8px 24px var(--shadow-mountain);
   }
 
-  @media (hover: hover) {
-    .home-page > main > section:nth-of-type(3) > div > a:hover {
-      transform: translateY(-6px);
-    }
-  }
-
   .home-page > main > section:nth-of-type(3) > div > a:focus-visible {
     border-color: var(--mountain-gold-darker);
     outline: 3px solid var(--mountain-gold);
@@ -984,12 +962,6 @@
     box-shadow: 0 8px 24px var(--shadow-mountain);
   }
 
-  @media (hover: hover) {
-    #home-cta > div > article:has(> a:hover) {
-      transform: translateY(-4px);
-    }
-  }
-
   #home-cta > div > article > i:first-child {
     color: var(--mountain-pine);
     font-size: 2rem;
@@ -1034,12 +1006,6 @@
   #home-cta > div > article > a:focus-visible {
     outline: 3px solid var(--mountain-gold);
     outline-offset: 2px;
-  }
-
-  @media (hover: hover) {
-    #home-cta > div > article > a:hover > i {
-      transform: translateX(3px);
-    }
   }
 
   /* ── CONTAINER QUERIES — component-responsive card layouts ── */
@@ -1102,13 +1068,15 @@
     border-radius: 50%;
   }
 
-  @media (max-width: 700px) {
-    .carousel-dots:not([hidden]) {
-      display: flex;
+  /* ── RESPONSIVE — Home page breakpoints ── */
+
+  /* Wide desktop — restore nav offset */
+  @media (min-width: 1025px) {
+    .home-page > header > section > nav[data-hero] > :is(#top-links, #user-actions) {
+      position: relative;
+      top: -0.5rem;
     }
   }
-
-  /* ── RESPONSIVE — Home page breakpoints ── */
 
   /* Tablet / narrow desktop — hero single column */
   @media (max-width: 1024px) {
@@ -1184,13 +1152,6 @@
     .home-page > main > section:nth-of-type(3) > div > a {
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
-    }
-  }
-
-  @media (min-width: 1025px) {
-    .home-page > header > section > nav[data-hero] > :is(#top-links, #user-actions) {
-      position: relative;
-      top: -0.5rem;
     }
   }
 
@@ -1363,6 +1324,10 @@
       grid-template-columns: 1fr;
       max-width: 400px;
     }
+
+    .carousel-dots:not([hidden]) {
+      display: flex;
+    }
   }
 
   /* Narrow phone — compact search button, stack CTA buttons */
@@ -1442,6 +1407,28 @@
     }
   }
 
+  /* ── FEATURE QUERIES — hover-capable pointers ── */
+  @media (hover: hover) {
+    .home-page > main > section:nth-of-type(3) > div > a:hover {
+      transform: translateY(-6px);
+    }
+
+    #home-cta > div > article:has(> a:hover) {
+      transform: translateY(-4px);
+    }
+
+    #home-cta > div > article > a:hover > i {
+      transform: translateX(3px);
+    }
+  }
+
+  /* ── FEATURE QUERIES — coarse pointers (touch) ── */
+  @media (pointer: coarse) {
+    nav[data-hero] > ul a {
+      min-height: 2.75rem;
+    }
+  }
+
   /* ── HIGH CONTRAST ── */
   @media (prefers-contrast: more) {
     .home-page > header > section {
@@ -1492,6 +1479,12 @@
     #member-carousel > button,
     #popular-carousel > button {
       transition: none;
+    }
+
+    .home-page > header > section > div > div:first-child > .animate-in,
+    .home-page > header > section > div > ul.animate-in,
+    .home-page > header > section > div > div:last-child.animate-in {
+      animation: none;
     }
   }
 

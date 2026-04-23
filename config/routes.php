@@ -29,6 +29,7 @@ use App\Controllers\PageController;
 use App\Controllers\AvailableController;
 use App\Controllers\AdminController;
 use App\Controllers\CspController;
+use App\Controllers\StyleguideController;
 
 return [
 
@@ -165,6 +166,9 @@ return [
     // Terms of Service
     'GET /tos'                     => [TosController::class, 'show'],
     'POST /tos/accept'             => [TosController::class, 'accept'],
+
+    // Style Guide (internal design-system reference)
+    'GET /styleguide'              => [StyleguideController::class, 'index'],
 
     // Available Tools
     'GET /available'               => [AvailableController::class, 'index'],

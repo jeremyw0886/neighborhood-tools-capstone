@@ -95,7 +95,7 @@
       padding-right: 0;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>a[href="/notifications"] {
+    #bell-wrapper>a[href="/notifications"] {
       align-items: center;
       display: flex;
       justify-content: center;
@@ -104,12 +104,12 @@
       padding-inline: 0;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>a[href="/notifications"]>span {
+    #bell-wrapper>a[href="/notifications"]>span {
       right: -0.15rem;
       top: -0.1rem;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>#bell-dropdown {
+    #bell-dropdown {
       left: auto;
       position: fixed;
       right: 0.75rem;
@@ -117,8 +117,8 @@
       width: min(26rem, calc(100vw - 1.5rem));
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#user-actions-toggle,
-    nav[aria-label="Main navigation"]>#user-actions>#user-actions-menu,
+    #user-actions-toggle,
+    #user-actions-menu,
     nav[aria-label="Main navigation"]>#user-actions>a[href="/register"] {
       display: none;
     }
@@ -241,13 +241,13 @@
       width: auto;
     }
 
-    #crop-dialog #crop-viewport {
+    #crop-viewport {
       height: 16rem;
       margin-inline: 1rem;
     }
 
     #crop-dialog > header,
-    #crop-dialog #crop-hint,
+    #crop-hint,
     #crop-dialog > footer {
       padding-inline: 1rem;
     }
@@ -293,7 +293,7 @@
 
   @media (prefers-contrast: more) {
     #crop-dialog,
-    #crop-dialog #crop-viewport {
+    #crop-viewport {
       border-width: 2px;
     }
   }

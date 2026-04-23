@@ -413,7 +413,7 @@
     margin-bottom: 2rem;
   }
 
-  main>#tool-detail article>header #tool-gallery {
+  #tool-gallery {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -421,14 +421,14 @@
     position: relative;
   }
 
-  main>#tool-detail article>header #tool-gallery>form {
+  #tool-gallery>form {
     position: absolute;
     right: 0.5rem;
     top: 0.5rem;
     z-index: 1;
   }
 
-  main>#tool-detail article>header #tool-gallery>form>button {
+  #tool-gallery>form>button {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     color: var(--mountain-pine);
@@ -438,18 +438,18 @@
     width: 2.75rem;
   }
 
-  main>#tool-detail article>header #tool-gallery>form>button:hover {
+  #tool-gallery>form>button:hover {
     background: var(--mountain-gold);
     color: #fff;
     transform: scale(1.1);
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-main > a {
+  #gallery-main > a {
     cursor: zoom-in;
     display: block;
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-main img {
+  #gallery-main img {
     aspect-ratio: 3 / 2;
     border: 1px solid var(--mountain-fog);
     border-radius: 0.75rem;
@@ -458,19 +458,19 @@
     width: 100%;
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-main figcaption {
+  #gallery-main figcaption {
     color: var(--mountain-mist);
     font-size: 0.813rem;
     margin-top: 0.375rem;
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-thumbs {
+  #gallery-thumbs {
     display: grid;
     gap: 0.5rem;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-thumbs button {
+  #gallery-thumbs button {
     aspect-ratio: 3 / 2;
     background: none;
     border: 2px solid transparent;
@@ -481,15 +481,15 @@
     transition: border-color 0.2s;
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-thumbs button[aria-current="true"] {
+  #gallery-thumbs button[aria-current="true"] {
     border-color: var(--mountain-pine);
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-thumbs button:is(:hover, :focus-visible) {
+  #gallery-thumbs button:is(:hover, :focus-visible) {
     border-color: var(--mountain-gold-darker);
   }
 
-  main>#tool-detail article>header #tool-gallery #gallery-thumbs button img {
+  #gallery-thumbs button img {
     display: block;
     height: 100%;
     object-fit: cover;
@@ -587,7 +587,7 @@
 
   main>#tool-detail article>header>div>dl>dd[data-availability="blocked"]::before { content: '\f023'; }
 
-  main>#tool-detail article>header #gallery-lightbox {
+  #gallery-lightbox {
     background: transparent;
     border: none;
     max-height: 90vh;
@@ -595,19 +595,19 @@
     padding: 0;
   }
 
-  main>#tool-detail article>header #gallery-lightbox::backdrop {
+  #gallery-lightbox::backdrop {
     backdrop-filter: blur(4px);
     background: rgba(0, 0, 0, 0.85);
   }
 
-  main>#tool-detail article>header #gallery-lightbox > div {
+  #gallery-lightbox > div {
     align-items: center;
     display: flex;
     justify-content: center;
     position: relative;
   }
 
-  main>#tool-detail article>header #gallery-lightbox #lightbox-img {
+  #lightbox-img {
     border-radius: 0.5rem;
     display: block;
     max-height: 85vh;
@@ -615,7 +615,7 @@
     object-fit: contain;
   }
 
-  main>#tool-detail article>header #gallery-lightbox button {
+  #gallery-lightbox button {
     align-items: center;
     background: rgba(0, 0, 0, 0.6);
     border: none;
@@ -631,27 +631,27 @@
     width: 2.75rem;
   }
 
-  main>#tool-detail article>header #gallery-lightbox button:is(:hover, :focus-visible) {
+  #gallery-lightbox button:is(:hover, :focus-visible) {
     background: rgba(0, 0, 0, 0.85);
   }
 
-  main>#tool-detail article>header #gallery-lightbox button:focus-visible {
+  #gallery-lightbox button:focus-visible {
     outline: 2px solid var(--mountain-gold);
     outline-offset: 2px;
   }
 
-  main>#tool-detail article>header #gallery-lightbox #lightbox-close {
+  #lightbox-close {
     right: -1rem;
     top: -1rem;
   }
 
-  main>#tool-detail article>header #gallery-lightbox #lightbox-prev {
+  #lightbox-prev {
     left: -3.5rem;
     top: 50%;
     translate: 0 -50%;
   }
 
-  main>#tool-detail article>header #gallery-lightbox #lightbox-next {
+  #lightbox-next {
     right: -3.5rem;
     top: 50%;
     translate: 0 -50%;
@@ -1086,7 +1086,7 @@
     margin: 0.25rem 0 0;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone {
+  #photo-drop-zone {
     align-items: center;
     border: 2px dashed var(--mountain-fog);
     border-radius: 0.75rem;
@@ -1101,35 +1101,35 @@
     transition: border-color 0.2s, background-color 0.2s;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone > i {
+  #photo-drop-zone > i {
     color: var(--mountain-mist);
     font-size: 2rem;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone > p {
+  #photo-drop-zone > p {
     color: var(--mountain-slate);
     font-size: 0.875rem;
     margin: 0;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone > :is(#add-photo-hint, #photo-queue-hint) {
+  #photo-drop-zone > :is(#add-photo-hint, #photo-queue-hint) {
     color: var(--mountain-mist);
     font-size: 0.75rem;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone > input[type="file"] {
+  #photo-drop-zone > input[type="file"] {
     cursor: pointer;
     inset: 0;
     opacity: 0;
     position: absolute;
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone:is(:hover, :focus-within) {
+  #photo-drop-zone:is(:hover, :focus-within) {
     background: color-mix(in srgb, var(--mountain-pine-light) 5%, transparent);
     border-color: var(--mountain-pine-light);
   }
 
-  main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) #photo-drop-zone[data-dragover] {
+  #photo-drop-zone[data-dragover] {
     background: color-mix(in srgb, var(--mountain-gold) 8%, transparent);
     border-color: var(--mountain-gold-darker);
   }
@@ -1509,31 +1509,31 @@
       width: 100%;
     }
 
-    main>#tool-detail article>header #gallery-lightbox #lightbox-prev,
-    main>#tool-detail article>header #gallery-lightbox #lightbox-next {
+    #lightbox-prev,
+    #lightbox-next {
       position: fixed;
     }
 
-    main>#tool-detail article>header #gallery-lightbox #lightbox-prev {
+    #lightbox-prev {
       left: 0.5rem;
     }
 
-    main>#tool-detail article>header #gallery-lightbox #lightbox-next {
+    #lightbox-next {
       right: 0.5rem;
     }
 
-    main>#tool-detail article>header #gallery-lightbox #lightbox-close {
+    #lightbox-close {
       position: fixed;
       right: 0.75rem;
       top: 0.75rem;
     }
 
-    main>#tool-detail article>header #gallery-lightbox #lightbox-img {
+    #lightbox-img {
       max-height: 80vh;
       max-width: 95vw;
     }
 
-    main>#tool-detail article>header #gallery-thumbs {
+    #gallery-thumbs {
       grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
     }
 
@@ -1673,11 +1673,11 @@
       border-width: 2px;
     }
 
-    main>#tool-detail article>header #gallery-thumbs button {
+    #gallery-thumbs button {
       border-width: 3px;
     }
 
-    main>#tool-detail article>header #gallery-lightbox button {
+    #gallery-lightbox button {
       border: 2px solid rgba(255, 255, 255, 0.5);
     }
 
@@ -1697,8 +1697,8 @@
     :is(#browse-page, #bookmarks-page)>header>nav[aria-label="Browse mode"]>a,
     main>#tool-detail article>section[aria-labelledby="borrow-heading"] :is(select, textarea, button),
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(input, select, textarea, button),
-    main>#tool-detail article>header #gallery-thumbs button,
-    main>#tool-detail article>header #gallery-lightbox button,
+    #gallery-thumbs button,
+    #gallery-lightbox button,
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li,
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li :is([data-reposition], [data-reposition-queue]),
     main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) #photo-drop-zone {

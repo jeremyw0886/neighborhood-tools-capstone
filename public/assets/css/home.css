@@ -138,18 +138,18 @@
     width: clamp(112px, 6vw + 52px, 156px);
   }
 
-  .home-page > header > section > nav[data-hero] > #top-links a,
-  .home-page > header > section > nav[data-hero] > #user-actions > :is(a[role="button"], #user-actions-toggle),
-  .home-page > header > section > nav[data-hero] > #user-actions > #bell-wrapper > a[href="/notifications"] {
+  nav[data-hero] > #top-links a,
+  nav[data-hero] > #user-actions > :is(a[role="button"], #user-actions-toggle),
+  nav[data-hero] #bell-wrapper > a[href="/notifications"] {
     text-shadow: 0 1px 12px rgba(0, 0, 0, 0.14);
   }
 
-  .home-page > header > section > nav[data-hero] > #top-links a[aria-current="page"] {
+  nav[data-hero] > #top-links a[aria-current="page"] {
     background-color: rgba(10, 26, 20, 0.55);
     text-shadow: 0 1px 16px rgba(224, 189, 113, 0.26);
   }
 
-  .home-page > header > section > nav[data-hero] > #user-actions > a[role="button"] {
+  nav[data-hero] > #user-actions > a[role="button"] {
     box-shadow: 0 0.75rem 1.5rem rgba(5, 18, 14, 0.12);
   }
 

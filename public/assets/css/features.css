@@ -364,28 +364,28 @@
     padding: 0.875rem 1.25rem;
   }
 
-  #deposit-payment>form#payment-form>#payment-element {
+  #payment-element {
     min-height: 16rem;
   }
 
-  #deposit-payment>form#payment-form>#payment-message {
+  #payment-message {
     border-radius: 0.5rem;
     font-size: 0.875rem;
     margin-top: 1rem;
   }
 
-  #deposit-payment>form#payment-form>#payment-message:not([hidden]) {
+  #payment-message:not([hidden]) {
     background: var(--alert-danger-bg);
     border: 1px solid var(--alert-danger-border);
     color: var(--alert-danger-text);
     padding: 0.75rem 1rem;
   }
 
-  #deposit-payment>form#payment-form>footer {
+  form#payment-form>footer {
     margin-top: 1.5rem;
   }
 
-  #deposit-payment>form#payment-form>footer>button[type="submit"] {
+  form#payment-form>footer>button[type="submit"] {
     background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
     border: none;
     border-radius: 0.5rem;
@@ -398,16 +398,16 @@
     transition: opacity 0.2s;
   }
 
-  #deposit-payment>form#payment-form>footer>button[type="submit"]:is(:hover, :focus-visible) {
+  form#payment-form>footer>button[type="submit"]:is(:hover, :focus-visible) {
     opacity: 0.9;
   }
 
-  #deposit-payment>form#payment-form>footer>button[type="submit"]:focus-visible {
+  form#payment-form>footer>button[type="submit"]:focus-visible {
     outline: 2px solid var(--mountain-pine);
     outline-offset: 2px;
   }
 
-  #deposit-payment>form#payment-form>footer>button[type="submit"]:disabled {
+  form#payment-form>footer>button[type="submit"]:disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
@@ -2456,7 +2456,7 @@
     }
 
     #deposit-detail>section[aria-labelledby="process-heading"] form>footer>button[type="submit"],
-    #deposit-payment>form#payment-form>footer>button[type="submit"] {
+    form#payment-form>footer>button[type="submit"] {
       width: 100%;
     }
 
@@ -2474,11 +2474,11 @@
   @media (prefers-contrast: more) {
 
     #deposit-payment>p[data-deposit-terms],
-    #deposit-payment>form#payment-form>#payment-message:not([hidden]) {
+    #payment-message:not([hidden]) {
       border-width: 2px;
     }
 
-    #deposit-payment>form#payment-form>footer>button[type="submit"] {
+    form#payment-form>footer>button[type="submit"] {
       outline: 1px solid #fff;
       outline-offset: -1px;
     }
@@ -2636,7 +2636,7 @@
     #deposit-detail>section dl dd a,
     #deposit-detail>section[aria-labelledby="process-heading"] form :is(input, textarea),
     #deposit-detail>section[aria-labelledby="process-heading"] form>footer>button,
-    #deposit-payment>form#payment-form>footer>button,
+    form#payment-form>footer>button,
     #payment-history>nav[aria-label$="pagination" i] a,
     #dispute-create>form fieldset :is(input, textarea),
     #dispute-create>form>footer>button,

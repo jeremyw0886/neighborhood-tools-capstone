@@ -3,7 +3,7 @@
     opacity: 1;
   }
 
-  nav[aria-label="Main navigation"]>#user-actions>#user-actions-menu[hidden] {
+  #user-actions-menu[hidden] {
     display: flex;
     position: static;
   }
@@ -22,9 +22,9 @@
       display: none;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#user-actions-toggle,
-    nav[aria-label="Main navigation"]>#user-actions>#user-actions-menu,
-    nav[aria-label="Main navigation"]>#user-actions>a[href="/register"] {
+    #user-actions-toggle,
+    #user-actions-menu,
+    #user-actions>a[href="/register"] {
       display: revert;
     }
   }

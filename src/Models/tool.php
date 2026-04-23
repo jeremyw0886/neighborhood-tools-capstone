@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
+use App\Core\FileCache;
 use App\Models\PlatformStats;
 use PDO;
 
@@ -24,11 +25,26 @@ class Tool
     /**
      * Fetch popular/featured tools with reserved slots for new arrivals.
      *
+     * Shared file cache keeps the ranking CTE from firing on every home-page
+     * render — the query includes window functions + aggregations across
+     * borrow/rating tables and easily costs hundreds of ms on a populated DB.
+     * 300 s TTL keeps user-visible staleness under 5 min while bounding
+     * execution to ~12 runs/hour regardless of traffic.
+     *
      * @param  int   $limit     Total tools to return
      * @param  int   $newSlots  Slots reserved for unrated new arrivals
      * @return array
      */
     public static function getFeatured(int $limit = 6, int $newSlots = 2): array
+    {
+        return FileCache::remember(
+            "tool:featured:{$limit}:{$newSlots}",
+            300,
+            static fn(): array => self::computeFeatured($limit, $newSlots),
+        );
+    }
+
+    private static function computeFeatured(int $limit, int $newSlots): array
     {
         $newSlots = max(0, min($newSlots, $limit - 1));
 

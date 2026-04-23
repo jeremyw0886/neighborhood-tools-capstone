@@ -53,7 +53,7 @@ class HomeController extends BaseController
             : null;
 
         try {
-            $topMembers = Account::getTopMembers(10, $currentUserId);
+            $topMembers = Account::getCachedTopMembers(10, $currentUserId);
         } catch (\Exception) {
             $topMembers = [];
         }

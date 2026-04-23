@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
+use App\Core\FileCache;
 use App\Core\Role;
 use PDO;
 
@@ -454,6 +455,38 @@ class Account
      *               tools_owned: int, completed_borrows: int,
      *               total_rating_count: int, is_top_member: int}>
      */
+    /**
+     * Cached wrapper around getTopMembers(). Stores a single universal
+     * list (no exclusion) in the shared file cache, then filters the
+     * current user in PHP. One cache entry serves every visitor instead
+     * of N-per-user, and the underlying rating-ranked query fires at
+     * most once per $ttl site-wide.
+     *
+     * @return array<array{id_acc: int, username: string, avatar: ?string,
+     *               vector_avatar: ?string, avg_rating: float, bio: ?string,
+     *               tools_owned: int, completed_borrows: int,
+     *               total_rating_count: int, is_top_member: int}>
+     */
+    public static function getCachedTopMembers(int $limit = 10, ?int $excludeAccountId = null, int $ttl = 300): array
+    {
+        $fetchCount = $limit + 1;
+
+        $members = FileCache::remember(
+            "account:top-members:{$fetchCount}",
+            $ttl,
+            static fn(): array => self::getTopMembers($fetchCount, null),
+        );
+
+        if ($excludeAccountId !== null) {
+            $members = array_values(array_filter(
+                $members,
+                static fn(array $m): bool => (int) $m['id_acc'] !== $excludeAccountId,
+            ));
+        }
+
+        return array_slice($members, 0, $limit);
+    }
+
     public static function getTopMembers(int $limit = 3, ?int $excludeAccountId = null): array
     {
         $pdo = Database::connection();

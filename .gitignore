@@ -46,6 +46,11 @@ storage/rate-limits/*.json
 !storage/rate-limits/.gitkeep
 !storage/rate-limits/.htaccess
 
+# Query result cache files
+storage/cache/*.json
+!storage/cache/.gitkeep
+!storage/cache/.htaccess
+
 # Session files
 storage/sessions/*
 !storage/sessions/.gitkeep

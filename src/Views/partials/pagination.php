@@ -5,24 +5,26 @@ declare(strict_types=1);
 use App\Core\ViewHelper;
 
 /**
- * @var string $basePath     URL path (e.g. '/admin/users')
- * @var array  $filterParams Current filter/sort state
- * @var int    $page         Current page number
- * @var int    $totalPages   Total number of pages
- * @var string $pageParam    Query-string key for page number (default 'page')
+ * @var string $basePath         URL path (e.g. '/admin/users')
+ * @var array  $filterParams     Current filter/sort state
+ * @var int    $page             Current page number
+ * @var int    $totalPages       Total number of pages
+ * @var string $pageParam        Query-string key for page number (default 'page')
+ * @var string $paginationLabel  Accessible name for the nav landmark (default 'Pagination')
  */
 
 if ($totalPages <= 1) {
     return;
 }
 
-$pageParam ??= 'page';
+$pageParam       ??= 'page';
+$paginationLabel ??= 'Pagination';
 
 $url = static fn(int $pageNum): string =>
     ViewHelper::adminPaginationUrl($basePath, $pageNum, $filterParams, $pageParam);
 ?>
 
-<nav aria-label="Pagination">
+<nav aria-label="<?= htmlspecialchars($paginationLabel) ?>">
   <ul>
 
     <?php if ($page > 1): ?>

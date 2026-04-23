@@ -23,228 +23,349 @@
     margin: 0 auto;
     max-width: 1100px;
     padding: 2rem 1.5rem;
+  }
 
     /* ── Flash messages ── */
 
-    & p[role="alert"]:not([data-flash]) {
-      align-items: center;
-      background: var(--alert-danger-bg);
-      border: 1px solid var(--alert-danger-border);
-      border-left: 4px solid var(--alert-danger-text);
-      border-radius: 0.5rem;
-      color: var(--alert-danger-text);
-      display: flex;
-      font-size: 0.938rem;
-      gap: 0.5rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem;
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page) p[role="alert"]:not([data-flash]) {
+    align-items: center;
+    background: var(--alert-danger-bg);
+    border: 1px solid var(--alert-danger-border);
+    border-left: 4px solid var(--alert-danger-text);
+    border-radius: 0.5rem;
+    color: var(--alert-danger-text);
+    display: flex;
+    font-size: 0.938rem;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+  }
 
-      &::before {
-        content: '\f06a';
-        font-family: 'Font Awesome 6 Free', sans-serif;
-        font-weight: 900;
-      }
-    }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page) p[role="alert"]:not([data-flash])::before {
+    content: '\f06a';
+    font-family: 'Font Awesome 6 Free', sans-serif;
+    font-weight: 900;
+  }
 
     /* ── Page header ── */
 
-    &>nav[aria-label="Back"][data-hidden] {
-      visibility: hidden;
-    }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>nav[aria-label="Back"][data-hidden] {
+    visibility: hidden;
+  }
 
-    &>header {
-      border-bottom: 1px solid var(--mountain-fog);
-      margin-bottom: 2rem;
-      min-height: 13rem;
-      padding-bottom: 2rem;
-      text-align: center;
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header {
+    border-bottom: 1px solid var(--mountain-fog);
+    margin-bottom: 2rem;
+    min-height: 13rem;
+    padding-bottom: 2rem;
+    text-align: center;
+  }
 
-      &>h1 {
-        color: var(--mountain-pine);
-        font-family: Georgia, 'Times New Roman', serif;
-      }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>h1 {
+    color: var(--mountain-pine);
+    font-family: Georgia, 'Times New Roman', serif;
+  }
 
-      &>p {
-        color: var(--mountain-mist);
-        font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
-        margin: 0.5rem 0 0;
-      }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>p {
+    color: var(--mountain-mist);
+    font-size: var(--font-size-h4);
+    margin: 0.5rem 0 0;
+  }
 
-      &>form[role="search"]>fieldset {
-        align-items: center;
-        background: var(--mountain-cloud);
-        border: 2px solid var(--mountain-fog);
-        border-radius: 2rem;
-        display: flex;
-        margin: 1.25rem auto 0;
-        max-width: 480px;
-        padding: 0.25rem 0.25rem 0.25rem 1rem;
-        width: 100%;
-        transition: border-color 0.25s, box-shadow 0.25s;
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset {
+    align-items: center;
+    background: var(--mountain-cloud);
+    border: 2px solid var(--mountain-fog);
+    border-radius: 2rem;
+    display: flex;
+    margin: 1.25rem auto 0;
+    max-width: 480px;
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+    width: 100%;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
 
-        &:focus-within {
-          border-color: var(--mountain-gold-darker);
-          box-shadow: 0 2px 12px rgba(200, 155, 60, 0.15);
-        }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset:focus-within {
+    border-color: var(--mountain-gold-darker);
+    box-shadow: 0 2px 12px rgba(200, 155, 60, 0.15);
+  }
 
-        &>span {
-          color: var(--mountain-mist);
-          flex-shrink: 0;
-          font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
-        }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>span {
+    color: var(--mountain-mist);
+    flex-shrink: 0;
+    font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
+  }
 
-        &>input[type="search"] {
-          background: transparent;
-          border: none;
-          color: var(--mountain-charcoal);
-          flex: 1;
-          font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
-          min-width: 0;
-          outline: none;
-          padding: 0.625rem 0.75rem;
-        }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>input[type="search"] {
+    background: transparent;
+    border: none;
+    color: var(--mountain-charcoal);
+    flex: 1;
+    font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
+    min-width: 0;
+    outline: none;
+    padding: 0.625rem 0.75rem;
+  }
 
-        &>button {
-          align-items: center;
-          background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
-          border-radius: 1.5rem;
-          color: #fff;
-          display: inline-flex;
-          flex-shrink: 0;
-          font-size: 0.9rem;
-          font-weight: 600;
-          gap: 0.4rem;
-          padding: 0.625rem 1.25rem;
-          transition: background 0.25s, transform 0.15s;
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button {
+    align-items: center;
+    background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+    border-radius: 1.5rem;
+    color: #fff;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    gap: 0.4rem;
+    padding: 0.625rem 1.25rem;
+    transition: background 0.25s, transform 0.15s;
+  }
 
-          &:is(:hover, :focus-visible) {
-            background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
-            transform: scale(1.02);
-          }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button:is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+    transform: scale(1.02);
+  }
 
-          &:focus-visible {
-            outline: 2px solid var(--mountain-gold);
-            outline-offset: 2px;
-          }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
+  }
 
-          @media (max-width: 575px) {
-            border-radius: 50%;
-            gap: 0;
-            height: 2.25rem;
-            justify-content: center;
-            min-height: 0;
-            min-width: 0;
-            padding: 0;
-            width: 2.25rem;
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a {
+    font-size: var(--font-size-xs);
+    padding: 0 1rem;
+  }
 
-            &>i,
-            &>span {
-              height: 0;
-              overflow: hidden;
-              width: 0;
-            }
-
-            &::after {
-              content: "\f002";
-              font-family: "Font Awesome 6 Free", sans-serif;
-              font-size: 0.9rem;
-              font-weight: 900;
-            }
-          }
-        }
-      }
-    }
-
-    /* ── Dashboard sub-navigation (shared base in components.css) ── */
-
-    &>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
-
-      &>ul>li>a {
-        font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
-        padding: 0 1rem;
-      }
-
-      &>ul>li[data-separator] {
-        display: none;
-      }
-    }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li[data-separator] {
+    display: none;
+  }
 
     /* ── Section headings (h2s within sub-sections) ── */
 
-    [data-dashboard-content]>section>h2 {
-      color: var(--mountain-pine);
-      margin-bottom: 1rem;
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page) [data-dashboard-content]>section>h2 {
+    color: var(--mountain-pine);
+    margin-bottom: 1rem;
+  }
 
-      &[data-urgent] {
-        color: var(--btn-danger-to);
-
-        &>i {
-          color: var(--btn-danger-to);
-        }
-      }
-    }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page) [data-dashboard-content]>section>h2[data-urgent],
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page) [data-dashboard-content]>section>h2[data-urgent]>i {
+    color: var(--btn-danger-to);
+  }
 
     /* ── Sections spacing ── */
 
-    [data-dashboard-content]>section+section {
-      margin-top: 2.5rem;
-    }
-  }
-
-  /* ── Desktop sidebar layout ── */
-
-  @media (min-width: 1100px) {
-    [data-dashboard-body] {
-      column-gap: 1.5rem;
-      display: grid;
-      grid-template-columns: max-content 1fr;
-
-      &>nav[aria-label="Dashboard navigation"] {
-        align-self: start;
-        border-bottom: none;
-        border-right: 2px solid var(--mountain-fog);
-        flex-direction: column;
-        grid-column: 1;
-        grid-row: 1 / span 20;
-        justify-content: flex-start;
-        overflow-x: visible;
-        padding-right: 1rem;
-        position: sticky;
-        top: 8rem;
-
-        &>ul {
-          flex-direction: column;
-          gap: 0.125rem;
-
-          &>li>a {
-            border-bottom: none;
-            border-left: 3px solid transparent;
-            font-size: 0.8125rem;
-            margin-bottom: 0;
-            padding: 0.4375rem 0.75rem;
-
-            &:is(:hover, :focus-visible) {
-              border-left-color: var(--mountain-gold-darker);
-            }
-
-            &[aria-current="page"] {
-              border-left-color: var(--mountain-gold-light);
-            }
-          }
-
-          &>li[data-separator] {
-            border-top: 1px solid var(--mountain-fog);
-            display: block;
-            margin: 0.5rem 0;
-          }
-        }
-      }
-
-      &> :not(nav[aria-label="Dashboard navigation"]) {
-        grid-column: 2;
-      }
-    }
+  main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page) [data-dashboard-content]>section+section {
+    margin-top: 2.5rem;
   }
 
   /* ── Summary card grid (index page) ── */
@@ -254,90 +375,94 @@
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
 
-    &>li>article {
+  section[aria-labelledby="summary-heading"]>ul>li>article>a,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a {
+    align-items: flex-start;
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.75rem;
+    color: var(--mountain-charcoal);
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-height: 8rem;
+    padding: 1.25rem;
+    text-decoration: none;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  }
 
-      &>a {
-        align-items: flex-start;
-        background: var(--mountain-cloud);
-        border: 1px solid var(--mountain-fog);
-        border-radius: 0.75rem;
-        color: var(--mountain-charcoal);
-        display: flex;
-        flex-direction: column;
-        gap: 0.375rem;
-        min-height: 8rem;
-        padding: 1.25rem;
-        text-decoration: none;
-        transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  section[aria-labelledby="summary-heading"]>ul>li>article>a:is(:hover, :focus-visible),
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a:is(:hover, :focus-visible) {
+    border-color: var(--mountain-gold-darker);
+    box-shadow: 0 4px 16px var(--shadow-mountain);
+    transform: translateY(-2px);
+  }
 
-        &:is(:hover, :focus-visible) {
-          border-color: var(--mountain-gold-darker);
-          box-shadow: 0 4px 16px var(--shadow-mountain);
-          transform: translateY(-2px);
-        }
+  section[aria-labelledby="summary-heading"]>ul>li>article>a>i:first-child,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a>i:first-child {
+    color: var(--mountain-pine-light);
+    font-size: 1.25rem;
+  }
 
-        &>i:first-child {
-          color: var(--mountain-pine-light);
-          font-size: 1.25rem;
-        }
+  section[aria-labelledby="summary-heading"]>ul>li>article>a>h3,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a>h3 {
+    color: var(--mountain-slate);
+    font-size: 0.813rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
 
-        &>h3 {
-          color: var(--mountain-slate);
-          font-size: 0.813rem;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-          text-transform: uppercase;
-        }
+  section[aria-labelledby="summary-heading"]>ul>li>article>a>p,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a>p {
+    color: var(--mountain-pine);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0;
+  }
 
-        &>p {
-          color: var(--mountain-pine);
-          font-family: Georgia, 'Times New Roman', serif;
-          font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
-          font-weight: 700;
-          line-height: 1;
-          margin-bottom: 0;
+  section[aria-labelledby="summary-heading"]>ul>li>article>a>p>span,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a>p>span {
+    color: var(--mountain-mist);
+    font-size: 0.5em;
+    font-weight: 400;
+  }
 
-          &>span {
-            color: var(--mountain-mist);
-            font-size: 0.5em;
-            font-weight: 400;
-          }
-        }
+  section[aria-labelledby="summary-heading"]>ul>li>article>a>span:last-child,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a>span:last-child {
+    color: var(--mountain-mist);
+    font-size: 0.813rem;
+    margin-top: auto;
+  }
 
-        &>span:last-child {
-          color: var(--mountain-mist);
-          font-size: 0.813rem;
-          margin-top: auto;
+  section[aria-labelledby="summary-heading"]>ul>li>article>a>span:last-child>i,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article>a>span:last-child>i {
+    color: var(--mountain-gold-darker);
+    font-size: 0.75rem;
+  }
 
-          &>i {
-            color: var(--mountain-gold-darker);
-            font-size: 0.75rem;
-          }
-        }
-      }
+  section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a {
+    border-color: var(--alert-danger-border);
+  }
 
-      &[data-urgent]>a {
-        border-color: var(--alert-danger-border);
+  section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a>i:first-child,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>i:first-child,
+  section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a>h3,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>h3,
+  section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a>p,
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a>p {
+    color: var(--btn-danger-to);
+  }
 
-        &>i:first-child {
-          color: var(--btn-danger-to);
-        }
-
-        &>h3 {
-          color: var(--btn-danger-to);
-        }
-
-        &>p {
-          color: var(--btn-danger-to);
-        }
-
-        &:is(:hover, :focus-visible) {
-          border-color: var(--field-error-border);
-          box-shadow: 0 4px 16px rgba(185, 28, 28, 0.12);
-        }
-      }
-    }
+  section[aria-labelledby="summary-heading"]>ul>li>article[data-urgent]>a:is(:hover, :focus-visible),
+  section[aria-labelledby="admin-summary-heading"]>ul>li>article[data-urgent]>a:is(:hover, :focus-visible) {
+    border-color: var(--field-error-border);
+    box-shadow: 0 4px 16px rgba(185, 28, 28, 0.12);
   }
 
   section[aria-labelledby="admin-summary-heading"]>h2 {
@@ -351,212 +476,236 @@
     border-top: 1px solid var(--mountain-fog);
     margin-top: 2.5rem;
     padding-top: 1.5rem;
-
-    &>h2 {
-      color: var(--mountain-pine);
-      font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
-      margin-bottom: 1rem;
-    }
-
-    &>ul {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-
-      &>li>a {
-        align-items: center;
-        background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
-        border-radius: 2rem;
-        color: #fff;
-        display: inline-flex;
-        font-size: 0.875rem;
-        font-weight: 600;
-        gap: 0.5rem;
-        padding: 0.625rem 1.25rem;
-        text-decoration: none;
-        transition: background 0.25s, transform 0.15s;
-
-        &:is(:hover, :focus-visible) {
-          background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
-          color: #fff;
-          transform: scale(1.02);
-        }
-
-        &>span {
-          color: var(--mountain-gold-light);
-          font-size: 0.8em;
-        }
-      }
-    }
   }
 
-  /* ── Dashboard tables (history, loan-status) ── */
+  section[aria-labelledby="quick-actions-heading"]>h2 {
+    color: var(--mountain-pine);
+    font-size: var(--font-size-h3);
+    margin-bottom: 1rem;
+  }
+
+  section[aria-labelledby="quick-actions-heading"]>ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  section[aria-labelledby="quick-actions-heading"]>ul>li>a {
+    align-items: center;
+    background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+    border-radius: 2rem;
+    color: #fff;
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 600;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    text-decoration: none;
+    transition: background 0.25s, transform 0.15s;
+  }
+
+  section[aria-labelledby="quick-actions-heading"]>ul>li>a:is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+    color: #fff;
+    transform: scale(1.02);
+  }
+
+  section[aria-labelledby="quick-actions-heading"]>ul>li>a>span {
+    color: var(--mountain-gold-light);
+    font-size: 0.8em;
+  }
 
   main>section:is([aria-labelledby="history-heading"],
-    #loan-status) table {
+    #loan-status) table thead th {
+    color: var(--mountain-slate);
+    letter-spacing: 0.03em;
+    padding: 0.75rem;
+  }
 
-    & thead th {
-      color: var(--mountain-slate);
-      letter-spacing: 0.03em;
-      padding: 0.75rem;
-    }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody tr:is(:hover, :focus-within) {
+    background: rgba(244, 239, 231, 0.5);
+  }
 
-    & tbody tr:is(:hover, :focus-within) {
-      background: rgba(244, 239, 231, 0.5);
-    }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td {
+    color: var(--mountain-charcoal);
+    vertical-align: middle;
+  }
 
-    & tbody td {
-      color: var(--mountain-charcoal);
-      vertical-align: middle;
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>a {
+    font-weight: 500;
+    text-decoration: none;
+  }
 
-      &>a {
-        font-weight: 500;
-        text-decoration: none;
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>a:is(:hover, :focus-visible) {
+    color: var(--mountain-gold-darker);
+    text-decoration: underline;
+  }
 
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold-darker);
-          text-decoration: underline;
-        }
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>time {
+    white-space: nowrap;
+  }
 
-      &>time {
-        white-space: nowrap;
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-urgent],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-warning] {
+    border-radius: 1rem;
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 0.3rem 0.625rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
 
-      &>span[data-status],
-      &>span[data-urgent],
-      &>span[data-warning] {
-        border-radius: 1rem;
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        line-height: 1;
-        padding: 0.3rem 0.625rem;
-        text-transform: uppercase;
-        white-space: nowrap;
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status="on-time"],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span:not([data-urgent], [data-warning], [data-status]) {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+  }
 
-      &>span[data-status="on-time"],
-      &>span:not([data-urgent], [data-warning], [data-status]) {
-        background: var(--alert-success-bg);
-        color: var(--alert-success-text);
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status="due-soon"],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-warning] {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+  }
 
-      &>span[data-status="due-soon"],
-      &>span[data-warning] {
-        background: var(--alert-warning-bg);
-        color: var(--alert-warning-text);
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status="overdue"],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status="denied"],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status="cancelled"],
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-urgent] {
+    background: var(--alert-danger-bg);
+    color: var(--alert-danger-text);
+  }
 
-      &>span[data-status="overdue"],
-      &>span[data-status="denied"],
-      &>span[data-status="cancelled"],
-      &>span[data-urgent] {
-        background: var(--alert-danger-bg);
-        color: var(--alert-danger-text);
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>span[data-status="approved"] {
+    background: var(--alert-info-bg);
+    color: var(--alert-info-text);
+  }
 
-      &>span[data-status="approved"] {
-        background: var(--alert-info-bg);
-        color: var(--alert-info-text);
-      }
-
-      &>small {
-        color: var(--mountain-mist);
-        display: block;
-        font-size: 0.75rem;
-        margin-top: 0.125rem;
-      }
-    }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table tbody td>small {
+    color: var(--mountain-mist);
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.125rem;
+  }
 
     /* ── Table action cells ── */
 
-    & td[data-actions] {
-      display: flex;
-      flex-direction: column;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      vertical-align: middle;
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td[data-actions] {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    vertical-align: middle;
+  }
 
-      &>form,
-      &>details:not([open]) {
-        flex: 1;
-        min-width: 0;
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td[data-actions]>form,
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td[data-actions]>details:not([open]) {
+    flex: 1;
+    min-width: 0;
+  }
 
-      &>form>button,
-      &>details>summary {
-        justify-content: center;
-        width: 100%;
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td[data-actions]>form>button,
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td[data-actions]>details>summary {
+    justify-content: center;
+    width: 100%;
+  }
 
-      &>details[open] {
-        flex-basis: 100%;
-      }
-    }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td[data-actions]>details[open] {
+    flex-basis: 100%;
+  }
 
-    & td>form>button {
-      white-space: nowrap;
-    }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>form>button {
+    white-space: nowrap;
+  }
 
-    /* ── Inline disclosure forms (deny, extend) ── */
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary {
+    align-items: center;
+    border: 2px solid transparent;
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: var(--btn-font-md);
+    font-weight: var(--btn-weight);
+    gap: var(--btn-gap);
+    line-height: 1;
+    list-style: none;
+    min-height: var(--btn-min-h-md);
+    padding: var(--btn-pad-md);
+    transition: var(--btn-transition);
+    white-space: nowrap;
+  }
 
-    & td>details {
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary::-webkit-details-marker {
+    display: none;
+  }
 
-      &>summary {
-        align-items: center;
-        border: 2px solid transparent;
-        border-radius: var(--btn-radius);
-        cursor: pointer;
-        display: inline-flex;
-        font-size: var(--btn-font-md);
-        font-weight: var(--btn-weight);
-        gap: var(--btn-gap);
-        line-height: 1;
-        list-style: none;
-        min-height: var(--btn-min-h-md);
-        padding: var(--btn-pad-md);
-        transition: var(--btn-transition);
-        white-space: nowrap;
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
+  }
 
-        &::-webkit-details-marker {
-          display: none;
-        }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary:active {
+    transform: scale(0.98);
+  }
 
-        &:focus-visible {
-          outline: 2px solid var(--mountain-gold);
-          outline-offset: 2px;
-        }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary[data-intent="danger"] {
+    background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
+    border-bottom: 3px solid var(--btn-danger-border);
+    color: var(--btn-text-light);
+  }
 
-        &:active {
-          transform: scale(0.98);
-        }
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary[data-intent="danger"]:is(:hover, :focus-visible) {
+    background: linear-gradient(to bottom, var(--btn-danger-hover-from), var(--btn-danger-hover-to));
+  }
 
-      &>summary[data-intent="danger"] {
-        background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
-        border-bottom: 3px solid var(--btn-danger-border);
-        color: var(--btn-text-light);
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary[data-intent="warning"] {
+    background: linear-gradient(to bottom, var(--btn-warning-from), var(--btn-warning-to));
+    color: var(--btn-text-light);
+  }
 
-        &:is(:hover, :focus-visible) {
-          background: linear-gradient(to bottom, var(--btn-danger-hover-from), var(--btn-danger-hover-to));
-        }
-      }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details>summary[data-intent="warning"]:is(:hover, :focus-visible) {
+    background: linear-gradient(to bottom, var(--btn-warning-hover-from), var(--btn-warning-hover-to));
+  }
 
-      &>summary[data-intent="warning"] {
-        background: linear-gradient(to bottom, var(--btn-warning-from), var(--btn-warning-to));
-        color: var(--btn-text-light);
-
-        &:is(:hover, :focus-visible) {
-          background: linear-gradient(to bottom, var(--btn-warning-hover-from), var(--btn-warning-hover-to));
-        }
-      }
-
-      &[open]>summary {
-        margin-bottom: 0.5rem;
-      }
-    }
+  main>section:is([aria-labelledby="history-heading"],
+    #loan-status) table td>details[open]>summary {
+    margin-bottom: 0.5rem;
   }
 
   /* ── Activity card list (lender) ── */
@@ -576,259 +725,257 @@
     display: flex;
     flex-direction: column;
     transition: box-shadow 0.2s, border-color 0.2s;
+  }
 
-    &:is(:hover, :focus-within) {
-      border-color: var(--mountain-pine-light);
-      box-shadow: 0 4px 12px rgba(45, 80, 60, 0.1);
-    }
+  [data-activity-card]:is(:hover, :focus-within) {
+    border-color: var(--mountain-pine-light);
+    box-shadow: 0 4px 12px rgba(45, 80, 60, 0.1);
+  }
 
-    &>header {
-      align-items: center;
-      border-bottom: 1px solid var(--mountain-fog);
-      display: flex;
-      gap: 0.5rem;
-      justify-content: space-between;
-      padding: 0.875rem 1rem;
+  [data-activity-card]>header {
+    align-items: center;
+    border-bottom: 1px solid var(--mountain-fog);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+  }
 
-      &>a {
-        color: var(--mountain-pine);
-        font-size: 1rem;
-        font-weight: 600;
-        text-decoration: none;
+  [data-activity-card]>header>a {
+    color: var(--mountain-pine);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
 
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold-darker);
-          text-decoration: underline;
-        }
-      }
+  [data-activity-card]>header>a:is(:hover, :focus-visible) {
+    color: var(--mountain-gold-darker);
+    text-decoration: underline;
+  }
 
-      &>span[data-status] {
-        border-radius: 1rem;
-        flex-shrink: 0;
-        font-size: 0.688rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        line-height: 1;
-        padding: 0.3rem 0.625rem;
-        text-transform: uppercase;
-        white-space: nowrap;
-      }
+  [data-activity-card]>header>span[data-status] {
+    border-radius: 1rem;
+    flex-shrink: 0;
+    font-size: 0.688rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 0.3rem 0.625rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
 
-      &>span[data-status="on-time"] {
-        background: var(--alert-success-bg);
-        color: var(--alert-success-text);
-      }
+  [data-activity-card]>header>span[data-status="on-time"] {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+  }
 
-      &>span[data-status="due-soon"] {
-        background: var(--alert-warning-bg);
-        color: var(--alert-warning-text);
-      }
+  [data-activity-card]>header>span[data-status="due-soon"] {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+  }
 
-      &>span[data-status="overdue"] {
-        background: var(--alert-danger-bg);
-        color: var(--alert-danger-text);
-      }
+  [data-activity-card]>header>span[data-status="overdue"] {
+    background: var(--alert-danger-bg);
+    color: var(--alert-danger-text);
+  }
 
-      &>span[data-status="approved"] {
-        background: var(--alert-info-bg);
-        color: var(--alert-info-text);
-      }
+  [data-activity-card]>header>span[data-status="approved"] {
+    background: var(--alert-info-bg);
+    color: var(--alert-info-text);
+  }
 
-      &>span[data-status="requested"] {
-        background: var(--alert-warning-bg);
-        color: var(--alert-warning-text);
-      }
+  [data-activity-card]>header>span[data-status="requested"] {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+  }
 
-      &>span[data-status="returned"] {
-        background: var(--alert-success-bg);
-        color: var(--alert-success-text);
-      }
+  [data-activity-card]>header>span[data-status="returned"] {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+  }
 
-      &>span[data-status="denied"],
-      &>span[data-status="cancelled"] {
-        background: var(--alert-danger-bg);
-        color: var(--alert-danger-text);
-      }
-    }
+  [data-activity-card]>header>span[data-status="denied"],
+  [data-activity-card]>header>span[data-status="cancelled"] {
+    background: var(--alert-danger-bg);
+    color: var(--alert-danger-text);
+  }
 
-    &>dl {
-      column-gap: 0.75rem;
-      display: grid;
-      flex: 1;
-      grid-template-columns: max-content 1fr;
-      padding: 0.75rem 1rem;
-      row-gap: 0.375rem;
+  [data-activity-card]>dl {
+    column-gap: 0.75rem;
+    display: grid;
+    flex: 1;
+    grid-template-columns: max-content 1fr;
+    padding: 0.75rem 1rem;
+    row-gap: 0.375rem;
+  }
 
-      &>dt {
-        color: var(--mountain-slate);
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        padding-top: 0.125rem;
-        text-transform: uppercase;
-      }
+  [data-activity-card]>dl>dt {
+    color: var(--mountain-slate);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding-top: 0.125rem;
+    text-transform: uppercase;
+  }
 
-      &>dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.875rem;
+  [data-activity-card]>dl>dd {
+    color: var(--mountain-charcoal);
+    font-size: 0.875rem;
+  }
 
-        &>a {
-          color: var(--mountain-pine-light);
-          font-weight: 500;
-          text-decoration: none;
+  [data-activity-card]>dl>dd>a {
+    color: var(--mountain-pine-light);
+    font-weight: 500;
+    text-decoration: none;
+  }
 
-          &:is(:hover, :focus-visible) {
-            color: var(--mountain-gold-darker);
-            text-decoration: underline;
-          }
-        }
+  [data-activity-card]>dl>dd>a:is(:hover, :focus-visible) {
+    color: var(--mountain-gold-darker);
+    text-decoration: underline;
+  }
 
-        &>time {
-          white-space: nowrap;
-        }
+  [data-activity-card]>dl>dd>time {
+    white-space: nowrap;
+  }
 
-        &>small {
-          color: var(--mountain-mist);
-          display: block;
-          font-size: 0.75rem;
-          margin-top: 0.125rem;
-        }
+  [data-activity-card]>dl>dd>small {
+    color: var(--mountain-mist);
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.125rem;
+  }
 
-      }
-    }
+  [data-activity-card]>footer[data-actions] {
+    align-items: end;
+    border-top: 1px solid var(--mountain-fog);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
 
-    &>footer[data-actions] {
-      align-items: end;
-      border-top: 1px solid var(--mountain-fog);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
+  [data-activity-card]>footer[data-actions]>form,
+  [data-activity-card]>footer[data-actions]>details:not([open]) {
+    flex: 1;
+    min-width: 0;
+  }
 
-      &>form,
-      &>details:not([open]) {
-        flex: 1;
-        min-width: 0;
-      }
+  [data-activity-card]>footer[data-actions]>form>button,
+  [data-activity-card]>footer[data-actions]>details>summary {
+    justify-content: center;
+    width: 100%;
+  }
 
-      &>form>button,
-      &>details>summary {
-        justify-content: center;
-        width: 100%;
-      }
+  [data-activity-card]>footer[data-actions]>a[role="button"],
+  [data-activity-card]>footer[data-actions]>span[role="button"] {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+  }
 
-      &>a[role="button"],
-      &>span[role="button"] {
-        flex: 1;
-        justify-content: center;
-        text-align: center;
-        white-space: nowrap;
-      }
+  [data-activity-card]>footer[data-actions]>details[open] {
+    flex-basis: 100%;
+  }
 
-      &>details[open] {
-        flex-basis: 100%;
-      }
+  [data-activity-card]>footer[data-actions]>details>summary {
+    align-items: center;
+    border: 2px solid transparent;
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: var(--btn-font-md);
+    font-weight: var(--btn-weight);
+    gap: var(--btn-gap);
+    line-height: 1;
+    list-style: none;
+    min-height: var(--btn-min-h-md);
+    padding: var(--btn-pad-md);
+    transition: var(--btn-transition);
+    white-space: nowrap;
+  }
 
-      &>details {
+  [data-activity-card]>footer[data-actions]>details>summary::-webkit-details-marker {
+    display: none;
+  }
 
-        &>summary {
-          align-items: center;
-          border: 2px solid transparent;
-          border-radius: var(--btn-radius);
-          cursor: pointer;
-          display: inline-flex;
-          font-size: var(--btn-font-md);
-          font-weight: var(--btn-weight);
-          gap: var(--btn-gap);
-          line-height: 1;
-          list-style: none;
-          min-height: var(--btn-min-h-md);
-          padding: var(--btn-pad-md);
-          transition: var(--btn-transition);
-          white-space: nowrap;
+  [data-activity-card]>footer[data-actions]>details>summary:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
+  }
 
-          &::-webkit-details-marker {
-            display: none;
-          }
+  [data-activity-card]>footer[data-actions]>details>summary:active {
+    transform: scale(0.98);
+  }
 
-          &:focus-visible {
-            outline: 2px solid var(--mountain-gold);
-            outline-offset: 2px;
-          }
+  [data-activity-card]>footer[data-actions]>details>summary[data-intent="danger"] {
+    background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
+    border-bottom: 3px solid var(--btn-danger-border);
+    color: var(--btn-text-light);
+  }
 
-          &:active {
-            transform: scale(0.98);
-          }
-        }
+  [data-activity-card]>footer[data-actions]>details>summary[data-intent="danger"]:is(:hover, :focus-visible) {
+    background: linear-gradient(to bottom, var(--btn-danger-hover-from), var(--btn-danger-hover-to));
+  }
 
-        &>summary[data-intent="danger"] {
-          background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
-          border-bottom: 3px solid var(--btn-danger-border);
-          color: var(--btn-text-light);
+  [data-activity-card]>footer[data-actions]>details>summary[data-intent="warning"] {
+    background: linear-gradient(to bottom, var(--btn-warning-from), var(--btn-warning-to));
+    color: var(--btn-text-light);
+  }
 
-          &:is(:hover, :focus-visible) {
-            background: linear-gradient(to bottom, var(--btn-danger-hover-from), var(--btn-danger-hover-to));
-          }
-        }
+  [data-activity-card]>footer[data-actions]>details>summary[data-intent="warning"]:is(:hover, :focus-visible) {
+    background: linear-gradient(to bottom, var(--btn-warning-hover-from), var(--btn-warning-hover-to));
+  }
 
-        &>summary[data-intent="warning"] {
-          background: linear-gradient(to bottom, var(--btn-warning-from), var(--btn-warning-to));
-          color: var(--btn-text-light);
-
-          &:is(:hover, :focus-visible) {
-            background: linear-gradient(to bottom, var(--btn-warning-hover-from), var(--btn-warning-hover-to));
-          }
-        }
-
-        &[open]>summary {
-          margin-bottom: 0.5rem;
-        }
-      }
-    }
+  [data-activity-card]>footer[data-actions]>details[open]>summary {
+    margin-bottom: 0.5rem;
   }
 
   :is(main>section td, [data-activity-card]>footer[data-actions])>details>form {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
+  }
 
-    &>label {
-      color: var(--mountain-slate);
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>label {
+    color: var(--mountain-slate);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
 
-    &>textarea,
-    &>input[type="number"] {
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.375rem;
-      font: inherit;
-      font-size: 0.875rem;
-      padding: 0.5rem 0.625rem;
-      transition: border-color 0.2s;
-      width: 100%;
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>textarea,
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>input[type="number"] {
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.375rem;
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.625rem;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
 
-      &:focus {
-        border-color: var(--mountain-pine-light);
-        outline: 2px solid var(--mountain-gold-light);
-        outline-offset: 1px;
-      }
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>textarea:focus,
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>input[type="number"]:focus {
+    border-color: var(--mountain-pine-light);
+    outline: 2px solid var(--mountain-gold-light);
+    outline-offset: 1px;
+  }
 
-      &::placeholder {
-        color: var(--mountain-mist-light);
-      }
-    }
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>textarea::placeholder,
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>input[type="number"]::placeholder {
+    color: var(--mountain-mist-light);
+  }
 
-    &>input[type="number"] {
-      max-width: 8rem;
-    }
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>input[type="number"] {
+    max-width: 8rem;
+  }
 
-    &>button[type="submit"] {
-      align-self: flex-start;
-      margin-top: 0.25rem;
-    }
+  :is(main>section td, [data-activity-card]>footer[data-actions])>details>form>button[type="submit"] {
+    align-self: flex-start;
+    margin-top: 0.25rem;
   }
 
   /* ── Sort / filter form bars ── */
@@ -838,69 +985,83 @@
     [aria-labelledby="history-heading"]) form[aria-label*="Sort"],
   [data-filter-form] {
     margin-bottom: 1rem;
+  }
 
-    &>fieldset {
-      align-items: flex-end;
-      border: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      padding: 0;
+  main>section:is([aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset,
+  [data-filter-form]>fieldset {
+    align-items: flex-end;
+    border: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0;
+  }
 
-      &>legend {
-        position: absolute;
-      }
+  main>section:is([aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset>legend,
+  [data-filter-form]>fieldset>legend {
+    position: absolute;
+  }
 
-      &>label {
-        color: var(--mountain-slate);
-        display: flex;
-        flex-direction: column;
-        font-size: 0.75rem;
-        font-weight: 600;
-        gap: 0.25rem;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
+  main>section:is([aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset>label,
+  [data-filter-form]>fieldset>label {
+    color: var(--mountain-slate);
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 0.25rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
 
-        &>select {
-          background: var(--mountain-cloud);
-          border: 1px solid var(--mountain-fog);
-          border-radius: 0.375rem;
-          color: var(--mountain-charcoal);
-          cursor: pointer;
-          font: inherit;
-          font-size: 0.875rem;
-          font-weight: 400;
-          letter-spacing: normal;
-          min-height: 2.25rem;
-          padding: 0.375rem 0.5rem;
-          text-transform: none;
-          transition: border-color 0.2s;
+  main>section:is([aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset>label>select,
+  [data-filter-form]>fieldset>label>select {
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.375rem;
+    color: var(--mountain-charcoal);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.5rem;
+    text-transform: none;
+    transition: border-color 0.2s;
+  }
 
-          &:focus {
-            border-color: var(--mountain-pine-light);
-            outline: 2px solid var(--mountain-gold-light);
-            outline-offset: 1px;
-          }
-        }
-      }
-
-    }
+  main>section:is([aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset>label>select:focus,
+  [data-filter-form]>fieldset>label>select:focus {
+    border-color: var(--mountain-pine-light);
+    outline: 2px solid var(--mountain-gold-light);
+    outline-offset: 1px;
   }
 
   /* ── Sorted column indicators ── */
 
   main>section[aria-labelledby="history-heading"] table th[aria-sort] {
     color: var(--mountain-pine);
+  }
 
-    &[aria-sort="ascending"]::after {
-      content: ' \25B2';
-      font-size: 0.625rem;
-    }
+  main>section[aria-labelledby="history-heading"] table th[aria-sort][aria-sort="ascending"]::after {
+    content: ' \25B2';
+    font-size: 0.625rem;
+  }
 
-    &[aria-sort="descending"]::after {
-      content: ' \25BC';
-      font-size: 0.625rem;
-    }
+  main>section[aria-labelledby="history-heading"] table th[aria-sort][aria-sort="descending"]::after {
+    content: ' \25BC';
+    font-size: 0.625rem;
   }
 
   td[data-actions]>a[role="button"],
@@ -918,55 +1079,55 @@
     border-left: 4px solid var(--mountain-fog);
     cursor: pointer;
     position: relative;
+  }
 
-    &>header>h3 {
-      font-size: 1rem;
-      margin: 0;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+  #my-loans [data-activity-card]>header>h3 {
+    font-size: 1rem;
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-      &>[data-card-link]::after {
-        content: '';
-        inset: 0;
-        position: absolute;
-      }
-    }
+  #my-loans [data-activity-card]>header>h3>[data-card-link]::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
 
-    & a:not([data-card-link]),
-    & [data-rate-link] {
-      position: relative;
-      z-index: 1;
-    }
+  #my-loans [data-activity-card] a:not([data-card-link]),
+  #my-loans [data-activity-card] [data-rate-link] {
+    position: relative;
+    z-index: 1;
+  }
 
-    &>header>[data-role-badge] {
-      border-radius: 1rem;
-      flex-shrink: 0;
-      font-size: 0.688rem;
-      font-weight: 600;
-      letter-spacing: 0.025em;
-      line-height: 1;
-      margin-left: auto;
-      padding: 0.3rem 0.625rem;
-      text-transform: uppercase;
-    }
+  #my-loans [data-activity-card]>header>[data-role-badge] {
+    border-radius: 1rem;
+    flex-shrink: 0;
+    font-size: 0.688rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    line-height: 1;
+    margin-left: auto;
+    padding: 0.3rem 0.625rem;
+    text-transform: uppercase;
+  }
 
-    &>header>[data-role-badge="lender"] {
-      background: color-mix(in srgb, var(--mountain-pine-light) 20%, transparent);
-      color: var(--mountain-pine-dark);
-    }
+  #my-loans [data-activity-card]>header>[data-role-badge="lender"] {
+    background: color-mix(in srgb, var(--mountain-pine-light) 20%, transparent);
+    color: var(--mountain-pine-dark);
+  }
 
-    &>header>[data-role-badge="borrower"] {
-      background: color-mix(in srgb, var(--mountain-gold-light) 30%, transparent);
-      color: var(--color-warning-800);
-    }
+  #my-loans [data-activity-card]>header>[data-role-badge="borrower"] {
+    background: color-mix(in srgb, var(--mountain-gold-light) 30%, transparent);
+    color: var(--color-warning-800);
+  }
 
-    &>footer {
-      border-top: 1px solid var(--mountain-fog);
-      padding: 0.5rem 1rem;
-      text-align: right;
-    }
+  #my-loans [data-activity-card]>footer {
+    border-top: 1px solid var(--mountain-fog);
+    padding: 0.5rem 1rem;
+    text-align: right;
   }
 
   #my-loans [data-activity-card]:has(header > span[data-status="on-time"]) {
@@ -1002,11 +1163,11 @@
     color: var(--mountain-pine-light);
     font-weight: 500;
     text-decoration: none;
+  }
 
-    &:is(:hover, :focus-visible) {
-      color: var(--mountain-gold-darker);
-      text-decoration: underline;
-    }
+  #loan-status>header>p>a:is(:hover, :focus-visible) {
+    color: var(--mountain-gold-darker);
+    text-decoration: underline;
   }
 
   #loan-status>header>p>span[data-status] {
@@ -1064,64 +1225,64 @@
     border: 1px solid var(--mountain-fog);
     border-radius: 0.75rem;
     padding: 1.25rem;
+  }
 
-    &>h2 {
-      align-items: center;
-      border-bottom: 1px solid var(--mountain-fog);
-      color: var(--mountain-pine);
-      display: flex;
-      font-size: 1rem;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
+  #loan-status [data-loan-card]>h2 {
+    align-items: center;
+    border-bottom: 1px solid var(--mountain-fog);
+    color: var(--mountain-pine);
+    display: flex;
+    font-size: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
 
-      &>i {
-        font-size: 0.875rem;
-        opacity: 0.7;
-      }
-    }
+  #loan-status [data-loan-card]>h2>i {
+    font-size: 0.875rem;
+    opacity: 0.7;
   }
 
   #loan-status [data-next-step] {
     border-left: 3px solid var(--mountain-pine);
+  }
 
-    & > p {
-      align-items: center;
-      color: var(--mountain-charcoal);
-      display: flex;
-      font-size: 0.938rem;
-      gap: 0.625rem;
-      line-height: 1.5;
+  #loan-status [data-next-step] > p {
+    align-items: center;
+    color: var(--mountain-charcoal);
+    display: flex;
+    font-size: 0.938rem;
+    gap: 0.625rem;
+    line-height: 1.5;
+  }
 
-      & > i {
-        color: var(--mountain-pine);
-        flex-shrink: 0;
-        font-size: 1rem;
-      }
-    }
+  #loan-status [data-next-step] > p > i {
+    color: var(--mountain-pine);
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
 
-    & > a[role="button"] {
-      background: var(--mountain-pine);
-      border-radius: 0.375rem;
-      color: var(--mountain-cream);
-      display: inline-flex;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-top: 0.75rem;
-      min-height: 2.75rem;
-      padding: 0.625rem 1.25rem;
-      text-decoration: none;
-      align-items: center;
+  #loan-status [data-next-step] > a[role="button"] {
+    background: var(--mountain-pine);
+    border-radius: 0.375rem;
+    color: var(--mountain-cream);
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+    text-decoration: none;
+    align-items: center;
+  }
 
-      &:hover {
-        background: var(--mountain-pine-dark);
-      }
+  #loan-status [data-next-step] > a[role="button"]:hover {
+    background: var(--mountain-pine-dark);
+  }
 
-      &:focus-visible {
-        outline: 2px solid var(--mountain-gold);
-        outline-offset: 2px;
-      }
-    }
+  #loan-status [data-next-step] > a[role="button"]:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
   }
 
   /* ── Loan status — lifecycle progress indicator ── */
@@ -1133,131 +1294,119 @@
     list-style: none;
     margin: 0;
     padding: 0;
+  }
 
-    &>li {
-      align-items: center;
-      counter-increment: step;
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      gap: 0.5rem;
-      position: relative;
-      text-align: center;
+  #loan-status [data-loan-card]>ol>li {
+    align-items: center;
+    counter-increment: step;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    text-align: center;
+  }
 
-      &::before {
-        align-items: center;
-        background: var(--mountain-fog);
-        border: 2px solid var(--mountain-fog);
-        border-radius: 50%;
-        color: var(--mountain-mist);
-        content: counter(step);
-        display: flex;
-        font-size: 0.75rem;
-        font-weight: 700;
-        height: 2.25rem;
-        justify-content: center;
-        transition: background 0.3s, border-color 0.3s, color 0.3s;
-        width: 2.25rem;
-        z-index: 1;
-      }
+  #loan-status [data-loan-card]>ol>li::before {
+    align-items: center;
+    background: var(--mountain-fog);
+    border: 2px solid var(--mountain-fog);
+    border-radius: 50%;
+    color: var(--mountain-mist);
+    content: counter(step);
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 700;
+    height: 2.25rem;
+    justify-content: center;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+    width: 2.25rem;
+    z-index: 1;
+  }
 
-      &::after {
-        background: var(--mountain-fog);
-        content: '';
-        height: 2px;
-        left: calc(50% + 1.125rem);
-        position: absolute;
-        top: 1.125rem;
-        width: calc(100% - 2.25rem);
-      }
+  #loan-status [data-loan-card]>ol>li::after {
+    background: var(--mountain-fog);
+    content: '';
+    height: 2px;
+    left: calc(50% + 1.125rem);
+    position: absolute;
+    top: 1.125rem;
+    width: calc(100% - 2.25rem);
+  }
 
-      &:last-child::after {
-        display: none;
-      }
+  #loan-status [data-loan-card]>ol>li:last-child::after {
+    display: none;
+  }
 
-      &>span {
-        color: var(--mountain-mist);
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-      }
-    }
+  #loan-status [data-loan-card]>ol>li>span {
+    color: var(--mountain-mist);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
 
-    &>li[data-completed] {
+  #loan-status [data-loan-card]>ol>li[data-completed]::before {
+    background: var(--mountain-pine);
+    border-color: var(--mountain-pine);
+    color: #fff;
+    content: '\2713';
+    font-size: 0.875rem;
+  }
 
-      &::before {
-        background: var(--mountain-pine);
-        border-color: var(--mountain-pine);
-        color: #fff;
-        content: '\2713';
-        font-size: 0.875rem;
-      }
+  #loan-status [data-loan-card]>ol>li[data-completed]::after {
+    background: var(--mountain-pine);
+  }
 
-      &::after {
-        background: var(--mountain-pine);
-      }
+  #loan-status [data-loan-card]>ol>li[data-completed]>span {
+    color: var(--mountain-pine);
+  }
 
-      &>span {
-        color: var(--mountain-pine);
-      }
-    }
+  #loan-status [data-loan-card]>ol>li[aria-current="step"]::before {
+    background: #fff;
+    border-color: var(--mountain-pine);
+    box-shadow: 0 0 0 3px rgba(45, 80, 60, 0.2);
+    color: var(--mountain-pine);
+  }
 
-    &>li[aria-current="step"] {
+  #loan-status [data-loan-card]>ol>li[aria-current="step"]>span {
+    color: var(--mountain-pine);
+    font-weight: 700;
+  }
 
-      &::before {
-        background: #fff;
-        border-color: var(--mountain-pine);
-        box-shadow: 0 0 0 3px rgba(45, 80, 60, 0.2);
-        color: var(--mountain-pine);
-      }
+  #loan-status [data-loan-card]>ol>li[aria-current="step"][data-warning]::before {
+    border-color: var(--alert-warning-text);
+    box-shadow: 0 0 0 3px rgba(146, 64, 14, 0.2);
+    color: var(--alert-warning-text);
+  }
 
-      &>span {
-        color: var(--mountain-pine);
-        font-weight: 700;
-      }
-    }
+  #loan-status [data-loan-card]>ol>li[aria-current="step"][data-warning]>span {
+    color: var(--alert-warning-text);
+  }
 
-    &>li[aria-current="step"][data-warning] {
+  #loan-status [data-loan-card]>ol>li[aria-current="step"][data-urgent]::before {
+    border-color: var(--alert-danger-text);
+    box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.2);
+    color: var(--alert-danger-text);
+  }
 
-      &::before {
-        border-color: var(--alert-warning-text);
-        box-shadow: 0 0 0 3px rgba(146, 64, 14, 0.2);
-        color: var(--alert-warning-text);
-      }
+  #loan-status [data-loan-card]>ol>li[aria-current="step"][data-urgent]>span {
+    color: var(--alert-danger-text);
+  }
 
-      &>span {
-        color: var(--alert-warning-text);
-      }
-    }
+  #loan-status [data-loan-card]>ol>li[data-status="denied"]::before,
+  #loan-status [data-loan-card]>ol>li[data-status="cancelled"]::before {
+    background: var(--alert-danger-bg);
+    border-color: var(--alert-danger-text);
+    color: var(--alert-danger-text);
+    content: '\2717';
+    font-size: 0.875rem;
+  }
 
-    &>li[aria-current="step"][data-urgent] {
-
-      &::before {
-        border-color: var(--alert-danger-text);
-        box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.2);
-        color: var(--alert-danger-text);
-      }
-
-      &>span {
-        color: var(--alert-danger-text);
-      }
-    }
-
-    &>li[data-status="denied"]::before,
-    &>li[data-status="cancelled"]::before {
-      background: var(--alert-danger-bg);
-      border-color: var(--alert-danger-text);
-      color: var(--alert-danger-text);
-      content: '\2717';
-      font-size: 0.875rem;
-    }
-
-    &>li[data-status="denied"]>span,
-    &>li[data-status="cancelled"]>span {
-      color: var(--alert-danger-text);
-      font-weight: 700;
-    }
+  #loan-status [data-loan-card]>ol>li[data-status="denied"]>span,
+  #loan-status [data-loan-card]>ol>li[data-status="cancelled"]>span {
+    color: var(--alert-danger-text);
+    font-weight: 700;
   }
 
   /* ── Loan status — time remaining badge ── */
@@ -1296,38 +1445,38 @@
     gap: 0.625rem;
     list-style: none;
     padding: 0;
+  }
 
-    &>li {
-      align-items: center;
-      display: flex;
-      font-size: 0.875rem;
-      gap: 0.625rem;
+  #loan-status [data-checklist]>li {
+    align-items: center;
+    display: flex;
+    font-size: 0.875rem;
+    gap: 0.625rem;
+  }
 
-      &>i {
-        color: var(--mountain-mist);
-        flex-shrink: 0;
-        font-size: 1.125rem;
-      }
+  #loan-status [data-checklist]>li>i {
+    color: var(--mountain-mist);
+    flex-shrink: 0;
+    font-size: 1.125rem;
+  }
 
-      &[data-done]>i {
-        color: var(--alert-success-text);
-      }
+  #loan-status [data-checklist]>li[data-done]>i {
+    color: var(--alert-success-text);
+  }
 
-      &>a {
-        color: var(--mountain-pine-light);
-        font-weight: 500;
-        text-decoration: none;
+  #loan-status [data-checklist]>li>a {
+    color: var(--mountain-pine-light);
+    font-weight: 500;
+    text-decoration: none;
+  }
 
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold-darker);
-          text-decoration: underline;
-        }
-      }
+  #loan-status [data-checklist]>li>a:is(:hover, :focus-visible) {
+    color: var(--mountain-gold-darker);
+    text-decoration: underline;
+  }
 
-      &[data-done]>span {
-        color: var(--mountain-slate);
-      }
-    }
+  #loan-status [data-checklist]>li[data-done]>span {
+    color: var(--mountain-slate);
   }
 
   #loan-status [data-checklist]+a[role="button"] {
@@ -1344,16 +1493,16 @@
     padding: 0.5rem 1rem;
     text-decoration: none;
     transition: background 0.2s, transform 0.15s;
+  }
 
-    &:is(:hover, :focus-visible) {
-      background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
-      transform: scale(1.02);
-    }
+  #loan-status [data-checklist]+a[role="button"]:is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+    transform: scale(1.02);
+  }
 
-    &:focus-visible {
-      outline: 2px solid var(--mountain-gold);
-      outline-offset: 2px;
-    }
+  #loan-status [data-checklist]+a[role="button"]:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
   }
 
   /* ── Loan status — detail definition list ── */
@@ -1363,94 +1512,94 @@
     display: grid;
     grid-template-columns: max-content 1fr;
     row-gap: 0.625rem;
+  }
 
-    &>dt {
-      color: var(--mountain-slate);
-      font-size: 0.813rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      padding-top: 0.125rem;
-      text-transform: uppercase;
-    }
+  #loan-status [data-loan-card]>dl>dt {
+    color: var(--mountain-slate);
+    font-size: 0.813rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding-top: 0.125rem;
+    text-transform: uppercase;
+  }
 
-    &>dd {
-      color: var(--mountain-charcoal);
-      font-size: 0.938rem;
+  #loan-status [data-loan-card]>dl>dd {
+    color: var(--mountain-charcoal);
+    font-size: 0.938rem;
+  }
 
-      &>a {
-        color: var(--mountain-pine-light);
-        font-weight: 500;
-        text-decoration: none;
+  #loan-status [data-loan-card]>dl>dd>a {
+    color: var(--mountain-pine-light);
+    font-weight: 500;
+    text-decoration: none;
+  }
 
-        &:is(:hover, :focus-visible) {
-          color: var(--mountain-gold-darker);
-          text-decoration: underline;
-        }
-      }
+  #loan-status [data-loan-card]>dl>dd>a:is(:hover, :focus-visible) {
+    color: var(--mountain-gold-darker);
+    text-decoration: underline;
+  }
 
-      &>time {
-        white-space: nowrap;
-      }
+  #loan-status [data-loan-card]>dl>dd>time {
+    white-space: nowrap;
+  }
 
-      &>small {
-        color: var(--mountain-mist);
-        font-size: 0.75rem;
-        margin-left: 0.375rem;
-      }
+  #loan-status [data-loan-card]>dl>dd>small {
+    color: var(--mountain-mist);
+    font-size: 0.75rem;
+    margin-left: 0.375rem;
+  }
 
-      &>span[data-status] {
-        border-radius: 1rem;
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        line-height: 1;
-        padding: 0.3rem 0.625rem;
-        text-transform: uppercase;
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status] {
+    border-radius: 1rem;
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 0.3rem 0.625rem;
+    text-transform: uppercase;
+  }
 
-      &>span[data-status="on-time"] {
-        background: var(--alert-success-bg);
-        color: var(--alert-success-text);
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="on-time"] {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+  }
 
-      &>span[data-status="due-soon"] {
-        background: var(--alert-warning-bg);
-        color: var(--alert-warning-text);
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="due-soon"] {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+  }
 
-      &>span[data-status="overdue"],
-      &>span[data-status="denied"],
-      &>span[data-status="cancelled"] {
-        background: var(--alert-danger-bg);
-        color: var(--alert-danger-text);
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="overdue"],
+  #loan-status [data-loan-card]>dl>dd>span[data-status="denied"],
+  #loan-status [data-loan-card]>dl>dd>span[data-status="cancelled"] {
+    background: var(--alert-danger-bg);
+    color: var(--alert-danger-text);
+  }
 
-      &>span[data-status="pending"] {
-        background: var(--alert-warning-bg);
-        color: var(--alert-warning-text);
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="pending"] {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+  }
 
-      &>span[data-status="held"],
-      &>span[data-status="released"] {
-        background: var(--alert-success-bg);
-        color: var(--alert-success-text);
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="held"],
+  #loan-status [data-loan-card]>dl>dd>span[data-status="released"] {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+  }
 
-      &>span[data-status="forfeited"] {
-        background: var(--alert-danger-bg);
-        color: var(--alert-danger-text);
-      }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="forfeited"] {
+    background: var(--alert-danger-bg);
+    color: var(--alert-danger-text);
+  }
 
-      &>span[data-status="approved"] {
-        background: var(--alert-info-bg);
-        color: var(--alert-info-text);
-      }
-    }
+  #loan-status [data-loan-card]>dl>dd>span[data-status="approved"] {
+    background: var(--alert-info-bg);
+    color: var(--alert-info-text);
+  }
 
-    &>dd>a+a {
-      margin-left: 0.75rem;
-    }
+  #loan-status [data-loan-card]>dl>dd>a+a {
+    margin-left: 0.75rem;
   }
 
   /* ── Loan status — handover records ── */
@@ -1471,63 +1620,63 @@
     background: #fff;
     border: 1px solid var(--mountain-fog);
     border-radius: 0.5rem;
+  }
 
-    &>header {
-      align-items: center;
-      border-bottom: 1px solid var(--mountain-fog);
-      display: flex;
-      gap: 0.5rem;
-      justify-content: space-between;
-      padding: 0.625rem 0.75rem;
+  #loan-status [data-handover-record]>header {
+    align-items: center;
+    border-bottom: 1px solid var(--mountain-fog);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    padding: 0.625rem 0.75rem;
+  }
 
-      &>[data-handover-type] {
-        color: var(--mountain-pine);
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
+  #loan-status [data-handover-record]>header>[data-handover-type] {
+    color: var(--mountain-pine);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
 
-      &>span[data-status] {
-        border-radius: 1rem;
-        font-size: 0.688rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        line-height: 1;
-        padding: 0.25rem 0.5rem;
-        text-transform: uppercase;
-      }
+  #loan-status [data-handover-record]>header>span[data-status] {
+    border-radius: 1rem;
+    font-size: 0.688rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 0.25rem 0.5rem;
+    text-transform: uppercase;
+  }
 
-      &>span[data-status="on-time"] {
-        background: var(--alert-success-bg);
-        color: var(--alert-success-text);
-      }
+  #loan-status [data-handover-record]>header>span[data-status="on-time"] {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+  }
 
-      &>span[data-status="requested"] {
-        background: var(--alert-warning-bg);
-        color: var(--alert-warning-text);
-      }
-    }
+  #loan-status [data-handover-record]>header>span[data-status="requested"] {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+  }
 
-    &>dl {
-      column-gap: 0.75rem;
-      display: grid;
-      grid-template-columns: max-content 1fr;
-      padding: 0.625rem 0.75rem;
-      row-gap: 0.25rem;
+  #loan-status [data-handover-record]>dl {
+    column-gap: 0.75rem;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    padding: 0.625rem 0.75rem;
+    row-gap: 0.25rem;
+  }
 
-      &>dt {
-        color: var(--mountain-slate);
-        font-size: 0.688rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        padding-top: 0.125rem;
-        text-transform: uppercase;
-      }
+  #loan-status [data-handover-record]>dl>dt {
+    color: var(--mountain-slate);
+    font-size: 0.688rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding-top: 0.125rem;
+    text-transform: uppercase;
+  }
 
-      &>dd {
-        color: var(--mountain-charcoal);
-        font-size: 0.813rem;
-      }
-    }
+  #loan-status [data-handover-record]>dl>dd {
+    color: var(--mountain-charcoal);
+    font-size: 0.813rem;
   }
 
   /* ── Loan status — actions card ── */
@@ -1536,171 +1685,172 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+  }
 
-    &>h2 {
-      flex-basis: 100%;
-    }
+  #loan-status [data-actions-card]>h2 {
+    flex-basis: 100%;
+  }
 
-    &>form>button,
-    &>a[role="button"] {
-      align-items: center;
-      background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
-      border: none;
-      border-radius: 0.375rem;
-      color: #fff;
-      cursor: pointer;
-      display: inline-flex;
-      font-size: 0.875rem;
-      font-weight: 600;
-      gap: 0.4rem;
-      min-height: 2.5rem;
-      padding: 0.5rem 1rem;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
+  #loan-status [data-actions-card]>form>button,
+  #loan-status [data-actions-card]>a[role="button"] {
+    align-items: center;
+    background: linear-gradient(135deg, var(--mountain-pine-light) 0%, var(--mountain-pine) 100%);
+    border: none;
+    border-radius: 0.375rem;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 600;
+    gap: 0.4rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
 
-      &:is(:hover, :focus-visible) {
-        background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
-        transform: scale(1.02);
-      }
+  #loan-status [data-actions-card]>form>button:is(:hover, :focus-visible),
+  #loan-status [data-actions-card]>a[role="button"]:is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+    transform: scale(1.02);
+  }
 
-      &:focus-visible {
-        outline: 2px solid var(--mountain-gold);
-        outline-offset: 2px;
-      }
-    }
+  #loan-status [data-actions-card]>form>button:focus-visible,
+  #loan-status [data-actions-card]>a[role="button"]:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
+  }
 
-    &>span[role="button"] {
-      align-items: center;
-      border: 1px dashed var(--mountain-fog);
-      border-radius: 0.375rem;
-      color: var(--mountain-mist);
-      cursor: default;
-      display: inline-flex;
-      font-size: 0.875rem;
-      font-weight: 500;
-      gap: 0.4rem;
-      min-height: 2.5rem;
-      padding: 0.5rem 1rem;
-    }
+  #loan-status [data-actions-card]>span[role="button"] {
+    align-items: center;
+    border: 1px dashed var(--mountain-fog);
+    border-radius: 0.375rem;
+    color: var(--mountain-mist);
+    cursor: default;
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 500;
+    gap: 0.4rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+  }
+  #loan-status [data-actions-card]>details>summary {
+    align-items: center;
+    border: 2px solid transparent;
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: var(--btn-font-md);
+    font-weight: var(--btn-weight);
+    gap: var(--btn-gap);
+    line-height: 1;
+    list-style: none;
+    min-height: var(--btn-min-h-md);
+    padding: var(--btn-pad-md);
+    transition: var(--btn-transition);
+  }
 
-    &>details {
-      &>summary {
-        align-items: center;
-        border: 2px solid transparent;
-        border-radius: var(--btn-radius);
-        cursor: pointer;
-        display: inline-flex;
-        font-size: var(--btn-font-md);
-        font-weight: var(--btn-weight);
-        gap: var(--btn-gap);
-        line-height: 1;
-        list-style: none;
-        min-height: var(--btn-min-h-md);
-        padding: var(--btn-pad-md);
-        transition: var(--btn-transition);
+  #loan-status [data-actions-card]>details>summary::-webkit-details-marker {
+    display: none;
+  }
 
-        &::-webkit-details-marker {
-          display: none;
-        }
+  #loan-status [data-actions-card]>details>summary:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
+  }
 
-        &:focus-visible {
-          outline: 2px solid var(--mountain-gold);
-          outline-offset: 2px;
-        }
+  #loan-status [data-actions-card]>details>summary:active {
+    transform: scale(0.98);
+  }
 
-        &:active {
-          transform: scale(0.98);
-        }
-      }
+  #loan-status [data-actions-card]>details>summary[data-intent="danger"] {
+    background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
+    border-bottom: 3px solid var(--btn-danger-border);
+    color: var(--btn-text-light);
+  }
 
-      &>summary[data-intent="danger"] {
-        background: linear-gradient(to bottom, var(--btn-danger-from), var(--btn-danger-to));
-        border-bottom: 3px solid var(--btn-danger-border);
-        color: var(--btn-text-light);
+  #loan-status [data-actions-card]>details>summary[data-intent="danger"]:is(:hover, :focus-visible) {
+    background: linear-gradient(to bottom, var(--btn-danger-hover-from), var(--btn-danger-hover-to));
+  }
 
-        &:is(:hover, :focus-visible) {
-          background: linear-gradient(to bottom, var(--btn-danger-hover-from), var(--btn-danger-hover-to));
-        }
-      }
+  #loan-status [data-actions-card]>details>summary[data-intent="warning"] {
+    background: linear-gradient(to bottom, var(--btn-warning-from), var(--btn-warning-to));
+    color: var(--btn-text-light);
+  }
 
-      &>summary[data-intent="warning"] {
-        background: linear-gradient(to bottom, var(--btn-warning-from), var(--btn-warning-to));
-        color: var(--btn-text-light);
+  #loan-status [data-actions-card]>details>summary[data-intent="warning"]:is(:hover, :focus-visible) {
+    background: linear-gradient(to bottom, var(--btn-warning-hover-from), var(--btn-warning-hover-to));
+  }
 
-        &:is(:hover, :focus-visible) {
-          background: linear-gradient(to bottom, var(--btn-warning-hover-from), var(--btn-warning-hover-to));
-        }
-      }
+  #loan-status [data-actions-card]>details[open]>summary {
+    margin-bottom: 0.5rem;
+  }
 
-      &[open]>summary {
-        margin-bottom: 0.5rem;
-      }
+  #loan-status [data-actions-card]>details>form {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+    gap: 0.375rem;
+    max-width: 28rem;
+  }
 
-      &>form {
-        display: flex;
-        flex-direction: column;
-        flex-basis: 100%;
-        gap: 0.375rem;
-        max-width: 28rem;
+  #loan-status [data-actions-card]>details>form>label {
+    color: var(--mountain-slate);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
 
-        &>label {
-          color: var(--mountain-slate);
-          font-size: 0.75rem;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-          text-transform: uppercase;
-        }
+  #loan-status [data-actions-card]>details>form>textarea,
+  #loan-status [data-actions-card]>details>form>input[type="number"] {
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.375rem;
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.625rem;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
 
-        &>textarea,
-        &>input[type="number"] {
-          border: 1px solid var(--mountain-fog);
-          border-radius: 0.375rem;
-          font: inherit;
-          font-size: 0.875rem;
-          padding: 0.5rem 0.625rem;
-          transition: border-color 0.2s;
-          width: 100%;
+  #loan-status [data-actions-card]>details>form>textarea:focus,
+  #loan-status [data-actions-card]>details>form>input[type="number"]:focus {
+    border-color: var(--mountain-pine-light);
+    outline: 2px solid var(--mountain-gold-light);
+    outline-offset: 1px;
+  }
 
-          &:focus {
-            border-color: var(--mountain-pine-light);
-            outline: 2px solid var(--mountain-gold-light);
-            outline-offset: 1px;
-          }
+  #loan-status [data-actions-card]>details>form>textarea::placeholder,
+  #loan-status [data-actions-card]>details>form>input[type="number"]::placeholder {
+    color: var(--mountain-mist-light);
+  }
 
-          &::placeholder {
-            color: var(--mountain-mist-light);
-          }
-        }
+  #loan-status [data-actions-card]>details>form>input[type="number"] {
+    max-width: 8rem;
+  }
 
-        &>input[type="number"] {
-          max-width: 8rem;
-        }
+  #loan-status [data-actions-card]>details>form>button[type="submit"] {
+    align-self: flex-start;
+    background: var(--mountain-pine-light);
+    border: none;
+    border-radius: 0.375rem;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.813rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+    min-height: 2rem;
+    padding: 0.375rem 0.75rem;
+    transition: background 0.2s;
+  }
 
-        &>button[type="submit"] {
-          align-self: flex-start;
-          background: var(--mountain-pine-light);
-          border: none;
-          border-radius: 0.375rem;
-          color: #fff;
-          cursor: pointer;
-          font-size: 0.813rem;
-          font-weight: 600;
-          margin-top: 0.25rem;
-          min-height: 2rem;
-          padding: 0.375rem 0.75rem;
-          transition: background 0.2s;
+  #loan-status [data-actions-card]>details>form>button[type="submit"]:is(:hover, :focus-visible) {
+    background: var(--mountain-pine);
+  }
 
-          &:is(:hover, :focus-visible) {
-            background: var(--mountain-pine);
-          }
-
-          &:focus-visible {
-            outline: 2px solid var(--mountain-gold);
-            outline-offset: 2px;
-          }
-        }
-      }
-    }
+  #loan-status [data-actions-card]>details>form>button[type="submit"]:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
   }
 
   /* ── History table — inline rate link ── */
@@ -1713,20 +1863,20 @@
     text-decoration: none;
     transition: color 0.2s;
     white-space: nowrap;
+  }
 
-    &:is(:hover, :focus-visible) {
-      color: var(--mountain-pine);
-    }
+  [data-rate-link]:is(:hover, :focus-visible) {
+    color: var(--mountain-pine);
+  }
 
-    &:focus-visible {
-      outline: 2px solid var(--mountain-gold);
-      outline-offset: 2px;
-      border-radius: 0.25rem;
-    }
+  [data-rate-link]:focus-visible {
+    outline: 2px solid var(--mountain-gold);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
 
-    &>i {
-      font-size: 0.75rem;
-    }
+  [data-rate-link]>i {
+    font-size: 0.75rem;
   }
 
   /* ── Loan status — rate CTA ── */
@@ -1735,96 +1885,93 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-
-    &>h2 {
-      flex-basis: 100%;
-    }
-
-    &>[data-rate-cta] {
-      align-items: center;
-      background: linear-gradient(135deg, var(--mountain-gold) 0%, var(--mountain-gold-dark) 100%);
-      border-radius: 0.375rem;
-      color: #fff;
-      display: inline-flex;
-      font-size: 0.875rem;
-      font-weight: 600;
-      gap: 0.4rem;
-      min-height: 2.75rem;
-      padding: 0.5rem 1.25rem;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
-
-      &:is(:hover, :focus-visible) {
-        background: linear-gradient(135deg, var(--mountain-gold-dark) 0%, var(--mountain-pine) 100%);
-        transform: scale(1.02);
-      }
-
-      &:focus-visible {
-        outline: 2px solid var(--mountain-pine);
-        outline-offset: 2px;
-      }
-    }
   }
 
-  #loan-status [data-loan-card][aria-labelledby="ratings-heading"] {
+  #loan-status [data-loan-card][aria-labelledby="rate-heading"]>h2 {
+    flex-basis: 100%;
+  }
 
-    &>[data-rating-card] {
-      border: 1px solid var(--mountain-fog);
-      border-radius: 0.5rem;
-      padding: 1rem;
+  #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta] {
+    align-items: center;
+    background: linear-gradient(135deg, var(--mountain-gold) 0%, var(--mountain-gold-dark) 100%);
+    border-radius: 0.375rem;
+    color: #fff;
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 600;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.25rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
 
-      &:not(:last-of-type) {
-        margin-bottom: 0.75rem;
-      }
+  #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta]:is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, var(--mountain-gold-dark) 0%, var(--mountain-pine) 100%);
+    transform: scale(1.02);
+  }
 
-      &>h3 {
-        align-items: baseline;
-        color: var(--mountain-pine);
-        display: flex;
-        flex-wrap: wrap;
-        font-size: 0.875rem;
-        font-weight: 600;
-        gap: 0.25rem 0.75rem;
-        margin-bottom: 0.5rem;
+  #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta]:focus-visible {
+    outline: 2px solid var(--mountain-pine);
+    outline-offset: 2px;
+  }
 
-        &>span {
-          color: var(--mountain-mist);
-          font-size: 0.813rem;
-          font-weight: 400;
-        }
-      }
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card] {
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
 
-      &>[role="img"] {
-        color: var(--mountain-gold-dark);
-        display: flex;
-        gap: 0.125rem;
-        margin-bottom: 0.5rem;
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]:not(:last-of-type) {
+    margin-bottom: 0.75rem;
+  }
 
-        &>i {
-          font-size: 0.938rem;
-        }
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>h3 {
+    align-items: baseline;
+    color: var(--mountain-pine);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+    font-weight: 600;
+    gap: 0.25rem 0.75rem;
+    margin-bottom: 0.5rem;
+  }
 
-        &>i.fa-regular {
-          color: var(--mountain-fog);
-        }
-      }
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>h3>span {
+    color: var(--mountain-mist);
+    font-size: 0.813rem;
+    font-weight: 400;
+  }
 
-      &>blockquote {
-        border-left: 3px solid var(--mountain-pine-light);
-        color: var(--mountain-slate);
-        font-size: 0.875rem;
-        font-style: italic;
-        line-height: 1.5;
-        margin: 0 0 0.5rem;
-        padding: 0.375rem 0 0.375rem 0.75rem;
-      }
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>[role="img"] {
+    color: var(--mountain-gold-dark);
+    display: flex;
+    gap: 0.125rem;
+    margin-bottom: 0.5rem;
+  }
 
-      &>time {
-        color: var(--mountain-mist);
-        display: block;
-        font-size: 0.75rem;
-      }
-    }
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>[role="img"]>i {
+    font-size: 0.938rem;
+  }
+
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>[role="img"]>i.fa-regular {
+    color: var(--mountain-fog);
+  }
+
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>blockquote {
+    border-left: 3px solid var(--mountain-pine-light);
+    color: var(--mountain-slate);
+    font-size: 0.875rem;
+    font-style: italic;
+    line-height: 1.5;
+    margin: 0 0 0.5rem;
+    padding: 0.375rem 0 0.375rem 0.75rem;
+  }
+
+  #loan-status [data-loan-card][aria-labelledby="ratings-heading"]>[data-rating-card]>time {
+    color: var(--mountain-mist);
+    display: block;
+    font-size: 0.75rem;
   }
 
   /* ── Lender page tool grid ── */
@@ -1864,11 +2011,13 @@
     padding: 0.625rem 1.25rem;
     text-decoration: none;
     transition: background 0.25s;
+  }
 
-    &:is(:hover, :focus-visible) {
-      background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
-      color: #fff;
-    }
+  main>section:is([aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"]) a[role="button"]:is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, var(--mountain-pine) 0%, var(--mountain-pine-dark) 100%);
+    color: #fff;
   }
 
   /* --- Profile -------------------------------------------- */
@@ -1878,627 +2027,619 @@
     margin: 0 auto;
     max-width: 1100px;
     padding: 2rem 1.5rem;
-
-    & nav[aria-label="Dashboard navigation"] {
-
-      &>ul>li>a {
-        font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
-        padding: 0 1rem;
-      }
-
-      &>ul>li[data-separator] {
-        display: none;
-      }
-    }
-
-    &>header:not(:has(> form)),
-    & [data-profile-card] {
-      align-items: center;
-      border-bottom: 1px solid var(--mountain-fog);
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      justify-content: center;
-      margin-bottom: 2rem;
-      min-height: var(--_header-min-h);
-      padding-bottom: 2rem;
-      position: relative;
-      text-align: center;
-
-      &>:is(h1, h2) {
-        align-items: center;
-        color: var(--mountain-pine);
-        display: flex;
-        font-family: Georgia, 'Times New Roman', serif;
-        gap: 0.75rem;
-
-        & img {
-          aspect-ratio: 1;
-          border: 3px solid var(--mountain-gold);
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          flex-shrink: 0;
-          object-fit: cover;
-          width: clamp(56px, 9vw, 72px);
-        }
-      }
-
-      &>p {
-        align-items: center;
-        color: var(--mountain-mist);
-        display: flex;
-        flex-wrap: wrap;
-        font-size: clamp(0.875rem, 0.813rem + 0.25vw, 1rem);
-        gap: 0.125rem 0.75rem;
-        justify-content: center;
-
-        & i {
-          color: var(--mountain-gold-darker);
-          margin-right: 0.25rem;
-        }
-      }
-
-      &>ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-        list-style: none;
-        margin-top: 0.25rem;
-
-        &>li {
-          background: var(--mountain-cloud);
-          border: 1px solid var(--mountain-fog);
-          border-radius: 2rem;
-          color: var(--mountain-slate);
-          font-size: 0.938rem;
-          font-weight: 500;
-          padding: 0.5rem 1.25rem;
-
-          &>i {
-            color: var(--mountain-gold-darker);
-            margin-right: 0.25rem;
-          }
-        }
-      }
-
-      &>a[href="/profile/edit"] {
-        align-items: center;
-        background: var(--mountain-pine);
-        border-radius: 0.375rem;
-        color: #fff;
-        display: inline-flex;
-        font-size: 0.813rem;
-        font-weight: 600;
-        gap: 0.375rem;
-        padding: 0.375rem 0.875rem;
-        position: absolute;
-        right: 0;
-        text-decoration: none;
-        top: 0;
-        transition: background-color 0.2s;
-
-        &:is(:hover, :focus-visible) {
-          background: var(--mountain-pine-light);
-          color: #fff;
-        }
-      }
-    }
-
-    & section[aria-labelledby="ratings-heading"] {
-      margin-bottom: 2rem;
-
-      &>h2 {
-        color: var(--mountain-pine);
-        margin-bottom: 1rem;
-      }
-
-      &>div {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-
-        &>div {
-          background: var(--mountain-cloud);
-          border: 1px solid var(--mountain-fog);
-          border-radius: 0.75rem;
-          padding: 1.25rem;
-
-          &>h3 {
-            color: var(--mountain-slate);
-            font-size: 0.813rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-          }
-
-          &>p:first-of-type {
-            margin-bottom: 0.25rem;
-
-            &>i.fa-star {
-              color: var(--mountain-gold-darker);
-              font-size: 1.125rem;
-            }
-
-            &>i.fa-regular {
-              color: var(--mountain-mist);
-            }
-          }
-
-          &>p:last-of-type {
-            color: var(--mountain-mist);
-            font-size: 0.875rem;
-            margin-bottom: 0;
-          }
-        }
-      }
-    }
-
-    & section[aria-labelledby="bio-heading"] {
-      margin-bottom: 2rem;
-
-      &>h2 {
-        color: var(--mountain-pine);
-        margin-bottom: 0.75rem;
-      }
-
-      &>p {
-        color: var(--mountain-charcoal);
-        line-height: 1.7;
-        margin-bottom: 0;
-      }
-    }
-
-    & section[aria-labelledby="tools-heading"] {
-
-      &>h2 {
-        color: var(--mountain-pine);
-        margin-bottom: 1rem;
-      }
-
-      &>div[aria-live] {
-        margin-bottom: 1rem;
-
-        &>p {
-          color: var(--mountain-mist);
-          font-size: 0.938rem;
-          margin-bottom: 0;
-
-          &>strong {
-            color: var(--mountain-pine);
-          }
-        }
-      }
-
-      &>div[role="list"] {
-        display: grid;
-        gap: 1.5rem;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      }
-
-      &>div[role="list"]>div>article {
-        flex: none;
-        min-width: 0;
-        width: auto;
-      }
-
-      &>section[aria-label="No tools"] {
-        padding: 4rem 0;
-        text-align: center;
-
-        &>i {
-          color: var(--mountain-fog);
-          font-size: 3rem;
-          margin-bottom: 1rem;
-        }
-
-        &>h3 {
-          color: var(--mountain-pine);
-          margin-bottom: 0.5rem;
-        }
-
-        &>p {
-          color: var(--mountain-mist);
-          margin-bottom: 1.25rem;
-        }
-
-      }
-    }
-
   }
 
-  @media (min-width: 1100px) {
-    main>:is(article, section)[aria-labelledby="profile-heading"] [data-dashboard-body]:not(:has(> nav)) {
-      display: block;
-    }
+  main>:is(article, section)[aria-labelledby="profile-heading"] nav[aria-label="Dashboard navigation"]>ul>li>a {
+    font-size: var(--font-size-xs);
+    padding: 0 1rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] nav[aria-label="Dashboard navigation"]>ul>li[data-separator] {
+    display: none;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form)),
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card] {
+    align-items: center;
+    border-bottom: 1px solid var(--mountain-fog);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    min-height: var(--_header-min-h);
+    padding-bottom: 2rem;
+    position: relative;
+    text-align: center;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>:is(h1, h2),
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>:is(h1, h2) {
+    align-items: center;
+    color: var(--mountain-pine);
+    display: flex;
+    font-family: Georgia, 'Times New Roman', serif;
+    gap: 0.75rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>:is(h1, h2) img,
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>:is(h1, h2) img {
+    aspect-ratio: 1;
+    border: 3px solid var(--mountain-gold);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    object-fit: cover;
+    width: clamp(56px, 9vw, 72px);
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>p,
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>p {
+    align-items: center;
+    color: var(--mountain-mist);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: clamp(0.875rem, 0.813rem + 0.25vw, 1rem);
+    gap: 0.125rem 0.75rem;
+    justify-content: center;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>p i,
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>p i {
+    color: var(--mountain-gold-darker);
+    margin-right: 0.25rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>ul,
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    list-style: none;
+    margin-top: 0.25rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>ul>li,
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>ul>li {
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 2rem;
+    color: var(--mountain-slate);
+    font-size: 0.938rem;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>ul>li>i,
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>ul>li>i {
+    color: var(--mountain-gold-darker);
+    margin-right: 0.25rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>a[href="/profile/edit"],
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>a[href="/profile/edit"] {
+    align-items: center;
+    background: var(--mountain-pine);
+    border-radius: 0.375rem;
+    color: #fff;
+    display: inline-flex;
+    font-size: 0.813rem;
+    font-weight: 600;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    position: absolute;
+    right: 0;
+    text-decoration: none;
+    top: 0;
+    transition: background-color 0.2s;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>a[href="/profile/edit"]:is(:hover, :focus-visible),
+  main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>a[href="/profile/edit"]:is(:hover, :focus-visible) {
+    background: var(--mountain-pine-light);
+    color: #fff;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"] {
+    margin-bottom: 2rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>h2 {
+    color: var(--mountain-pine);
+    margin-bottom: 1rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div {
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div>h3 {
+    color: var(--mountain-slate);
+    font-size: 0.813rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div>p:first-of-type {
+    margin-bottom: 0.25rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div>p:first-of-type>i.fa-star {
+    color: var(--mountain-gold-darker);
+    font-size: 1.125rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div>p:first-of-type>i.fa-regular {
+    color: var(--mountain-mist);
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div>p:last-of-type {
+    color: var(--mountain-mist);
+    font-size: 0.875rem;
+    margin-bottom: 0;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="bio-heading"] {
+    margin-bottom: 2rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="bio-heading"]>h2 {
+    color: var(--mountain-pine);
+    margin-bottom: 0.75rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="bio-heading"]>p {
+    color: var(--mountain-charcoal);
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>h2 {
+    color: var(--mountain-pine);
+    margin-bottom: 1rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[aria-live] {
+    margin-bottom: 1rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[aria-live]>p {
+    color: var(--mountain-mist);
+    font-size: 0.938rem;
+    margin-bottom: 0;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[aria-live]>p>strong {
+    color: var(--mountain-pine);
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[role="list"] {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[role="list"]>div>article {
+    flex: none;
+    min-width: 0;
+    width: auto;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>section[aria-label="No tools"] {
+    padding: 4rem 0;
+    text-align: center;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>section[aria-label="No tools"]>i {
+    color: var(--mountain-fog);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>section[aria-label="No tools"]>h3 {
+    color: var(--mountain-pine);
+    margin-bottom: 0.5rem;
+  }
+
+  main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>section[aria-label="No tools"]>p {
+    color: var(--mountain-mist);
+    margin-bottom: 1.25rem;
   }
 
   #profile-edit {
     margin: 0 auto;
     max-width: 1100px;
     padding: 2rem 1.5rem;
+  }
 
-    &>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
+  #profile-edit>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a {
+    font-size: var(--font-size-xs);
+    padding: 0 1rem;
+  }
 
-      &>ul>li>a {
-        font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
-        padding: 0 1rem;
-      }
+  #profile-edit>[data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li[data-separator] {
+    display: none;
+  }
 
-      &>ul>li[data-separator] {
-        display: none;
-      }
-    }
+  #profile-edit>header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
 
-    &>header {
-      margin-bottom: 1.5rem;
-      text-align: center;
+  #profile-edit>header>h1 {
+    color: var(--mountain-pine);
+    margin-bottom: 0.375rem;
+  }
 
-      &>h1 {
-        color: var(--mountain-pine);
-        margin-bottom: 0.375rem;
+  #profile-edit>header>h1>i {
+    color: var(--mountain-gold-darker);
+    margin-right: 0.25rem;
+  }
 
-        &>i {
-          color: var(--mountain-gold-darker);
-          margin-right: 0.25rem;
-        }
-      }
+  #profile-edit>header>p {
+    color: var(--mountain-mist);
+    font-size: 0.938rem;
+  }
 
-      &>p {
-        color: var(--mountain-mist);
-        font-size: 0.938rem;
-      }
-    }
+  #profile-edit>[data-dashboard-body]>ul[role="alert"] {
+    background: var(--alert-danger-bg);
+    border: 1px solid var(--alert-danger-border);
+    border-radius: 0.5rem;
+    color: var(--alert-danger-text);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    list-style: disc inside;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+  }
 
-    &>[data-dashboard-body]>ul[role="alert"] {
-      background: var(--alert-danger-bg);
-      border: 1px solid var(--alert-danger-border);
-      border-radius: 0.5rem;
-      color: var(--alert-danger-text);
-      font-size: 0.875rem;
-      line-height: 1.5;
-      list-style: disc inside;
-      margin-bottom: 1.25rem;
-      padding: 0.75rem 1rem;
-    }
+  #profile-edit form {
+    display: flex;
+    flex-direction: column;
+  }
 
-    & form {
-      display: flex;
-      flex-direction: column;
-    }
+  #profile-edit fieldset {
+    background: var(--mountain-cloud);
+    border: 1px solid var(--mountain-fog);
+    border-radius: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 1.5rem;
+  }
 
-    & fieldset {
-      background: var(--mountain-cloud);
-      border: 1px solid var(--mountain-fog);
-      border-radius: 1rem;
-      margin-bottom: 1.25rem;
-      padding: 1.5rem;
+  #profile-edit fieldset>legend {
+    color: var(--mountain-pine);
+    font-size: 0.813rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
 
-      &>legend {
-        color: var(--mountain-pine);
-        font-size: 0.813rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
+  #profile-edit fieldset>div {
+    margin-bottom: 1rem;
+  }
 
-      &>div {
-        margin-bottom: 1rem;
+  #profile-edit fieldset>div:last-child {
+    margin-bottom: 0;
+  }
 
-        &:last-child {
-          margin-bottom: 0;
-        }
+  #profile-edit fieldset>div>label {
+    color: var(--mountain-slate);
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.375rem;
+  }
 
-        &>label {
-          color: var(--mountain-slate);
-          display: block;
-          font-size: 0.875rem;
-          font-weight: 600;
-          margin-bottom: 0.375rem;
+  #profile-edit fieldset>div>label>span {
+    color: var(--field-error);
+  }
 
-          &>span {
-            color: var(--field-error);
-          }
-        }
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea) {
+    background: var(--mountain-cream);
+    border: 1.5px solid var(--mountain-fog);
+    border-radius: 0.5rem;
+    color: var(--mountain-charcoal);
+    padding: 0.625rem 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
 
-        &> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea) {
-          background: var(--mountain-cream);
-          border: 1.5px solid var(--mountain-fog);
-          border-radius: 0.5rem;
-          color: var(--mountain-charcoal);
-          padding: 0.625rem 0.875rem;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          width: 100%;
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea):focus {
+    border-color: var(--mountain-pine-light);
+    box-shadow: 0 0 0 3px var(--glow-pine);
+    outline: none;
+  }
 
-          &:focus {
-            border-color: var(--mountain-pine-light);
-            box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
-            outline: none;
-          }
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea)[aria-invalid="true"] {
+    border-color: var(--field-error-border);
+  }
 
-          &[aria-invalid="true"] {
-            border-color: var(--field-error-border);
-          }
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea)[readonly] {
+    background: var(--mountain-fog);
+    color: var(--mountain-mist);
+    cursor: default;
+  }
 
-          &[readonly] {
-            background: var(--mountain-fog);
-            color: var(--mountain-mist);
-            cursor: default;
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea)[readonly]:focus {
+    border-color: var(--mountain-fog);
+    box-shadow: none;
+  }
 
-            &:focus {
-              border-color: var(--mountain-fog);
-              box-shadow: none;
-            }
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select, textarea)[readonly] + p {
+    color: var(--mountain-mist);
+    font-size: 0.813rem;
+    margin-top: 0.25rem;
+  }
 
-            & + p {
-              color: var(--mountain-mist);
-              font-size: 0.813rem;
-              margin-top: 0.25rem;
-            }
-          }
-        }
+  #profile-edit fieldset>div> :is(input[type="text"], input[type="email"], input[type="tel"], select) {
+    min-height: 2.75rem;
+  }
 
-        &> :is(input[type="text"], input[type="email"], input[type="tel"], select) {
-          min-height: 2.75rem;
-        }
+  #profile-edit fieldset>div>select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23394a53' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-position: right 0.875rem center;
+    background-repeat: no-repeat;
+    background-size: 12px;
+    padding-right: 2.5rem;
+  }
 
-        &>select {
-          appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23394a53' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-          background-position: right 0.875rem center;
-          background-repeat: no-repeat;
-          background-size: 12px;
-          padding-right: 2.5rem;
-        }
+  #profile-edit fieldset>div>textarea {
+    min-height: 8rem;
+    resize: vertical;
+  }
 
-        &>textarea {
-          min-height: 8rem;
-          resize: vertical;
-        }
+  #profile-edit fieldset>div>input[type="file"] {
+    background: var(--mountain-cream);
+    border: 1.5px dashed var(--mountain-fog);
+    border-radius: 0.5rem;
+    color: var(--mountain-charcoal);
+    cursor: pointer;
+    padding: 0.75rem;
+    width: 100%;
+  }
 
-        &>input[type="file"] {
-          background: var(--mountain-cream);
-          border: 1.5px dashed var(--mountain-fog);
-          border-radius: 0.5rem;
-          color: var(--mountain-charcoal);
-          cursor: pointer;
-          padding: 0.75rem;
-          width: 100%;
+  #profile-edit fieldset>div>input[type="file"]::file-selector-button {
+    background: var(--mountain-pine-light);
+    border: none;
+    border-radius: 0.375rem;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.813rem;
+    font-weight: 600;
+    margin-right: 0.75rem;
+    padding: 0.375rem 0.875rem;
+    transition: background 0.2s;
+  }
 
-          &::file-selector-button {
-            background: var(--mountain-pine-light);
-            border: none;
-            border-radius: 0.375rem;
-            color: #fff;
-            cursor: pointer;
-            font-size: 0.813rem;
-            font-weight: 600;
-            margin-right: 0.75rem;
-            padding: 0.375rem 0.875rem;
-            transition: background 0.2s;
-          }
+  #profile-edit fieldset>div>input[type="file"]::file-selector-button:hover {
+    background: var(--mountain-pine);
+  }
 
-          &::file-selector-button:hover {
-            background: var(--mountain-pine);
-          }
+  #profile-edit fieldset>div>input[type="file"]:focus {
+    border-color: var(--mountain-pine-light);
+    box-shadow: 0 0 0 3px var(--glow-pine);
+    outline: none;
+  }
 
-          &:focus {
-            border-color: var(--mountain-pine-light);
-            box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
-            outline: none;
-          }
-        }
+  #profile-edit fieldset>div>p[role="alert"] {
+    color: var(--field-error);
+    font-size: 0.813rem;
+    margin: 0.25rem 0 0;
+  }
 
-        &>p[role="alert"] {
-          color: var(--field-error);
-          font-size: 0.813rem;
-          margin: 0.25rem 0 0;
-        }
-      }
+  #profile-edit fieldset>[data-avatar-heading] {
+    border-top: 1px solid var(--mountain-fog);
+    color: var(--mountain-slate);
+    font-size: 0.813rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+  }
 
-      &>[data-avatar-heading] {
-        border-top: 1px solid var(--mountain-fog);
-        color: var(--mountain-slate);
-        font-size: 0.813rem;
-        font-weight: 600;
-        margin-top: 1.25rem;
-        padding-top: 1.25rem;
-      }
+  #profile-edit fieldset>[data-avatar-grid] {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    margin-top: 0.75rem;
+  }
 
-      &>[data-avatar-grid] {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
-        margin-top: 0.75rem;
+  #profile-edit fieldset>[data-avatar-grid]>label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+  }
 
-        &>label {
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.375rem;
+  #profile-edit fieldset>[data-avatar-grid]>label>input[type="radio"] {
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    width: 1px;
+  }
 
-          &>input[type="radio"] {
-            height: 1px;
-            overflow: hidden;
-            position: absolute;
-            width: 1px;
-          }
+  #profile-edit fieldset>[data-avatar-grid]>label>span {
+    border: 2px solid transparent;
+    border-radius: 50%;
+    display: grid;
+    overflow: hidden;
+    padding: 0.1875rem;
+    place-items: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
 
-          &>span {
-            border: 2px solid transparent;
-            border-radius: 50%;
-            display: grid;
-            overflow: hidden;
-            padding: 0.1875rem;
-            place-items: center;
-            transition: border-color 0.2s, box-shadow 0.2s;
+  #profile-edit fieldset>[data-avatar-grid]>label>span>img {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: block;
+    height: auto;
+    object-fit: cover;
+    width: 60px;
+  }
 
-            &>img {
-              aspect-ratio: 1;
-              border-radius: 50%;
-              display: block;
-              height: auto;
-              object-fit: cover;
-              width: 60px;
-            }
-          }
+  #profile-edit fieldset>[data-avatar-grid]>label>small {
+    color: var(--mountain-mist);
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
 
-          &>small {
-            color: var(--mountain-mist);
-            font-size: 0.6875rem;
-            letter-spacing: 0.02em;
-            line-height: 1;
-          }
+  #profile-edit fieldset>[data-avatar-grid]>label>input[type="radio"]:checked+span {
+    border-color: var(--mountain-pine);
+    box-shadow: 0 0 0 3px var(--glow-pine-strong);
+  }
 
-          &>input[type="radio"]:checked+span {
-            border-color: var(--mountain-pine);
-            box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.2);
-          }
+  #profile-edit fieldset>[data-avatar-grid]>label>input[type="radio"]:checked ~ small {
+    color: var(--mountain-pine);
+    font-weight: 600;
+  }
 
-          &>input[type="radio"]:checked ~ small {
-            color: var(--mountain-pine);
-            font-weight: 600;
-          }
+  #profile-edit fieldset>[data-avatar-grid]>label>input[type="radio"]:focus-visible+span {
+    border-color: var(--mountain-pine-light);
+    box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.35);
+    outline: 2px solid var(--mountain-pine-light);
+    outline-offset: 2px;
+  }
 
-          &>input[type="radio"]:focus-visible+span {
-            border-color: var(--mountain-pine-light);
-            box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.35);
-            outline: 2px solid var(--mountain-pine-light);
-            outline-offset: 2px;
-          }
+  #profile-edit fieldset>[data-avatar-grid]>label:hover>span {
+    border-color: var(--mountain-pine-light);
+  }
 
-          &:hover>span {
-            border-color: var(--mountain-pine-light);
-          }
-        }
-      }
+  #profile-edit fieldset>dl {
+    display: grid;
+    gap: 0.375rem 1rem;
+    grid-template-columns: auto 1fr;
+  }
 
-      &>dl {
-        display: grid;
-        gap: 0.375rem 1rem;
-        grid-template-columns: auto 1fr;
+  #profile-edit fieldset>dl>dt {
+    color: var(--mountain-slate);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
 
-        &>dt {
-          color: var(--mountain-slate);
-          font-size: 0.875rem;
-          font-weight: 600;
-        }
+  #profile-edit fieldset>dl>dd {
+    color: var(--mountain-charcoal);
+    font-size: 0.875rem;
+  }
 
-        &>dd {
-          color: var(--mountain-charcoal);
-          font-size: 0.875rem;
-        }
-      }
-    }
+  #profile-edit [data-profile-photo-upload] {
+    align-items: center;
+    display: flex;
+    gap: 1.25rem;
+  }
 
-    & [data-profile-photo-upload] {
-      align-items: center;
-      display: flex;
-      gap: 1.25rem;
+  #profile-edit [data-profile-photo-upload]>figure {
+    flex-shrink: 0;
+    margin: 0;
+  }
 
-      &>figure {
-        flex-shrink: 0;
-        margin: 0;
+  #profile-edit [data-profile-photo-upload]>figure img {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: block;
+    height: auto;
+    object-fit: cover;
+    width: 120px;
+  }
 
-        & img {
-          aspect-ratio: 1;
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          display: block;
-          height: auto;
-          object-fit: cover;
-          width: 120px;
-        }
-      }
+  #profile-edit [data-profile-photo-upload]>div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    min-width: 0;
+  }
 
-      &>div {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 0;
-        min-width: 0;
+  #profile-edit [data-profile-photo-upload]>div input[type="file"] {
+    background: var(--mountain-cream);
+    border: 1.5px dashed var(--mountain-fog);
+    border-radius: 0.5rem;
+    color: var(--mountain-charcoal);
+    cursor: pointer;
+    padding: 0.75rem;
+    width: 100%;
+  }
 
-        & input[type="file"] {
-          background: var(--mountain-cream);
-          border: 1.5px dashed var(--mountain-fog);
-          border-radius: 0.5rem;
-          color: var(--mountain-charcoal);
-          cursor: pointer;
-          padding: 0.75rem;
-          width: 100%;
+  #profile-edit [data-profile-photo-upload]>div input[type="file"]::file-selector-button {
+    background: var(--mountain-pine-light);
+    border: none;
+    border-radius: 0.375rem;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.813rem;
+    font-weight: 600;
+    margin-right: 0.75rem;
+    padding: 0.375rem 0.875rem;
+    transition: background 0.2s;
+  }
 
-          &::file-selector-button {
-            background: var(--mountain-pine-light);
-            border: none;
-            border-radius: 0.375rem;
-            color: #fff;
-            cursor: pointer;
-            font-size: 0.813rem;
-            font-weight: 600;
-            margin-right: 0.75rem;
-            padding: 0.375rem 0.875rem;
-            transition: background 0.2s;
-          }
+  #profile-edit [data-profile-photo-upload]>div input[type="file"]::file-selector-button:hover {
+    background: var(--mountain-pine);
+  }
 
-          &::file-selector-button:hover {
-            background: var(--mountain-pine);
-          }
+  #profile-edit [data-profile-photo-upload]>div input[type="file"]:focus {
+    border-color: var(--mountain-pine-light);
+    box-shadow: 0 0 0 3px var(--glow-pine);
+    outline: none;
+  }
 
-          &:focus {
-            border-color: var(--mountain-pine-light);
-            box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
-            outline: none;
-          }
-        }
+  #profile-edit [data-profile-photo-upload]>div p[role="alert"] {
+    color: var(--field-error);
+    font-size: 0.813rem;
+    margin: 0;
+  }
 
-        & p[role="alert"] {
-          color: var(--field-error);
-          font-size: 0.813rem;
-          margin: 0;
-        }
+  #profile-edit [data-profile-photo-upload]>div div:has([data-reposition-photo]) {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+  }
 
-        & div:has([data-reposition-photo]) {
-          align-items: center;
-          display: flex;
-          gap: 0.75rem;
-        }
+  #profile-edit [data-profile-photo-upload]>div [data-remove-photo] {
+    background: transparent;
+    border: none;
+    color: var(--field-error);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0;
+  }
 
-        & [data-remove-photo] {
-          background: transparent;
-          border: none;
-          color: var(--field-error);
-          cursor: pointer;
-          font-size: 0.75rem;
-          padding: 0;
+  #profile-edit [data-profile-photo-upload]>div [data-remove-photo]:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
 
-          &:is(:hover, :focus-visible) {
-            text-decoration: underline;
-          }
-        }
-      }
-    }
+  #profile-edit [data-reposition-photo] {
+    align-self: flex-start;
+    background: transparent;
+    border-color: var(--mountain-pine-light);
+    color: var(--mountain-pine);
+    font-size: 0.813rem;
+    min-height: 2rem;
+    padding: 0 0.75rem;
+  }
 
-    & [data-reposition-photo] {
-      align-self: flex-start;
-      background: transparent;
-      border-color: var(--mountain-pine-light);
-      color: var(--mountain-pine);
-      font-size: 0.813rem;
-      min-height: 2rem;
-      padding: 0 0.75rem;
+  #profile-edit [data-reposition-photo]:is(:hover, :focus-visible) {
+    background: var(--mountain-pine);
+    border-color: var(--mountain-pine);
+    color: #fff;
+  }
 
-      &:is(:hover, :focus-visible) {
-        background: var(--mountain-pine);
-        border-color: var(--mountain-pine);
-        color: #fff;
-      }
-    }
-
-    & form>button[type="submit"] {
-      align-self: flex-start;
-    }
+  #profile-edit form>button[type="submit"] {
+    align-self: flex-start;
   }
 
   /* ── Reduced motion ── */
@@ -2508,248 +2649,143 @@
   #main-content {
     --_dash-transition-ms: 250ms;
     --_dash-slide: opacity var(--_dash-transition-ms) ease, transform var(--_dash-transition-ms) ease;
-
-    &[data-transition="slide-out-left"] > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        opacity: 0;
-        transform: translateX(-3rem);
-        transition: var(--_dash-slide);
-      }
-    }
-
-    &[data-transition="slide-out-right"] > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        opacity: 0;
-        transform: translateX(3rem);
-        transition: var(--_dash-slide);
-      }
-    }
-
-    &[data-transition="slide-in-left"] > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        opacity: 0;
-        transform: translateX(-3rem);
-      }
-    }
-
-    &[data-transition="slide-in-right"] > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        opacity: 0;
-        transform: translateX(3rem);
-      }
-    }
-
-    &:not([data-transition]) > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        opacity: 1;
-        transform: translateX(0);
-        transition: var(--_dash-slide);
-      }
-    }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-
-    #main-content[data-transition] > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        transform: none;
-        transition: none;
-      }
-    }
-
-    #main-content:not([data-transition]) > section {
-      & > header > h1,
-      & > header > p,
-      & > [data-dashboard-body] > [data-dashboard-content] {
-        transition: none;
-      }
-    }
-
-    header>form[role="search"]>fieldset,
-    header>form[role="search"]>fieldset>button {
-      transition: none;
-    }
-
-    main>section:is([aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] select,
-    main>section:is([aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] button {
-      transition: none;
-    }
-
-    main>section#loan-status table td>form>button,
-    main>section#loan-status table td>details>summary {
-      transition: none;
-    }
-
-    [data-activity-card],
-    [data-activity-card]>footer[data-actions] details>summary {
-      transition: none;
-    }
-
-    #loan-status [data-loan-card]>ol>li::before {
-      transition: none;
-    }
-
-    #loan-status [data-actions-card]>form>button,
-    #loan-status [data-actions-card]>a[role="button"],
-    #loan-status [data-actions-card]>details>summary {
-      transition: none;
-    }
-
-    #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta] {
-      transition: none;
-    }
-
-    #profile-edit :is(input, select, textarea, button) {
-      transition: none;
-    }
+  #main-content[data-transition="slide-out-left"] > section > header > h1,
+  #main-content[data-transition="slide-out-left"] > section > header > p,
+  #main-content[data-transition="slide-out-left"] > section > [data-dashboard-body] > [data-dashboard-content] {
+    opacity: 0;
+    transform: translateX(-3rem);
+    transition: var(--_dash-slide);
   }
-
-  /* ── High contrast mode ── */
-
-  @media (prefers-contrast: more) {
-
-    section[aria-labelledby="summary-heading"]>ul>li>article>a,
-    section[aria-labelledby="admin-summary-heading"]>ul>li>article>a {
-      border-width: 2px;
-    }
-
-    main>section:is([aria-labelledby="history-heading"],
-      #loan-status) table thead {
-      border-bottom-width: 3px;
-    }
-
-    main>section#loan-status table td>form>button {
-      outline: 1px solid #fff;
-      outline-offset: -1px;
-    }
-
-    main>section#loan-status table td>details>summary {
-      border-width: 2px;
-    }
-
-    [data-activity-card] {
-      border-width: 2px;
-    }
-
-    main>section:is([aria-labelledby="dashboard-heading"],
-      [aria-labelledby="lender-heading"],
-      [aria-labelledby="borrower-heading"],
-      [aria-labelledby="history-heading"],
-      [aria-labelledby="profile-heading"],
-      #my-loans,
-      #loan-status,
-      #list-tool,
-      #edit-tool,
-      #profile-edit,
-      #bookmarks-page,
-      #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
-      border-bottom-width: 3px;
-
-      & a[aria-current="page"] {
-        border-bottom-width: 4px;
-      }
-    }
-
-    main>:is(article, section)[aria-labelledby="profile-heading"] {
-
-      &>header:not(:has(> form)),
-      & [data-profile-card] {
-        border-bottom-width: 2px;
-
-        &>:is(h1, h2) img {
-          border-width: 4px;
-        }
-
-        &>ul>li {
-          border-width: 2px;
-        }
-      }
-
-      & section[aria-labelledby="ratings-heading"]>div>div {
-        border-width: 2px;
-      }
-
-      & section[aria-labelledby="tools-heading"]>nav[aria-label="Pagination"]>ul>li>a {
-        border-color: var(--mountain-fog);
-      }
-    }
-
-    #profile-edit {
-
-      & fieldset {
-        border-width: 2px;
-      }
-
-      & :is(input, select, textarea) {
-        border-width: 2px;
-      }
-
-      & figure>img {
-        border-width: 3px;
-      }
-    }
+  #main-content[data-transition="slide-out-right"] > section > header > h1,
+  #main-content[data-transition="slide-out-right"] > section > header > p,
+  #main-content[data-transition="slide-out-right"] > section > [data-dashboard-body] > [data-dashboard-content] {
+    opacity: 0;
+    transform: translateX(3rem);
+    transition: var(--_dash-slide);
+  }
+  #main-content[data-transition="slide-in-left"] > section > header > h1,
+  #main-content[data-transition="slide-in-left"] > section > header > p,
+  #main-content[data-transition="slide-in-left"] > section > [data-dashboard-body] > [data-dashboard-content] {
+    opacity: 0;
+    transform: translateX(-3rem);
+  }
+  #main-content[data-transition="slide-in-right"] > section > header > h1,
+  #main-content[data-transition="slide-in-right"] > section > header > p,
+  #main-content[data-transition="slide-in-right"] > section > [data-dashboard-body] > [data-dashboard-content] {
+    opacity: 0;
+    transform: translateX(3rem);
+  }
+  #main-content:not([data-transition]) > section > header > h1,
+  #main-content:not([data-transition]) > section > header > p,
+  #main-content:not([data-transition]) > section > [data-dashboard-body] > [data-dashboard-content] {
+    opacity: 1;
+    transform: translateX(0);
+    transition: var(--_dash-slide);
   }
 
   /* --- Responsive ----------------------------------------- */
+
+  @media (min-width: 1100px) {
+    [data-dashboard-body] {
+      column-gap: 1.5rem;
+      display: grid;
+      grid-template-columns: max-content 1fr;
+    }
+
+    [data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
+      align-self: start;
+      border-bottom: none;
+      border-right: 2px solid var(--mountain-fog);
+      flex-direction: column;
+      grid-column: 1;
+      grid-row: 1 / span 20;
+      justify-content: flex-start;
+      overflow-x: visible;
+      padding-right: 1rem;
+      position: sticky;
+      top: 8rem;
+    }
+
+    [data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul {
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    [data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a {
+      border-bottom: none;
+      border-left: 3px solid transparent;
+      font-size: 0.8125rem;
+      margin-bottom: 0;
+      padding: 0.4375rem 0.75rem;
+    }
+
+    [data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a:is(:hover, :focus-visible) {
+      border-left-color: var(--mountain-gold-darker);
+    }
+
+    [data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li>a[aria-current="page"] {
+      border-left-color: var(--mountain-gold-light);
+    }
+
+    [data-dashboard-body]>nav[aria-label="Dashboard navigation"]>ul>li[data-separator] {
+      border-top: 1px solid var(--mountain-fog);
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    [data-dashboard-body]> :not(nav[aria-label="Dashboard navigation"]) {
+      grid-column: 2;
+    }
+
+    main>:is(article, section)[aria-labelledby="profile-heading"] [data-dashboard-body]:not(:has(> nav)) {
+      display: block;
+    }
+  }
 
   @media (max-width: 1099px) {
 
     nav[aria-label="Dashboard navigation"] {
       overflow-x: visible;
       scrollbar-gutter: auto;
-
-      &>ul {
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-        margin-bottom: 2rem;
-
-        &>li {
-          flex: 0 1 8rem;
-        }
-
-        &>li>a {
-          background: var(--mountain-cloud);
-          border-bottom: none;
-          border-radius: 0.375rem;
-          font-size: 0.75rem;
-          justify-content: center;
-          margin-bottom: 0;
-          padding: 0.5rem 0.75rem;
-          text-align: center;
-          width: 100%;
-        }
-
-        &>li>a[aria-current="page"] {
-          background: var(--mountain-pine);
-          color: #fff;
-        }
-
-        &>li[data-separator] {
-          display: none;
-        }
-      }
-
-      &+[data-dashboard-content] {
-        padding-top: 1rem;
-      }
     }
+
+    nav[aria-label="Dashboard navigation"]>ul {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    nav[aria-label="Dashboard navigation"]>ul>li {
+      flex: 0 1 8rem;
+    }
+
+    nav[aria-label="Dashboard navigation"]>ul>li>a {
+      background: var(--mountain-cloud);
+      border-bottom: none;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      justify-content: center;
+      margin-bottom: 0;
+      padding: 0.5rem 0.75rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    nav[aria-label="Dashboard navigation"]>ul>li>a[aria-current="page"] {
+      background: var(--mountain-pine);
+      color: #fff;
+    }
+
+    nav[aria-label="Dashboard navigation"]>ul>li[data-separator] {
+      display: none;
+    }
+
+    nav[aria-label="Dashboard navigation"]+[data-dashboard-content] {
+      padding-top: 1rem;
+    }
+
   }
 
   @media (max-width: 700px) {
@@ -2876,12 +2912,12 @@
 
     main>section#loan-status table td[data-actions] {
       flex-direction: column;
+    }
 
-      &>form,
-      &>details:not([open]) {
-        flex: unset;
-        min-width: unset;
-      }
+    main>section#loan-status table td[data-actions]>form,
+    main>section#loan-status table td[data-actions]>details:not([open]) {
+      flex: unset;
+      min-width: unset;
     }
 
     main>section#loan-status table td>form>button,
@@ -2896,14 +2932,18 @@
       [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset {
       flex-direction: column;
       align-items: stretch;
+    }
 
-      &>label>select {
-        width: 100%;
-      }
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset>label>select {
+      width: 100%;
+    }
 
-      &>button[type="submit"] {
-        align-self: flex-start;
-      }
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"]>fieldset>button[type="submit"] {
+      align-self: flex-start;
     }
 
     [data-card-list] {
@@ -2913,62 +2953,62 @@
     #loan-status [data-loan-card]>ol {
       flex-direction: column;
       gap: 0;
+    }
 
-      &>li {
-        align-items: flex-start;
-        flex-direction: row;
-        gap: 0.75rem;
-        padding: 0.75rem 0;
-        text-align: start;
+    #loan-status [data-loan-card]>ol>li {
+      align-items: flex-start;
+      flex-direction: row;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      text-align: left;
+    }
 
-        &::after {
-          background: var(--mountain-fog);
-          height: calc(100% - 2.25rem);
-          left: calc(1.125rem - 1px);
-          top: 2.25rem;
-          width: 2px;
-        }
+    #loan-status [data-loan-card]>ol>li::after {
+      background: var(--mountain-fog);
+      height: calc(100% - 2.25rem);
+      left: calc(1.125rem - 1px);
+      top: 2.25rem;
+      width: 2px;
+    }
 
-        &:last-child::after {
-          display: none;
-        }
-      }
+    #loan-status [data-loan-card]>ol>li:last-child::after {
+      display: none;
+    }
 
-      &>li[data-completed]::after {
-        background: var(--mountain-pine);
-      }
+    #loan-status [data-loan-card]>ol>li[data-completed]::after {
+      background: var(--mountain-pine);
     }
 
     #loan-status [data-loan-card]>dl {
       grid-template-columns: 1fr;
       row-gap: 0.25rem;
+    }
 
-      &>dt {
-        margin-top: 0.5rem;
-      }
+    #loan-status [data-loan-card]>dl>dt {
+      margin-top: 0.5rem;
+    }
 
-      &>dt:first-child {
-        margin-top: 0;
-      }
+    #loan-status [data-loan-card]>dl>dt:first-child {
+      margin-top: 0;
     }
 
     #loan-status [data-actions-card] {
       flex-direction: column;
+    }
 
-      &>form {
-        width: 100%;
-      }
+    #loan-status [data-actions-card]>form {
+      width: 100%;
+    }
 
-      &>form>button,
-      &>a[role="button"],
-      &>span[role="button"] {
-        justify-content: center;
-        width: 100%;
-      }
+    #loan-status [data-actions-card]>form>button,
+    #loan-status [data-actions-card]>a[role="button"],
+    #loan-status [data-actions-card]>span[role="button"] {
+      justify-content: center;
+      width: 100%;
+    }
 
-      &>details {
-        width: 100%;
-      }
+    #loan-status [data-actions-card]>details {
+      width: 100%;
     }
 
     #loan-status [data-next-step] > a[role="button"] {
@@ -2982,11 +3022,11 @@
 
     #loan-status [data-loan-card][aria-labelledby="rate-heading"] {
       flex-direction: column;
+    }
 
-      &>[data-rate-cta] {
-        justify-content: center;
-        width: 100%;
-      }
+    #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta] {
+      justify-content: center;
+      width: 100%;
     }
 
     section[aria-labelledby="listed-tools-heading"]>div[role="list"] {
@@ -3022,8 +3062,80 @@
     :is(
       section[aria-labelledby="listed-tools-heading"],
       main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]
-    )>nav[aria-label="Pagination"]>ul>li>:is(a, span[aria-disabled])>span {
+    )>nav[aria-label$="pagination" i]>ul>li>:is(a, span[aria-disabled])>span {
       display: none;
+    }
+
+  }
+
+  @media (max-width: 575px) {
+    main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button {
+      border-radius: 50%;
+      gap: 0;
+      height: 2.25rem;
+      justify-content: center;
+      min-height: 0;
+      min-width: 0;
+      padding: 0;
+      width: 2.25rem;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button>i,
+    main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button>span {
+      height: 0;
+      overflow: hidden;
+      width: 0;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+    [aria-labelledby="lender-heading"],
+    [aria-labelledby="borrower-heading"],
+    [aria-labelledby="history-heading"],
+    [aria-labelledby="loans-heading"],
+    [aria-labelledby="profile-heading"],
+    #loan-status,
+    #list-tool,
+    #edit-tool,
+    #profile-edit,
+    #bookmarks-page,
+    #events-page)>header>form[role="search"]>fieldset>button::after {
+      content: "\f002";
+      font-family: "Font Awesome 6 Free", sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
     }
   }
 
@@ -3064,10 +3176,7 @@
     }
 
     section[aria-labelledby="summary-heading"]>ul,
-    section[aria-labelledby="admin-summary-heading"]>ul {
-      grid-template-columns: 1fr;
-    }
-
+    section[aria-labelledby="admin-summary-heading"]>ul,
     section[aria-labelledby="admin-summary-heading"]>div {
       grid-template-columns: 1fr;
     }
@@ -3083,6 +3192,128 @@
     main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>div[role="list"] {
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
+
   }
+
+  /* ── High contrast mode ── */
+
+  @media (prefers-contrast: more) {
+
+    section[aria-labelledby="summary-heading"]>ul>li>article>a,
+    section[aria-labelledby="admin-summary-heading"]>ul>li>article>a {
+      border-width: 2px;
+    }
+
+    main>section:is([aria-labelledby="history-heading"],
+      #loan-status) table thead {
+      border-bottom-width: 3px;
+    }
+
+    main>section#loan-status table td>form>button {
+      outline: 1px solid #fff;
+      outline-offset: -1px;
+    }
+
+    main>section#loan-status table td>details>summary,
+    [data-activity-card] {
+      border-width: 2px;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
+      #my-loans,
+      #loan-status,
+      #list-tool,
+      #edit-tool,
+      #profile-edit,
+      #bookmarks-page,
+      #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] {
+      border-bottom-width: 3px;
+    }
+
+    main>section:is([aria-labelledby="dashboard-heading"],
+      [aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"],
+      [aria-labelledby="profile-heading"],
+      #my-loans,
+      #loan-status,
+      #list-tool,
+      #edit-tool,
+      #profile-edit,
+      #bookmarks-page,
+      #events-page)>[data-dashboard-body]>nav[aria-label="Dashboard navigation"] a[aria-current="page"] {
+      border-bottom-width: 4px;
+    }
+
+    main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form)),
+    main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card] {
+      border-bottom-width: 2px;
+    }
+
+    main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>:is(h1, h2) img,
+    main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>:is(h1, h2) img {
+      border-width: 4px;
+    }
+
+    main>:is(article, section)[aria-labelledby="profile-heading"]>header:not(:has(> form))>ul>li,
+    main>:is(article, section)[aria-labelledby="profile-heading"] [data-profile-card]>ul>li,
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="ratings-heading"]>div>div {
+      border-width: 2px;
+    }
+
+    main>:is(article, section)[aria-labelledby="profile-heading"] section[aria-labelledby="tools-heading"]>nav[aria-label$="pagination" i]>ul>li>a {
+      border-color: var(--mountain-fog);
+    }
+
+    #profile-edit fieldset,
+    #profile-edit :is(input, select, textarea) {
+      border-width: 2px;
+    }
+
+    #profile-edit figure>img {
+      border-width: 3px;
+    }
+
+  }
+
+  /* ── Reduced motion ── */
+
+  @media (prefers-reduced-motion: reduce) {
+    #main-content[data-transition] > section > header > h1,
+    #main-content[data-transition] > section > header > p,
+    #main-content[data-transition] > section > [data-dashboard-body] > [data-dashboard-content] {
+      transform: none;
+      transition: none;
+    }
+    #main-content:not([data-transition]) > section > header > h1,
+    #main-content:not([data-transition]) > section > header > p,
+    #main-content:not([data-transition]) > section > [data-dashboard-body] > [data-dashboard-content],
+    header>form[role="search"]>fieldset,
+    header>form[role="search"]>fieldset>button,
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] select,
+    main>section:is([aria-labelledby="lender-heading"],
+      [aria-labelledby="borrower-heading"],
+      [aria-labelledby="history-heading"]) form[aria-label*="Sort"] button,
+    main>section#loan-status table td>form>button,
+    main>section#loan-status table td>details>summary,
+    [data-activity-card],
+    [data-activity-card]>footer[data-actions] details>summary,
+    #loan-status [data-loan-card]>ol>li::before,
+    #loan-status [data-actions-card]>form>button,
+    #loan-status [data-actions-card]>a[role="button"],
+    #loan-status [data-actions-card]>details>summary,
+    #loan-status [data-loan-card][aria-labelledby="rate-heading"]>[data-rate-cta],
+    #profile-edit :is(input, select, textarea, button) {
+      transition: none;
+    }
+
+  }
+
 
 }

@@ -2,7 +2,18 @@
 
 @layer components {
 
-  /* ── Nav — mobile layout (always applies) ── */
+  /* ── Nav resize guard ── */
+  /* While the window is actively resizing (data-nav-resizing is set by
+     NavResizeGuard in nav.js), suppress every nav transition so the
+     breakpoint crossing at 985px doesn't animate the #top-links opacity
+     fade-out on shrink or the active-link partial-border fade on grow. */
+
+  body[data-nav-resizing] nav[aria-label="Main navigation"] #top-links,
+  body[data-nav-resizing] nav[aria-label="Main navigation"] #top-links * {
+    transition: none;
+  }
+
+  /* ── Viewport — max-width 985px (nav mobile + hamburger + unified menu) ── */
 
   @media (max-width: 985px) {
     nav[aria-label="Main navigation"] {
@@ -49,10 +60,7 @@
       justify-self: center;
     }
 
-    nav[aria-label="Main navigation"]>#top-links>li {
-      border-bottom: none;
-    }
-
+    nav[aria-label="Main navigation"]>#top-links>li,
     nav[aria-label="Main navigation"]>#top-links>li:last-child {
       border-bottom: none;
     }
@@ -87,21 +95,21 @@
       padding-right: 0;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>a[href="/notifications"] {
+    #bell-wrapper>a[href="/notifications"] {
       align-items: center;
       display: flex;
       justify-content: center;
       min-height: 2.75rem;
       min-width: 2.75rem;
-      padding-inline: 0;
-
-      &>span {
-        right: -0.15rem;
-        top: -0.1rem;
-      }
+      padding: 0.4rem 0;
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#bell-wrapper>#bell-dropdown {
+    #bell-wrapper>a[href="/notifications"]>span {
+      right: -0.15rem;
+      top: -0.1rem;
+    }
+
+    #bell-dropdown {
       left: auto;
       position: fixed;
       right: 0.75rem;
@@ -109,8 +117,8 @@
       width: min(26rem, calc(100vw - 1.5rem));
     }
 
-    nav[aria-label="Main navigation"]>#user-actions>#user-actions-toggle,
-    nav[aria-label="Main navigation"]>#user-actions>#user-actions-menu,
+    #user-actions-toggle,
+    #user-actions-menu,
     nav[aria-label="Main navigation"]>#user-actions>a[href="/register"] {
       display: none;
     }
@@ -126,11 +134,7 @@
     body:not(:has(.home-page))>header {
       position: relative;
     }
-  }
 
-  /* ── Nav — hamburger open state + backdrop ── */
-
-  @media (max-width: 985px) {
     nav[aria-label="Main navigation"]>#top-links.open {
       border-radius: 1.4rem 0;
       opacity: 1;
@@ -146,21 +150,7 @@
       position: fixed;
       z-index: 140;
     }
-  }
 
-  @media (max-width: 400px) {
-    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
-      padding-left: 0;
-    }
-
-    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>#user-actions {
-      padding-right: 0;
-    }
-  }
-
-  /* ── Unified mobile menu — auth items in hamburger (JS-only) ── */
-
-  @media (max-width: 985px) {
     nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth] {
       padding: 0;
     }
@@ -235,69 +225,34 @@
     }
   }
 
-  /* ── Crop dialog — high contrast ── */
-
-  @media (prefers-contrast: more) {
-    #crop-dialog {
-      border-width: 2px;
-
-      & #crop-viewport {
-        border-width: 2px;
-      }
-    }
-  }
-
-  /* ── Crop dialog — mobile ── */
-
-  @media (max-width: 700px) {
-    #crop-dialog {
-      width: auto;
-
-      & #crop-viewport {
-        height: 16rem;
-        margin-inline: 1rem;
-      }
-
-      & > header {
-        padding-inline: 1rem;
-      }
-
-      & #crop-hint {
-        padding-inline: 1rem;
-      }
-
-      & > footer {
-        padding-inline: 1rem;
-      }
-    }
-  }
-
-  /* ── Reduced motion — disable menu animation ── */
+  /* ── Viewport — max-width 985px + reduced motion (nav animation override) ── */
 
   @media (max-width: 985px) and (prefers-reduced-motion: reduce) {
-    nav[aria-label="Main navigation"]>#top-links {
-      transition: none;
-    }
-
+    nav[aria-label="Main navigation"]>#top-links,
     nav[aria-label="Main navigation"]>#mobile-menu-toggle>span {
       transition: none;
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    dialog[data-decision] > i {
-      animation: none;
-    }
-
-    dialog[data-decision][data-auto-dismiss]::after {
-      animation: none;
-      width: 0%;
-    }
-  }
-
-  /* ── Site footer ── */
+  /* ── Viewport — max-width 700px (crop dialog + footer mobile) ── */
 
   @media (max-width: 700px) {
+    #crop-dialog {
+      width: auto;
+    }
+
+    #crop-viewport {
+      height: 16rem;
+      margin: 0 1rem;
+    }
+
+    #crop-dialog > header,
+    #crop-hint,
+    #crop-dialog > footer {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
     body>footer {
       padding: 2rem 1.25rem 1rem;
     }
@@ -312,7 +267,17 @@
     }
   }
 
+  /* ── Viewport — max-width 400px (nav + footer tiny screens) ── */
+
   @media (max-width: 400px) {
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>a:first-child {
+      padding-left: 0;
+    }
+
+    body:not(:has(.home-page)) nav[aria-label="Main navigation"]>#user-actions {
+      padding-right: 0;
+    }
+
     body>footer>div:first-child {
       grid-template-columns: 1fr;
       text-align: center;
@@ -322,6 +287,28 @@
       flex-direction: column;
       gap: 0.5rem;
       text-align: center;
+    }
+  }
+
+  /* ── Feature — prefers-contrast: more (crop dialog) ── */
+
+  @media (prefers-contrast: more) {
+    #crop-dialog,
+    #crop-viewport {
+      border-width: 2px;
+    }
+  }
+
+  /* ── Feature — prefers-reduced-motion: reduce (decision dialogs) ── */
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog[data-decision] > i {
+      animation: none;
+    }
+
+    dialog[data-decision][data-auto-dismiss]::after {
+      animation: none;
+      width: 0%;
     }
   }
 

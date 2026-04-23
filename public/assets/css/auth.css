@@ -1,34 +1,34 @@
 .auth-card [data-password-toggle] {
   display: grid;
+}
 
-  & > :is(input[type="password"], input[type="text"]) {
-    grid-column: 1;
-    grid-row: 2;
-    padding-right: 3rem;
-  }
+.auth-card [data-password-toggle] > :is(input[type="password"], input[type="text"]) {
+  grid-column: 1;
+  grid-row: 2;
+  padding-right: 3rem;
+}
 
-  & > button[data-toggle-visibility] {
-    align-self: center;
-    background: none;
-    border: none;
-    color: var(--mountain-slate);
-    cursor: pointer;
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: end;
-    margin-right: 0.5rem;
-    padding: 0.5rem;
+.auth-card [data-password-toggle] > button[data-toggle-visibility] {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--mountain-slate);
+  cursor: pointer;
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: end;
+  margin-right: 0.5rem;
+  padding: 0.5rem;
+}
 
-    &:hover {
-      color: var(--mountain-pine);
-    }
+.auth-card [data-password-toggle] > button[data-toggle-visibility]:hover {
+  color: var(--mountain-pine);
+}
 
-    &:focus-visible {
-      border-radius: 0.25rem;
-      outline: 2px solid var(--mountain-pine);
-      outline-offset: 2px;
-    }
-  }
+.auth-card [data-password-toggle] > button[data-toggle-visibility]:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--mountain-pine);
+  outline-offset: 2px;
 }
 
 .auth-card [data-coverage-warning] {

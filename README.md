@@ -90,7 +90,7 @@ neighborhoodtools/
 
 ## AI-Assisted Development
 
-[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, and usability testing support. Placeholder images were created using [Artlist AI](https://artlist.io).
+[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, usability testing support, and used to flatten css from nesting (css could not be validated using W3C using nesting, nesting will be restored after completion of this course). Placeholder images were created using [Artlist AI](https://artlist.io).
 
 ## Local Development
 
@@ -115,3 +115,18 @@ After changing bundled CSS files, rebuild the production bundle:
 ```bash
 php build-assets.php
 ```
+
+## W3C CSS Validator Notes
+
+The stylesheets ship with four modern CSS features that [jigsaw.w3.org/css-validator](https://jigsaw.w3.org/css-validator) reports as errors. Each one is spec-valid CSS in a published W3C specification and shipping in current Chrome, Edge, Safari, and Firefox &mdash; the validator simply implements an older level of the CSS spec and has not caught up yet. The labels below match the validator's exact output, verified by submitting minimal test snippets under the CSS level 3 + SVG profile.
+
+| Feature              | Spec                 | Baseline | Count in source | Validator emits                                                  |
+| -------------------- | -------------------- | :------: | :-------------: | ---------------------------------------------------------------- |
+| `@starting-style`    | CSS Transitions L2   | 2024     | 2               | Error: `Unrecognized at-rule "@starting-style"`                  |
+| `@container` queries | CSS Containment L3   | 2023     | 4               | Error: `Unrecognized at-rule "@container"`                       |
+| `container-type`     | CSS Containment L3   | 2023     | 4               | Error: `Property "container-type" doesn't exist`                 |
+| `container-name`     | CSS Containment L3   | 2023     | 3               | Error: `Property "container-name" doesn't exist`                 |
+
+### Progressive-enhancement fallbacks
+
+Container queries (`@container`, `container-type`, `container-name`) are treated as progressive enhancement. Pre-2023 engines that do not understand `container-type: inline-size` receive viewport-matched `@media` fallbacks wrapped in `@supports not (container-type: inline-size)`, so the narrow-dialog type scale and footer-stack ([components.css](public/assets/css/components.css)) and the tablet-range neighbor-grid 2-up layout ([home.css](public/assets/css/home.css)) both degrade cleanly rather than leaving oversized headers or stretched cards. Modern engines ignore the fallback block and use the real `@container` rules above.

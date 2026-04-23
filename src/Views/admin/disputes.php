@@ -75,7 +75,7 @@ $hasFilters = $urgency !== null;
   <div aria-live="polite" aria-atomic="true">
     <?php if ($totalCount > 0): ?>
       <p>
-        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>–<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
+        Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>-<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
         <strong><?= number_format($totalCount) ?></strong>
         open dispute<?= $totalCount !== 1 ? 's' : '' ?>
       </p>
@@ -89,6 +89,7 @@ $hasFilters = $urgency !== null;
         $daysOpen = (int) $dispute['days_open'];
         $urgencyLevel = $urgencyLabel($daysOpen);
       ?>
+        <div role="listitem">
         <article data-urgency="<?= $urgencyLevel ?>">
           <header>
             <h2>
@@ -164,6 +165,7 @@ $hasFilters = $urgency !== null;
             </a>
           </footer>
         </article>
+        </div>
       <?php endforeach; ?>
     </div>
 

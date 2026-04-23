@@ -129,6 +129,7 @@ $hasFilters = $type !== null || $deadlineMet !== null;
         $icon     = $typeIcons[$incType] ?? 'fa-circle-question';
         $withinDeadline = (bool) $incident['is_reported_within_deadline_irt'];
       ?>
+        <div role="listitem">
         <article data-urgency="<?= $urgency ?>">
           <header>
             <h2>
@@ -227,6 +228,7 @@ $hasFilters = $type !== null || $deadlineMet !== null;
             </a>
           </footer>
         </article>
+        </div>
       <?php endforeach; ?>
     </div>
 

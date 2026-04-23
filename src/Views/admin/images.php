@@ -36,7 +36,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           data-upload-form>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
-        <legend>Upload Category Icon</legend>
+        <legend><h3>Upload Category Icon</h3></legend>
         <div>
           <label for="cat-vector-file">SVG File</label>
           <input type="file"
@@ -133,7 +133,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 
     <div aria-live="polite" aria-atomic="true">
       <p>
-        <strong><?= number_format($iconsTotalCount) ?></strong>
+        <span data-count><?= number_format($iconsTotalCount) ?></span>
         icon<?= $iconsTotalCount !== 1 ? 's' : '' ?>
         <?php if ($iconsHasFilters): ?> matching filters<?php endif; ?>
       </p>
@@ -142,6 +142,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
     <?php if (!empty($categoryVectors)): ?>
       <div data-vector-grid role="list" aria-label="Category icon vectors">
         <?php foreach ($categoryVectors as $vec): ?>
+          <div role="listitem">
           <article>
             <figure>
               <img src="/uploads/vectors/<?= htmlspecialchars($vec['file_name_vec']) ?>"
@@ -189,15 +190,17 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
               </form>
             </div>
           </article>
+          </div>
         <?php endforeach; ?>
       </div>
 
       <?php
-        $basePath     = '/admin/images';
-        $filterParams = $iconsFilterParams;
-        $page         = $iconsPage;
-        $totalPages   = $iconsTotalPages;
-        $pageParam    = 'icons_page';
+        $basePath        = '/admin/images';
+        $filterParams    = $iconsFilterParams;
+        $page            = $iconsPage;
+        $totalPages      = $iconsTotalPages;
+        $pageParam       = 'icons_page';
+        $paginationLabel = 'Category icons pagination';
         require BASE_PATH . '/src/Views/partials/pagination.php';
       ?>
 
@@ -231,7 +234,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
           data-upload-form>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
-        <legend>Upload Avatar Vector</legend>
+        <legend><h3>Upload Avatar Vector</h3></legend>
         <div>
           <label for="avt-vector-file">SVG File</label>
           <input type="file"
@@ -328,7 +331,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
 
     <div aria-live="polite" aria-atomic="true">
       <p>
-        <strong><?= number_format($avatarsTotalCount) ?></strong>
+        <span data-count><?= number_format($avatarsTotalCount) ?></span>
         avatar<?= $avatarsTotalCount !== 1 ? 's' : '' ?>
         <?php if ($avatarsHasFilters): ?> matching filters<?php endif; ?>
       </p>
@@ -337,6 +340,7 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
     <?php if (!empty($avatarVectors)): ?>
       <div data-vector-grid role="list" aria-label="Profile avatar vectors">
         <?php foreach ($avatarVectors as $avt): ?>
+          <div role="listitem">
           <article <?php if (!(int) $avt['is_active_avv']): ?>data-inactive<?php endif; ?>>
             <figure>
               <img src="/uploads/vectors/<?= htmlspecialchars($avt['file_name_avv']) ?>"
@@ -406,15 +410,17 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
               </form>
             </div>
           </article>
+          </div>
         <?php endforeach; ?>
       </div>
 
       <?php
-        $basePath     = '/admin/images';
-        $filterParams = $avatarsFilterParams;
-        $page         = $avatarsPage;
-        $totalPages   = $avatarsTotalPages;
-        $pageParam    = 'avatars_page';
+        $basePath        = '/admin/images';
+        $filterParams    = $avatarsFilterParams;
+        $page            = $avatarsPage;
+        $totalPages      = $avatarsTotalPages;
+        $pageParam       = 'avatars_page';
+        $paginationLabel = 'Profile avatars pagination';
         require BASE_PATH . '/src/Views/partials/pagination.php';
       ?>
 

@@ -99,10 +99,10 @@ $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
             $borrows = (int) $nbh['active_borrows'];
           ?>
             <tr<?= $borrows > 0 ? ' data-has-activity' : '' ?>>
-              <td data-label="Neighborhood">
-                <strong><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></strong>
+              <th scope="row" data-label="Neighborhood">
+                <h3><?= htmlspecialchars($nbh['neighborhood_name_nbh']) ?></h3>
                 <small><?= htmlspecialchars($nbh['city_name_nbh']) ?>, <?= htmlspecialchars($nbh['state_code_sta']) ?></small>
-              </td>
+              </th>
               <td data-label="Members">
                 <span><?= number_format($active) ?></span>
                 <small>of <?= number_format($total) ?> total</small>

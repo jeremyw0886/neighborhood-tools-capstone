@@ -43,7 +43,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
         <?php endif; ?>
 
         <div>
-          <p id="hero-search-heading" data-hero-utility>Find a tool near you</p>
+          <h2 id="hero-search-heading" data-hero-utility>Find a tool near you</h2>
           <p data-hero-utility-copy>Search nearby listings, then borrow from a neighbor instead of buying another tool.</p>
           <form role="search" aria-labelledby="hero-search-heading" action="/tools" method="get">
             <label for="search-tools" class="visually-hidden">Search tools</label>

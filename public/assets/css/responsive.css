@@ -101,7 +101,7 @@
       justify-content: center;
       min-height: 2.75rem;
       min-width: 2.75rem;
-      padding-inline: 0;
+      padding: 0.4rem 0;
     }
 
     #bell-wrapper>a[href="/notifications"]>span {
@@ -243,13 +243,14 @@
 
     #crop-viewport {
       height: 16rem;
-      margin-inline: 1rem;
+      margin: 0 1rem;
     }
 
     #crop-dialog > header,
     #crop-hint,
     #crop-dialog > footer {
-      padding-inline: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
 
     body>footer {

@@ -521,7 +521,7 @@
     border-top: 1px solid var(--mountain-fog);
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    text-align: end;
+    text-align: right;
   }
 
   #payment-history>ul[aria-label="Transactions"]>li>footer>time {
@@ -1275,10 +1275,10 @@
 
   #event-create>form>fieldset input[type="checkbox"] {
     accent-color: var(--mountain-pine);
-    block-size: 1.125rem;
     cursor: pointer;
     flex-shrink: 0;
-    inline-size: 1.125rem;
+    height: 1.125rem;
+    width: 1.125rem;
   }
 
   #event-create>form>fieldset :is(input[type="date"], input[type="time"]) {

@@ -662,7 +662,7 @@
     font-size: 1rem;
     justify-content: center;
     min-width: 2.75rem;
-    padding-inline: 0.75rem;
+    padding: 0.4rem 0.75rem;
     position: relative;
   }
 
@@ -676,7 +676,7 @@
     font-weight: 700;
     min-height: 1.25rem;
     min-width: 1.25rem;
-    padding-inline: 0.3rem;
+    padding: 0 0.3rem;
     place-content: center;
     position: absolute;
     right: -0.25rem;
@@ -1616,7 +1616,7 @@
     overflow: hidden;
     position: relative;
     scroll-snap-align: start;
-    text-align: start;
+    text-align: left;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     width: 270px;
   }
@@ -2668,7 +2668,7 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     padding: 0.625rem 0.75rem;
-    text-align: start;
+    text-align: left;
     text-transform: uppercase;
     white-space: nowrap;
   }
@@ -2690,7 +2690,7 @@
     font-size: 0.875rem;
     font-weight: inherit;
     padding: 0.75rem;
-    text-align: start;
+    text-align: left;
     vertical-align: top;
   }
 

@@ -47,12 +47,10 @@
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-rows: auto repeat(4, auto);
     isolation: isolate;
-    margin-inline: calc(-50vw + 50%);
+    margin: 0 calc(-50vw + 50%);
     min-width: 0;
-    overflow-x: clip;
-    overflow-y: visible;
-    padding-block: 0 2.5rem;
-    padding-inline: max(1.25rem, calc(50vw - 700px));
+    overflow: clip visible;
+    padding: 0 max(1.25rem, calc(50vw - 700px)) 2.5rem;
     position: relative;
     row-gap: clamp(0.85rem, 1.1vw, 1.35rem);
     text-align: left;
@@ -760,8 +758,7 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     padding: 0.5rem 0 0.75rem;
-    scroll-padding-left: 1rem;
-    scroll-padding-right: 1rem;
+    scroll-padding: 0 1rem;
     scroll-snap-type: x mandatory;
     scrollbar-gutter: stable both-edges;
     scrollbar-width: thin;
@@ -844,8 +841,8 @@
     align-items: center;
     background-color: #e6f0eb;
     border: 1px solid rgba(139, 133, 120, 0.2);
-    border-end-end-radius: 1.5rem;
-    border-start-start-radius: 1.5rem;
+    border-bottom-right-radius: 1.5rem;
+    border-top-left-radius: 1.5rem;
     color: inherit;
     display: flex;
     flex: 1;
@@ -1089,8 +1086,7 @@
       column-gap: 0;
       grid-template-columns: 1fr;
       grid-template-rows: auto repeat(4, auto);
-      padding-block: 0 2rem;
-      padding-inline: 1.25rem;
+      padding: 0 1.25rem 2rem;
       row-gap: 1rem;
       text-align: center;
     }
@@ -1194,7 +1190,7 @@
 
     .home-page > header > section > nav[data-hero] {
       border-radius: 0.9rem;
-      padding-inline: 0.55rem;
+      padding: 0.25rem 0.55rem 0;
     }
 
     .home-page > header > section > nav[data-hero] > #top-links {
@@ -1273,8 +1269,9 @@
     .home-page > main > section:nth-of-type(3) > div {
       gap: 1rem;
       overscroll-behavior-x: contain;
-      padding-inline: 1rem;
-      scroll-padding-inline: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      scroll-padding: 0 1rem;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
     }
@@ -1379,7 +1376,7 @@
     }
 
     .home-page > header > section > nav[data-hero] {
-      padding-inline: 0.45rem;
+      padding: 0.25rem 0.45rem 0;
     }
 
     .home-page > header > section > div > ul > li {

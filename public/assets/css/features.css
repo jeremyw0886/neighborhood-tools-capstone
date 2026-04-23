@@ -600,7 +600,7 @@
 
   #dispute-create>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -1243,7 +1243,7 @@
 
   #event-create>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -1362,7 +1362,7 @@
 
   #event-detail>header>h1 {
     color: var(--mountain-pine);
-    font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    font-size: var(--font-size-h2);
   }
 
   #event-detail>dl {
@@ -1550,7 +1550,7 @@
 
   #incident-create>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -1822,7 +1822,7 @@
 
   #handover-verify>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -1999,7 +1999,7 @@
 
   #handover-verify>section[aria-labelledby="your-code-heading"]>h2 {
     color: var(--mountain-pine);
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-size: var(--font-size-h3);
     margin-bottom: 0.5rem;
   }
 
@@ -2042,7 +2042,7 @@
 
   #waiver-show>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -2211,7 +2211,7 @@
 
   #rating>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 

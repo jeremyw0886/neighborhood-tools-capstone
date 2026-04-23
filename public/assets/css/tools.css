@@ -29,7 +29,7 @@
 
   :is(#browse-page, #bookmarks-page)>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -156,7 +156,7 @@
   :is(#browse-page, #bookmarks-page)>form[role="search"]>fieldset:last-of-type>div>select:focus,
   :is(#browse-page, #bookmarks-page)>form[role="search"]>fieldset:last-of-type>div>input[type="text"]:focus {
     border-color: var(--mountain-pine-light);
-    box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.12);
+    box-shadow: 0 0 0 3px var(--glow-pine-soft);
     outline: none;
   }
 
@@ -505,7 +505,7 @@
   main>#tool-detail article>header>div>h1 {
     color: var(--mountain-pine);
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    font-size: var(--font-size-h2);
     line-height: 1.2;
   }
 
@@ -758,7 +758,7 @@
   main>#tool-detail article>section[aria-labelledby="borrow-heading"] fieldset>div>select:focus,
   main>#tool-detail article>section[aria-labelledby="borrow-heading"] fieldset>div>textarea:focus {
     border-color: var(--mountain-pine-light);
-    box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
+    box-shadow: 0 0 0 3px var(--glow-pine);
     outline: none;
   }
 
@@ -935,7 +935,7 @@
 
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"])>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -1011,7 +1011,7 @@
 
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset>div> :is(input[type="text"], input[type="number"], select, textarea):focus {
     border-color: var(--mountain-pine-light);
-    box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
+    box-shadow: 0 0 0 3px var(--glow-pine);
     outline: none;
   }
 
@@ -1076,7 +1076,7 @@
 
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"], [aria-labelledby="availability-heading"]) fieldset>div>input[type="file"]:focus {
     border-color: var(--mountain-pine-light);
-    box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.15);
+    box-shadow: 0 0 0 3px var(--glow-pine);
     outline: none;
   }
 
@@ -1191,7 +1191,7 @@
 
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li:focus-visible {
     border-color: var(--mountain-pine);
-    box-shadow: 0 0 0 3px rgba(58, 106, 85, 0.2);
+    box-shadow: 0 0 0 3px var(--glow-pine-strong);
     outline: none;
   }
 
@@ -1228,7 +1228,7 @@
 
   main>section:is([aria-labelledby="create-tool-heading"], [aria-labelledby="edit-tool-heading"]) :is(#gallery-manager, #photo-queue) > li input[type="text"]:focus {
     border-color: var(--mountain-pine-light);
-    box-shadow: 0 0 0 2px rgba(58, 106, 85, 0.12);
+    box-shadow: 0 0 0 2px var(--glow-pine-soft);
     outline: none;
   }
 

@@ -11,7 +11,7 @@
   article[aria-labelledby$="-heading"] {
     margin: 0 auto;
     max-width: 48rem;
-    padding: clamp(2rem, 1.5rem + 1.5vw, 3rem) clamp(1rem, 0.75rem + 0.75vw, 1.5rem);
+    padding: clamp(2rem, 1.5rem + 1.5vw, 3rem) var(--font-size-body-lg);
   }
 
   /* ── Page header ── */
@@ -39,7 +39,7 @@
 
   article[aria-labelledby$="-heading"]>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     line-height: 1.6;
     margin-top: 0.5rem;
   }

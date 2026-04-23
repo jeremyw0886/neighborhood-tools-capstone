@@ -88,7 +88,7 @@
     [aria-labelledby="admin-search-heading"],
     [aria-labelledby="purge-confirm-heading"])>header>p {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     margin: 0.5rem 0 0;
   }
 
@@ -109,7 +109,7 @@
     [aria-labelledby="admin-tos-create-heading"],
     [aria-labelledby="admin-search-heading"],
     [aria-labelledby="purge-confirm-heading"])>[data-admin-body]>nav[aria-label="Admin navigation"]>ul>li>a {
-    font-size: clamp(0.813rem, 0.75rem + 0.25vw, 0.938rem);
+    font-size: var(--font-size-xs);
     padding: 0 1rem;
   }
 
@@ -456,7 +456,7 @@
 
   section[aria-labelledby="admin-actions-heading"]>h2 {
     color: var(--mountain-pine);
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-size: var(--font-size-h3);
     margin-bottom: 1rem;
   }
 
@@ -596,7 +596,7 @@
 
   section[aria-labelledby="admin-trends-heading"]>header>h2 {
     color: var(--mountain-pine);
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-size: var(--font-size-h3);
   }
 
   section[aria-labelledby="admin-trends-heading"]>header>nav {
@@ -673,7 +673,7 @@
 
   main>section[aria-labelledby="admin-audit-heading"] p:not(header p) {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     line-height: 1.6;
     margin: 1rem 0 1.5rem;
     max-width: 65ch;
@@ -1806,7 +1806,7 @@
 
   main>section[aria-labelledby="admin-tos-heading"] p:not(header p) {
     color: var(--mountain-mist);
-    font-size: clamp(0.938rem, 0.875rem + 0.25vw, 1.063rem);
+    font-size: var(--font-size-h4);
     line-height: 1.6;
     margin: 1rem 0 1.5rem;
     max-width: 65ch;
@@ -3074,7 +3074,7 @@
     border-bottom: 2px solid var(--mountain-fog);
     color: var(--mountain-pine);
     display: flex;
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-size: var(--font-size-h3);
     gap: 0.5rem;
     padding-bottom: 0.5rem;
   }

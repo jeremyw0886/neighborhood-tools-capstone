@@ -1597,6 +1597,49 @@
 
   }
 
+  /*
+   * Container-query fallback
+   */
+  @supports not (container-type: inline-size) {
+    @media (max-width: 500px) {
+      dialog>header>h2 {
+        font-size: 1.063rem;
+      }
+
+      dialog>div :is(h2, h3) {
+        font-size: 1rem;
+      }
+
+      dialog details>summary {
+        font-size: 0.875rem;
+        padding: 0.625rem 0;
+      }
+
+      dialog ol>li {
+        padding-left: 2.25rem;
+      }
+    }
+
+    @media (max-width: 350px) {
+      dialog>header>h2 {
+        font-size: 0.938rem;
+      }
+
+      dialog>div {
+        padding: 0 0.75rem;
+      }
+
+      dialog>footer {
+        flex-direction: column;
+        padding: 0 0.75rem;
+      }
+
+      dialog>footer button[type="submit"] {
+        width: 100%;
+      }
+    }
+  }
+
   /* --- Tool Cards ----------------------------------------- */
 
   div[role="list"]:not([data-vector-grid])>div[role="listitem"] {

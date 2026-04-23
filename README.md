@@ -126,3 +126,7 @@ The stylesheets ship with four modern CSS features that [jigsaw.w3.org/css-valid
 | `@container` queries | CSS Containment L3   | 2023     | 4               | Error: `Unrecognized at-rule "@container"`                       |
 | `container-type`     | CSS Containment L3   | 2023     | 4               | Error: `Property "container-type" doesn't exist`                 |
 | `container-name`     | CSS Containment L3   | 2023     | 3               | Error: `Property "container-name" doesn't exist`                 |
+
+### Progressive-enhancement fallbacks
+
+Container queries (`@container`, `container-type`, `container-name`) are treated as progressive enhancement. Pre-2023 engines that do not understand `container-type: inline-size` receive viewport-matched `@media` fallbacks wrapped in `@supports not (container-type: inline-size)`, so the narrow-dialog type scale and footer-stack ([components.css](public/assets/css/components.css)) and the tablet-range neighbor-grid 2-up layout ([home.css](public/assets/css/home.css)) both degrade cleanly rather than leaving oversized headers or stretched cards. Modern engines ignore the fallback block and use the real `@container` rules above.

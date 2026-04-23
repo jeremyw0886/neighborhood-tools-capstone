@@ -1020,6 +1020,18 @@
     }
   }
 
+  /*
+   * Container-query fallback
+   */
+  @supports not (container-type: inline-size) {
+    @media (min-width: 701px) and (max-width: 900px) {
+      .home-page > main > section:nth-of-type(3) > div > a {
+        flex: 1 1 calc(50% - 0.625rem);
+        min-width: 200px;
+      }
+    }
+  }
+
   /* ── CAROUSEL INDICATORS (JS-generated, mobile only) ── */
   .carousel-dots {
     display: none;

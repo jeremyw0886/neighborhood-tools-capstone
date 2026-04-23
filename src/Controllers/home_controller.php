@@ -72,6 +72,7 @@ class HomeController extends BaseController
             'title'            => 'NeighborhoodTools — Share Tools, Build Community',
             'description'      => 'Borrow tools from your neighbors and lend yours when you\'re not using them. Join your local tool-sharing community today.',
             'heroPage'         => true,
+            'criticalKey'      => 'home',
             'pageCss'          => ['home.css'],
             'pageJs'           => ['home.js', 'tool-preview.js'],
             'platformStats'    => $platformStats,

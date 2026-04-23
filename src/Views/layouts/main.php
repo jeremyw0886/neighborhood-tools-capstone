@@ -1,51 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
-    <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
-    <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
-    <link rel="icon" href="/favicon.ico" sizes="32x32">
-    <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
-    <?php foreach ($cdnJs ?? [] as $cdn): ?>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><?= htmlspecialchars($title ?? 'NeighborhoodTools') ?></title>
+  <meta name="description" content="<?= htmlspecialchars($description ?? 'Your neighborhood tool sharing platform') ?>">
+  <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
+  <?php foreach ($cdnJs ?? [] as $cdn): ?>
     <?php $cdnOrigin = parse_url($cdn, PHP_URL_SCHEME) . '://' . parse_url($cdn, PHP_URL_HOST); ?>
     <link rel="preconnect" href="<?= htmlspecialchars($cdnOrigin) ?>">
     <link rel="dns-prefetch" href="<?= htmlspecialchars($cdnOrigin) ?>">
-    <?php endforeach; ?>
+  <?php endforeach; ?>
+  <?php
+  $criticalFile = !empty($criticalKey) && preg_match('/^[a-z][a-z0-9-]*$/', $criticalKey)
+    ? BASE_PATH . '/public/assets/css/critical/' . $criticalKey . '.min.css'
+    : null;
+  $asyncCss = $criticalFile !== null && is_file($criticalFile);
+  ?>
+  <?php if ($asyncCss): ?>
+    <link rel="preload" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>" as="style" data-rel-swap>
+    <noscript>
+      <link rel="stylesheet" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>">
+    </noscript>
+  <?php else: ?>
     <link rel="preload" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/vendor/fontawesome/css/fontawesome-custom.min.css?v=<?= ASSET_VERSION ?>">
-    <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
-      <?php foreach (require BASE_PATH . '/config/css.php' as $cssFile): ?>
-    <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>">
-      <?php endforeach; ?>
-    <?php else: ?>
+  <?php endif; ?>
+  <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
+    <?php foreach (require BASE_PATH . '/config/css.php' as $cssFile): ?>
+      <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssFile) ?>?v=<?= ASSET_VERSION ?>">
+    <?php endforeach; ?>
+  <?php elseif ($asyncCss): ?>
+    <link rel="preload" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>" as="style" data-rel-swap>
+    <noscript>
+      <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
+    </noscript>
+  <?php else: ?>
     <link rel="preload" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
-    <?php endif; ?>
-    <noscript><link rel="stylesheet" href="/assets/css/noscript.css"></noscript>
-    <?php foreach ($pageCss ?? [] as $cssFile): ?>
+  <?php endif; ?>
+  <noscript>
+    <link rel="stylesheet" href="/assets/css/noscript.css">
+  </noscript>
+  <?php foreach ($pageCss ?? [] as $cssFile): ?>
     <?php $cssHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $cssFile : str_replace('.css', '.min.css', $cssFile); ?>
-    <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>" as="style">
-    <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
-    <?php endforeach; ?>
-    <style id="nt-dynamic-styles" nonce="<?= CSP_NONCE ?>"></style>
+    <?php if ($asyncCss): ?>
+      <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>" as="style" data-rel-swap>
+      <noscript>
+        <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
+      </noscript>
+    <?php else: ?>
+      <link rel="preload" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>" as="style">
+      <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
+    <?php endif; ?>
+  <?php endforeach; ?>
+  <style id="nt-dynamic-styles" nonce="<?= CSP_NONCE ?>">
+    <?php
+    if ($asyncCss) {
+      readfile($criticalFile);
+    }
+    ?>
+  </style>
 </head>
+
 <body id="top">
 
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <?php if (empty($heroPage)): ?>
-  <header>
-    <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
-  </header>
+    <header>
+      <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
+    </header>
 
-  <main id="main-content">
-  <?php endif; ?>
+    <main id="main-content">
+    <?php endif; ?>
 
     <?php if (!empty($flashError)): ?>
       <p role="alert" data-flash="error"><?= htmlspecialchars($flashError) ?></p>
@@ -53,16 +88,16 @@
 
     <?= $content ?>
 
-  <?php if (empty($heroPage)): ?>
-  </main>
+    <?php if (empty($heroPage)): ?>
+    </main>
   <?php endif; ?>
 
   <?php require BASE_PATH . '/src/Views/partials/footer.php'; ?>
 
   <?php
-    require BASE_PATH . '/src/Views/partials/modal-how-to.php';
-    require BASE_PATH . '/src/Views/partials/modal-faq.php';
-    require BASE_PATH . '/src/Views/partials/modal-tos.php';
+  require BASE_PATH . '/src/Views/partials/modal-how-to.php';
+  require BASE_PATH . '/src/Views/partials/modal-faq.php';
+  require BASE_PATH . '/src/Views/partials/modal-tos.php';
   ?>
 
   <?php $dpJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'purify.js' : 'purify.min.js'; ?>
@@ -70,22 +105,27 @@
   <?php $ttJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'trusted-types.js' : 'trusted-types.min.js'; ?>
   <script src="/assets/js/<?= $ttJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php foreach ($cdnJs ?? [] as $cdnUrl): ?>
-  <script src="<?= htmlspecialchars($cdnUrl) ?>" defer nonce="<?= CSP_NONCE ?>"></script>
+    <script src="<?= htmlspecialchars($cdnUrl) ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endforeach; ?>
   <?php $utilsJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'utils.js' : 'utils.min.js'; ?>
   <script src="/assets/js/<?= $utilsJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
+  <?php if ($asyncCss): ?>
+    <?php $swapJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'critical-css-swap.js' : 'critical-css-swap.min.js'; ?>
+    <script src="/assets/js/<?= $swapJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
+  <?php endif; ?>
   <?php $navJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'nav.js' : 'nav.min.js'; ?>
   <script src="/assets/js/<?= $navJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php if (isset($_GET['test'])): ?>
-  <?php $utCss = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.css' : 'usability-test.min.css'; ?>
-  <link rel="stylesheet" href="/assets/css/<?= $utCss ?>?v=<?= ASSET_VERSION ?>">
-  <?php $utJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.js' : 'usability-test.min.js'; ?>
-  <script src="/assets/js/<?= $utJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
+    <?php $utCss = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.css' : 'usability-test.min.css'; ?>
+    <link rel="stylesheet" href="/assets/css/<?= $utCss ?>?v=<?= ASSET_VERSION ?>">
+    <?php $utJs = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? 'usability-test.js' : 'usability-test.min.js'; ?>
+    <script src="/assets/js/<?= $utJs ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endif; ?>
   <?php foreach ($pageJs ?? [] as $jsFile): ?>
-  <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>
-  <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
+    <?php $jsHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $jsFile : str_replace('.js', '.min.js', $jsFile); ?>
+    <script src="/assets/js/<?= htmlspecialchars($jsHref) ?>?v=<?= ASSET_VERSION ?>" defer nonce="<?= CSP_NONCE ?>"></script>
   <?php endforeach; ?>
 
 </body>
+
 </html>

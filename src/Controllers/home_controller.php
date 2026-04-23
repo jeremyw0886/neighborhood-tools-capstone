@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\ImageProcessor;
 use App\Models\Account;
 use App\Models\Bookmark;
 use App\Models\Neighborhood;
@@ -18,6 +19,33 @@ class HomeController extends BaseController
             $featuredTools = Tool::getFeatured(6);
         } catch (\Exception) {
             $featuredTools = [];
+        }
+
+        $preloadImage = null;
+        $firstTool    = $featuredTools[0] ?? null;
+
+        if (!empty($firstTool['primary_image'])) {
+            $variants = ImageProcessor::getAvailableVariants(
+                $firstTool['primary_image'],
+                $firstTool['primary_width'] ?? null,
+                ImageProcessor::VARIANT_WIDTHS,
+            );
+            $srcsets = ImageProcessor::buildSrcset($variants);
+            $isWebp  = str_ends_with($firstTool['primary_image'], '.webp');
+
+            [$type, $srcset] = match (true) {
+                !$isWebp && $srcsets['avifSrcset'] !== '' => ['image/avif', $srcsets['avifSrcset']],
+                !$isWebp && $srcsets['webpSrcset'] !== '' => ['image/webp', $srcsets['webpSrcset']],
+                default                                   => ['',           $srcsets['srcset']],
+            };
+
+            if ($srcset !== '') {
+                $preloadImage = [
+                    'type'   => $type,
+                    'srcset' => $srcset,
+                    'sizes'  => '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 2.25rem), 270px',
+                ];
+            }
         }
 
         $currentUserId = !empty($_SESSION['logged_in'])
@@ -73,6 +101,7 @@ class HomeController extends BaseController
             'description'      => 'Borrow tools from your neighbors and lend yours when you\'re not using them. Join your local tool-sharing community today.',
             'heroPage'         => true,
             'criticalKey'      => 'home',
+            'preloadImage'     => $preloadImage,
             'pageCss'          => ['home.css'],
             'pageJs'           => ['home.js', 'tool-preview.js'],
             'platformStats'    => $platformStats,

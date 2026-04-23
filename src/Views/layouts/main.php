@@ -13,6 +13,9 @@
   <link rel="manifest" href="/site.webmanifest">
   <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
+  <?php if (!empty($preloadImage)): ?>
+  <link rel="preload" as="image"<?= $preloadImage['type'] !== '' ? ' type="' . htmlspecialchars($preloadImage['type']) . '"' : '' ?> imagesrcset="<?= htmlspecialchars($preloadImage['srcset']) ?>" imagesizes="<?= htmlspecialchars($preloadImage['sizes']) ?>" fetchpriority="high">
+  <?php endif; ?>
   <?php foreach ($cdnJs ?? [] as $cdn): ?>
     <?php $cdnOrigin = parse_url($cdn, PHP_URL_SCHEME) . '://' . parse_url($cdn, PHP_URL_HOST); ?>
     <link rel="preconnect" href="<?= htmlspecialchars($cdnOrigin) ?>">

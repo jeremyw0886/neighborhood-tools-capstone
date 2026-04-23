@@ -137,6 +137,37 @@ if ($doAll || $cssOnly) {
         ? "        (none found)\n"
         : sprintf("        %d files, saved %s total\n", $pageCount, formatBytes($pageSaved));
 
+    $criticalDir = $cssDir . '/critical';
+
+    if (is_dir($criticalDir)) {
+        $criticalCount = 0;
+        $criticalSaved = 0;
+
+        foreach (glob($criticalDir . '/*.css') as $file) {
+            $basename = basename($file);
+
+            if (str_ends_with($basename, '.min.css')) {
+                continue;
+            }
+
+            $source  = file_get_contents($file);
+            $output  = $minify ? minifyCss($source) : $source;
+            $outPath = $criticalDir . '/' . str_replace('.css', '.min.css', $basename);
+
+            file_put_contents($outPath, $output);
+            $allMinified[] = $outPath;
+            $criticalCount++;
+            $criticalSaved += strlen($source) - strlen($output);
+
+            $pct = strlen($source) > 0 ? round((strlen($source) - strlen($output)) / strlen($source) * 100) : 0;
+            echo sprintf("        critical/%-21s → .min.css (%d%%)\n", $basename, $pct);
+        }
+
+        if ($criticalCount > 0) {
+            echo sprintf("        %d critical files, saved %s total\n", $criticalCount, formatBytes($criticalSaved));
+        }
+    }
+
     echo "\n";
 }
 

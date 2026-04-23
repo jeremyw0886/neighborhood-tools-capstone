@@ -172,7 +172,7 @@
     color: var(--mountain-gold-light);
   }
 
-  /* ── HERO LOGO — decorative brand mark (desktop-only background image) ── */
+  /* ── HERO LOGO — decorative brand mark (desktop-only background image ── */
   #hero-logo {
     align-self: center;
     aspect-ratio: 270 / 202;
@@ -184,13 +184,6 @@
     transform: translateY(0.5rem);
     width: clamp(320px, 24vw + 120px, 560px);
     z-index: 1;
-  }
-
-  @media (min-width: 1025px) {
-    #hero-logo {
-      background: url('/assets/images/logo-mark.svg') no-repeat center / contain;
-      filter: drop-shadow(0 1.5rem 3rem rgba(4, 14, 11, 0.22));
-    }
   }
 
   /* ── HEADLINE BLOCK — dissolve into section grid ── */
@@ -1082,11 +1075,16 @@
 
   /* ── RESPONSIVE — Home page breakpoints ── */
 
-  /* Wide desktop — restore nav offset */
+  /* Wide desktop — restore nav offset, paint hero-logo watermark */
   @media (min-width: 1025px) {
     .home-page > header > section > nav[data-hero] > :is(#top-links, #user-actions) {
       position: relative;
       top: -0.5rem;
+    }
+
+    #hero-logo {
+      background: url('/assets/images/logo-mark.svg') no-repeat center / contain;
+      filter: drop-shadow(0 1.5rem 3rem rgba(4, 14, 11, 0.22));
     }
   }
 

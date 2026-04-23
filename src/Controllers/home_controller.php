@@ -102,6 +102,7 @@ class HomeController extends BaseController
             'heroPage'         => true,
             'criticalKey'      => 'home',
             'preloadImage'     => $preloadImage,
+            'preloadHeroLogo'  => true,
             'pageCss'          => ['home.css'],
             'pageJs'           => ['home.js', 'tool-preview.js'],
             'platformStats'    => $platformStats,

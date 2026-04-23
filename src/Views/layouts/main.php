@@ -16,6 +16,9 @@
   <?php if (!empty($preloadImage)): ?>
   <link rel="preload" as="image"<?= $preloadImage['type'] !== '' ? ' type="' . htmlspecialchars($preloadImage['type']) . '"' : '' ?> imagesrcset="<?= htmlspecialchars($preloadImage['srcset']) ?>" imagesizes="<?= htmlspecialchars($preloadImage['sizes']) ?>" fetchpriority="high">
   <?php endif; ?>
+  <?php if (!empty($preloadHeroLogo)): ?>
+  <link rel="preload" as="image" href="/assets/images/logo-mark.svg" fetchpriority="high" media="(min-width: 1025px)">
+  <?php endif; ?>
   <?php foreach ($cdnJs ?? [] as $cdn): ?>
     <?php $cdnOrigin = parse_url($cdn, PHP_URL_SCHEME) . '://' . parse_url($cdn, PHP_URL_HOST); ?>
     <link rel="preconnect" href="<?= htmlspecialchars($cdnOrigin) ?>">

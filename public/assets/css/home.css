@@ -172,22 +172,25 @@
     color: var(--mountain-gold-light);
   }
 
-  /* ── HERO LOGO — decorative brand mark in the content plane ── */
+  /* ── HERO LOGO — decorative brand mark (desktop-only background image) ── */
   #hero-logo {
     align-self: center;
-    display: flex;
+    aspect-ratio: 270 / 202;
     grid-column: 3 / 11;
     grid-row: 2 / 6;
     justify-self: center;
     opacity: 0.1;
     pointer-events: none;
     transform: translateY(0.5rem);
+    width: clamp(320px, 24vw + 120px, 560px);
     z-index: 1;
   }
 
-  #hero-logo > img {
-    filter: drop-shadow(0 1.5rem 3rem rgba(4, 14, 11, 0.22));
-    width: clamp(320px, 24vw + 120px, 560px);
+  @media (min-width: 1025px) {
+    #hero-logo {
+      background: url('/assets/images/logo-mark.svg') no-repeat center / contain;
+      filter: drop-shadow(0 1.5rem 3rem rgba(4, 14, 11, 0.22));
+    }
   }
 
   /* ── HEADLINE BLOCK — dissolve into section grid ── */

@@ -318,10 +318,13 @@
     z-index: 2;
   }
 
-  /* Stats bar — reserves height (60-120px mobile, inline flex desktop) */
+  /* Stats bar — glass pill row */
   .home-page > header > section > div > ul {
     align-items: center;
+    background: rgba(13, 33, 26, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 1.05rem;
+    box-shadow: 0 1rem 2.5rem rgba(5, 18, 14, 0.12);
     display: flex;
     flex-wrap: wrap;
     gap: 0.85rem 1.25rem;
@@ -340,9 +343,27 @@
     gap: 0.45rem;
   }
 
-  /* Search panel — reserves container block before glass bundle arrives */
+  .home-page > header > section > div > ul > li > strong {
+    color: var(--mountain-gold-light);
+    font-size: clamp(1.15rem, 0.92rem + 0.85vw, 1.65rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .home-page > header > section > div > ul > li > span {
+    color: rgba(255, 251, 244, 0.88);
+    font-size: clamp(0.78rem, 0.72rem + 0.18vw, 0.92rem);
+    line-height: 1.25;
+  }
+
+  /* Search panel — glass card with h2 + p + form + CTA buttons */
   .home-page > header > section > div > div:last-child {
     align-self: end;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(247, 242, 230, 0.08) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 1.4rem;
+    box-shadow: 0 1.4rem 3.2rem rgba(5, 18, 14, 0.18);
     display: flex;
     flex-direction: column;
     gap: 0.95rem;
@@ -353,6 +374,56 @@
     padding: 1.6rem;
     width: 100%;
     z-index: 2;
+  }
+
+  .home-page > header > section > div > div:last-child > :is(h2, p)[data-hero-utility] {
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .home-page > header > section > div > div:last-child > h2[data-hero-utility] {
+    font-size: clamp(1.2rem, 1.1rem + 0.35vw, 1.4rem);
+  }
+
+  .home-page > header > section > div > div:last-child > p[data-hero-utility-copy] {
+    color: #fff;
+    font-size: clamp(0.84rem, 0.78rem + 0.16vw, 0.93rem);
+    line-height: 1.45;
+    margin: -0.35rem auto 0;
+    max-width: 28ch;
+    text-align: center;
+  }
+
+  .home-page > header > section > div > div:last-child > div {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .home-page form[role="search"] {
+    align-items: center;
+    background: rgba(255, 252, 246, 0.96);
+    border: 1px solid rgba(94, 103, 95, 0.12);
+    border-radius: 2rem;
+    box-shadow: 0 0.5rem 1.2rem rgba(7, 22, 16, 0.08);
+    display: flex;
+    margin: 0.25rem auto 0;
+    max-width: 480px;
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+    width: 100%;
+  }
+
+  .home-page form[role="search"] input {
+    background: transparent;
+    border: none;
+    color: var(--mountain-charcoal);
+    flex: 1;
+    font-size: clamp(0.85rem, 0.75rem + 0.3vw, 1rem);
+    outline: none;
+    padding: 0.625rem 0.75rem;
+    width: 100%;
   }
 
   /* --- Main content carousels — prevents 0.183 shift from vertical→horizontal --- */

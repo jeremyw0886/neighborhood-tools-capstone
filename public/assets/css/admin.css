@@ -628,7 +628,6 @@
   }
 
   section[aria-labelledby="admin-trends-heading"]>div[role="region"] {
-    -webkit-overflow-scrolling: touch;
     overflow-x: auto;
   }
 

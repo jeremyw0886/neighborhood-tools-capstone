@@ -21,8 +21,8 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
           <p>Save money, reduce waste, and strengthen your neighborhood - one tool at a time.</p>
         </div>
 
-        <div id="hero-logo">
-          <img src="/assets/images/logo-mark.svg" alt="NeighborhoodTools" width="270" height="202" loading="lazy" decoding="async">
+        <div id="hero-logo" aria-hidden="true">
+          <img src="/assets/images/logo-mark.svg" alt="" width="270" height="202" fetchpriority="high" decoding="async">
         </div>
 
         <?php if ($platformStats['availableTools'] > 0 || $platformStats['activeMembers'] > 0 || $platformStats['completedBorrows'] > 0): ?>

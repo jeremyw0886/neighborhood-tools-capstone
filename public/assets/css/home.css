@@ -557,7 +557,7 @@
     width: 44px;
   }
 
-  #member-carousel > button:not([hidden]) {
+  #member-carousel > button {
     display: flex;
   }
 
@@ -732,7 +732,7 @@
     width: 44px;
   }
 
-  #popular-carousel > button:not([hidden]) {
+  #popular-carousel > button {
     display: flex;
   }
 

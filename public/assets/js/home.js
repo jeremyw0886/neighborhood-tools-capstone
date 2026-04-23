@@ -414,15 +414,11 @@ class MemberCarousel {
   }
 
   #activate() {
-    this.#prevBtn.hidden = false;
-    this.#nextBtn.hidden = false;
     this.#memberList.dataset.arrows = '';
     this.#resetCarousel();
   }
 
   #deactivate() {
-    this.#prevBtn.hidden = true;
-    this.#nextBtn.hidden = true;
     delete this.#memberList.dataset.arrows;
     this.#resetCarousel();
   }
@@ -526,8 +522,6 @@ class PopularCarousel {
   }
 
   #activate() {
-    this.#prevBtn.hidden = false;
-    this.#nextBtn.hidden = false;
     this.#list.dataset.arrows = '';
     requestAnimationFrame(() => {
       this.#list.scrollLeft = 0;
@@ -536,8 +530,6 @@ class PopularCarousel {
   }
 
   #deactivate() {
-    this.#prevBtn.hidden = true;
-    this.#nextBtn.hidden = true;
     delete this.#list.dataset.arrows;
     requestAnimationFrame(() => {
       this.#list.scrollLeft = 0;

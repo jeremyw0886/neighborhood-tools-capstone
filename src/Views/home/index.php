@@ -73,7 +73,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
       <h2 id="popular-heading"><i class="fa-solid fa-fire" aria-hidden="true"></i> Popular Picks</h2>
       <?php if (!empty($featuredTools)): ?>
         <div id="popular-carousel">
-          <button type="button" aria-label="Previous tools" hidden data-dir="prev">
+          <button type="button" aria-label="Previous tools" data-dir="prev">
             <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
           </button>
           <div id="popular-list" role="list" data-tool-preview>
@@ -84,7 +84,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
             <?php endforeach; ?>
             <?php unset($cardHeadingLevel, $cardSizes); ?>
           </div>
-          <button type="button" aria-label="Next tools" hidden data-dir="next">
+          <button type="button" aria-label="Next tools" data-dir="next">
             <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
@@ -114,7 +114,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
       </nav>
 
       <div id="member-carousel">
-        <button type="button" aria-label="Previous members" hidden data-dir="prev">
+        <button type="button" aria-label="Previous members" data-dir="prev">
           <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
         </button>
         <div id="member-list">
@@ -164,7 +164,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
             <p>No members found in this area yet.</p>
           <?php endif; ?>
         </div>
-        <button type="button" aria-label="Next members" hidden data-dir="next">
+        <button type="button" aria-label="Next members" data-dir="next">
           <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
         </button>
       </div>

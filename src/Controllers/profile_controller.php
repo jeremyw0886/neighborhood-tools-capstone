@@ -19,7 +19,7 @@ class ProfileController extends BaseController
 
     private const int MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
-    private const array PROFILE_VARIANT_WIDTHS = [360, 150, 80];
+    private const array PROFILE_VARIANT_WIDTHS = [240, 150, 80];
 
     private const array ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 

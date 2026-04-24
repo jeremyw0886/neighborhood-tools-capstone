@@ -37,13 +37,13 @@
              srcset="<?= $srcsets['srcset'] ?>"
              sizes="<?= $sizes ?>"
              alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-             width="<?= $smallestWidth ?>" height="<?= (int) round($smallestWidth * 0.75) ?>"
+             width="<?= $smallestWidth ?>" height="<?= (int) round($smallestWidth / 1.5) ?>"
              <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?><?= $focalAttrs ?>>
       </picture>
     <?php else: ?>
       <img src="/assets/images/tool-placeholder.svg"
            alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
-           width="220" height="180"
+           width="220" height="147"
            <?= $isEager ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"' ?>>
     <?php endif; ?>
   </figure>

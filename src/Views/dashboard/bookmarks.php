@@ -38,7 +38,7 @@ $paginationUrl = static function (int $pageNum): string {
 <?php if (!empty($bookmarks)): ?>
 
   <div role="list">
-    <?php $cardSizes = '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 2.25rem), 270px'; ?>
+    <?php $cardSizes = '(max-width: 520px) calc(100vw - 3rem), 280px'; ?>
     <?php foreach ($bookmarks as $tool): ?>
       <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
     <?php endforeach; ?>

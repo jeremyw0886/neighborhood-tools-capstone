@@ -21,7 +21,7 @@ $eagerLoad = false; ?>
         $focalX = (int) ($tool['primary_focal_x'] ?? 50);
         $focalY = (int) ($tool['primary_focal_y'] ?? 50);
         $focalAttrs = ($focalX !== 50 || $focalY !== 50) ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '';
-        $sizes = $cardSizes ?? '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 2.25rem), 270px';
+        $sizes = $cardSizes ?? '(max-width: 520px) calc(100vw - 3rem), 280px';
       ?>
         <picture>
           <?php if (!$isWebp && $srcsets['avifSrcset'] !== ''): ?>

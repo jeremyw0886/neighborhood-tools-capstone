@@ -219,6 +219,7 @@ class ToolController extends BaseController
             'zipWarning'        => $zipWarning,
             'radiusAutoApplied' => $radiusAutoApplied,
             'bookmarkFlash'     => $this->flash('bookmark_flash'),
+            'cardSizes'         => '(max-width: 520px) calc(100vw - 3rem), 280px',
         ]);
     }
 
@@ -283,6 +284,7 @@ class ToolController extends BaseController
             'perPage'       => self::PER_PAGE,
             'bookmarkedIds' => $bookmarkedIds,
             'bookmarkFlash' => $this->flash('bookmark_flash'),
+            'cardSizes'     => '(max-width: 520px) calc(100vw - 3rem), 280px',
         ]);
     }
 

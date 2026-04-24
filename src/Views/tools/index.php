@@ -184,7 +184,7 @@ $paginationUrl = static function (int $pageNum) use ($filterParams, $basePath): 
 
     <div role="list" data-tool-preview <?= $hasTools ? '' : 'hidden' ?>>
       <?php if ($hasTools): ?>
-        <?php $cardSizes = '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 2.25rem), 270px'; ?>
+        <?php $cardSizes = '(max-width: 520px) calc(100vw - 3rem), 280px'; ?>
         <?php foreach ($tools as $tool): ?>
           <?php require BASE_PATH . '/src/Views/partials/tool-card.php'; ?>
         <?php endforeach; ?>

@@ -21,6 +21,8 @@ $eagerLoad = false; ?>
         $focalX = (int) ($tool['primary_focal_x'] ?? 50);
         $focalY = (int) ($tool['primary_focal_y'] ?? 50);
         $focalAttrs = ($focalX !== 50 || $focalY !== 50) ? " data-focal-x=\"{$focalX}\" data-focal-y=\"{$focalY}\"" : '';
+        // $cardSizes targets grid view; list-view is a client-side toggle and
+        // intentionally over-fetches since the toggle can't be server-detected.
         $sizes = $cardSizes ?? '(max-width: 520px) calc(100vw - 3rem), 280px';
       ?>
         <picture>

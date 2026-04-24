@@ -973,6 +973,8 @@ class ToolController extends BaseController
             return null;
         }
 
+        ImageProcessor::autoOrient($destination);
+
         ImageProcessor::resize($destination, 1600);
 
         $width = ImageProcessor::getIntrinsicWidth($destination);

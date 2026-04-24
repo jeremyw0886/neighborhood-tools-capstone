@@ -97,6 +97,17 @@ final class MagickBackend implements ImageBackend
     }
 
     #[\Override]
+    public function autoOrient(string $path): void
+    {
+        $this->exec([
+            $this->binary,
+            $path,
+            '-auto-orient',
+            $path,
+        ]);
+    }
+
+    #[\Override]
     public function getIntrinsicWidth(string $path): ?int
     {
         $output = [];

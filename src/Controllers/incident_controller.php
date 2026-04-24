@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
+use App\Core\ImageProcessor;
 use App\Core\Role;
 use App\Models\Account;
 use App\Models\Borrow;
@@ -496,6 +497,8 @@ class IncidentController extends BaseController
                 $this->cleanupPhotos($filenames);
                 return [];
             }
+
+            ImageProcessor::autoOrient($destination);
 
             $filenames[] = $filename;
         }

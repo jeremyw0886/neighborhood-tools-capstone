@@ -625,6 +625,7 @@ class ProfileController extends BaseController
         $destination = BASE_PATH . '/public/uploads/profiles/' . $filename;
 
         if (move_uploaded_file($file['tmp_name'], $destination)) {
+            ImageProcessor::autoOrient($destination);
             return $filename;
         }
 

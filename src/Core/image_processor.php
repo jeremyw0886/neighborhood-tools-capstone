@@ -92,11 +92,23 @@ final class ImageProcessor
     }
 
     /**
+     * Rotate the file at $path per its EXIF Orientation tag, then clear the tag.
+     *
+     * @param non-empty-string $path
+     */
+    public static function autoOrient(string $path): void
+    {
+        self::backend()->autoOrient($path);
+    }
+
+    /**
      * Generate size variants and format copies for a source image.
      *
      * @param non-empty-string $sourcePath
-     * @param int[] $widths
-     * @param ?float $aspectRatio Width/height ratio (null = 3:2, 1.0 = square)
+     * @param int[]            $widths
+     * @param ?float           $aspectRatio    Width/height ratio (null = 3:2, 1.0 = square)
+     * @param ?string          $outputDir      Absolute directory for variant writes; null = source's directory
+     * @param bool             $preserveSource Skip in-place re-encoding of the source (regen flow)
      * @return string[] Paths of all created files (empty on failure)
      */
     public static function generateVariants(
@@ -105,6 +117,8 @@ final class ImageProcessor
         int $focalX = 50,
         int $focalY = 50,
         ?float $aspectRatio = null,
+        ?string $outputDir = null,
+        bool $preserveSource = false,
     ): array {
         $size = getimagesize($sourcePath);
         if ($size === false) {
@@ -114,7 +128,7 @@ final class ImageProcessor
         $sourceWidth = $size[0];
         $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
         $isWebp = strtolower($ext) === 'webp';
-        $base = preg_replace('/\.\w+$/', '', $sourcePath);
+        $base = self::resolveOutputBase($sourcePath, $outputDir);
         $ratio = $aspectRatio ?? self::ASPECT_RATIO;
         $backend = self::backend();
 
@@ -149,14 +163,16 @@ final class ImageProcessor
                 }
             }
 
-            $backend->cropResize($sourcePath, $sourceWidth, $focalX, $focalY, $ratio);
+            if (!$preserveSource) {
+                $backend->cropResize($sourcePath, $sourceWidth, $focalX, $focalY, $ratio);
 
-            if (!$isWebp) {
-                foreach (self::FORMAT_VARIANTS as $format) {
-                    $quality = self::qualityForWidth($sourceWidth, $format);
-                    $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
-                    if ($formatPath !== null) {
-                        $created[] = $formatPath;
+                if (!$isWebp) {
+                    foreach (self::FORMAT_VARIANTS as $format) {
+                        $quality = self::qualityForWidth($sourceWidth, $format);
+                        $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
+                        if ($formatPath !== null) {
+                            $created[] = $formatPath;
+                        }
                     }
                 }
             }
@@ -166,6 +182,19 @@ final class ImageProcessor
         }
 
         return $created;
+    }
+
+    /**
+     * Resolve the variant-filename base path, honoring an optional output directory.
+     */
+    private static function resolveOutputBase(string $sourcePath, ?string $outputDir): string
+    {
+        if ($outputDir === null) {
+            return preg_replace('/\.\w+$/', '', $sourcePath);
+        }
+
+        $filename = pathinfo($sourcePath, PATHINFO_FILENAME);
+        return rtrim($outputDir, '/') . '/' . $filename;
     }
 
     /**

@@ -122,10 +122,67 @@ final class GdBackend implements ImageBackend
     }
 
     #[\Override]
+    public function autoOrient(string $path): void
+    {
+        $info = getimagesize($path);
+        if ($info === false || $info[2] !== IMAGETYPE_JPEG) {
+            error_log("GdBackend::autoOrient skipped (non-JPEG or unreadable): {$path}");
+            return;
+        }
+
+        $exif = @exif_read_data($path);
+        if ($exif === false || !isset($exif['Orientation'])) {
+            error_log("GdBackend::autoOrient skipped (no EXIF Orientation): {$path}");
+            return;
+        }
+
+        $orientation = (int) $exif['Orientation'];
+        if ($orientation === 1) {
+            return;
+        }
+
+        try {
+            $source = imagecreatefromjpeg($path);
+            if ($source === false) {
+                error_log("GdBackend::autoOrient failed to decode: {$path}");
+                return;
+            }
+
+            $rotated = match ($orientation) {
+                2 => self::flipHorizontal($source),
+                3 => imagerotate($source, 180, 0),
+                4 => self::flipVertical($source),
+                5 => self::flipHorizontal(imagerotate($source, -90, 0)),
+                6 => imagerotate($source, -90, 0),
+                7 => self::flipHorizontal(imagerotate($source, 90, 0)),
+                8 => imagerotate($source, 90, 0),
+                default => $source,
+            };
+
+            imagejpeg($rotated, $path, self::JPEG_QUALITY);
+            unset($source, $rotated);
+        } catch (\Throwable $e) {
+            error_log('GdBackend::autoOrient failed: ' . $path . ' — ' . $e->getMessage());
+        }
+    }
+
+    #[\Override]
     public function getIntrinsicWidth(string $path): ?int
     {
         $size = getimagesize($path);
         return $size !== false ? $size[0] : null;
+    }
+
+    private static function flipHorizontal(\GdImage $image): \GdImage
+    {
+        imageflip($image, IMG_FLIP_HORIZONTAL);
+        return $image;
+    }
+
+    private static function flipVertical(\GdImage $image): \GdImage
+    {
+        imageflip($image, IMG_FLIP_VERTICAL);
+        return $image;
     }
 
     private function loadImage(string $path, int $type): ?\GdImage

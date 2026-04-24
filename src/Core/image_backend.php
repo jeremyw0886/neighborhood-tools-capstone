@@ -44,4 +44,11 @@ interface ImageBackend
      * @param non-empty-string $path
      */
     public function getIntrinsicWidth(string $path): ?int;
+
+    /**
+     * Rotate the file at $path per its EXIF Orientation tag, then clear the tag.
+     *
+     * @param non-empty-string $path
+     */
+    public function autoOrient(string $path): void;
 }

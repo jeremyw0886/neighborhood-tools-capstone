@@ -78,10 +78,21 @@ class ViewHelper
     }
 
     /**
+     * Check whether an avatar row stores a vector (SVG) avatar filename.
+     *
+     * @param  ?string $vectorFilename account_acc.id_avv_acc → avatar_vector_avv.file_name_avv
+     * @return bool    TRUE when a non-empty vector filename is present
+     */
+    public static function isVectorAvatar(?string $vectorFilename): bool
+    {
+        return !empty($vectorFilename);
+    }
+
+    /**
      * Resolve an avatar to its best URL (vector > cropped variant > full > placeholder).
      *
-     * @param  ?string $vectorAvatar Vector filename (e.g. "fox.svg")
-     * @param  ?string $photo        Profile photo filename (e.g. "profile_abc.jpg")
+     * @param  ?string $vectorAvatar Vector filename
+     * @param  ?string $photo        Profile photo filename
      * @param  int     $variantWidth Variant suffix width (default 80)
      * @return string  Root-relative URL ready for src attribute
      */

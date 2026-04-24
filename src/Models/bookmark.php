@@ -42,6 +42,7 @@ class Bookmark
                 bv.rating_count,
                 bv.bookmarked_at,
                 aim.file_name_aim AS owner_avatar,
+                aim.width_aim     AS owner_avatar_width,
                 avv.file_name_avv AS owner_vector_avatar,
                 cat_agg.category_name,
                 cat_agg.category_icon

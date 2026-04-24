@@ -18,8 +18,14 @@ class Tool
     private const int NEW_ARRIVAL_DAYS = 30;
 
     private const array ADMIN_SORT_FIELDS = [
-        'tool_name_tol', 'owner_name', 'tool_condition', 'rental_fee_tol',
-        'avg_rating', 'total_borrows', 'incident_count', 'created_at_tol',
+        'tool_name_tol',
+        'owner_name',
+        'tool_condition',
+        'rental_fee_tol',
+        'avg_rating',
+        'total_borrows',
+        'incident_count',
+        'created_at_tol',
     ];
 
     /**
@@ -109,6 +115,7 @@ class Tool
                     COALESCE(rs.avg_rating, 0) AS avg_rating,
                     av.owner_name,
                     aim.file_name_aim AS owner_avatar,
+                    aim.width_aim     AS owner_avatar_width,
                     avv.file_name_avv AS owner_vector_avatar,
                     av.created_at_tol,
                     COALESCE(rs.rating_count, 0) AS rating_count,
@@ -160,7 +167,7 @@ class Tool
                    tool_condition, is_deposit_required_tol,
                    default_deposit_amount_tol, primary_image,
                    primary_width, avg_rating, rating_count, owner_name,
-                   owner_avatar, owner_vector_avatar
+                   owner_avatar, owner_avatar_width, owner_vector_avatar
             FROM diversity
             WHERE owner_rank <= {$maxPerOwner}
             ORDER BY popularity_score DESC, created_at_tol DESC
@@ -213,6 +220,7 @@ class Tool
                     0 AS rating_count,
                     av.owner_name,
                     aim.file_name_aim AS owner_avatar,
+                    aim.width_aim     AS owner_avatar_width,
                     avv.file_name_avv AS owner_vector_avatar,
                     av.created_at_tol,
                     ROW_NUMBER() OVER (
@@ -237,7 +245,7 @@ class Tool
                    tool_condition, is_deposit_required_tol,
                    default_deposit_amount_tol, primary_image,
                    primary_width, avg_rating, rating_count, owner_name,
-                   owner_avatar, owner_vector_avatar
+                   owner_avatar, owner_avatar_width, owner_vector_avatar
             FROM unrated
             WHERE owner_rank <= 1
             ORDER BY created_at_tol DESC
@@ -334,6 +342,7 @@ class Tool
                 CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
                 a.zip_code_acc AS owner_zip,
                 aim.file_name_aim AS owner_avatar,
+                aim.width_aim     AS owner_avatar_width,
                 avv.file_name_avv AS owner_vector_avatar,
                 tim.file_name_tim AS primary_image,
                 tim.width_tim AS primary_width,
@@ -413,8 +422,8 @@ class Tool
             : " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, t.id_tol ASC";
 
         $sql = $select . $joins . $where
-             . $orderBy
-             . " LIMIT :limit OFFSET :offset";
+            . $orderBy
+            . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
 
@@ -503,6 +512,7 @@ class Tool
                 CONCAT(a.first_name_acc, ' ', a.last_name_acc) AS owner_name,
                 a.zip_code_acc AS owner_zip,
                 aim.file_name_aim AS owner_avatar,
+                aim.width_aim     AS owner_avatar_width,
                 avv.file_name_avv AS owner_vector_avatar,
                 tim.file_name_tim AS primary_image,
                 tim.width_tim AS primary_width,
@@ -588,8 +598,8 @@ class Tool
             : " ORDER BY is_lent_out ASC, COALESCE(last_activity, t.created_at_tol) DESC, distance_miles ASC, t.id_tol ASC";
 
         $sql = $select . $joins . $where
-             . $orderBy
-             . " LIMIT :limit OFFSET :offset";
+            . $orderBy
+            . " LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
 
@@ -720,9 +730,9 @@ class Tool
         }
 
         $sql = 'SELECT COUNT(DISTINCT t.id_tol) '
-             . 'FROM tool_tol t '
-             . implode(' ', $joins) . ' '
-             . 'WHERE ' . implode(' AND ', $where);
+            . 'FROM tool_tol t '
+            . implode(' ', $joins) . ' '
+            . 'WHERE ' . implode(' AND ', $where);
 
         $stmt = $pdo->prepare($sql);
 
@@ -829,10 +839,10 @@ class Tool
         }
 
         $sql = 'SELECT tc.id_cat_tolcat AS category_id, COUNT(DISTINCT t.id_tol) AS tool_count '
-             . 'FROM tool_tol t '
-             . implode(' ', $joins) . ' '
-             . 'WHERE ' . implode(' AND ', $where) . ' '
-             . 'GROUP BY tc.id_cat_tolcat';
+            . 'FROM tool_tol t '
+            . implode(' ', $joins) . ' '
+            . 'WHERE ' . implode(' AND ', $where) . ' '
+            . 'GROUP BY tc.id_cat_tolcat';
 
         $stmt = $pdo->prepare($sql);
 
@@ -915,11 +925,11 @@ class Tool
         }
 
         $sql = 'SELECT tc.id_cat_tolcat AS category_id, COUNT(DISTINCT t.id_tol) AS tool_count '
-             . 'FROM tool_tol t '
-             . 'JOIN account_acc a ON t.id_acc_tol = a.id_acc '
-             . 'JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat '
-             . 'WHERE ' . implode(' AND ', $where) . ' '
-             . 'GROUP BY tc.id_cat_tolcat';
+            . 'FROM tool_tol t '
+            . 'JOIN account_acc a ON t.id_acc_tol = a.id_acc '
+            . 'JOIN tool_category_tolcat tc ON t.id_tol = tc.id_tol_tolcat '
+            . 'WHERE ' . implode(' AND ', $where) . ' '
+            . 'GROUP BY tc.id_cat_tolcat';
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':deleted_status', 'deleted', PDO::PARAM_STR);
@@ -991,6 +1001,7 @@ class Tool
                 td.tool_condition,
                 td.owner_name,
                 aim.file_name_aim AS owner_avatar,
+                aim.width_aim     AS owner_avatar_width,
                 avv.file_name_avv AS owner_vector_avatar
             FROM tool_detail_v td
             LEFT JOIN account_image_aim aim
@@ -1591,6 +1602,11 @@ class Tool
      * ratings, borrow counts, categories, and availability status) and
      * supplements with a LEFT JOIN to account_image_aim for the owner's
      * primary avatar — the view doesn't include this.
+     *
+     * Deliberately omits owner_avatar_width: tool-detail, borrow, edit,
+     * dispute, and handover flows render the owner avatar with their own
+     * markup, not via the grid tool-card partial that needs the srcset
+     * intrinsic-width hint.
      *
      * @param  int $id  Tool primary key
      * @return ?array    Tool data or null if not found

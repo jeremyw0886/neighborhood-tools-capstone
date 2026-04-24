@@ -43,7 +43,7 @@ class HomeController extends BaseController
                 $preloadImage = [
                     'type'   => $type,
                     'srcset' => $srcset,
-                    'sizes'  => '(max-width: 600px) calc(100vw - 3rem), (max-width: 900px) calc(50vw - 2.25rem), 270px',
+                    'sizes'  => '270px',
                 ];
             }
         }

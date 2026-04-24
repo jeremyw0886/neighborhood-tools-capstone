@@ -56,18 +56,18 @@ $rangeEnd   = min($page * $perPage, $totalTools);
         <?php if (!$isWebp && $avatarSrcsets['avifSrcset'] !== ''): ?>
           <source type="image/avif"
                   srcset="<?= $avatarSrcsets['avifSrcset'] ?>"
-                  sizes="150px">
+                  sizes="72px">
         <?php endif; ?>
         <?php if (!$isWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
           <source type="image/webp"
                   srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
-                  sizes="150px">
+                  sizes="72px">
         <?php endif; ?>
         <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion($avatarSrc)) ?>"
              srcset="<?= $avatarSrcsets['srcset'] ?>"
-             sizes="150px"
+             sizes="72px"
              alt="<?= htmlspecialchars($avatarAlt) ?>"
-             width="150" height="150"
+             width="80" height="80"
              decoding="async"<?= $focalAttrs ?>>
       </picture>
     <?php else: ?>

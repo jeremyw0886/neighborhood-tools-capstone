@@ -15,6 +15,9 @@
  * @var string                                    $csrfToken
  */
 
+use App\Controllers\IncidentController;
+use App\Core\ImageProcessor;
+
 $incidentId    = (int) $incident['id_irt'];
 $subject       = htmlspecialchars($incident['subject_irt']);
 $description   = $incident['description_irt'];
@@ -204,18 +207,50 @@ $typeIcon  = $typeIcons[$incident['incident_type']] ?? 'fa-circle-question';
         Evidence Photos
         <span>(<?= count($photos) ?>)</span>
       </h2>
+      <?php
+        $photoSizes = '(max-width: 463px) calc(100vw - 3rem), '
+                    . '(max-width: 679px) calc(50vw - 2rem), '
+                    . '240px';
+      ?>
       <ul aria-label="Incident photos">
-        <?php foreach ($photos as $photo): ?>
+        <?php foreach ($photos as $photo):
+          $filename = $photo['file_name_iph'];
+          $caption  = $photo['caption_iph'] ?? 'Incident evidence photo';
+          $width    = (int) ($photo['width_iph'] ?? 0);
+          $height   = (int) ($photo['height_iph'] ?? 0);
+
+          $variants = ImageProcessor::getAvailableVariants(
+              $filename,
+              fullWidth: $width > 0 ? $width : null,
+              widths: IncidentController::INCIDENT_VARIANT_WIDTHS,
+              uploadDir: 'incidents',
+          );
+          $srcsets = ImageProcessor::buildSrcset($variants, '/uploads/incidents/');
+          $originalUrl = '/uploads/incidents/' . $filename;
+        ?>
           <li>
-            <a href="/uploads/incidents/<?= htmlspecialchars($photo['file_name_iph']) ?>"
+            <a href="<?= htmlspecialchars($originalUrl) ?>"
                target="_blank"
                rel="noopener">
-              <img src="/uploads/incidents/<?= htmlspecialchars($photo['file_name_iph']) ?>"
-                   alt="<?= htmlspecialchars($photo['caption_iph'] ?? 'Incident evidence photo') ?>"
-                   loading="lazy"
-                   decoding="async"
-                   width="300"
-                   height="200">
+              <picture>
+                <?php if ($srcsets['avifSrcset'] !== ''): ?>
+                  <source type="image/avif"
+                          srcset="<?= htmlspecialchars($srcsets['avifSrcset']) ?>"
+                          sizes="<?= htmlspecialchars($photoSizes) ?>">
+                <?php endif; ?>
+                <?php if ($srcsets['webpSrcset'] !== ''): ?>
+                  <source type="image/webp"
+                          srcset="<?= htmlspecialchars($srcsets['webpSrcset']) ?>"
+                          sizes="<?= htmlspecialchars($photoSizes) ?>">
+                <?php endif; ?>
+                <img src="<?= htmlspecialchars($originalUrl) ?>"
+                     <?php if ($srcsets['srcset'] !== ''): ?>srcset="<?= htmlspecialchars($srcsets['srcset']) ?>"
+                     sizes="<?= htmlspecialchars($photoSizes) ?>"<?php endif; ?>
+                     alt="<?= htmlspecialchars($caption) ?>"
+                     loading="lazy"
+                     decoding="async"
+                     <?php if ($width > 0 && $height > 0): ?>width="<?= $width ?>" height="<?= $height ?>"<?php endif; ?>>
+              </picture>
             </a>
           </li>
         <?php endforeach; ?>

@@ -272,14 +272,15 @@ class Incident
     /**
      * Fetch photos attached to an incident in sort order.
      *
-     * @return array  Rows with id_iph, file_name_iph, caption_iph, sort_order_iph
+     * @return array  Rows with id_iph, file_name_iph, caption_iph, width_iph, height_iph
      */
     public static function getPhotos(int $incidentId): array
     {
         $pdo = Database::connection();
 
         $sql = "
-            SELECT id_iph, file_name_iph, caption_iph, sort_order_iph, created_at_iph
+            SELECT id_iph, file_name_iph, caption_iph, sort_order_iph,
+                   width_iph, height_iph, created_at_iph
             FROM incident_photo_iph
             WHERE id_irt_iph = :incident_id
             ORDER BY sort_order_iph ASC, id_iph ASC
@@ -296,11 +297,11 @@ class Incident
      * Create an incident report and attach photos in a single transaction.
      *
      * Inserts into incident_report_irt then into incident_photo_iph for
-     * each uploaded photo. The DB trigger trg_incident_report_before_insert
-     * auto-calculates is_reported_within_deadline_irt based on the 48-hour
-     * window from incident_occurred_at_irt.
+     * each uploaded photo. Photo dimensions come from getimagesize() after
+     * autoOrient in the controller so per-photo width/height attrs on the
+     * rendered <img> match the pixels the browser will actually display.
      *
-     * @param  array<string> $photoFilenames  Filenames already moved to uploads/incidents/
+     * @param array<array{filename: string, width: int, height: int}> $photos
      * @return int  The new incident's primary key (id_irt)
      */
     public static function create(
@@ -311,7 +312,7 @@ class Incident
         string $description,
         string $occurredAt,
         ?string $estimatedDamageAmount,
-        array $photoFilenames = [],
+        array $photos = [],
     ): int {
         $pdo = Database::connection();
         $pdo->beginTransaction();
@@ -344,19 +345,21 @@ class Incident
 
             $incidentId = (int) $pdo->lastInsertId();
 
-            if ($photoFilenames !== []) {
+            if ($photos !== []) {
                 $photoSql = "
                     INSERT INTO incident_photo_iph
-                        (id_irt_iph, file_name_iph, sort_order_iph)
-                    VALUES (:incident_id, :filename, :sort_order)
+                        (id_irt_iph, file_name_iph, sort_order_iph, width_iph, height_iph)
+                    VALUES (:incident_id, :filename, :sort_order, :width, :height)
                 ";
 
                 $photoStmt = $pdo->prepare($photoSql);
 
-                foreach ($photoFilenames as $index => $filename) {
+                foreach ($photos as $index => $photo) {
                     $photoStmt->bindValue(':incident_id', $incidentId, PDO::PARAM_INT);
-                    $photoStmt->bindValue(':filename', $filename, PDO::PARAM_STR);
+                    $photoStmt->bindValue(':filename', $photo['filename'], PDO::PARAM_STR);
                     $photoStmt->bindValue(':sort_order', $index, PDO::PARAM_INT);
+                    $photoStmt->bindValue(':width', $photo['width'], PDO::PARAM_INT);
+                    $photoStmt->bindValue(':height', $photo['height'], PDO::PARAM_INT);
                     $photoStmt->execute();
                 }
             }

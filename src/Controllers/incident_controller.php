@@ -22,6 +22,7 @@ class IncidentController extends BaseController
         'image/png'  => 'png',
         'image/webp' => 'webp',
     ];
+    public const array INCIDENT_VARIANT_WIDTHS = [640, 400];
     /**
      * Display the incident report form for a borrow transaction.
      *
@@ -314,14 +315,14 @@ class IncidentController extends BaseController
             $this->abort(500);
         }
 
-        $occurredAt     = $date . ' ' . $time . ':00';
-        $damageAmount   = $amount !== '' ? $amount : null;
-        $photoFilenames = [];
+        $occurredAt   = $date . ' ' . $time . ':00';
+        $damageAmount = $amount !== '' ? $amount : null;
+        $photos       = [];
 
         if ($hasPhotos) {
-            $photoFilenames = $this->movePhotos();
+            $photos = $this->movePhotos();
 
-            if ($photoFilenames === []) {
+            if ($photos === []) {
                 $_SESSION['incident_errors'] = ['photos' => 'Failed to save the uploaded photos. Please try again.'];
                 $_SESSION['incident_old']    = $oldInput;
                 $this->redirect('/incidents/create/' . $borrowId);
@@ -337,7 +338,7 @@ class IncidentController extends BaseController
                 description: $desc,
                 occurredAt: $occurredAt,
                 estimatedDamageAmount: $damageAmount,
-                photoFilenames: $photoFilenames,
+                photos: $photos,
             );
 
             $this->sendIncidentNotifications(
@@ -353,7 +354,7 @@ class IncidentController extends BaseController
         } catch (\Throwable $e) {
             error_log('IncidentController::store — ' . $e->getMessage());
 
-            $this->cleanupPhotos($photoFilenames);
+            $this->cleanupPhotos($photos);
 
             $_SESSION['incident_errors'] = ['general' => 'Something went wrong filing your report. Please try again.'];
             $_SESSION['incident_old']    = $oldInput;
@@ -472,15 +473,16 @@ class IncidentController extends BaseController
     }
 
     /**
-     * Move validated photos to the uploads directory.
+     * Move validated photos to the uploads directory, capturing intrinsic
+     * dimensions and generating srcset variants for each.
      *
-     * @return array<string>  Filenames that were successfully moved
+     * @return array<array{filename: string, width: int, height: int}>
      */
     private function movePhotos(): array
     {
-        $files     = $_FILES['photos'];
-        $filenames = [];
-        $finfo     = new \finfo(FILEINFO_MIME_TYPE);
+        $files  = $_FILES['photos'];
+        $photos = [];
+        $finfo  = new \finfo(FILEINFO_MIME_TYPE);
 
         foreach ($files['error'] as $i => $error) {
             if ($error === UPLOAD_ERR_NO_FILE) {
@@ -488,36 +490,53 @@ class IncidentController extends BaseController
             }
 
             $mime = $finfo->file($files['tmp_name'][$i]);
-            $ext   = self::MIME_EXTENSIONS[$mime] ?? 'jpg';
+            $ext  = self::MIME_EXTENSIONS[$mime] ?? 'jpg';
 
             $filename    = uniqid('incident_', true) . '.' . $ext;
             $destination = BASE_PATH . '/public/uploads/incidents/' . $filename;
 
             if (!move_uploaded_file($files['tmp_name'][$i], $destination)) {
-                $this->cleanupPhotos($filenames);
+                $this->cleanupPhotos($photos);
                 return [];
             }
 
             ImageProcessor::autoOrient($destination);
 
-            $filenames[] = $filename;
+            $size = getimagesize($destination);
+            if ($size === false) {
+                @unlink($destination);
+                $this->cleanupPhotos($photos);
+                return [];
+            }
+
+            ImageProcessor::generateResizedVariants(
+                $destination,
+                widths: self::INCIDENT_VARIANT_WIDTHS,
+            );
+
+            $photos[] = [
+                'filename' => $filename,
+                'width'    => (int) $size[0],
+                'height'   => (int) $size[1],
+            ];
         }
 
-        return $filenames;
+        return $photos;
     }
 
     /**
-     * Remove uploaded photo files from disk (cleanup on failure).
+     * Remove uploaded photo files and their variants from disk (cleanup on failure).
      *
-     * @param  array<string> $filenames  Filenames to delete
+     * @param array<array{filename: string, width: int, height: int}> $photos
      */
-    private function cleanupPhotos(array $filenames): void
+    private function cleanupPhotos(array $photos): void
     {
-        foreach ($filenames as $filename) {
-            $path = BASE_PATH . '/public/uploads/incidents/' . $filename;
-            if (file_exists($path)) {
-                unlink($path);
-            }
+        foreach ($photos as $photo) {
+            ImageProcessor::deleteVariants(
+                $photo['filename'],
+                uploadDir: 'incidents',
+                widths: self::INCIDENT_VARIANT_WIDTHS,
+            );
         }
     }
 

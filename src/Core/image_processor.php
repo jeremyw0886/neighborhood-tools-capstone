@@ -185,6 +185,80 @@ final class ImageProcessor
     }
 
     /**
+     * Generate native-aspect size variants (no crop) for a source image.
+     *
+     * @param non-empty-string $sourcePath
+     * @param int[]            $widths
+     * @param ?string          $outputDir      Absolute directory for variant writes; null = source's directory
+     * @param bool             $preserveSource Skip writing source-width format variants (regen flow)
+     * @return string[] Paths of all created files (empty on failure)
+     */
+    public static function generateResizedVariants(
+        string $sourcePath,
+        array $widths,
+        ?string $outputDir = null,
+        bool $preserveSource = false,
+    ): array {
+        $size = getimagesize($sourcePath);
+        if ($size === false) {
+            return [];
+        }
+
+        $sourceWidth = $size[0];
+        $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
+        $isWebp = strtolower($ext) === 'webp';
+        $base = self::resolveOutputBase($sourcePath, $outputDir);
+        $backend = self::backend();
+
+        $qualifyingWidths = array_filter(
+            $widths,
+            static fn(int $w): bool => $w < $sourceWidth,
+        );
+
+        rsort($qualifyingWidths);
+
+        $created = [];
+
+        try {
+            foreach ($qualifyingWidths as $w) {
+                $variantPath = "{$base}-{$w}w.{$ext}";
+
+                if (!copy($sourcePath, $variantPath)) {
+                    throw new \RuntimeException("Failed to copy variant: {$variantPath}");
+                }
+                $created[] = $variantPath;
+
+                $backend->resize($variantPath, $w);
+
+                if (!$isWebp) {
+                    foreach (self::FORMAT_VARIANTS as $format) {
+                        $quality = self::qualityForWidth($w, $format);
+                        $formatPath = $backend->createFormatVariant($variantPath, $format, $quality);
+                        if ($formatPath !== null) {
+                            $created[] = $formatPath;
+                        }
+                    }
+                }
+            }
+
+            if (!$preserveSource && !$isWebp) {
+                foreach (self::FORMAT_VARIANTS as $format) {
+                    $quality = self::qualityForWidth($sourceWidth, $format);
+                    $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
+                    if ($formatPath !== null) {
+                        $created[] = $formatPath;
+                    }
+                }
+            }
+        } catch (\RuntimeException) {
+            self::cleanupFiles($created);
+            return [];
+        }
+
+        return $created;
+    }
+
+    /**
      * Resolve the variant-filename base path, honoring an optional output directory.
      */
     private static function resolveOutputBase(string $sourcePath, ?string $outputDir): string

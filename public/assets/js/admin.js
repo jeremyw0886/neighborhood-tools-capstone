@@ -357,11 +357,11 @@ class AdminRouter {
     this.#content.setAttribute('data-transition', 'fade-out');
 
     try {
-      let html, heading, icon, description, sectionId, title, css;
+      let html, heading, icon, description, sectionId, title, css, js;
       const cached = this.#prefetchCache.get(url);
       if (cached && Date.now() - cached.time < AdminRouter.#PREFETCH_TTL && cached.isPartial) {
         html = cached.html;
-        ({ heading, icon, description, sectionId, title, css } = cached);
+        ({ heading, icon, description, sectionId, title, css, js } = cached);
       } else {
         const res = await fetch(url, {
           headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -392,6 +392,7 @@ class AdminRouter {
         sectionId = res.headers.get('X-Admin-Section-Id') ?? '';
         title = decodeURIComponent(res.headers.get('X-Page-Title') ?? '');
         css = res.headers.get('X-Page-Css');
+        js = res.headers.get('X-Page-Js');
       }
 
       await this.#waitForAnimation();
@@ -409,6 +410,7 @@ class AdminRouter {
       }
 
       this.#updateNavActiveState(url);
+      await this.#syncScripts(js);
       AdminRouter.#reinit();
       this.#restoreDetailsState();
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -487,6 +489,33 @@ class AdminRouter {
     });
   }
 
+  /**
+   * Inject page-specific scripts that aren't already loaded.
+   *
+   * @param {string} jsHeader Comma-separated list from X-Page-Js
+   * @returns {Promise<void>}
+   */
+  async #syncScripts(jsHeader) {
+    if (!jsHeader) return;
+    const stripVersion = (s) => s.replace(/\?.*$/, '');
+    const current = new Set(
+      [...document.querySelectorAll('script[src]')]
+        .map((s) => stripVersion(s.getAttribute('src')))
+        .filter(Boolean),
+    );
+    const needed = jsHeader.split(',').map((s) => s.trim()).filter(Boolean);
+    for (const src of needed) {
+      if (current.has(stripVersion(src))) continue;
+      await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = NT.trustedScript(src);
+        script.onload = resolve;
+        script.onerror = resolve;
+        document.head.appendChild(script);
+      });
+    }
+  }
+
   /** @param {string} url */
   #updateNavActiveState(url) {
     if (!this.#nav) return;
@@ -528,6 +557,7 @@ class AdminRouter {
           sectionId: res.headers.get('X-Admin-Section-Id') ?? '',
           title: decodeURIComponent(res.headers.get('X-Page-Title') ?? ''),
           css: res.headers.get('X-Page-Css') ?? '',
+          js: res.headers.get('X-Page-Js') ?? '',
         };
         return res.text().then(html => { entry.html = html; return entry; });
       })

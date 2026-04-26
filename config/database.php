@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$collation = $_ENV['DB_COLLATION'] ?? 'utf8mb4_unicode_ci';
+$collation = $_ENV['DB_COLLATION'] ?? 'utf8mb4_0900_ai_ci';
 
 $dbConfig = [
     'host'      => $_ENV['DB_HOST'] ?? 'localhost',

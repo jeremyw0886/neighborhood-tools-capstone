@@ -1843,7 +1843,7 @@
     margin-right: 0.15em;
   }
 
-  div[role="list"]:not([data-vector-grid])>div>article:has(> figure) footer>img {
+  div[role="list"]:not([data-vector-grid])>div>article:has(> figure) footer img {
     border: 2px solid var(--mountain-pine-light);
     border-radius: 50%;
     height: 1.75rem;

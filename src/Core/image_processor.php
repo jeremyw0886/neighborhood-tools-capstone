@@ -277,8 +277,10 @@ final class ImageProcessor
     private static function qualityForWidth(int $width, string $format): int
     {
         return match (true) {
+            $format === 'avif' && $width <= 240 => 38,
             $format === 'avif' && $width >= 820 => 55,
             $format === 'avif'                  => 45,
+            $format === 'webp' && $width <= 240 => 65,
             $format === 'webp' && $width >= 820 => 82,
             $format === 'webp'                  => 72,
             $width >= 820                       => 90,

@@ -93,7 +93,10 @@ neighborhoodtools/
 
 ## Documentation
 
+- [Local setup](docs/local-setup.md) &mdash; cloner guide: prerequisites, PHP extensions, database import, test accounts, verification, troubleshooting.
 - [Database schema reference](docs/database.md) &mdash; tables, views, stored procedures, triggers, business rules, and ER diagram for the MySQL schema.
+- [Image pipeline](docs/image-pipeline.md) &mdash; backend abstraction, variant generation, focal-point editor, operator scripts.
+- [Deployment runbook](docs/deployment.md) &mdash; SiteGround procedures: pull/deploy, secrets, DB backup, cron, Stripe/Turnstile wiring, smoke checks, rollback.
 
 ## AI-Assisted Development
 
@@ -101,26 +104,21 @@ neighborhoodtools/
 
 ## Local Development
 
-Requires a local PHP/MySQL stack with PHP 8.4+ and MySQL 8. Apache works out of the box with the checked-in `.htaccess`; for nginx, use `public/` as the document root and mirror the rewrite/security headers in `config/nginx/neighborhoodtools.local.conf.example`.
+Requires PHP 8.4+, MySQL 8, and Apache (with `mod_rewrite`) or nginx. Happy path:
 
-1. Clone the repo
-2. `composer install`
-3. Copy `.env.example` to `.env` and configure database credentials
-4. Import `dumps/warren-jeremy-dump-phase6.sql`
-5. Point your web server document root to `public/`
-6. Set `APP_URL`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `TURNSTILE_ALLOWED_HOSTNAMES` in `.env` for your local hostname
-7. Visit your local host, for example `https://neighborhoodtools.local:8890`
+1. `composer install`
+2. `mysql -u root -p -e "CREATE DATABASE neighborhoodtools;"`
+3. `mysql -u root -p neighborhoodtools < dumps/warren-jeremy-dump-phase6.sql`
+4. Copy `.env.example` to `.env` (handled automatically by `composer install`) and set `DB_USERNAME` and `DB_PASSWORD`.
+5. Point the web server document root at `public/` and visit the site.
 
-After adding new PHP classes (controllers, models), regenerate the autoloader:
+For full setup including required PHP extensions, storage permissions, HTTPS configuration, test accounts, verification, and troubleshooting, see [docs/local-setup.md](docs/local-setup.md).
 
-```bash
-composer dump-autoload
-```
-
-After changing bundled CSS files, rebuild the production bundle:
+Common dev tasks:
 
 ```bash
-php build-assets.php
+composer dump-autoload   # after adding a new PHP class under src/
+php build-assets.php     # after changing bundled CSS or any JS
 ```
 
 ## W3C CSS Validator Notes

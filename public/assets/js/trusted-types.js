@@ -21,6 +21,13 @@ const ntSanitizeHtml = (() => {
       'source', 'span', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody',
       'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'tr', 'u', 'ul',
       'var', 'wbr',
+      'data', 'menu', 'template',
+      'svg', 'g', 'defs', 'use', 'symbol', 'desc',
+      'circle', 'ellipse', 'line', 'polygon', 'polyline', 'rect', 'path',
+      'text', 'tspan', 'linearGradient', 'radialGradient', 'stop',
+      'clipPath', 'mask', 'pattern', 'filter',
+      'feGaussianBlur', 'feMerge', 'feMergeNode', 'feColorMatrix',
+      'feComposite', 'feFlood', 'feOffset',
     ],
     ALLOWED_ATTR: [
       'class', 'id', 'href', 'src', 'srcset', 'alt', 'title', 'role',
@@ -31,10 +38,30 @@ const ntSanitizeHtml = (() => {
       'colspan', 'rowspan', 'scope', 'disabled', 'readonly', 'checked',
       'selected', 'required', 'min', 'max', 'step', 'pattern', 'maxlength',
       'tabindex', 'open', 'datetime',
+      'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
+      'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset',
+      'd', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1', 'x2', 'y2',
+      'points', 'transform', 'preserveAspectRatio',
+      'fill-rule', 'clip-rule', 'opacity', 'fill-opacity', 'stroke-opacity',
+      'offset', 'stop-color', 'stop-opacity', 'gradientUnits',
     ],
     ALLOW_DATA_ATTR: true,
     RETURN_TRUSTED_TYPE: false,
   });
+
+  if (window.DOMPurify?.addHook) {
+    window.DOMPurify.addHook('uponSanitizeElement', (_node, data) => {
+      if (data.allowedTags[data.tagName]) return;
+      try {
+        const blob = new Blob([JSON.stringify({
+          type: 'dompurify-strip',
+          tag: data.tagName,
+          page: location.pathname,
+        })], { type: 'application/csp-report' });
+        navigator.sendBeacon('/csp-report', blob);
+      } catch { /* best effort */ }
+    });
+  }
 
   if (window.trustedTypes?.createPolicy) {
     const policy = window.trustedTypes.createPolicy('nt-html', {

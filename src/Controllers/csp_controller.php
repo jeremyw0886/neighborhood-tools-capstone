@@ -74,6 +74,8 @@ class CspController
             }
         } elseif (isset($report['type']) && $report['type'] === 'tt-default-fallback') {
             self::logTrustedTypesFallback($report, $ip);
+        } elseif (isset($report['type']) && $report['type'] === 'dompurify-strip') {
+            self::logDomPurifyStrip($report, $ip);
         } else {
             http_response_code(400);
             exit;
@@ -124,6 +126,19 @@ class CspController
             self::sanitizeLogValue($report['sink'] ?? 'unknown'),
             self::sanitizeLogValue($report['page'] ?? 'unknown'),
             self::sanitizeLogValue($report['url'] ?? 'n/a'),
+        ));
+    }
+
+    /**
+     * Log a DOMPurify element-strip beacon.
+     */
+    private static function logDomPurifyStrip(array $report, string $ip): void
+    {
+        error_log(sprintf(
+            'DOMPurify strip: ip=%s tag=%s page=%s',
+            $ip,
+            self::sanitizeLogValue($report['tag'] ?? 'unknown'),
+            self::sanitizeLogValue($report['page'] ?? 'unknown'),
         ));
     }
 

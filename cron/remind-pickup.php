@@ -2,6 +2,20 @@
 
 declare(strict_types=1);
 
+/**
+ * Cron: Pickup reminders for approved-but-not-picked-up borrows.
+ *
+ * Tiered notifications at days 3, 5, and 6 of the 7-day approval
+ * window before the auto-cancel cron (expire-stale-borrows.php)
+ * fires. Idempotent per (borrower, title, borrow) — re-runs the
+ * same day are no-ops.
+ *
+ * SiteGround cron command:
+ *   /usr/local/bin/php /home/<user>/public_html/cron/remind-pickup.php
+ *
+ * Schedule: daily at 9:00 AM (after send-overdue-notifications at 8:00 AM)
+ */
+
 use App\Models\Borrow;
 use App\Models\Notification;
 

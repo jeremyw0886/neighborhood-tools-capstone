@@ -2,12 +2,14 @@
 .DS_Store
 Thumbs.db
 
-# VS Code
-.vscode/*
-.vscode/settings.json
-.vscode/extensions.json
+# Editor
+.vscode/
 
-# PHP dependencies (root Composer vendor only)
+# Claude
+.claude/
+CLAUDE.md
+
+# PHP dependencies (installed via `composer install`)
 /vendor/
 
 # Environment and credentials
@@ -18,66 +20,47 @@ config.local.php
 credentials.json
 *.pem
 
-# Database
+# SQL — block all except the required course deliverable
 *.sql
 *.sql.gz
+!dumps/warren-jeremy-dump-phase6.sql
 
 # Logs
 logs/*.log
 *.log
 error_log
 php_errorlog
+public/php_errorlog
 
 # Backups and temp files
 *.bak
 *.tmp
 *.swp
 
-# User uploads (keep directory structure via .gitkeep)
-# public/uploads/incidents/*
-# public/uploads/profiles/*
-# public/uploads/tools/*
-# public/uploads/vectors/*
+# Uploads — keep directory structure and committed seed images,
+# block runtime-uploaded files only via the .htaccess/.gitkeep allowlist below
 !public/uploads/**/.gitkeep
 !public/uploads/**/.htaccess
 
-# Rate limit data files
+# Runtime storage (keep directory structure via .gitkeep)
 storage/rate-limits/*.json
 !storage/rate-limits/.gitkeep
 !storage/rate-limits/.htaccess
-
-# Query result cache files
 storage/cache/*.json
 !storage/cache/.gitkeep
 !storage/cache/.htaccess
-
-# Session files
 storage/sessions/*
 !storage/sessions/.gitkeep
 
-# Local test files
+# Local-only working folders (not part of the deliverable)
 local_testing/
-warren-jeremy-phase4/
 seed_images/
 usability_testing/
+_archive/
 
-# Claude
-.claude
-CLAUDE.md
-
-# Usability test files (temporary, delete after testing)
-public/usability-test-*.html
-public/assets/js/usability-test.js
-warren-jeremy-phase4/
-
-# Cron command reference (server-specific paths)
+# Server-specific cron reference (paths differ per host)
 cron/siteground-cron-commands.txt
 
-# Build tools (not needed on server — output is committed)
-build-assets.php
-generate-220w-variants.php
-rewebp.php
-generate-missing-variants.php
-
-# Miscellaneous
-_archive/
+# Usability test artifacts (kept locally, not deployed)
+public/usability-test-*.html
+public/assets/js/usability-test.js

@@ -2,7 +2,7 @@
 
 Community tool-sharing platform for neighbors in the Asheville & Hendersonville area.
 
-**WEB-289 Capstone Project** &mdash; Jeremy Warren
+**Author:** Jeremy Warren
 **Live:** <https://neighborhoodtools.org>
 
 ## Overview
@@ -97,7 +97,7 @@ neighborhoodtools/
 
 ## AI-Assisted Development
 
-[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, usability testing support, and used to flatten css from nesting (css could not be validated using W3C using nesting, nesting will be restored after completion of this course). Placeholder images were created using [Artlist AI](https://artlist.io).
+[Claude](https://claude.ai) (Anthropic) was used throughout development for code audits, accessibility reviews, usability testing support, and to flatten CSS nesting (the W3C validator does not yet recognize the modern nesting syntax — nesting will be restored once the validator catches up). Placeholder images were created using [Artlist AI](https://artlist.io).
 
 ## Local Development
 

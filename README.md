@@ -44,10 +44,12 @@ neighborhoodtools/
 │       ├── images/            # SVGs and static images
 │       └── vendor/fontawesome/ # Self-hosted FA subset
 ├── cron/                      # Scheduled jobs (notifications, stats, cleanup, summary refreshes)
+├── scripts/                   # Ad-hoc operator scripts (variant regen, image purge, manual reminders)
 ├── sql/                       # Schema migrations and seed scripts
+├── docs/                      # Architecture, runbook, and reference docs
 ├── src/
-│   ├── Core/                  # BaseController, Database, Role enum, ImageProcessor, RateLimiter, Environment, ViewHelper
-│   ├── Controllers/           # 18 route handlers
+│   ├── Core/                  # BaseController, Database, Role enum, ImageProcessor (GD/Imagick backends + file cache), RateLimiter, Environment, ViewHelper
+│   ├── Controllers/           # 20 route handlers
 │   ├── Models/                # 23 data-access classes (static methods, PDO)
 │   └── Views/
 │       ├── layouts/main.php   # Shared HTML shell
@@ -77,6 +79,7 @@ neighborhoodtools/
 - **Notifications** &mdash; Paginated notification feed with mark-all-read, notification preferences
 - **Admin** &mdash; Dashboard with platform stats, global search, user management (approve/deny/status), tool management, category CRUD with icon assignment, vector image library, avatar vector management, deposit management, dispute/event/incident oversight, reports, audit log, TOS versioning
 - **Terms of Service** &mdash; Versioned TOS with acceptance tracking
+- **Privacy Policy** &mdash; Standalone privacy page with data-handling disclosures
 - **Info Pages** &mdash; How-To, FAQ (available as standalone pages and modals)
 - **Scheduled jobs** &mdash; Cron scripts in `cron/` handle overdue notifications, expired handovers, stale borrow expiry, search-log cleanup, daily platform stats, and refreshes for tool/user/neighborhood summary tables
 
@@ -87,6 +90,10 @@ neighborhoodtools/
 - **JS:** ES2025 class syntax with private fields and arrow-field handlers, static `init()` factories, progressive enhancement (everything works without JS)
 - **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings, skip-to-content link
 - **Security:** CSRF tokens, honeypot fields, Cloudflare Turnstile, bcrypt cost-12 hashes, CSP/HSTS/X-Frame-Options/Referrer-Policy headers, HttpOnly/Secure/SameSite cookies, 30-minute idle session timeout
+
+## Documentation
+
+- [Database schema reference](docs/database.md) &mdash; tables, views, stored procedures, triggers, business rules, and ER diagram for the MySQL schema.
 
 ## AI-Assisted Development
 

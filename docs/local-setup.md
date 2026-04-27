@@ -82,6 +82,16 @@ $EDITOR .env
 
 **1. Clone and install** — `composer install` runs the `post-install-cmd` script that auto-copies `.env.example` to `.env` if no `.env` exists. The vendor directory is gitignored; `composer.lock` is committed.
 
+The runtime PHP packages installed are:
+
+| Package | Purpose | Skipping breaks |
+| --- | --- | --- |
+| `vlucas/phpdotenv` | Loads `.env` into `$_ENV` for `Database::connection()` and other config consumers. | All DB-backed pages (every controller). |
+| `stripe/stripe-php` | Server-side Stripe SDK for security-deposit charges and webhook verification. | `/payments/deposit/*` and the Stripe webhook endpoint. |
+| `enshrined/svg-sanitize` | Strips scripts, event handlers, and remote refs from admin-uploaded SVG icons / avatars before they hit `public/uploads/vectors/`. | All SVG uploads under `/admin/images` are silently rejected with `Uploaded SVG could not be safely sanitized; rejected.` |
+
+Skipping `composer install` (or running it before a dependency was committed) leaves these packages absent from `vendor/`. The application does not fatal — each consumer fails closed — but the corresponding features are non-functional. If `vendor/enshrined/` is missing after a `git pull`, run `composer install` to reconcile against the lockfile.
+
 **2. Create the database** — A bare `CREATE DATABASE` is sufficient. The dump configures `utf8mb4_0900_ai_ci` collation explicitly, which is also MySQL 8's default, so no explicit `COLLATE` clause is required.
 
 **3. Import the dump** — The dump is the canonical schema. It includes table structure, views, stored procedures, triggers, helper functions, and seeded data (categories, neighborhoods, ZIP codes, vector icons, test accounts, sample tools, sample borrows, sample disputes/events/incidents).

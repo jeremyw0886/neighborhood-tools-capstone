@@ -89,7 +89,7 @@ neighborhoodtools/
 - **CSS:** Design tokens, CSS nesting, Grid/Flexbox, `clamp()`, container queries, no `!important`, no inline styles (strict CSP)
 - **JS:** ES2025 class syntax with private fields and arrow-field handlers, static `init()` factories, progressive enhancement (everything works without JS)
 - **HTML:** Semantic HTML5, WCAG AA, ARIA landmarks, 44px touch targets, visible focus rings, skip-to-content link
-- **Security:** CSRF tokens, honeypot fields, Cloudflare Turnstile, bcrypt cost-12 hashes, CSP/HSTS/X-Frame-Options/Referrer-Policy headers, HttpOnly/Secure/SameSite cookies, 30-minute idle session timeout
+- **Security:** CSRF tokens, honeypot fields, Cloudflare Turnstile, bcrypt cost-12 hashes, nonce-based CSP with `'strict-dynamic'`, Trusted Types enforcement, HSTS/X-Frame-Options/Referrer-Policy headers, HttpOnly/Secure/SameSite cookies, 30-minute idle session timeout, per-IP rate limiting &mdash; full posture in [docs/security.md](docs/security.md)
 
 ## Documentation
 
@@ -98,6 +98,7 @@ neighborhoodtools/
 - [Image pipeline](docs/image-pipeline.md) &mdash; backend abstraction, variant generation, focal-point editor, operator scripts.
 - [Deployment runbook](docs/deployment.md) &mdash; SiteGround procedures: pull/deploy, secrets, DB backup, cron, Stripe/Turnstile wiring, smoke checks, rollback.
 - [HTTP endpoint reference](docs/endpoints.md) &mdash; JSON, XHR, and webhook endpoints: auth posture, request/response shapes, and error envelopes.
+- [Security posture](docs/security.md) &mdash; threat model, authentication, CSP/Trusted Types directive breakdown, file uploads, rate limits, accepted trade-offs, and future hardening.
 
 ## AI-Assisted Development
 

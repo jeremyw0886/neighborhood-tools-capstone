@@ -10,6 +10,7 @@ class ToolPreview {
   #tooltip;
   #activeCard = null;
   #hideTimeout = null;
+  #scrollTicking = false;
   #abortController = new AbortController();
 
   constructor() {
@@ -167,7 +168,12 @@ class ToolPreview {
   };
 
   #handleScroll = () => {
-    if (this.#activeCard) this.#position(this.#activeCard);
+    if (!this.#activeCard || this.#scrollTicking) return;
+    this.#scrollTicking = true;
+    requestAnimationFrame(() => {
+      this.#scrollTicking = false;
+      if (this.#activeCard) this.#position(this.#activeCard);
+    });
   };
 }
 

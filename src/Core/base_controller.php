@@ -102,21 +102,33 @@ class BaseController
 
         $isGet = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET';
 
-        if ($isGet && !in_array($currentPath, $transientPaths, true)) {
+        if ($isGet && !$this->isXhr() && !in_array($currentPath, $transientPaths, true)) {
+            $bouncingAlternates = [];
+            if (preg_match('#^(/tools/\d+)/(edit|availability)$#', $currentPath, $m)) {
+                $bouncingAlternates[] = $m[1];
+            }
+            if ($bouncingAlternates !== []) {
+                $history = array_values(array_filter(
+                    $history,
+                    static fn(string $entry): bool => !in_array(
+                        parse_url($entry, PHP_URL_PATH) ?: '/',
+                        $bouncingAlternates,
+                        true,
+                    ),
+                ));
+            }
+
             $top = end($history) ?: null;
             $topPath = $top !== null ? (parse_url($top, PHP_URL_PATH) ?: '/') : null;
 
             if ($topPath !== $currentPath) {
-                $existingIdx = null;
-                foreach ($history as $i => $entry) {
-                    if ((parse_url($entry, PHP_URL_PATH) ?: '/') === $currentPath) {
-                        $existingIdx = $i;
-                        break;
-                    }
-                }
+                $penultimateIdx = count($history) - 2;
+                $penultimatePath = $penultimateIdx >= 0
+                    ? (parse_url($history[$penultimateIdx], PHP_URL_PATH) ?: '/')
+                    : null;
 
-                if ($existingIdx !== null) {
-                    $history = array_slice($history, 0, $existingIdx + 1);
+                if ($penultimatePath === $currentPath) {
+                    $history = array_slice($history, 0, $penultimateIdx + 1);
                 } else {
                     $history[] = $currentUri;
                     if (count($history) > 20) {

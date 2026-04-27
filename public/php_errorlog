@@ -1,9 +1,0 @@
-[10-Apr-2026 14:53:12 America/New_York] CSP violation: ip=::1 directive=trusted-types blocked=trusted-types-policy source=chrome-extension page=https://neighborhoodtools.local:8890/
-[10-Apr-2026 15:18:25 America/New_York] PHP Fatal error:  Cannot redeclare function renderTosBody() (previously declared in /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/src/Views/partials/content-tos.php:55) in /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/src/Views/partials/content-tos.php on line 55
-[10-Apr-2026 15:18:25 America/New_York] PHP Stack trace:
-[10-Apr-2026 15:18:25 America/New_York] PHP   1. {main}() /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/public/index.php:0
-[10-Apr-2026 15:18:25 America/New_York] PHP   2. App\Controllers\TosController->show() /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/public/index.php:208
-[10-Apr-2026 15:18:25 America/New_York] PHP   3. App\Core\BaseController->render($view = 'tos/show', $data = ['title' => 'Terms of Service — NeighborhoodTools', 'description' => 'Read the current NeighborhoodTools Terms of Service.', 'pageCss' => [0 => 'pages.css'], 'requiresAcceptance' => TRUE]) /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/src/Controllers/tos_controller.php:29
-[10-Apr-2026 15:18:25 America/New_York] PHP   4. require() /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/src/Core/base_controller.php:292
-[10-Apr-2026 15:18:25 America/New_York] PHP   5. require() /Users/jeremywarren/Desktop/WEB 289/neighborhoodtools/src/Views/layouts/main.php:64
-[10-Apr-2026 15:19:21 America/New_York] CSP violation: ip=::1 directive=style-src-attr blocked=inline source=https://neighborhoodtools.local:8890/tos page=https://neighborhoodtools.local:8890/tos

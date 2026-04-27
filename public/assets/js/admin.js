@@ -274,6 +274,7 @@ class AdminRouter {
   #abortController = null;
   #prefetchCache = new Map();
   #ac = new AbortController();
+  #navIndex = 0;
 
   #loadedCss = new Set(
     [...document.querySelectorAll('link[rel="stylesheet"]')].map(l => l.href)
@@ -286,6 +287,8 @@ class AdminRouter {
     window.addEventListener('popstate', this.#handlePopstate, opts);
 
     this.#nav?.addEventListener('pointerenter', this.#handleHover, { ...opts, capture: true });
+
+    history.replaceState({ adminNav: true, idx: this.#navIndex }, '');
   }
 
   /** @returns {AdminRouter|null} */
@@ -299,6 +302,12 @@ class AdminRouter {
   #handleClick = (e) => {
     const link = e.target.closest('a[href]');
     if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+    if (link.matches('[data-back]') && this.#navIndex > 0) {
+      e.preventDefault();
+      history.back();
+      return;
+    }
 
     const url = new URL(link.href, location.origin);
     if (url.origin !== location.origin) return;
@@ -321,9 +330,10 @@ class AdminRouter {
     this.#navigateTo(url.href);
   };
 
-  /** @param {PopStateEvent} _e */
-  #handlePopstate = (_e) => {
+  /** @param {PopStateEvent} e */
+  #handlePopstate = (e) => {
     if (AdminRouter.#ADMIN_PATTERN.test(location.pathname)) {
+      this.#navIndex = e.state?.idx ?? 0;
       this.#navigateTo(location.href, false);
     }
   };
@@ -406,7 +416,8 @@ class AdminRouter {
       this.#content.removeAttribute('aria-busy');
 
       if (pushState) {
-        history.pushState({}, '', url);
+        this.#navIndex++;
+        history.pushState({ adminNav: true, idx: this.#navIndex }, '', url);
       }
 
       this.#updateNavActiveState(url);

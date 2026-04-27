@@ -151,7 +151,7 @@ $hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
         <i class="fa-regular fa-face-smile" aria-hidden="true"></i>
         <h3>No Neighborhood Data</h3>
         <p>No neighborhood statistics are available yet.</p>
-        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary" data-back>
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       </section>

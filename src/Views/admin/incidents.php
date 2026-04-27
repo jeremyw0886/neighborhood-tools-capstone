@@ -246,7 +246,7 @@ $hasFilters = $type !== null || $deadlineMet !== null;
         </a>
       <?php else: ?>
         <p>All incidents have been resolved. The community is in good standing.</p>
-        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary">
+        <a href="<?= htmlspecialchars($backUrl) ?>" role="button" data-intent="secondary" data-back>
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
         </a>
       <?php endif; ?>

@@ -97,6 +97,7 @@ neighborhoodtools/
 - [Database schema reference](docs/database.md) &mdash; tables, views, stored procedures, triggers, business rules, and ER diagram for the MySQL schema.
 - [Image pipeline](docs/image-pipeline.md) &mdash; backend abstraction, variant generation, focal-point editor, operator scripts.
 - [Deployment runbook](docs/deployment.md) &mdash; SiteGround procedures: pull/deploy, secrets, DB backup, cron, Stripe/Turnstile wiring, smoke checks, rollback.
+- [HTTP endpoint reference](docs/endpoints.md) &mdash; JSON, XHR, and webhook endpoints: auth posture, request/response shapes, and error envelopes.
 
 ## AI-Assisted Development
 

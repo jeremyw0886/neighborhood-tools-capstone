@@ -49,28 +49,35 @@ const ntSanitizeHtml = (() => {
     RETURN_TRUSTED_TYPE: false,
   });
 
-  if (window.DOMPurify?.addHook) {
-    window.DOMPurify.addHook('uponSanitizeElement', (_node, data) => {
-      if (data.allowedTags[data.tagName]) return;
-      try {
-        const blob = new Blob([JSON.stringify({
-          type: 'dompurify-strip',
-          tag: data.tagName,
-          page: location.pathname,
-        })], { type: 'application/csp-report' });
-        navigator.sendBeacon('/csp-report', blob);
-      } catch { /* best effort */ }
-    });
-  }
+  const reportStrip = (tag) => {
+    try {
+      const blob = new Blob([JSON.stringify({
+        type: 'dompurify-strip',
+        tag,
+        page: location.pathname,
+      })], { type: 'application/csp-report' });
+      navigator.sendBeacon('/csp-report', blob);
+    } catch { /* best effort */ }
+  };
+
+  const sanitize = (input) => {
+    const html = DOMPurify.sanitize(input, purifyConfig);
+    for (const item of DOMPurify.removed) {
+      const tag = item.element?.nodeName?.toLowerCase()
+               ?? item.attribute?.name?.toLowerCase();
+      if (tag) reportStrip(tag);
+    }
+    return html;
+  };
 
   if (window.trustedTypes?.createPolicy) {
     const policy = window.trustedTypes.createPolicy('nt-html', {
-      createHTML: (input) => DOMPurify.sanitize(input, purifyConfig),
+      createHTML: sanitize,
     });
     return (html) => policy.createHTML(html);
   }
 
-  return (html) => DOMPurify.sanitize(html, purifyConfig);
+  return sanitize;
 })();
 
 /**

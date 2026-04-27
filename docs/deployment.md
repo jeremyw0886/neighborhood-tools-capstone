@@ -267,7 +267,7 @@ This regenerates `vendor/composer/autoload_classmap.php` so the new class is aut
 
 A commit that adds a class without regenerating the autoloader produces `Class App\Foo\Bar not found` errors on prod after pull. The remediation is `composer dump-autoload` on prod; the durable fix is a pre-commit hook that runs the dumper automatically.
 
-`composer install` on prod is required only when `composer.lock` changes (i.e., dependency updates).
+`composer install` on prod is required only when `composer.lock` changes (i.e., dependency updates). After any deploy that bumps `composer.lock`, verify the affected `vendor/<package>/` directory exists on the server before declaring the deploy clean — for example, `ls vendor/enshrined` after a deploy that installed the SVG sanitizer.
 
 ### Vulnerability scan before any dependency-bumping deploy
 

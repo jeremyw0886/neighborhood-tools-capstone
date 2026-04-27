@@ -67,9 +67,11 @@ Configured in [public/index.php:54–83](../public/index.php#L54-L83):
 
 | Setting | Value | Reason |
 | --- | --- | --- |
-| `cookie_httponly` | `true` | JS cannot read `PHPSESSID` |
+| Cookie name | `__Host-NTSESSID` (HTTPS) / `NTSESSID` (HTTP dev) | `__Host-` prefix forces Secure + Path=/ + no Domain at the browser level — defeats subdomain cookie-overwrite attacks; HTTP dev falls back so local non-HTTPS still works |
+| `cookie_httponly` | `true` | JS cannot read the session cookie |
 | `cookie_samesite` | `Lax` | Defeats most CSRF without breaking top-level GETs from email links |
 | `cookie_secure` | auto-detected from HTTPS | Cookie not transmitted over plain HTTP |
+| `cookie_path` | `/` | Required by the `__Host-` prefix; cookie scoped to origin root |
 | `cookie_lifetime` | `0` | Browser-session cookie; closing the browser ends the session |
 | `gc_maxlifetime` | `1800` (30 min) | Server-side garbage collection horizon |
 | Custom save path | `storage/sessions` | Files outside the web root, owner-only permissions |
@@ -79,6 +81,10 @@ Configured in [public/index.php:54–83](../public/index.php#L54-L83):
 **Session ID rotation:** `session_regenerate_id(delete_old_session: true)` runs after every successful login, registration, and password reset ([auth_controller.php:128, 354](../src/Controllers/auth_controller.php)). Defeats session fixation.
 
 **Live role/status revalidation:** every write request and every read request older than 10 seconds re-queries `account_acc` for the user's current role and account status. A flipped role or a `suspended`/`deleted` status destroys the session and forces re-authentication ([index.php:86–125](../public/index.php#L86-L125)). This means an admin who's just been demoted cannot continue performing admin actions for the remainder of their session.
+
+### Post-login redirect targets
+
+Both `?return=…` query params and `$_SESSION['redirect_after_login']` (set by `BaseController::requireAuth()` when an unauthenticated user hits a protected page) flow through `AuthController::validateReturnUrl()` before `header('Location: …')`. The validator rejects: control characters, backslashes (normalized to `/` first to defeat `\evil.com` → `//evil.com` bypasses), any URL whose first two characters are `//` (defeats protocol-relative `//evil.com` and the multi-slash `////evil.com` parser-quirk variants), any URL `parse_url()` flags as having a scheme or host, and any URL pointing at an auth route (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/logout`) so the redirect can't loop. Anything that fails returns the safe default `/dashboard`.
 
 ### TOS enforcement
 
@@ -250,7 +256,8 @@ Per-account locks are vulnerable to a spray attack that locks every account's ow
 Stripe integration handles security deposits via SetupIntents and PaymentIntents. The full lifecycle is in `PaymentController` and `Deposit` model.
 
 - Stripe API keys are loaded as environment variables at startup; never committed.
-- The webhook endpoint (`POST /stripe/webhook`) verifies the request signature against `STRIPE_WEBHOOK_SECRET` before doing anything; failure returns `400` and logs nothing actionable to an attacker.
+- **Webhook source IP allowlist:** `POST /webhook/stripe` rejects any source IP not in [config/stripe-webhook-ips.php](../config/stripe-webhook-ips.php) with `403`, *before* signature verification runs. Skipped on `APP_ENV=development` and for loopback addresses so the Stripe CLI can forward locally. The IP list is published at `https://stripe.com/docs/ips#webhook-ips` and is operationally re-verified at every dependency-bump deploy.
+- **Signature verification:** the webhook endpoint then verifies the request signature against `STRIPE_WEBHOOK_SECRET`; failure returns `400` and logs nothing actionable to an attacker.
 - Webhook handlers are idempotent — repeat deliveries (Stripe retries on 5xx) won't double-credit a deposit.
 - Deposit state transitions (`pending → held → released | forfeited | partial_release`) are constrained at the SP layer; controllers cannot skip a state.
 - Forfeit and release actions are admin-gated and logged.
@@ -300,6 +307,10 @@ Out of scope for the current build. Users with strong unique passwords plus Turn
 ### Per-request CSP nonce blocks third-party CSS-in-JS
 
 `style-src 'nonce-…' 'self'` rejects any `<style>` element added by JS that doesn't carry the nonce. The project uses constructable stylesheets (`NT.style.setRule`) to set dynamic styles instead. New third-party widgets that inject inline styles will be blocked by design.
+
+### Account enumeration on `/register` is deliberate UX
+
+`/register` returns distinguishable error messages for `'An account with this email already exists.'` vs `'This username is already taken.'` ([auth_controller.php:236, 240](../src/Controllers/auth_controller.php#L236)). Combined with the live `/api/check-username` endpoint that's already part of the registration form's UX, eliminating the email message alone wouldn't close enumeration — it would just degrade the UX with a generic "registration failed" that gives users no actionable next step. The realistic attack cost is bounded by Turnstile + the per-IP register rate limit (3/hour). `/forgot-password` is enumeration-safe (always returns the same flash regardless of whether the email matched), though there is a small unfixed timing leak where the existing-account path does extra work (token creation + email send) that a patient attacker could measure.
 
 ### Permissions-Policy delegation to Cloudflare's iframe is best-effort
 

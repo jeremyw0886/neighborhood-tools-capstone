@@ -136,15 +136,17 @@
     width: clamp(112px, 6vw + 52px, 156px);
   }
 
-  nav[data-hero] > #top-links a,
-  nav[data-hero] > #user-actions > :is(a[role="button"], #user-actions-toggle),
-  nav[data-hero] #bell-wrapper > a[href="/notifications"] {
-    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.14);
-  }
+  @media (min-width: 1025px) {
+    nav[data-hero] > #top-links a,
+    nav[data-hero] > #user-actions > :is(a[role="button"], #user-actions-toggle),
+    nav[data-hero] #bell-wrapper > a[href="/notifications"] {
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.14);
+    }
 
-  nav[data-hero] > #top-links a[aria-current="page"] {
-    background-color: rgba(10, 26, 20, 0.55);
-    text-shadow: 0 1px 16px rgba(224, 189, 113, 0.26);
+    nav[data-hero] > #top-links a[aria-current="page"] {
+      background-color: rgba(10, 26, 20, 0.55);
+      text-shadow: 0 1px 16px rgba(224, 189, 113, 0.26);
+    }
   }
 
   nav[data-hero] > #user-actions > a[role="button"] {
@@ -264,6 +266,7 @@
   .home-page > header > section > div > ul > li > strong {
     color: var(--mountain-gold-light);
     font-size: clamp(1.15rem, 0.92rem + 0.85vw, 1.65rem);
+    font-variant-numeric: tabular-nums;
     font-weight: 700;
     line-height: 1;
   }
@@ -1115,6 +1118,7 @@
     }
 
     .home-page > header > section > div > div:first-child > span[data-hero-eyebrow] {
+      grid-column: 1 / 8;
       justify-self: center;
     }
 
@@ -1162,10 +1166,7 @@
       flex: 1 1 calc(50% - 0.625rem);
       min-width: 200px;
     }
-  }
 
-  /* Tablet portrait — hero nav compact */
-  @media (max-width: 985px) {
     .home-page > header > section {
       overflow: visible;
       z-index: 141;
@@ -1228,12 +1229,12 @@
 
     .home-page > header > section > div > ul {
       gap: 0.7rem 1rem;
-      justify-content: stretch;
+      justify-content: center;
       padding: 0.8rem 0.9rem;
     }
 
     .home-page > header > section > div > ul > li {
-      flex: 1 1 calc(50% - 0.5rem);
+      flex: 0 1 auto;
       gap: 0.35rem;
     }
 
@@ -1377,7 +1378,7 @@
     .home-page > header > section > div > ul {
       flex-wrap: wrap;
       gap: 1rem;
-      justify-content: stretch;
+      justify-content: center;
     }
   }
 

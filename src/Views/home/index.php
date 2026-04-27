@@ -11,7 +11,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
 
 <div class="home-page">
   <header>
-    <section aria-label="Hero section">
+    <section aria-labelledby="hero-heading">
       <?php require BASE_PATH . '/src/Views/partials/nav.php'; ?>
 
       <div>

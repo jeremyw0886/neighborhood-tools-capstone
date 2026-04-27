@@ -23,7 +23,7 @@ $navLogoHeight = 120;
 ?>
 <nav aria-label="Main navigation"<?= $isHero ? ' data-hero' : '' ?>>
   <a href="/" aria-label="NeighborhoodTools home">
-    <img src="<?= htmlspecialchars($navLogoSrc) ?>" alt="NeighborhoodTools logo" width="<?= $navLogoWidth ?>" height="<?= $navLogoHeight ?>" fetchpriority="high">
+    <img src="<?= htmlspecialchars($navLogoSrc) ?>" alt="" width="<?= $navLogoWidth ?>" height="<?= $navLogoHeight ?>" fetchpriority="high">
   </a>
 
   <button id="mobile-menu-toggle"

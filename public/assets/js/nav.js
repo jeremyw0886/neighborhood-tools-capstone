@@ -31,7 +31,7 @@ class HamburgerMenu {
     this.#menu = menu;
     this.#authSection = document.getElementById('user-actions');
     this.#authMenu = document.getElementById('user-actions-menu');
-    this.#mobile = window.matchMedia('(max-width: 985px)');
+    this.#mobile = window.matchMedia('(max-width: 1024px)');
 
     this.#nav.classList.add('js-nav');
 

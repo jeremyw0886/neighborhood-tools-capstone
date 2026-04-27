@@ -5,7 +5,7 @@
   /* ── Nav resize guard ── */
   /* While the window is actively resizing (data-nav-resizing is set by
      NavResizeGuard in nav.js), suppress every nav transition so the
-     breakpoint crossing at 985px doesn't animate the #top-links opacity
+     breakpoint crossing at 1024px doesn't animate the #top-links opacity
      fade-out on shrink or the active-link partial-border fade on grow. */
 
   body[data-nav-resizing] nav[aria-label="Main navigation"] #top-links,
@@ -13,9 +13,9 @@
     transition: none;
   }
 
-  /* ── Viewport — max-width 985px (nav mobile + hamburger + unified menu) ── */
+  /* ── Viewport — max-width 1024px (nav mobile + hamburger + unified menu) ── */
 
-  @media (max-width: 985px) {
+  @media (max-width: 1024px) {
     nav[aria-label="Main navigation"] {
       padding: 0.35rem 0.75rem 0.75rem;
       position: relative;
@@ -137,6 +137,7 @@
 
     nav[aria-label="Main navigation"]>#top-links.open {
       border-radius: 1.4rem 0;
+      display: flex;
       opacity: 1;
       pointer-events: auto;
       transform: translateY(0) scale(1);
@@ -225,9 +226,9 @@
     }
   }
 
-  /* ── Viewport — max-width 985px + reduced motion (nav animation override) ── */
+  /* ── Viewport — max-width 1024px + reduced motion (nav animation override) ── */
 
-  @media (max-width: 985px) and (prefers-reduced-motion: reduce) {
+  @media (max-width: 1024px) and (prefers-reduced-motion: reduce) {
     nav[aria-label="Main navigation"]>#top-links,
     nav[aria-label="Main navigation"]>#mobile-menu-toggle>span {
       transition: none;

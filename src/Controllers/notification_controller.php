@@ -52,7 +52,7 @@ class NotificationController extends BaseController
             $page = $totalPages;
         }
 
-        $this->render('notifications/index', [
+        $data = [
             'title'         => 'Notifications — NeighborhoodTools',
             'description'   => 'Your notifications and alerts.',
             'pageCss'       => ['pages.css'],
@@ -63,7 +63,14 @@ class NotificationController extends BaseController
             'totalPages'    => $totalPages,
             'perPage'       => self::PER_PAGE,
             'filter'        => $filter,
-        ]);
+        ];
+
+        if ($this->isXhr()) {
+            $this->renderPartial(BASE_PATH . '/src/Views/notifications/index.php', $data);
+            return;
+        }
+
+        $this->render('notifications/index', $data);
     }
 
     /**

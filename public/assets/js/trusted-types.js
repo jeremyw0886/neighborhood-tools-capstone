@@ -144,28 +144,33 @@ const ntTrustedScript = (() => {
 })();
 
 if (window.trustedTypes?.createPolicy) {
+  const SAFE_SCRIPT_ORIGINS = new Set([
+    location.origin,
+    'https://js.stripe.com',
+    'https://challenges.cloudflare.com',
+  ]);
+
+  const beacon = (payload) => {
+    try {
+      navigator.sendBeacon(
+        '/csp-report',
+        new Blob([JSON.stringify(payload)], { type: 'application/csp-report' }),
+      );
+    } catch { /* best effort */ }
+  };
+
   window.trustedTypes.createPolicy('default', {
     createHTML: (input) => {
-      try {
-        const blob = new Blob([JSON.stringify({
-          type: 'tt-default-fallback',
-          sink: 'createHTML',
-          page: location.pathname,
-        })], { type: 'application/csp-report' });
-        navigator.sendBeacon('/csp-report', blob);
-      } catch { /* best effort */ }
+      beacon({ type: 'tt-default-fallback', sink: 'createHTML', page: location.pathname });
       return input;
     },
     createScriptURL: (input) => {
       try {
-        const blob = new Blob([JSON.stringify({
-          type: 'tt-default-fallback',
-          sink: 'createScriptURL',
-          url: input,
-          page: location.pathname,
-        })], { type: 'application/csp-report' });
-        navigator.sendBeacon('/csp-report', blob);
-      } catch { /* best effort */ }
+        if (SAFE_SCRIPT_ORIGINS.has(new URL(input, location.origin).origin)) {
+          return input;
+        }
+      } catch { /* fall through to beacon */ }
+      beacon({ type: 'tt-default-fallback', sink: 'createScriptURL', url: input, page: location.pathname });
       return input;
     },
   });

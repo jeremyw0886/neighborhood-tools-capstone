@@ -6,7 +6,8 @@
     "require": {
         "php": ">=8.2",
         "vlucas/phpdotenv": "^5.5",
-        "stripe/stripe-php": "^19.3"
+        "stripe/stripe-php": "^19.3",
+        "enshrined/svg-sanitize": "^0.21"
     },
     "autoload": {
         "classmap": [

@@ -1404,6 +1404,12 @@ class AdminController extends BaseController
             $this->redirect('/admin/images');
         }
 
+        if (!\App\Core\SvgSanitizer::sanitizeFile($destPath)) {
+            @unlink($destPath);
+            $_SESSION['admin_images_flash'] = 'Uploaded SVG could not be safely sanitized; rejected.';
+            $this->redirect('/admin/images');
+        }
+
         try {
             VectorImage::create(
                 $fileName,
@@ -1993,6 +1999,12 @@ class AdminController extends BaseController
 
         if (!move_uploaded_file($file['tmp_name'], $destPath)) {
             $_SESSION['admin_images_flash'] = 'Failed to save uploaded file.';
+            $this->redirect('/admin/images');
+        }
+
+        if (!\App\Core\SvgSanitizer::sanitizeFile($destPath)) {
+            @unlink($destPath);
+            $_SESSION['admin_images_flash'] = 'Uploaded SVG could not be safely sanitized; rejected.';
             $this->redirect('/admin/images');
         }
 

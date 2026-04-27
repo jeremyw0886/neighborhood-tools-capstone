@@ -208,7 +208,9 @@ HTTPS redirect (308) is enforced in `.htaccess` for all non-localhost hosts.
 
 ## File uploads
 
-Image uploads are accepted for tool listings, profile avatars, and incident photos. The pipeline in `ToolController` and the analogous profile/incident controllers applies:
+### Raster image uploads (tool listings, profile avatars, incident photos)
+
+The pipeline in `ToolController` and the analogous profile/incident controllers applies:
 
 1. **Size limit:** 5 MB per file at the application layer; `.htaccess` raises `upload_max_filesize` to 6 MB to give a clear error before PHP truncates.
 2. **MIME validation:** `finfo(FILEINFO_MIME_TYPE)` reads the magic bytes — `$_FILES['type']` (browser-supplied) is **never** trusted. Only `image/jpeg`, `image/png`, and `image/webp` pass.
@@ -218,6 +220,18 @@ Image uploads are accepted for tool listings, profile avatars, and incident phot
 6. **Cleanup on failure:** if any later step fails (DB insert, variant generation), the original upload and any partial variants are deleted before the error response.
 
 Uploads land under `public/uploads/{feature}/`, served as static files with the security headers above. See [docs/image-pipeline.md](image-pipeline.md) for the full pipeline.
+
+### SVG vector uploads (admin-only category icons and avatar vectors)
+
+Admin-uploaded SVGs (`uploadVector` / `uploadAvatarVector` in [admin_controller.php](../src/Controllers/admin_controller.php)) are passed through `App\Core\SvgSanitizer` ([src/Core/svg_sanitizer.php](../src/Core/svg_sanitizer.php)), a thin wrapper around [enshrined/svg-sanitize](https://github.com/darylldoyle/svg-sanitizer) that:
+
+- Strips `<script>` elements, all `on*` event-handler attributes, `javascript:` URIs, embedded `<foreignObject>` HTML, dangerous `<animate>`/`<set>` attributes that target `href` or `onload`, XML external entities, and CDATA-wrapped script payloads.
+- Removes remote `<use href="https://…">` references so a hostile SVG cannot pull in attacker-controlled markup at render time.
+- Minifies the output and overwrites the file in place after upload, so the on-disk bytes match what the sanitizer signed off on.
+
+The vendored library is the de-facto PHP SVG sanitizer (used by major CMS plugins) and has a long patch history against known bypasses. Hand-rolling allowlist-based SVG sanitization is famously bypass-prone (foreignObject + namespace-mixing + percent-encoded URIs), so the dependency is the right trade-off here. The wrapper class isolates the import so swapping implementations later is a one-file change. If the dependency is missing, `SvgSanitizer::sanitize()` returns `null` and the upload controller deletes the file and shows a generic rejection — fail-closed posture.
+
+Even though SVGs are rendered exclusively via `<img src="…svg">` (which doesn't execute embedded scripts per the HTML spec), an admin who downloads or directly navigates to the file would execute its contents — and a future change that switches to `<object>` or `<iframe>` would expose every viewer. Sanitizing on upload removes the risk regardless of how the file is later rendered.
 
 ---
 

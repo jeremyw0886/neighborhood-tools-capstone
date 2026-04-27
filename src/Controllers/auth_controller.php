@@ -660,20 +660,24 @@ class AuthController extends BaseController
             return '/dashboard';
         }
 
+        if (preg_match('/[\x00-\x1F\x7F]/', $url)) {
+            return '/dashboard';
+        }
+
         $url = str_replace('\\', '/', $url);
+
+        if (!isset($url[0]) || $url[0] !== '/' || (isset($url[1]) && $url[1] === '/')) {
+            return '/dashboard';
+        }
 
         $parsed = parse_url($url);
 
-        if (isset($parsed['scheme']) || isset($parsed['host'])) {
+        if (!is_array($parsed) || isset($parsed['scheme']) || isset($parsed['host'])) {
             return '/dashboard';
         }
 
-        if (!isset($parsed['path']) || $parsed['path'][0] !== '/') {
-            return '/dashboard';
-        }
-
-        $blocked = ['/login', '/register'];
-        if (in_array($parsed['path'], $blocked, true)) {
+        $blocked = ['/login', '/register', '/forgot-password', '/reset-password', '/logout'];
+        if (in_array($parsed['path'] ?? '', $blocked, true)) {
             return '/dashboard';
         }
 

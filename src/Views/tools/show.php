@@ -105,7 +105,8 @@ $images        ??= [];
         <?php if ($extraImages !== []): ?>
           <ul id="gallery-thumbs" aria-label="Additional photos">
             <?php if ($primaryImage !== null):
-              $mainThumbSrc = htmlspecialchars($mainVariants[array_key_first($mainVariants)]['file'] ?? $primaryImage['file_name_tim']);
+              $mainThumbKey = array_key_first($mainVariants);
+              $mainThumbSrc = htmlspecialchars($mainThumbKey !== null ? $mainVariants[$mainThumbKey]['file'] : $primaryImage['file_name_tim']);
             ?>
               <li>
                 <button type="button"
@@ -135,7 +136,8 @@ $images        ??= [];
               $exSrcsets  = \App\Core\ImageProcessor::buildSrcset($exVariants);
               $exIsWebp   = str_ends_with($extra['file_name_tim'], '.webp');
               $exFile     = htmlspecialchars($extra['file_name_tim']);
-              $exThumbSrc = htmlspecialchars($exVariants[array_key_first($exVariants)]['file'] ?? $extra['file_name_tim']);
+              $exThumbKey = array_key_first($exVariants);
+              $exThumbSrc = htmlspecialchars($exThumbKey !== null ? $exVariants[$exThumbKey]['file'] : $extra['file_name_tim']);
               $exAlt      = htmlspecialchars($extra['alt_text_tim'] ?? $tool['tool_name_tol']);
               $exFx       = (int) ($extra['focal_x_tim'] ?? 50);
               $exFy       = (int) ($extra['focal_y_tim'] ?? 50);

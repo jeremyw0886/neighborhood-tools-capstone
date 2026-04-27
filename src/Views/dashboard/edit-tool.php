@@ -175,7 +175,12 @@ $images            ??= [];
       <?php foreach ($images as $image):
         $imgId      = (int) $image['id_tim'];
         $filename   = htmlspecialchars($image['file_name_tim']);
-        $thumb      = htmlspecialchars(preg_replace('/\.(\w+)$/', '-360w.$1', $image['file_name_tim']));
+        $variants   = \App\Core\ImageProcessor::getAvailableVariants(
+            $image['file_name_tim'],
+            $image['width_tim'] ?? null,
+        );
+        $thumbKey   = array_key_first($variants);
+        $thumb      = htmlspecialchars($thumbKey !== null ? $variants[$thumbKey]['file'] : $image['file_name_tim']);
         $altText    = htmlspecialchars($image['alt_text_tim'] ?? '');
         $isPrimary  = !empty($image['is_primary_tim']);
         $focalX     = (int) ($image['focal_x_tim'] ?? 50);

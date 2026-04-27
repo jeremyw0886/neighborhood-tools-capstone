@@ -1296,9 +1296,14 @@ class ToolController extends BaseController
             $imageId = Tool::addImage($toolId, $filename, $altText, $isPrimary, $sortOrder, $focalX, $focalY, $width);
 
             if ($json) {
+                $variants = ImageProcessor::getAvailableVariants($filename, $width);
+                $thumbKey = array_key_first($variants);
+                $thumb    = $thumbKey !== null ? $variants[$thumbKey]['file'] : $filename;
+
                 $this->jsonResponse(200, [
                     'id'         => $imageId,
                     'filename'   => $filename,
+                    'thumb'      => $thumb,
                     'alt_text'   => $altText,
                     'sort_order' => $sortOrder,
                     'is_primary' => $isPrimary,

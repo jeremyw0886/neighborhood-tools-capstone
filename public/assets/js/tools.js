@@ -1273,7 +1273,7 @@ class GalleryManager {
   }
 
   #buildLiHtml(img) {
-    const thumb = GalleryManager.#escapeAttr(img.filename.replace(/\.(\w+)$/, '-360w.$1'));
+    const thumb = GalleryManager.#escapeAttr(img.thumb ?? img.filename);
     const altSafe = GalleryManager.#escapeAttr(img.alt_text || '');
     const csrfToken = GalleryManager.#escapeAttr(document.querySelector('meta[name="csrf-token"]')?.content ?? '');
     const fx = img.focal_x ?? 50;

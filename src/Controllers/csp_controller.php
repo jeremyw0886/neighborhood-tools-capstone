@@ -130,14 +130,25 @@ class CspController
     }
 
     /**
-     * Log a DOMPurify element-strip beacon.
+     * Log a DOMPurify element-strip beacon (one per sanitize call, with deduped tag list).
      */
     private static function logDomPurifyStrip(array $report, string $ip): void
     {
+        $tags = $report['tags'] ?? [$report['tag'] ?? 'unknown'];
+        if (!is_array($tags)) {
+            $tags = [$tags];
+        }
+
+        $cleanTags = array_slice(
+            array_map(self::sanitizeLogValue(...), $tags),
+            0,
+            20,
+        );
+
         error_log(sprintf(
-            'DOMPurify strip: ip=%s tag=%s page=%s',
+            'DOMPurify strip: ip=%s tags=%s page=%s',
             $ip,
-            self::sanitizeLogValue($report['tag'] ?? 'unknown'),
+            implode(',', $cleanTags),
             self::sanitizeLogValue($report['page'] ?? 'unknown'),
         ));
     }

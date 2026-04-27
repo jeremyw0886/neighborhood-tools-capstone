@@ -33,11 +33,30 @@ const ntSanitizeHtml = (() => {
       'class', 'id', 'href', 'src', 'srcset', 'alt', 'title', 'role',
       'aria-hidden', 'aria-label', 'aria-labelledby', 'aria-describedby',
       'aria-expanded', 'aria-controls', 'aria-live', 'aria-current',
+      'aria-pressed', 'aria-selected', 'aria-checked', 'aria-disabled',
+      'aria-busy', 'aria-haspopup', 'aria-modal', 'aria-required',
+      'aria-invalid', 'aria-orientation', 'aria-readonly',
+      'aria-multiline', 'aria-keyshortcuts', 'aria-valuenow',
+      'aria-valuemin', 'aria-valuemax', 'aria-valuetext', 'aria-sort',
+      'aria-level', 'aria-roledescription', 'aria-relevant',
+      'aria-multiselectable', 'aria-setsize', 'aria-posinset',
       'type', 'name', 'value', 'placeholder', 'for', 'action',
       'method', 'target', 'rel', 'width', 'height', 'loading', 'decoding',
       'colspan', 'rowspan', 'scope', 'disabled', 'readonly', 'checked',
       'selected', 'required', 'min', 'max', 'step', 'pattern', 'maxlength',
-      'tabindex', 'open', 'datetime',
+      'minlength', 'tabindex', 'open', 'datetime', 'cite',
+      'enctype', 'novalidate', 'autocomplete', 'autofocus', 'multiple',
+      'accept', 'list', 'form', 'formaction', 'formmethod',
+      'formnovalidate', 'formenctype', 'formtarget',
+      'sizes', 'crossorigin', 'referrerpolicy', 'fetchpriority',
+      'inputmode', 'spellcheck', 'autocapitalize', 'enterkeyhint',
+      'lang', 'dir', 'translate', 'hidden', 'draggable', 'inert',
+      'popover', 'popovertarget', 'popovertargetaction',
+      'download', 'hreflang', 'ping', 'media',
+      'controls', 'autoplay', 'loop', 'muted', 'preload', 'poster',
+      'controlslist', 'playsinline', 'kind', 'srclang', 'default',
+      'reversed', 'start', 'wrap', 'cols', 'rows', 'low', 'high',
+      'optimum', 'usemap', 'label',
       'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
       'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset',
       'd', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1', 'x2', 'y2',
@@ -47,13 +66,16 @@ const ntSanitizeHtml = (() => {
     ],
     ALLOW_DATA_ATTR: true,
     RETURN_TRUSTED_TYPE: false,
+    SANITIZE_DOM: false,
   });
 
-  const reportStrip = (tag) => {
+  const STRIP_NOISE = new Set(['body', 'html', 'head', 'title', 'meta']);
+
+  const reportStrip = (tags) => {
     try {
       const blob = new Blob([JSON.stringify({
         type: 'dompurify-strip',
-        tag,
+        tags,
         page: location.pathname,
       })], { type: 'application/csp-report' });
       navigator.sendBeacon('/csp-report', blob);
@@ -62,11 +84,13 @@ const ntSanitizeHtml = (() => {
 
   const sanitize = (input) => {
     const html = DOMPurify.sanitize(input, purifyConfig);
+    const alarmed = new Set();
     for (const item of DOMPurify.removed) {
       const tag = item.element?.nodeName?.toLowerCase()
                ?? item.attribute?.name?.toLowerCase();
-      if (tag) reportStrip(tag);
+      if (tag && !STRIP_NOISE.has(tag)) alarmed.add(tag);
     }
+    if (alarmed.size > 0) reportStrip([...alarmed]);
     return html;
   };
 

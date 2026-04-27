@@ -89,9 +89,8 @@ class AdminController extends BaseController
     }
 
     private const array USERS_SORT_FIELDS     = ['full_name', 'role_name_rol', 'account_status', 'overall_avg_rating', 'tools_owned', 'member_since'];
-    private const array USERS_ALLOWED_ROLES    = ['member', 'admin', 'super_admin'];
-    private const array USERS_ALLOWED_STATUSES = ['active', 'suspended', 'pending', 'deleted'];
-    private const array USERS_ACTIVE_STATUSES  = ['active', 'suspended', 'pending'];
+    private const array USERS_ALLOWED_ROLES   = ['member', 'admin', 'super_admin'];
+    private const array USERS_ACTIVE_STATUSES = ['active', 'suspended', 'pending'];
 
     /**
      * User management — paginated, sortable, filterable list of platform members.

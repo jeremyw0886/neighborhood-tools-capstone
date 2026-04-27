@@ -442,6 +442,13 @@ class PaymentController extends BaseController
     {
         header('Content-Type: application/json');
 
+        if (!$this->isAllowedStripeWebhookSource()) {
+            error_log('stripeWebhook — rejected non-allowlisted source IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+            http_response_code(403);
+            echo json_encode(['error' => 'Forbidden.']);
+            exit;
+        }
+
         $payload   = file_get_contents('php://input');
         $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 
@@ -645,5 +652,35 @@ class PaymentController extends BaseController
         } catch (\Throwable $e) {
             error_log('PaymentController::notifyDepositHeld borrower — ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Allow webhook traffic only from Stripe's published source IPs (or local dev).
+     * Defense-in-depth in front of signature verification — short-circuits drive-by
+     * probes before any cryptographic work runs.
+     */
+    private function isAllowedStripeWebhookSource(): bool
+    {
+        if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
+            return true;
+        }
+
+        $remote = $_SERVER['REMOTE_ADDR'] ?? '';
+        if ($remote === '127.0.0.1' || $remote === '::1') {
+            return true;
+        }
+
+        $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+        $clientIp  = trim(
+            $forwarded !== '' ? explode(',', $forwarded, 2)[0] : $remote
+        );
+
+        if ($clientIp === '') {
+            return false;
+        }
+
+        $allowed = require BASE_PATH . '/config/stripe-webhook-ips.php';
+
+        return in_array($clientIp, $allowed, true);
     }
 }

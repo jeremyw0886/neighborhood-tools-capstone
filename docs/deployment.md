@@ -269,6 +269,16 @@ A commit that adds a class without regenerating the autoloader produces `Class A
 
 `composer install` on prod is required only when `composer.lock` changes (i.e., dependency updates).
 
+### Vulnerability scan before any dependency-bumping deploy
+
+Run `composer audit` locally before pushing a `composer.lock` change. It queries the GitHub Advisory Database (and the FriendsOfPHP advisories DB as fallback) for known CVEs in the locked versions:
+
+```bash
+composer audit
+```
+
+A clean run prints `No security vulnerability advisories found` and exits `0`. A non-empty result lists each affected package with its CVE link — review and decide whether to upgrade the package, pin around it, or accept the risk before the deploy proceeds. Dependency-bump commits that pass `composer audit` should reference the run in the PR / commit body so the gate is auditable.
+
 ---
 
 ## PHP version

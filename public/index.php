@@ -60,6 +60,7 @@ $sessionOptions = [
     'cookie_httponly'  => true,
     'cookie_samesite'  => 'Lax',
     'cookie_secure'    => $isHttps,
+    'cookie_path'      => '/',
     'gc_maxlifetime'   => $sessionLifetime,
     'cookie_lifetime'  => 0,
 ];
@@ -69,6 +70,8 @@ $sessionSavePath = BASE_PATH . '/storage/sessions';
 if (is_dir($sessionSavePath) && is_writable($sessionSavePath)) {
     session_save_path($sessionSavePath);
 }
+
+session_name($isHttps ? '__Host-NTSESSID' : 'NTSESSID');
 
 session_cache_limiter('');
 session_start($sessionOptions);

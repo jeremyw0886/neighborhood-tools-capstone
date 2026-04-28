@@ -23,7 +23,7 @@ credentials.json
 # SQL — block all except the required course deliverable
 *.sql
 *.sql.gz
-!dumps/warren-jeremy-dump-phase6.sql
+!assets/warren-jeremy-db-dump.sql
 
 # Logs
 logs/*.log

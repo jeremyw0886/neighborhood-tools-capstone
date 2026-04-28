@@ -1,3 +1,46 @@
+<?php
+/**
+ * Security deposit detail / payment view.
+ *
+ * Two render modes (toggled by $paymentMode):
+ *   1. Payment form (paymentMode=true)  — borrower funds a pending deposit via Stripe.
+ *      From PaymentController::renderPaymentForm().
+ *   2. Status detail (paymentMode=false) — anyone with access views status, with
+ *      an admin-only forfeit/release form when status='held'.
+ *      From PaymentController::renderDepositView().
+ *
+ * Variables from PaymentController:
+ *
+ * @var array   $deposit              Hydrated deposit row (joined with tool/borrow context)
+ * @var bool    $isAdmin              Whether the current user is an admin
+ * @var bool    $paymentMode          Toggle between payment form and status detail
+ * @var bool    $isBorrower           (status detail only) Whether viewer is the borrower
+ * @var bool    $isLender             (status detail only) Whether viewer is the lender
+ * @var ?string $depositSuccess       (status detail only) Success flash after admin action
+ * @var array   $depositErrors        (status detail only) Validation errors from admin form
+ * @var array   $depositOld           (status detail only) Sticky values for admin form
+ * @var ?string $stripeClientSecret   (payment mode only) Stripe PaymentIntent client secret
+ * @var ?string $stripePublishableKey (payment mode only) Stripe publishable key
+ *
+ * Shared data:
+ *
+ * @var string $csrfToken
+ * @var string $backUrl
+ */
+
+$deposit              ??= [];
+$paymentMode          ??= false;
+$isAdmin              ??= false;
+$isBorrower           ??= false;
+$isLender             ??= false;
+$depositSuccess       ??= null;
+$depositErrors        ??= [];
+$depositOld           ??= [];
+$stripeClientSecret   ??= null;
+$stripePublishableKey ??= null;
+$csrfToken            ??= '';
+$backUrl              ??= '/';
+?>
 <?php if (!empty($paymentMode)): ?>
 <?php
 $depositId = (int) $deposit['id_sdp'];
@@ -307,9 +350,9 @@ $toolReturned      = $borrowStatusRaw === 'returned';
     <form method="post" action="/payments/deposit/<?= $depositId ?>" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
-        <legend>Action</legend>
+        <legend>Action <span aria-hidden="true">*</span></legend>
         <label>
-          <input type="radio" name="action" value="release"
+          <input type="radio" name="action" value="release" required
                  <?= !$toolReturned ? 'disabled' : 'checked' ?>>
           Release to Borrower
           <?php if (!$toolReturned): ?>
@@ -317,7 +360,7 @@ $toolReturned      = $borrowStatusRaw === 'returned';
           <?php endif; ?>
         </label>
         <label>
-          <input type="radio" name="action" value="forfeit"
+          <input type="radio" name="action" value="forfeit" required
                  <?= !$toolReturned ? 'checked' : '' ?>>
           Forfeit to Lender
         </label>
@@ -325,8 +368,8 @@ $toolReturned      = $borrowStatusRaw === 'returned';
       <fieldset>
         <legend>Forfeit Details</legend>
         <div>
-          <label for="forfeit-amount">Amount ($)</label>
-          <input id="forfeit-amount" name="forfeit_amount" type="number"
+          <label for="forfeit-amount">Amount ($) <span aria-hidden="true">*</span></label>
+          <input id="forfeit-amount" name="forfeit_amount" type="number" required
                  step="0.01" min="0.01" max="<?= htmlspecialchars($deposit['amount_sdp']) ?>"
                  value="<?= htmlspecialchars($old['forfeit_amount'] ?? $deposit['amount_sdp']) ?>"
                  aria-describedby="<?= isset($depositErrors['forfeit_amount']) ? 'forfeit-amount-error' : '' ?>">

@@ -1,3 +1,43 @@
+<?php
+/**
+ * Main layout — wraps every rendered view.
+ *
+ * Receives shared data from BaseController::getSharedData() plus any data
+ * passed by the controller's render() call. The inner view's output is
+ * captured into $content via output buffering before this template runs.
+ *
+ * Per-page render data:
+ *
+ * @var string  $content          Pre-rendered HTML body of the inner view
+ * @var ?string $title            Page title (defaults to "NeighborhoodTools")
+ * @var ?string $description      Meta description
+ * @var ?array  $pageCss          Page-specific stylesheets to load
+ * @var ?array  $pageJs           Page-specific scripts to load
+ * @var ?array  $cdnJs            Third-party CDN scripts (Turnstile, Stripe)
+ * @var ?bool   $heroPage         Hide header/footer for hero pages
+ * @var ?string $criticalKey      Critical-CSS key (filename stem in /critical/)
+ * @var ?array  $preloadImage     Preload hint for an above-the-fold image
+ * @var ?bool   $preloadHeroLogo  Preload the hero logo on desktop
+ *
+ * Shared data:
+ *
+ * @var string  $csrfToken
+ * @var ?string $flashError
+ */
+
+$content         ??= '';
+$title           ??= 'NeighborhoodTools';
+$description     ??= 'Your neighborhood tool sharing platform';
+$pageCss         ??= [];
+$pageJs          ??= [];
+$cdnJs           ??= [];
+$heroPage        ??= false;
+$criticalKey     ??= null;
+$preloadImage    ??= null;
+$preloadHeroLogo ??= false;
+$csrfToken       ??= '';
+$flashError      ??= null;
+?>
 <!DOCTYPE html>
 <html lang="en">
 

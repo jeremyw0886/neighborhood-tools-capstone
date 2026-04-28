@@ -1,3 +1,25 @@
+<?php
+/**
+ * Forgot-password form — request a reset link by email.
+ *
+ * Variables from AuthController::showForgotPassword():
+ *
+ * @var ?string $success          Generic success flash (always shown post-submit)
+ * @var ?string $error            Error flash (Turnstile, format, rate limit)
+ * @var string  $oldEmail         Sticky email after format/Turnstile failure
+ * @var string  $turnstileSiteKey Cloudflare Turnstile site key (empty if disabled)
+ *
+ * Shared data:
+ *
+ * @var string  $csrfToken
+ */
+
+$success          ??= null;
+$error            ??= null;
+$oldEmail         ??= '';
+$turnstileSiteKey ??= '';
+$csrfToken        ??= '';
+?>
 <section class="auth-page">
   <div class="auth-card">
     <header>
@@ -28,17 +50,21 @@
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
       </div>
 
+      <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
+
       <div class="form-group">
         <label for="email">Email Address</label>
         <input
           type="email"
           id="email"
           name="email"
+          value="<?= htmlspecialchars($oldEmail ?? '') ?>"
           required
           autocomplete="email"
           autocapitalize="none"
           spellcheck="false"
           placeholder="you@example.com"
+          <?= !empty($error) ? 'aria-invalid="true"' : '' ?>
         >
       </div>
 

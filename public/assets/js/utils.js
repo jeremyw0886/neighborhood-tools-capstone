@@ -1058,6 +1058,21 @@ const initFormValidation = () => {
   });
 };
 
+/**
+ * Focus the first server-flagged invalid field on page load so users
+ * land on the offending input after a redirect-rerender validation cycle.
+ *
+ * Submit-time focus is handled by initFormValidation() above; this only
+ * covers the post-redirect render path where aria-invalid="true" is
+ * already in the DOM.
+ */
+const initServerErrorFocus = () => {
+  const target = document.querySelector(
+    'form [aria-invalid="true"]:not([type="hidden"]):not([disabled])',
+  );
+  if (target instanceof HTMLElement) target.focus({ preventScroll: false });
+};
+
 // ─── Double-Submit Prevention ─────────────────────────────────────────
 
 const initDoubleSubmitGuard = () => {
@@ -1282,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
   toastManager.migrateFlashMessages();
   initPaginationScroll();
   initFormValidation();
+  initServerErrorFocus();
   initDoubleSubmitGuard();
   styleManager.applyFocalPoints();
   ScrollToTop.init();

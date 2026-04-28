@@ -421,18 +421,14 @@ class AuthController extends BaseController
 
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
-            setcookie(
-                name: session_name(),
-                value: '',
-                expires_or_options: [
-                    'expires'  => time() - 3600,
-                    'path'     => $params['path'],
-                    'domain'   => $params['domain'],
-                    'secure'   => $params['secure'],
-                    'httponly'  => $params['httponly'],
-                    'samesite' => $params['samesite'] ?? 'Lax',
-                ],
-            );
+            setcookie(session_name(), '', [
+                'expires'  => time() - 3600,
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Lax',
+            ]);
         }
 
         session_destroy();
@@ -463,9 +459,14 @@ class AuthController extends BaseController
             'turnstileSiteKey' => $turnstileSiteKey,
             'success'          => $_SESSION['forgot_success'] ?? null,
             'error'            => $_SESSION['forgot_error'] ?? null,
+            'oldEmail'         => $_SESSION['forgot_old_email'] ?? '',
         ]);
 
-        unset($_SESSION['forgot_success'], $_SESSION['forgot_error']);
+        unset(
+            $_SESSION['forgot_success'],
+            $_SESSION['forgot_error'],
+            $_SESSION['forgot_old_email'],
+        );
     }
 
     /**
@@ -483,9 +484,12 @@ class AuthController extends BaseController
             $this->redirect('/forgot-password');
         }
 
+        $email = trim($_POST['email'] ?? '');
+
         $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
         if (!$this->verifyTurnstile($turnstileToken, 'forgot_password')) {
-            $_SESSION['forgot_error'] = 'Verification failed. Please try again.';
+            $_SESSION['forgot_error']     = 'Verification failed. Please try again.';
+            $_SESSION['forgot_old_email'] = $email;
             $this->redirect('/forgot-password');
         }
 
@@ -496,10 +500,9 @@ class AuthController extends BaseController
             'Too many reset requests. Please try again in {minutes}.',
         );
 
-        $email = trim($_POST['email'] ?? '');
-
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['forgot_error'] = 'Please enter a valid email address.';
+            $_SESSION['forgot_error']     = 'Please enter a valid email address.';
+            $_SESSION['forgot_old_email'] = $email;
             $this->redirect('/forgot-password');
         }
 
@@ -567,10 +570,10 @@ class AuthController extends BaseController
             'cdnJs'            => $cdnJs,
             'turnstileSiteKey' => $turnstileSiteKey,
             'token'            => $token,
-            'error'            => $_SESSION['reset_error'] ?? null,
+            'errors'           => $_SESSION['reset_errors'] ?? [],
         ]);
 
-        unset($_SESSION['reset_error']);
+        unset($_SESSION['reset_errors']);
     }
 
     /**
@@ -589,7 +592,7 @@ class AuthController extends BaseController
 
         $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
         if (!$this->verifyTurnstile($turnstileToken, 'reset_password')) {
-            $_SESSION['reset_error'] = 'Verification failed. Please try again.';
+            $_SESSION['reset_errors'] = ['general' => 'Verification failed. Please try again.'];
             $this->redirect('/reset-password?token=' . urlencode($_POST['token'] ?? ''));
         }
 
@@ -620,7 +623,7 @@ class AuthController extends BaseController
         $errors = $this->validateNewPassword($password, $passwordConfirm);
 
         if ($errors !== []) {
-            $_SESSION['reset_error'] = implode(' ', $errors);
+            $_SESSION['reset_errors'] = $errors;
             $this->redirect('/reset-password?token=' . urlencode($token));
         }
 
@@ -635,7 +638,7 @@ class AuthController extends BaseController
             PasswordReset::markUsed((int) $resetRecord['id_pwr']);
         } catch (\Throwable $e) {
             error_log('AuthController::resetPassword — ' . $e->getMessage());
-            $_SESSION['reset_error'] = 'Something went wrong. Please try again.';
+            $_SESSION['reset_errors'] = ['general' => 'Something went wrong. Please try again.'];
             $this->redirect('/reset-password?token=' . urlencode($token));
         }
 
@@ -756,24 +759,24 @@ class AuthController extends BaseController
     /**
      * Validate new password fields from the reset form.
      *
-     * @return array<int, string>  Error messages (empty if valid)
+     * @return array<string, string>  Field name => error message (empty if valid)
      */
     private function validateNewPassword(string $password, string $confirm): array
     {
         $errors = [];
 
         if ($password === '') {
-            $errors[] = 'Password is required.';
+            $errors['password'] = 'Password is required.';
         } elseif (mb_strlen($password) < 8) {
-            $errors[] = 'Password must be at least 8 characters.';
+            $errors['password'] = 'Password must be at least 8 characters.';
         } elseif (mb_strlen($password) > 72) {
-            $errors[] = 'Password must be 72 characters or fewer.';
+            $errors['password'] = 'Password must be 72 characters or fewer.';
         }
 
         if ($confirm === '') {
-            $errors[] = 'Please confirm your password.';
+            $errors['password_confirm'] = 'Please confirm your password.';
         } elseif ($password !== $confirm) {
-            $errors[] = 'Passwords do not match.';
+            $errors['password_confirm'] = 'Passwords do not match.';
         }
 
         return $errors;

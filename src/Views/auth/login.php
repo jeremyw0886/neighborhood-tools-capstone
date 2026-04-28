@@ -1,3 +1,25 @@
+<?php
+/**
+ * Login form — username/email + password with Turnstile and honeypot.
+ *
+ * Variables from AuthController::showLogin():
+ *
+ * @var ?string $error            Auth error flash (invalid creds, suspended, etc.)
+ * @var ?string $authSuccess      Success flash (e.g. password just reset)
+ * @var string  $oldUsername      Previously-entered username for sticky field
+ * @var string  $turnstileSiteKey Cloudflare Turnstile site key (empty if disabled)
+ *
+ * Shared data:
+ *
+ * @var string  $csrfToken
+ */
+
+$error            ??= null;
+$authSuccess      ??= null;
+$oldUsername      ??= '';
+$turnstileSiteKey ??= '';
+$csrfToken        ??= '';
+?>
 <section class="auth-page">
   <div class="auth-card">
     <header>
@@ -27,6 +49,8 @@
         <label for="website">Leave this empty</label>
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
       </div>
+
+      <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
 
       <div class="form-group">
         <label for="username">Username or Email</label>

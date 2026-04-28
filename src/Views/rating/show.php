@@ -4,24 +4,36 @@
  *
  * Variables from RatingController::show():
  *
- * @var array  $borrow       Row from Borrow::findById() (id_bor, borrower_id, lender_id, tool_name_tol, etc.)
- * @var bool   $isBorrower   Whether the current user is the borrower
- * @var int    $targetId     Account ID of the user being rated
- * @var string $targetName   Full name of the user being rated
- * @var string $raterRole    'lender' or 'borrower'
- * @var bool   $hasRatedUser Whether the user rating has already been submitted
- * @var bool   $hasRatedTool Whether the tool rating has already been submitted (always true for lenders)
+ * @var array                 $borrow        Row from Borrow::findById() (id_bor, borrower_id, lender_id, tool_name_tol, etc.)
+ * @var bool                  $isBorrower    Whether the current user is the borrower
+ * @var int                   $targetId      Account ID of the user being rated
+ * @var string                $targetName    Full name of the user being rated
+ * @var string                $raterRole     'lender' or 'borrower'
+ * @var bool                  $hasRatedUser  Whether the user rating has already been submitted
+ * @var bool                  $hasRatedTool  Whether the tool rating has already been submitted (always true for lenders)
+ * @var array<string, string> $ratingErrors  Field-keyed validation errors (empty on first load)
+ * @var array<string, mixed>  $ratingOld     Previous input values for sticky fields (empty on first load)
+ * @var ?string               $ratingSuccess Success flash after submission
+ * @var ?array                $decisionData  Optional payload streamed via inline JSON for client JS
  *
  * Shared data:
  *
  * @var string $csrfToken
+ * @var string $backUrl
  */
+
+$ratingErrors  ??= [];
+$ratingOld     ??= [];
+$ratingSuccess ??= null;
+$decisionData  ??= null;
+$backUrl       ??= '/';
+$csrfToken     ??= '';
 
 $toolName = htmlspecialchars($borrow['tool_name_tol']);
 $borrowId = (int) $borrow['id_bor'];
 
 $errors = $ratingErrors;
-$old = $ratingOld;
+$old    = $ratingOld;
 
 $scoreLabels = [
     1 => 'Poor',
@@ -87,13 +99,13 @@ $scoreLabels = [
       <input type="hidden" name="target_id" value="<?= $targetId ?>">
       <input type="hidden" name="role" value="<?= htmlspecialchars($raterRole) ?>">
       <fieldset>
-        <legend id="user-rating-heading">Rate <?= htmlspecialchars($targetName) ?></legend>
+        <legend id="user-rating-heading">Rate <?= htmlspecialchars($targetName) ?> <span aria-hidden="true">*</span></legend>
 
         <?php if (!empty($errors['user_score'])): ?>
           <p role="alert" data-field-error><?= htmlspecialchars($errors['user_score']) ?></p>
         <?php endif; ?>
 
-        <div role="radiogroup" aria-label="User score" data-stars>
+        <div role="radiogroup" aria-label="User score (required)" aria-required="true" data-stars>
           <?php $selectedUser = (int) ($old['user_score'] ?? 0); ?>
           <?php for ($i = 5; $i >= 1; $i--): ?>
             <input
@@ -145,13 +157,13 @@ $scoreLabels = [
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <input type="hidden" name="borrow_id" value="<?= $borrowId ?>">
       <fieldset>
-        <legend id="tool-rating-heading">Rate <?= $toolName ?></legend>
+        <legend id="tool-rating-heading">Rate <?= $toolName ?> <span aria-hidden="true">*</span></legend>
 
         <?php if (!empty($errors['tool_score'])): ?>
           <p role="alert" data-field-error><?= htmlspecialchars($errors['tool_score']) ?></p>
         <?php endif; ?>
 
-        <div role="radiogroup" aria-label="Tool score" data-stars>
+        <div role="radiogroup" aria-label="Tool score (required)" aria-required="true" data-stars>
           <?php $selectedTool = (int) ($old['tool_score'] ?? 0); ?>
           <?php for ($i = 5; $i >= 1; $i--): ?>
             <input

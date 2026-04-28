@@ -1,4 +1,56 @@
 <?php
+/**
+ * Manage Images — admin section partial for category icons + profile avatar vectors.
+ *
+ * Variables from AdminController::images():
+ *
+ * @var array                 $categoryVectors     Listing rows for category icons (paginated)
+ * @var array                 $avatarVectors       Listing rows for avatar vectors (paginated)
+ * @var ?string               $flash               Generic admin flash (action result)
+ *
+ * @var int                   $iconsPage           Current page in the category-icons listing
+ * @var int                   $iconsTotalPages     Total pages of category icons matching filters
+ * @var int                   $iconsTotalCount     Total category icons matching filters
+ * @var ?string               $iconsSearch         Active category-icons search query
+ * @var ?string               $iconsAssigned       'yes'|'no'|null — assignment filter
+ * @var string                $iconsSort           Active sort column for category icons
+ * @var string                $iconsDir            Active sort direction for category icons (ASC/DESC)
+ * @var array<string, mixed>  $iconsFilterParams   Params preserved on category-icon pagination links
+ *
+ * @var int                   $avatarsPage         Current page in the avatar-vectors listing
+ * @var int                   $avatarsTotalPages   Total pages of avatars matching filters
+ * @var int                   $avatarsTotalCount   Total avatars matching filters
+ * @var ?string               $avatarsSearch       Active avatar search query
+ * @var ?string               $avatarsStatus       'active'|'inactive'|null — status filter
+ * @var string                $avatarsSort         Active sort column for avatars
+ * @var string                $avatarsDir          Active sort direction for avatars (ASC/DESC)
+ * @var array<string, mixed>  $avatarsFilterParams Params preserved on avatar pagination links
+ *
+ * Shared data:
+ *
+ * @var string $csrfToken
+ */
+
+$categoryVectors     ??= [];
+$avatarVectors       ??= [];
+$flash               ??= null;
+$iconsPage           ??= 1;
+$iconsTotalPages     ??= 1;
+$iconsTotalCount     ??= 0;
+$iconsSearch         ??= null;
+$iconsAssigned       ??= null;
+$iconsSort           ??= 'uploaded_at_vec';
+$iconsDir            ??= 'DESC';
+$iconsFilterParams   ??= [];
+$avatarsPage         ??= 1;
+$avatarsTotalPages   ??= 1;
+$avatarsTotalCount   ??= 0;
+$avatarsSearch       ??= null;
+$avatarsStatus       ??= null;
+$avatarsSort         ??= 'uploaded_at_avv';
+$avatarsDir          ??= 'DESC';
+$avatarsFilterParams ??= [];
+$csrfToken           ??= '';
 
 $iconsSortLabels = [
     'file_name_vec'     => 'Filename',
@@ -37,8 +89,9 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
         <legend><h3>Upload Category Icon</h3></legend>
+        <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
         <div>
-          <label for="cat-vector-file">SVG File</label>
+          <label for="cat-vector-file">SVG File <span aria-hidden="true">*</span></label>
           <input type="file"
                  id="cat-vector-file"
                  name="vector_file"
@@ -235,8 +288,9 @@ $avatarsHasFilters = $avatarsSearch !== null || $avatarsStatus !== null;
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
       <fieldset>
         <legend><h3>Upload Avatar Vector</h3></legend>
+        <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
         <div>
-          <label for="avt-vector-file">SVG File</label>
+          <label for="avt-vector-file">SVG File <span aria-hidden="true">*</span></label>
           <input type="file"
                  id="avt-vector-file"
                  name="vector_file"

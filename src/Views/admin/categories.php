@@ -1,4 +1,42 @@
 <?php
+/**
+ * Manage Categories — admin section partial.
+ *
+ * Variables from AdminController::categories():
+ *
+ * @var array                 $categories   Listing rows (joined with vector info)
+ * @var array                 $vectors      All vector_image_vec rows for icon dropdowns
+ * @var ?string               $flash        Generic admin flash (action result)
+ * @var int                   $totalCount   Total categories matching filters (for pagination)
+ * @var ?string               $search       Active search query
+ * @var ?string               $hasIcon      'yes'|'no'|null — icon-assignment filter
+ * @var string                $sort         Active sort column
+ * @var string                $dir          Active sort direction (ASC/DESC)
+ * @var array<string, mixed>  $filterParams Filter params preserved on pagination links
+ * @var array<string, string>                $createErrors Field-keyed errors for the create form
+ * @var array<string, mixed>                 $createOld    Sticky values for the create form
+ * @var array<int, array<string, string>>    $editErrors   Per-category-id field-keyed errors for the inline edit form
+ * @var array<int, array<string, mixed>>     $editOld      Per-category-id sticky values for the inline edit form
+ *
+ * Shared data:
+ *
+ * @var string $csrfToken
+ */
+
+$categories   ??= [];
+$vectors      ??= [];
+$flash        ??= null;
+$totalCount   ??= 0;
+$search       ??= null;
+$hasIcon      ??= null;
+$sort         ??= 'category_name_cat';
+$dir          ??= 'ASC';
+$filterParams ??= [];
+$createErrors ??= [];
+$createOld    ??= [];
+$editErrors   ??= [];
+$editOld      ??= [];
+$csrfToken    ??= '';
 
 $sortLabels = [
     'category_name_cat' => 'Category Name',
@@ -32,14 +70,16 @@ $hasFilters  = $search !== null || $hasIcon !== null;
       <fieldset>
         <legend class="visually-hidden">New category</legend>
 
+        <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
+
         <div>
-          <label for="new-cat-name">Name</label>
+          <label for="new-cat-name">Name <span aria-hidden="true">*</span></label>
           <input type="text" id="new-cat-name" name="category_name"
                  value="<?= htmlspecialchars($createOld['category_name'] ?? '') ?>"
                  maxlength="100"
                  required
                  autocomplete="off"
-                 <?= !empty($createErrors['category_name']) ? 'aria-describedby="new-cat-name-error"' : '' ?>>
+                 <?= !empty($createErrors['category_name']) ? 'aria-describedby="new-cat-name-error" aria-invalid="true"' : '' ?>>
           <?php if (!empty($createErrors['category_name'])): ?>
             <p id="new-cat-name-error" data-field-error><?= htmlspecialchars($createErrors['category_name']) ?></p>
           <?php endif; ?>
@@ -194,12 +234,12 @@ $hasFilters  = $search !== null || $hasIcon !== null;
                         data-category-edit>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                     <div>
-                      <label for="edit-cat-<?= $catId ?>">Name</label>
+                      <label for="edit-cat-<?= $catId ?>">Name <span aria-hidden="true">*</span></label>
                       <input type="text" id="edit-cat-<?= $catId ?>" name="category_name"
                              value="<?= htmlspecialchars($catOld['category_name'] ?? $cat['category_name_cat']) ?>"
                              maxlength="100"
                              required
-                             <?= !empty($catErrors['category_name']) ? 'aria-describedby="edit-cat-error-' . $catId . '"' : '' ?>>
+                             <?= !empty($catErrors['category_name']) ? 'aria-describedby="edit-cat-error-' . $catId . '" aria-invalid="true"' : '' ?>>
                       <?php if (!empty($catErrors['category_name'])): ?>
                         <p id="edit-cat-error-<?= $catId ?>" data-field-error><?= htmlspecialchars($catErrors['category_name']) ?></p>
                       <?php endif; ?>

@@ -1,20 +1,36 @@
 <?php
+/**
+ * Create TOS Version — Super-admin form for publishing a new Terms of Service version.
+ *
+ * Variables from AdminController::showCreateTosVersion():
+ *
+ * @var array<string, string> $errors Field-keyed validation errors (version/title/effective_at/content)
+ * @var array<string, mixed>  $old    Sticky values from a failed submit
+ *
+ * Shared data:
+ *
+ * @var string $csrfToken
+ */
+
+$errors    ??= [];
+$old       ??= [];
+$csrfToken ??= '';
+
 $hasError = static fn(string $field): bool => isset($errors[$field]);
-
-$errorId = static fn(string $field): string => $field . '-error';
-
-$oldVal = static fn(string $field): string =>
-    htmlspecialchars($old[$field] ?? '');
+$errorId  = static fn(string $field): string => $field . '-error';
+$oldVal   = static fn(string $field): string => htmlspecialchars($old[$field] ?? '');
 ?>
 
   <form method="post" action="/admin/tos" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
+    <p class="required-note">Required fields are marked with <abbr title="required">*</abbr></p>
+
     <fieldset>
       <legend>Version Details</legend>
 
       <div>
-        <label for="tos-version">Version</label>
+        <label for="tos-version">Version <span aria-hidden="true">*</span></label>
         <input type="text"
                id="tos-version"
                name="version"
@@ -29,7 +45,7 @@ $oldVal = static fn(string $field): string =>
       </div>
 
       <div>
-        <label for="tos-title">Title</label>
+        <label for="tos-title">Title <span aria-hidden="true">*</span></label>
         <input type="text"
                id="tos-title"
                name="title"
@@ -44,7 +60,7 @@ $oldVal = static fn(string $field): string =>
       </div>
 
       <div>
-        <label for="tos-effective">Effective Date</label>
+        <label for="tos-effective">Effective Date <span aria-hidden="true">*</span></label>
         <input type="date"
                id="tos-effective"
                name="effective_at"
@@ -69,7 +85,7 @@ $oldVal = static fn(string $field): string =>
       </div>
 
       <div>
-        <label for="tos-content">Full Terms</label>
+        <label for="tos-content">Full Terms <span aria-hidden="true">*</span></label>
         <textarea id="tos-content"
                   name="content"
                   rows="16"

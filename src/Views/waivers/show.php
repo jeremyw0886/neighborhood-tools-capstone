@@ -4,14 +4,22 @@
  *
  * Variables from WaiverController::show():
  *
- * @var array $waiver      Row from Waiver::findPendingByBorrowId()
- * @var array $waiverTypes Rows from Waiver::getTypes()
+ * @var array                 $waiver       Row from Waiver::findPendingByBorrowId()
+ * @var array                 $waiverTypes  Rows from Waiver::getTypes()
+ * @var array<string, string> $waiverErrors Field-keyed validation errors (general/tool_condition/responsibility/liability)
  *
  * Shared data:
  *
  * @var array{id, name, first_name, role, avatar} $authUser
  * @var string                                    $csrfToken
+ * @var string                                    $backUrl
  */
+
+$waiver       ??= [];
+$waiverTypes  ??= [];
+$waiverErrors ??= [];
+$csrfToken    ??= '';
+$backUrl      ??= '/';
 
 $borrowId      = (int) $waiver['id_bor'];
 $toolName      = htmlspecialchars($waiver['tool_name_tol']);
@@ -97,7 +105,8 @@ $depositAmount = $waiver['default_deposit_amount_tol'];
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
     <fieldset>
-      <legend>Acknowledgments</legend>
+      <legend>Acknowledgments <span aria-hidden="true">*</span></legend>
+      <p>All three acknowledgments below are required to sign this waiver.</p>
 
       <label>
         <input type="checkbox" name="tool_condition" value="1" required>

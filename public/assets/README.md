@@ -16,9 +16,9 @@ Created with [SVG AI](https://www.svgai.org/ai-icon-generator) under a paid plan
 
 ## Favicon (`images/favicon.svg` + raster set in `/public/`)
 
-The source SVG (`images/favicon.svg`) — a gold toolbox on a dark green background using the project's pine/gold palette — was initially scaffolded with **OpenAI Codex** AI assistance, then cleaned up and finalized by Jeremy Warren for the project. It is a standalone icon, not a derivative of the Companioni logo.
+The source SVG (`images/favicon.svg`) — a gold toolbox on a dark green background using the project's pine/gold palette — was initially scaffolded with **OpenAI Codex** AI assistance, then cleaned up and finalized by Jeremy Warren for the project. It is a standalone icon, not a derivative of the Companioni logo. The SVG uses `viewBox`-only sizing (no `width`/`height` attributes) so the same file scales crisply at every favicon target — 16×16 tab icons, high-DPI bookmark bars, and 144×144 pinned-tab previews alike.
 
-The raster set in `/public/` (`favicon.ico`, `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`) was generated from that SVG using [favicon.io](https://favicon.io/). Wired into the layout via `<link rel="icon" href="/favicon.ico">`, `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`, and `<link rel="manifest" href="/site.webmanifest">` (the manifest references the two `android-chrome-*.png` files).
+The raster set in `/public/` (`favicon.ico`, `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`) was generated from that SVG using [favicon.io](https://favicon.io/), so the rasterized artwork matches the source SVG byte-for-byte at the canonical sizes. Wired into the layout via `<link rel="icon" href="/favicon.ico">`, `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`, and `<link rel="manifest" href="/site.webmanifest">`.
 
 **License:** Project-internal. OpenAI's Terms of Use assign ownership of generated output to the user; favicon.io output is free for personal and commercial use.
 

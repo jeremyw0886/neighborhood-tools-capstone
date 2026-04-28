@@ -6,7 +6,7 @@ This directory contains placeholder and seed images used for development and dem
 
 Original logo designed by **Alyssa Companioni**.
 
-The compact mark (`images/logo-mark.svg`) and modern-browser favicon (`images/favicon.svg`) are layout variants Jeremy Warren produced from Alyssa's original logo for use across the site.
+The compact mark (`images/logo-mark.svg`) is a layout variant Jeremy Warren produced from Alyssa's original logo for use across the site.
 
 ## Placeholder & UI SVGs (`images/avatar-placeholder.svg`, `images/tool-placeholder.svg`, `images/empty-search.svg`)
 
@@ -14,9 +14,13 @@ Created with [SVG AI](https://www.svgai.org/ai-icon-generator) under a paid plan
 
 **License:** All generated SVGs are royalty-free and cleared for personal and commercial use. Users own the rights to graphics they create. Full terms: <https://www.svgai.org/terms>
 
-## Favicon raster set (`/public/favicon-*.png`, `/public/favicon.ico`, `/public/apple-touch-icon.png`, `/public/android-chrome-*.png`)
+## Favicon (`images/favicon.svg` + raster set in `/public/`)
 
-Generated from `images/favicon.svg` using [favicon.io](https://favicon.io/). Inherits the project-internal license of the source SVG.
+The source SVG (`images/favicon.svg`) — a gold toolbox on a dark green background using the project's pine/gold palette — was initially scaffolded with **OpenAI Codex** AI assistance, then cleaned up and finalized by Jeremy Warren for the project. It is a standalone icon, not a derivative of the Companioni logo.
+
+The raster set in `/public/` (`favicon.ico`, `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`) was generated from that SVG using [favicon.io](https://favicon.io/). Wired into the layout via `<link rel="icon" href="/favicon.ico">`, `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`, and `<link rel="manifest" href="/site.webmanifest">` (the manifest references the two `android-chrome-*.png` files).
+
+**License:** Project-internal. OpenAI's Terms of Use assign ownership of generated output to the user; favicon.io output is free for personal and commercial use.
 
 ## Tool Photos (`../uploads/tools/`)
 

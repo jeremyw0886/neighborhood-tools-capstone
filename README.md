@@ -123,7 +123,9 @@ composer dump-autoload   # after adding a new PHP class under src/
 php build-assets.php     # after changing bundled CSS or any JS
 ```
 
-## W3C CSS Validator Notes
+## W3C Validator Notes
+
+### CSS Validator (jigsaw.w3.org/css-validator)
 
 The stylesheets ship with four modern CSS features that [jigsaw.w3.org/css-validator](https://jigsaw.w3.org/css-validator) reports as errors. Each one is spec-valid CSS in a published W3C specification and shipping in current Chrome, Edge, Safari, and Firefox &mdash; the validator simply implements an older level of the CSS spec and has not caught up yet. The labels below match the validator's exact output, verified by submitting minimal test snippets under the CSS level 3 + SVG profile.
 
@@ -131,8 +133,28 @@ The stylesheets ship with four modern CSS features that [jigsaw.w3.org/css-valid
 | -------------------- | -------------------- | :------: | :-------------: | ---------------------------------------------------------------- |
 | `@starting-style`    | CSS Transitions L2   | 2024     | 2               | Error: `Unrecognized at-rule "@starting-style"`                  |
 | `@container` queries | CSS Containment L3   | 2023     | 4               | Error: `Unrecognized at-rule "@container"`                       |
-| `container-type`     | CSS Containment L3   | 2023     | 4               | Error: `Property "container-type" doesn't exist`                 |
-| `container-name`     | CSS Containment L3   | 2023     | 3               | Error: `Property "container-name" doesn't exist`                 |
+| `container-type`     | CSS Containment L3   | 2023     | 4               | Property: `Property "container-type" doesn't exist`              |
+| `container-name`     | CSS Containment L3   | 2023     | 3               | Property: `Property "container-name" doesn't exist`              |
+
+### HTML Validator (validator.w3.org/nu) &mdash; `@layer` on the home page
+
+When the **home page** (or any page that opts into the critical-CSS path) is submitted to [validator.w3.org/nu](https://validator.w3.org/nu), the validator runs an embedded CSS sub-check on every inline `<style>` block and reports:
+
+> Error: `CSS: Unrecognized at-rule "@layer"`
+
+The error fires once for **every** `@layer` declaration in the inlined critical CSS, so the home page typically surfaces three `@layer` errors (the at-rule list `@layer base, components, utilities;` plus the three `@layer base { … }` / `@layer utilities { … }` / `@layer components { … }` blocks).
+
+The error originates from this block in [src/Views/layouts/main.php](src/Views/layouts/main.php), which inlines the per-page critical CSS so the first paint is unblocked:
+
+```php
+<style id="nt-dynamic-styles" nonce="<?= CSP_NONCE ?>">
+  <?php if ($asyncCss) { readfile($criticalFile); } ?>
+</style>
+```
+
+The `nonce` attribute is intentional and required &mdash; the project's Content Security Policy is `style-src 'self' 'nonce-…'` (no `'unsafe-inline'`), so every inline `<style>` block must carry a fresh per-request nonce that matches the CSP header to be allowed by the browser. The nonce is generated once per request in [public/index.php](public/index.php) as `bin2hex(random_bytes(...))` and exposed to views as the `CSP_NONCE` constant. This is the **only** inline style block in the entire codebase &mdash; everything else loads from external CSS files &mdash; and it exists only to inline the small critical-CSS payload for the first paint.
+
+[`@layer`](https://www.w3.org/TR/css-cascade-5/#layering) is part of CSS Cascading and Inheritance Level 5 (Baseline-supported in all modern browsers since 2022). The standalone CSS validator at jigsaw.w3.org **accepts the same input cleanly** &mdash; the rejection only happens inside the Nu HTML validator's older embedded CSS profile. Submitting the at-rule directly to jigsaw.w3.org returns "Congratulations! No Error Found".
 
 ### Progressive-enhancement fallbacks
 

@@ -4,21 +4,29 @@ This directory contains placeholder and seed images used for development and dem
 
 ## Logo (`images/logo.svg`)
 
-Designed by **Alyssa Companioni**.
+Original logo designed by **Alyssa Companioni**.
 
-Variant: `images/logo-top-right.svg` preserves the original emblem and the original one-line wordmark, with the wordmark moved to the upper-right layout. The SVG is self-contained and does not depend on separate image assets.
+The compact mark (`images/logo-mark.svg`) and modern-browser favicon (`images/favicon.svg`) are layout variants Jeremy Warren produced from Alyssa's original logo for use across the site.
 
-## Placeholder SVGs (`images/avatar-placeholder.svg`, `images/tool-placeholder.svg`)
+## Placeholder & UI SVGs (`images/avatar-placeholder.svg`, `images/tool-placeholder.svg`, `images/empty-search.svg`)
 
 Created with [SVG AI](https://www.svgai.org/ai-icon-generator) under a paid plan.
 
 **License:** All generated SVGs are royalty-free and cleared for personal and commercial use. Users own the rights to graphics they create. Full terms: <https://www.svgai.org/terms>
+
+## Favicon raster set (`/public/favicon-*.png`, `/public/favicon.ico`, `/public/apple-touch-icon.png`, `/public/android-chrome-*.png`)
+
+Generated from `images/favicon.svg` using [favicon.io](https://favicon.io/). Inherits the project-internal license of the source SVG.
 
 ## Tool Photos (`../uploads/tools/`)
 
 AI-generated product images created with [Artlist AI Image Generator](https://artlist.io/ai/image-generator) under a paid subscription.
 
 **License:** Artlist assigns all right, title, and interest in AI-generated output to the subscriber. Images are cleared for commercial use without restriction, provided usage complies with Artlist's Terms of Use and does not violate their forbidden-use policy (e.g., trademark infringement, privacy violations). Full license details: <https://artlist.io/help-center/privacy-terms/artlist-license/>
+
+## Incident Report Photos (`../uploads/incidents/`)
+
+Staged AI-generated photographs created with [Artlist AI Image Generator](https://artlist.io/ai/image-generator) under a paid subscription. Same license terms as the tool photos above.
 
 ## Avatars (`../uploads/vectors/avt_*`)
 

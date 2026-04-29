@@ -737,9 +737,13 @@ class AuthController extends BaseController
             . "This link expires in 1 hour. If you didn't request this, you can safely ignore this email.\r\n\r\n"
             . "— NeighborhoodTools";
 
+        $from = trim($_ENV['MAIL_FROM'] ?? '') !== ''
+            ? trim($_ENV['MAIL_FROM'])
+            : 'noreply@neighborhoodtools.org';
+
         $headers = implode("\r\n", [
-            'From: noreply@neighborhoodtools.com',
-            'Reply-To: noreply@neighborhoodtools.com',
+            'From: ' . $from,
+            'Reply-To: ' . $from,
             'Content-Type: text/plain; charset=UTF-8',
             'X-Mailer: PHP/' . PHP_VERSION,
         ]);

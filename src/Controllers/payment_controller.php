@@ -541,6 +541,32 @@ class PaymentController extends BaseController
         $reason    = $paymentIntent->last_payment_error?->message ?? 'Unknown failure';
 
         error_log("handlePaymentFailed — deposit {$depositId}: {$reason}");
+
+        if ($depositId < 1) {
+            return;
+        }
+
+        $deposit = Deposit::findPendingPayment($depositId);
+
+        if ($deposit === null) {
+            return;
+        }
+
+        $toolName = $deposit['tool_name_tol'] ?? 'a tool';
+        $borrowId = (int) $deposit['id_bor_sdp'];
+
+        try {
+            Notification::send(
+                accountId: (int) $deposit['borrower_id'],
+                type: 'denial',
+                title: 'Deposit Payment Failed',
+                body: 'Your security deposit payment for ' . $toolName . ' could not be processed. '
+                    . 'Please retry the payment to complete your borrow.',
+                relatedBorrowId: $borrowId,
+            );
+        } catch (\Throwable $e) {
+            error_log('handlePaymentFailed notification — ' . $e->getMessage());
+        }
     }
 
     public function complete(): void

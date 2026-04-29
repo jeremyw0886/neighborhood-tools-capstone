@@ -121,8 +121,9 @@ final class ImageProcessor
         bool $preserveSource = false,
     ): array {
         $ratio = $aspectRatio ?? self::ASPECT_RATIO;
-        $transform = static fn(ImageBackend $backend, string $path, int $width)
-            => $backend->cropResize($path, $width, $focalX, $focalY, $ratio);
+        $transform = static function (ImageBackend $backend, string $path, int $width) use ($focalX, $focalY, $ratio): void {
+            $backend->cropResize($path, $width, $focalX, $focalY, $ratio);
+        };
 
         return self::generateVariantsCore(
             $sourcePath,

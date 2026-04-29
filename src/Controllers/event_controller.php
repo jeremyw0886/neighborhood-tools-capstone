@@ -327,8 +327,8 @@ class EventController extends BaseController
         unset($_SESSION['event_flash']);
 
         $this->render('events/show', [
-            'title'         => htmlspecialchars($event['event_name_evt']) . ' — NeighborhoodTools',
-            'description'   => 'Event details for ' . htmlspecialchars($event['event_name_evt']),
+            'title'         => $event['event_name_evt'] . ' — NeighborhoodTools',
+            'description'   => 'Event details for ' . $event['event_name_evt'],
             'pageCss'       => ['features.css'],
             'event'         => $event,
             'meta'          => $meta,

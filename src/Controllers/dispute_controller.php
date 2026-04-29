@@ -195,7 +195,7 @@ class DisputeController extends BaseController
         );
 
         $this->render('disputes/show', [
-            'title'       => htmlspecialchars($dispute['subject_text_dsp']) . ' — NeighborhoodTools',
+            'title'       => $dispute['subject_text_dsp'] . ' — NeighborhoodTools',
             'description' => 'Dispute details and message thread.',
             'pageCss'     => ['features.css'],
             'dispute'     => $dispute,

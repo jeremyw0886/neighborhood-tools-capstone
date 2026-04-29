@@ -151,7 +151,8 @@ class ToolController extends BaseController
 
         if ($this->isXhr()) {
             $basePath = '/tools';
-            extract($this->getSharedData());
+            $shared   = $this->getSharedData();
+            extract($shared);
 
             ob_start();
             foreach ($tools as $tool) {
@@ -455,7 +456,7 @@ class ToolController extends BaseController
         }
 
         $this->renderDashboard('edit-tool', [
-            'title'             => 'Edit ' . htmlspecialchars($tool['tool_name_tol']) . ' — NeighborhoodTools',
+            'title'             => 'Edit ' . $tool['tool_name_tol'] . ' — NeighborhoodTools',
             'description'       => 'Edit your tool listing — NeighborhoodTools',
             'pageCss'           => ['tools.css', 'dashboard.css'],
             'pageJs'            => ['image-crop.js', 'tools.js', 'dashboard.js'],
@@ -1225,7 +1226,10 @@ class ToolController extends BaseController
             $count = Tool::getImageCount($toolId);
         } catch (\Throwable $e) {
             error_log('ToolController::uploadImage count — ' . $e->getMessage());
-            $json ? $this->jsonResponse(500, ['error' => 'Server error']) : $this->abort(500);
+            if ($json) {
+                $this->jsonResponse(500, ['error' => 'Server error']);
+            }
+            $this->abort(500);
         }
 
         if ($count >= self::MAX_IMAGES) {

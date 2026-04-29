@@ -9,7 +9,6 @@ use App\Core\ImageProcessor;
 use App\Core\RateLimiter;
 use App\Models\Account;
 use App\Models\AvatarVector;
-use App\Models\Neighborhood;
 use App\Models\Tool;
 
 class ProfileController extends BaseController
@@ -145,8 +144,8 @@ class ProfileController extends BaseController
         }
 
         $data = [
-            'title'          => htmlspecialchars($profile['username']) . ' — NeighborhoodTools',
-            'description'    => 'View ' . htmlspecialchars($profile['username']) . "'s profile, tools, and ratings on NeighborhoodTools.",
+            'title'          => $profile['username'] . ' — NeighborhoodTools',
+            'description'    => 'View ' . $profile['username'] . "'s profile, tools, and ratings on NeighborhoodTools.",
             'pageCss'        => ['dashboard.css'],
             'pageJs'         => $isOwnProfile ? ['dashboard.js'] : [],
             'profile'        => $profile,

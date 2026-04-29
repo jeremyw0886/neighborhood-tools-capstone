@@ -137,7 +137,7 @@ class IncidentController extends BaseController
         }
 
         $this->render('incidents/show', [
-            'title'          => htmlspecialchars($incident['subject_irt']) . ' — NeighborhoodTools',
+            'title'          => $incident['subject_irt'] . ' — NeighborhoodTools',
             'description'    => 'Incident report details.',
             'pageCss'        => ['features.css'],
             'incident'       => $incident,

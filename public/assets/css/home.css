@@ -265,6 +265,7 @@
 
   .home-page > header > section > div > ul > li > strong {
     color: var(--mountain-gold-light);
+    display: inline-block;
     font-size: clamp(1.15rem, 0.92rem + 0.85vw, 1.65rem);
     font-variant-numeric: tabular-nums;
     font-weight: 700;
@@ -383,7 +384,10 @@
     color: #fff;
   }
 
-  /* ── HERO ENTRANCE ANIMATION ── */
+  /* ── HERO ENTRANCE ANIMATION ──
+     Applied directly in CSS (no JS class swap) so the `from` state is the
+     initial paint position — eliminates the post-paint snap that registered
+     as a layout shift on the hero column and stats list. */
   @keyframes hero-fade-up {
     from {
       opacity: 0;
@@ -395,15 +399,15 @@
     }
   }
 
-  .home-page > header > section > div > div:first-child > .animate-in {
+  .home-page > header > section > div > div:first-child > :is(span[data-hero-eyebrow], p) {
     animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
   }
 
-  .home-page > header > section > div > ul.animate-in {
+  .home-page > header > section > div > ul {
     animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
   }
 
-  .home-page > header > section > div > div:last-child.animate-in {
+  .home-page > header > section > div > div:last-child {
     animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
   }
 
@@ -1492,9 +1496,8 @@
       transition: none;
     }
 
-    .home-page > header > section > div > div:first-child > .animate-in,
-    .home-page > header > section > div > ul.animate-in,
-    .home-page > header > section > div > div:last-child.animate-in {
+    .home-page > header > section > div > div:first-child > :is(span[data-hero-eyebrow], p),
+    .home-page > header > section > div > ul {
       animation: none;
     }
   }

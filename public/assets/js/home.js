@@ -3,56 +3,6 @@
 const MOBILE_MQ = '(max-width: 700px)';
 const DESKTOP_MQ = '(min-width: 701px)';
 
-// ─── Entrance Animation ──────────────────────────────────────────────
-
-class EntranceAnimation {
-  static #instance = null;
-
-  /**
-   * Schedule a single rAF that adds `animate-in` to each element.
-   *
-   * @param {Element[]} elements - Elements to animate on the next frame
-   */
-  constructor(elements) {
-    requestAnimationFrame(() => {
-      for (const el of elements) el.classList.add('animate-in');
-    });
-  }
-
-  /**
-   * Initialize the singleton EntranceAnimation when the home-page hero grid is present and motion is allowed.
-   *
-   * @returns {EntranceAnimation|null}
-   */
-  static init() {
-    if (EntranceAnimation.#instance) return EntranceAnimation.#instance;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
-
-    const grid = document.querySelector('.home-page > header > section > div');
-    if (!grid) return null;
-
-    const headline = grid.querySelector(':scope > div:first-child');
-    const stats = grid.querySelector(':scope > ul[aria-label="Platform highlights"]');
-    const right = grid.querySelector(':scope > div:last-child');
-    if (!right) return null;
-
-    const elements = [
-      ...(headline ? [...headline.children].filter((el) => el.tagName !== 'H1') : []),
-      stats,
-      right,
-    ].filter(Boolean);
-
-    return (EntranceAnimation.#instance = new EntranceAnimation(elements));
-  }
-
-  /**
-   * Reset the singleton slot; the rAF-scheduled class additions are not undone.
-   */
-  destroy() {
-    EntranceAnimation.#instance = null;
-  }
-}
-
 // ─── Counter Animation ───────────────────────────────────────────────
 
 class CounterAnimation {
@@ -125,6 +75,14 @@ class CounterAnimation {
   static #animateCounter(el) {
     const target = parseInt(el.dataset.target, 10);
     if (!target || target <= 0) return;
+
+    if (!el.id) el.id = `pf-counter-${crypto.randomUUID().slice(0, 8)}`;
+    const lockedWidth = el.getBoundingClientRect().width;
+    NT.style.setRule(
+      `counter-${el.id}`,
+      `#${CSS.escape(el.id)}`,
+      `min-width:${lockedWidth}px`
+    );
 
     el.textContent = '0';
     const start = performance.now();
@@ -616,7 +574,6 @@ class PopularCarousel {
 
 // ─── Init ────────────────────────────────────────────────────────────
 
-EntranceAnimation.init();
 CounterAnimation.init();
 
 requestAnimationFrame(() => {

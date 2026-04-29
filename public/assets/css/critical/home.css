@@ -325,6 +325,7 @@
 
   .home-page > header > section > div > ul > li > strong {
     color: var(--mountain-gold-light);
+    display: inline-block;
     font-size: clamp(1.15rem, 0.92rem + 0.85vw, 1.65rem);
     font-variant-numeric: tabular-nums;
     font-weight: 700;
@@ -405,6 +406,42 @@
     outline: none;
     padding: 0.625rem 0.75rem;
     width: 100%;
+  }
+
+  /* --- Hero entrance animation — defined inline so the from-state is the
+       initial paint position. Without it in critical, the animation rule
+       arrives via async CSS and snaps the elements to translateY(1.25rem),
+       registering as a layout shift. Transform-only animation thereafter. */
+
+  @keyframes hero-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .home-page > header > section > div > div:first-child > :is(span[data-hero-eyebrow], p) {
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  }
+
+  .home-page > header > section > div > ul {
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+  }
+
+  .home-page > header > section > div > div:last-child {
+    animation: hero-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-page > header > section > div > div:first-child > :is(span[data-hero-eyebrow], p),
+    .home-page > header > section > div > ul,
+    .home-page > header > section > div > div:last-child {
+      animation: none;
+    }
   }
 
   /* --- Main content carousels — prevents 0.183 shift from vertical→horizontal --- */

@@ -557,6 +557,39 @@ class Account
     }
 
     /**
+     * Shared FileCache-backed wrapper around getNearbyMembers().
+     *
+     * Caches the unfiltered query keyed by city + fetch count, then drops the
+     * caller's account in PHP — one cache entry serves every visitor instead
+     * of N-per-session, and the spatial query fires at most once per $ttl
+     * site-wide. Mirrors getCachedTopMembers() so both top-level home
+     * carousels share the same caching shape.
+     *
+     * @param  int $ttl  Cache lifetime in seconds
+     * @return array
+     */
+    public static function getCachedNearbyMembers(string $city, int $limit = 10, ?int $excludeAccountId = null, int $ttl = 300): array
+    {
+        $fetchCount = $limit + 1;
+        $cityKey    = strtolower($city);
+
+        $members = FileCache::remember(
+            "account:nearby-members:{$cityKey}:{$fetchCount}",
+            $ttl,
+            static fn(): array => self::getNearbyMembers($city, $fetchCount, null),
+        );
+
+        if ($excludeAccountId !== null) {
+            $members = array_values(array_filter(
+                $members,
+                static fn(array $m): bool => (int) $m['id_acc'] !== $excludeAccountId,
+            ));
+        }
+
+        return array_slice($members, 0, $limit);
+    }
+
+    /**
      * Fetch all active members ranked by proximity to a city's downtown.
      *
      * Uses the "Downtown {City}" neighborhood point as reference, then ranks
@@ -572,30 +605,6 @@ class Account
      *               neighborhood: ?string, is_top_member: int,
      *               distance_miles: float}>
      */
-    /**
-     * Session-cached wrapper around getNearbyMembers().
-     *
-     * @param  int $ttl  Cache lifetime in seconds
-     * @return array
-     */
-    public static function getCachedNearbyMembers(string $city, int $limit = 10, ?int $excludeAccountId = null, int $ttl = 300): array
-    {
-        $cacheKey   = '_nearby_' . strtolower($city);
-        $cacheTimeKey = $cacheKey . '_at';
-
-        if (isset($_SESSION[$cacheKey], $_SESSION[$cacheTimeKey])
-            && time() - $_SESSION[$cacheTimeKey] < $ttl
-        ) {
-            return $_SESSION[$cacheKey];
-        }
-
-        $members = self::getNearbyMembers($city, $limit, $excludeAccountId);
-        $_SESSION[$cacheKey]     = $members;
-        $_SESSION[$cacheTimeKey] = time();
-
-        return $members;
-    }
-
     public static function getNearbyMembers(string $city, int $limit = 10, ?int $excludeAccountId = null): array
     {
         $pdo = Database::connection();

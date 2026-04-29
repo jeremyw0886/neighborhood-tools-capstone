@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Database;
+use App\Core\FileCache;
 use PDO;
 
 class Neighborhood
@@ -47,24 +48,22 @@ class Neighborhood
     }
 
     /**
-     * Session-cached wrapper around getPlatformTotals().
+     * Shared FileCache-backed wrapper around getPlatformTotals().
+     *
+     * The hero trust signals are identical for every visitor, so a single
+     * shared cache entry replaces the previous per-session copy and lets a
+     * cold first-page-render bot pay the query cost at most once per $ttl.
      *
      * @param  int $ttl  Cache lifetime in seconds
      * @return array{totalMembers: int, activeMembers: int, availableTools: int, completedBorrows: int}
      */
     public static function getCachedPlatformTotals(int $ttl = 60): array
     {
-        if (isset($_SESSION['_platform_totals'], $_SESSION['_platform_totals_at'])
-            && time() - $_SESSION['_platform_totals_at'] < $ttl
-        ) {
-            return $_SESSION['_platform_totals'];
-        }
-
-        $totals = self::getPlatformTotals();
-        $_SESSION['_platform_totals']    = $totals;
-        $_SESSION['_platform_totals_at'] = time();
-
-        return $totals;
+        return FileCache::remember(
+            'neighborhood:platform-totals',
+            $ttl,
+            self::getPlatformTotals(...),
+        );
     }
 
     private const array SUMMARY_SORT_FIELDS = [

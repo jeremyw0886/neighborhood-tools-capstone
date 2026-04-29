@@ -450,14 +450,19 @@ class Account
      * Whether a member row qualifies for the "top member" badge.
      *
      * Requires a rating average of 4.0 or higher and at least 3 ratings so
-     * single glowing reviews don't earn the badge.
+     * single glowing reviews don't earn the badge. Accepts either the
+     * home-page row alias (`avg_rating`) or the admin row alias
+     * (`overall_avg_rating`) so the same predicate works across both
+     * call surfaces.
      *
-     * @param  array $row  Member row containing avg_rating and total_rating_count
+     * @param  array $row  Member row with avg_rating|overall_avg_rating and total_rating_count
      */
     public static function isTopMember(array $row): bool
     {
-        return ((float) ($row['avg_rating'] ?? 0)) >= 4.0
-            && ((int) ($row['total_rating_count'] ?? 0)) >= 3;
+        $rating = (float) ($row['avg_rating'] ?? $row['overall_avg_rating'] ?? 0);
+        $count  = (int) ($row['total_rating_count'] ?? 0);
+
+        return $rating >= 4.0 && $count >= 3;
     }
 
     /**

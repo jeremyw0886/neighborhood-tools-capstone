@@ -110,11 +110,11 @@ class Waiver
         }
 
         $stmt->execute();
-        $signedIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $signedIds = array_map(intval(...), $stmt->fetchAll(PDO::FETCH_COLUMN));
 
         $result = [];
         foreach ($borrowIds as $id) {
-            $result[$id] = in_array($id, $signedIds, true);
+            $result[$id] = in_array((int) $id, $signedIds, true);
         }
 
         return $result;

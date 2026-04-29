@@ -16,17 +16,24 @@ class Neighborhood
     /**
      * Live platform-wide totals for the hero trust signals.
      *
+     * `totalMembers` counts every non-deleted account (active + pending +
+     * suspended) so the admin dashboard's "X active out of Y" framing is
+     * meaningful; `activeMembers` is the active-only subset that the home
+     * page hero shows directly.
+     *
      * @return array{totalMembers: int, activeMembers: int, availableTools: int, completedBorrows: int}
      */
     public static function getPlatformTotals(): array
     {
         $pdo = Database::connection();
 
-        $activeMembers = (int) $pdo->query(
-            "SELECT COUNT(*) FROM account_acc
-             WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast
-                                 WHERE status_name_ast = 'active')"
-        )->fetchColumn();
+        $memberCounts = $pdo->query(
+            "SELECT
+                SUM(CASE WHEN ast.status_name_ast <> 'deleted' THEN 1 ELSE 0 END) AS total_members,
+                SUM(CASE WHEN ast.status_name_ast =  'active'  THEN 1 ELSE 0 END) AS active_members
+             FROM account_acc a
+             JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast"
+        )->fetch();
 
         $availableTools = (int) $pdo->query(
             'SELECT COUNT(*) FROM available_tool_v'
@@ -40,8 +47,8 @@ class Neighborhood
         )->fetchColumn();
 
         return [
-            'totalMembers'     => $activeMembers,
-            'activeMembers'    => $activeMembers,
+            'totalMembers'     => (int) ($memberCounts['total_members']  ?? 0),
+            'activeMembers'    => (int) ($memberCounts['active_members'] ?? 0),
             'availableTools'   => $availableTools,
             'completedBorrows' => $completedBorrows,
         ];

@@ -1323,33 +1323,50 @@ class Tool
     /**
      * Delete all image rows for a tool.
      *
+     * Reads the filenames and deletes the rows inside a single transaction
+     * so the caller cannot end up with on-disk files orphaned by a successful
+     * SELECT followed by a failed DELETE (or vice versa). Filenames are
+     * returned to the caller for the on-disk unlink step that follows.
+     *
      * @param  int  $toolId  Tool primary key
      * @return array<string>  Filenames that were removed from DB
      */
     public static function deleteAllImages(int $toolId): array
     {
         $pdo = Database::connection();
+        $pdo->beginTransaction();
 
-        $stmt = $pdo->prepare("
-            SELECT file_name_tim FROM tool_image_tim
-            WHERE id_tol_tim = :id
-        ");
-        $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
-        $stmt->execute();
+        try {
+            $stmt = $pdo->prepare("
+                SELECT file_name_tim FROM tool_image_tim
+                WHERE id_tol_tim = :id
+                FOR UPDATE
+            ");
+            $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
 
-        $filenames = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            $filenames = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
-        if ($filenames === []) {
-            return [];
+            if ($filenames === []) {
+                $pdo->commit();
+                return [];
+            }
+
+            $stmt = $pdo->prepare("
+                DELETE FROM tool_image_tim WHERE id_tol_tim = :id
+            ");
+            $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $pdo->commit();
+
+            return $filenames;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
         }
-
-        $stmt = $pdo->prepare("
-            DELETE FROM tool_image_tim WHERE id_tol_tim = :id
-        ");
-        $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $filenames;
     }
 
     /**

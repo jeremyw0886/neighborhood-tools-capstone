@@ -129,9 +129,9 @@ class Dispute
     /**
      * Find a single open dispute by its primary key.
      *
-     * @return array|false  Dispute row or false if not found / not open
+     * @return ?array  Dispute row, or null if not found / not open
      */
-    public static function findById(int $disputeId): array|false
+    public static function findById(int $disputeId): ?array
     {
         $pdo = Database::connection();
 
@@ -145,7 +145,9 @@ class Dispute
         $stmt->bindValue(':id', $disputeId, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetch();
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
     }
 
     /**

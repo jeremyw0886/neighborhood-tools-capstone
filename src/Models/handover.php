@@ -12,12 +12,24 @@ class Handover
     /**
      * Create a handover record for a borrow.
      *
+     * Refuses to create a second active (unverified, unexpired) handover for
+     * the same borrow + type combination, so a duplicate POST or a controller
+     * pre-check race can't mint a parallel pending code. The caller can rely
+     * on the throw to surface duplicate-generation attempts.
+     *
      * @param  string $type  Handover type name ('pickup' or 'return')
      * @return int    The new handover ID
+     * @throws \RuntimeException When an active handover of this type already exists for the borrow
      */
     public static function create(int $borrowId, int $generatorId, string $type): int
     {
         $pdo = Database::connection();
+
+        if (self::hasActivePendingForType($pdo, $borrowId, $type)) {
+            throw new \RuntimeException(
+                "Handover::create — active {$type} handover already exists for borrow {$borrowId}",
+            );
+        }
 
         $stmt = $pdo->prepare('
             INSERT INTO handover_verification_hov (id_bor_hov, id_hot_hov, id_acc_generator_hov)
@@ -30,6 +42,29 @@ class Handover
         $stmt->execute();
 
         return (int) $pdo->lastInsertId();
+    }
+
+    /**
+     * Check whether an active (unverified, unexpired) handover of `$type` exists for `$borrowId`.
+     */
+    private static function hasActivePendingForType(\PDO $pdo, int $borrowId, string $type): bool
+    {
+        $stmt = $pdo->prepare('
+            SELECT 1
+            FROM handover_verification_hov hov
+            JOIN handover_type_hot         hot ON hot.id_hot = hov.id_hot_hov
+            WHERE hov.id_bor_hov         = :borrow_id
+              AND hot.type_name_hot      = :type
+              AND hov.verified_at_hov    IS NULL
+              AND hov.expires_at_hov     > NOW()
+            LIMIT 1
+        ');
+
+        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
+        $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return $stmt->fetchColumn() !== false;
     }
 
     /**

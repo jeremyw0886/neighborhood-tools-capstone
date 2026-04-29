@@ -249,9 +249,11 @@ class Event
     /**
      * Fetch a single event by ID with neighborhood, state, and creator data.
      *
-     * Mirrors the columns in upcoming_event_v but without the date filter
-     * so past events are also accessible. Computes event_timing and
-     * days_until_event inline.
+     * Reproduces the column shape of upcoming_event_v on purpose: the view
+     * filters to future events only, but the show/edit pages must also load
+     * past events, so this query keeps the view's `event_timing` CASE +
+     * `days_until_event` expressions inline rather than joining the view.
+     * If the view's CASE branches change, mirror the change here too.
      *
      * @return ?array  Full event row, or null if not found
      */

@@ -16,8 +16,10 @@ class NeighborhoodLookup {
   #fetchController = null;
 
   /**
-   * @param {HTMLInputElement} zipInput
-   * @param {HTMLSelectElement} select
+   * Set up the input listener and run an initial lookup when the ZIP field is pre-filled.
+   *
+   * @param {HTMLInputElement} zipInput - The ZIP code input field
+   * @param {HTMLSelectElement} select - The neighborhood select to repopulate
    */
   constructor(zipInput, select) {
     this.#zipInput = zipInput;
@@ -31,7 +33,11 @@ class NeighborhoodLookup {
     }
   }
 
-  /** @returns {NeighborhoodLookup|null} */
+  /**
+   * Initialize the singleton NeighborhoodLookup when the ZIP and neighborhood inputs are present.
+   *
+   * @returns {NeighborhoodLookup|null}
+   */
   static init() {
     if (NeighborhoodLookup.#instance) return NeighborhoodLookup.#instance;
     const zipInput = document.getElementById('zip_code');
@@ -40,6 +46,9 @@ class NeighborhoodLookup {
     return (NeighborhoodLookup.#instance = new NeighborhoodLookup(zipInput, select));
   }
 
+  /**
+   * Detach the input listener, abort any in-flight ZIP lookup, and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     this.#fetchController?.abort();
@@ -50,6 +59,11 @@ class NeighborhoodLookup {
     this.#lookup();
   };
 
+  /**
+   * Look up neighborhoods for the current ZIP and rebuild the select options grouped by city.
+   *
+   * @returns {Promise<void>}
+   */
   async #lookup() {
     const zip = this.#zipInput.value.trim();
     const token = ++this.#generation;
@@ -121,6 +135,9 @@ class NeighborhoodLookup {
     }
   }
 
+  /**
+   * Append the unsupported-ZIP notice and wire it into the input's aria-describedby.
+   */
   #showNotice() {
     if (this.#notice) return;
     const group = this.#zipInput.closest('.form-group');
@@ -144,6 +161,9 @@ class NeighborhoodLookup {
     }
   }
 
+  /**
+   * Remove the unsupported-ZIP notice and detach it from the input's aria-describedby.
+   */
   #hideNotice() {
     if (!this.#notice) return;
     const described = (this.#zipInput.getAttribute('aria-describedby') ?? '')
@@ -169,7 +189,11 @@ class PasswordToggle {
   #buttons = [];
   #abortController = new AbortController();
 
-  /** @param {NodeListOf<HTMLInputElement>} fields */
+  /**
+   * Inject a show/hide eye button beside each password field and bind toggle/submit handlers.
+   *
+   * @param {NodeListOf<HTMLInputElement>} fields - All password inputs in the current form
+   */
   constructor(fields) {
     this.#fields = fields;
     const { signal } = this.#abortController;
@@ -202,7 +226,11 @@ class PasswordToggle {
     }
   }
 
-  /** @returns {PasswordToggle|null} */
+  /**
+   * Initialize the singleton PasswordToggle when at least one password input is present.
+   *
+   * @returns {PasswordToggle|null}
+   */
   static init() {
     if (PasswordToggle.#instance) return PasswordToggle.#instance;
     const fields = document.querySelectorAll('input[type="password"]');
@@ -210,6 +238,9 @@ class PasswordToggle {
     return (PasswordToggle.#instance = new PasswordToggle(fields));
   }
 
+  /**
+   * Detach listeners, remove the injected eye buttons, and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     for (const { btn } of this.#buttons) btn.remove();

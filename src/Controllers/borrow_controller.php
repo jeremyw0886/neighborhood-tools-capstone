@@ -576,7 +576,7 @@ class BorrowController extends BaseController
             $this->redirect('/dashboard/loan/' . $id);
         }
 
-        $_SESSION['borrow_success'] = 'Reminder sent to ' . htmlspecialchars($borrow['borrower_name']) . '.';
+        $_SESSION['borrow_success'] = 'Reminder sent to ' . $borrow['borrower_name'] . '.';
         $_SESSION['borrow_decision'] = [
             'message'   => 'Reminder sent!',
             'detail'    => $borrow['borrower_name'] . ' has been notified about ' . $borrow['tool_name_tol'],

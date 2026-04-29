@@ -563,37 +563,37 @@ class DashboardController extends BaseController
             'returned'                         => $isLender ? 'Returned by' : 'Returned to',
         };
 
-        $loanStatusSubtitle = '<p>'
-            . $relationLabel
-            . ' <a href="/profile/' . $counterpartyId . '">' . htmlspecialchars($counterpartyName) . '</a>'
-            . ' <span data-status="' . htmlspecialchars($statusSlug) . '">' . htmlspecialchars($statusLabel) . '</span>'
-            . '</p>';
-
         $this->renderDashboard('loan-status', [
-            'title'               => 'Loan Status — NeighborhoodTools',
-            'description'         => 'Track the status of your borrow.',
-            'pageCss'             => ['dashboard.css'],
-            'pageJs'              => ['dashboard.js'],
-            'borrow'              => $borrow,
-            'extensions'          => $extensions,
-            'handovers'           => $handovers,
-            'deposit'             => $deposit,
-            'waiverSigned'        => $waiverSigned,
-            'userRatings'         => $userRatings,
-            'toolRating'          => $toolRating,
-            'hasRatedUser'        => $hasRatedUser,
-            'hasRatedTool'        => $hasRatedTool,
-            'disputes'            => $disputes,
-            'incidents'           => $incidents,
-            'handoverSuccess'     => $this->flash('handover_success'),
-            'borrowSuccess'       => $this->flash('borrow_success'),
-            'waiverSuccess'       => $this->flash('waiver_success'),
-            'depositSuccess'      => $this->flash('deposit_success'),
-            'ratingSuccess'       => $this->flash('rating_success'),
-            'borrowErrors'        => $this->flash('borrow_errors', []),
-            'decisionData'        => $this->flash('borrow_decision'),
-            'loanStatusHeading'   => $borrow['tool_name_tol'],
-            'loanStatusSubtitle'  => $loanStatusSubtitle,
+            'title'             => 'Loan Status — NeighborhoodTools',
+            'description'       => 'Track the status of your borrow.',
+            'pageCss'           => ['dashboard.css'],
+            'pageJs'            => ['dashboard.js'],
+            'borrow'            => $borrow,
+            'extensions'        => $extensions,
+            'handovers'         => $handovers,
+            'deposit'           => $deposit,
+            'waiverSigned'      => $waiverSigned,
+            'userRatings'       => $userRatings,
+            'toolRating'        => $toolRating,
+            'hasRatedUser'      => $hasRatedUser,
+            'hasRatedTool'      => $hasRatedTool,
+            'disputes'          => $disputes,
+            'incidents'         => $incidents,
+            'handoverSuccess'   => $this->flash('handover_success'),
+            'borrowSuccess'     => $this->flash('borrow_success'),
+            'waiverSuccess'     => $this->flash('waiver_success'),
+            'depositSuccess'    => $this->flash('deposit_success'),
+            'ratingSuccess'     => $this->flash('rating_success'),
+            'borrowErrors'      => $this->flash('borrow_errors', []),
+            'decisionData'      => $this->flash('borrow_decision'),
+            'loanStatusHeading' => $borrow['tool_name_tol'],
+            'loanSubtitle'      => [
+                'relationLabel'    => $relationLabel,
+                'counterpartyId'   => $counterpartyId,
+                'counterpartyName' => $counterpartyName,
+                'statusLabel'      => $statusLabel,
+                'statusSlug'       => $statusSlug,
+            ],
         ]);
     }
 

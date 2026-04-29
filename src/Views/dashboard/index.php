@@ -6,7 +6,11 @@
  * @var string  $dashboardPartial   Absolute path to the content partial
  * @var string  $backUrl            URL for the back link
  * @var ?string $loanStatusHeading  Tool name heading for loan-status view
- * @var ?string $loanStatusSubtitle Pre-built HTML subtitle for loan-status view
+ * @var ?array{relationLabel: string, counterpartyId: int, counterpartyName: string, statusLabel: string, statusSlug: string} $loanSubtitle Subtitle fields for loan-status view
+ *
+ * Shared data:
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
  */
 
 $isOverview = ($dashboardSection === 'overview');
@@ -100,8 +104,8 @@ $sectionSubtitle = match($dashboardSection) {
       <i class="fa-solid <?= $sectionIcon ?>" aria-hidden="true"></i>
       <?= $sectionLabel ?>
     </h1>
-    <?php if ($isLoanStatus && isset($loanStatusSubtitle)): ?>
-      <?= $loanStatusSubtitle ?>
+    <?php if ($isLoanStatus && isset($loanSubtitle)): ?>
+      <?php require BASE_PATH . '/src/Views/partials/loan-subtitle.php'; ?>
     <?php elseif ($sectionSubtitle !== null): ?>
       <p><?= $sectionSubtitle ?></p>
     <?php endif; ?>

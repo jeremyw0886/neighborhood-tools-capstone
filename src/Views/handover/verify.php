@@ -10,12 +10,15 @@
  * @var bool  $awaitingBorrower (optional) True when lender visits before borrower generates return code
  * @var bool  $waiverPending    (optional) True when lender visits but borrower hasn't signed waiver
  * @var bool  $depositPending   (optional) True when lender visits but borrower hasn't paid deposit
+ * @var bool  $canGenerate      (optional) True when prerequisites are met and the user can mint a new code
+ * @var string $handoverType    (optional) 'pickup' or 'return' — paired with $canGenerate
  * @var array $borrow           (optional) Row from Borrow::findById() — present with awaiting/deposit/waiver flags
  *
  * Shared data:
  *
  * @var array{id, name, first_name, role, avatar} $authUser
  * @var string                                    $csrfToken
+ * @var string                                    $backUrl
  */
 
 if (!empty($waiverPending)):
@@ -207,6 +210,77 @@ if (!empty($awaitingBorrower)):
     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
     <?= $borrowerName ?> hasn't generated the return code yet. Once they do, you'll receive a notification.
   </p>
+
+  <nav aria-label="Back">
+    <a href="<?= htmlspecialchars($backUrl) ?>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Back
+    </a>
+  </nav>
+
+</section>
+
+<?php return; endif; ?>
+
+<?php
+if (!empty($canGenerate)):
+  $borrowId       = (int) $borrow['id_bor'];
+  $toolName       = htmlspecialchars($borrow['tool_name_tol']);
+  $isPickup       = ($handoverType ?? '') === 'pickup';
+  $typeLabel      = $isPickup ? 'Pickup' : 'Return';
+  $typeIcon       = $isPickup ? 'fa-hand-holding' : 'fa-rotate-left';
+  $counterpartyId = $isPickup ? (int) $borrow['borrower_id'] : (int) $borrow['lender_id'];
+  $counterparty   = $isPickup
+      ? htmlspecialchars($borrow['borrower_name'])
+      : htmlspecialchars($borrow['lender_name']);
+  $statusLabel    = $isPickup ? 'Approved' : 'Borrowed';
+  $statusSlug     = $isPickup ? 'approved' : 'borrowed';
+  $generateError  = $handoverErrors['general'] ?? '';
+?>
+
+<section id="handover-verify" aria-labelledby="handover-heading">
+
+  <header>
+    <h1 id="handover-heading">
+      <i class="fa-solid <?= $typeIcon ?>" aria-hidden="true"></i>
+      <?= $typeLabel ?> Verification
+    </h1>
+    <p>Generate a <?= strtolower($typeLabel) ?> code for <strong><?= $toolName ?></strong>.</p>
+  </header>
+
+  <?php if ($generateError !== ''): ?>
+    <p role="alert" data-flash="error"><?= htmlspecialchars($generateError) ?></p>
+  <?php endif; ?>
+
+  <dl aria-label="Borrow details">
+    <div>
+      <dt>Tool</dt>
+      <dd><?= $toolName ?></dd>
+    </div>
+    <div>
+      <dt><?= $isPickup ? 'Borrower' : 'Lender' ?></dt>
+      <dd>
+        <a href="/profile/<?= $counterpartyId ?>"><?= $counterparty ?></a>
+      </dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd><span data-status="<?= $statusSlug ?>"><?= $statusLabel ?></span></dd>
+    </div>
+  </dl>
+
+  <p data-flash="info">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    A 6-character code will be generated and shown only to you. Share it with <?= $counterparty ?> to confirm the <?= strtolower($typeLabel) ?>.
+  </p>
+
+  <form method="post" action="/handover/<?= $borrowId ?>/generate">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+    <button type="submit" data-intent="primary">
+      <i class="fa-solid fa-key" aria-hidden="true"></i>
+      Generate <?= $typeLabel ?> Code
+    </button>
+  </form>
 
   <nav aria-label="Back">
     <a href="<?= htmlspecialchars($backUrl) ?>">

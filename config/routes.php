@@ -134,8 +134,9 @@ return [
     'GET /events/{id}'             => [EventController::class, 'show'],
 
     // Handover
-    'GET /handover/{borrowId}'     => [HandoverController::class, 'verify'],
-    'POST /handover/{borrowId}'    => [HandoverController::class, 'confirm'],
+    'GET /handover/{borrowId}'              => [HandoverController::class, 'verify'],
+    'POST /handover/{borrowId}/generate'    => [HandoverController::class, 'generate'],
+    'POST /handover/{borrowId}'             => [HandoverController::class, 'confirm'],
 
     // Incidents
     'GET /incidents/create/{borrowId}' => [IncidentController::class, 'create'],

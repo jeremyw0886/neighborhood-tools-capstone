@@ -16,10 +16,10 @@ class HandoverController extends BaseController
     /**
      * Display the handover verification page for a borrow.
      *
-     * Dispatches to the appropriate flow based on borrow status:
-     * approved → pickup (lender initiates), borrowed → return
-     * (borrower initiates). If a pending handover already exists,
-     * renders the code or code-entry form directly.
+     * Pure-read: renders the existing handover code, the verifier
+     * code-entry form, an "awaiting other party" message, or a
+     * "Generate code" button — but never creates a handover row.
+     * Code creation is POST /handover/{id}/generate.
      */
     public function verify(string $borrowId): void
     {
@@ -50,30 +50,8 @@ class HandoverController extends BaseController
         }
 
         if ($handover === null) {
-            try {
-                $borrow = Borrow::findById($id);
-            } catch (\Throwable $e) {
-                error_log('HandoverController::verify borrow lookup — ' . $e->getMessage());
-                $borrow = null;
-            }
-
-            if ($borrow === null) {
-                $this->abort(404);
-            }
-
-            $isBorrower = (int) $borrow['borrower_id'] === $userId;
-            $isLender   = (int) $borrow['lender_id'] === $userId;
-
-            if (!$isBorrower && !$isLender) {
-                $this->abort(403);
-            }
-
-            $handover = match ($borrow['borrow_status']) {
-                'approved' => $this->initiatePickup($borrow, $userId),
-                'borrowed' => $this->initiateReturn($borrow, $userId),
-                'returned', 'denied', 'cancelled' => $this->redirect('/dashboard/loan/' . $id),
-                default    => $this->abort(404),
-            };
+            $this->renderPreHandover($id, $userId);
+            return;
         }
 
         $isBorrower = (int) $handover['borrower_id'] === $userId;
@@ -107,21 +85,158 @@ class HandoverController extends BaseController
     }
 
     /**
-     * Handle pickup initiation when borrow is approved and no handover exists.
+     * Generate a pickup or return handover code for the current borrow.
      *
-     * Lender: checks deposit status, creates the handover, notifies the
-     * borrower to meet up, and returns the new handover row.
-     * Borrower: renders the "awaiting lender" state and halts execution.
-     *
-     * @return array The pending_handover_v row (lender path only)
+     * POST /handover/{id}/generate. Re-validates party membership,
+     * waiver and deposit prerequisites, and the borrow's status before
+     * calling Handover::create. Notifies the counterparty and redirects
+     * back to GET /handover/{id} so the freshly-created code displays.
      */
-    private function initiatePickup(array $borrow, int $userId): array
+    public function generate(string $borrowId): void
     {
-        $borrowId = (int) $borrow['id_bor'];
+        $this->requireAuth();
+        $this->validateCsrf();
 
+        $id = (int) $borrowId;
+
+        if ($id < 1) {
+            $this->abort(404);
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        try {
+            $borrow = Borrow::findById($id);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::generate borrow lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        $type = match ($borrow['borrow_status']) {
+            'approved' => 'pickup',
+            'borrowed' => 'return',
+            default    => null,
+        };
+
+        if ($type === null) {
+            $this->redirect('/dashboard/loan/' . $id);
+        }
+
+        $generatorId = $type === 'pickup'
+            ? (int) $borrow['lender_id']
+            : (int) $borrow['borrower_id'];
+
+        if ($generatorId !== $userId) {
+            $this->abort(403);
+        }
+
+        try {
+            $existing = Handover::findPendingByBorrowId($id);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::generate race-check — ' . $e->getMessage());
+            $existing = null;
+        }
+
+        if ($existing !== null && $existing['code_status'] !== 'EXPIRED') {
+            $this->redirect('/handover/' . $id);
+        }
+
+        if ($type === 'pickup') {
+            if (!Waiver::hasSignedWaiver($id)) {
+                $_SESSION['handover_errors'] = ['general' => 'The borrower must sign the waiver before a pickup code can be generated.'];
+                $this->redirect('/handover/' . $id);
+            }
+
+            $deposit = Deposit::findByBorrowId($id);
+
+            if ($deposit !== null && $deposit['deposit_status'] === 'pending') {
+                $_SESSION['handover_errors'] = ['general' => 'The borrower must pay the security deposit before a pickup code can be generated.'];
+                $this->redirect('/handover/' . $id);
+            }
+        }
+
+        try {
+            Handover::create(
+                borrowId: $id,
+                generatorId: $generatorId,
+                type: $type,
+            );
+        } catch (\Throwable $e) {
+            error_log('HandoverController::generate handover creation — ' . $e->getMessage());
+            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
+            $this->redirect('/handover/' . $id);
+        }
+
+        $generatorName = $_SESSION['user_first_name']
+            ?? ($type === 'pickup' ? 'The lender' : 'The borrower');
+        $recipientId   = $type === 'pickup'
+            ? (int) $borrow['borrower_id']
+            : (int) $borrow['lender_id'];
+
+        try {
+            Notification::send(
+                accountId: $recipientId,
+                type: $type === 'pickup' ? 'approval' : 'return',
+                title: $type === 'pickup' ? 'Pickup Code Generated' : 'Return Code Generated',
+                body: $generatorName . ' has generated a ' . $type . ' code for '
+                    . $borrow['tool_name_tol']
+                    . '. Meet up with them to receive the code and confirm the ' . $type . '.',
+                relatedBorrowId: $id,
+            );
+        } catch (\Throwable $e) {
+            error_log('HandoverController::generate notification — ' . $e->getMessage());
+        }
+
+        $this->redirect('/handover/' . $id);
+    }
+
+    /**
+     * Render the pre-handover view (awaiting / generate-button) when
+     * no pending handover exists. Pure-read; never mutates state.
+     */
+    private function renderPreHandover(int $borrowId, int $userId): void
+    {
+        try {
+            $borrow = Borrow::findById($borrowId);
+        } catch (\Throwable $e) {
+            error_log('HandoverController::renderPreHandover borrow lookup — ' . $e->getMessage());
+            $borrow = null;
+        }
+
+        if ($borrow === null) {
+            $this->abort(404);
+        }
+
+        $isBorrower = (int) $borrow['borrower_id'] === $userId;
+        $isLender   = (int) $borrow['lender_id'] === $userId;
+
+        if (!$isBorrower && !$isLender) {
+            $this->abort(403);
+        }
+
+        match ($borrow['borrow_status']) {
+            'approved' => $this->renderPickupPre($borrow, $isLender),
+            'borrowed' => $this->renderReturnPre($borrow, $isBorrower),
+            'returned', 'denied', 'cancelled' => $this->redirect('/dashboard/loan/' . $borrowId),
+            default    => $this->abort(404),
+        };
+    }
+
+    /**
+     * Render the pickup pre-handover state (awaiting waiver / deposit /
+     * lender, or a generate-code form for the lender once prerequisites
+     * are met). Borrower without a signed waiver is redirected to /waiver.
+     */
+    private function renderPickupPre(array $borrow, bool $isLender): void
+    {
+        $borrowId     = (int) $borrow['id_bor'];
         $waiverSigned = Waiver::hasSignedWaiver($borrowId);
 
-        if ((int) $borrow['lender_id'] !== $userId) {
+        if (!$isLender) {
             if (!$waiverSigned) {
                 $this->redirect('/waiver/' . $borrowId);
             }
@@ -133,18 +248,18 @@ class HandoverController extends BaseController
                 'awaitingLender' => true,
                 'borrow'         => $borrow,
             ]);
-            exit;
+            return;
         }
 
         if (!$waiverSigned) {
             $this->render('handover/verify', [
-                'title'           => 'Awaiting Waiver — NeighborhoodTools',
-                'description'     => 'Waiting for the borrower to sign the borrow waiver.',
-                'pageCss'         => ['features.css'],
-                'waiverPending'   => true,
-                'borrow'          => $borrow,
+                'title'         => 'Awaiting Waiver — NeighborhoodTools',
+                'description'   => 'Waiting for the borrower to sign the borrow waiver.',
+                'pageCss'       => ['features.css'],
+                'waiverPending' => true,
+                'borrow'        => $borrow,
             ]);
-            exit;
+            return;
         }
 
         $deposit = Deposit::findByBorrowId($borrowId);
@@ -157,77 +272,27 @@ class HandoverController extends BaseController
                 'depositPending' => true,
                 'borrow'         => $borrow,
             ]);
-            exit;
+            return;
         }
 
-        try {
-            $handover = Handover::findPendingByBorrowId($borrowId);
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiatePickup race-check — ' . $e->getMessage());
-            $handover = null;
-        }
-
-        if ($handover !== null) {
-            return $handover;
-        }
-
-        try {
-            $handoverId = Handover::create(
-                borrowId: $borrowId,
-                generatorId: (int) $borrow['lender_id'],
-                type: 'pickup',
-            );
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiatePickup handover creation — ' . $e->getMessage());
-            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/lender');
-        }
-
-        $lenderName = $_SESSION['user_first_name'] ?? 'The lender';
-
-        try {
-            Notification::send(
-                accountId: (int) $borrow['borrower_id'],
-                type: 'approval',
-                title: 'Pickup Code Generated',
-                body: $lenderName . ' has generated a pickup code for '
-                    . $borrow['tool_name_tol']
-                    . '. Meet up with them to receive the code and confirm the handover.',
-                relatedBorrowId: $borrowId,
-            );
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiatePickup borrower notification — ' . $e->getMessage());
-        }
-
-        try {
-            $handover = Handover::findPendingByBorrowId($borrowId);
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiatePickup re-fetch — ' . $e->getMessage());
-            $handover = null;
-        }
-
-        if ($handover === null) {
-            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/lender');
-        }
-
-        return $handover;
+        $this->render('handover/verify', [
+            'title'          => 'Generate Pickup Code — NeighborhoodTools',
+            'description'    => 'Generate a pickup verification code to share with the borrower.',
+            'pageCss'        => ['features.css'],
+            'canGenerate'    => true,
+            'handoverType'   => 'pickup',
+            'borrow'         => $borrow,
+            'handoverErrors' => $this->flash('handover_errors', []),
+        ]);
     }
 
     /**
-     * Handle return initiation when borrow is borrowed and no handover exists.
-     *
-     * Borrower: creates the handover, notifies the lender to meet up,
-     * and returns the new handover row.
-     * Lender: renders the "awaiting borrower" state and halts execution.
-     *
-     * @return array The pending_handover_v row (borrower path only)
+     * Render the return pre-handover state (awaiting borrower, or a
+     * generate-code form for the borrower).
      */
-    private function initiateReturn(array $borrow, int $userId): array
+    private function renderReturnPre(array $borrow, bool $isBorrower): void
     {
-        $borrowId = (int) $borrow['id_bor'];
-
-        if ((int) $borrow['borrower_id'] !== $userId) {
+        if (!$isBorrower) {
             $this->render('handover/verify', [
                 'title'            => 'Awaiting Return — NeighborhoodTools',
                 'description'      => 'Waiting for the borrower to generate the return code.',
@@ -235,61 +300,18 @@ class HandoverController extends BaseController
                 'awaitingBorrower' => true,
                 'borrow'           => $borrow,
             ]);
-            exit;
+            return;
         }
 
-        try {
-            $handover = Handover::findPendingByBorrowId($borrowId);
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiateReturn race-check — ' . $e->getMessage());
-            $handover = null;
-        }
-
-        if ($handover !== null) {
-            return $handover;
-        }
-
-        try {
-            $handoverId = Handover::create(
-                borrowId: $borrowId,
-                generatorId: (int) $borrow['borrower_id'],
-                type: 'return',
-            );
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiateReturn handover creation — ' . $e->getMessage());
-            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/borrower');
-        }
-
-        $borrowerName = $_SESSION['user_first_name'] ?? 'The borrower';
-
-        try {
-            Notification::send(
-                accountId: (int) $borrow['lender_id'],
-                type: 'return',
-                title: 'Return Code Generated',
-                body: $borrowerName . ' has generated a return code for '
-                    . $borrow['tool_name_tol']
-                    . '. Meet up with them to receive the code and confirm the return.',
-                relatedBorrowId: $borrowId,
-            );
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiateReturn lender notification — ' . $e->getMessage());
-        }
-
-        try {
-            $handover = Handover::findPendingByBorrowId($borrowId);
-        } catch (\Throwable $e) {
-            error_log('HandoverController::initiateReturn re-fetch — ' . $e->getMessage());
-            $handover = null;
-        }
-
-        if ($handover === null) {
-            $_SESSION['handover_errors'] = ['general' => 'Something went wrong. Please try again.'];
-            $this->redirect('/dashboard/borrower');
-        }
-
-        return $handover;
+        $this->render('handover/verify', [
+            'title'          => 'Generate Return Code — NeighborhoodTools',
+            'description'    => 'Generate a return verification code to share with the lender.',
+            'pageCss'        => ['features.css'],
+            'canGenerate'    => true,
+            'handoverType'   => 'return',
+            'borrow'         => $borrow,
+            'handoverErrors' => $this->flash('handover_errors', []),
+        ]);
     }
 
     /**

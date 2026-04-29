@@ -2,6 +2,9 @@
 
 class UsernameValidator {
   static #instance = null;
+  static #DEBOUNCE_MS = 350;
+  static #MIN_LEN = 3;
+  static #MAX_LEN = 30;
 
   /** @type {HTMLInputElement} */
   #input;
@@ -14,8 +17,10 @@ class UsernameValidator {
   #lastValid = '';
 
   /**
-   * @param {HTMLInputElement} input
-   * @param {HTMLElement} status
+   * Bind input/blur/invalid listeners and run an initial evaluation if the field is pre-filled.
+   *
+   * @param {HTMLInputElement} input - The username input field
+   * @param {HTMLElement} status - The status region for validation messages
    */
   constructor(input, status) {
     this.#input = input;
@@ -29,7 +34,11 @@ class UsernameValidator {
     if (input.value) this.#evaluate();
   }
 
-  /** @returns {UsernameValidator|null} */
+  /**
+   * Initialize the singleton UsernameValidator when the username field and status region are present.
+   *
+   * @returns {UsernameValidator|null}
+   */
   static init() {
     if (UsernameValidator.#instance) return UsernameValidator.#instance;
     const input = document.getElementById('username');
@@ -38,6 +47,9 @@ class UsernameValidator {
     return (UsernameValidator.#instance = new UsernameValidator(input, status));
   }
 
+  /**
+   * Detach listeners, abort any in-flight availability check, and reset the singleton.
+   */
   destroy() {
     this.#abort.abort();
     this.#checkController?.abort();
@@ -66,12 +78,16 @@ class UsernameValidator {
     this.#input.reportValidity();
   };
 
-  /** @returns {string} Empty string if valid, else specific error message. */
+  /**
+   * Validate the current username locally against length, charset, and edge-character rules.
+   *
+   * @returns {string} Empty string if valid, else a specific error message
+   */
   #checkLocal() {
     const v = this.#input.value;
     if (v === '') return 'Username is required.';
-    if (v.length < 3) return `Add ${3 - v.length} more character${3 - v.length === 1 ? '' : 's'}.`;
-    if (v.length > 30) return 'Username must be 30 characters or fewer.';
+    if (v.length < UsernameValidator.#MIN_LEN) return `Add ${UsernameValidator.#MIN_LEN - v.length} more character${UsernameValidator.#MIN_LEN - v.length === 1 ? '' : 's'}.`;
+    if (v.length > UsernameValidator.#MAX_LEN) return `Username must be ${UsernameValidator.#MAX_LEN} characters or fewer.`;
     if (!/^[a-z]/.test(v)) return 'Must start with a lowercase letter.';
     if (!/[a-z0-9]$/.test(v)) return 'Must end with a letter or number — no trailing . _ or -';
     if (!/^[a-z0-9._-]+$/.test(v)) return 'Only lowercase letters, numbers, periods, hyphens, or underscores.';
@@ -97,7 +113,7 @@ class UsernameValidator {
     if (value === this.#lastValid) return;
 
     this.#renderStatus('checking', 'Checking availability\u2026');
-    this.#debounceId = window.setTimeout(() => this.#fetchAvailability(value), 350);
+    this.#debounceId = window.setTimeout(() => this.#fetchAvailability(value), UsernameValidator.#DEBOUNCE_MS);
   }
 
   async #fetchAvailability(value) {
@@ -136,8 +152,10 @@ class UsernameValidator {
   }
 
   /**
-   * @param {'idle'|'checking'|'ok'|'error'} state
-   * @param {string} message
+   * Update the visible status region with the given state and message, hiding it when the message is empty.
+   *
+   * @param {'idle'|'checking'|'ok'|'error'} state - The validation state to reflect via data-state and ARIA role
+   * @param {string} message - The user-visible message; empty string clears and hides the region
    */
   #renderStatus(state, message) {
     if (!message) {

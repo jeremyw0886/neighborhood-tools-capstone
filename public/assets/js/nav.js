@@ -22,8 +22,10 @@ class HamburgerMenu {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLButtonElement} toggle
-   * @param {HTMLUListElement} menu
+   * Cache nav references, build mobile auth items, and bind listeners.
+   *
+   * @param {HTMLButtonElement} toggle - Hamburger toggle button
+   * @param {HTMLUListElement} menu - Top-level nav links list
    */
   constructor(toggle, menu) {
     this.#nav = toggle.closest('nav');
@@ -41,7 +43,11 @@ class HamburgerMenu {
     this.#bind();
   }
 
-  /** @returns {HamburgerMenu|null} */
+  /**
+   * Initialize the singleton HamburgerMenu when the toggle and top-links elements are present.
+   *
+   * @returns {HamburgerMenu|null}
+   */
   static init() {
     if (HamburgerMenu.#instance) return HamburgerMenu.#instance;
     const toggle = document.getElementById('mobile-menu-toggle');
@@ -50,6 +56,9 @@ class HamburgerMenu {
     return (HamburgerMenu.#instance = new HamburgerMenu(toggle, menu));
   }
 
+  /**
+   * Detach listeners, release the focus trap, and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     if (this.#releaseTrap) {
@@ -289,8 +298,10 @@ class UserDropdown {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLButtonElement} toggle
-   * @param {HTMLElement} menu
+   * Cache the toggle and menu references and bind listeners.
+   *
+   * @param {HTMLButtonElement} toggle - Avatar button that opens the menu
+   * @param {HTMLElement} menu - Hidden user-actions dropdown menu
    */
   constructor(toggle, menu) {
     this.#toggle = toggle;
@@ -299,7 +310,11 @@ class UserDropdown {
     this.#bind();
   }
 
-  /** @returns {UserDropdown|null} */
+  /**
+   * Initialize the singleton UserDropdown when the toggle and menu elements are both present.
+   *
+   * @returns {UserDropdown|null}
+   */
   static init() {
     if (UserDropdown.#instance) return UserDropdown.#instance;
     const toggle = document.getElementById('user-actions-toggle');
@@ -308,6 +323,9 @@ class UserDropdown {
     return (UserDropdown.#instance = new UserDropdown(toggle, menu));
   }
 
+  /**
+   * Detach listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     UserDropdown.#instance = null;
@@ -356,7 +374,6 @@ class UserDropdown {
     this.#isOpen() ? this.#close() : this.#open();
   };
 
-  /** @param {KeyboardEvent} e */
   #handleToggleKeydown = (e) => {
     if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return;
     e.preventDefault();
@@ -370,7 +387,6 @@ class UserDropdown {
     }
   };
 
-  /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     const items = this.#getItems();
     if (items.length === 0) return;
@@ -432,12 +448,19 @@ class ModalSystem {
     this.#bind();
   }
 
-  /** @returns {ModalSystem|null} */
+  /**
+   * Initialize the singleton ModalSystem.
+   *
+   * @returns {ModalSystem|null}
+   */
   static init() {
     if (ModalSystem.#instance) return ModalSystem.#instance;
     return (ModalSystem.#instance = new ModalSystem());
   }
 
+  /**
+   * Detach listeners, drop the scroll-lock rule, clear body classes, and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     if (window.NT) NT.style.removeRule('modal-scroll-lock');
@@ -540,13 +563,20 @@ class BadgePoller {
     this.#timerId = setTimeout(this.#poll, BadgePoller.#BASE_INTERVAL);
   }
 
-  /** @returns {BadgePoller|null} */
+  /**
+   * Initialize the singleton BadgePoller when the notification bell and NT namespace are present.
+   *
+   * @returns {BadgePoller|null}
+   */
   static init() {
     if (BadgePoller.#instance) return BadgePoller.#instance;
     if (!document.querySelector('#bell-wrapper > a[href="/notifications"]') || !window.NT) return null;
     return (BadgePoller.#instance = new BadgePoller());
   }
 
+  /**
+   * Stop the unread-count poll timer, detach listeners, and reset the singleton.
+   */
   destroy() {
     clearTimeout(this.#timerId);
     this.#abortController.abort();
@@ -625,9 +655,11 @@ class BellDropdown {
   #fetchController = null;
 
   /**
-   * @param {HTMLElement} wrapper
-   * @param {HTMLAnchorElement} bellLink
-   * @param {HTMLElement} dropdown
+   * Cache references, observe the badge for changes, and bind listeners.
+   *
+   * @param {HTMLElement} wrapper - Bell wrapper element
+   * @param {HTMLAnchorElement} bellLink - Bell anchor that toggles the dropdown
+   * @param {HTMLElement} dropdown - The notifications preview dropdown
    */
   constructor(wrapper, bellLink, dropdown) {
     this.#wrapper = wrapper;
@@ -644,7 +676,11 @@ class BellDropdown {
     this.#bind();
   }
 
-  /** @returns {BellDropdown|null} */
+  /**
+   * Initialize the singleton BellDropdown when the bell wrapper, link, dropdown, and NT namespace are present.
+   *
+   * @returns {BellDropdown|null}
+   */
   static init() {
     if (BellDropdown.#instance) return BellDropdown.#instance;
     const wrapper = document.getElementById('bell-wrapper');
@@ -654,6 +690,9 @@ class BellDropdown {
     return (BellDropdown.#instance = new BellDropdown(wrapper, bellLink, dropdown));
   }
 
+  /**
+   * Disconnect the badge observer, abort any in-flight preview fetch, detach listeners, and reset the singleton.
+   */
   destroy() {
     this.#observer.disconnect();
     this.#fetchController?.abort();
@@ -803,7 +842,6 @@ class BellDropdown {
     this.#isOpen() ? this.#close() : this.#open();
   };
 
-  /** @param {KeyboardEvent} e */
   #handleBellKeydown = (e) => {
     if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return;
     e.preventDefault();
@@ -827,7 +865,6 @@ class BellDropdown {
     if (this.#isOpen()) this.#close(false);
   };
 
-  /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     const items = [...this.#dropdown.querySelectorAll('a')];
     if (items.length === 0) return;
@@ -893,12 +930,19 @@ class ShortcutOverlay {
     });
   }
 
-  /** @returns {ShortcutOverlay|null} */
+  /**
+   * Initialize the singleton ShortcutOverlay.
+   *
+   * @returns {ShortcutOverlay|null}
+   */
   static init() {
     if (ShortcutOverlay.#instance) return ShortcutOverlay.#instance;
     return (ShortcutOverlay.#instance = new ShortcutOverlay());
   }
 
+  /**
+   * Cancel the pending-g chord timer, detach listeners, remove the help dialog, and reset the singleton.
+   */
   destroy() {
     clearTimeout(this.#gTimer);
     this.#abortController.abort();
@@ -953,7 +997,11 @@ class ShortcutOverlay {
     document.body.appendChild(this.#dialog);
   }
 
-  /** @param {KeyboardEvent} e */
+  /**
+   * Handle the `g`-chord, `?`, and `/` global shortcuts.
+   *
+   * @param {KeyboardEvent} e - Keydown event from the document
+   */
   #handleKeydown = (e) => {
     if (this.#isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
 
@@ -1007,12 +1055,19 @@ class NavResizeGuard {
     window.addEventListener('resize', this.#handleResize, { passive: true, signal });
   }
 
-  /** @returns {NavResizeGuard|null} */
+  /**
+   * Initialize the singleton NavResizeGuard.
+   *
+   * @returns {NavResizeGuard|null}
+   */
   static init() {
     if (NavResizeGuard.#instance) return NavResizeGuard.#instance;
     return (NavResizeGuard.#instance = new NavResizeGuard());
   }
 
+  /**
+   * Detach the resize listener, clear the trailing timer, drop the body flag, and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     clearTimeout(this.#timer);

@@ -222,16 +222,16 @@ $errorFieldMap = [
             <picture>
               <?php if (!$editIsWebp && $avatarSrcsets['avifSrcset'] !== ''): ?>
                 <source type="image/avif"
-                        srcset="<?= $avatarSrcsets['avifSrcset'] ?>"
+                        srcset="<?= htmlspecialchars($avatarSrcsets['avifSrcset']) ?>"
                         sizes="120px">
               <?php endif; ?>
               <?php if (!$editIsWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
                 <source type="image/webp"
-                        srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
+                        srcset="<?= htmlspecialchars($avatarSrcsets['webpSrcset']) ?>"
                         sizes="120px">
               <?php endif; ?>
               <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion($photoSrc)) ?>"
-                srcset="<?= $avatarSrcsets['srcset'] ?>"
+                srcset="<?= htmlspecialchars($avatarSrcsets['srcset']) ?>"
                 sizes="120px"
                 alt="<?= htmlspecialchars($photoAlt) ?>"
                 width="120" height="120"

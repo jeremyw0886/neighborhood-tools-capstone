@@ -1,3 +1,25 @@
+<?php
+/**
+ * Tool card — single grid/list cell for a tool listing.
+ *
+ * Required:
+ *
+ * @var array $tool Row from available_tool_v / tool_detail_v (id, name, image, owner, rating)
+ *
+ * Optional render data:
+ *
+ * @var ?int[]   $bookmarkedIds     Tool IDs the current user has bookmarked
+ * @var ?string  $cardHeadingLevel  Heading tag (default 'h2')
+ * @var ?string  $cardSizes         Custom <img> sizes attribute
+ * @var ?bool    $eagerLoad         True for above-the-fold cards
+ *
+ * Shared data:
+ *
+ * @var bool                                       $isLoggedIn
+ * @var ?array{id, name, first_name, role, avatar} $authUser
+ * @var string                                     $csrfToken
+ */
+?>
 <?php $isBookmarked = isset($bookmarkedIds) && in_array((int) $tool['id_tol'], $bookmarkedIds, true); ?>
 <?php $isEager = !empty($eagerLoad);
 $eagerLoad = false; ?>
@@ -28,16 +50,16 @@ $eagerLoad = false; ?>
         <picture>
           <?php if (!$isWebp && $srcsets['avifSrcset'] !== ''): ?>
             <source type="image/avif"
-              srcset="<?= $srcsets['avifSrcset'] ?>"
+              srcset="<?= htmlspecialchars($srcsets['avifSrcset']) ?>"
               sizes="<?= $sizes ?>">
           <?php endif; ?>
           <?php if (!$isWebp && $srcsets['webpSrcset'] !== ''): ?>
             <source type="image/webp"
-              srcset="<?= $srcsets['webpSrcset'] ?>"
+              srcset="<?= htmlspecialchars($srcsets['webpSrcset']) ?>"
               sizes="<?= $sizes ?>">
           <?php endif; ?>
           <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion('/uploads/tools/' . $fallbackFile)) ?>"
-            srcset="<?= $srcsets['srcset'] ?>"
+            srcset="<?= htmlspecialchars($srcsets['srcset']) ?>"
             sizes="<?= $sizes ?>"
             alt="<?= htmlspecialchars($tool['tool_name_tol']) ?>"
             width="<?= $smallestWidth ?>" height="<?= (int) round($smallestWidth / 1.5) ?>"
@@ -115,13 +137,13 @@ $eagerLoad = false; ?>
         ?>
           <picture>
             <?php if (!$avatarIsWebp && $avatarSrcsets['avifSrcset'] !== ''): ?>
-              <source type="image/avif" srcset="<?= $avatarSrcsets['avifSrcset'] ?>" sizes="28px">
+              <source type="image/avif" srcset="<?= htmlspecialchars($avatarSrcsets['avifSrcset']) ?>" sizes="28px">
             <?php endif; ?>
             <?php if (!$avatarIsWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
-              <source type="image/webp" srcset="<?= $avatarSrcsets['webpSrcset'] ?>" sizes="28px">
+              <source type="image/webp" srcset="<?= htmlspecialchars($avatarSrcsets['webpSrcset']) ?>" sizes="28px">
             <?php endif; ?>
             <img src="<?= htmlspecialchars(\App\Core\ViewHelper::avatarUrl(null, $ownerPhoto)) ?>"
-              srcset="<?= $avatarSrcsets['srcset'] ?>"
+              srcset="<?= htmlspecialchars($avatarSrcsets['srcset']) ?>"
               sizes="28px"
               alt="<?= htmlspecialchars($ownerName) ?>"
               width="28" height="28"

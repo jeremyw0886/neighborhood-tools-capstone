@@ -14,9 +14,10 @@
  *
  * Shared data:
  *
- * @var bool   $isLoggedIn
- * @var ?array $authUser
- * @var string $csrfToken
+ * @var bool                                       $isLoggedIn
+ * @var ?array{id, name, first_name, role, avatar} $authUser
+ * @var string                                     $csrfToken
+ * @var string                                     $backUrl
  */
 
 $hasPhoto = !empty($profile['primary_image']) && empty($profile['vector_avatar']);
@@ -69,16 +70,16 @@ $rangeEnd   = min($page * $perPage, $totalTools);
         <picture>
           <?php if (!$isWebp && $avatarSrcsets['avifSrcset'] !== ''): ?>
             <source type="image/avif"
-                    srcset="<?= $avatarSrcsets['avifSrcset'] ?>"
+                    srcset="<?= htmlspecialchars($avatarSrcsets['avifSrcset']) ?>"
                     sizes="72px">
           <?php endif; ?>
           <?php if (!$isWebp && $avatarSrcsets['webpSrcset'] !== ''): ?>
             <source type="image/webp"
-                    srcset="<?= $avatarSrcsets['webpSrcset'] ?>"
+                    srcset="<?= htmlspecialchars($avatarSrcsets['webpSrcset']) ?>"
                     sizes="72px">
           <?php endif; ?>
           <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion($avatarSrc)) ?>"
-               srcset="<?= $avatarSrcsets['srcset'] ?>"
+               srcset="<?= htmlspecialchars($avatarSrcsets['srcset']) ?>"
                sizes="72px"
                alt="<?= htmlspecialchars($avatarAlt) ?>"
                width="80" height="80"

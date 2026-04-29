@@ -1,4 +1,27 @@
 <?php
+/**
+ * Tool detail page — gallery, owner card, ratings, and borrow form.
+ *
+ * Variables from ToolController::show():
+ *
+ * @var array            $tool            Row from tool_detail_v
+ * @var ?array            $images          Tool image rows (primary + extras)
+ * @var ?bool             $isBookmarked    Current user's bookmark state
+ * @var ?bool             $isOwner         Current user owns this tool
+ * @var ?bool             $canBorrow       Borrow request is permitted
+ * @var ?int              $defaultDuration Default loan-duration value (hours)
+ * @var ?array<string,string> $borrowErrors Field-keyed validation errors
+ * @var ?array<string,string> $borrowOld    Sticky form values
+ * @var ?string           $bookmarkFlash   One-shot bookmark status message
+ *
+ * Shared data:
+ *
+ * @var bool                                       $isLoggedIn
+ * @var ?array{id, name, first_name, role, avatar} $authUser
+ * @var string                                     $csrfToken
+ * @var string                                     $backUrl
+ */
+
 $isBookmarked  ??= false;
 $isOwner       ??= false;
 $borrowErrors  ??= [];
@@ -37,6 +60,35 @@ $images        ??= [];
             $primaryImage = $images[0];
             $extraImages  = array_slice($images, 1);
         }
+
+        // Pre-compute primary image render data so both the figure and
+        // the thumbnail block can reference $main* without the analyzer
+        // losing track across the two `if ($primaryImage !== null)` checks.
+        $mainVariants = [];
+        $mainSrcsets  = ['srcset' => '', 'webpSrcset' => '', 'avifSrcset' => ''];
+        $mainIsWebp   = false;
+        $mainFallback = '';
+        $mainAlt      = '';
+        $mainFx       = 50;
+        $mainFy       = 50;
+        $mainSizes    = '(max-width: 700px) calc(100vw - 3rem), 410px';
+        $mainW        = 750;
+        $mainH        = 500;
+
+        if ($primaryImage !== null) {
+            $mainVariants = \App\Core\ImageProcessor::getAvailableVariants(
+                $primaryImage['file_name_tim'],
+                $primaryImage['width_tim'] ?? null,
+            );
+            $mainSrcsets  = \App\Core\ImageProcessor::buildSrcset($mainVariants);
+            $mainIsWebp   = str_ends_with($primaryImage['file_name_tim'], '.webp');
+            $mainFallback = htmlspecialchars($primaryImage['file_name_tim']);
+            $mainAlt      = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
+            $mainFx       = (int) ($primaryImage['focal_x_tim'] ?? 50);
+            $mainFy       = (int) ($primaryImage['focal_y_tim'] ?? 50);
+            $mainW        = $primaryImage['width_tim'] ?? 750;
+            $mainH        = (int) round($mainW / 1.5);
+        }
       ?>
 
       <div id="tool-gallery" data-count="<?= count($images) ?>">
@@ -51,37 +103,23 @@ $images        ??= [];
           </form>
         <?php endif; ?>
         <figure id="gallery-main">
-          <?php if ($primaryImage !== null):
-            $mainVariants = \App\Core\ImageProcessor::getAvailableVariants(
-                $primaryImage['file_name_tim'],
-                $primaryImage['width_tim'] ?? null,
-            );
-            $mainSrcsets = \App\Core\ImageProcessor::buildSrcset($mainVariants);
-            $mainIsWebp  = str_ends_with($primaryImage['file_name_tim'], '.webp');
-            $mainFallback = htmlspecialchars($primaryImage['file_name_tim']);
-            $mainAlt   = htmlspecialchars($primaryImage['alt_text_tim'] ?? $tool['tool_name_tol']);
-            $mainFx    = (int) ($primaryImage['focal_x_tim'] ?? 50);
-            $mainFy    = (int) ($primaryImage['focal_y_tim'] ?? 50);
-            $mainSizes = '(max-width: 700px) calc(100vw - 3rem), 410px';
-            $mainW     = $primaryImage['width_tim'] ?? 750;
-            $mainH     = (int) round($mainW / 1.5);
-          ?>
+          <?php if ($primaryImage !== null): ?>
             <a href="/uploads/tools/<?= $mainFallback ?>" data-lightbox-trigger>
               <picture>
                 <?php if (!$mainIsWebp && $mainSrcsets['avifSrcset'] !== ''): ?>
                   <source type="image/avif"
-                          srcset="<?= $mainSrcsets['avifSrcset'] ?>"
+                          srcset="<?= htmlspecialchars($mainSrcsets['avifSrcset']) ?>"
                           sizes="<?= $mainSizes ?>"
                           id="gallery-main-source-avif">
                 <?php endif; ?>
                 <?php if (!$mainIsWebp && $mainSrcsets['webpSrcset'] !== ''): ?>
                   <source type="image/webp"
-                          srcset="<?= $mainSrcsets['webpSrcset'] ?>"
+                          srcset="<?= htmlspecialchars($mainSrcsets['webpSrcset']) ?>"
                           sizes="<?= $mainSizes ?>"
                           id="gallery-main-source">
                 <?php endif; ?>
                 <img src="<?= htmlspecialchars(\App\Core\ViewHelper::uploadVersion('/uploads/tools/' . $mainFallback)) ?>"
-                     srcset="<?= $mainSrcsets['srcset'] ?>"
+                     srcset="<?= htmlspecialchars($mainSrcsets['srcset']) ?>"
                      sizes="<?= $mainSizes ?>"
                      alt="<?= $mainAlt ?>"
                      width="<?= $mainW ?>" height="<?= $mainH ?>"

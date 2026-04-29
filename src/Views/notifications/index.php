@@ -4,17 +4,19 @@
  *
  * Variables from NotificationController::index():
  *
- * @var array $notifications Rows from Notification::getForUser()
- * @var int   $totalCount    Total notifications (for pagination)
- * @var int   $page          Current page (1-based)
- * @var int   $totalPages    Total pages
- * @var int   $perPage       Results per page (12)
+ * @var array   $notifications Rows from Notification::getForUser()
+ * @var int     $totalCount    Total notifications (for pagination)
+ * @var int     $page          Current page (1-based)
+ * @var int     $totalPages    Total pages
+ * @var int     $perPage       Results per page (12)
+ * @var ?string $filter        Active filter tab (`unread`/`request`/`decision`/`activity`) or null for "All"
  *
  * Shared data:
  *
  * @var array{id, name, first_name, role, avatar} $authUser
  * @var string                                    $csrfToken
  * @var int                                       $unreadCount
+ * @var string                                    $backUrl
  */
 
 /**
@@ -184,7 +186,7 @@ $filterUrl = static fn(?string $f): string =>
       <p>
         Showing <strong><?= htmlspecialchars((string) $rangeStart) ?>–<?= htmlspecialchars((string) $rangeEnd) ?></strong> of
         <strong><?= number_format($totalCount) ?></strong>
-        notification<?= $totalCount !== 1 ? 's' : '' ?>
+        <span data-noun>notification<?= $totalCount !== 1 ? 's' : '' ?></span>
       </p>
     <?php endif; ?>
   </div>

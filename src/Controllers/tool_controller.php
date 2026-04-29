@@ -532,15 +532,16 @@ class ToolController extends BaseController
         }
 
         try {
-            Tool::update($toolId, [
-                'tool_name'     => $toolName,
-                'description'   => $description !== '' ? $description : null,
-                'rental_fee'    => (float) $rentalFee,
-                'condition'     => $condition,
-                'loan_duration' => $loanDuration !== '' ? (int) $loanDuration * 24 : null,
-                'fuel_type'     => $usesFuel && $fuelType !== '' ? $fuelType : null,
-                'category_id'   => $categoryId,
-            ]);
+            Tool::update(
+                toolId:       $toolId,
+                toolName:     $toolName,
+                description:  $description !== '' ? $description : null,
+                rentalFee:    (float) $rentalFee,
+                condition:    $condition,
+                loanDuration: $loanDuration !== '' ? (int) $loanDuration * 24 : null,
+                fuelType:     $usesFuel && $fuelType !== '' ? $fuelType : null,
+                categoryId:   $categoryId,
+            );
 
             $_SESSION['tool_saved'] = true;
             $this->redirect('/tools/' . $toolId);
@@ -785,18 +786,18 @@ class ToolController extends BaseController
         }
 
         try {
-            $toolId = Tool::create([
-                'tool_name'       => $toolName,
-                'description'     => $description !== '' ? $description : null,
-                'rental_fee'      => (float) $rentalFee,
-                'owner_id'        => $userId,
-                'category_id'     => $categoryId,
-                'condition'       => $condition,
-                'loan_duration'   => $loanDuration !== '' ? (int) $loanDuration * 24 : null,
-                'fuel_type'       => $usesFuel && $fuelType !== '' ? $fuelType : null,
-                'image_filenames' => $imageFilenames,
-                'primary_index'   => $primaryIndex,
-            ]);
+            $toolId = Tool::create(
+                toolName:        $toolName,
+                description:     $description !== '' ? $description : null,
+                rentalFee:       (float) $rentalFee,
+                ownerId:         $userId,
+                categoryId:      $categoryId,
+                condition:       $condition,
+                loanDuration:    $loanDuration !== '' ? (int) $loanDuration * 24 : null,
+                fuelType:        $usesFuel && $fuelType !== '' ? $fuelType : null,
+                imageFilenames:  $imageFilenames,
+                primaryIndex:    $primaryIndex,
+            );
 
             $_SESSION['tool_saved'] = true;
             $this->redirect('/tools/' . $toolId);

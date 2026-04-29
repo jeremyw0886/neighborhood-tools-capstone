@@ -307,14 +307,15 @@ class ProfileController extends BaseController
         }
 
         try {
-            Account::updateProfile($userId, [
-                'first_name'         => $firstName,
-                'last_name'          => $lastName,
-                'phone'              => $phone !== '' ? $phone : null,
-                'street_address'     => $streetAddress !== '' ? $streetAddress : null,
-                'zip_code'           => $zipCode,
-                'contact_preference' => $preference,
-            ]);
+            Account::updateProfile(
+                accountId:         $userId,
+                firstName:         $firstName,
+                lastName:          $lastName,
+                phone:             $phone !== '' ? $phone : null,
+                streetAddress:     $streetAddress !== '' ? $streetAddress : null,
+                zipCode:           $zipCode,
+                contactPreference: $preference,
+            );
 
             Account::upsertBio($userId, $bio !== '' ? $bio : null);
 

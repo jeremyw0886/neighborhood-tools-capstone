@@ -351,13 +351,17 @@ class Account
      *
      * Uses subqueries and fn_get_account_status_id() to resolve FK values
      * by name — no hard-coded lookup IDs.
-     *
-     * @param array{first_name: string, last_name: string, username: string,
-     *              email: string, password_hash: string, street_address: ?string,
-     *              zip_code: string, neighborhood_id: ?int} $data
      */
-    public static function create(array $data): int
-    {
+    public static function create(
+        string $firstName,
+        string $lastName,
+        string $username,
+        string $email,
+        string $passwordHash,
+        ?string $streetAddress,
+        string $zipCode,
+        ?int $neighborhoodId,
+    ): int {
         $pdo = Database::connection();
 
         $sql = "
@@ -396,15 +400,15 @@ class Account
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':first_name', $data['first_name']);
-        $stmt->bindValue(':last_name', $data['last_name']);
-        $stmt->bindValue(':username', $data['username']);
-        $stmt->bindValue(':email', $data['email']);
-        $stmt->bindValue(':password_hash', $data['password_hash']);
-        $stmt->bindValue(':street_address', $data['street_address'], $data['street_address'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-        $stmt->bindValue(':zip_code', $data['zip_code']);
-        $stmt->bindValue(':zip_nbh', $data['zip_code']);
-        $stmt->bindValue(':neighborhood_id', $data['neighborhood_id'], $data['neighborhood_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+        $stmt->bindValue(':first_name', $firstName);
+        $stmt->bindValue(':last_name', $lastName);
+        $stmt->bindValue(':username', $username);
+        $stmt->bindValue(':email', $email);
+        $stmt->bindValue(':password_hash', $passwordHash);
+        $stmt->bindValue(':street_address', $streetAddress, $streetAddress !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':zip_code', $zipCode);
+        $stmt->bindValue(':zip_nbh', $zipCode);
+        $stmt->bindValue(':neighborhood_id', $neighborhoodId, $neighborhoodId !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
         $stmt->execute();
 
         return (int) $pdo->lastInsertId();
@@ -779,8 +783,15 @@ class Account
     /**
      * Update basic account fields (name, phone, address, contact preference).
      */
-    public static function updateProfile(int $accountId, array $data): void
-    {
+    public static function updateProfile(
+        int $accountId,
+        string $firstName,
+        string $lastName,
+        ?string $phone,
+        ?string $streetAddress,
+        string $zipCode,
+        string $contactPreference,
+    ): void {
         $pdo = Database::connection();
 
         $stmt = $pdo->prepare("
@@ -805,13 +816,13 @@ class Account
             WHERE id_acc = :id
         ");
 
-        $stmt->bindValue(':first_name', $data['first_name']);
-        $stmt->bindValue(':last_name', $data['last_name']);
-        $stmt->bindValue(':phone', $data['phone'], $data['phone'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-        $stmt->bindValue(':street_address', $data['street_address'], $data['street_address'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-        $stmt->bindValue(':zip_code', $data['zip_code']);
-        $stmt->bindValue(':zip_nbh', $data['zip_code']);
-        $stmt->bindValue(':preference', $data['contact_preference']);
+        $stmt->bindValue(':first_name', $firstName);
+        $stmt->bindValue(':last_name', $lastName);
+        $stmt->bindValue(':phone', $phone, $phone !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':street_address', $streetAddress, $streetAddress !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+        $stmt->bindValue(':zip_code', $zipCode);
+        $stmt->bindValue(':zip_nbh', $zipCode);
+        $stmt->bindValue(':preference', $contactPreference);
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();
     }

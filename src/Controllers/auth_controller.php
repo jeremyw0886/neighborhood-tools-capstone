@@ -297,16 +297,16 @@ class AuthController extends BaseController
                 options: ['cost' => 12],
             );
 
-            $newId = Account::create([
-                'first_name'      => $data['first_name'],
-                'last_name'       => $data['last_name'],
-                'username'        => $data['username'],
-                'email'           => $data['email'],
-                'password_hash'   => $passwordHash,
-                'street_address'  => $data['street_address'] !== '' ? $data['street_address'] : null,
-                'zip_code'        => $data['zip_code'],
-                'neighborhood_id' => $data['neighborhood_id'],
-            ]);
+            $newId = Account::create(
+                firstName:      $data['first_name'],
+                lastName:       $data['last_name'],
+                username:       $data['username'],
+                email:          $data['email'],
+                passwordHash:   $passwordHash,
+                streetAddress:  $data['street_address'] !== '' ? $data['street_address'] : null,
+                zipCode:        $data['zip_code'],
+                neighborhoodId: $data['neighborhood_id'],
+            );
         } catch (\Throwable $e) {
             error_log('AuthController::register — ' . $e->getMessage());
             $_SESSION['register_errors'] = ['general' => 'Registration failed. Please try again.'];

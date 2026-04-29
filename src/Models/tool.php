@@ -1065,13 +1065,23 @@ class Tool
      *               image_filenames: array<array{filename: string, alt_text: ?string, width: ?int}>} $data
      * @return int  The new tool's primary key (id_tol)
      */
-    public static function create(array $data): int
-    {
+    public static function create(
+        string $toolName,
+        ?string $description,
+        float $rentalFee,
+        int $ownerId,
+        int $categoryId,
+        string $condition,
+        ?int $loanDuration,
+        ?string $fuelType,
+        array $imageFilenames = [],
+        int $primaryIndex = 0,
+    ): int {
         $pdo = Database::connection();
         $pdo->beginTransaction();
 
-        $hasDuration = $data['loan_duration'] !== null;
-        $hasFuel     = ($data['fuel_type'] ?? null) !== null;
+        $hasDuration = $loanDuration !== null;
+        $hasFuel     = $fuelType !== null;
 
         try {
             $durationCol = $hasDuration ? ', default_loan_duration_hours_tol' : '';
@@ -1100,18 +1110,18 @@ class Tool
             ";
 
             $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':name', $data['tool_name'], PDO::PARAM_STR);
-            $stmt->bindValue(':description', $data['description'], $data['description'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-            $stmt->bindValue(':fee', $data['rental_fee'], PDO::PARAM_STR);
-            $stmt->bindValue(':owner', $data['owner_id'], PDO::PARAM_INT);
-            $stmt->bindValue(':condition', $data['condition'], PDO::PARAM_STR);
+            $stmt->bindValue(':name', $toolName, PDO::PARAM_STR);
+            $stmt->bindValue(':description', $description, $description !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':fee', (string) $rentalFee, PDO::PARAM_STR);
+            $stmt->bindValue(':owner', $ownerId, PDO::PARAM_INT);
+            $stmt->bindValue(':condition', $condition, PDO::PARAM_STR);
 
             if ($hasDuration) {
-                $stmt->bindValue(':duration', $data['loan_duration'], PDO::PARAM_INT);
+                $stmt->bindValue(':duration', $loanDuration, PDO::PARAM_INT);
             }
 
             if ($hasFuel) {
-                $stmt->bindValue(':fuel_type', $data['fuel_type'], PDO::PARAM_STR);
+                $stmt->bindValue(':fuel_type', $fuelType, PDO::PARAM_STR);
             }
 
             $stmt->execute();
@@ -1123,20 +1133,17 @@ class Tool
                 VALUES (:tool, :category)
             ");
             $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-            $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':category', $categoryId, PDO::PARAM_INT);
             $stmt->execute();
 
-            $images       = $data['image_filenames'] ?? [];
-            $primaryIndex = $data['primary_index'] ?? 0;
-
-            if ($images !== []) {
+            if ($imageFilenames !== []) {
                 $imgStmt = $pdo->prepare("
                     INSERT INTO tool_image_tim
                         (id_tol_tim, file_name_tim, alt_text_tim, is_primary_tim, sort_order_tim, focal_x_tim, focal_y_tim, width_tim)
                     VALUES (:tool, :filename, :altText, :isPrimary, :sortOrder, :focalX, :focalY, :width)
                 ");
 
-                foreach ($images as $i => $img) {
+                foreach ($imageFilenames as $i => $img) {
                     $altText = $img['alt_text'] ?? null;
                     $width   = $img['width'] ?? null;
                     $focalX  = $img['focal_x'] ?? 50;
@@ -1167,18 +1174,22 @@ class Tool
      * Update an existing tool listing and its category.
      *
      * Image management is handled by dedicated endpoints (addImage, deleteImage, etc.).
-     *
-     * @param  int   $toolId  Tool primary key
-     * @param  array{tool_name: string, description: ?string, rental_fee: float,
-     *               condition: string, loan_duration: ?int, category_id: int} $data
      */
-    public static function update(int $toolId, array $data): void
-    {
+    public static function update(
+        int $toolId,
+        string $toolName,
+        ?string $description,
+        float $rentalFee,
+        string $condition,
+        ?int $loanDuration,
+        ?string $fuelType,
+        int $categoryId,
+    ): void {
         $pdo = Database::connection();
         $pdo->beginTransaction();
 
-        $hasDuration = $data['loan_duration'] !== null;
-        $hasFuel     = ($data['fuel_type'] ?? null) !== null;
+        $hasDuration = $loanDuration !== null;
+        $hasFuel     = $fuelType !== null;
 
         try {
             $durationSet = $hasDuration ? ', default_loan_duration_hours_tol = :duration' : '';
@@ -1197,18 +1208,18 @@ class Tool
                 WHERE id_tol = :id
             ");
 
-            $stmt->bindValue(':name', $data['tool_name'], PDO::PARAM_STR);
-            $stmt->bindValue(':description', $data['description'], $data['description'] !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-            $stmt->bindValue(':fee', $data['rental_fee'], PDO::PARAM_STR);
-            $stmt->bindValue(':condition', $data['condition'], PDO::PARAM_STR);
+            $stmt->bindValue(':name', $toolName, PDO::PARAM_STR);
+            $stmt->bindValue(':description', $description, $description !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+            $stmt->bindValue(':fee', (string) $rentalFee, PDO::PARAM_STR);
+            $stmt->bindValue(':condition', $condition, PDO::PARAM_STR);
             $stmt->bindValue(':id', $toolId, PDO::PARAM_INT);
 
             if ($hasDuration) {
-                $stmt->bindValue(':duration', $data['loan_duration'], PDO::PARAM_INT);
+                $stmt->bindValue(':duration', $loanDuration, PDO::PARAM_INT);
             }
 
             if ($hasFuel) {
-                $stmt->bindValue(':fuel_type', $data['fuel_type'], PDO::PARAM_STR);
+                $stmt->bindValue(':fuel_type', $fuelType, PDO::PARAM_STR);
             }
 
             $stmt->execute();
@@ -1225,7 +1236,7 @@ class Tool
                 VALUES (:tool, :category)
             ");
             $stmt->bindValue(':tool', $toolId, PDO::PARAM_INT);
-            $stmt->bindValue(':category', $data['category_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':category', $categoryId, PDO::PARAM_INT);
             $stmt->execute();
 
             $pdo->commit();

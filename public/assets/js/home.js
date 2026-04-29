@@ -1,12 +1,17 @@
 'use strict';
 
+const MOBILE_MQ = '(max-width: 700px)';
+const DESKTOP_MQ = '(min-width: 701px)';
+
 // ─── Entrance Animation ──────────────────────────────────────────────
 
 class EntranceAnimation {
   static #instance = null;
 
   /**
-   * @param {Element[]} elements
+   * Schedule a single rAF that adds `animate-in` to each element.
+   *
+   * @param {Element[]} elements - Elements to animate on the next frame
    */
   constructor(elements) {
     requestAnimationFrame(() => {
@@ -14,7 +19,11 @@ class EntranceAnimation {
     });
   }
 
-  /** @returns {EntranceAnimation|null} */
+  /**
+   * Initialize the singleton EntranceAnimation when the home-page hero grid is present and motion is allowed.
+   *
+   * @returns {EntranceAnimation|null}
+   */
   static init() {
     if (EntranceAnimation.#instance) return EntranceAnimation.#instance;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
@@ -36,6 +45,9 @@ class EntranceAnimation {
     return (EntranceAnimation.#instance = new EntranceAnimation(elements));
   }
 
+  /**
+   * Reset the singleton slot; the rAF-scheduled class additions are not undone.
+   */
   destroy() {
     EntranceAnimation.#instance = null;
   }
@@ -54,8 +66,10 @@ class CounterAnimation {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLElement} list
-   * @param {NodeList} counters
+   * Observe the stats list and trigger one-shot counter animation on first intersection.
+   *
+   * @param {HTMLElement} list - Container element observed for visibility
+   * @param {NodeList} counters - The numeric `<strong data-target>` nodes to animate
    */
   constructor(list, counters) {
     this.#counters = counters;
@@ -74,7 +88,11 @@ class CounterAnimation {
     this.#observer.observe(list);
   }
 
-  /** @returns {CounterAnimation|null} */
+  /**
+   * Initialize the singleton CounterAnimation when the platform-highlights list and counters are present.
+   *
+   * @returns {CounterAnimation|null}
+   */
   static init() {
     if (CounterAnimation.#instance) return CounterAnimation.#instance;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
@@ -90,6 +108,9 @@ class CounterAnimation {
     return (CounterAnimation.#instance = new CounterAnimation(list, counters));
   }
 
+  /**
+   * Disconnect the IntersectionObserver, abort listeners, and reset the singleton.
+   */
   destroy() {
     this.#observer.disconnect();
     this.#abortController.abort();
@@ -141,12 +162,16 @@ class NeighborCarousel {
   #mq;
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} section */
+  /**
+   * Build the dot navigation, observe the cards, and bind viewport changes.
+   *
+   * @param {HTMLElement} section - Section containing the neighbor cards grid
+   */
   constructor(section) {
     this.#grid = section.querySelector(':scope > div');
     this.#cards = this.#grid.querySelectorAll(':scope > a');
     this.#cardsArray = Array.from(this.#cards);
-    this.#mq = window.matchMedia('(max-width: 700px)');
+    this.#mq = window.matchMedia(MOBILE_MQ);
 
     this.#nav = document.createElement('nav');
     this.#nav.setAttribute('aria-label', 'Neighbor card navigation');
@@ -185,7 +210,11 @@ class NeighborCarousel {
     this.#handleViewport(this.#mq);
   }
 
-  /** @returns {NeighborCarousel|null} */
+  /**
+   * Initialize the singleton NeighborCarousel when the section has at least two cards.
+   *
+   * @returns {NeighborCarousel|null}
+   */
   static init() {
     if (NeighborCarousel.#instance) return NeighborCarousel.#instance;
     const section = document.querySelector('[aria-labelledby="neighbors-heading"]');
@@ -196,6 +225,9 @@ class NeighborCarousel {
     return (NeighborCarousel.#instance = new NeighborCarousel(section));
   }
 
+  /**
+   * Disconnect the observer, abort listeners, remove the dot nav, and reset the singleton.
+   */
   destroy() {
     this.#observer.disconnect();
     this.#abortController.abort();
@@ -229,6 +261,7 @@ class NeighborCarousel {
 
 class LocationToggle {
   static #instance = null;
+  static #ARIA_LIVE_RESET_MS = 3_000;
 
   /** @type {HTMLElement} */
   #toggle;
@@ -244,8 +277,10 @@ class LocationToggle {
   #ariaLiveTimer = null;
 
   /**
-   * @param {HTMLElement} toggle
-   * @param {HTMLElement} memberList
+   * Wire up location-toggle links to swap the member list via fetch.
+   *
+   * @param {HTMLElement} toggle - Location-toggle nav element
+   * @param {HTMLElement} memberList - Member list element to refresh
    */
   constructor(toggle, memberList) {
     this.#toggle = toggle;
@@ -262,7 +297,11 @@ class LocationToggle {
     }
   }
 
-  /** @returns {LocationToggle|null} */
+  /**
+   * Initialize the singleton LocationToggle when the toggle nav and member list are both present.
+   *
+   * @returns {LocationToggle|null}
+   */
   static init() {
     if (LocationToggle.#instance) return LocationToggle.#instance;
     const toggle = document.getElementById('location-toggle');
@@ -272,6 +311,9 @@ class LocationToggle {
     return (LocationToggle.#instance = new LocationToggle(toggle, memberList));
   }
 
+  /**
+   * Clear the aria-live reset timer, abort any in-flight fetch, detach listeners, and reset the singleton.
+   */
   destroy() {
     clearTimeout(this.#ariaLiveTimer);
     this.#fetchController?.abort();
@@ -303,8 +345,8 @@ class LocationToggle {
 
       if (!res.ok) throw new Error(res.statusText);
 
-      const text = (await res.text()).replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
-      const doc = NT.parseHtmlDocument(text);
+      const doc = NT.parseHtmlDocument(await res.text());
+      for (const styleNode of doc.querySelectorAll('style')) styleNode.remove();
       const fresh = doc.getElementById('member-list');
 
       if (fresh) {
@@ -313,10 +355,6 @@ class LocationToggle {
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
-        const status = document.createElement('p');
-        status.setAttribute('role', 'status');
-        status.textContent = 'Refreshing\u2026';
-        this.#memberList.replaceChildren(status);
         window.location.href = link.href;
       }
     } finally {
@@ -324,7 +362,7 @@ class LocationToggle {
       this.#fetchController = null;
       this.#ariaLiveTimer = setTimeout(
         () => this.#memberList.setAttribute('aria-live', 'off'),
-        3_000
+        LocationToggle.#ARIA_LIVE_RESET_MS
       );
     }
   };
@@ -334,6 +372,7 @@ class LocationToggle {
 
 class MemberCarousel {
   static #instance = null;
+  static #CARDS_PER_PAGE = 3;
 
   /** @type {HTMLElement} */
   #memberList;
@@ -349,21 +388,27 @@ class MemberCarousel {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLElement} carousel
-   * @param {HTMLElement} memberList
+   * Wire up prev/next buttons and viewport-driven activation.
+   *
+   * @param {HTMLElement} carousel - Carousel wrapper holding the prev/next buttons
+   * @param {HTMLElement} memberList - The scrollable member list element
    */
   constructor(carousel, memberList) {
     this.#memberList = memberList;
     this.#prevBtn = carousel.querySelector('button[data-dir="prev"]');
     this.#nextBtn = carousel.querySelector('button[data-dir="next"]');
-    this.#desktop = window.matchMedia('(min-width: 701px)');
+    this.#desktop = window.matchMedia(DESKTOP_MQ);
     this.#reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     this.#bind();
     this.#handleViewport(this.#desktop);
   }
 
-  /** @returns {MemberCarousel|null} */
+  /**
+   * Initialize the singleton MemberCarousel when the member-carousel wrapper and its prev/next buttons exist.
+   *
+   * @returns {MemberCarousel|null}
+   */
   static init() {
     if (MemberCarousel.#instance) return MemberCarousel.#instance;
     const carousel = document.getElementById('member-carousel');
@@ -375,6 +420,9 @@ class MemberCarousel {
     return (MemberCarousel.#instance = new MemberCarousel(carousel, memberList));
   }
 
+  /**
+   * Detach listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     MemberCarousel.#instance = null;
@@ -408,7 +456,7 @@ class MemberCarousel {
     const gap = parseFloat(getComputedStyle(this.#memberList).gap) || 0;
     const cardWidth = first.offsetWidth + gap;
     this.#memberList.scrollBy({
-      left: direction * cardWidth * 3,
+      left: direction * cardWidth * MemberCarousel.#CARDS_PER_PAGE,
       behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',
     });
   }
@@ -450,6 +498,7 @@ class MemberCarousel {
 
 class PopularCarousel {
   static #instance = null;
+  static #CARDS_PER_PAGE = 3;
 
   /** @type {HTMLElement} */
   #list;
@@ -465,21 +514,27 @@ class PopularCarousel {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLElement} carousel
-   * @param {HTMLElement} list
+   * Wire up prev/next buttons and viewport-driven activation.
+   *
+   * @param {HTMLElement} carousel - Carousel wrapper holding the prev/next buttons
+   * @param {HTMLElement} list - The scrollable popular-tools list element
    */
   constructor(carousel, list) {
     this.#list = list;
     this.#prevBtn = carousel.querySelector('button[data-dir="prev"]');
     this.#nextBtn = carousel.querySelector('button[data-dir="next"]');
-    this.#desktop = window.matchMedia('(min-width: 701px)');
+    this.#desktop = window.matchMedia(DESKTOP_MQ);
     this.#reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     this.#bind();
     this.#handleViewport(this.#desktop);
   }
 
-  /** @returns {PopularCarousel|null} */
+  /**
+   * Initialize the singleton PopularCarousel when the popular-carousel wrapper and its prev/next buttons exist.
+   *
+   * @returns {PopularCarousel|null}
+   */
   static init() {
     if (PopularCarousel.#instance) return PopularCarousel.#instance;
     const carousel = document.getElementById('popular-carousel');
@@ -491,6 +546,9 @@ class PopularCarousel {
     return (PopularCarousel.#instance = new PopularCarousel(carousel, list));
   }
 
+  /**
+   * Detach listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     PopularCarousel.#instance = null;
@@ -516,7 +574,7 @@ class PopularCarousel {
     const gap = parseFloat(getComputedStyle(this.#list).gap) || 0;
     const cardWidth = card.offsetWidth + gap;
     this.#list.scrollBy({
-      left: direction * cardWidth * 3,
+      left: direction * cardWidth * PopularCarousel.#CARDS_PER_PAGE,
       behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',
     });
   }

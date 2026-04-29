@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Core\Database;
+use App\Models\Account;
+use App\Models\Event;
+use App\Models\Tool;
 
 /**
  * Handles static informational pages.
@@ -98,25 +100,9 @@ class PageController extends BaseController
             ['loc' => '/register',  'priority' => '0.5', 'changefreq' => 'yearly'],
         ];
 
-        $pdo = Database::connection();
-
-        $toolRows = $pdo->query(
-            "SELECT id_tol AS id, updated_at_tol AS updated_at
-             FROM tool_tol
-             WHERE is_available_tol = 1 AND is_deleted_tol = 0
-             ORDER BY id_tol"
-        )->fetchAll();
-
-        $eventRows = $pdo->query(
-            'SELECT id_evt AS id, updated_at_evt AS updated_at FROM event_evt ORDER BY id_evt'
-        )->fetchAll();
-
-        $profileRows = $pdo->query(
-            "SELECT id_acc AS id, updated_at_acc AS updated_at
-             FROM account_acc
-             WHERE id_ast_acc = (SELECT id_ast FROM account_status_ast WHERE status_name_ast = 'active')
-             ORDER BY id_acc"
-        )->fetchAll();
+        $toolRows    = Tool::getActiveForSitemap();
+        $eventRows   = Event::getAllForSitemap();
+        $profileRows = Account::getActiveForSitemap();
 
         header('Content-Type: application/xml; charset=utf-8');
 

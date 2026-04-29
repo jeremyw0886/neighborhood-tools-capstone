@@ -336,4 +336,20 @@ class Event
 
         return $meta;
     }
+
+    /**
+     * All events for the XML sitemap.
+     *
+     * @return array<int, array{id: int, updated_at: string}>
+     */
+    public static function getAllForSitemap(): array
+    {
+        $pdo = Database::connection();
+
+        return $pdo->query(
+            'SELECT id_evt AS id, updated_at_evt AS updated_at
+             FROM event_evt
+             ORDER BY id_evt'
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

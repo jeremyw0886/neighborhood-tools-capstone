@@ -1954,4 +1954,38 @@ class Tool
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Confirm an image row belongs to the given tool.
+     */
+    public static function imageBelongsTo(int $imageId, int $toolId): bool
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM tool_image_tim
+            WHERE id_tim = :imageId AND id_tol_tim = :toolId
+        ");
+        $stmt->bindValue(':imageId', $imageId, PDO::PARAM_INT);
+        $stmt->bindValue(':toolId',  $toolId,  PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Active, listed tools for the XML sitemap.
+     *
+     * @return array<int, array{id: int, updated_at: string}>
+     */
+    public static function getActiveForSitemap(): array
+    {
+        $pdo = Database::connection();
+
+        return $pdo->query(
+            "SELECT id_tol AS id, updated_at_tol AS updated_at
+             FROM available_tool_v
+             ORDER BY id_tol"
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

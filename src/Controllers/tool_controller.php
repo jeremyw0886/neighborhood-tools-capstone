@@ -1349,7 +1349,7 @@ class ToolController extends BaseController
             $this->jsonResponse(403, ['error' => 'Unauthorized']);
         }
 
-        if (!$this->imageBelongsToTool($imageId, $toolId)) {
+        if (!Tool::imageBelongsTo($imageId, $toolId)) {
             $this->jsonResponse(404, ['error' => 'Image not found']);
         }
 
@@ -1448,7 +1448,7 @@ class ToolController extends BaseController
             $this->jsonResponse(403, ['error' => 'Unauthorized']);
         }
 
-        if (!$this->imageBelongsToTool($imageId, $toolId)) {
+        if (!Tool::imageBelongsTo($imageId, $toolId)) {
             $this->jsonResponse(404, ['error' => 'Image not found']);
         }
 
@@ -1482,7 +1482,7 @@ class ToolController extends BaseController
             $this->jsonResponse(403, ['error' => 'Unauthorized']);
         }
 
-        if (!$this->imageBelongsToTool($imageId, $toolId)) {
+        if (!Tool::imageBelongsTo($imageId, $toolId)) {
             $this->jsonResponse(404, ['error' => 'Image not found']);
         }
 
@@ -1539,21 +1539,4 @@ class ToolController extends BaseController
         return $tool;
     }
 
-    /**
-     * Verify an image belongs to a specific tool.
-     */
-    private function imageBelongsToTool(int $imageId, int $toolId): bool
-    {
-        $pdo = \App\Core\Database::connection();
-
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) FROM tool_image_tim
-            WHERE id_tim = :imageId AND id_tol_tim = :toolId
-        ");
-        $stmt->bindValue(':imageId', $imageId, \PDO::PARAM_INT);
-        $stmt->bindValue(':toolId', $toolId, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        return (int) $stmt->fetchColumn() > 0;
-    }
 }

@@ -1199,4 +1199,177 @@ class Account
         $stmt->bindValue(':id', $accountId, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    /**
+     * Active accounts for the XML sitemap.
+     *
+     * @return array<int, array{id: int, updated_at: string}>
+     */
+    public static function getActiveForSitemap(): array
+    {
+        $pdo = Database::connection();
+
+        return $pdo->query(
+            'SELECT id_acc AS id, updated_at_acc AS updated_at
+             FROM active_account_v
+             ORDER BY id_acc'
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Resolve every related record before a hard purge: cancel/close active
+     * borrows, release held deposits, dismiss open disputes, close open
+     * incidents. Runs inside the caller's transaction (Database::connection
+     * is a singleton).
+     */
+    public static function purgeRelatedRecords(int $accountId, int $adminId): void
+    {
+        self::resolveActiveBorrowsForPurge($accountId, $adminId);
+        self::releaseHeldDepositsForPurge($accountId);
+        self::dismissOpenDisputesForPurge($accountId, $adminId);
+        self::closeOpenIncidentsForPurge($accountId, $adminId);
+    }
+
+    /**
+     * Cancel/close all non-terminal borrows involving the purged account.
+     */
+    private static function resolveActiveBorrowsForPurge(int $accountId, int $adminId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT b.id_bor, b.id_acc_bor AS borrower_id, t.id_acc_tol AS lender_id,
+                   bst.status_name_bst AS status
+            FROM borrow_bor b
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+            WHERE (b.id_acc_bor = :id1 OR t.id_acc_tol = :id2)
+              AND bst.status_name_bst IN ('requested', 'approved', 'borrowed')
+        ");
+        $stmt->bindValue(':id1', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+        $borrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($borrows as $borrow) {
+            $borrowId = (int) $borrow['id_bor'];
+            $status   = $borrow['status'];
+
+            $counterpartyId = ((int) $borrow['borrower_id'] === $accountId)
+                ? (int) $borrow['lender_id']
+                : (int) $borrow['borrower_id'];
+
+            if ($status === 'requested' || $status === 'approved') {
+                Borrow::cancel($borrowId, $adminId, 'Account purged by administrator');
+            } elseif ($status === 'borrowed') {
+                Borrow::completeReturn($borrowId);
+            }
+
+            Notification::send(
+                accountId: $counterpartyId,
+                type: 'role_change',
+                title: 'Borrow administratively closed',
+                body: 'A borrow you were involved in has been administratively closed.',
+            );
+        }
+    }
+
+    /**
+     * Release deposits held for borrows involving the purged account.
+     */
+    private static function releaseHeldDepositsForPurge(int $accountId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT b.id_bor
+            FROM borrow_bor b
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            JOIN security_deposit_sdp sdp ON sdp.id_bor_sdp = b.id_bor
+            JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
+            WHERE (b.id_acc_bor = :id1 OR t.id_acc_tol = :id2)
+              AND dps.status_name_dps = 'held'
+        ");
+        $stmt->bindValue(':id1', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($rows as $row) {
+            Deposit::release((int) $row['id_bor']);
+        }
+    }
+
+    /**
+     * Dismiss open disputes involving the purged account.
+     */
+    private static function dismissOpenDisputesForPurge(int $accountId, int $adminId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT d.id_dsp
+            FROM dispute_dsp d
+            JOIN dispute_status_dst dst ON d.id_dst_dsp = dst.id_dst
+            JOIN borrow_bor b ON d.id_bor_dsp = b.id_bor
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            WHERE dst.status_name_dst = 'open'
+              AND (d.id_acc_dsp = :id1 OR b.id_acc_bor = :id2 OR t.id_acc_tol = :id3)
+        ");
+        $stmt->bindValue(':id1', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id3', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+        $disputes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($disputes as $dispute) {
+            $disputeId = (int) $dispute['id_dsp'];
+
+            Dispute::addMessage($disputeId, $adminId, 'resolution', 'Account purged by administrator. Dispute dismissed.', true);
+
+            $update = $pdo->prepare("
+                UPDATE dispute_dsp
+                SET id_dst_dsp = (SELECT id_dst FROM dispute_status_dst WHERE status_name_dst = 'dismissed'),
+                    resolved_at_dsp = NOW()
+                WHERE id_dsp = :id
+            ");
+            $update->bindValue(':id', $disputeId, PDO::PARAM_INT);
+            $update->execute();
+        }
+    }
+
+    /**
+     * Close open incidents involving the purged account.
+     */
+    private static function closeOpenIncidentsForPurge(int $accountId, int $adminId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare("
+            SELECT irt.id_irt
+            FROM incident_report_irt irt
+            JOIN borrow_bor b ON irt.id_bor_irt = b.id_bor
+            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+            WHERE irt.resolved_at_irt IS NULL
+              AND (irt.id_acc_irt = :id1 OR b.id_acc_bor = :id2 OR t.id_acc_tol = :id3)
+        ");
+        $stmt->bindValue(':id1', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id2', $accountId, PDO::PARAM_INT);
+        $stmt->bindValue(':id3', $accountId, PDO::PARAM_INT);
+        $stmt->execute();
+        $incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($incidents as $incident) {
+            $update = $pdo->prepare("
+                UPDATE incident_report_irt
+                SET resolved_at_irt = NOW(),
+                    id_acc_resolved_by_irt = :admin_id,
+                    resolution_notes_irt = 'Account purged by administrator.'
+                WHERE id_irt = :id
+            ");
+            $update->bindValue(':admin_id', $adminId, PDO::PARAM_INT);
+            $update->bindValue(':id', (int) $incident['id_irt'], PDO::PARAM_INT);
+            $update->execute();
+        }
+    }
 }

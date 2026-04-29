@@ -334,7 +334,8 @@ class BaseController
     {
         $url = str_replace(["\r", "\n"], '', $url);
 
-        if ($url === '' || $url[0] !== '/') {
+        // Reject empty, non-absolute-path, and protocol-relative URLs.
+        if ($url === '' || $url[0] !== '/' || str_starts_with($url, '//')) {
             $url = '/';
         }
 
@@ -386,9 +387,8 @@ class BaseController
         ) {
             $maxSize = ini_get('post_max_size') ?: '8M';
             $_SESSION['_flash_error'] = "Upload too large (server limit: {$maxSize}). Please choose a smaller file.";
-            $referer = $_SERVER['HTTP_REFERER'] ?? '';
-            $path = parse_url($referer, PHP_URL_PATH);
-            $this->redirect(is_string($path) && $path !== '' ? $path : '/');
+            // Preserve path AND query so listing filters survive the bounce.
+            $this->redirect($this->safeRefererPath('/'));
         }
 
         $fromPost   = $_POST['csrf_token'] ?? '';

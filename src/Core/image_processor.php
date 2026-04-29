@@ -102,7 +102,7 @@ final class ImageProcessor
     }
 
     /**
-     * Generate size variants and format copies for a source image.
+     * Generate cropped size variants and format copies for a source image.
      *
      * @param non-empty-string $sourcePath
      * @param int[]            $widths
@@ -120,68 +120,18 @@ final class ImageProcessor
         ?string $outputDir = null,
         bool $preserveSource = false,
     ): array {
-        $size = getimagesize($sourcePath);
-        if ($size === false) {
-            return [];
-        }
-
-        $sourceWidth = $size[0];
-        $ext = pathinfo($sourcePath, PATHINFO_EXTENSION);
-        $isWebp = strtolower($ext) === 'webp';
-        $base = self::resolveOutputBase($sourcePath, $outputDir);
         $ratio = $aspectRatio ?? self::ASPECT_RATIO;
-        $backend = self::backend();
+        $transform = static fn(ImageBackend $backend, string $path, int $width)
+            => $backend->cropResize($path, $width, $focalX, $focalY, $ratio);
 
-        $qualifyingWidths = array_filter(
+        return self::generateVariantsCore(
+            $sourcePath,
             $widths,
-            static fn(int $w): bool => $w < $sourceWidth,
+            $outputDir,
+            $preserveSource,
+            $transform,
+            transformSource: true,
         );
-
-        rsort($qualifyingWidths);
-
-        $created = [];
-
-        try {
-            foreach ($qualifyingWidths as $w) {
-                $variantPath = "{$base}-{$w}w.{$ext}";
-
-                if (!copy($sourcePath, $variantPath)) {
-                    throw new \RuntimeException("Failed to copy variant: {$variantPath}");
-                }
-                $created[] = $variantPath;
-
-                $backend->cropResize($variantPath, $w, $focalX, $focalY, $ratio);
-
-                if (!$isWebp) {
-                    foreach (self::FORMAT_VARIANTS as $format) {
-                        $quality = self::qualityForWidth($w, $format);
-                        $formatPath = $backend->createFormatVariant($variantPath, $format, $quality);
-                        if ($formatPath !== null) {
-                            $created[] = $formatPath;
-                        }
-                    }
-                }
-            }
-
-            if (!$preserveSource) {
-                $backend->cropResize($sourcePath, $sourceWidth, $focalX, $focalY, $ratio);
-
-                if (!$isWebp) {
-                    foreach (self::FORMAT_VARIANTS as $format) {
-                        $quality = self::qualityForWidth($sourceWidth, $format);
-                        $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
-                        if ($formatPath !== null) {
-                            $created[] = $formatPath;
-                        }
-                    }
-                }
-            }
-        } catch (\RuntimeException) {
-            self::cleanupFiles($created);
-            return [];
-        }
-
-        return $created;
     }
 
     /**
@@ -198,6 +148,81 @@ final class ImageProcessor
         array $widths,
         ?string $outputDir = null,
         bool $preserveSource = false,
+    ): array {
+        $transform = static fn(ImageBackend $backend, string $path, int $width)
+            => $backend->resize($path, $width);
+
+        return self::generateVariantsCore(
+            $sourcePath,
+            $widths,
+            $outputDir,
+            $preserveSource,
+            $transform,
+            transformSource: false,
+        );
+    }
+
+    /**
+     * Regenerate variants after a focal-point change.
+     *
+     * Wraps the delete-old-variants + generateVariants pair that the tool and
+     * profile reposition endpoints both perform: deletes sized variants for
+     * the supplied filename, then re-runs the cropped-variant pipeline at the
+     * new focal point.
+     *
+     * @param  string  $filename     Base filename in public/uploads/{uploadDir}/
+     * @param  int     $focalX       0-100 horizontal focal-point percentage
+     * @param  int     $focalY       0-100 vertical focal-point percentage
+     * @param  string  $uploadDir    Subdirectory under public/uploads/
+     * @param  int[]   $widths       Variant widths to regenerate
+     * @param  ?float  $aspectRatio  Width/height ratio (null = 3:2, 1.0 = square)
+     * @return string[] Paths of all created files (empty on failure)
+     */
+    public static function regenerateForFocalChange(
+        string $filename,
+        int $focalX,
+        int $focalY,
+        string $uploadDir = 'tools',
+        array $widths = self::VARIANT_WIDTHS,
+        ?float $aspectRatio = null,
+    ): array {
+        self::deleteVariantsOnly($filename, $uploadDir, $widths);
+
+        $sourcePath = BASE_PATH . '/public/uploads/' . trim($uploadDir, '/') . '/' . $filename;
+
+        return self::generateVariants(
+            $sourcePath,
+            widths: $widths,
+            focalX: $focalX,
+            focalY: $focalY,
+            aspectRatio: $aspectRatio,
+        );
+    }
+
+    /**
+     * Shared core for cropped and native-aspect variant generation.
+     *
+     * Each per-width sized copy is passed to `$transform`, which the public
+     * entry points supply to choose between cropResize() and resize(). The
+     * full-resolution source receives the same transform when `$transformSource`
+     * is true, then format copies (webp/avif) are generated for both the
+     * sized variants and (unless `$preserveSource`) the source itself.
+     *
+     * @param non-empty-string $sourcePath
+     * @param int[]            $widths
+     * @param ?string          $outputDir       Absolute directory for variant writes; null = source's directory
+     * @param bool             $preserveSource  Skip the source-side re-encode + format copies
+     * @param \Closure         $transform       fn(ImageBackend $backend, string $path, int $width): void
+     * @param bool             $transformSource Apply $transform to the source image when not preserving
+     * @return string[] Paths of all created files (empty on failure)
+     */
+    private static function generateVariantsCore(
+        string $sourcePath,
+        array $widths,
+        ?string $outputDir,
+        bool $preserveSource,
+        \Closure $transform,
+        bool $transformSource,
     ): array {
         $size = getimagesize($sourcePath);
         if ($size === false) {
@@ -228,7 +253,7 @@ final class ImageProcessor
                 }
                 $created[] = $variantPath;
 
-                $backend->resize($variantPath, $w);
+                $transform($backend, $variantPath, $w);
 
                 if (!$isWebp) {
                     foreach (self::FORMAT_VARIANTS as $format) {
@@ -241,16 +266,23 @@ final class ImageProcessor
                 }
             }
 
-            if (!$preserveSource && !$isWebp) {
-                foreach (self::FORMAT_VARIANTS as $format) {
-                    $quality = self::qualityForWidth($sourceWidth, $format);
-                    $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
-                    if ($formatPath !== null) {
-                        $created[] = $formatPath;
+            if (!$preserveSource) {
+                if ($transformSource) {
+                    $transform($backend, $sourcePath, $sourceWidth);
+                }
+
+                if (!$isWebp) {
+                    foreach (self::FORMAT_VARIANTS as $format) {
+                        $quality = self::qualityForWidth($sourceWidth, $format);
+                        $formatPath = $backend->createFormatVariant($sourcePath, $format, $quality);
+                        if ($formatPath !== null) {
+                            $created[] = $formatPath;
+                        }
                     }
                 }
             }
-        } catch (\RuntimeException) {
+        } catch (\RuntimeException $e) {
+            error_log('ImageProcessor::generateVariantsCore — ' . $e->getMessage());
             self::cleanupFiles($created);
             return [];
         }
@@ -260,9 +292,17 @@ final class ImageProcessor
 
     /**
      * Resolve the variant-filename base path, honoring an optional output directory.
+     *
+     * Throws if the source path has no extension — without one, "{base}-{w}w.{ext}"
+     * would collapse to "{path}-{w}w." and the format-variant pass would silently
+     * overwrite the source itself rather than write a sibling file.
      */
     private static function resolveOutputBase(string $sourcePath, ?string $outputDir): string
     {
+        if (!preg_match('/\.\w+$/', $sourcePath)) {
+            throw new \RuntimeException("ImageProcessor: source path missing extension: {$sourcePath}");
+        }
+
         if ($outputDir === null) {
             return preg_replace('/\.\w+$/', '', $sourcePath);
         }

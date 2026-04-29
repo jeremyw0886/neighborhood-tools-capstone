@@ -79,6 +79,10 @@ final class MagickBackend implements ImageBackend
     #[\Override]
     public function createFormatVariant(string $path, string $format, int $quality): ?string
     {
+        if (!preg_match('/\.\w+$/', $path)) {
+            throw new \RuntimeException("MagickBackend::createFormatVariant: path missing extension: {$path}");
+        }
+
         $outputPath = preg_replace('/\.\w+$/', ".{$format}", $path);
 
         $success = $this->exec([

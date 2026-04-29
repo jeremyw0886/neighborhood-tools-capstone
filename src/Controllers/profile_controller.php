@@ -447,20 +447,12 @@ class ProfileController extends BaseController
 
             Account::updateProfileFocalPoint($userId, $focalX, $focalY);
 
-            $filename   = $image['file_name_aim'];
-            $sourcePath = BASE_PATH . '/public/uploads/profiles/' . $filename;
-
-            ImageProcessor::deleteVariantsOnly(
-                $filename,
+            ImageProcessor::regenerateForFocalChange(
+                $image['file_name_aim'],
+                $focalX,
+                $focalY,
                 uploadDir: 'profiles',
                 widths: self::PROFILE_VARIANT_WIDTHS,
-            );
-
-            ImageProcessor::generateVariants(
-                $sourcePath,
-                widths: self::PROFILE_VARIANT_WIDTHS,
-                focalX: $focalX,
-                focalY: $focalY,
                 aspectRatio: 1.0,
             );
 

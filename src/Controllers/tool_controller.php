@@ -1489,9 +1489,11 @@ class ToolController extends BaseController
 
                 $image = Tool::getImageById($imageId);
                 if ($image !== null) {
-                    $sourcePath = BASE_PATH . '/public/uploads/tools/' . $image['file_name_tim'];
-                    ImageProcessor::deleteVariantsOnly($image['file_name_tim']);
-                    ImageProcessor::generateVariants($sourcePath, focalX: $focalX, focalY: $focalY);
+                    ImageProcessor::regenerateForFocalChange(
+                        $image['file_name_tim'],
+                        $focalX,
+                        $focalY,
+                    );
                 }
             }
 

@@ -108,6 +108,10 @@ final class GdBackend implements ImageBackend
             return null;
         }
 
+        if (!preg_match('/\.\w+$/', $path)) {
+            throw new \RuntimeException("GdBackend::createFormatVariant: path missing extension: {$path}");
+        }
+
         $outputPath = preg_replace('/\.\w+$/', '.webp', $path);
 
         if ($info[2] === IMAGETYPE_PNG) {

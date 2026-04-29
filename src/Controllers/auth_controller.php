@@ -60,7 +60,7 @@ class AuthController extends BaseController
         $this->validateCsrf();
         $this->checkRateLimit('login', '/login', 'auth_error');
 
-        $username = strtolower(trim($_POST['username'] ?? ''));
+        $username = mb_substr(strtolower(trim($_POST['username'] ?? '')), 0, 64);
         $password = $_POST['password'] ?? '';
         $honeypot = $_POST['website'] ?? '';
 
@@ -479,6 +479,12 @@ class AuthController extends BaseController
     public function forgotPassword(): void
     {
         $this->validateCsrf();
+        $this->checkRateLimit(
+            'forgot_password',
+            '/forgot-password',
+            'forgot_error',
+            'Too many reset requests. Please try again in {minutes}.',
+        );
 
         if (($_POST['website'] ?? '') !== '') {
             $this->redirect('/forgot-password');
@@ -492,13 +498,6 @@ class AuthController extends BaseController
             $_SESSION['forgot_old_email'] = $email;
             $this->redirect('/forgot-password');
         }
-
-        $this->checkRateLimit(
-            'forgot_password',
-            '/forgot-password',
-            'forgot_error',
-            'Too many reset requests. Please try again in {minutes}.',
-        );
 
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['forgot_error']     = 'Please enter a valid email address.';

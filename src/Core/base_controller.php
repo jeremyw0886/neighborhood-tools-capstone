@@ -423,8 +423,12 @@ class BaseController
         $secret = trim($_ENV['TURNSTILE_SECRET_KEY'] ?? '');
 
         if ($secret === '') {
-            if (($_ENV['APP_DEBUG'] ?? 'false') !== 'true') {
-                error_log('Turnstile secret key not configured — verification skipped');
+            // Fail closed in production so a misconfigured deploy can't open
+            // auth forms to bots. In development, allow the form through so
+            // local work doesn't require a live Turnstile secret.
+            if (Environment::isProduction()) {
+                error_log('Turnstile secret key not configured — failing closed in production');
+                return false;
             }
             return true;
         }
@@ -443,7 +447,9 @@ class BaseController
             'secret'          => $secret,
             'response'        => $token,
             'remoteip'        => $_SERVER['REMOTE_ADDR'] ?? '',
-            'idempotency_key' => bin2hex(random_bytes(16)),
+            // Derive the idempotency key from the token itself so Cloudflare
+            // recognizes replays of the same token.
+            'idempotency_key' => hash('sha256', $token),
         ];
 
         $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');

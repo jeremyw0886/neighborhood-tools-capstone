@@ -48,10 +48,12 @@ class PasswordReset
     }
 
     /**
-     * Find a valid (unused, unexpired) reset token.
+     * Find a valid (unused, unexpired) reset token for an active account.
      *
-     * Hashes the raw token and looks up the matching row. Returns the
-     * reset record joined with the account email, or null if invalid.
+     * Hashes the raw token and looks up the matching row. The join to
+     * active_account_v plus the active-status check ensures purged,
+     * soft-deleted, suspended, and pending accounts cannot complete a
+     * reset even if a token row survives.
      *
      * @return ?array{id_pwr: int, id_acc_pwr: int, email_address_acc: string}
      */
@@ -62,10 +64,12 @@ class PasswordReset
         $stmt = $pdo->prepare("
             SELECT pr.id_pwr, pr.id_acc_pwr, a.email_address_acc
             FROM password_reset_pwr pr
-            JOIN account_acc a ON pr.id_acc_pwr = a.id_acc
-            WHERE pr.token_hash_pwr = :hash
-              AND pr.expires_at_pwr > NOW()
-              AND pr.used_at_pwr IS NULL
+            JOIN active_account_v a     ON pr.id_acc_pwr = a.id_acc
+            JOIN account_status_ast ast ON a.id_ast_acc = ast.id_ast
+            WHERE pr.token_hash_pwr  = :hash
+              AND pr.expires_at_pwr  > NOW()
+              AND pr.used_at_pwr    IS NULL
+              AND ast.status_name_ast = 'active'
             LIMIT 1
         ");
 

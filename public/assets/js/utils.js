@@ -691,8 +691,9 @@ class ScrollToTop {
     window.addEventListener('scroll', this.#handleScroll, { passive: true, signal });
     window.addEventListener('resize', this.#handleResize, { passive: true, signal });
     this.#rafId = requestAnimationFrame(() => {
-      this.#updateVisibility();
-      this.#updateProgress();
+      const { scrollHeight, clientHeight, scrollTop } = this.#readGeometry();
+      this.#updateVisibility(scrollHeight, clientHeight, scrollTop);
+      this.#updateProgress(scrollHeight, clientHeight, scrollTop);
     });
   }
 
@@ -726,10 +727,29 @@ class ScrollToTop {
     );
   }
 
-  #updateProgress() {
+  /**
+   * Snapshot the document's scroll geometry so callers can derive both
+   * progress and visibility without re-reading layout between writes.
+   *
+   * @returns {{scrollHeight: number, clientHeight: number, scrollTop: number}}
+   */
+  #readGeometry() {
     const el = document.documentElement;
-    const scrollable = el.scrollHeight - el.clientHeight;
-    const raw = scrollable > 0 ? Math.min(el.scrollTop / scrollable, 1) : 0;
+    return {
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight,
+      scrollTop: el.scrollTop,
+    };
+  }
+
+  /**
+   * @param {number} scrollHeight
+   * @param {number} clientHeight
+   * @param {number} scrollTop
+   */
+  #updateProgress(scrollHeight, clientHeight, scrollTop) {
+    const scrollable = scrollHeight - clientHeight;
+    const raw = scrollable > 0 ? Math.min(scrollTop / scrollable, 1) : 0;
     const rounded = Math.round(raw * 100);
     if (rounded !== this.#lastProgress) {
       this.#lastProgress = rounded;
@@ -741,10 +761,13 @@ class ScrollToTop {
     }
   }
 
-  #updateVisibility() {
-    const el = document.documentElement;
-    const scrollable = el.scrollHeight > el.clientHeight + 1;
-    const scrollTop = el.scrollTop;
+  /**
+   * @param {number} scrollHeight
+   * @param {number} clientHeight
+   * @param {number} scrollTop
+   */
+  #updateVisibility(scrollHeight, clientHeight, scrollTop) {
+    const scrollable = scrollHeight > clientHeight + 1;
 
     if (!scrollable || scrollTop <= ScrollToTop.#HIDE_THRESHOLD) {
       this.#btn.removeAttribute('data-visible');
@@ -760,8 +783,9 @@ class ScrollToTop {
   #handleScroll = () => {
     cancelAnimationFrame(this.#rafId);
     this.#rafId = requestAnimationFrame(() => {
-      this.#updateVisibility();
-      this.#updateProgress();
+      const { scrollHeight, clientHeight, scrollTop } = this.#readGeometry();
+      this.#updateVisibility(scrollHeight, clientHeight, scrollTop);
+      this.#updateProgress(scrollHeight, clientHeight, scrollTop);
     });
   };
 
@@ -771,15 +795,19 @@ class ScrollToTop {
 
   #handleResize = () => {
     cancelAnimationFrame(this.#rafId);
-    this.#rafId = requestAnimationFrame(() => this.#updateVisibility());
+    this.#rafId = requestAnimationFrame(() => {
+      const { scrollHeight, clientHeight, scrollTop } = this.#readGeometry();
+      this.#updateVisibility(scrollHeight, clientHeight, scrollTop);
+    });
   };
 
   #handleContentSwap = () => {
     this.#btn.removeAttribute('data-visible');
     cancelAnimationFrame(this.#rafId);
     this.#rafId = requestAnimationFrame(() => {
-      this.#updateVisibility();
-      this.#updateProgress();
+      const { scrollHeight, clientHeight, scrollTop } = this.#readGeometry();
+      this.#updateVisibility(scrollHeight, clientHeight, scrollTop);
+      this.#updateProgress(scrollHeight, clientHeight, scrollTop);
     });
   };
 }

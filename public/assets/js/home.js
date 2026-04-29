@@ -29,7 +29,7 @@ class CounterAnimation {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           this.#observer.disconnect();
-          for (const counter of this.#counters) CounterAnimation.#animateCounter(counter);
+          CounterAnimation.#runAll(this.#counters);
         }
       },
       { threshold: 0.5 }
@@ -71,30 +71,43 @@ class CounterAnimation {
     return 1 - (1 - t) ** 3;
   }
 
-  /** @param {HTMLElement} el */
-  static #animateCounter(el) {
-    const target = parseInt(el.dataset.target, 10);
-    if (!target || target <= 0) return;
+  /**
+   * Animate every counter from 0 → data-target on a single rAF loop.
+   * Reads all rendered widths first, then performs every DOM/style write,
+   * so per-counter measurements never sit between mutations and force layout.
+   *
+   * @param {NodeList} counters - The numeric <strong data-target> nodes to animate
+   */
+  static #runAll(counters) {
+    const lockedWidths = Array.from(counters, (c) => c.getBoundingClientRect().width);
+    const targets = new Array(counters.length);
 
-    if (!el.id) el.id = `pf-counter-${crypto.randomUUID().slice(0, 8)}`;
-    const lockedWidth = el.getBoundingClientRect().width;
-    NT.style.setRule(
-      `counter-${el.id}`,
-      `#${CSS.escape(el.id)}`,
-      `min-width:${lockedWidth}px`
-    );
+    for (let i = 0; i < counters.length; i++) {
+      const counter = counters[i];
+      const target = parseInt(counter.dataset.target, 10);
+      targets[i] = target > 0 ? target : 0;
+      if (targets[i] === 0) continue;
 
-    el.textContent = '0';
+      if (!counter.id) counter.id = `pf-counter-${crypto.randomUUID().slice(0, 8)}`;
+      NT.style.setRule(
+        `counter-${counter.id}`,
+        `#${CSS.escape(counter.id)}`,
+        `min-width:${lockedWidths[i]}px`
+      );
+      counter.textContent = '0';
+    }
+
     const start = performance.now();
-
     const tick = (now) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / CounterAnimation.#DURATION, 1);
-      const current = Math.round(CounterAnimation.#easeOut(progress) * target);
-      el.textContent = current.toLocaleString();
+      const eased = CounterAnimation.#easeOut(progress);
+      for (let i = 0; i < counters.length; i++) {
+        if (targets[i] === 0) continue;
+        counters[i].textContent = Math.round(eased * targets[i]).toLocaleString();
+      }
       if (progress < 1) requestAnimationFrame(tick);
     };
-
     requestAnimationFrame(tick);
   }
 }
@@ -403,8 +416,12 @@ class MemberCarousel {
 
   #resetCarousel() {
     requestAnimationFrame(() => {
-      this.#memberList.scrollLeft = 0;
-      this.#updateArrowState();
+      const ml = this.#memberList;
+      const clientW = ml.clientWidth;
+      const scrollW = ml.scrollWidth;
+      ml.scrollLeft = 0;
+      this.#prevBtn.disabled = true;
+      this.#nextBtn.disabled = clientW >= scrollW - 1;
     });
   }
 
@@ -540,16 +557,24 @@ class PopularCarousel {
   #activate() {
     this.#list.dataset.arrows = '';
     requestAnimationFrame(() => {
-      this.#list.scrollLeft = 0;
-      this.#updateArrowState();
+      const list = this.#list;
+      const clientW = list.clientWidth;
+      const scrollW = list.scrollWidth;
+      list.scrollLeft = 0;
+      this.#prevBtn.disabled = true;
+      this.#nextBtn.disabled = clientW >= scrollW - 1;
     });
   }
 
   #deactivate() {
     delete this.#list.dataset.arrows;
     requestAnimationFrame(() => {
-      this.#list.scrollLeft = 0;
-      this.#updateArrowState();
+      const list = this.#list;
+      const clientW = list.clientWidth;
+      const scrollW = list.scrollWidth;
+      list.scrollLeft = 0;
+      this.#prevBtn.disabled = true;
+      this.#nextBtn.disabled = clientW >= scrollW - 1;
     });
   }
 

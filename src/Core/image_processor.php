@@ -150,8 +150,9 @@ final class ImageProcessor
         ?string $outputDir = null,
         bool $preserveSource = false,
     ): array {
-        $transform = static fn(ImageBackend $backend, string $path, int $width)
-            => $backend->resize($path, $width);
+        $transform = static function (ImageBackend $backend, string $path, int $width): void {
+            $backend->resize($path, $width);
+        };
 
         return self::generateVariantsCore(
             $sourcePath,

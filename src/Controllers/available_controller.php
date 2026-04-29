@@ -10,6 +10,13 @@ use App\Models\SearchLog;
 use App\Models\Tool;
 use App\Models\ZipCode;
 
+/**
+ * Public landing for the in-stock tool catalog (`GET /available`).
+ *
+ * Renders the shared tool browser pre-scoped to currently-available tools,
+ * honoring the same radius/zip/category/max-fee/search filters as the main
+ * `/tools` index and excluding the viewer's own listings.
+ */
 class AvailableController extends BaseController
 {
     private const int PER_PAGE = 12;

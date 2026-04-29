@@ -9,8 +9,26 @@ use App\Core\Role;
 use App\Models\Deposit;
 use App\Models\Notification;
 
+/**
+ * Stripe deposit lifecycle endpoints + the inbound webhook.
+ *
+ * User-facing: `deposit` (show), `processDeposit` (admin release/forfeit),
+ * `complete` (Stripe redirect target — flips state to `held` once the
+ * PaymentIntent confirms), `history` (per-user transaction list),
+ * `createStripeIntent` (XHR — the borrower's pay-deposit page). The
+ * webhook (`stripeWebhook`) is authenticated by Stripe signature, not by
+ * session, and is the source of truth for asynchronous state changes —
+ * see its docblock for the contract.
+ */
 class PaymentController extends BaseController
 {
+    /**
+     * Render the deposit detail page for a specific deposit ID.
+     *
+     * Visible to the deposit's borrower, the lender, and any admin role.
+     * Pulls full context (deposit + borrow + tool + parties + incident
+     * count) via `Deposit::findDetailById()`.
+     */
     public function deposit(string $id): void
     {
         $this->requireAuth();
@@ -124,6 +142,14 @@ class PaymentController extends BaseController
         $this->render('payments/deposit', $viewData);
     }
 
+    /**
+     * Admin release or forfeit action against a held deposit.
+     *
+     * Reads `action` (`release` | `forfeit`) from POST and dispatches to the
+     * matching stored procedure (`sp_release_deposit_on_return` or
+     * `sp_forfeit_deposit`). Flashes deposit_success / deposit_errors and
+     * redirects back to the deposit detail page.
+     */
     public function processDeposit(string $id): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -442,6 +468,18 @@ class PaymentController extends BaseController
         }
     }
 
+    /**
+     * Stripe webhook endpoint — authenticated by signature, not by session.
+     *
+     * Receives `payment_intent.succeeded` and `payment_intent.payment_failed`
+     * events from Stripe. The route is unauthenticated by session — there
+     * is no user — so authentication is the Stripe signature header (HMAC
+     * over the raw body with the configured webhook secret), gated by an
+     * IP allowlist for the published Stripe webhook ranges. Body is read
+     * via `php://input` so the signature can be verified against the exact
+     * bytes Stripe signed; never read from `$_POST`. Idempotent — Stripe
+     * retries deliveries until 2xx.
+     */
     public function stripeWebhook(): void
     {
         header('Content-Type: application/json');

@@ -11,6 +11,17 @@ use App\Models\Account;
 use App\Models\AvatarVector;
 use App\Models\Tool;
 
+/**
+ * Public profile page, profile editing, and avatar image management.
+ *
+ * Public read: `show` (profile + their listed tools, paginated). Authenticated
+ * write: `edit` + `update` (profile fields, neighborhood resolution, avatar
+ * vector pick), `repositionImage` (XHR — moves the focal point on an
+ * uploaded photo and regenerates variants), and `removeImage` (deletes the
+ * photo + every variant from disk and clears the DB row). Image uploads
+ * use `finfo` MIME validation and lay variants down via
+ * `ImageProcessor::generateVariants` at the profile-card aspect ratio.
+ */
 class ProfileController extends BaseController
 {
     /** Results per page for profile tool listings. */

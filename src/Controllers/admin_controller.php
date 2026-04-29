@@ -22,6 +22,16 @@ use App\Models\AvatarVector;
 use App\Models\Deposit;
 use App\Models\Notification;
 
+/**
+ * Admin panel controller — moderates users, content, payments, and platform state.
+ *
+ * Surfaces every `/admin/*` route: the dashboard, paginated/filtered listings
+ * (users, tools, categories, deposits, events, incidents, audit log, TOS
+ * versions), single-row state changes (approve/deny/role/status/purge user,
+ * category CRUD, vector upload + delete), and the global admin search +
+ * suggest endpoints. Every action calls `requireRole(Role::Admin, Role::SuperAdmin)`
+ * before doing any work.
+ */
 class AdminController extends BaseController
 {
     private const int PER_PAGE             = 12;
@@ -1230,6 +1240,14 @@ class AdminController extends BaseController
         return null;
     }
 
+    /**
+     * Accept an admin-uploaded SVG vector and store it for category icons.
+     *
+     * Validates content type, size, and SVG structure, sanitizes the file
+     * via `SvgSanitizer::sanitizeFile()` (strips remote refs and minifies),
+     * persists it under `public/uploads/vectors/`, and inserts the metadata
+     * row. Flashes `admin_images_flash` and redirects to `/admin/images`.
+     */
     public function uploadVector(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -1363,6 +1381,15 @@ class AdminController extends BaseController
         return array_slice($results, 0, 7);
     }
 
+    /**
+     * Global admin search across every searchable entity model.
+     *
+     * Fans `$term` out to each model's `adminSearch()` and groups the
+     * matches by entity type (users / tools / categories / icons / avatars
+     * / disputes / events / incidents / deposits / neighborhoods). Returns
+     * a JSON envelope when the request is XHR / `Accept: application/json`,
+     * otherwise renders the full results page.
+     */
     public function search(): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);
@@ -1466,6 +1493,13 @@ class AdminController extends BaseController
         ]);
     }
 
+    /**
+     * Assign a vector image as the icon for a category, or clear it.
+     *
+     * Reads `vector_id` from POST (an empty value clears the assignment).
+     * CSRF-validated; flashes `admin_categories_flash` and redirects back
+     * to `/admin/categories`.
+     */
     public function assignCategoryIcon(string $id): void
     {
         $this->requireRole(Role::Admin, Role::SuperAdmin);

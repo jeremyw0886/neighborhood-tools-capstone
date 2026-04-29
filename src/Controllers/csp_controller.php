@@ -6,6 +6,16 @@ namespace App\Controllers;
 
 use App\Core\RateLimiter;
 
+/**
+ * Receiving endpoint for CSP, Trusted Types, and DOMPurify violation reports.
+ *
+ * Exposed as `POST /csp-report`. Accepts either the legacy `report-uri` body
+ * (`application/csp-report`) or the modern `report-to` envelope
+ * (`application/reports+json`), validates content type + body size + JSON
+ * shape, rate-limits per IP, and logs a single line per violation via
+ * `error_log()` with control characters stripped (no log injection). No
+ * session, no CSRF — this endpoint is hit by the browser, not the user.
+ */
 class CspController
 {
     private const int MAX_REPORTS_PER_MINUTE = 30;

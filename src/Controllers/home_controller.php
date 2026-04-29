@@ -11,8 +11,23 @@ use App\Models\Bookmark;
 use App\Models\Neighborhood;
 use App\Models\Tool;
 
+/**
+ * Public landing page (`GET /`).
+ *
+ * Composes the hero — featured tools (with LCP preload metadata for the
+ * first card's primary image), Friendly Neighbors carousel, location-aware
+ * Nearby Members carousel with top-member fallback, and the platform-wide
+ * trust totals.
+ */
 class HomeController extends BaseController
 {
+    /**
+     * Render the landing page with featured tools, member carousels, and trust totals.
+     *
+     * Uses cached top-members + nearby-members + platform-totals queries,
+     * so a cold first visit pays the spatial-ranking cost at most once
+     * per FileCache TTL site-wide.
+     */
     public function index(): void
     {
         try {

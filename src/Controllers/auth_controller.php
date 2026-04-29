@@ -13,6 +13,16 @@ use App\Models\PasswordReset;
 use App\Models\Tos;
 use App\Models\ZipCode;
 
+/**
+ * Login, registration, logout, and password-reset flows.
+ *
+ * Owns every authentication touchpoint: form rendering with Turnstile,
+ * credential verification, session bootstrap (`session_regenerate_id` after
+ * login/registration), forgot/reset email pipeline, and the small JSON
+ * helpers the registration form calls (`/api/neighborhoods/{zip}`,
+ * `/api/check-username`). All state-changing actions go through
+ * Turnstile + per-IP rate limiting + CSRF before touching the model.
+ */
 class AuthController extends BaseController
 {
     /**

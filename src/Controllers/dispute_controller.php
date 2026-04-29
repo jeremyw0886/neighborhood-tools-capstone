@@ -10,6 +10,14 @@ use App\Models\Borrow;
 use App\Models\Dispute;
 use App\Models\Notification;
 
+/**
+ * Borrow-dispute creation, viewing, messaging, and admin queue.
+ *
+ * Mounts both the user-facing dispute flow (`create`, `store`, `show`,
+ * `addMessage` — only the borrow's parties can read or post) and the
+ * admin queue at `/admin/disputes` (`index` — paginated, sortable,
+ * urgency-filtered list of unresolved disputes for `Role::Admin`).
+ */
 class DisputeController extends BaseController
 {
     private const int PER_PAGE                  = 12;

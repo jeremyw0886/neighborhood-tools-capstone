@@ -11,6 +11,16 @@ use App\Models\Handover;
 use App\Models\Notification;
 use App\Models\Waiver;
 
+/**
+ * Pickup and return handover code generation + verification.
+ *
+ * Three actions: `verify` (GET — show the code, the entry form, or the
+ * awaiting-counterparty state), `generate` (POST — mints a six-character
+ * code with 24h expiry, after re-verifying waiver/deposit preconditions),
+ * and `confirm` (POST — the counterparty enters the code to record the
+ * pickup or return). Both POST paths are CSRF-validated and party-membership
+ * checked before any state change.
+ */
 class HandoverController extends BaseController
 {
     /**

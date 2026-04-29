@@ -17,6 +17,16 @@ use App\Models\Rating;
 use App\Models\Tool;
 use App\Models\Waiver;
 
+/**
+ * Per-user dashboard surface — summary, lender/borrower views, history, loan detail.
+ *
+ * Renders the authenticated home: `index` (overview cards), `lender` and
+ * `borrower` (role-specific listings), `loans` (active borrows on either
+ * side), `loanStatus` (the per-borrow detail page that pulls handover,
+ * deposit, dispute, incident, waiver, and rating context together), and
+ * `history` (closed borrows). All actions `requireAuth()` and key off
+ * `$_SESSION['user_id']`.
+ */
 class DashboardController extends BaseController
 {
     /**

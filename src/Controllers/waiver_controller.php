@@ -7,6 +7,15 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Waiver;
 
+/**
+ * Borrower-side waiver form display and signing.
+ *
+ * Two actions: `show` (renders the three-checkbox waiver — condition
+ * acknowledgment, liability release, borrow agreement — for an approved
+ * borrow with no existing signed waiver) and `sign` (CSRF-validated POST;
+ * the DB trigger rejects the insert unless all three booleans are TRUE).
+ * Only the borrower may view or sign.
+ */
 class WaiverController extends BaseController
 {
     /**

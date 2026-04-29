@@ -10,6 +10,14 @@ use App\Models\Event;
 use App\Models\EventAttendance;
 use App\Models\Neighborhood;
 
+/**
+ * Community-events listing, detail, creation, and RSVP toggle.
+ *
+ * Public reads (`index`, `show`) plus the admin-only create flow (`create`,
+ * `store`) and the authenticated RSVP toggle (`toggleRsvp`). Listing supports
+ * timing filters (upcoming / this-week / this-month / past) and paginates
+ * via `upcoming_event_v` for the future-events view.
+ */
 class EventController extends BaseController
 {
     private const int PER_PAGE = 12;
@@ -339,6 +347,13 @@ class EventController extends BaseController
         ]);
     }
 
+    /**
+     * Toggle the current user's RSVP for an event.
+     *
+     * If the user is currently attending, the row is removed; otherwise a
+     * new attendance row is inserted. CSRF-validated; redirects back to
+     * the event page (or the safe referer when present).
+     */
     public function toggleRsvp(string $id): void
     {
         $this->requireAuth();

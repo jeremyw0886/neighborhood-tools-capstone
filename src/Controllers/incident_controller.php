@@ -12,6 +12,15 @@ use App\Models\Borrow;
 use App\Models\Incident;
 use App\Models\Notification;
 
+/**
+ * Incident reporting (damage, theft, late return, etc.) and admin resolution.
+ *
+ * User-facing: `create` + `store` (a borrow's parties open an incident with
+ * up to five photos, validated by `finfo` MIME) and `show`. Admin-facing:
+ * `resolve` (admin or super-admin closes the incident with notes). Photos
+ * land under `public/uploads/incidents/` with native-aspect resized variants
+ * generated via `ImageProcessor::generateResizedVariants`.
+ */
 class IncidentController extends BaseController
 {
     private const int MAX_PHOTOS = 5;

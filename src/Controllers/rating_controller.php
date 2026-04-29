@@ -9,6 +9,15 @@ use App\Models\Borrow;
 use App\Models\Notification;
 use App\Models\Rating;
 
+/**
+ * Post-borrow rating form and submission endpoints.
+ *
+ * `show` renders the rating form for a completed borrow (both parties rate
+ * each other; the borrower additionally rates the tool). `rateUser` and
+ * `rateTool` accept the form posts and dispatch `sp_rate_user` /
+ * `sp_rate_tool`. The DB triggers enforce the no-self-rating and only-after-
+ * return rules, so this controller is mostly input + CSRF + redirect glue.
+ */
 class RatingController extends BaseController
 {
     /**

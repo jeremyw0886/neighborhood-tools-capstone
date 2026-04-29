@@ -13,6 +13,16 @@ use App\Models\SearchLog;
 use App\Models\Tool;
 use App\Models\ZipCode;
 
+/**
+ * Tool catalog browsing, listing CRUD, image pipeline, and availability blocks.
+ *
+ * Three surfaces:
+ *   - public browse — `index` (paginated/filtered/searched), `show` (detail), `suggest` (XHR autocomplete)
+ *   - owner-side CRUD — `create` + `store`, `edit` + `update`, `delete`, `toggleListing`, plus the image endpoints (`uploadImage`, `reorderImages`, `setPrimary`, `updateImage`, `deleteImage`) and the availability-blocks pair (`availability`, `addBlock`, `removeBlock`)
+ *   - cross-cutting — `bookmarks` (the bookmark listing) and `toggleBookmark`
+ *
+ * Owner-only actions go through `requireAuth()` + an explicit `(int) owner_id !== (int) user_id` check that aborts 403. Image uploads validate via `finfo` MIME and lay variants down with `ImageProcessor::generateVariants`.
+ */
 class ToolController extends BaseController
 {
     /** Results per page — divisible by 2, 3, and 4 for auto-fill grid columns. */

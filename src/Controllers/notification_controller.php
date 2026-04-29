@@ -7,6 +7,15 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Notification;
 
+/**
+ * In-app notification list, badge count, preferences, and click-through tracking.
+ *
+ * Owns `/notifications/*` — listing with filter and pagination, the
+ * unread-count and preview endpoints the nav badge polls, mark-read /
+ * clear-read / delete / preferences, and the `redirectThrough` action that
+ * marks a notification read before forwarding to its target URL. Public
+ * methods all `requireAuth()` and key off `$_SESSION['user_id']`.
+ */
 class NotificationController extends BaseController
 {
     /** Results per page — divisible by 2, 3, and 4 for grid layouts. */

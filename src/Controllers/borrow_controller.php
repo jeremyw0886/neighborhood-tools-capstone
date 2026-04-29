@@ -12,6 +12,16 @@ use App\Models\Notification;
 use App\Models\Tool;
 use App\Models\ZipCode;
 
+/**
+ * Borrow lifecycle state-change endpoints.
+ *
+ * One method per transition the borrow flow allows: `request` (borrower opens
+ * a borrow), `approve` / `deny` (lender decides), `cancel` (borrower retracts),
+ * `extend` (borrower extends a still-active loan), and `remind` (lender pings
+ * the borrower about an overdue tool). Every action validates ownership /
+ * party membership against the row, dispatches the matching stored procedure
+ * via the Borrow model, and emits a notification.
+ */
 class BorrowController extends BaseController
 {
     /**

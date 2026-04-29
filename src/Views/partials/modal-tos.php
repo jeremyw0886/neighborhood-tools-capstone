@@ -25,38 +25,40 @@
 
 $tos = $currentTos ?? null;
 ?>
-<dialog id="modal-tos" aria-labelledby="modal-tos-title">
-  <header>
-    <h2 id="modal-tos-title">Terms of Service<?php if ($tos): ?> <small>v<?= htmlspecialchars($tos['version_tos']) ?></small><?php endif; ?></h2>
-    <button type="button" aria-label="Close dialog">
-      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-    </button>
-  </header>
-  <div>
-    <?php if ($tos): ?>
-      <?php
-        $contentHeadingLevel = 'h3';
-        $contentPath = BASE_PATH . '/src/Views/partials/content-tos.php';
-        if (file_exists($contentPath)) {
-            require $contentPath;
-        }
-        unset($contentHeadingLevel);
-      ?>
-    <?php else: ?>
-      <p>No terms of service are currently available.</p>
+<template data-modal-content="tos">
+  <dialog id="modal-tos" aria-labelledby="modal-tos-title">
+    <header>
+      <h2 id="modal-tos-title">Terms of Service<?php if ($tos): ?> <small>v<?= htmlspecialchars($tos['version_tos']) ?></small><?php endif; ?></h2>
+      <button type="button" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div>
+      <?php if ($tos): ?>
+        <?php
+          $contentHeadingLevel = 'h3';
+          $contentPath = BASE_PATH . '/src/Views/partials/content-tos.php';
+          if (file_exists($contentPath)) {
+              require $contentPath;
+          }
+          unset($contentHeadingLevel);
+        ?>
+      <?php else: ?>
+        <p>No terms of service are currently available.</p>
+      <?php endif; ?>
+    </div>
+    <?php if ($tos && ($isLoggedIn ?? false)): ?>
+    <footer>
+      <?php if ($tosAccepted ?? false): ?>
+        <span><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Accepted</span>
+      <?php else: ?>
+        <form method="post" action="/tos/accept">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '') ?>">
+          <input type="hidden" name="tos_id" value="<?= (int) ($tos['id_tos'] ?? 0) ?>">
+          <button type="submit" data-intent="success"><i class="fa-solid fa-check" aria-hidden="true"></i> I Accept the Terms of Service</button>
+        </form>
+      <?php endif; ?>
+    </footer>
     <?php endif; ?>
-  </div>
-  <?php if ($tos && ($isLoggedIn ?? false)): ?>
-  <footer>
-    <?php if ($tosAccepted ?? false): ?>
-      <span><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Accepted</span>
-    <?php else: ?>
-      <form method="post" action="/tos/accept">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '') ?>">
-        <input type="hidden" name="tos_id" value="<?= (int) ($tos['id_tos'] ?? 0) ?>">
-        <button type="submit" data-intent="success"><i class="fa-solid fa-check" aria-hidden="true"></i> I Accept the Terms of Service</button>
-      </form>
-    <?php endif; ?>
-  </footer>
-  <?php endif; ?>
-</dialog>
+  </dialog>
+</template>

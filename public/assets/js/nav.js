@@ -478,7 +478,14 @@ class ModalSystem {
     const trigger = e.target.closest('[data-modal]');
     if (trigger) {
       const name = trigger.dataset.modal;
-      const dialog = document.getElementById(`modal-${name}`);
+      let dialog = document.getElementById(`modal-${name}`);
+      if (!dialog) {
+        const template = document.querySelector(`template[data-modal-content="${CSS.escape(name)}"]`);
+        if (template instanceof HTMLTemplateElement) {
+          template.replaceWith(template.content);
+          dialog = document.getElementById(`modal-${name}`);
+        }
+      }
       if (!dialog || !(dialog instanceof HTMLDialogElement)) return;
 
       e.preventDefault();

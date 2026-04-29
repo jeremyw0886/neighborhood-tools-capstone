@@ -14,19 +14,21 @@
  * @see partials/content-faq.php       — shared content
  */
 ?>
-<dialog id="modal-faq" aria-labelledby="modal-faq-title">
-  <header>
-    <h2 id="modal-faq-title">Frequently Asked Questions</h2>
-    <button type="button" aria-label="Close dialog">
-      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-    </button>
-  </header>
-  <div>
-    <?php
-      $contentPath = BASE_PATH . '/src/Views/partials/content-faq.php';
-      if (file_exists($contentPath)) {
-          require $contentPath;
-      }
-    ?>
-  </div>
-</dialog>
+<template data-modal-content="faq">
+  <dialog id="modal-faq" aria-labelledby="modal-faq-title">
+    <header>
+      <h2 id="modal-faq-title">Frequently Asked Questions</h2>
+      <button type="button" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div>
+      <?php
+        $contentPath = BASE_PATH . '/src/Views/partials/content-faq.php';
+        if (file_exists($contentPath)) {
+            require $contentPath;
+        }
+      ?>
+    </div>
+  </dialog>
+</template>

@@ -14,21 +14,23 @@
  * @see partials/content-how-to.php    — shared content
  */
 ?>
-<dialog id="modal-how-to" aria-labelledby="modal-how-to-title">
-  <header>
-    <h2 id="modal-how-to-title">How It Works</h2>
-    <button type="button" aria-label="Close dialog">
-      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-    </button>
-  </header>
-  <div>
-    <?php
-      $contentHeadingLevel = 'h3';
-      $contentPath = BASE_PATH . '/src/Views/partials/content-how-to.php';
-      if (file_exists($contentPath)) {
-          require $contentPath;
-      }
-      unset($contentHeadingLevel);
-    ?>
-  </div>
-</dialog>
+<template data-modal-content="how-to">
+  <dialog id="modal-how-to" aria-labelledby="modal-how-to-title">
+    <header>
+      <h2 id="modal-how-to-title">How It Works</h2>
+      <button type="button" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div>
+      <?php
+        $contentHeadingLevel = 'h3';
+        $contentPath = BASE_PATH . '/src/Views/partials/content-how-to.php';
+        if (file_exists($contentPath)) {
+            require $contentPath;
+        }
+        unset($contentHeadingLevel);
+      ?>
+    </div>
+  </dialog>
+</template>

@@ -307,7 +307,8 @@ class BaseController
      */
     protected function render(string $view, array $data = []): void
     {
-        extract(array_merge($this->getSharedData(), $data));
+        $merged = array_merge($this->getSharedData(), $data);
+        extract($merged);
 
         ob_start();
         require BASE_PATH . '/src/Views/' . $view . '.php';
@@ -754,6 +755,87 @@ class BaseController
     }
 
     /**
+     * Compute paginated bounds for a list view.
+     *
+     * Reads the page number from $_GET[$param], clamps it to the valid
+     * range derived from $totalCount, and returns the corresponding
+     * offset alongside the totalPages and per-page count.
+     *
+     * @param  int    $totalCount Total row count from the model
+     * @param  int    $perPage    Page size
+     * @param  string $param      GET parameter name for the current page
+     * @return array{page: int, totalPages: int, offset: int, perPage: int}
+     */
+    protected function paginate(int $totalCount, int $perPage = 12, string $param = 'page'): array
+    {
+        $page       = max(1, (int) ($_GET[$param] ?? 1));
+        $totalPages = max(1, (int) ceil($totalCount / $perPage));
+        $page       = min($page, $totalPages);
+
+        return [
+            'page'       => $page,
+            'totalPages' => $totalPages,
+            'offset'     => ($page - 1) * $perPage,
+            'perPage'    => $perPage,
+        ];
+    }
+
+    /**
+     * Filter null values out of a query-string param map.
+     *
+     * Used to build pagination/filter links that only carry the
+     * params the user actually set (sort/dir defaults are passed as
+     * null upstream so they drop out here).
+     *
+     * @param  array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    protected function buildFilterParams(array $params): array
+    {
+        return array_filter($params, static fn(mixed $v): bool => $v !== null);
+    }
+
+    /**
+     * Resolve a same-origin path+query from $_SERVER['HTTP_REFERER'],
+     * falling back to the supplied default URL.
+     *
+     * Refuses cross-origin referers and missing/empty paths; preserves
+     * the original query string so listing filters survive the round-trip.
+     *
+     * @param  string $fallback Default URL when referer is missing or off-origin
+     * @return string Same-origin path+query, or $fallback
+     */
+    protected function safeRefererPath(string $fallback): string
+    {
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+
+        if ($referer === '') {
+            return $fallback;
+        }
+
+        $parsed = parse_url($referer);
+
+        if (!is_array($parsed) || !isset($parsed['path']) || $parsed['path'] === '') {
+            return $fallback;
+        }
+
+        $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+        $curHost = $_SERVER['HTTP_HOST'] ?? '';
+
+        if ($refHost !== '' && $refHost !== $curHost) {
+            return $fallback;
+        }
+
+        $back = $parsed['path'];
+
+        if (isset($parsed['query']) && $parsed['query'] !== '') {
+            $back .= '?' . $parsed['query'];
+        }
+
+        return $back;
+    }
+
+    /**
      * Resolve radius/zip defaults for tool browsing.
      *
      * @param array    $get          The $_GET superglobal
@@ -808,7 +890,8 @@ class BaseController
     {
         http_response_code($code);
 
-        extract($this->getSharedData());
+        $shared = $this->getSharedData();
+        extract($shared);
 
         $errorPage = match ($code) {
             403 => BASE_PATH . '/src/Views/errors/403.php',

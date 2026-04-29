@@ -31,11 +31,9 @@ class DisputeController extends BaseController
         $urgency    = in_array($rawUrgency, self::DISPUTES_ALLOWED_URGENCY, true) ? $rawUrgency : null;
 
         try {
-            $page       = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount = Dispute::getFilteredCount($urgency);
-            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-            $page       = min($page, $totalPages);
-            $offset     = ($page - 1) * self::PER_PAGE;
+            ['page' => $page, 'totalPages' => $totalPages, 'offset' => $offset]
+                = $this->paginate($totalCount, self::PER_PAGE);
             $disputes   = Dispute::getAll(
                 limit:   self::PER_PAGE,
                 offset:  $offset,
@@ -51,11 +49,11 @@ class DisputeController extends BaseController
             $disputes   = [];
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'urgency' => $urgency,
             'sort'    => $sortParams['sort'] === 'created_at_dsp' ? null : $sortParams['sort'],
             'dir'     => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('disputes', [
             'title'        => 'Manage Disputes — NeighborhoodTools',

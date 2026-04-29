@@ -45,9 +45,9 @@ class EventController extends BaseController
             $page = $totalPages;
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'timing' => $timing,
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $attendedIds    = [];
         $attendeeCounts = [];
@@ -378,23 +378,6 @@ class EventController extends BaseController
             $_SESSION['event_flash'] = 'Could not update RSVP. Please try again.';
         }
 
-        $back    = '/events/' . $eventId;
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
-
-        if ($referer !== '') {
-            $parsed  = parse_url($referer);
-            $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
-            $curHost = $_SERVER['HTTP_HOST'] ?? '';
-
-            if ($refHost === $curHost && isset($parsed['path'])) {
-                $back = $parsed['path'];
-
-                if (isset($parsed['query'])) {
-                    $back .= '?' . $parsed['query'];
-                }
-            }
-        }
-
-        $this->redirect($back);
+        $this->redirect($this->safeRefererPath('/events/' . $eventId));
     }
 }

@@ -122,11 +122,9 @@ class AdminController extends BaseController
         }
 
         try {
-            $page       = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount = Account::getFilteredCount($role, $status, $search, $excludeDeleted);
-            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-            $page       = min($page, $totalPages);
-            $offset     = ($page - 1) * self::PER_PAGE;
+            ['page' => $page, 'totalPages' => $totalPages, 'offset' => $offset]
+                = $this->paginate($totalCount, self::PER_PAGE);
             $users      = Account::getAllForAdmin(
                 limit:  self::PER_PAGE,
                 offset: $offset,
@@ -151,14 +149,14 @@ class AdminController extends BaseController
         } catch (\Throwable) {
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'tab'    => $tab === 'deleted' ? 'deleted' : null,
             'q'      => $search,
             'role'   => $role,
             'status' => $tab === 'active' ? $status : null,
             'sort'   => $sortParams['sort'] === 'full_name' ? null : $sortParams['sort'],
             'dir'    => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('users', [
             'title'        => 'Manage Users — NeighborhoodTools',
@@ -643,11 +641,9 @@ class AdminController extends BaseController
         $incidentsOnly = ($_GET['incidents'] ?? '') === '1';
 
         try {
-            $page       = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount = Tool::getAdminFilteredCount($condition, $incidentsOnly, $search);
-            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-            $page       = min($page, $totalPages);
-            $offset     = ($page - 1) * self::PER_PAGE;
+            ['page' => $page, 'totalPages' => $totalPages, 'offset' => $offset]
+                = $this->paginate($totalCount, self::PER_PAGE);
             $tools      = Tool::getAdminList(
                 limit:         self::PER_PAGE,
                 offset:        $offset,
@@ -665,13 +661,13 @@ class AdminController extends BaseController
             $tools      = [];
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'q'         => $search,
             'condition' => $condition,
             'incidents' => $incidentsOnly ? '1' : null,
             'sort'      => $sortParams['sort'] === 'created_at_tol' ? null : $sortParams['sort'],
             'dir'       => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('tools', [
             'title'         => 'Manage Tools — NeighborhoodTools',
@@ -713,11 +709,9 @@ class AdminController extends BaseController
         $incidentsOnly = ($_GET['incidents'] ?? '') === '1';
 
         try {
-            $page       = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount = Deposit::getAdminFilteredCount($status, $action, $search, $incidentsOnly);
-            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-            $page       = min($page, $totalPages);
-            $offset     = ($page - 1) * self::PER_PAGE;
+            ['page' => $page, 'totalPages' => $totalPages, 'offset' => $offset]
+                = $this->paginate($totalCount, self::PER_PAGE);
             $deposits   = Deposit::getAdminList(
                 limit:         self::PER_PAGE,
                 offset:        $offset,
@@ -736,14 +730,14 @@ class AdminController extends BaseController
             $page       = 1;
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'q'         => $search,
             'status'    => $status,
             'action'    => $action,
             'sort'      => $sortParams['sort'] === 'created_at_sdp' ? null : $sortParams['sort'],
             'dir'       => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
             'incidents' => $incidentsOnly ? '1' : null,
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('deposits', [
             'title'         => 'Manage Deposits',
@@ -805,11 +799,11 @@ class AdminController extends BaseController
             $events       = [];
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'timing' => $timing,
             'sort'   => $sortParams['sort'] === 'start_at_evt' ? null : $sortParams['sort'],
             'dir'    => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('events', [
             'title'         => 'Manage Events — NeighborhoodTools',
@@ -854,11 +848,9 @@ class AdminController extends BaseController
         };
 
         try {
-            $page       = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount = Incident::getFilteredOpenCount($type, $deadlineMet);
-            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-            $page       = min($page, $totalPages);
-            $offset     = ($page - 1) * self::PER_PAGE;
+            ['page' => $page, 'totalPages' => $totalPages, 'offset' => $offset]
+                = $this->paginate($totalCount, self::PER_PAGE);
             $incidents  = Incident::getOpen(
                 limit:       self::PER_PAGE,
                 offset:      $offset,
@@ -875,12 +867,12 @@ class AdminController extends BaseController
             $incidents  = [];
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'type'     => $type,
             'deadline' => $rawDeadline !== '' && $deadlineMet !== null ? $rawDeadline : null,
             'sort'     => $sortParams['sort'] === 'created_at_irt' ? null : $sortParams['sort'],
             'dir'      => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('incidents', [
             'title'        => 'Manage Incidents — NeighborhoodTools',
@@ -937,10 +929,10 @@ class AdminController extends BaseController
             $neighborhoods = [];
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'sort' => $sortParams['sort'] === 'neighborhood_name_nbh' ? null : $sortParams['sort'],
             'dir'  => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('reports', [
             'title'          => 'Reports — NeighborhoodTools',
@@ -990,11 +982,9 @@ class AdminController extends BaseController
         $sortParams = $this->parseSortParams('', self::TOS_SORT_FIELDS, 'last_login_at_acc', 'DESC');
 
         try {
-            $page       = max(1, (int) ($_GET['page'] ?? 1));
             $totalCount = Tos::getNonCompliantCount();
-            $totalPages = max(1, (int) ceil($totalCount / self::PER_PAGE));
-            $page       = min($page, $totalPages);
-            $offset     = ($page - 1) * self::PER_PAGE;
+            ['page' => $page, 'totalPages' => $totalPages, 'offset' => $offset]
+                = $this->paginate($totalCount, self::PER_PAGE);
             $users      = Tos::getNonCompliantUsers(
                 limit:  self::PER_PAGE,
                 offset: $offset,
@@ -1009,10 +999,10 @@ class AdminController extends BaseController
             $users      = [];
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'sort' => $sortParams['sort'] === 'last_login_at_acc' ? null : $sortParams['sort'],
             'dir'  => $sortParams['dir'] === 'DESC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('tos', [
             'title'        => 'Manage Terms of Service — NeighborhoodTools',
@@ -1175,12 +1165,12 @@ class AdminController extends BaseController
             $totalCount = 0;
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'q'    => $search,
             'icon' => $rawIcon !== '' && $hasIcon !== null ? $rawIcon : null,
             'sort' => $sortParams['sort'] === 'category_name_cat' ? null : $sortParams['sort'],
             'dir'  => $sortParams['dir'] === 'ASC' ? null : $sortParams['dir'],
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('categories', [
             'title'        => 'Manage Categories — NeighborhoodTools',
@@ -1684,11 +1674,9 @@ class AdminController extends BaseController
         };
 
         try {
-            $iconsPage       = max(1, (int) ($_GET['icons_page'] ?? 1));
             $iconsTotalCount = VectorImage::getFilteredCount($iconsSearch, $iconsAssigned);
-            $iconsTotalPages = max(1, (int) ceil($iconsTotalCount / $perPage));
-            $iconsPage       = min($iconsPage, $iconsTotalPages);
-            $iconsOffset     = ($iconsPage - 1) * $perPage;
+            ['page' => $iconsPage, 'totalPages' => $iconsTotalPages, 'offset' => $iconsOffset]
+                = $this->paginate($iconsTotalCount, $perPage, 'icons_page');
             $categoryVectors = VectorImage::getFiltered(
                 limit:    $perPage,
                 offset:   $iconsOffset,
@@ -1698,11 +1686,9 @@ class AdminController extends BaseController
                 assigned: $iconsAssigned,
             );
 
-            $avatarsPage       = max(1, (int) ($_GET['avatars_page'] ?? 1));
             $avatarsTotalCount = AvatarVector::getFilteredCount($avatarsSearch, $avatarsActive);
-            $avatarsTotalPages = max(1, (int) ceil($avatarsTotalCount / $perPage));
-            $avatarsPage       = min($avatarsPage, $avatarsTotalPages);
-            $avatarsOffset     = ($avatarsPage - 1) * $perPage;
+            ['page' => $avatarsPage, 'totalPages' => $avatarsTotalPages, 'offset' => $avatarsOffset]
+                = $this->paginate($avatarsTotalCount, $perPage, 'avatars_page');
             $avatarVectors     = AvatarVector::getFiltered(
                 limit:  $perPage,
                 offset: $avatarsOffset,
@@ -1723,21 +1709,21 @@ class AdminController extends BaseController
             $avatarsTotalCount = 0;
         }
 
-        $iconsFilterParams = array_filter([
+        $iconsFilterParams = $this->buildFilterParams([
             'icons_q'        => $iconsSearch,
             'icons_assigned' => $rawIconsAssigned !== '' && $iconsAssigned !== null ? $rawIconsAssigned : null,
             'icons_sort'     => $iconsSortP['sort'] === 'uploaded_at_vec' ? null : $iconsSortP['sort'],
             'icons_dir'      => $iconsSortP['dir'] === 'DESC' ? null : $iconsSortP['dir'],
             'avatars_page'   => $avatarsPage > 1 ? $avatarsPage : null,
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
-        $avatarsFilterParams = array_filter([
+        $avatarsFilterParams = $this->buildFilterParams([
             'avatars_q'      => $avatarsSearch,
             'avatars_status' => $rawAvatarsStatus !== '' && $avatarsActive !== null ? $rawAvatarsStatus : null,
             'avatars_sort'   => $avatarsSortP['sort'] === 'uploaded_at_avv' ? null : $avatarsSortP['sort'],
             'avatars_dir'    => $avatarsSortP['dir'] === 'DESC' ? null : $avatarsSortP['dir'],
             'icons_page'     => $iconsPage > 1 ? $iconsPage : null,
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $this->renderAdmin('images', [
             'title'               => 'Manage Images — NeighborhoodTools',

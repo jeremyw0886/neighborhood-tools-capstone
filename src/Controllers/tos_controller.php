@@ -68,7 +68,7 @@ class TosController extends BaseController
         // Silently skip if already accepted (UNIQUE constraint would throw otherwise)
         if (Tos::hasUserAccepted(accountId: $accountId, tosId: $tosId)) {
             $_SESSION[$cacheKey] = true;
-            $this->redirect($wasEnforced ? '/' : $this->resolveBackUrl());
+            $this->redirect($wasEnforced ? '/' : $this->safeRefererPath('/tos'));
         }
 
         try {
@@ -79,26 +79,7 @@ class TosController extends BaseController
             $this->abort(500);
         }
 
-        $this->redirect($wasEnforced ? '/' : $this->resolveBackUrl());
+        $this->redirect($wasEnforced ? '/' : $this->safeRefererPath('/tos'));
     }
 
-    /**
-     * Resolve a safe back URL from the HTTP referrer.
-     */
-    private function resolveBackUrl(): string
-    {
-        $referrer = $_SERVER['HTTP_REFERER'] ?? '';
-        $host     = $_SERVER['HTTP_HOST'] ?? '';
-
-        if ($referrer !== '' && $host !== '') {
-            $parsed  = parse_url($referrer);
-            $refHost = $parsed['host'] ?? '';
-
-            if ($refHost === $host) {
-                return $parsed['path'] ?? '/tos';
-            }
-        }
-
-        return '/tos';
-    }
 }

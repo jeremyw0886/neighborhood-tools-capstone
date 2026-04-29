@@ -120,13 +120,13 @@ class ToolController extends BaseController
         }
 
         // Build query string for pagination links (preserves all active filters)
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'q'        => $term !== '' ? $term : null,
             'category' => $categoryId,
             'zip'      => $zip,
             'radius'   => $radius,
             'max_fee'  => $maxFee,
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         // Compute slider ceiling from the highest rental fee across categories
         $sliderMax = 0;
@@ -590,24 +590,7 @@ class ToolController extends BaseController
             $_SESSION['bookmark_flash'] = 'Could not update bookmark. Please try again.';
         }
 
-        $back    = '/tools/' . $toolId;
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
-
-        if ($referer !== '') {
-            $parsed  = parse_url($referer);
-            $refHost = ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
-            $curHost = $_SERVER['HTTP_HOST'] ?? '';
-
-            if ($refHost === $curHost && isset($parsed['path'])) {
-                $back = $parsed['path'];
-
-                if (isset($parsed['query'])) {
-                    $back .= '?' . $parsed['query'];
-                }
-            }
-        }
-
-        $this->redirect($back);
+        $this->redirect($this->safeRefererPath('/tools/' . $toolId));
     }
 
     /**

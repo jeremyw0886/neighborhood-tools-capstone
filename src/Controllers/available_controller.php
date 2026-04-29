@@ -113,13 +113,13 @@ class AvailableController extends BaseController
             $page = $totalPages;
         }
 
-        $filterParams = array_filter([
+        $filterParams = $this->buildFilterParams([
             'q'        => $term !== '' ? $term : null,
             'category' => $categoryId,
             'zip'      => $zip,
             'radius'   => $radius,
             'max_fee'  => $maxFee,
-        ], static fn(mixed $v): bool => $v !== null);
+        ]);
 
         $sliderMax = 0;
         foreach ($categories as $cat) {
@@ -142,7 +142,8 @@ class AvailableController extends BaseController
 
         if ($this->isXhr()) {
             $basePath = '/available';
-            extract($this->getSharedData());
+            $shared   = $this->getSharedData();
+            extract($shared);
 
             ob_start();
             foreach ($tools as $tool) {

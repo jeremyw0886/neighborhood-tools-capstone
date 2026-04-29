@@ -9,8 +9,8 @@ const TOAST_DURATION = 5_000;
 /**
  * Thin fetch() wrapper with CSRF, timeout, and session-expiry detection.
  *
- * @param {string} url
- * @param {RequestInit & { timeout?: number }} opts
+ * @param {string} url - Request URL
+ * @param {RequestInit & { timeout?: number }} opts - Standard fetch options plus an optional timeout in ms
  * @returns {Promise<Response>}
  */
 const ntFetch = async (url, opts = {}) => {
@@ -91,9 +91,9 @@ class ToastManager {
   /**
    * Show a toast notification.
    *
-   * @param {string} message
-   * @param {'success'|'error'|'info'} type
-   * @param {number} duration
+   * @param {string} message - Toast body text
+   * @param {'success'|'error'|'info'} type - Visual variant
+   * @param {number} duration - Auto-dismiss timeout in ms; 0 disables auto-dismiss
    */
   show(message, type = 'info', duration = TOAST_DURATION) {
     const container = this.#getContainer();
@@ -127,7 +127,6 @@ class ToastManager {
     }
   }
 
-  /** @param {HTMLElement} el */
   #remove(el) {
     if (!el.parentNode) return;
 
@@ -140,6 +139,9 @@ class ToastManager {
     el.addEventListener('animationend', () => el.remove(), { once: true });
   }
 
+  /**
+   * Move server-rendered `[data-flash]` nodes into the toast container with dismiss buttons.
+   */
   migrateFlashMessages() {
     const flashes = document.querySelectorAll('[data-flash]');
     if (flashes.length === 0) return;
@@ -181,9 +183,9 @@ class StyleManager {
   /**
    * Set a CSS rule keyed by a unique ID.
    *
-   * @param {string} key
-   * @param {string} selector
-   * @param {string} declarations
+   * @param {string} key - Stable identifier used to update or remove the rule later
+   * @param {string} selector - CSS selector for the rule
+   * @param {string} declarations - Property declarations (no surrounding braces)
    */
   setRule(key, selector, declarations) {
     this.removeRule(key);
@@ -194,7 +196,7 @@ class StyleManager {
   /**
    * Remove a previously set rule by key.
    *
-   * @param {string} key
+   * @param {string} key - Identifier passed to a prior setRule call
    */
   removeRule(key) {
     if (!this.#ruleMap.has(key)) return;
@@ -209,7 +211,7 @@ class StyleManager {
   /**
    * Apply object-position from data-focal-x / data-focal-y on images.
    *
-   * @param {Element} root
+   * @param {Element} root - Element (or document) whose `<img>` descendants are scanned
    */
   applyFocalPoints(root = document) {
     const imgs = (root.matches?.('img') ? [root] : root.querySelectorAll('img'));
@@ -247,8 +249,8 @@ class FocusManager {
   /**
    * Trap keyboard focus within a container.
    *
-   * @param {HTMLElement} container
-   * @returns {() => void} release function
+   * @param {HTMLElement} container - Element that should retain focus while trapped
+   * @returns {() => void}
    */
   trap(container) {
     const handler = (e) => {
@@ -277,8 +279,8 @@ class FocusManager {
   /**
    * Announce a message to screen readers.
    *
-   * @param {string} message
-   * @param {'polite'|'assertive'} priority
+   * @param {string} message - Text to announce
+   * @param {'polite'|'assertive'} priority - aria-live priority for the announcement
    */
   announce(message, priority = 'polite') {
     if (!this.#announceRegion) {
@@ -306,8 +308,8 @@ class ConfirmDialog {
   /**
    * Promise-based replacement for window.confirm().
    *
-   * @param {string} message
-   * @param {string} confirmLabel
+   * @param {string} message - Prompt text shown in the dialog
+   * @param {string} confirmLabel - Label for the danger-intent confirm button
    * @returns {Promise<boolean>}
    */
   show(message, confirmLabel = 'Delete') {
@@ -361,7 +363,7 @@ class DecisionDialog {
   /**
    * Show a post-action decision dialog with contextual navigation.
    *
-   * @param {{ message: string, detail?: string, nextUrl: string, nextLabel: string, stayLabel: string }} data
+   * @param {{ message: string, detail?: string, nextUrl: string, nextLabel: string, stayLabel: string }} data - Dialog content and target URL/labels
    */
   show({ message, detail, nextUrl, nextLabel, stayLabel }) {
     const dialog = document.createElement('dialog');
@@ -451,7 +453,21 @@ class AutosuggestController {
   #currentItems = [];
   #abortController = new AbortController();
 
-  /** @param {Object} config */
+  /**
+   * @typedef {object} AutosuggestConfig
+   * @property {string}   inputId            ID of the `<input>` to enhance.
+   * @property {string}   fetchUrl           URL to fetch suggestions from; receives `?q=…&limit=…`.
+   * @property {number}   [minLength=2]      Minimum query length before fetch fires.
+   * @property {number}   [limit=5]          Max suggestions to display.
+   * @property {string}   [labelKey]         Key used to read display text from a suggestion object;
+   *                                          omit when the API returns plain strings.
+   * @property {(item: any) => void} [onSelect]
+   *                                          Called with the chosen suggestion object/string.
+   * @property {(item: any, li: HTMLLIElement) => void} [renderItem]
+   *                                          Override the default `<li>` content. Receives the empty `<li>`.
+   *
+   * @param {AutosuggestConfig} config
+   */
   constructor(config) {
     this.#input = document.getElementById(config.inputId);
     this.#form = this.#input.closest('form');
@@ -483,9 +499,10 @@ class AutosuggestController {
   }
 
   /**
-   * Factory that returns null when the input is missing.
+   * Build an autosuggest controller, returning null when the target
+   *  input is missing from the DOM or is not inside a form.
    *
-   * @param {Object} config
+   * @param {AutosuggestConfig} config - Configuration for the new controller
    * @returns {AutosuggestController|null}
    */
   static create(config) {
@@ -494,6 +511,9 @@ class AutosuggestController {
     return new AutosuggestController(config);
   }
 
+  /**
+   * Detach listeners, abort any in-flight fetch, and remove the dropdown.
+   */
   destroy() {
     this.#abortController.abort();
     clearTimeout(this.#debounceTimer);
@@ -521,7 +541,6 @@ class AutosuggestController {
     this.#setActiveIndex(-1);
   }
 
-  /** @param {number} index */
   #setActiveIndex(index) {
     const options = this.#dropdown.querySelectorAll('[role="option"]');
 
@@ -550,7 +569,6 @@ class AutosuggestController {
     }
   }
 
-  /** @param {Array} items */
   #renderSuggestions(items) {
     if (!items.length) {
       this.#hideDropdown();
@@ -582,7 +600,6 @@ class AutosuggestController {
     this.#showDropdown();
   }
 
-  /** @param {string} query */
   async #fetchSuggestions(query) {
     this.#fetchController?.abort();
     this.#fetchController = new AbortController();
@@ -621,7 +638,6 @@ class AutosuggestController {
     setTimeout(() => this.#hideDropdown(), 150);
   };
 
-  /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     const options = this.#dropdown.querySelectorAll('[role="option"]');
     const count = options.length;
@@ -657,7 +673,11 @@ class ScrollToTop {
   #rafId = 0;
   #lastProgress = -1;
 
-  /** @param {HTMLElement} main */
+  /**
+   * Build the scroll-to-top button and bind scroll/resize listeners.
+   *
+   * @param {HTMLElement} main - Main content element used as the visibility anchor
+   */
   constructor(main) {
     this.#btn = document.createElement('button');
     this.#btn.id = 'scroll-top';
@@ -676,7 +696,11 @@ class ScrollToTop {
     });
   }
 
-  /** @returns {ScrollToTop|null} */
+  /**
+   * Initialize the singleton ScrollToTop when the main content element is present.
+   *
+   * @returns {ScrollToTop|null}
+   */
   static init() {
     if (ScrollToTop.#instance) return ScrollToTop.#instance;
     const main = document.getElementById('main-content');
@@ -684,6 +708,9 @@ class ScrollToTop {
     return (ScrollToTop.#instance = new ScrollToTop(main));
   }
 
+  /**
+   * Detach listeners, cancel the pending rAF, remove the button, drop the progress rule, and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     cancelAnimationFrame(this.#rafId);
@@ -788,19 +815,25 @@ class LazyFadeIn {
     this.#mutationObserver.observe(document.body, { childList: true, subtree: true });
   }
 
-  /** @returns {LazyFadeIn|null} */
+  /**
+   * Initialize the singleton LazyFadeIn when motion is allowed.
+   *
+   * @returns {LazyFadeIn|null}
+   */
   static init() {
     if (LazyFadeIn.#instance) return LazyFadeIn.#instance;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
     return (LazyFadeIn.#instance = new LazyFadeIn());
   }
 
+  /**
+   * Disconnect the mutation observer and reset the singleton.
+   */
   destroy() {
     this.#mutationObserver.disconnect();
     LazyFadeIn.#instance = null;
   }
 
-  /** @param {HTMLImageElement} img */
   static #observeImage(img) {
     if (img.dataset.loaded !== undefined) return;
 
@@ -818,7 +851,7 @@ class LazyFadeIn {
 /**
  * Derive an error-element ID from a field's id or name.
  *
- * @param {HTMLElement} field
+ * @param {HTMLElement} field - Form field whose id or name is converted into an error-id
  * @returns {string}
  */
 const errorIdFor = (field) =>
@@ -827,7 +860,7 @@ const errorIdFor = (field) =>
 /**
  * Build a human-readable message from the Constraint Validation API.
  *
- * @param {HTMLElement} field
+ * @param {HTMLElement} field - Field whose `validity` state is inspected
  * @returns {string}
  */
 const validationMessage = (field) => {
@@ -853,7 +886,7 @@ const validationMessage = (field) => {
 /**
  * Show an inline error for a field.
  *
- * @param {HTMLElement} field
+ * @param {HTMLElement} field - Field to flag as invalid with an inline error message
  */
 const showFieldError = (field) => {
   const id = errorIdFor(field);
@@ -891,7 +924,7 @@ const showFieldError = (field) => {
 /**
  * Remove a JS-rendered inline error for a field.
  *
- * @param {HTMLElement} field
+ * @param {HTMLElement} field - Field whose inline error and aria attributes are cleared
  */
 const clearFieldError = (field) => {
   const id = errorIdFor(field);
@@ -913,7 +946,7 @@ const clearFieldError = (field) => {
 /**
  * Validate all fields in a form.
  *
- * @param {HTMLFormElement} form
+ * @param {HTMLFormElement} form - Form whose fields are checked and flagged
  * @returns {boolean}
  */
 const validateForm = (form) => {
@@ -938,7 +971,7 @@ const validateForm = (form) => {
 /**
  * Warn on unsaved changes via beforeunload.
  *
- * @param {HTMLFormElement} form
+ * @param {HTMLFormElement} form - Form to track for dirty state
  */
 const trackDirty = (form) => {
   let dirty = false;
@@ -973,8 +1006,8 @@ const trackDirty = (form) => {
 /**
  * Append a live character counter below a textarea.
  *
- * @param {HTMLTextAreaElement} textarea
- * @param {number} max
+ * @param {HTMLTextAreaElement} textarea - Textarea to monitor and annotate
+ * @param {number} max - Maximum character count displayed in the counter
  */
 const charCounter = (textarea, max) => {
   const counter = document.createElement('span');
@@ -1006,8 +1039,8 @@ const charCounter = (textarea, max) => {
 /**
  * Show an image preview when a file input changes.
  *
- * @param {HTMLInputElement} input
- * @param {HTMLElement} container
+ * @param {HTMLInputElement} input - File input whose chosen image is previewed
+ * @param {HTMLElement} container - Container that receives the generated `<img>`
  */
 const imagePreview = (input, container) => {
   let objectUrl = null;
@@ -1060,11 +1093,10 @@ const initFormValidation = () => {
 
 /**
  * Focus the first server-flagged invalid field on page load so users
- * land on the offending input after a redirect-rerender validation cycle.
- *
+ *  land on the offending input after a redirect-rerender validation cycle.
  * Submit-time focus is handled by initFormValidation() above; this only
- * covers the post-redirect render path where aria-invalid="true" is
- * already in the DOM.
+ *  covers the post-redirect render path where aria-invalid="true" is
+ *  already in the DOM.
  */
 const initServerErrorFocus = () => {
   const target = document.querySelector(
@@ -1186,7 +1218,7 @@ class BadgeManager {
   /**
    * Update the notification badge count in both desktop and mobile nav.
    *
-   * @param {number} count
+   * @param {number} count - New unread-notification count
    */
   set(count) {
     const bellLink = this.#getBellLink();

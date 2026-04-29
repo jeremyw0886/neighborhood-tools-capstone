@@ -7,8 +7,24 @@ namespace App\Models;
 use App\Core\Database;
 use PDO;
 
+/**
+ * RSVP membership for community events.
+ *
+ * Thin wrapper over `event_attendee_eya` — toggle in/out, attendance
+ * lookups, and per-event headcounts (single + batch).
+ */
 class EventAttendance
 {
+    /**
+     * Toggle the user's RSVP for an event.
+     *
+     * Tries DELETE first; if it removed a row the user was attending and
+     * is now not. Otherwise INSERTs the attendance row. Treats the unique
+     * constraint violation (SQLSTATE 23000) as success so a concurrent
+     * double-click can't crash the request.
+     *
+     * @return bool  TRUE if the user is now attending, FALSE if they just left
+     */
     public static function toggle(int $userId, int $eventId): bool
     {
         $pdo = Database::connection();
@@ -45,6 +61,9 @@ class EventAttendance
         }
     }
 
+    /**
+     * Whether `$userId` currently has an RSVP for `$eventId`.
+     */
     public static function isAttending(int $userId, int $eventId): bool
     {
         $pdo = Database::connection();
@@ -82,6 +101,9 @@ class EventAttendance
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    /**
+     * Headcount of RSVPs for a single event.
+     */
     public static function getAttendeeCount(int $eventId): int
     {
         $pdo = Database::connection();

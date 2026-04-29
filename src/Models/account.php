@@ -9,6 +9,23 @@ use App\Core\FileCache;
 use App\Core\Role;
 use PDO;
 
+/**
+ * Account / member persistence — auth, profile, ratings, admin user-management.
+ *
+ * The largest model in the project. Queries normally read from
+ * `active_account_v` (filters out soft-deleted rows) and write through
+ * stored procedures, but admin-side methods (`getAllForAdmin`,
+ * `getFilteredCount`, `findByIdForAdmin`, the purge helpers) intentionally
+ * read `account_acc` directly because the admin panel must see suspended
+ * and soft-deleted users, not just active ones.
+ *
+ * **Password-hash exposure:** `findByLogin()` and the password-update path
+ * select `password_hash_acc` because the auth controller needs it to call
+ * `password_verify()` / `password_hash()`. Treat that column as the auth
+ * controller's blast radius — never thread it through views, JSON
+ * responses, flash data, or any other model. Every other read goes
+ * through `active_account_v` / `account_profile_v`, which omit the column.
+ */
 class Account
 {
     private const array ADMIN_ALLOWED_SORTS = [
@@ -466,20 +483,6 @@ class Account
     }
 
     /**
-     * Fetch top-rated active members for Friendly Neighbors + sidebar fallback.
-     *
-     * Ranks via a Bayesian-weighted score — (v / (v + m)) * avg_rating, with
-     * m = 5 acting as a prior — so a single 5-star rating doesn't outrank a
-     * member with many strong ratings. Tools + completed borrows tiebreak.
-     *
-     * @param  int      $limit            Max members to return
-     * @param  int|null $excludeAccountId Account ID to omit (logged-in user)
-     * @return array<int, array{id_acc: int, username: string, avatar: ?string,
-     *               vector_avatar: ?string, avg_rating: float, bio: ?string,
-     *               tools_owned: int, completed_borrows: int,
-     *               total_rating_count: int, is_top_member: int}>
-     */
-    /**
      * Cached wrapper around getTopMembers(). Stores a single universal
      * list (no exclusion) in the shared file cache, then filters the
      * current user in PHP. One cache entry serves every visitor instead
@@ -511,6 +514,20 @@ class Account
         return array_slice($members, 0, $limit);
     }
 
+    /**
+     * Fetch top-rated active members for Friendly Neighbors + sidebar fallback.
+     *
+     * Ranks via a Bayesian-weighted score — (v / (v + m)) * avg_rating, with
+     * m = 5 acting as a prior — so a single 5-star rating doesn't outrank a
+     * member with many strong ratings. Tools + completed borrows tiebreak.
+     *
+     * @param  int      $limit            Max members to return
+     * @param  int|null $excludeAccountId Account ID to omit (logged-in user)
+     * @return array<int, array{id_acc: int, username: string, avatar: ?string,
+     *               vector_avatar: ?string, avg_rating: float, bio: ?string,
+     *               tools_owned: int, completed_borrows: int,
+     *               total_rating_count: int, is_top_member: int}>
+     */
     public static function getTopMembers(int $limit = 3, ?int $excludeAccountId = null): array
     {
         $pdo = Database::connection();

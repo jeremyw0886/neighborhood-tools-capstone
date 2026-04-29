@@ -7,9 +7,20 @@ namespace App\Models;
 use App\Core\Database;
 use PDO;
 
+/**
+ * Password-reset token persistence.
+ *
+ * Tokens are 64-character hex strings (32 bytes from `random_bytes`) — the
+ * raw value goes out in the reset email; only the SHA-256 hash is stored
+ * in `password_reset_pwr`, so a leaked database can't be turned into
+ * usable reset links. `findValidToken()` joins `active_account_v` and
+ * checks `account_status = 'active'` so suspended, pending, or
+ * soft-deleted accounts can't complete a reset even if their token row
+ * survived. Tokens self-expire after `TOKEN_LIFETIME_MINUTES`.
+ */
 class PasswordReset
 {
-    private const TOKEN_LIFETIME_MINUTES = 60;
+    private const int TOKEN_LIFETIME_MINUTES = 60;
 
     /**
      * Generate a reset token for an account.

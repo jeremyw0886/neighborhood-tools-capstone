@@ -7,6 +7,17 @@ namespace App\Models;
 use App\Core\Database;
 use PDO;
 
+/**
+ * Borrow-transaction persistence — every loan moves through this model.
+ *
+ * Reads use the borrow views (`active_borrow_v`, `overdue_borrow_v`,
+ * `pending_request_v`) and writes dispatch the stored procedures
+ * (`sp_create_borrow_request`, `sp_approve_borrow_request`,
+ * `sp_deny_borrow_request`, `sp_complete_pickup`, `sp_complete_return`,
+ * `sp_cancel_borrow_request`, `sp_extend_loan`) — never raw INSERT/UPDATE
+ * against `borrow_bor`, because DB triggers enforce status-transition
+ * rules and the immutability of `due_at_bor`.
+ */
 class Borrow
 {
     /**

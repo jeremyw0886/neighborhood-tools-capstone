@@ -7,6 +7,16 @@ namespace App\Models;
 use App\Core\Database;
 use PDO;
 
+/**
+ * Handover-code persistence for the pickup and return flow.
+ *
+ * Each row in `handover_verification_hov` is a six-character code with a
+ * 24-hour expiry that the counterparty enters to confirm a pickup or
+ * return. This model handles `create()` (with a duplicate-pending guard
+ * per borrow + type), code retrieval, the pending-handover lookup
+ * (single + bulk via `pending_handover_v`), expiry deletion, and the
+ * final `markVerified()` after the counterparty enters the code.
+ */
 class Handover
 {
     /**

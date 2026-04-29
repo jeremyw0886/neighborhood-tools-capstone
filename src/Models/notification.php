@@ -7,6 +7,15 @@ namespace App\Models;
 use App\Core\Database;
 use PDO;
 
+/**
+ * In-app notification persistence.
+ *
+ * Reads typically go through `unread_notification_v`, but `getUnreadCount()`
+ * deliberately runs a direct `COUNT(*)` against `notification_ntf` so it
+ * can hit the covering index `idx_unread_timeline_type_ntf` instead of
+ * paying for the view's multi-table joins on every nav-badge poll.
+ * Writes flow through `sp_send_notification` and `sp_mark_notifications_read`.
+ */
 class Notification
 {
     private const array REQUIRED_TYPES = ['request', 'approval', 'denial', 'role_change'];

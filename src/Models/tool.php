@@ -9,6 +9,18 @@ use App\Core\FileCache;
 use App\Models\PlatformStats;
 use PDO;
 
+/**
+ * Tool catalog persistence — listings, images, availability blocks, search.
+ *
+ * The other large model in the project. Public catalog reads use
+ * `available_tool_v` (filters out unlisted, owner-borrowed, and tools
+ * with active borrows); detail-page reads use `tool_detail_v`. Search
+ * fans out to `sp_search_available_tools()`. Writes go through
+ * `Tool::create()` / `Tool::update()` (typed named args) and the image
+ * helpers below — never raw INSERT/UPDATE against `tool_tol`. Image-row
+ * reads/writes (the `_tim` suffix) live here too because they share the
+ * same transactional context as their parent tool.
+ */
 class Tool
 {
     private static ?array $browseCountsCache = null;
@@ -1059,10 +1071,7 @@ class Tool
     /**
      * Create a new tool listing with category assignment and optional images.
      *
-     * @param  array{tool_name: string, description: ?string, rental_fee: float,
-     *               owner_id: int, category_id: int, condition: string,
-     *               loan_duration: ?int,
-     *               image_filenames: array<array{filename: string, alt_text: ?string, width: ?int}>} $data
+     * @param  array<array{filename: string, alt_text?: ?string, width?: ?int, focal_x?: int, focal_y?: int}> $imageFilenames
      * @return int  The new tool's primary key (id_tol)
      */
     public static function create(

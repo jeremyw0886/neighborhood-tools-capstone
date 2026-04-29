@@ -9,7 +9,7 @@ namespace App\Core;
  */
 final class ImageProcessor
 {
-    public const array VARIANT_WIDTHS = [1200, 900, 600, 400];
+    public const array VARIANT_WIDTHS = [1200, 900, 600, 540, 400];
 
     private const float ASPECT_RATIO = 3 / 2;
 

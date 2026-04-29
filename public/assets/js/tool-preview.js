@@ -5,6 +5,9 @@ class ToolPreview {
   static #TOOLTIP_ID = 'tool-preview-tip';
   static #CONTAINER_SELECTOR = '[data-tool-preview]';
   static #CARD_SELECTOR = '[data-tool-preview] article';
+  static #HIDE_DELAY_MS = 80;
+  static #ABOVE_THRESHOLD_PX = 50;
+  static #GAP_PX = 8;
 
   /** @type {HTMLDivElement} */
   #tooltip;
@@ -25,8 +28,8 @@ class ToolPreview {
   }
 
   /**
-   * Mount a single document-delegated tooltip. Returns null on coarse/hoverless
-   * pointers so mobile pays zero runtime cost beyond parsing this file.
+   * Mount a single document-delegated tooltip.
+   *  Returns null on coarse/hoverless pointers so mobile pays zero runtime cost beyond parsing this file.
    *
    * @returns {ToolPreview|null}
    */
@@ -37,6 +40,9 @@ class ToolPreview {
     return (ToolPreview.#instance = new ToolPreview());
   }
 
+  /**
+   * Cancel the pending hide timer, detach listeners, remove the tooltip element, drop the position rule, and reset the singleton.
+   */
   destroy() {
     clearTimeout(this.#hideTimeout);
     this.#abortController.abort();
@@ -112,16 +118,16 @@ class ToolPreview {
       }
       this.#activeCard = null;
       if (window.NT) NT.style.removeRule('tool-preview-pos');
-    }, 80);
+    }, ToolPreview.#HIDE_DELAY_MS);
   }
 
   #position(card) {
     const rect = card.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2 + window.scrollX;
-    const above = rect.top > 50;
+    const above = rect.top > ToolPreview.#ABOVE_THRESHOLD_PX;
     const top = above
-      ? rect.top + window.scrollY - 8
-      : rect.bottom + window.scrollY + 8;
+      ? rect.top + window.scrollY - ToolPreview.#GAP_PX
+      : rect.bottom + window.scrollY + ToolPreview.#GAP_PX;
 
     if (window.NT) {
       NT.style.setRule(

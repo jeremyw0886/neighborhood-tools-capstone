@@ -11,33 +11,43 @@ class DepositActionForm {
   #forfeitInputs;
   #abortController = new AbortController();
 
-  /** @param {HTMLFormElement} form */
-  constructor(form) {
+  /**
+   * @param {HTMLFormElement} form - The deposit-process form
+   * @param {HTMLFieldSetElement} forfeitFieldset - The fieldset whose visibility tracks the selected action
+   */
+  constructor(form, forfeitFieldset) {
     this.#form = form;
-    this.#forfeitFieldset = form.querySelectorAll('fieldset')[1];
-    this.#forfeitInputs = this.#forfeitFieldset.querySelectorAll('input, textarea');
+    this.#forfeitFieldset = forfeitFieldset;
+    this.#forfeitInputs = forfeitFieldset.querySelectorAll('input, textarea');
     this.#form.addEventListener('change', this.#handleChange, { signal: this.#abortController.signal });
     this.#sync();
   }
 
+  /**
+   * Wire up the forfeit-details fieldset on the deposit-process form.
+   *
+   * @returns {DepositActionForm|null}
+   */
   static init() {
     if (DepositActionForm.#instance) return DepositActionForm.#instance;
     const form = document.querySelector('#deposit-detail form[action^="/payments/deposit/"]');
     if (!form) return null;
-    const hasFieldsets = form.querySelectorAll('fieldset').length >= 2;
+    const forfeitFieldset = form.querySelector('fieldset[data-forfeit-fields]');
     const hasRadios = form.querySelectorAll('input[name="action"]').length > 0;
-    if (!hasFieldsets || !hasRadios) return null;
-    return (DepositActionForm.#instance = new DepositActionForm(form));
+    if (!forfeitFieldset || !hasRadios) return null;
+    return (DepositActionForm.#instance = new DepositActionForm(form, forfeitFieldset));
   }
 
+  /**
+   * Detach listeners and clear the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     DepositActionForm.#instance = null;
   }
 
-  /** @param {Event} e */
   #handleChange = (e) => {
-    if (e.target.name === 'action') this.#sync();
+    if (e.target instanceof HTMLInputElement && e.target.name === 'action') this.#sync();
   };
 
   #sync() {

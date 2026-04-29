@@ -384,6 +384,26 @@
     gap: 0.75rem;
   }
 
+  /* Hero CTA pair — reserve final 4rem height inline so the right panel
+     does not grow when components.css + home.css arrive in the async
+     bundle and push <main> down. */
+  .home-page > header > section > div > div:last-child > div > a[role="button"] {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 20rem;
+    display: inline-flex;
+    flex: 1;
+    font-size: clamp(0.82rem, 0.74rem + 0.22vw, 0.9rem);
+    font-weight: 600;
+    gap: 0.5rem;
+    height: 4rem;
+    justify-content: center;
+    line-height: 1;
+    padding: 0.75rem 2rem;
+    text-align: center;
+    text-decoration: none;
+  }
+
   .home-page form[role="search"] {
     align-items: center;
     background: rgba(255, 252, 246, 0.96);
@@ -406,6 +426,23 @@
     outline: none;
     padding: 0.625rem 0.75rem;
     width: 100%;
+  }
+
+  /* Hero search submit — reserve the same min-height/padding the
+     base + components rules will apply once the async bundle lands. */
+  .home-page form[role="search"] button[type="submit"] {
+    align-items: center;
+    border: 2px solid transparent;
+    border-radius: 2rem;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    gap: 0.5rem;
+    justify-content: center;
+    line-height: 1;
+    min-height: 2.75rem;
+    padding: 0.65rem 1.5rem;
   }
 
   /* --- Hero entrance animation — defined inline so the from-state is the
@@ -596,6 +633,13 @@
   /* --- Viewport: large phone (≤700px) — tighter hero, carousel arrows hidden --- */
 
   @media (max-width: 700px) {
+    /* Hero section + panel — match the async-bundle padding/stacking so the
+       hero does not resize between first paint and the async stylesheet
+       landing, which would push <main> down and register as CLS. */
+    .home-page > header > section {
+      padding: 0 1rem 1rem;
+    }
+
     .home-page > header > section > nav[data-hero] {
       border-radius: 0.9rem;
       padding: 0.25rem 0.55rem 0;
@@ -609,6 +653,19 @@
     .home-page > header > section > div > div:first-child > p {
       font-size: clamp(0.98rem, 0.9rem + 0.45vw, 1.1rem);
       max-width: none;
+    }
+
+    .home-page > header > section > div > div:last-child {
+      padding: 1.25rem;
+    }
+
+    .home-page > header > section > div > div:last-child > div {
+      flex-direction: column;
+    }
+
+    .home-page > header > section > div > div:last-child > div > a[role="button"] {
+      min-width: 0;
+      width: 100%;
     }
 
     #popular-list > div > article > figure {

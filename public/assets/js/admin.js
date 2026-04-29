@@ -10,16 +10,26 @@ class AdminDeleteConfirm {
     document.addEventListener('submit', this.#handleSubmit, { signal: this.#abortController.signal });
   }
 
-  /** @returns {AdminDeleteConfirm|null} */
+  /**
+   * Initialize the singleton instance of AdminDeleteConfirm.
+   *
+   * @returns {AdminDeleteConfirm|null}
+   */
   static init() {
     if (AdminDeleteConfirm.#instance) return AdminDeleteConfirm.#instance;
     return (AdminDeleteConfirm.#instance = new AdminDeleteConfirm());
   }
 
+  /**
+   * Detach the delegated submit listener.
+   */
   destroy() {
     this.#abortController.abort();
   }
 
+  /**
+   * Tear down the singleton and re-init for a fresh DOM.
+   */
   static reinit() {
     if (AdminDeleteConfirm.#instance) {
       AdminDeleteConfirm.#instance.destroy();
@@ -28,7 +38,6 @@ class AdminDeleteConfirm {
     return AdminDeleteConfirm.init();
   }
 
-  /** @param {SubmitEvent} e */
   #handleSubmit = async (e) => {
     const form = e.target;
     if (!form.matches('[data-category-delete], [data-delete-form]')) return;
@@ -78,17 +87,28 @@ class RoleChangeConfirm {
     this.#dialog.addEventListener('close', this.#handleClose, opts);
   }
 
-  /** @returns {RoleChangeConfirm|null} */
+  /**
+   * Initialize the singleton instance of RoleChangeConfirm if the relevant
+   *  dialog is present in the DOM.
+   *
+   * @returns {RoleChangeConfirm|null}
+   */
   static init() {
     if (RoleChangeConfirm.#instance) return RoleChangeConfirm.#instance;
     if (!document.querySelector('[data-role-confirm]')) return null;
     return (RoleChangeConfirm.#instance = new RoleChangeConfirm());
   }
 
+  /**
+   * Detach the submit and dialog-close listeners.
+   */
   destroy() {
     this.#abortController.abort();
   }
 
+  /**
+   * Tear down the singleton and re-init for a fresh DOM.
+   */
   static reinit() {
     if (RoleChangeConfirm.#instance) {
       RoleChangeConfirm.#instance.destroy();
@@ -97,7 +117,6 @@ class RoleChangeConfirm {
     return RoleChangeConfirm.init();
   }
 
-  /** @param {SubmitEvent} e */
   #handleSubmit = (e) => {
     const form = e.target;
     if (!form.matches('[data-role-form]')) return;
@@ -145,17 +164,28 @@ class DeleteUserConfirm {
     document.addEventListener('submit', this.#handleSubmit, { signal: this.#abortController.signal });
   }
 
-  /** @returns {DeleteUserConfirm|null} */
+  /**
+   * Initialize the singleton instance of DeleteUserConfirm if the relevant delete-user
+   *  forms are present in the DOM.
+   *
+   * @returns {DeleteUserConfirm|null}
+   */
   static init() {
     if (DeleteUserConfirm.#instance) return DeleteUserConfirm.#instance;
     if (!document.querySelector('[data-delete-user-form]')) return null;
     return (DeleteUserConfirm.#instance = new DeleteUserConfirm());
   }
 
+  /**
+   * Detach the delegated submit listener.
+   */
   destroy() {
     this.#abortController.abort();
   }
 
+  /**
+   * Tear down the singleton and re-init for a fresh DOM.
+   */
   static reinit() {
     if (DeleteUserConfirm.#instance) {
       DeleteUserConfirm.#instance.destroy();
@@ -164,7 +194,6 @@ class DeleteUserConfirm {
     return DeleteUserConfirm.init();
   }
 
-  /** @param {SubmitEvent} e */
   #handleSubmit = async (e) => {
     const form = e.target;
     if (!form.matches('[data-delete-user-form]')) return;
@@ -211,17 +240,28 @@ class PurgeConfirm {
     this.#dialog.addEventListener('cancel', this.#handleCancel, opts);
   }
 
-  /** @returns {PurgeConfirm|null} */
+  /**
+   * Initialize the singleton instance of PurgeConfirm if the relevant
+   *  dialog is present in the DOM.
+   *
+   * @returns {PurgeConfirm|null}
+   */
   static init() {
     if (PurgeConfirm.#instance) return PurgeConfirm.#instance;
     if (!document.querySelector('[data-purge-confirm]')) return null;
     return (PurgeConfirm.#instance = new PurgeConfirm());
   }
 
+  /**
+   * Detach trigger, input, and dialog listeners.
+   */
   destroy() {
     this.#abortController.abort();
   }
 
+  /**
+   * Tear down the singleton and re-init for a fresh DOM.
+   */
   static reinit() {
     if (PurgeConfirm.#instance) {
       PurgeConfirm.#instance.destroy();
@@ -230,7 +270,6 @@ class PurgeConfirm {
     return PurgeConfirm.init();
   }
 
-  /** @param {MouseEvent} e */
   #handleTrigger = (e) => {
     const btn = e.target.closest('[data-purge-trigger]');
     if (!btn) return;
@@ -265,6 +304,7 @@ class AdminRouter {
   static #ADMIN_PATTERN = /^\/admin(?:\/|$)/;
   static #PREFETCH_TTL = 30_000;
   static #MAX_CACHE = 8;
+  static #ANIM_FALLBACK_MS = 200;
   static #REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
 
   #content = document.querySelector('[data-admin-content]');
@@ -291,14 +331,17 @@ class AdminRouter {
     history.replaceState({ adminNav: true, idx: this.#navIndex }, '');
   }
 
-  /** @returns {AdminRouter|null} */
+  /**
+   * Initialize the singleton AdminRouter if the admin content region is present in the DOM.
+   *
+   * @returns {AdminRouter|null}
+   */
   static init() {
     if (AdminRouter.#instance) return AdminRouter.#instance;
     if (!document.querySelector('[data-admin-content]')) return null;
     return (AdminRouter.#instance = new AdminRouter());
   }
 
-  /** @param {MouseEvent} e */
   #handleClick = (e) => {
     const link = e.target.closest('a[href]');
     if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
@@ -317,7 +360,6 @@ class AdminRouter {
     this.#navigateTo(url.href);
   };
 
-  /** @param {SubmitEvent} e */
   #handleSubmit = (e) => {
     const form = e.target;
     if (form.method !== 'get' || !form.matches('[data-admin-filters]')) return;
@@ -330,7 +372,6 @@ class AdminRouter {
     this.#navigateTo(url.href);
   };
 
-  /** @param {PopStateEvent} e */
   #handlePopstate = (e) => {
     if (AdminRouter.#ADMIN_PATTERN.test(location.pathname)) {
       this.#navIndex = e.state?.idx ?? 0;
@@ -338,7 +379,6 @@ class AdminRouter {
     }
   };
 
-  /** @param {PointerEvent} e */
   #handleHover = (e) => {
     const link = e.target.closest?.('a[href]');
     if (!link) return;
@@ -351,8 +391,10 @@ class AdminRouter {
   };
 
   /**
-   * @param {string} url
-   * @param {boolean} pushState
+   * Navigate to a new admin page via XHR, falling back to a full reload on failure.
+   *
+   * @param {string} url - The URL to navigate to
+   * @param {boolean} pushState - Whether to push a new entry onto the history stack
    */
   async #navigateTo(url, pushState = true) {
     this.#abortController?.abort();
@@ -441,10 +483,13 @@ class AdminRouter {
   }
 
   /**
-   * @param {string} heading
-   * @param {string} icon
-   * @param {string} description
-   * @param {string} sectionId
+   * Update the page header from the response metadata, swapping the heading text,
+   *  icon class, description, and section aria-labelledby anchor.
+   *
+   * @param {string} heading - The new heading text
+   * @param {string} icon - Font Awesome class for the heading icon
+   * @param {string} description - The new description text (empty hides the paragraph)
+   * @param {string} sectionId - ID applied to the section's aria-labelledby and the heading element
    */
   #updateHeader(heading, icon, description, sectionId) {
     if (!this.#header) return;
@@ -459,9 +504,10 @@ class AdminRouter {
     }
 
     if (h1 && heading) {
-      if (i) {
-        i.className = icon;
-        h1.childNodes[h1.childNodes.length - 1].textContent = ' ' + heading;
+      const headingSpan = h1.querySelector('[data-heading-text]');
+      if (i) i.className = icon;
+      if (headingSpan) {
+        headingSpan.textContent = heading;
       } else {
         h1.textContent = heading;
       }
@@ -481,12 +527,15 @@ class AdminRouter {
     }
   }
 
-  /** @param {string} title */
   #updatePageTitle(title) {
     if (title) document.title = title;
   }
 
-  /** @param {string} cssHeader */
+  /**
+   * Inject page-specific CSS files that aren't already loaded.
+   *
+   * @param {string} cssHeader - Comma-separated list from X-Page-Css
+   */
   #ensureCss(cssHeader) {
     if (!cssHeader) return;
     cssHeader.split(',').map(s => s.trim()).filter(Boolean).forEach(href => {
@@ -501,9 +550,9 @@ class AdminRouter {
   }
 
   /**
-   * Inject page-specific scripts that aren't already loaded.
+   * Inject page-specific scripts that aren't already loaded, awaiting each in turn.
    *
-   * @param {string} jsHeader Comma-separated list from X-Page-Js
+   * @param {string} jsHeader - Comma-separated list from X-Page-Js
    * @returns {Promise<void>}
    */
   async #syncScripts(jsHeader) {
@@ -527,7 +576,6 @@ class AdminRouter {
     }
   }
 
-  /** @param {string} url */
   #updateNavActiveState(url) {
     if (!this.#nav) return;
     const path = new URL(url, location.origin).pathname;
@@ -541,17 +589,25 @@ class AdminRouter {
     match?.setAttribute('aria-current', 'page');
   }
 
-  /** @returns {Promise<void>} */
+  /**
+   * Wait for the content fade animation to finish, or resolve immediately under reduced motion.
+   *
+   * @returns {Promise<void>}
+   */
   #waitForAnimation() {
     if (AdminRouter.#REDUCED_MOTION.matches) return Promise.resolve();
 
     return new Promise(resolve => {
       this.#content.addEventListener('animationend', resolve, { once: true });
-      setTimeout(resolve, 200);
+      setTimeout(resolve, AdminRouter.#ANIM_FALLBACK_MS);
     });
   }
 
-  /** @param {string} url */
+  /**
+   * Prefetch a URL into the partial-response cache, evicting the oldest entry when full.
+   *
+   * @param {string} url - The URL to prefetch
+   */
   #prefetch(url) {
     if (this.#prefetchCache.has(url)) return;
 
@@ -603,6 +659,10 @@ class AdminRouter {
     } catch { /* ignore */ }
   }
 
+  /**
+   * Re-bind the singleton-driven confirm classes and surface any flash messages
+   *  carried in the swapped-in content.
+   */
   static #reinit() {
     AdminDeleteConfirm.reinit();
     RoleChangeConfirm.reinit();

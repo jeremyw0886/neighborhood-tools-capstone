@@ -238,7 +238,8 @@ class Incident
                 CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
                 t.id_acc_tol                     AS lender_id,
                 CONCAT(lender.first_name_acc, ' ', lender.last_name_acc)     AS lender_name,
-                COALESCE(dispute_stats.related_disputes, 0) AS related_disputes,
+                (SELECT COUNT(*) FROM dispute_dsp
+                 WHERE id_bor_dsp = irt.id_bor_irt)  AS related_disputes,
                 sdp.id_sdp                       AS deposit_id,
                 sdp.amount_sdp                   AS deposit_amount,
                 dps.status_name_dps              AS deposit_status
@@ -252,11 +253,6 @@ class Incident
             LEFT JOIN account_acc resolver  ON irt.id_acc_resolved_by_irt = resolver.id_acc
             LEFT JOIN security_deposit_sdp sdp ON b.id_bor    = sdp.id_bor_sdp
             LEFT JOIN deposit_status_dps dps   ON sdp.id_dps_sdp = dps.id_dps
-            LEFT JOIN (
-                SELECT id_bor_dsp, COUNT(*) AS related_disputes
-                FROM dispute_dsp
-                GROUP BY id_bor_dsp
-            ) dispute_stats ON irt.id_bor_irt = dispute_stats.id_bor_dsp
             WHERE irt.id_irt = :id
         ";
 

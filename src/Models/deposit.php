@@ -111,25 +111,7 @@ class Deposit
      */
     public static function findByBorrowId(int $borrowId): ?array
     {
-        $pdo = Database::connection();
-
-        $stmt = $pdo->prepare('
-            SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
-                   sdp.external_payment_id_sdp,
-                   dps.status_name_dps AS deposit_status,
-                   ppv.provider_name_ppv AS payment_provider
-            FROM security_deposit_sdp sdp
-            JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
-            JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
-            WHERE sdp.id_bor_sdp = :borrow_id
-        ');
-
-        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row !== false ? $row : null;
+        return self::findOne('id_bor_sdp', $borrowId, null, 'basic');
     }
 
     /**
@@ -169,27 +151,7 @@ class Deposit
      */
     public static function findHeldByBorrowId(int $borrowId): ?array
     {
-        $pdo = Database::connection();
-
-        $stmt = $pdo->prepare('
-            SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
-                   sdp.external_payment_id_sdp,
-                   dps.status_name_dps AS deposit_status,
-                   ppv.provider_name_ppv AS payment_provider
-            FROM security_deposit_sdp sdp
-            JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
-            JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
-            WHERE sdp.id_bor_sdp = :borrow_id
-              AND dps.status_name_dps = :status
-        ');
-
-        $stmt->bindValue(':borrow_id', $borrowId, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 'held', PDO::PARAM_STR);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row !== false ? $row : null;
+        return self::findOne('id_bor_sdp', $borrowId, 'held', 'basic');
     }
 
     /**
@@ -215,111 +177,25 @@ class Deposit
      */
     public static function findHeldById(int $id): ?array
     {
-        $pdo = Database::connection();
-
-        $stmt = $pdo->prepare('
-            SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
-                   sdp.external_payment_id_sdp,
-                   dps.status_name_dps AS deposit_status,
-                   ppv.provider_name_ppv AS payment_provider,
-                   b.id_acc_bor AS borrower_id,
-                   t.id_acc_tol AS lender_id,
-                   t.tool_name_tol,
-                   bst.status_name_bst AS borrow_status
-            FROM security_deposit_sdp sdp
-            JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
-            JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
-            JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
-            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
-            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
-            WHERE sdp.id_sdp = :id
-              AND dps.status_name_dps = :status
-        ');
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 'held', PDO::PARAM_STR);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row !== false ? $row : null;
+        return self::findOne('id_sdp', $id, 'held', 'borrow_context');
     }
 
     /**
      * Fetch full deposit detail by ID, regardless of status.
      *
-     * @return ?array  Deposit row with borrow, tool, and account context
+     * @return ?array  Deposit row with borrow, tool, account, and incident-count context
      */
     public static function findDetailById(int $id): ?array
     {
-        $pdo = Database::connection();
-
-        $stmt = $pdo->prepare("
-            SELECT sdp.id_sdp,
-                   sdp.amount_sdp,
-                   dps.status_name_dps AS deposit_status,
-                   ppv.provider_name_ppv AS payment_provider,
-                   sdp.external_payment_id_sdp,
-                   sdp.held_at_sdp,
-                   " . self::daysHeldCase() . " AS days_held,
-                   sdp.released_at_sdp,
-                   sdp.forfeited_at_sdp,
-                   sdp.forfeited_amount_sdp,
-                   sdp.forfeiture_reason_sdp,
-                   sdp.id_bor_sdp,
-                   bst.status_name_bst AS borrow_status,
-                   b.due_at_bor,
-                   " . self::actionRequiredCase() . " AS action_required,
-                   t.id_tol,
-                   t.tool_name_tol,
-                   t.estimated_value_tol,
-                   b.id_acc_bor AS borrower_id,
-                   CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
-                   borrower.email_address_acc AS borrower_email,
-                   t.id_acc_tol AS lender_id,
-                   CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
-                   lender.email_address_acc AS lender_email,
-                   COALESCE(incident_stats.incident_count, 0) AS incident_count,
-                   sdp.id_irt_sdp AS linked_incident_id
-            FROM security_deposit_sdp sdp
-            JOIN deposit_status_dps dps ON sdp.id_dps_sdp = dps.id_dps
-            JOIN payment_provider_ppv ppv ON sdp.id_ppv_sdp = ppv.id_ppv
-            JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
-            JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
-            JOIN tool_tol t ON b.id_tol_bor = t.id_tol
-            JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
-            JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
-            LEFT JOIN (
-                SELECT id_bor_irt, COUNT(*) AS incident_count
-                FROM incident_report_irt
-                GROUP BY id_bor_irt
-            ) incident_stats ON sdp.id_bor_sdp = incident_stats.id_bor_irt
-            WHERE sdp.id_sdp = :id
-        ");
-
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row !== false ? $row : null;
+        return self::findOne('id_sdp', $id, null, 'detail');
     }
 
+    /**
+     * Find a deposit by ID returning only the bare row plus its status name.
+     */
     public static function findByIdRaw(int $id): ?array
     {
-        $pdo  = Database::connection();
-        $stmt = $pdo->prepare(
-            'SELECT id_sdp, id_bor_sdp, id_dps_sdp,
-                    dps.status_name_dps AS deposit_status
-             FROM security_deposit_sdp
-             JOIN deposit_status_dps dps ON dps.id_dps = id_dps_sdp
-             WHERE id_sdp = :id'
-        );
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row !== false ? $row : null;
+        return self::findOne('id_sdp', $id, null, 'raw');
     }
 
     public static function release(int $borrowId): array
@@ -446,32 +322,12 @@ class Deposit
         $stmt->execute();
     }
 
+    /**
+     * Find a pending deposit by ID with borrower, lender, and tool context.
+     */
     public static function findPendingPayment(int $depositId): ?array
     {
-        $pdo  = Database::connection();
-        $stmt = $pdo->prepare(
-            'SELECT sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
-                    sdp.external_payment_id_sdp,
-                    bor.id_acc_bor        AS borrower_id,
-                    tol.id_acc_tol        AS lender_id,
-                    tol.tool_name_tol,
-                    ppv.provider_name_ppv AS payment_provider
-             FROM security_deposit_sdp sdp
-             /* All FKs are NOT NULL per schema — INNER JOIN is safe */
-             JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
-             JOIN borrow_bor bor        ON bor.id_bor = sdp.id_bor_sdp
-             JOIN tool_tol tol          ON tol.id_tol = bor.id_tol_bor
-             JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
-             WHERE sdp.id_sdp = :id
-               AND dps.status_name_dps = :status'
-        );
-        $stmt->bindValue(':id', $depositId, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 'pending', PDO::PARAM_STR);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row !== false ? $row : null;
+        return self::findOne('id_sdp', $depositId, 'pending', 'payment_context');
     }
 
     public static function transitionToHeld(int $depositId, string $externalPaymentId): void
@@ -604,6 +460,10 @@ class Deposit
     /**
      * Return the shared FROM/JOIN clause for admin deposit queries.
      *
+     * Incident counts are read via a correlated subquery at the SELECT site
+     * so MySQL can index-seek per row instead of materializing a derived
+     * GROUP BY over the entire incident table for every query.
+     *
      * @return string  Raw SQL FROM clause with all joins
      */
     private static function adminBaseFrom(): string
@@ -615,12 +475,137 @@ class Deposit
                 JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
                 JOIN tool_tol t ON b.id_tol_bor = t.id_tol
                 JOIN account_acc borrower ON b.id_acc_bor = borrower.id_acc
-                JOIN account_acc lender ON t.id_acc_tol = lender.id_acc
-                LEFT JOIN (
-                    SELECT id_bor_irt, COUNT(*) AS incident_count
-                    FROM incident_report_irt
-                    GROUP BY id_bor_irt
-                ) incident_stats ON sdp.id_bor_sdp = incident_stats.id_bor_irt";
+                JOIN account_acc lender ON t.id_acc_tol = lender.id_acc";
+    }
+
+    /**
+     * Internal lookup helper shared by every "find one deposit" public method.
+     *
+     * Public methods stay as named entry points so callers read intent at the
+     * call site; this helper centralizes the SELECT/FROM/WHERE assembly so a
+     * field-set or filter change ripples through every variant in one place.
+     *
+     * @param  string  $whereCol    Column to filter on ('id_sdp' or 'id_bor_sdp')
+     * @param  int     $whereValue  Lookup value
+     * @param  ?string $status      Optional deposit_status filter (e.g. 'held', 'pending')
+     * @param  string  $shape       Field-set selector — see lookupShape()
+     * @return ?array  Matched deposit row, or null
+     */
+    private static function findOne(
+        string $whereCol,
+        int $whereValue,
+        ?string $status,
+        string $shape,
+    ): ?array {
+        [$select, $from] = self::lookupShape($shape);
+
+        $sql = "SELECT {$select} {$from} WHERE sdp.{$whereCol} = :value";
+        if ($status !== null) {
+            $sql .= ' AND dps.status_name_dps = :status';
+        }
+
+        $pdo  = Database::connection();
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':value', $whereValue, PDO::PARAM_INT);
+        if ($status !== null) {
+            $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        }
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Map a shape name to its [SELECT clause, FROM/JOIN clause] pair.
+     *
+     * Shapes:
+     *   - basic            — id, amount, status, provider (deposit + status + provider joins)
+     *   - raw              — id, borrow id, status id, status name (deposit + status only)
+     *   - borrow_context   — basic + borrow/tool/borrower/lender ids and tool name
+     *   - payment_context  — basic + borrower/lender ids and tool name (no borrow_status)
+     *   - detail           — full admin-detail row (uses adminBaseFrom + correlated incident_count)
+     *
+     * @return array{0: string, 1: string}
+     */
+    private static function lookupShape(string $shape): array
+    {
+        return match ($shape) {
+            'basic' => [
+                "sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                        sdp.external_payment_id_sdp,
+                        dps.status_name_dps AS deposit_status,
+                        ppv.provider_name_ppv AS payment_provider",
+                "FROM security_deposit_sdp sdp
+                    JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+                    JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp",
+            ],
+            'raw' => [
+                "sdp.id_sdp, sdp.id_bor_sdp, sdp.id_dps_sdp,
+                        dps.status_name_dps AS deposit_status",
+                "FROM security_deposit_sdp sdp
+                    JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp",
+            ],
+            'borrow_context' => [
+                "sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                        sdp.external_payment_id_sdp,
+                        dps.status_name_dps AS deposit_status,
+                        ppv.provider_name_ppv AS payment_provider,
+                        b.id_acc_bor AS borrower_id,
+                        t.id_acc_tol AS lender_id,
+                        t.tool_name_tol,
+                        bst.status_name_bst AS borrow_status",
+                "FROM security_deposit_sdp sdp
+                    JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+                    JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp
+                    JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
+                    JOIN borrow_status_bst bst ON b.id_bst_bor = bst.id_bst
+                    JOIN tool_tol t ON b.id_tol_bor = t.id_tol",
+            ],
+            'payment_context' => [
+                "sdp.id_sdp, sdp.id_bor_sdp, sdp.amount_sdp,
+                        sdp.external_payment_id_sdp,
+                        b.id_acc_bor AS borrower_id,
+                        t.id_acc_tol AS lender_id,
+                        t.tool_name_tol,
+                        ppv.provider_name_ppv AS payment_provider",
+                "FROM security_deposit_sdp sdp
+                    JOIN deposit_status_dps dps ON dps.id_dps = sdp.id_dps_sdp
+                    JOIN borrow_bor b ON sdp.id_bor_sdp = b.id_bor
+                    JOIN tool_tol t ON b.id_tol_bor = t.id_tol
+                    JOIN payment_provider_ppv ppv ON ppv.id_ppv = sdp.id_ppv_sdp",
+            ],
+            'detail' => [
+                "sdp.id_sdp,
+                        sdp.amount_sdp,
+                        dps.status_name_dps AS deposit_status,
+                        ppv.provider_name_ppv AS payment_provider,
+                        sdp.external_payment_id_sdp,
+                        sdp.held_at_sdp,
+                        " . self::daysHeldCase() . " AS days_held,
+                        sdp.released_at_sdp,
+                        sdp.forfeited_at_sdp,
+                        sdp.forfeited_amount_sdp,
+                        sdp.forfeiture_reason_sdp,
+                        sdp.id_bor_sdp,
+                        bst.status_name_bst AS borrow_status,
+                        b.due_at_bor,
+                        " . self::actionRequiredCase() . " AS action_required,
+                        t.id_tol,
+                        t.tool_name_tol,
+                        t.estimated_value_tol,
+                        b.id_acc_bor AS borrower_id,
+                        CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
+                        borrower.email_address_acc AS borrower_email,
+                        t.id_acc_tol AS lender_id,
+                        CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
+                        lender.email_address_acc AS lender_email,
+                        (SELECT COUNT(*) FROM incident_report_irt WHERE id_bor_irt = sdp.id_bor_sdp) AS incident_count,
+                        sdp.id_irt_sdp AS linked_incident_id",
+                self::adminBaseFrom(),
+            ],
+        };
     }
 
     /**
@@ -664,7 +649,8 @@ class Deposit
         }
 
         if ($incidentsOnly) {
-            $conditions[] = 'incident_stats.incident_count > 0';
+            $conditions[] = 'EXISTS (SELECT 1 FROM incident_report_irt
+                                     WHERE id_bor_irt = sdp.id_bor_sdp)';
         }
 
         $where = $conditions !== [] ? 'WHERE ' . implode(' AND ', $conditions) : '';
@@ -728,7 +714,8 @@ class Deposit
                    CONCAT(borrower.first_name_acc, ' ', borrower.last_name_acc) AS borrower_name,
                    lender.id_acc AS lender_id,
                    CONCAT(lender.first_name_acc, ' ', lender.last_name_acc) AS lender_name,
-                   COALESCE(incident_stats.incident_count, 0) AS incident_count
+                   (SELECT COUNT(*) FROM incident_report_irt
+                    WHERE id_bor_irt = sdp.id_bor_sdp) AS incident_count
             " . self::adminBaseFrom() . "
             {$filter['where']}
             ORDER BY {$orderExpr} {$dir}

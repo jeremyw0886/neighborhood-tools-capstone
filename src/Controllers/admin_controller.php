@@ -955,6 +955,7 @@ class AdminController extends BaseController
             'sort'           => $sortParams['sort'],
             'dir'            => $sortParams['dir'],
             'filterParams'   => $filterParams,
+            'hasFilters'     => isset($_GET['sort']) || isset($_GET['dir']),
         ]);
     }
 
@@ -1026,6 +1027,8 @@ class AdminController extends BaseController
             'sort'         => $sortParams['sort'],
             'dir'          => $sortParams['dir'],
             'filterParams' => $filterParams,
+            'flash'        => $this->flash('admin_tos_flash'),
+            'hasFilters'   => isset($_GET['sort']) || isset($_GET['dir']),
         ]);
     }
 

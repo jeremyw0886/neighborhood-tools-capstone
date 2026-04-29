@@ -1,4 +1,23 @@
 <?php
+/**
+ * Admin Reports — paginated neighborhood activity summary.
+ *
+ * Variables from AdminController::reports():
+ *
+ * @var array  $neighborhoods Neighborhood summary rows
+ * @var int    $totalCount    Total neighborhood count
+ * @var int    $page          Current 1-indexed page
+ * @var int    $totalPages    Total number of pages
+ * @var int    $perPage       Page size
+ * @var string $sort          Active sort column
+ * @var string $dir           Active sort direction (ASC|DESC)
+ * @var array  $filterParams  Query-string params to preserve in pagination links
+ * @var bool   $hasFilters    Whether the user has applied any sort/dir filters
+ *
+ * Shared data:
+ *
+ * @var string $backUrl
+ */
 
 $rangeStart = $totalCount > 0 ? (($page - 1) * $perPage) + 1 : 0;
 $rangeEnd   = min($page * $perPage, $totalCount);
@@ -22,7 +41,6 @@ $sortToColumn = [
 ];
 
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
-$hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 ?>
 
   <form method="get" action="/admin/reports" role="search" aria-label="Sort neighborhood reports" data-admin-filters>

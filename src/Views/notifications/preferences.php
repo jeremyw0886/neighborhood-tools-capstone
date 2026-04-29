@@ -4,15 +4,13 @@
  *
  * Variables from NotificationController::preferences():
  *
- * @var array<string, bool> $prefs Keyed by type name (due, return, rating)
+ * @var array<string, bool> $prefs      Keyed by type name (due, return, rating)
+ * @var ?string             $prefNotice Flash message after a save
  *
  * Shared data:
  *
  * @var string $csrfToken
  */
-
-$prefNotice = $_SESSION['pref_notice'] ?? null;
-unset($_SESSION['pref_notice']);
 ?>
 
 <section aria-labelledby="preferences-heading" id="notification-preferences">

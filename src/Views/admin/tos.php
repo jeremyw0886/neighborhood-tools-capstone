@@ -1,6 +1,26 @@
 <?php
-$flash      = $_SESSION['admin_tos_flash'] ?? null;
-unset($_SESSION['admin_tos_flash']);
+/**
+ * Admin TOS — current version summary plus a paginated list of non-compliant members.
+ *
+ * Variables from AdminController::tos():
+ *
+ * @var array   $users        Non-compliant member rows
+ * @var int     $totalCount   Total non-compliant member count
+ * @var int     $page         Current 1-indexed page
+ * @var int     $totalPages   Total number of pages
+ * @var int     $perPage      Page size
+ * @var string  $sort         Active sort column
+ * @var string  $dir          Active sort direction (ASC|DESC)
+ * @var array   $filterParams Query-string params to preserve in pagination links
+ * @var ?string $flash        One-shot status message
+ * @var bool    $hasFilters   Whether the user has applied any sort/dir filters
+ *
+ * Shared data:
+ *
+ * @var array{id, name, first_name, role, avatar} $authUser
+ * @var ?array  $currentTos
+ * @var string  $backUrl
+ */
 
 $isSuperAdmin = ($authUser['role'] ?? '') === 'super_admin';
 
@@ -22,7 +42,6 @@ $sortToColumn = [
 ];
 
 $ariaSortDir = $dir === 'ASC' ? 'ascending' : 'descending';
-$hasFilters  = isset($_GET['sort']) || isset($_GET['dir']);
 ?>
 
   <?php if ($flash !== null): ?>

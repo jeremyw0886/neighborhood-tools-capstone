@@ -384,6 +384,7 @@ class NotificationController extends BaseController
             'description' => 'Choose which notifications you receive.',
             'pageCss'     => ['pages.css'],
             'prefs'       => $prefs,
+            'prefNotice'  => $this->flash('pref_notice'),
         ]);
     }
 

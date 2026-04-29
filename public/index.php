@@ -163,10 +163,15 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Generate per-request CSP nonce for script-src
+// Generate per-request CSP nonce for script-src and style-src.
+//
+// The style-src nonce has exactly one consumer: the inline <style id="nt-dynamic-styles">
+// block in src/Views/layouts/main.php that streams critical CSS via readfile().
+// All other styles are external <link rel="stylesheet"> files served from 'self'.
 define('CSP_NONCE', base64_encode(random_bytes(16)));
 
-// CSP header — nonce-based script-src with strict-dynamic propagation
+// CSP header — nonce-based script-src with strict-dynamic propagation;
+// style-src carries the same nonce only for the critical-CSS inline block above.
 $cspNonce = CSP_NONCE;
 header('Reporting-Endpoints: csp-endpoint="/csp-report"');
 header("Content-Security-Policy: default-src 'self'; script-src 'nonce-{$cspNonce}' 'strict-dynamic'; style-src 'self' 'nonce-{$cspNonce}'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://api.stripe.com https://r.stripe.com https://m.stripe.com; frame-src https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; manifest-src 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; trusted-types dompurify nt-html nt-script-url nt-dom-parser default; require-trusted-types-for 'script'; report-uri /csp-report; report-to csp-endpoint");

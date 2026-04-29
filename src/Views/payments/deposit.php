@@ -365,7 +365,7 @@ $toolReturned      = $borrowStatusRaw === 'returned';
           Forfeit to Lender
         </label>
       </fieldset>
-      <fieldset>
+      <fieldset data-forfeit-fields>
         <legend>Forfeit Details</legend>
         <div>
           <label for="forfeit-amount">Amount ($) <span aria-hidden="true">*</span></label>

@@ -104,7 +104,10 @@ return [
     'POST /profile/edit'           => [ProfileController::class, 'update'],
     'GET /profile/{id}'            => [ProfileController::class, 'show'],
 
-    // Search
+    // Search — TODO: SearchController is not yet implemented. Uncomment this
+    // route once the controller exists; until then, the search UI is served
+    // by the per-feature suggest endpoints (ToolController::suggest,
+    // AdminController::suggest).
     // 'GET /search'                  => [SearchController::class, 'index'],
 
     // Ratings

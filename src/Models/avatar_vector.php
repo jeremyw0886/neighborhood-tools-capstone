@@ -144,9 +144,10 @@ class AvatarVector
         $params  = [];
 
         if ($search !== null) {
+            $escaped            = '%' . Database::escapeLike($search) . '%';
             $clauses[]          = '(v.file_name_avv LIKE :search1 OR v.description_text_avv LIKE :search2)';
-            $params[':search1'] = ['%' . $search . '%', PDO::PARAM_STR];
-            $params[':search2'] = ['%' . $search . '%', PDO::PARAM_STR];
+            $params[':search1'] = [$escaped, PDO::PARAM_STR];
+            $params[':search2'] = [$escaped, PDO::PARAM_STR];
         }
 
         if ($active === true) {

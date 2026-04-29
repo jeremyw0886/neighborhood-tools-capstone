@@ -127,10 +127,11 @@ class VectorImage
         $params  = [];
 
         if ($search !== null) {
+            $escaped            = '%' . Database::escapeLike($search) . '%';
             $clauses[]          = '(v.file_name_vec LIKE :search1 OR v.description_text_vec LIKE :search2 OR c.category_name_cat LIKE :search3)';
-            $params[':search1'] = ['%' . $search . '%', PDO::PARAM_STR];
-            $params[':search2'] = ['%' . $search . '%', PDO::PARAM_STR];
-            $params[':search3'] = ['%' . $search . '%', PDO::PARAM_STR];
+            $params[':search1'] = [$escaped, PDO::PARAM_STR];
+            $params[':search2'] = [$escaped, PDO::PARAM_STR];
+            $params[':search3'] = [$escaped, PDO::PARAM_STR];
         }
 
         if ($assigned === true) {

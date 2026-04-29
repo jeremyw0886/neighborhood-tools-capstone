@@ -134,7 +134,7 @@ class Category
 
         if ($search !== null) {
             $clauses[]         = 'c.category_name_cat LIKE :search';
-            $params[':search'] = ['%' . $search . '%', PDO::PARAM_STR];
+            $params[':search'] = ['%' . Database::escapeLike($search) . '%', PDO::PARAM_STR];
         }
 
         if ($hasIcon === true) {

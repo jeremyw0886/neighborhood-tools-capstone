@@ -1,6 +1,13 @@
 'use strict';
 
+/* global turnstile */
+
 class TurnstileGuard {
+  /** @type {TurnstileGuard[]} */
+  static #instances = [];
+  static #guardedWidgets = new WeakSet();
+  static #TIMEOUT_MS = 60_000;
+
   /** @type {HTMLFormElement} */
   #form;
   /** @type {HTMLButtonElement} */
@@ -15,9 +22,9 @@ class TurnstileGuard {
   #errorRetried = false;
 
   /**
-   * @param {HTMLFormElement} form
-   * @param {HTMLButtonElement} submit
-   * @param {HTMLDivElement} widget
+   * @param {HTMLFormElement} form - The form whose submit button is gated by the challenge
+   * @param {HTMLButtonElement} submit - The submit button to disable until verification
+   * @param {HTMLDivElement} widget - The Turnstile widget container element
    */
   constructor(form, submit, widget) {
     this.#form = form;
@@ -31,7 +38,6 @@ class TurnstileGuard {
     this.#form.appendChild(jsFlag);
 
     this.#submit.disabled = true;
-    this.#submit.setAttribute('aria-busy', 'true');
 
     this.#render();
 
@@ -40,19 +46,19 @@ class TurnstileGuard {
         this.#timedOut = true;
         this.#enable();
       }
-    }, 60000);
+    }, TurnstileGuard.#TIMEOUT_MS);
   }
 
-  static #counter = 0;
-  /** @type {TurnstileGuard[]} */
-  static #instances = [];
-  static #guardedWidgets = new WeakSet();
-
-  /** @returns {TurnstileGuard[]} */
+  /**
+   * Discover unguarded `.cf-turnstile` widgets and disable their submit buttons until the challenge resolves (or a 60 s fallback re-enables).
+   *
+   * @returns {TurnstileGuard[]|null}
+   */
   static init() {
-    if (typeof turnstile === 'undefined') return TurnstileGuard.#instances;
+    if (typeof turnstile === 'undefined') return null;
 
     const widgets = document.querySelectorAll('.cf-turnstile');
+    if (!widgets.length) return null;
 
     for (const widget of widgets) {
       if (TurnstileGuard.#guardedWidgets.has(widget)) continue;
@@ -68,6 +74,29 @@ class TurnstileGuard {
     }
 
     return TurnstileGuard.#instances;
+  }
+
+  /**
+   * Tear down every guarded instance and reset the registry.
+   */
+  static teardown() {
+    for (const guard of TurnstileGuard.#instances) guard.destroy();
+    TurnstileGuard.#instances = [];
+    TurnstileGuard.#guardedWidgets = new WeakSet();
+  }
+
+  /**
+   * Cancel the timeout, drop the Turnstile widget, and forget this guard.
+   */
+  destroy() {
+    clearTimeout(this.#timerId);
+    this.#timerId = null;
+    if (this.#widgetId !== null && typeof turnstile !== 'undefined') {
+      turnstile.remove(this.#widgetId);
+      this.#widgetId = null;
+    }
+    const idx = TurnstileGuard.#instances.indexOf(this);
+    if (idx >= 0) TurnstileGuard.#instances.splice(idx, 1);
   }
 
   #render() {
@@ -89,12 +118,10 @@ class TurnstileGuard {
 
   #enable() {
     this.#submit.disabled = false;
-    this.#submit.removeAttribute('aria-busy');
   }
 
   #disable() {
     this.#submit.disabled = true;
-    this.#submit.setAttribute('aria-busy', 'true');
   }
 
   #handleVerify = () => {

@@ -542,6 +542,7 @@ class DashboardController extends BaseController
             'returned'  => 'Returned',
             'denied'    => 'Denied',
             'cancelled' => 'Cancelled',
+            default     => ucfirst((string) $status),
         };
 
         $dueStatus = null;
@@ -561,6 +562,7 @@ class DashboardController extends BaseController
             'approved'                         => $isLender ? 'Approved for' : 'Approved by',
             'borrowed'                         => $isLender ? 'Lent to' : 'Borrowed from',
             'returned'                         => $isLender ? 'Returned by' : 'Returned to',
+            default                            => 'Counterparty',
         };
 
         $this->renderDashboard('loan-status', [

@@ -151,7 +151,6 @@ class NotificationController extends BaseController
         } catch (\Throwable $e) {
             error_log('NotificationController::redirectThrough — ' . $e->getMessage());
             $this->redirect('/notifications');
-            return;
         }
 
         if ($ntf === null) {

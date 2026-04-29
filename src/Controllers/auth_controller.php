@@ -609,7 +609,7 @@ class AuthController extends BaseController
         $passwordConfirm = $_POST['password_confirm'] ?? '';
 
         if ($token === '') {
-            $this->abort(403);
+            $this->abort(404);
         }
 
         $resetRecord = PasswordReset::findValidToken($token);

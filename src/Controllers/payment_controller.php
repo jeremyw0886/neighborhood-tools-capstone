@@ -584,7 +584,11 @@ class PaymentController extends BaseController
             $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId);
         } catch (\Throwable $e) {
             error_log('PaymentController::complete — Stripe API error: ' . $e->getMessage());
-            $_SESSION['deposit_errors'] = ['Unable to verify payment status. Please contact support.'];
+            $_SESSION['deposit_errors'] = [
+                'We are still verifying your payment with the processor. '
+                . 'Refresh in a moment, or check your email — '
+                . 'the deposit page will update automatically once Stripe confirms.',
+            ];
             $this->redirect('/dashboard');
         }
 
@@ -627,7 +631,6 @@ class PaymentController extends BaseController
 
         $perPage    = 12;
         $page       = max(1, (int) ($_GET['page'] ?? 1));
-        $offset     = ($page - 1) * $perPage;
         $userId     = (int) $_SESSION['user_id'];
         $isAdmin    = Role::tryFrom($_SESSION['user_role'] ?? '')?->isAdmin() ?? false;
 

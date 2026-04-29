@@ -1281,11 +1281,6 @@ class AdminController extends BaseController
     }
 
     /**
-     * Global admin search — queries all entity models for a search term.
-     *
-     * @return void
-     */
-    /**
      * Return JSON suggestions for admin search inputs.
      */
     public function suggest(): never

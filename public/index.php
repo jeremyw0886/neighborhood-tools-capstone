@@ -132,6 +132,10 @@ if (!empty($_SESSION['logged_in'])) {
     $tosWhitelist = ['/tos', '/tos/accept', '/logout', '/login', '/register'];
     $requestUri   = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 
+    if ($requestUri !== '/') {
+        $requestUri = rtrim($requestUri, '/');
+    }
+
     if (!in_array($requestUri, $tosWhitelist, true)) {
         $currentTos = \App\Models\Tos::getCurrent();
 
@@ -202,7 +206,7 @@ try {
     $candidates = $routesByMethod[$method] ?? [];
 
     foreach ($candidates as $candidate) {
-        $pattern = preg_replace('/\{([a-zA-Z]+)\}/', '(?P<$1>[^/]+)', $candidate['path']);
+        $pattern = preg_replace('/\{([a-zA-Z][a-zA-Z0-9_]*)\}/', '(?P<$1>[^/]+)', $candidate['path']);
         $pattern = '#^' . $pattern . '$#';
 
         if (preg_match($pattern, $uri, $matches)) {

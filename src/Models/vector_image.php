@@ -9,6 +9,10 @@ use PDO;
 
 class VectorImage
 {
+    private const array ALLOWED_SORTS = ['file_name_vec', 'uploaded_at_vec', 'assigned_category'];
+    private const string DEFAULT_SORT = 'uploaded_at_vec';
+    private const string DEFAULT_DIR  = 'DESC';
+
     public static function getAll(): array
     {
         $pdo = Database::connection();
@@ -161,6 +165,10 @@ class VectorImage
         ?bool $assigned,
     ): array {
         $pdo = Database::connection();
+
+        $sort = in_array($sort, self::ALLOWED_SORTS, true) ? $sort : self::DEFAULT_SORT;
+        $dir  = strtoupper($dir);
+        $dir  = ($dir === 'ASC' || $dir === 'DESC') ? $dir : self::DEFAULT_DIR;
 
         $filter = self::buildFilterWhere($search, $assigned);
 

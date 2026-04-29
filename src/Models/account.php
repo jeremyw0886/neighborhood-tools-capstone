@@ -11,18 +11,29 @@ use PDO;
 
 class Account
 {
+    private const array ADMIN_ALLOWED_SORTS = [
+        'full_name',
+        'role_name_rol',
+        'account_status',
+        'member_since',
+        'overall_avg_rating',
+        'tools_owned',
+    ];
+    private const string ADMIN_DEFAULT_SORT = 'full_name';
+    private const string ADMIN_DEFAULT_DIR  = 'ASC';
+
     /**
      * Fetch paginated members with reputation and role data for admin users page.
      *
-     * @param  string  $sort   Pre-validated column name
-     * @param  string  $dir    Pre-validated direction (ASC|DESC)
+     * @param  string  $sort   Column name; validated against ADMIN_ALLOWED_SORTS
+     * @param  string  $dir    Direction; coerced to ASC or DESC
      * @return array   Rows with reputation fields plus role_name_rol
      */
     public static function getAllForAdmin(
         int $limit,
         int $offset,
-        string $sort = 'full_name',
-        string $dir = 'ASC',
+        string $sort = self::ADMIN_DEFAULT_SORT,
+        string $dir = self::ADMIN_DEFAULT_DIR,
         ?string $role = null,
         ?string $status = null,
         ?string $search = null,
@@ -30,16 +41,20 @@ class Account
     ): array {
         $pdo = Database::connection();
 
+        $sort = in_array($sort, self::ADMIN_ALLOWED_SORTS, true) ? $sort : self::ADMIN_DEFAULT_SORT;
+        $dir  = strtoupper($dir);
+        $dir  = ($dir === 'ASC' || $dir === 'DESC') ? $dir : self::ADMIN_DEFAULT_DIR;
+
         $filter      = self::buildFilterWhere($role, $status, $search, $excludeDeleted);
         $whereClause = $filter['sql'];
 
         $qualified = match ($sort) {
-            'role_name_rol'    => 'rol.role_name_rol',
-            'full_name'        => "CONCAT(a.first_name_acc, ' ', a.last_name_acc)",
-            'account_status'   => 'ast.status_name_ast',
-            'email_address_acc' => 'a.email_address_acc',
-            'member_since'     => 'a.created_at_acc',
-            default            => 'r.' . $sort,
+            'role_name_rol'      => 'rol.role_name_rol',
+            'full_name'          => "CONCAT(a.first_name_acc, ' ', a.last_name_acc)",
+            'account_status'     => 'ast.status_name_ast',
+            'member_since'       => 'a.created_at_acc',
+            'overall_avg_rating' => 'r.overall_avg_rating',
+            'tools_owned'        => 'r.tools_owned',
         };
 
         $sql = "

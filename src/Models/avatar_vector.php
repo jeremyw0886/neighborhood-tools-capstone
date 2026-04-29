@@ -9,6 +9,10 @@ use PDO;
 
 class AvatarVector
 {
+    private const array ALLOWED_SORTS = ['file_name_avv', 'uploaded_at_avv', 'is_active_avv', 'user_count'];
+    private const string DEFAULT_SORT = 'uploaded_at_avv';
+    private const string DEFAULT_DIR  = 'DESC';
+
     /** All rows with uploader name and user count (admin listing). */
     public static function getAll(): array
     {
@@ -177,6 +181,10 @@ class AvatarVector
         ?bool $active,
     ): array {
         $pdo = Database::connection();
+
+        $sort = in_array($sort, self::ALLOWED_SORTS, true) ? $sort : self::DEFAULT_SORT;
+        $dir  = strtoupper($dir);
+        $dir  = ($dir === 'ASC' || $dir === 'DESC') ? $dir : self::DEFAULT_DIR;
 
         $filter = self::buildFilterWhere($search, $active);
 

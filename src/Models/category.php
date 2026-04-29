@@ -9,6 +9,10 @@ use PDO;
 
 class Category
 {
+    private const array ALLOWED_SORTS = ['category_name_cat', 'file_name_vec'];
+    private const string DEFAULT_SORT = 'category_name_cat';
+    private const string DEFAULT_DIR  = 'ASC';
+
     /**
      * Fetch all categories with tool counts, ratings, and fee ranges.
      *
@@ -161,6 +165,10 @@ class Category
         ?bool $hasIcon,
     ): array {
         $pdo = Database::connection();
+
+        $sort = in_array($sort, self::ALLOWED_SORTS, true) ? $sort : self::DEFAULT_SORT;
+        $dir  = strtoupper($dir);
+        $dir  = ($dir === 'ASC' || $dir === 'DESC') ? $dir : self::DEFAULT_DIR;
 
         $filter = self::buildFilterWhere($search, $hasIcon);
 

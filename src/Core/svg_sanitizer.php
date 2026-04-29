@@ -11,7 +11,7 @@ use enshrined\svgSanitize\Sanitizer;
  * project-owned class rather than the vendored namespace, and so the
  * default policy (strip remote refs, minify, etc.) lives in one place.
  */
-class SvgSanitizer
+final class SvgSanitizer
 {
     /**
      * Sanitize an SVG file in place. Reads the file, runs the sanitizer,

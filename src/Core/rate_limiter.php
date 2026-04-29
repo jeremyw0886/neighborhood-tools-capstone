@@ -4,11 +4,28 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+/**
+ * File-backed sliding-window rate limiter.
+ *
+ * Each `$key` (typically `"{ip}|{action}"`) maps to a JSON file under
+ * `/storage/rate-limits/` holding the attempt count and first-attempt
+ * timestamp. Windows are sliding: once `windowSeconds` has elapsed since
+ * the first recorded attempt for a key, the counter resets on the next
+ * `tooManyAttempts()` call. Concurrent writers are serialized via
+ * `LOCK_EX` on the state file. A 1-in-10 probabilistic cleanup sweep
+ * runs from `tooManyAttempts()` so stale state files don't accumulate.
+ */
 class RateLimiter
 {
     private const string STORAGE_DIR = '/storage/rate-limits/';
     private const int CLEANUP_MAX_WINDOW = 3600;
 
+    /**
+     * Whether `$key` has reached `$maxAttempts` within `$windowSeconds`.
+     *
+     * Resets the counter (deletes the state file) when the window has
+     * elapsed since the first attempt, so the next call starts fresh.
+     */
     public static function tooManyAttempts(string $key, int $maxAttempts, int $windowSeconds): bool
     {
         $path  = self::filePath($key);
@@ -32,6 +49,12 @@ class RateLimiter
         return $state['attempts'] >= $maxAttempts;
     }
 
+    /**
+     * Record an attempt against `$key`, starting a new window when needed.
+     *
+     * Call this after a failed (or rate-limit-relevant) action so subsequent
+     * `tooManyAttempts()` checks see the cumulative count.
+     */
     public static function increment(string $key): void
     {
         $path  = self::filePath($key);
@@ -46,11 +69,21 @@ class RateLimiter
         self::writeState($path, $state);
     }
 
+    /**
+     * Clear any rate-limit state for `$key`.
+     *
+     * Used after a successful action (login, password change, etc.) so the
+     * user's prior failed attempts don't continue to count against them.
+     */
     public static function reset(string $key): void
     {
         @unlink(self::filePath($key));
     }
 
+    /**
+     * Seconds remaining in the current window for `$key`, or 0 if the
+     * key has no active window.
+     */
     public static function remainingSeconds(string $key, int $windowSeconds): int
     {
         $path  = self::filePath($key);
@@ -65,6 +98,9 @@ class RateLimiter
         return max(0, $remaining);
     }
 
+    /**
+     * Resolve (and create if needed) the on-disk directory for state files.
+     */
     private static function storagePath(): string
     {
         $dir = BASE_PATH . self::STORAGE_DIR;

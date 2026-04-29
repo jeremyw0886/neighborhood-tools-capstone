@@ -13,6 +13,7 @@ final class GdBackend implements ImageBackend
     private const int PNG_COMPRESSION = 4;
     private const int WEBP_QUALITY = 85;
 
+    /** @inheritDoc */
     #[\Override]
     public function resize(string $path, int $maxWidth): void
     {
@@ -42,6 +43,7 @@ final class GdBackend implements ImageBackend
         unset($source, $canvas);
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function cropResize(
         string $path,
@@ -86,6 +88,7 @@ final class GdBackend implements ImageBackend
         unset($source, $canvas);
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function createFormatVariant(string $path, string $format, int $quality): ?string
     {
@@ -125,6 +128,7 @@ final class GdBackend implements ImageBackend
         return $outputPath;
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function autoOrient(string $path): void
     {
@@ -170,6 +174,7 @@ final class GdBackend implements ImageBackend
         }
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function getIntrinsicWidth(string $path): ?int
     {

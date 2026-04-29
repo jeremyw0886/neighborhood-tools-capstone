@@ -54,6 +54,11 @@ class FileCache
         return $value;
     }
 
+    /**
+     * Invalidate the cached value for `$key` if one exists.
+     *
+     * Safe to call when no entry exists (the unlink is suppressed).
+     */
     public static function forget(string $key): void
     {
         @unlink(self::filePath($key));

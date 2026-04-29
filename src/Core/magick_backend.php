@@ -13,6 +13,7 @@ final class MagickBackend implements ImageBackend
         private readonly string $binary,
     ) {}
 
+    /** @inheritDoc */
     #[\Override]
     public function resize(string $path, int $maxWidth): void
     {
@@ -31,6 +32,7 @@ final class MagickBackend implements ImageBackend
         ]);
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function cropResize(
         string $path,
@@ -76,6 +78,7 @@ final class MagickBackend implements ImageBackend
         ]);
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function createFormatVariant(string $path, string $format, int $quality): ?string
     {
@@ -100,6 +103,7 @@ final class MagickBackend implements ImageBackend
         return $outputPath;
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function autoOrient(string $path): void
     {
@@ -111,6 +115,7 @@ final class MagickBackend implements ImageBackend
         ]);
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function getIntrinsicWidth(string $path): ?int
     {

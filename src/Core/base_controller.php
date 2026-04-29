@@ -8,6 +8,18 @@ use App\Core\RateLimiter;
 use App\Models\Notification;
 use App\Models\Tos;
 
+/**
+ * Shared base for every concrete controller.
+ *
+ * Centralizes the cross-cutting concerns each controller would otherwise
+ * reinvent: view rendering with shared layout data (auth state, CSRF token,
+ * current TOS, unread-notification count), auth + role + CSRF guards,
+ * Turnstile + rate-limit verification, the JSON XHR/redirect helpers,
+ * pagination + filter + referer-back utilities, and `abort()` for the
+ * error views. Concrete controllers extend this and call its `protected`
+ * helpers — no controller should reach for `$_SESSION` / `$_SERVER` /
+ * `header()` directly when a helper here covers it.
+ */
 class BaseController
 {
     /** Cache for current TOS to avoid repeated queries within a request. */

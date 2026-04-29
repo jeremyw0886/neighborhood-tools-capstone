@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+/**
+ * Stateless presentation helpers used directly from view templates.
+ *
+ * Bundles small string/markup utilities — `<select>` selected attribute,
+ * `aria-sort` flagging, loan-duration formatting, pagination URL building,
+ * avatar URL resolution (vector → cropped variant → full → placeholder),
+ * location-string formatting, upload cache-busters, TOS body linkifying,
+ * and TOS section slugs — so views can call `ViewHelper::*` instead of
+ * inlining raw PHP. All methods are static and side-effect free.
+ */
 class ViewHelper
 {
     /**

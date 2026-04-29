@@ -7,10 +7,23 @@ namespace App\Core;
 use PDO;
 use PDOException;
 
+/**
+ * Per-request PDO singleton plus a small SQL helper.
+ *
+ * Holds one lazy-initialized PDO instance for the lifetime of the request
+ * (web or CLI), reading config from `config/database.php`. Connection failures
+ * log the SQLSTATE only (never the DSN or credentials), then either render
+ * the 500 view (web) or write to STDERR + exit 1 (CLI/cron).
+ */
 class Database
 {
     private static ?PDO $pdo = null;
 
+    /**
+     * Return the shared PDO connection, opening one on first call.
+     *
+     * @return PDO Connected PDO instance using the credentials in config/database.php
+     */
     public static function connection(): PDO
     {
         if (self::$pdo === null) {

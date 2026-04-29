@@ -6,6 +6,9 @@ class SwipeToRead {
   static #idCounter = 0;
   static #THRESHOLD = 80;
   static #TRAY_WIDTH = 72;
+  static #LOCK_THRESHOLD_PX = 10;
+  static #RUBBER_BAND_PX = 20;
+  static #TRANSITION_FALLBACK_MS = 300;
   static #REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
 
   /** @type {HTMLLIElement} */
@@ -16,8 +19,10 @@ class SwipeToRead {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLLIElement} li
-   * @param {(form: HTMLFormElement) => void} onConfirm
+   * Wire up touch listeners on a single notification row to enable swipe-to-mark-read.
+   *
+   * @param {HTMLLIElement} li - The notification list item being enhanced
+   * @param {(form: HTMLFormElement) => void} onConfirm - Callback invoked with the row's mark-read form when the swipe completes
    */
   constructor(li, onConfirm) {
     this.#li = li;
@@ -32,6 +37,9 @@ class SwipeToRead {
     li.addEventListener('touchcancel', this.#handleTouchCancel, { signal });
   }
 
+  /**
+   * Detach touch listeners, drop the per-row transform rule, remove the action tray, and clear the swiping state.
+   */
   destroy() {
     this.#abortController.abort();
     NT.style.removeRule(`swipe-${this.#swipeId}`);
@@ -72,12 +80,15 @@ class SwipeToRead {
 
     if (callback) {
       const article = this.#li.querySelector('article');
+      let fired = false;
       const done = () => {
+        if (fired) return;
+        fired = true;
         article?.removeEventListener('transitionend', done);
         callback();
       };
       article?.addEventListener('transitionend', done);
-      setTimeout(done, 300);
+      setTimeout(done, SwipeToRead.#TRANSITION_FALLBACK_MS);
     }
   }
 
@@ -112,7 +123,6 @@ class SwipeToRead {
     this.#ensureTray();
   };
 
-  /** @param {TouchEvent} e */
   #handleTouchMove = (e) => {
     if (!this.#state) return;
 
@@ -125,7 +135,7 @@ class SwipeToRead {
         this.#state = null;
         return;
       }
-      if (Math.abs(dx) > 10) {
+      if (Math.abs(dx) > SwipeToRead.#LOCK_THRESHOLD_PX) {
         this.#state.locked = true;
         this.#li.classList.add('swiping');
       } else {
@@ -135,7 +145,7 @@ class SwipeToRead {
 
     e.preventDefault();
 
-    const clampedX = Math.min(0, Math.max(-SwipeToRead.#TRAY_WIDTH - 20, dx));
+    const clampedX = Math.min(0, Math.max(-SwipeToRead.#TRAY_WIDTH - SwipeToRead.#RUBBER_BAND_PX, dx));
     this.#state.currentX = clampedX;
 
     NT.style.setRule(
@@ -184,14 +194,22 @@ class NotificationManager {
   #filterController = null;
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} section */
+  /**
+   * Bind delegated form/click/popstate listeners and wire up swipe-to-read on every unread row.
+   *
+   * @param {HTMLElement} section - The notifications section containing the unread/read groups
+   */
   constructor(section) {
     this.#section = section;
     this.#bind();
     this.#createSwipeInstances();
   }
 
-  /** @returns {NotificationManager|null} */
+  /**
+   * Initialize the singleton NotificationManager when the notifications section is in the DOM.
+   *
+   * @returns {NotificationManager|null}
+   */
   static init() {
     if (NotificationManager.#instance) return NotificationManager.#instance;
     if (!window.NT) return null;
@@ -202,6 +220,9 @@ class NotificationManager {
     return (NotificationManager.#instance = new NotificationManager(section));
   }
 
+  /**
+   * Tear down all per-row swipe handlers, abort any in-flight filter fetch, detach listeners, and reset the singleton.
+   */
   destroy() {
     this.#destroySwipeInstances();
     this.#filterController?.abort();
@@ -318,9 +339,9 @@ class NotificationManager {
     const items = this.#section.querySelectorAll('ol > li').length;
     rangeEl.textContent = `${start}\u2013${start + items - 1}`;
 
-    const p = liveRegion.querySelector('p');
-    if (p) {
-      p.lastChild.textContent = total !== 1 ? ' notifications' : ' notification';
+    const noun = liveRegion.querySelector('[data-noun]');
+    if (noun) {
+      noun.textContent = total !== 1 ? 'notifications' : 'notification';
     }
   }
 

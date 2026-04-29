@@ -18,8 +18,10 @@ class TocHighlighter {
   #activeLink = null;
 
   /**
-   * @param {NodeListOf<HTMLElement>} sections
-   * @param {Map<string, HTMLAnchorElement>} links
+   * Observe each style guide section and remember the TOC link map for highlighting.
+   *
+   * @param {NodeListOf<HTMLElement>} sections - All `<section[id]>` elements within the style guide
+   * @param {Map<string, HTMLAnchorElement>} links - Map from section id to its TOC anchor
    */
   constructor(sections, links) {
     this.#links = links;
@@ -32,7 +34,11 @@ class TocHighlighter {
     for (const section of sections) this.#observer.observe(section);
   }
 
-  /** @returns {TocHighlighter|null} */
+  /**
+   * Initialize the singleton TocHighlighter when the style guide TOC and sections are present.
+   *
+   * @returns {TocHighlighter|null}
+   */
   static init() {
     if (TocHighlighter.#instance) return TocHighlighter.#instance;
 
@@ -69,6 +75,9 @@ class TocHighlighter {
     }
   };
 
+  /**
+   * Disconnect the section observer, clear the active TOC link, and reset the singleton.
+   */
   destroy() {
     this.#observer.disconnect();
     if (this.#activeLink) this.#activeLink.removeAttribute('aria-current');
@@ -94,8 +103,10 @@ class SwatchCopier {
   #resetTimer = null;
 
   /**
-   * @param {HTMLElement} root
-   * @param {HTMLElement} liveRegion
+   * Wire click and keyboard listeners on the style guide root for swatch copying.
+   *
+   * @param {HTMLElement} root - The style guide page root element
+   * @param {HTMLElement} liveRegion - The injected aria-live region used for copy announcements
    */
   constructor(root, liveRegion) {
     this.#root = root;
@@ -104,7 +115,11 @@ class SwatchCopier {
     this.#root.addEventListener('keydown', this.#onKeydown);
   }
 
-  /** @returns {SwatchCopier|null} */
+  /**
+   * Initialize the singleton SwatchCopier when clipboard support and swatches are available.
+   *
+   * @returns {SwatchCopier|null}
+   */
   static init() {
     if (SwatchCopier.#instance) return SwatchCopier.#instance;
 
@@ -146,9 +161,6 @@ class SwatchCopier {
     this.#copy(swatch);
   };
 
-  /**
-   * @param {HTMLElement} swatch
-   */
   #copy(swatch) {
     const text = swatch.querySelector('.swatch-var')?.textContent?.trim();
     if (!text) return;
@@ -159,9 +171,6 @@ class SwatchCopier {
     );
   }
 
-  /**
-   * @param {string} message
-   */
   #announce(message) {
     this.#liveRegion.textContent = message;
     if (this.#resetTimer) clearTimeout(this.#resetTimer);
@@ -171,6 +180,9 @@ class SwatchCopier {
     }, SwatchCopier.#RESET_MS);
   }
 
+  /**
+   * Detach listeners, cancel the announcement reset timer, remove the live region, and reset the singleton.
+   */
   destroy() {
     this.#root.removeEventListener('click', this.#onClick);
     this.#root.removeEventListener('keydown', this.#onKeydown);

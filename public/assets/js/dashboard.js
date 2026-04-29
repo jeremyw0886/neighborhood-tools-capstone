@@ -26,7 +26,11 @@ class DashboardRouter {
   #currentUrl = location.href;
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} mainEl */
+  /**
+   * Cache the main element, set the initial history state, bind listeners, and prefetch nav links.
+   *
+   * @param {HTMLElement} mainEl - The dashboard `<main>` element whose content gets swapped
+   */
   constructor(mainEl) {
     this.#mainEl = mainEl;
 
@@ -39,7 +43,11 @@ class DashboardRouter {
     this.#prefetchNavLinks();
   }
 
-  /** @returns {DashboardRouter|null} */
+  /**
+   * Initialize the singleton DashboardRouter when the NT namespace and main-content element are present.
+   *
+   * @returns {DashboardRouter|null}
+   */
   static init() {
     if (DashboardRouter.#instance) return DashboardRouter.#instance;
     if (!window.NT) return null;
@@ -48,6 +56,9 @@ class DashboardRouter {
     return (DashboardRouter.#instance = new DashboardRouter(mainEl));
   }
 
+  /**
+   * Cancel pending prefetch, abort the in-flight navigation, detach listeners, drop the reduced-motion rule, and reset the singleton.
+   */
   destroy() {
     clearTimeout(this.#hoverTimer);
     this.#currentAbort?.abort();
@@ -107,10 +118,10 @@ class DashboardRouter {
   // ── Fetch & Sync ──
 
   /**
-   * Fetch a page and return parsed content.
+   * Fetch a page and return parsed content, honoring the X-Partial cache headers.
    *
-   * @param {string} url
-   * @param {AbortSignal} [signal]
+   * @param {string} url - URL to fetch
+   * @param {AbortSignal} [signal] - Optional abort signal
    * @returns {Promise<{doc: Document, title: string, stylesheets: string[], partial: boolean}|null>}
    */
   async #fetchPage(url, signal) {
@@ -159,7 +170,7 @@ class DashboardRouter {
   /**
    * Inject stylesheets the target page needs that aren't already loaded.
    *
-   * @param {string[]} needed
+   * @param {string[]} needed - Stylesheet hrefs the target page requires
    * @returns {Promise<void>}
    */
   static #syncStylesheets(needed) {
@@ -189,7 +200,7 @@ class DashboardRouter {
   /**
    * Load page-specific scripts that aren't already present.
    *
-   * @param {string[]} needed
+   * @param {string[]} needed - Script `src` URLs the target page requires
    * @returns {Promise<void>}
    */
   static async #syncScripts(needed) {
@@ -246,7 +257,7 @@ class DashboardRouter {
   /**
    * Update dashboard nav active state after a content swap.
    *
-   * @param {string} url
+   * @param {string} url - URL whose pathname is matched against nav anchors
    */
   #updateNavActiveState(url) {
     const nav = document.querySelector('[data-dashboard-body] > nav');
@@ -269,9 +280,9 @@ class DashboardRouter {
   /**
    * Navigate to a dashboard URL with a slide transition.
    *
-   * @param {string} url
-   * @param {'forward'|'back'} direction
-   * @param {boolean} pushHistory
+   * @param {string} url - Target dashboard URL
+   * @param {'forward'|'back'} direction - Slide direction for the transition
+   * @param {boolean} pushHistory - Whether to push a new history entry (false for popstate-driven navigations)
    */
   async #navigate(url, direction = 'forward', pushHistory = true) {
     if (this.#navigating) return;
@@ -456,7 +467,6 @@ class DashboardRouter {
     if (e.target.closest('a[href]')) this.#cancelPrefetch();
   };
 
-  /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     if (!e.altKey || e.key !== 'ArrowLeft') return;
     if (e.ctrlKey || e.metaKey || e.shiftKey) return;
@@ -468,14 +478,12 @@ class DashboardRouter {
     this.#navigate(backLink.href, 'back');
   };
 
-  /** @param {TouchEvent} e */
   #handleTouchStart = (e) => {
     if (e.touches.length !== 1) return;
     this.#swipeStartX = e.touches[0].clientX;
     this.#swipeStartY = e.touches[0].clientY;
   };
 
-  /** @param {TouchEvent} e */
   #handleTouchEnd = (e) => {
     if (e.changedTouches.length !== 1) return;
 
@@ -509,7 +517,11 @@ class ProfilePhotoManager {
 
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} container */
+  /**
+   * Cache references to file/focal inputs and the preview image, then bind listeners.
+   *
+   * @param {HTMLElement} container - Profile photo upload container element
+   */
   constructor(container) {
     this.#container = container;
     this.#fileInput = container.querySelector('input[type="file"]');
@@ -520,7 +532,11 @@ class ProfilePhotoManager {
     this.#bind();
   }
 
-  /** @returns {ProfilePhotoManager|null} */
+  /**
+   * Initialize the singleton ProfilePhotoManager when the upload container is present.
+   *
+   * @returns {ProfilePhotoManager|null}
+   */
   static init() {
     if (ProfilePhotoManager.#instance) return ProfilePhotoManager.#instance;
     const container = document.querySelector('[data-profile-photo-upload]');
@@ -528,11 +544,17 @@ class ProfilePhotoManager {
     return (ProfilePhotoManager.#instance = new ProfilePhotoManager(container));
   }
 
+  /**
+   * Detach listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     ProfilePhotoManager.#instance = null;
   }
 
+  /**
+   * Tear down the singleton in place, leaving the static slot empty.
+   */
   static teardown() {
     ProfilePhotoManager.#instance?.destroy();
   }
@@ -580,10 +602,23 @@ class ProfilePhotoManager {
 
   #handleReposition = () => {
     if (!this.#previewImg || !NT.crop) return;
-    const fx = parseInt(this.#previewImg.dataset.focalX, 10) || 50;
-    const fy = parseInt(this.#previewImg.dataset.focalY, 10) || 50;
+    const fx = ProfilePhotoManager.#parseFocal(this.#previewImg.dataset.focalX);
+    const fy = ProfilePhotoManager.#parseFocal(this.#previewImg.dataset.focalY);
     NT.crop.openReposition(this.#previewImg.src, fx, fy, 'profile', { aspectRatio: 1 });
   };
+
+  /**
+   * Parse a 0-100 focal-point dataset string, defaulting to 50 only when
+   *  the value is missing or non-numeric. `parseInt(...) || 50` silently
+   *  coerces a legitimate `0` to `50`.
+   *
+   * @param {string|undefined} value - Raw focal dataset value
+   * @returns {number}
+   */
+  static #parseFocal(value) {
+    const n = Number.parseInt(value ?? '', 10);
+    return Number.isFinite(n) ? n : 50;
+  }
 
   #handleRemovePhoto = async () => {
     const response = await NT.fetch('/profile/image/delete', { method: 'POST' });
@@ -597,8 +632,8 @@ class ProfilePhotoManager {
   /**
    * PATCH new focal point to server and update preview on success.
    *
-   * @param {number} focalX
-   * @param {number} focalY
+   * @param {number} focalX - New horizontal focal-point percentage (0-100)
+   * @param {number} focalY - New vertical focal-point percentage (0-100)
    */
   async #handleRepositionConfirm(focalX, focalY) {
     NT.crop.setConfirmState(true, true);
@@ -634,11 +669,11 @@ class ProfilePhotoManager {
   /**
    * Generate a square canvas thumbnail from a File with focal-point cropping.
    *
-   * @param {File} file
+   * @param {File} file - Source image file
    * @param {number} size - Output pixel size (use 2x for retina)
-   * @param {number} focalX
-   * @param {number} focalY
-   * @returns {Promise<string>} Object URL of the generated thumbnail blob
+   * @param {number} focalX - Horizontal focal-point percentage (0-100)
+   * @param {number} focalY - Vertical focal-point percentage (0-100)
+   * @returns {Promise<string>}
    */
   static async #createThumbnail(file, size, focalX, focalY) {
     const source = await createImageBitmap(file);
@@ -661,9 +696,9 @@ class ProfilePhotoManager {
   /**
    * Show a client-side preview of the selected file before form submission.
    *
-   * @param {File} file
-   * @param {number} focalX
-   * @param {number} focalY
+   * @param {File} file - Newly chosen image file
+   * @param {number} focalX - Horizontal focal-point percentage (0-100)
+   * @param {number} focalY - Vertical focal-point percentage (0-100)
    */
   async #showPreview(file, focalX, focalY) {
     const url = await ProfilePhotoManager.#createThumbnail(file, 240, focalX, focalY);
@@ -671,9 +706,11 @@ class ProfilePhotoManager {
   }
 
   /**
-   * @param {string} url
-   * @param {number} focalX
-   * @param {number} focalY
+   * Apply a preview URL to the existing `<img>` or build a new figure when none exists.
+   *
+   * @param {string} url - Object URL or data URL for the preview image
+   * @param {number} focalX - Horizontal focal-point percentage (0-100)
+   * @param {number} focalY - Vertical focal-point percentage (0-100)
    */
   #applyPreviewUrl(url, focalX, focalY) {
     if (this.#previewImg) {
@@ -699,7 +736,9 @@ class ProfilePhotoManager {
   /**
    * Select (or create) the "My Photo" radio in the avatar grid after a new upload.
    *
-   * @param {File} file
+   * @param {File} file - Newly chosen image file
+   * @param {number} focalX - Horizontal focal-point percentage (0-100)
+   * @param {number} focalY - Vertical focal-point percentage (0-100)
    */
   async #selectPhotoRadio(file, focalX, focalY) {
     const fieldset = this.#container.closest('fieldset');

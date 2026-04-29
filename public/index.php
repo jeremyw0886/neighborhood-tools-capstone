@@ -96,7 +96,7 @@ if (!empty($_SESSION['logged_in'])) {
     if ($needsRefresh) {
         $refreshStmt = \App\Core\Database::connection()->prepare(
             'SELECT r.role_name_rol, s.status_name_ast
-             FROM account_acc a
+             FROM active_account_v a
              JOIN role_rol r ON a.id_rol_acc = r.id_rol
              JOIN account_status_ast s ON a.id_ast_acc = s.id_ast
              WHERE a.id_acc = :id

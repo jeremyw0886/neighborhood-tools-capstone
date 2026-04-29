@@ -8,18 +8,9 @@ declare(strict_types=1);
  * Schedule: every 2 hours
  */
 
-define('BASE_PATH', dirname(__DIR__));
-
-require BASE_PATH . '/vendor/autoload.php';
-
-$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
-$dotenv->load();
-
-require BASE_PATH . '/config/database.php';
+$pdo = require __DIR__ . '/bootstrap.php';
 
 try {
-    $pdo = new PDO($dbConfig['dsn'], $dbConfig['username'], $dbConfig['password'], $dbConfig['options']);
-
     $stmt = $pdo->prepare('CALL sp_refresh_tool_statistics()');
     $stmt->execute();
     $stmt->closeCursor();

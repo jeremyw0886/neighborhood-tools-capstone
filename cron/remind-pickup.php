@@ -19,14 +19,7 @@ declare(strict_types=1);
 use App\Models\Borrow;
 use App\Models\Notification;
 
-define('BASE_PATH', dirname(__DIR__));
-
-require BASE_PATH . '/vendor/autoload.php';
-
-$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
-$dotenv->load();
-
-date_default_timezone_set('America/New_York');
+require __DIR__ . '/bootstrap.php';
 
 $dryRun = in_array('--dry-run', $argv, true);
 

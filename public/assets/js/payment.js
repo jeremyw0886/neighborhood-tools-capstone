@@ -16,9 +16,9 @@ class PaymentForm {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLFormElement} form
-   * @param {HTMLButtonElement} submitBtn
-   * @param {HTMLElement} messageEl
+   * @param {HTMLFormElement} form - The payment form element
+   * @param {HTMLButtonElement} submitBtn - The submit button inside the form
+   * @param {HTMLElement} messageEl - Element used to display payment status messages
    */
   constructor(form, submitBtn, messageEl) {
     this.#form = form;
@@ -33,7 +33,11 @@ class PaymentForm {
     this.#form.addEventListener('submit', this.#handleSubmit, { signal: this.#abortController.signal });
   }
 
-  /** @returns {PaymentForm|null} */
+  /**
+   * Mount the Stripe Payment Element and intercept form submit.
+   *
+   * @returns {PaymentForm|null}
+   */
   static init() {
     if (PaymentForm.#instance) return PaymentForm.#instance;
 
@@ -53,12 +57,14 @@ class PaymentForm {
     return (PaymentForm.#instance = new PaymentForm(form, submitBtn, messageEl));
   }
 
+  /**
+   * Detach listeners and clear the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     PaymentForm.#instance = null;
   }
 
-  /** @param {SubmitEvent} e */
   #handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -69,20 +75,27 @@ class PaymentForm {
     this.#submitBtn.textContent = 'Processing\u2026';
     this.#messageEl.hidden = true;
 
-    const { error } = await this.#stripe.confirmPayment({
-      elements: this.#elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/payments/complete`,
-      },
-    });
+    let error = null;
+    try {
+      ({ error } = await this.#stripe.confirmPayment({
+        elements: this.#elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payments/complete`,
+        },
+      }));
+    } catch {
+      error = { message: 'Payment failed. Please try again.' };
+    }
 
     if (error) {
-      this.#messageEl.textContent = error?.message ?? 'Payment failed. Please try again.';
+      this.#messageEl.textContent = error.message ?? 'Payment failed. Please try again.';
       this.#messageEl.hidden = false;
       this.#submitBtn.textContent = this.#btnLabel;
       this.#submitBtn.disabled = false;
       this.#submitting = false;
     }
+    // No else: on success Stripe redirects to return_url; keep the button
+    // disabled so the user doesn't retrigger during the navigation tick.
   };
 }
 

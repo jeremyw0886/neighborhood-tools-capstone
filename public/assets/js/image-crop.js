@@ -42,7 +42,11 @@ class ImageCrop {
 
   #abortController = new AbortController();
 
-  /** @param {HTMLDialogElement} dialog */
+  /**
+   * Cache references to dialog sub-elements and bind pointer/keyboard/dialog listeners.
+   *
+   * @param {HTMLDialogElement} dialog - The crop dialog element
+   */
   constructor(dialog) {
     this.#dialog = dialog;
     this.#preview = document.getElementById('crop-preview');
@@ -56,7 +60,11 @@ class ImageCrop {
     this.#bind();
   }
 
-  /** @returns {ImageCrop|null} */
+  /**
+   * Initialize the singleton ImageCrop dialog and publish the NT.crop API.
+   *
+   * @returns {ImageCrop|null}
+   */
   static init() {
     if (ImageCrop.#instance) return ImageCrop.#instance;
     const dialog = document.getElementById('crop-dialog');
@@ -68,17 +76,72 @@ class ImageCrop {
     const instance = new ImageCrop(dialog);
     ImageCrop.#instance = instance;
 
+    /**
+     * Public crop-dialog API exposed on `NT.crop`.
+     *
+     * @typedef {object} CropOpts
+     * @property {number} [focalX]      Initial X focal percent (0-100).
+     * @property {number} [focalY]      Initial Y focal percent (0-100).
+     * @property {number} [aspectRatio] Frame W/H ratio (default 1.5; pass 1 for square).
+     * @property {string} [icon]        Font Awesome class for the confirm-button icon.
+     * @property {string} [label]       Confirm-button text (e.g. "Upload", "Set Photo").
+     *
+     * @typedef {object} CropConfirmData
+     * @property {?File}        file       Original file (upload mode only).
+     * @property {number}       focalX     Chosen X focal percent (0-100).
+     * @property {number}       focalY     Chosen Y focal percent (0-100).
+     * @property {?string}      imageId    Image ID being repositioned (reposition mode only).
+     *
+     * @typedef {(mode: 'upload'|'reposition', data: CropConfirmData) => void} CropConfirmCallback
+     */
     NT.crop = {
+      /**
+       * Open the dialog in upload mode for a freshly-selected file.
+       *
+       * @param {File} file
+       * @param {CropOpts} [opts]
+       */
       openUpload: (file, opts) => instance.#openUpload(file, opts),
+
+      /**
+       * Open the dialog in reposition mode for an existing image.
+       *
+       * @param {string} src      Image source URL.
+       * @param {number} fx       Current X focal percent (0-100).
+       * @param {number} fy       Current Y focal percent (0-100).
+       * @param {string} id       Image identifier passed back on confirm.
+       * @param {CropOpts} [opts]
+       */
       openReposition: (src, fx, fy, id, opts) => instance.#openReposition(src, fx, fy, id, opts),
+
+      /** Close the dialog without firing the confirm callback. */
       close: () => instance.#closeCropDialog(),
+
+      /**
+       * Register the single confirm callback. Each call replaces any
+       * previous registration — callbacks do not stack.
+       *
+       * @param {CropConfirmCallback} cb
+       */
       onConfirm: (cb) => { instance.#onConfirmCallback = cb; },
+
+      /**
+       * Toggle the confirm button between idle / disabled / loading
+       * states. Callers should set `(true, true)` while their async
+       * handler runs and call `close()` on success.
+       *
+       * @param {boolean} disabled
+       * @param {boolean} loading
+       */
       setConfirmState: (disabled, loading) => instance.#setConfirmState(disabled, loading),
     };
 
     return instance;
   }
 
+  /**
+   * Release any object URL, drop dynamic rules, detach listeners, remove the public NT.crop API, and reset the singleton.
+   */
   destroy() {
     this.#cleanupCropState();
     this.#abortController.abort();
@@ -86,6 +149,9 @@ class ImageCrop {
     ImageCrop.#instance = null;
   }
 
+  /**
+   * Tear down the singleton and re-init for a fresh DOM.
+   */
   static reinit() {
     ImageCrop.#instance?.destroy();
     ImageCrop.init();
@@ -294,7 +360,6 @@ class ImageCrop {
 
   #handlePointerUp = () => { this.#dragging = false; };
 
-  /** @param {KeyboardEvent} e */
   #handleKeydown = (e) => {
     const step = 1;
     let handled = false;

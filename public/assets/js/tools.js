@@ -7,7 +7,11 @@ class BrowseModeToggle {
 
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} nav */
+  /**
+   * Bind click listeners that update the toggle's `data-active` end/start state.
+   *
+   * @param {HTMLElement} nav - Browse-mode nav element
+   */
   constructor(nav) {
     const links = nav.querySelectorAll(':scope > a');
     nav.dataset.active = nav.querySelector(':scope > a:nth-child(2)[aria-current="page"]') ? 'end' : 'start';
@@ -20,7 +24,11 @@ class BrowseModeToggle {
     }
   }
 
-  /** @returns {BrowseModeToggle|null} */
+  /**
+   * Initialize the singleton BrowseModeToggle when the browse-mode nav is present.
+   *
+   * @returns {BrowseModeToggle|null}
+   */
   static init() {
     if (BrowseModeToggle.#instance) return BrowseModeToggle.#instance;
     const nav = document.querySelector('nav[aria-label="Browse mode"]');
@@ -28,6 +36,9 @@ class BrowseModeToggle {
     return (BrowseModeToggle.#instance = new BrowseModeToggle(nav));
   }
 
+  /**
+   * Detach the click listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     BrowseModeToggle.#instance = null;
@@ -42,8 +53,10 @@ class FuelTypeToggle {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLInputElement} checkbox
-   * @param {HTMLElement} group
+   * Hide or show the fuel-type group based on the checkbox state.
+   *
+   * @param {HTMLInputElement} checkbox - Checkbox toggling whether fuel type is required
+   * @param {HTMLElement} group - Fieldset/group element shown when the checkbox is checked
    */
   constructor(checkbox, group) {
     group.hidden = !checkbox.checked;
@@ -52,7 +65,11 @@ class FuelTypeToggle {
     });
   }
 
-  /** @returns {FuelTypeToggle|null} */
+  /**
+   * Initialize the singleton FuelTypeToggle when the checkbox and group are present.
+   *
+   * @returns {FuelTypeToggle|null}
+   */
   static init() {
     if (FuelTypeToggle.#instance) return FuelTypeToggle.#instance;
     const checkbox = document.getElementById('uses-fuel');
@@ -61,6 +78,9 @@ class FuelTypeToggle {
     return (FuelTypeToggle.#instance = new FuelTypeToggle(checkbox, group));
   }
 
+  /**
+   * Detach the change listener and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     FuelTypeToggle.#instance = null;
@@ -75,8 +95,10 @@ class FeeSlider {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLInputElement} slider
-   * @param {HTMLElement} display
+   * Mirror the slider's value into the display element and aria attributes.
+   *
+   * @param {HTMLInputElement} slider - Range input for max fee
+   * @param {HTMLElement} display - Element that mirrors the formatted slider value
    */
   constructor(slider, display) {
     slider.addEventListener('input', () => {
@@ -86,7 +108,11 @@ class FeeSlider {
     }, { signal: this.#abortController.signal });
   }
 
-  /** @returns {FeeSlider|null} */
+  /**
+   * Initialize the singleton FeeSlider when the slider and display elements are present.
+   *
+   * @returns {FeeSlider|null}
+   */
   static init() {
     if (FeeSlider.#instance) return FeeSlider.#instance;
     const slider = document.getElementById('filter-max-fee');
@@ -95,6 +121,9 @@ class FeeSlider {
     return (FeeSlider.#instance = new FeeSlider(slider, display));
   }
 
+  /**
+   * Detach the input listener and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     FeeSlider.#instance = null;
@@ -133,7 +162,11 @@ class BrowseFilter {
   #isPaginating = false;
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} page */
+  /**
+   * Cache references, hide the server submit button, and bind listeners.
+   *
+   * @param {HTMLElement} page - Browse page wrapper element
+   */
   constructor(page) {
     this.#page = page;
     this.#form = page.querySelector('form[role="search"]');
@@ -163,7 +196,11 @@ class BrowseFilter {
     this.#bind();
   }
 
-  /** @returns {BrowseFilter|null} */
+  /**
+   * Initialize the singleton BrowseFilter when the browse page and search form are present.
+   *
+   * @returns {BrowseFilter|null}
+   */
   static init() {
     if (BrowseFilter.#instance) return BrowseFilter.#instance;
     const page = document.getElementById('browse-page');
@@ -173,6 +210,9 @@ class BrowseFilter {
     return (BrowseFilter.#instance = new BrowseFilter(page));
   }
 
+  /**
+   * Cancel the debounce timer, abort any in-flight filter fetch, detach listeners, and reset the singleton.
+   */
   destroy() {
     clearTimeout(this.#debounceTimer);
     this.#fetchController?.abort();
@@ -584,6 +624,27 @@ class ViewToggle {
   static #instance = null;
   static #STORAGE_KEY = 'nt-view-preference';
 
+  /**
+   * Build a `<button>` with a Font Awesome icon child, aria-label, title, and `data-view` attribute.
+   *
+   * @param {string} iconClass - Font Awesome icon name (e.g. `fa-grip`)
+   * @param {string} label - Accessible label and tooltip text
+   * @param {string} view - Value for `data-view` (`grid` or `list`)
+   * @returns {HTMLButtonElement}
+   */
+  static #buildToggleButton(iconClass, label, view) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    btn.dataset.view = view;
+    const icon = document.createElement('i');
+    icon.className = `fa-solid ${iconClass}`;
+    icon.setAttribute('aria-hidden', 'true');
+    btn.appendChild(icon);
+    return btn;
+  }
+
   /** @type {HTMLElement} */
   #grid;
   /** @type {HTMLButtonElement} */
@@ -595,8 +656,10 @@ class ViewToggle {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLElement} grid
-   * @param {HTMLElement} summary
+   * Append a grid/list toolbar to the summary region and apply the stored preference.
+   *
+   * @param {HTMLElement} grid - Tools grid whose `data-view` attribute is toggled
+   * @param {HTMLElement} summary - Summary region that hosts the view-toggle toolbar
    */
   constructor(grid, summary) {
     this.#grid = grid;
@@ -607,19 +670,8 @@ class ViewToggle {
     toolbar.setAttribute('role', 'group');
     toolbar.setAttribute('aria-label', 'View mode');
 
-    this.#gridBtn = document.createElement('button');
-    this.#gridBtn.type = 'button';
-    this.#gridBtn.innerHTML = NT.sanitizeHtml('<i class="fa-solid fa-grip" aria-hidden="true"></i>');
-    this.#gridBtn.setAttribute('aria-label', 'Grid view');
-    this.#gridBtn.title = 'Grid view';
-    this.#gridBtn.dataset.view = 'grid';
-
-    this.#listBtn = document.createElement('button');
-    this.#listBtn.type = 'button';
-    this.#listBtn.innerHTML = NT.sanitizeHtml('<i class="fa-solid fa-list" aria-hidden="true"></i>');
-    this.#listBtn.setAttribute('aria-label', 'List view');
-    this.#listBtn.title = 'List view';
-    this.#listBtn.dataset.view = 'list';
+    this.#gridBtn = ViewToggle.#buildToggleButton('fa-grip', 'Grid view', 'grid');
+    this.#listBtn = ViewToggle.#buildToggleButton('fa-list', 'List view', 'list');
 
     toolbar.append(this.#gridBtn, this.#listBtn);
     summary.appendChild(toolbar);
@@ -631,7 +683,11 @@ class ViewToggle {
     toolbar.addEventListener('click', this.#handleClick, { signal });
   }
 
-  /** @returns {ViewToggle|null} */
+  /**
+   * Initialize the singleton ViewToggle when the browse grid and summary region are present.
+   *
+   * @returns {ViewToggle|null}
+   */
   static init() {
     if (ViewToggle.#instance) return ViewToggle.#instance;
     const page = document.getElementById('browse-page');
@@ -642,6 +698,9 @@ class ViewToggle {
     return (ViewToggle.#instance = new ViewToggle(grid, summary));
   }
 
+  /**
+   * Detach listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     ViewToggle.#instance = null;
@@ -689,10 +748,12 @@ class PhotoQueue {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLOListElement} queue
-   * @param {HTMLElement} dropZone
-   * @param {HTMLInputElement} fileInput
-   * @param {HTMLElement} dataContainer
+   * Wire up the photo queue UI: drop zone, file input, crop confirmation, and submit sync.
+   *
+   * @param {HTMLOListElement} queue - Ordered list rendering the queued photos
+   * @param {HTMLElement} dropZone - Drop-zone element used for file selection and DnD
+   * @param {HTMLInputElement} fileInput - Hidden file input feeding the queue
+   * @param {HTMLElement} dataContainer - Hidden container that receives synthesized form fields
    */
   constructor(queue, dropZone, fileInput, dataContainer) {
     this.#queue = queue;
@@ -726,7 +787,11 @@ class PhotoQueue {
     this.#updateHint();
   }
 
-  /** @returns {PhotoQueue|null} */
+  /**
+   * Initialize the singleton PhotoQueue on the create-tool page when no edit-mode gallery is mounted.
+   *
+   * @returns {PhotoQueue|null}
+   */
   static init() {
     if (PhotoQueue.#instance) return PhotoQueue.#instance;
     const queue = document.getElementById('photo-queue');
@@ -738,11 +803,17 @@ class PhotoQueue {
     return (PhotoQueue.#instance = new PhotoQueue(queue, dropZone, fileInput, dataContainer));
   }
 
+  /**
+   * Detach drop-zone and queue listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     PhotoQueue.#instance = null;
   }
 
+  /**
+   * Tear down the singleton in place, leaving the static slot empty.
+   */
   static teardown() {
     PhotoQueue.#instance?.destroy();
   }
@@ -1038,7 +1109,6 @@ class PhotoQueue {
     return primary;
   }
 
-  /** @param {KeyboardEvent} e */
   #handleQueueKeydown = (e) => {
     const li = e.target.closest('li[data-queue-index]');
     if (!li || e.target !== li) return;
@@ -1158,8 +1228,10 @@ class GalleryManager {
   #abortController = new AbortController();
 
   /**
-   * @param {HTMLElement} fieldset
-   * @param {string} toolId
+   * Cache references, attach gallery listeners, wire crop confirmation, and bind the drop zone.
+   *
+   * @param {HTMLElement} fieldset - Fieldset containing the gallery and upload controls
+   * @param {string} toolId - Numeric tool ID used in REST URLs
    */
   constructor(fieldset, toolId) {
     this.#fieldset = fieldset;
@@ -1183,7 +1255,11 @@ class GalleryManager {
     this.#bindDropZone();
   }
 
-  /** @returns {GalleryManager|null} */
+  /**
+   * Initialize the singleton GalleryManager when the edit-tool fieldset and tool ID are resolvable.
+   *
+   * @returns {GalleryManager|null}
+   */
   static init() {
     if (GalleryManager.#instance) return GalleryManager.#instance;
     const gallery = document.getElementById('gallery-manager');
@@ -1195,11 +1271,17 @@ class GalleryManager {
     return (GalleryManager.#instance = new GalleryManager(fieldset, toolId));
   }
 
+  /**
+   * Detach delegated gallery listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     GalleryManager.#instance = null;
   }
 
+  /**
+   * Tear down the singleton in place, leaving the static slot empty.
+   */
   static teardown() {
     GalleryManager.#instance?.destroy();
   }
@@ -1215,12 +1297,6 @@ class GalleryManager {
     if (!g) return [];
     return Array.from(g.querySelectorAll('li[data-image-id]'))
       .map((li) => parseInt(li.dataset.imageId, 10));
-  }
-
-  static #escapeAttr(str) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML.replace(/"/g, '&quot;');
   }
 
   #ensureGallery() {
@@ -1272,59 +1348,112 @@ class GalleryManager {
     return true;
   }
 
-  #buildLiHtml(img) {
-    const thumb = GalleryManager.#escapeAttr(img.thumb ?? img.filename);
-    const altSafe = GalleryManager.#escapeAttr(img.alt_text || '');
-    const csrfToken = GalleryManager.#escapeAttr(document.querySelector('meta[name="csrf-token"]')?.content ?? '');
+  /**
+   * Build a `<button>` with a leading Font Awesome icon and trailing text.
+   *
+   * @param {string} iconClass - Icon name suffix, e.g. `fa-trash-can`
+   * @param {string} text - Button label text
+   * @returns {HTMLButtonElement}
+   */
+  static #iconButton(iconClass, text) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const i = document.createElement('i');
+    i.className = `fa-solid ${iconClass}`;
+    i.setAttribute('aria-hidden', 'true');
+    btn.append(i, ` ${text}`);
+    return btn;
+  }
+
+  /**
+   * Construct a fully-populated gallery `<li>` for a freshly uploaded image,
+   *  ready to be appended to the gallery `<ol>`.
+   *
+   * @param {{id: number, thumb?: string, filename?: string, alt_text?: string,
+   *          focal_x?: number, focal_y?: number, is_primary?: boolean}} img - Image record from the server
+   * @returns {HTMLLIElement}
+   */
+  #buildGalleryItem(img) {
     const fx = img.focal_x ?? 50;
     const fy = img.focal_y ?? 50;
-    const focalAttrs = (fx !== 50 || fy !== 50) ? ` data-focal-x="${fx}" data-focal-y="${fy}"` : '';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-    return `
-      <img src="/uploads/tools/${thumb}"
-           alt="${altSafe}"
-           width="400" height="268"
-           loading="lazy"
-           decoding="async"${focalAttrs}>
-      <div>
-        <label for="alt-text-${img.id}">
-          <span class="visually-hidden">Alt text for image ${img.id}</span>
-        </label>
-        <input type="text"
-               id="alt-text-${img.id}"
-               value=""
-               maxlength="255"
-               placeholder="Describe this photo\u2026"
-               data-alt-input
-               data-image-id="${img.id}">
-      </div>
-      <div>
-        <input type="radio"
-               name="primary_image"
-               id="primary-${img.id}"
-               value="${img.id}"
-               ${img.is_primary ? 'checked' : ''}
-               data-primary-radio>
-        <label for="primary-${img.id}">
-          ${img.is_primary ? '<i class="fa-solid fa-star" aria-hidden="true"></i> ' : ''}Primary
-        </label>
-      </div>
-      <div>
-        <button type="button"
-                data-reposition
-                data-image-id="${img.id}"
-                aria-label="Reposition this photo">
-          <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Reposition
-        </button>
-      </div>
-      <form method="post" action="/tools/${this.#toolId}/images/${img.id}" data-delete-form>
-        <input type="hidden" name="_method" value="DELETE">
-        <input type="hidden" name="csrf_token" value="${csrfToken}">
-        <button type="submit" data-intent="danger" aria-label="Delete this photo">
-          <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
-        </button>
-      </form>
-    `;
+    const li = document.createElement('li');
+    li.dataset.imageId = String(img.id);
+    li.dataset.focalX = String(fx);
+    li.dataset.focalY = String(fy);
+    li.draggable = true;
+    li.tabIndex = 0;
+
+    const thumbImg = document.createElement('img');
+    thumbImg.src = `/uploads/tools/${img.thumb ?? img.filename}`;
+    thumbImg.alt = img.alt_text ?? '';
+    thumbImg.width = 400;
+    thumbImg.height = 268;
+    thumbImg.loading = 'lazy';
+    thumbImg.decoding = 'async';
+    if (fx !== 50 || fy !== 50) {
+      thumbImg.dataset.focalX = String(fx);
+      thumbImg.dataset.focalY = String(fy);
+    }
+
+    const altWrap = document.createElement('div');
+    const altLabel = document.createElement('label');
+    altLabel.htmlFor = `alt-text-${img.id}`;
+    const altSrText = document.createElement('span');
+    altSrText.className = 'visually-hidden';
+    altSrText.textContent = `Alt text for image ${img.id}`;
+    altLabel.appendChild(altSrText);
+    const altInput = document.createElement('input');
+    altInput.type = 'text';
+    altInput.id = `alt-text-${img.id}`;
+    altInput.maxLength = 255;
+    altInput.placeholder = 'Describe this photo\u2026';
+    altInput.value = '';
+    altInput.setAttribute('data-alt-input', '');
+    altInput.dataset.imageId = String(img.id);
+    altWrap.append(altLabel, altInput);
+
+    const primaryWrap = document.createElement('div');
+    const primaryRadio = document.createElement('input');
+    primaryRadio.type = 'radio';
+    primaryRadio.name = 'primary_image';
+    primaryRadio.id = `primary-${img.id}`;
+    primaryRadio.value = String(img.id);
+    primaryRadio.checked = !!img.is_primary;
+    primaryRadio.setAttribute('data-primary-radio', '');
+    const primaryLabel = document.createElement('label');
+    primaryLabel.htmlFor = `primary-${img.id}`;
+    GalleryManager.#setPrimaryLabel(primaryLabel, !!img.is_primary);
+    primaryWrap.append(primaryRadio, primaryLabel);
+
+    const repoWrap = document.createElement('div');
+    const repoBtn = GalleryManager.#iconButton('fa-crop-simple', 'Reposition');
+    repoBtn.setAttribute('data-reposition', '');
+    repoBtn.dataset.imageId = String(img.id);
+    repoBtn.setAttribute('aria-label', 'Reposition this photo');
+    repoWrap.appendChild(repoBtn);
+
+    const deleteForm = document.createElement('form');
+    deleteForm.method = 'post';
+    deleteForm.action = `/tools/${this.#toolId}/images/${img.id}`;
+    deleteForm.setAttribute('data-delete-form', '');
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrf_token';
+    csrfInput.value = csrfToken;
+    const deleteBtn = GalleryManager.#iconButton('fa-trash-can', 'Delete');
+    deleteBtn.type = 'submit';
+    deleteBtn.dataset.intent = 'danger';
+    deleteBtn.setAttribute('aria-label', 'Delete this photo');
+    deleteForm.append(methodInput, csrfInput, deleteBtn);
+
+    li.append(thumbImg, altWrap, primaryWrap, repoWrap, deleteForm);
+    return li;
   }
 
   async #persistOrder() {
@@ -1372,13 +1501,11 @@ class GalleryManager {
       const img = await res.json();
       const g = this.#ensureGallery();
 
-      const li = document.createElement('li');
-      li.dataset.imageId = img.id;
-      li.dataset.focalX = String(img.focal_x ?? data.focalX);
-      li.dataset.focalY = String(img.focal_y ?? data.focalY);
-      li.draggable = true;
-      li.tabIndex = 0;
-      li.innerHTML = NT.sanitizeHtml(this.#buildLiHtml(img));
+      const li = this.#buildGalleryItem({
+        ...img,
+        focal_x: img.focal_x ?? data.focalX,
+        focal_y: img.focal_y ?? data.focalY,
+      });
 
       g.appendChild(li);
       NT.applyFocalPoints(li);
@@ -1445,140 +1572,159 @@ class GalleryManager {
     }
   }
 
-  /** @param {HTMLOListElement} g */
-  #attachGalleryListeners(g) {
-    g.addEventListener('dragstart', (e) => {
-      if (e.target.closest('input, button, label, a')) {
-        e.preventDefault();
-        return;
-      }
-      const li = e.target.closest('li[data-image-id]');
-      if (!li) return;
-      this.#dragItem = li;
-      li.dataset.dragging = '';
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', li.dataset.imageId);
-    });
-
-    g.addEventListener('dragend', (e) => {
-      const li = e.target.closest('li[data-image-id]');
-      if (li) delete li.dataset.dragging;
-      this.#dragItem = null;
-      for (const el of g.querySelectorAll('[data-drag-over]')) {
-        delete el.dataset.dragOver;
-      }
-    });
-
-    g.addEventListener('dragover', (e) => {
+  #handleDragstart = (e) => {
+    if (e.target.closest('input, button, label, a')) {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      const target = e.target.closest('li[data-image-id]');
-      if (!target || target === this.#dragItem) return;
-      for (const el of g.querySelectorAll('[data-drag-over]')) {
-        delete el.dataset.dragOver;
-      }
-      target.dataset.dragOver = '';
-    });
+      return;
+    }
+    const li = e.target.closest('li[data-image-id]');
+    if (!li) return;
+    this.#dragItem = li;
+    li.dataset.dragging = '';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', li.dataset.imageId);
+  };
 
-    g.addEventListener('drop', async (e) => {
+  #handleDragend = (e) => {
+    const li = e.target.closest('li[data-image-id]');
+    if (li) delete li.dataset.dragging;
+    this.#dragItem = null;
+    for (const el of e.currentTarget.querySelectorAll('[data-drag-over]')) {
+      delete el.dataset.dragOver;
+    }
+  };
+
+  #handleDragover = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target.closest('li[data-image-id]');
+    if (!target || target === this.#dragItem) return;
+    for (const el of e.currentTarget.querySelectorAll('[data-drag-over]')) {
+      delete el.dataset.dragOver;
+    }
+    target.dataset.dragOver = '';
+  };
+
+  #handleDrop = async (e) => {
+    e.preventDefault();
+    const g = e.currentTarget;
+    const target = e.target.closest('li[data-image-id]');
+    if (!target || !this.#dragItem || target === this.#dragItem || this.#busy) return;
+
+    for (const el of g.querySelectorAll('[data-drag-over]')) {
+      delete el.dataset.dragOver;
+    }
+
+    const items = Array.from(g.querySelectorAll('li[data-image-id]'));
+    const dragIdx = items.indexOf(this.#dragItem);
+    const targetIdx = items.indexOf(target);
+    const refNode = this.#dragItem.nextElementSibling;
+
+    if (dragIdx < targetIdx) {
+      target.after(this.#dragItem);
+    } else {
+      target.before(this.#dragItem);
+    }
+
+    this.#setBusy(true);
+    const ok = await this.#persistOrder();
+    if (!ok) {
+      if (refNode) refNode.before(this.#dragItem);
+      else g.appendChild(this.#dragItem);
+    }
+    this.#setBusy(false);
+  };
+
+  #handleKeydown = async (e) => {
+    if (e.target !== e.target.closest('li[data-image-id]')) return;
+    const li = e.target;
+    if (!li || this.#busy) return;
+
+    const items = Array.from(e.currentTarget.querySelectorAll('li[data-image-id]'));
+    const idx = items.indexOf(li);
+    if (idx < 0) return;
+
+    let swapTarget = null;
+
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowLeft') && idx > 0) {
+      swapTarget = items[idx - 1];
       e.preventDefault();
-      const target = e.target.closest('li[data-image-id]');
-      if (!target || !this.#dragItem || target === this.#dragItem || this.#busy) return;
+      swapTarget.before(li);
+    } else if ((e.key === 'ArrowDown' || e.key === 'ArrowRight') && idx < items.length - 1) {
+      swapTarget = items[idx + 1];
+      e.preventDefault();
+      swapTarget.after(li);
+    }
 
-      for (const el of g.querySelectorAll('[data-drag-over]')) {
-        delete el.dataset.dragOver;
-      }
+    if (!swapTarget) return;
 
-      const items = Array.from(g.querySelectorAll('li[data-image-id]'));
-      const dragIdx = items.indexOf(this.#dragItem);
-      const targetIdx = items.indexOf(target);
-      const refNode = this.#dragItem.nextElementSibling;
-
-      if (dragIdx < targetIdx) {
-        target.after(this.#dragItem);
-      } else {
-        target.before(this.#dragItem);
-      }
-
-      this.#setBusy(true);
-      const ok = await this.#persistOrder();
-      if (!ok) {
-        if (refNode) refNode.before(this.#dragItem);
-        else g.appendChild(this.#dragItem);
-      }
-      this.#setBusy(false);
-    });
-
-    g.addEventListener('keydown', async (e) => {
-      if (e.target !== e.target.closest('li[data-image-id]')) return;
-      const li = e.target;
-      if (!li || this.#busy) return;
-
-      const items = Array.from(g.querySelectorAll('li[data-image-id]'));
-      const idx = items.indexOf(li);
-      if (idx < 0) return;
-
-      let swapTarget = null;
-
-      if ((e.key === 'ArrowUp' || e.key === 'ArrowLeft') && idx > 0) {
-        swapTarget = items[idx - 1];
-        e.preventDefault();
-        swapTarget.before(li);
-      } else if ((e.key === 'ArrowDown' || e.key === 'ArrowRight') && idx < items.length - 1) {
-        swapTarget = items[idx + 1];
-        e.preventDefault();
+    li.focus();
+    this.#setBusy(true);
+    const ok = await this.#persistOrder();
+    if (!ok) {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
         swapTarget.after(li);
+      } else {
+        swapTarget.before(li);
       }
-
-      if (!swapTarget) return;
-
       li.focus();
-      this.#setBusy(true);
-      const ok = await this.#persistOrder();
-      if (!ok) {
-        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-          swapTarget.after(li);
-        } else {
-          swapTarget.before(li);
-        }
-        li.focus();
-      }
-      this.#setBusy(false);
-    });
+    }
+    this.#setBusy(false);
+  };
 
-    g.addEventListener('click', async (e) => {
-      const deleteBtn = e.target.closest('[data-delete-form] button[type="submit"]');
-      if (deleteBtn) {
-        e.preventDefault();
-        if (this.#busy) return;
-        await this.#handleDelete(g, deleteBtn);
-        return;
-      }
+  #handleClick = async (e) => {
+    const deleteBtn = e.target.closest('[data-delete-form] button[type="submit"]');
+    if (deleteBtn) {
+      e.preventDefault();
+      if (this.#busy) return;
+      await this.#handleDelete(e.currentTarget, deleteBtn);
+      return;
+    }
 
-      const repoBtn = e.target.closest('[data-reposition]');
-      if (repoBtn && !this.#busy) {
-        const li = repoBtn.closest('li[data-image-id]');
-        if (!li) return;
-        const imageId = li.dataset.imageId;
-        const img = li.querySelector('img');
-        if (!img) return;
-        const fx = parseInt(li.dataset.focalX ?? '50', 10);
-        const fy = parseInt(li.dataset.focalY ?? '50', 10);
-        NT.crop?.openReposition(img.src, fx, fy, imageId);
-      }
-    });
+    const repoBtn = e.target.closest('[data-reposition]');
+    if (repoBtn && !this.#busy) {
+      const li = repoBtn.closest('li[data-image-id]');
+      if (!li) return;
+      const imageId = li.dataset.imageId;
+      const img = li.querySelector('img');
+      if (!img) return;
+      const fx = parseInt(li.dataset.focalX ?? '50', 10);
+      const fy = parseInt(li.dataset.focalY ?? '50', 10);
+      NT.crop?.openReposition(img.src, fx, fy, imageId);
+    }
+  };
 
-    g.addEventListener('change', async (e) => {
-      const radio = e.target.closest('[data-primary-radio]');
-      if (!radio || this.#busy) return;
-      await this.#handlePrimaryChange(g, radio);
-    });
+  #handleChange = async (e) => {
+    const radio = e.target.closest('[data-primary-radio]');
+    if (!radio || this.#busy) return;
+    await this.#handlePrimaryChange(e.currentTarget, radio);
+  };
 
-    g.addEventListener('blur', async (e) => {
-      const input = e.target.closest('[data-alt-input]');
-      if (!input || this.#busy) return;
-      await this.#handleAltTextBlur(input);
-    }, true);
+  #handleBlur = async (e) => {
+    const input = e.target.closest('[data-alt-input]');
+    if (!input || this.#busy) return;
+    await this.#handleAltTextBlur(input);
+  };
+
+  /**
+   * Bind delegated drag/keyboard/click listeners to the gallery `<ol>`.
+   * Listeners share the instance AbortController signal so destroy() and
+   *  static teardown() (called on dashboard:content-swapped) clean up
+   *  deterministically. Re-attaching the same handler+signal is a no-op,
+   *  so #ensureGallery() can call this safely after a recreate.
+   *
+   * @param {HTMLOListElement} g - Gallery `<ol>` to attach listeners to
+   */
+  #attachGalleryListeners(g) {
+    const { signal } = this.#abortController;
+    g.addEventListener('dragstart', this.#handleDragstart, { signal });
+    g.addEventListener('dragend',   this.#handleDragend,   { signal });
+    g.addEventListener('dragover',  this.#handleDragover,  { signal });
+    g.addEventListener('drop',      this.#handleDrop,      { signal });
+    g.addEventListener('keydown',   this.#handleKeydown,   { signal });
+    g.addEventListener('click',     this.#handleClick,     { signal });
+    g.addEventListener('change',    this.#handleChange,    { signal });
+    g.addEventListener('blur',      this.#handleBlur,      { signal, capture: true });
   }
 
   async #handleDelete(g, deleteBtn) {
@@ -1794,7 +1940,11 @@ class GalleryViewer {
   #triggerElement = null;
   #abortController = new AbortController();
 
-  /** @param {HTMLElement} galleryEl */
+  /**
+   * Cache references and bind the thumbnail and lightbox interactions.
+   *
+   * @param {HTMLElement} galleryEl - The tool gallery element on the show page
+   */
   constructor(galleryEl) {
     this.#galleryEl = galleryEl;
     this.#mainFigure = document.getElementById('gallery-main');
@@ -1816,7 +1966,11 @@ class GalleryViewer {
     }
   }
 
-  /** @returns {GalleryViewer|null} */
+  /**
+   * Initialize the singleton GalleryViewer when the tool-gallery element is present.
+   *
+   * @returns {GalleryViewer|null}
+   */
   static init() {
     if (GalleryViewer.#instance) return GalleryViewer.#instance;
     const galleryEl = document.getElementById('tool-gallery');
@@ -1824,11 +1978,17 @@ class GalleryViewer {
     return (GalleryViewer.#instance = new GalleryViewer(galleryEl));
   }
 
+  /**
+   * Detach thumb and lightbox listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     GalleryViewer.#instance = null;
   }
 
+  /**
+   * Tear down the singleton in place, leaving the static slot empty.
+   */
   static teardown() {
     GalleryViewer.#instance?.destroy();
   }
@@ -2014,7 +2174,11 @@ class DeleteToolDialog {
   #dialog;
   #abortController = new AbortController();
 
-  /** @param {HTMLDialogElement} dialog */
+  /**
+   * Bind the open and close buttons to showModal/close the delete dialog.
+   *
+   * @param {HTMLDialogElement} dialog - The delete-tool confirmation dialog
+   */
   constructor(dialog) {
     this.#dialog = dialog;
     const { signal } = this.#abortController;
@@ -2026,15 +2190,26 @@ class DeleteToolDialog {
       ?.addEventListener('click', () => this.#dialog.close(), { signal });
   }
 
+  /**
+   * Detach the open/close listeners and reset the singleton.
+   */
   destroy() {
     this.#abortController.abort();
     DeleteToolDialog.#instance = null;
   }
 
+  /**
+   * Tear down the singleton in place, leaving the static slot empty.
+   */
   static teardown() {
     DeleteToolDialog.#instance?.destroy();
   }
 
+  /**
+   * Initialize the singleton DeleteToolDialog when the dialog element is present.
+   *
+   * @returns {DeleteToolDialog|null}
+   */
   static init() {
     if (DeleteToolDialog.#instance) return DeleteToolDialog.#instance;
     const dialog = document.getElementById('delete-tool-dialog');

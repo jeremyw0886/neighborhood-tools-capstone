@@ -299,8 +299,9 @@ class PaymentController extends BaseController
                 error_log('processDeposit — forfeit transaction record failed: ' . $txResult['error']);
             }
 
-            $isPartial = bccomp($forfeitAmount, $deposit['amount_sdp'], 2) < 0;
+            $isPartial  = bccomp($forfeitAmount, $deposit['amount_sdp'], 2) < 0;
             $partialMsg = '';
+            $remainder  = '0';
 
             if ($isPartial) {
                 $remainder = bcsub($deposit['amount_sdp'], $forfeitAmount, 2);
@@ -375,6 +376,9 @@ class PaymentController extends BaseController
             $this->jsonResponse(400, ['error' => 'Invalid request.']);
         }
 
+        // Manual CSRF check — validateCsrf() reads $_POST/headers only and
+        // redirects on failure; this XHR endpoint accepts the token from the
+        // JSON body and must respond with a 403 envelope, not a redirect.
         $posted  = $input['csrf_token'] ?? '';
         $session = $_SESSION['csrf_token'] ?? '';
 

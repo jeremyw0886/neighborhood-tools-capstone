@@ -1460,15 +1460,13 @@ class AdminController extends BaseController
         }
 
         if (($_GET['format'] ?? '') === 'json') {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode($results, JSON_THROW_ON_ERROR);
-            exit;
+            $this->jsonResponse(200, $results);
         }
 
         $totalCount = array_sum(array_map('count', $results));
 
         $adminDescription = $term !== ''
-            ? number_format($totalCount) . ' result' . ($totalCount !== 1 ? 's' : '') . " for \u{201C}" . htmlspecialchars($term) . "\u{201D}"
+            ? number_format($totalCount) . ' result' . ($totalCount !== 1 ? 's' : '') . " for \u{201C}" . $term . "\u{201D}"
             : 'Enter a search term to find users, tools, categories, images, disputes, events, incidents, deposits, and neighborhoods.';
 
         $this->renderAdmin('search', [

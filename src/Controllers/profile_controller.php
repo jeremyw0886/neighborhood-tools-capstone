@@ -411,32 +411,28 @@ class ProfileController extends BaseController
     public function repositionImage(): void
     {
         $this->requireAuth();
-        header('Content-Type: application/json');
 
         $ip  = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         $key = $ip . '|profile_image';
         $cfg = (require BASE_PATH . '/config/rate-limit.php')['profile_image'] ?? null;
 
         if ($cfg !== null && RateLimiter::tooManyAttempts($key, $cfg['max_attempts'], $cfg['window_seconds'])) {
-            http_response_code(429);
-            echo json_encode(['error' => 'Too many requests. Please try again later.']);
-            return;
+            $this->jsonResponse(429, ['error' => 'Too many requests. Please try again later.']);
         }
 
         $userId = (int) $_SESSION['user_id'];
 
         $json = json_decode(file_get_contents('php://input'), true);
         if (!is_array($json)) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid request body.']);
-            return;
+            $this->jsonResponse(400, ['error' => 'Invalid request body.']);
         }
 
+        // Manual CSRF check — validateCsrf() reads $_POST/headers only and
+        // redirects on failure; this XHR endpoint accepts the token from the
+        // JSON body and must respond with a 403 envelope, not a redirect.
         $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $json['csrf_token'] ?? '';
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Invalid CSRF token.']);
-            return;
+            $this->jsonResponse(403, ['error' => 'Invalid CSRF token.']);
         }
 
         $focalX = max(0, min(100, (int) ($json['focal_x'] ?? 50)));
@@ -445,9 +441,7 @@ class ProfileController extends BaseController
         try {
             $image = Account::getProfileImage($userId);
             if ($image === null) {
-                http_response_code(404);
-                echo json_encode(['error' => 'No profile image found.']);
-                return;
+                $this->jsonResponse(404, ['error' => 'No profile image found.']);
             }
 
             Account::updateProfileFocalPoint($userId, $focalX, $focalY);
@@ -472,15 +466,14 @@ class ProfileController extends BaseController
             self::refreshNavAvatar();
             RateLimiter::increment($key);
 
-            echo json_encode([
+            $this->jsonResponse(200, [
                 'success' => true,
                 'focal_x' => $focalX,
                 'focal_y' => $focalY,
             ]);
         } catch (\Throwable $e) {
             error_log('ProfileController::repositionImage — ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to reposition image.']);
+            $this->jsonResponse(500, ['error' => 'Failed to reposition image.']);
         }
     }
 

@@ -1,10 +1,22 @@
 'use strict';
 
+// ─── Trusted Types bootstrap ────────────────────────────────────────
+//
+// Trusted Types policies must install synchronously, before any other
+// script touches a DOM sink (innerHTML, script.src, DOMParser, etc.).
+// That ordering rules out the project's normal lazy-init class shape:
+// each policy below is an arrow IIFE that captures its closure-private
+// helpers at parse time and exposes a single function on `window.__nt*`.
+// utils.js re-exports them on the public `NT.*` namespace and deletes
+// the transient globals.
+//
+// DOMPurify must already be loaded — see layouts/main.php for the
+// pre-script-tag include order.
+
 /**
- * Sanitize HTML via DOMPurify.
- * Returns TrustedHTML in browsers with Trusted Types support.
+ * Sanitize HTML via DOMPurify, returning TrustedHTML in browsers with Trusted Types support.
  *
- * @param {string} html
+ * @param {string} html - The untrusted HTML string to sanitize
  * @returns {TrustedHTML|string}
  */
 const ntSanitizeHtml = (() => {
@@ -105,10 +117,9 @@ const ntSanitizeHtml = (() => {
 })();
 
 /**
- * Validate a script URL against the origin allowlist.
- * Returns TrustedScriptURL in browsers with Trusted Types support.
+ * Validate a script URL against the origin allowlist, returning TrustedScriptURL in browsers with Trusted Types support.
  *
- * @param {string} url
+ * @param {string} url - The script URL to validate
  * @returns {TrustedScriptURL|string}
  */
 const ntTrustedScript = (() => {
@@ -178,13 +189,14 @@ if (window.trustedTypes?.createPolicy) {
 
 /**
  * Parse an HTML string into an inert Document via DOMParser.
+ *
  * DOMParser produces a document where scripts never execute, so no
  * sanitization is needed — this policy exists solely to satisfy Chrome's
  * Trusted Types enforcement on DOMParser.parseFromString('text/html').
  * The TrustedHTML value is created and consumed internally; callers
  * receive only the inert Document, never the raw TrustedHTML.
  *
- * @param {string} text
+ * @param {string} text - The HTML string to parse into an inert Document
  * @returns {Document}
  */
 const ntParseHtmlDocument = (() => {

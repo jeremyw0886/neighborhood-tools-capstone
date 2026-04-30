@@ -356,6 +356,7 @@ class MemberCarousel {
   /** @type {MediaQueryList} */
   #reducedMotion;
   #rafPending = false;
+  #cardStride = 0;
   #abortController = new AbortController();
 
   /**
@@ -417,8 +418,12 @@ class MemberCarousel {
   #resetCarousel() {
     requestAnimationFrame(() => {
       const ml = this.#memberList;
+      const first = ml.firstElementChild;
       const clientW = ml.clientWidth;
       const scrollW = ml.scrollWidth;
+      const gap = first ? parseFloat(getComputedStyle(ml).gap) || 0 : 0;
+      const cardW = first ? first.offsetWidth : 0;
+      this.#cardStride = cardW + gap;
       ml.scrollLeft = 0;
       this.#prevBtn.disabled = true;
       this.#nextBtn.disabled = clientW >= scrollW - 1;
@@ -426,12 +431,9 @@ class MemberCarousel {
   }
 
   #scrollByCards(direction) {
-    const first = this.#memberList.firstElementChild;
-    if (!first) return;
-    const gap = parseFloat(getComputedStyle(this.#memberList).gap) || 0;
-    const cardWidth = first.offsetWidth + gap;
+    if (!this.#cardStride) return;
     this.#memberList.scrollBy({
-      left: direction * cardWidth * MemberCarousel.#CARDS_PER_PAGE,
+      left: direction * this.#cardStride * MemberCarousel.#CARDS_PER_PAGE,
       behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',
     });
   }
@@ -486,6 +488,7 @@ class PopularCarousel {
   /** @type {MediaQueryList} */
   #reducedMotion;
   #rafPending = false;
+  #cardStride = 0;
   #abortController = new AbortController();
 
   /**
@@ -544,38 +547,36 @@ class PopularCarousel {
   }
 
   #scrollByCards(direction) {
-    const card = this.#list.querySelector('article');
-    if (!card) return;
-    const gap = parseFloat(getComputedStyle(this.#list).gap) || 0;
-    const cardWidth = card.offsetWidth + gap;
+    if (!this.#cardStride) return;
     this.#list.scrollBy({
-      left: direction * cardWidth * PopularCarousel.#CARDS_PER_PAGE,
+      left: direction * this.#cardStride * PopularCarousel.#CARDS_PER_PAGE,
       behavior: this.#reducedMotion.matches ? 'auto' : 'smooth',
+    });
+  }
+
+  #resetScroll() {
+    requestAnimationFrame(() => {
+      const list = this.#list;
+      const card = list.querySelector('article');
+      const clientW = list.clientWidth;
+      const scrollW = list.scrollWidth;
+      const gap = card ? parseFloat(getComputedStyle(list).gap) || 0 : 0;
+      const cardW = card ? card.offsetWidth : 0;
+      this.#cardStride = cardW + gap;
+      list.scrollLeft = 0;
+      this.#prevBtn.disabled = true;
+      this.#nextBtn.disabled = clientW >= scrollW - 1;
     });
   }
 
   #activate() {
     this.#list.dataset.arrows = '';
-    requestAnimationFrame(() => {
-      const list = this.#list;
-      const clientW = list.clientWidth;
-      const scrollW = list.scrollWidth;
-      list.scrollLeft = 0;
-      this.#prevBtn.disabled = true;
-      this.#nextBtn.disabled = clientW >= scrollW - 1;
-    });
+    this.#resetScroll();
   }
 
   #deactivate() {
     delete this.#list.dataset.arrows;
-    requestAnimationFrame(() => {
-      const list = this.#list;
-      const clientW = list.clientWidth;
-      const scrollW = list.scrollWidth;
-      list.scrollLeft = 0;
-      this.#prevBtn.disabled = true;
-      this.#nextBtn.disabled = clientW >= scrollW - 1;
-    });
+    this.#resetScroll();
   }
 
   #handlePrev = () => this.#scrollByCards(-1);

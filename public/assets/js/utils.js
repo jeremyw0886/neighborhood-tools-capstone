@@ -216,14 +216,13 @@ class StyleManager {
   applyFocalPoints(root = document) {
     const imgs = (root.matches?.('img') ? [root] : root.querySelectorAll('img'));
     for (const img of imgs) {
-      if (!img.id) img.id = `fp-${crypto.randomUUID().slice(0, 8)}`;
-      const key = `fp-${img.id}`;
       const fx = img.dataset.focalX;
       const fy = img.dataset.focalY;
       if (fx && fy) {
-        this.setRule(key, `#${CSS.escape(img.id)}`, `object-position:${fx}% ${fy}%`);
-      } else {
-        this.removeRule(key);
+        if (!img.id) img.id = `fp-${crypto.randomUUID().slice(0, 8)}`;
+        this.setRule(`fp-${img.id}`, `#${CSS.escape(img.id)}`, `object-position:${fx}% ${fy}%`);
+      } else if (img.id && this.#ruleMap.has(`fp-${img.id}`)) {
+        this.removeRule(`fp-${img.id}`);
       }
     }
   }

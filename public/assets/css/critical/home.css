@@ -642,7 +642,7 @@
 
     .home-page > header > section > nav[data-hero] {
       border-radius: 0.9rem;
-      padding: 0.25rem 0.55rem 0;
+      padding: 0.25rem 0.55rem;
     }
 
     .home-page > header > section > div > div:first-child > h1 {

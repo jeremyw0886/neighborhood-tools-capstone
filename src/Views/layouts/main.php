@@ -105,9 +105,6 @@ $flashError      ??= null;
       <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
     <?php endif; ?>
   <?php endforeach; ?>
-  <noscript>
-    <link rel="stylesheet" href="/assets/css/noscript.css">
-  </noscript>
   <style id="nt-dynamic-styles" nonce="<?= CSP_NONCE ?>">
     <?php
     if ($asyncCss) {
@@ -115,6 +112,9 @@ $flashError      ??= null;
     }
     ?>
   </style>
+  <noscript>
+    <link rel="stylesheet" href="/assets/css/noscript.css">
+  </noscript>
 </head>
 
 <body id="top">

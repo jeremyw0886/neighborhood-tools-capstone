@@ -1189,6 +1189,7 @@
     }
 
     .home-page > header > section > nav[data-hero] > #user-actions {
+      justify-content: end;
       padding-right: 0.15rem;
     }
   }
@@ -1202,7 +1203,7 @@
 
     .home-page > header > section > nav[data-hero] {
       border-radius: 0.9rem;
-      padding: 0.25rem 0.55rem 0;
+      padding: 0.25rem 0.55rem;
     }
 
     .home-page > header > section > nav[data-hero] > #top-links {

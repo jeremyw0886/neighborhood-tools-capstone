@@ -51,6 +51,7 @@ $flashError      ??= null;
   <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" as="image" href="/assets/images/logo.svg" type="image/svg+xml" fetchpriority="high">
   <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
   <?php if (!empty($preloadImage)): ?>

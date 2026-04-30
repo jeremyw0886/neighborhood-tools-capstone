@@ -11,10 +11,6 @@ class HamburgerMenu {
   #toggle;
   /** @type {HTMLUListElement} */
   #menu;
-  /** @type {HTMLElement|null} */
-  #authSection;
-  /** @type {HTMLElement|null} */
-  #authMenu;
   /** @type {MediaQueryList} */
   #mobile;
   #releaseTrap = null;
@@ -22,7 +18,7 @@ class HamburgerMenu {
   #abortController = new AbortController();
 
   /**
-   * Cache nav references, build mobile auth items, and bind listeners.
+   * Cache nav references and bind listeners.
    *
    * @param {HTMLButtonElement} toggle - Hamburger toggle button
    * @param {HTMLUListElement} menu - Top-level nav links list
@@ -31,13 +27,8 @@ class HamburgerMenu {
     this.#nav = toggle.closest('nav');
     this.#toggle = toggle;
     this.#menu = menu;
-    this.#authSection = document.getElementById('user-actions');
-    this.#authMenu = document.getElementById('user-actions-menu');
     this.#mobile = window.matchMedia('(max-width: 1024px)');
 
-    this.#nav.classList.add('js-nav');
-
-    if (this.#mobile.matches) this.#buildMobileAuthItems();
     this.#syncMenuInteractivity();
 
     this.#bind();
@@ -178,84 +169,6 @@ class HamburgerMenu {
     if (returnFocus) this.#toggle.focus();
   }
 
-  #buildMobileAuthItems() {
-    if (this.#menu.querySelector('[data-mobile-auth]')) return;
-
-    const addLi = () => {
-      const li = document.createElement('li');
-      li.dataset.mobileAuth = '';
-      this.#menu.appendChild(li);
-      return li;
-    };
-
-    const sep = addLi();
-    sep.dataset.separator = '';
-    sep.setAttribute('aria-hidden', 'true');
-
-    if (!this.#authSection) return;
-
-    const toggleBtn = document.getElementById('user-actions-toggle');
-    if (toggleBtn) {
-      const span = document.createElement('span');
-      for (const node of toggleBtn.childNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE &&
-            node.classList?.contains('fa-chevron-down')) continue;
-        span.appendChild(node.cloneNode(true));
-      }
-      addLi().appendChild(span);
-    }
-
-    const loginLink = this.#authSection.querySelector(':scope > a[role="button"]');
-    if (loginLink) {
-      const a = loginLink.cloneNode(true);
-      a.removeAttribute('role');
-      addLi().appendChild(a);
-    }
-
-    const signUpLink = this.#authSection.querySelector(':scope > a[href="/register"]');
-    if (signUpLink) {
-      addLi().appendChild(signUpLink.cloneNode(true));
-    }
-
-    if (this.#authMenu) {
-      for (const item of [...this.#authMenu.children]) {
-        const clone = item.cloneNode(true);
-        clone.dataset.mobileAuth = '';
-        clone.removeAttribute('role');
-        this.#menu.appendChild(clone);
-      }
-    }
-
-    const bellLink = this.#authSection.querySelector('#bell-wrapper > a[href="/notifications"]');
-    if (bellLink) {
-      const a = document.createElement('a');
-      a.href = '/notifications';
-
-      const icon = document.createElement('i');
-      icon.className = 'fa-solid fa-bell';
-      icon.setAttribute('aria-hidden', 'true');
-      a.appendChild(icon);
-
-      const badge = bellLink.querySelector('span');
-      const count = badge?.textContent.trim();
-      a.append(count ? ` Notifications (${count})` : ' Notifications');
-
-      const li = document.createElement('li');
-      li.dataset.mobileAuth = '';
-      li.appendChild(a);
-
-      const allAuth = this.#menu.querySelectorAll('[data-mobile-auth]');
-      const last = allAuth[allAuth.length - 1];
-      this.#menu.insertBefore(li, last);
-    }
-  }
-
-  #removeMobileAuthItems() {
-    for (const el of this.#menu.querySelectorAll('[data-mobile-auth]')) {
-      el.remove();
-    }
-  }
-
   #handleToggleClick = () => {
     this.#isOpen() ? this.#close() : this.#open();
   };
@@ -275,13 +188,7 @@ class HamburgerMenu {
   };
 
   #handleViewportChange = (e) => {
-    if (e.matches) {
-      this.#buildMobileAuthItems();
-    } else {
-      this.#removeMobileAuthItems();
-      if (this.#isOpen()) this.#close(false);
-    }
-
+    if (!e.matches && this.#isOpen()) this.#close(false);
     this.#syncMenuInteractivity();
   };
 }

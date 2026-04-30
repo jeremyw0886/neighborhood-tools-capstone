@@ -47,9 +47,7 @@ class CounterAnimation {
     if (CounterAnimation.#instance) return CounterAnimation.#instance;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
 
-    const list = document.querySelector(
-      '.home-page > header > section > div > ul[aria-label="Platform highlights"]'
-    );
+    const list = document.querySelector('ul[aria-label="Platform highlights"]');
     if (!list) return null;
 
     const counters = list.querySelectorAll('strong[data-target]');
@@ -259,7 +257,6 @@ class LocationToggle {
     this.#links = toggle.querySelectorAll('a[data-city]');
     this.#lastLink = this.#links[this.#links.length - 1];
 
-    toggle.removeAttribute('hidden');
     toggle.dataset.active = toggle.querySelector('a:last-child[aria-current="true"]') ? 'end' : 'start';
 
     const { signal } = this.#abortController;
@@ -346,6 +343,8 @@ class MemberCarousel {
   static #CARDS_PER_PAGE = 3;
 
   /** @type {HTMLElement} */
+  #carousel;
+  /** @type {HTMLElement} */
   #memberList;
   /** @type {HTMLButtonElement} */
   #prevBtn;
@@ -366,6 +365,7 @@ class MemberCarousel {
    * @param {HTMLElement} memberList - The scrollable member list element
    */
   constructor(carousel, memberList) {
+    this.#carousel = carousel;
     this.#memberList = memberList;
     this.#prevBtn = carousel.querySelector('button[data-dir="prev"]');
     this.#nextBtn = carousel.querySelector('button[data-dir="next"]');
@@ -439,12 +439,12 @@ class MemberCarousel {
   }
 
   #activate() {
-    this.#memberList.dataset.arrows = '';
+    this.#carousel.dataset.arrows = '';
     this.#resetCarousel();
   }
 
   #deactivate() {
-    delete this.#memberList.dataset.arrows;
+    delete this.#carousel.dataset.arrows;
     this.#resetCarousel();
   }
 
@@ -478,6 +478,8 @@ class PopularCarousel {
   static #CARDS_PER_PAGE = 3;
 
   /** @type {HTMLElement} */
+  #carousel;
+  /** @type {HTMLElement} */
   #list;
   /** @type {HTMLButtonElement} */
   #prevBtn;
@@ -498,6 +500,7 @@ class PopularCarousel {
    * @param {HTMLElement} list - The scrollable popular-tools list element
    */
   constructor(carousel, list) {
+    this.#carousel = carousel;
     this.#list = list;
     this.#prevBtn = carousel.querySelector('button[data-dir="prev"]');
     this.#nextBtn = carousel.querySelector('button[data-dir="next"]');
@@ -570,12 +573,12 @@ class PopularCarousel {
   }
 
   #activate() {
-    this.#list.dataset.arrows = '';
+    this.#carousel.dataset.arrows = '';
     this.#resetScroll();
   }
 
   #deactivate() {
-    delete this.#list.dataset.arrows;
+    delete this.#carousel.dataset.arrows;
     this.#resetScroll();
   }
 

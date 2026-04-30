@@ -8,6 +8,11 @@
     position: static;
   }
 
+  #popular-carousel > button,
+  #member-carousel > button {
+    display: none;
+  }
+
   @media (max-width: 1024px) {
     nav[aria-label="Main navigation"]>#top-links {
       opacity: 1;

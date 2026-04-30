@@ -552,16 +552,13 @@
     border-radius: 50%;
     color: #fff;
     cursor: pointer;
+    display: flex;
     flex-shrink: 0;
     height: 44px;
     justify-content: center;
     padding: 0;
     transition: background-color 0.2s ease, opacity 0.2s ease;
     width: 44px;
-  }
-
-  #member-carousel > button {
-    display: flex;
   }
 
   #member-carousel > button:hover {
@@ -590,7 +587,7 @@
     scrollbar-width: thin;
   }
 
-  #member-list[data-arrows] {
+  #member-carousel[data-arrows] > #member-list {
     scrollbar-width: none;
   }
 
@@ -727,16 +724,13 @@
     border-radius: 50%;
     color: #fff;
     cursor: pointer;
+    display: flex;
     flex-shrink: 0;
     height: 44px;
     justify-content: center;
     padding: 0;
     transition: background-color 0.2s ease, opacity 0.2s ease;
     width: 44px;
-  }
-
-  #popular-carousel > button {
-    display: flex;
   }
 
   #popular-carousel > button:hover {
@@ -767,7 +761,7 @@
     scrollbar-width: thin;
   }
 
-  #popular-list[data-arrows] {
+  #popular-carousel[data-arrows] > #popular-list {
     scroll-snap-type: none;
     scrollbar-width: none;
   }

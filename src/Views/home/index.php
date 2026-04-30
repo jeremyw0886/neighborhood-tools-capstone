@@ -100,7 +100,7 @@ $platformStats    ??= ['totalMembers' => 0, 'activeMembers' => 0, 'availableTool
         <h2 id="members-heading"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Members Near You</h2>
       <?php endif; ?>
 
-      <nav aria-label="Filter by city" id="location-toggle" hidden>
+      <nav aria-label="Filter by city" id="location-toggle">
         <a href="/?location=Asheville" data-city="Asheville"
            <?= strcasecmp($selectedCity, 'Asheville') === 0 ? 'aria-current="true"' : '' ?>>
           <i class="fa-solid fa-mountain" aria-hidden="true"></i> Asheville

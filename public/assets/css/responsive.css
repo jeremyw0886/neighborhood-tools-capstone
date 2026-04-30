@@ -119,8 +119,11 @@
 
     #user-actions-toggle,
     #user-actions-menu,
-    nav[aria-label="Main navigation"]>#user-actions>a[href="/register"],
-    nav[aria-label="Main navigation"]>#user-actions>a[role="button"] {
+    nav[aria-label="Main navigation"]>#user-actions>a[href="/register"] {
+      display: none;
+    }
+
+    nav[aria-label="Main navigation"]>#top-links>[data-mobile-auth]:has(a[href="/login"]) {
       display: none;
     }
 

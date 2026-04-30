@@ -93,9 +93,6 @@ $flashError      ??= null;
     <link rel="preload" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>" as="style">
     <link rel="stylesheet" href="/assets/css/style.min.css?v=<?= ASSET_VERSION ?>">
   <?php endif; ?>
-  <noscript>
-    <link rel="stylesheet" href="/assets/css/noscript.css">
-  </noscript>
   <?php foreach ($pageCss ?? [] as $cssFile): ?>
     <?php $cssHref = ($_ENV['APP_ENV'] ?? 'production') === 'development' ? $cssFile : str_replace('.css', '.min.css', $cssFile); ?>
     <?php if ($asyncCss): ?>
@@ -108,6 +105,9 @@ $flashError      ??= null;
       <link rel="stylesheet" href="/assets/css/<?= htmlspecialchars($cssHref) ?>?v=<?= ASSET_VERSION ?>">
     <?php endif; ?>
   <?php endforeach; ?>
+  <noscript>
+    <link rel="stylesheet" href="/assets/css/noscript.css">
+  </noscript>
   <style id="nt-dynamic-styles" nonce="<?= CSP_NONCE ?>">
     <?php
     if ($asyncCss) {

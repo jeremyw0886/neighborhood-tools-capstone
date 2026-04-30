@@ -3,9 +3,11 @@
     opacity: 1;
   }
 
-  #user-actions-menu[hidden] {
-    display: flex;
-    position: static;
+  @media (min-width: 1025px) {
+    #user-actions-menu[hidden] {
+      display: flex;
+      position: static;
+    }
   }
 
   #popular-carousel > button,
@@ -15,22 +17,22 @@
 
   @media (max-width: 1024px) {
     nav[aria-label="Main navigation"]>#top-links {
+      left: 0;
+      max-height: none;
       opacity: 1;
+      overflow-y: visible;
       pointer-events: auto;
       position: static;
+      top: auto;
       transform: none;
+      transition: none;
       visibility: visible;
-      width: auto;
+      width: 100%;
+      z-index: auto;
     }
 
     nav[aria-label="Main navigation"]>#mobile-menu-toggle {
       display: none;
-    }
-
-    #user-actions-toggle,
-    #user-actions-menu,
-    #user-actions>a[href="/register"] {
-      display: revert;
     }
   }
 }
